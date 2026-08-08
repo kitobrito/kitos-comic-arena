@@ -18,6 +18,7 @@ const paragraphs = [
     'We are sorry that Comic Arena was unavailable during the past week. Thank you for your patience while we restored the game and its database. We know the shutdown interrupted matches, missions, and time with your accounts, and we appreciate everyone who waited for the Arena to return.',
     'Primeape is joining Pokemon Arena with no character-unlock mission. Rock Smash tears down Barrier and Shield, Knock Off removes helpful effects, Rage Fist grows stronger as Primeape loses HP, and Close Combat delivers heavy Piercing damage. Anger Point gives Primeape 20 additional damage after a Super Effective skill or Critical Hit lands on him.',
     'For the first seven days of the release, win 20 Quick or Ladder games with Primeape to unlock his Annihilape evolution skin. The mission accepts wins against players or bots. When the seven-day event ends, Annihilape moves to the Skin Shop for 750 unlock points.',
+    'Five more Kanto evolution skins are now joining the Skin Shop for 750 unlock points each: Mega Venusaur, Gigantamax Venusaur, Mega Blastoise, Gigantamax Blastoise, and Gigantamax Charizard. Each begins battle with its normal Venusaur, Blastoise, or Charizard artwork, then changes to the selected Mega or Gigantamax portrait and skill art when the Pokemon evolves. The existing Mega Charizard X and Y skin is also now 750 points.',
 ];
 
 const changes = (primeape?.skills || []).map((skill) => ({
@@ -44,6 +45,105 @@ changes.push({
     facePicture: primeape?.facePicture || '',
     skillName: 'Annihilape Evolution Mission',
     text: 'For seven days, win 20 Quick or Ladder games with Primeape to unlock Annihilape. After the event, the skin costs 750 unlock points.',
+});
+
+const primeapeSkinPreview = [
+    {
+        skillName: 'Primeape New-UI Render',
+        skillimage: 'assets/images/selection-featured/PokemonArena/BIB/primeape.jpg.webp?v=transparent-renders-v1',
+        text: 'Primeape enters the new selection UI with a clean transparent render.',
+    },
+    {
+        skillName: 'Annihilape Evolution Render',
+        skillimage: 'assets/images/selection-featured/PokemonArena/BIB/annihilape.jpg.webp?v=transparent-renders-v1',
+        text: 'This is the Annihilape evolution render awarded by the seven-day Primeape mission.',
+    },
+    {
+        skillName: 'Annihilape Portrait',
+        skillimage: 'assets/images/PokemonArena/Primeape/skins/annihilape/Annihilape-FP.jpg',
+        text: 'Annihilape replaces Primeape\'s portrait after the evolution skin is equipped.',
+    },
+    {
+        skillName: 'Annihilape Rock Smash',
+        skillimage: 'assets/images/PokemonArena/Primeape/skins/annihilape/Rock-Smash.jpg',
+        text: 'The Annihilape skin includes custom Rock Smash artwork.',
+    },
+    {
+        skillName: 'Annihilape Knock Off',
+        skillimage: 'assets/images/PokemonArena/Primeape/skins/annihilape/Knock-Off.jpg',
+        text: 'The Annihilape skin includes custom Knock Off artwork.',
+    },
+    {
+        skillName: 'Annihilape Rage Fist',
+        skillimage: 'assets/images/PokemonArena/Primeape/skins/annihilape/Rage-Fist.jpg',
+        text: 'The Annihilape skin includes custom Rage Fist artwork.',
+    },
+    {
+        skillName: 'Annihilape Close Combat',
+        skillimage: 'assets/images/PokemonArena/Primeape/skins/annihilape/Close-Combat.jpg',
+        text: 'The Annihilape skin includes custom Close Combat artwork.',
+    },
+    {
+        skillName: 'Annihilape Anger Point',
+        skillimage: 'assets/images/PokemonArena/Primeape/skins/annihilape/Anger-Point.jpg',
+        text: 'The Annihilape skin includes custom Anger Point artwork.',
+    },
+];
+
+primeapeSkinPreview.forEach((preview) => {
+    changes.push({
+        groupKey: 'pokemon-skin-preview:annihilape',
+        groupName: 'Primeape and Annihilape Skin Preview',
+        collapsible: true,
+        changeType: 'new',
+        characterId: 'primeape',
+        characterName: 'Primeape / Annihilape',
+        facePicture: 'assets/images/PokemonArena/Primeape/skins/annihilape/Annihilape-FP.jpg',
+        ...preview,
+    });
+});
+
+[
+    {
+        characterId: 'bulbasaur',
+        characterName: 'Mega Venusaur',
+        skillimage: 'assets/images/PokemonArena/Bulbasaur/skins/mega/megafp.png',
+        text: 'Starts as Venusaur, then changes to Mega Venusaur after evolving. Costs 750 unlock points.',
+    },
+    {
+        characterId: 'bulbasaur',
+        characterName: 'Gigantamax Venusaur',
+        skillimage: 'assets/images/PokemonArena/Bulbasaur/skins/gigantamax/fp.png',
+        text: 'Starts as Venusaur, then changes to Gigantamax Venusaur after evolving. Costs 750 unlock points.',
+    },
+    {
+        characterId: 'squirtle',
+        characterName: 'Mega Blastoise',
+        skillimage: 'assets/images/PokemonArena/squirtle/skins/mega/megafp.png',
+        text: 'Starts as Blastoise, then changes to Mega Blastoise after evolving. Costs 750 unlock points.',
+    },
+    {
+        characterId: 'squirtle',
+        characterName: 'Gigantamax Blastoise',
+        skillimage: 'assets/images/PokemonArena/squirtle/skins/gigantamax/fp.png',
+        text: 'Starts as Blastoise, then changes to Gigantamax Blastoise after evolving. Costs 750 unlock points.',
+    },
+    {
+        characterId: 'charmander',
+        characterName: 'Gigantamax Charizard',
+        skillimage: 'assets/images/PokemonArena/Charmander/skins/gigantamax/fp.png',
+        text: 'Starts as Charizard, then changes to Gigantamax Charizard after evolving. Costs 750 unlock points.',
+    },
+].forEach((preview) => {
+    changes.push({
+        groupKey: 'pokemon-skin-release:kanto-evolutions',
+        groupName: 'Kanto Mega and Gigantamax Skins',
+        collapsible: true,
+        changeType: 'new',
+        facePicture: preview.skillimage,
+        skillName: '750-Point Evolution Skin',
+        ...preview,
+    });
 });
 
 const newsPost = {

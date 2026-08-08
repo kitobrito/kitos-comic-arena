@@ -99,7 +99,7 @@ test('evolution and Mega renders can be toggled and skills select the matching f
     )));
     assert.match(
         selectionSource,
-        /renderSelectionCharacterForm\(character, button\.dataset\.characterForm \|\| 'base'\);/
+        /renderSelectionSkillStrip\(character, form\);/
     );
 });
 
@@ -108,7 +108,10 @@ test('every supplied equipped-skin showcase render is mapped and optimized', () 
     const expectedFilenames = [
         'annihilape.jpg.webp',
         'bayleaf.png.webp',
+        'blastoise.png.webp',
+        'blastoise.png.webp',
         'blsmuthonix.png.webp',
+        'charizard.png.webp',
         'charizard.png.webp',
         'cosmiconixfixed.png.webp',
         'croconaw.webp.webp',
@@ -117,9 +120,14 @@ test('every supplied equipped-skin showcase render is mapped and optimized', () 
         'flubberditto.webp',
         'goldmagikarp.png.webp',
         'goldonix.png.webp',
+        'gigantamaxblastoise.png.webp',
+        'gigantamaxcharizard.png.webp',
+        'gigantamaxvenusaur.webp',
         'magmaonix-removebg-preview.png.webp',
+        'megablastoise.png.webp',
         'megacharizardx.png.webp',
         'megacharizardy.png.webp',
+        'megavenusaur.webp',
         'meganium.png.webp',
         'pinkbutterfree.png.webp',
         'quilava.png.webp',
@@ -127,6 +135,8 @@ test('every supplied equipped-skin showcase render is mapped and optimized', () 
         'redgyarados.png.webp',
         'shinyditto.webp',
         'typhlosion.png.webp',
+        'venusaur.webp',
+        'venusaur.webp',
     ].sort();
     const selectionSource = fs.readFileSync(path.join(root, 'scripts', 'script.js'), 'utf8');
     assert.match(selectionHtml, /onix-renders-v2/);

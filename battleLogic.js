@@ -356,6 +356,8 @@ const buildInitialBoard = (players = [], characters = defaultCharacters) => {
                         infiniteDuration: true,
                         unremovable: true,
                         pokemonTypeOverride: skinTypeOverride,
+                        forcePokemonTypeOverride:
+                            equippedSkinId === 'charmander-gigantamax-charizard',
                         hideTooltip: true,
                     },
                     fresh: false,
