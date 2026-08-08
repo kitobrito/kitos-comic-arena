@@ -352,7 +352,7 @@ test('wave-two evolutions are exposed to both Pokemon roster viewers, including 
 test('Pokemon roster presentation is Trainer first and then National Pokedex order', () => {
     const expected = [
         'pokemon-trainer','bulbasaur','charmander','squirtle','butterfree','beedrill','pidgey','ekans',
-        'pikachu','clefairy','jigglypuff','zubat','meowth','abra','machop','magnemite','gastly','onix',
+        'pikachu','clefairy','jigglypuff','zubat','meowth','abra','machop','primeape','magnemite','gastly','onix',
         'krabby','hitmonlee','hitmonchan','koffing','chansey','mr-mime','scyther','magikarp','ditto',
         'eevee','vaporeon','jolteon','flareon','aerodactyl','articuno','zapdos','moltres','dragonite',
         'mewtwo','mew','chikorita','cyndaquil','totodile','nincada','scraggy','aegislash','dragapult',

@@ -1322,6 +1322,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         onix: 'ONIX.png.webp',
         pidgey: 'Pidgey.webp.webp',
         pikachu: 'PIKACHU.png.webp',
+        primeape: 'primeape.jpg.webp',
         'pokemon-trainer': 'POKEMONTRAINER.png.webp',
         scraggy: 'scraggy.png.webp',
         scyther: 'SCYTHER.png.webp',
@@ -1407,6 +1408,9 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             { id: 'base', label: 'Charizard', name: 'Charizard', filename: 'charizard.png.webp' },
             { id: 'mega-x', label: 'Mega X', name: 'Mega Charizard X', filename: 'megacharizardx.png.webp' },
             { id: 'mega-y', label: 'Mega Y', name: 'Mega Charizard Y', filename: 'megacharizardy.png.webp' },
+        ],
+        'primeape-annihilape-evolution': [
+            { id: 'base', label: 'Evolution', name: 'Annihilape', filename: 'annihilape.jpg.webp' },
         ],
     });
     const getSelectionRenderSource = (filename = '') =>
@@ -16259,6 +16263,14 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             const characterLabel = baseCharacter?.name || characterId || 'this Pokemon';
             const isUnlocked = unlockedSkinIds.has(skinId);
             const isEquipped = equippedSkinByCharacterId[characterId] === skinId;
+            const purchaseAvailable = skin.purchaseAvailable !== false;
+            const purchaseAvailableAt = skin.purchaseAvailableAt
+                ? new Date(skin.purchaseAvailableAt)
+                : null;
+            const purchaseAvailableLabel =
+                purchaseAvailableAt && !Number.isNaN(purchaseAvailableAt.getTime())
+                    ? purchaseAvailableAt.toLocaleString()
+                    : '';
             const card = document.createElement('article');
             card.className = 'selection-mission-card selection-skin-card';
 
@@ -16290,6 +16302,8 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 ? 'Equipped on your Pokemon.'
                 : isUnlocked
                     ? 'Unlocked. You can equip this look at any time.'
+                    : !purchaseAvailable
+                        ? `Earn this skin from the active Primeape mission. It enters the shop for 750 points on ${purchaseAvailableLabel}.`
                     : `Costs ${Math.max(1, Number(skin.unlockPointCost) || DEFAULT_UNLOCK_POINT_COST).toLocaleString()} unlock points.`;
             card.appendChild(progressText);
 
@@ -16298,6 +16312,8 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             const actionLabel = document.createElement('span');
             actionLabel.textContent = isUnlocked
                 ? `Applies to ${characterLabel}.`
+                : !purchaseAvailable
+                    ? 'Win 20 games with Primeape before the event ends.'
                 : `Buy for ${Math.max(1, Number(skin.unlockPointCost) || DEFAULT_UNLOCK_POINT_COST).toLocaleString()} unlock points.`;
             const actionButton = document.createElement('button');
             actionButton.type = 'button';
@@ -16308,11 +16324,15 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                     Number(getArenaLadder(profileCache?.profile, activeArenaMode)?.unlockPoints) || 0
                 );
                 const cost = Math.max(1, Number(skin.unlockPointCost) || DEFAULT_UNLOCK_POINT_COST);
-                actionButton.textContent = unlockPoints >= cost ? 'Buy Skin' : 'Need Points';
-                actionButton.disabled = unlockPoints < cost;
-                actionButton.addEventListener('click', () => {
-                    unlockSelectionSkin(skinId, actionButton);
-                });
+                actionButton.textContent = purchaseAvailable
+                    ? unlockPoints >= cost ? 'Buy Skin' : 'Need Points'
+                    : 'Mission Active';
+                actionButton.disabled = !purchaseAvailable || unlockPoints < cost;
+                if (purchaseAvailable) {
+                    actionButton.addEventListener('click', () => {
+                        unlockSelectionSkin(skinId, actionButton);
+                    });
+                }
             } else if (isEquipped) {
                 actionButton.textContent = 'Use Default';
                 actionButton.addEventListener('click', () => {
@@ -17554,6 +17574,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         'meowth',
         'abra',
         'machop',
+        'primeape',
         'magnemite',
         'gastly',
         'onix',
