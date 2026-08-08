@@ -2982,7 +2982,7 @@ const POKEMON_SKIN_CATALOG = [
         name: 'Charizard',
         description:
             'A legendary Charizard skin for Charmander that branches into Mega Charizard X if Seismic Toss activates the evolution or Mega Charizard Y if Flamethrower or Fire Blast activates the evolution.',
-        unlockPointCost: 750,
+        unlockPointCost: 1350,
         previewFacePicture: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardfp.jpg',
         patch: {
             name: 'Charizard',
@@ -3127,7 +3127,7 @@ const POKEMON_SKIN_CATALOG = [
         evolvedFormName: 'Gigantamax Venusaur',
         replacedFormNames: ['Bulbasaur', 'Ivysaur'],
         baseFacePicture: 'assets/images/PokemonArena/Bulbasaur/skins/venusaur/fp.png',
-        evolvedFacePicture: 'assets/images/PokemonArena/Bulbasaur/skins/gigantamax/fp.png',
+        evolvedFacePicture: 'assets/images/PokemonArena/Bulbasaur/skins/gigantamax/fp-2026-08.jpg',
         pokemonTypes: ['Grass', 'Poison'],
         baseSkillImagesBySkillId: {
             'bulbasaur-leech-seed': 'assets/images/PokemonArena/Bulbasaur/skins/venusaur/skill1.png',
@@ -3187,7 +3187,7 @@ const POKEMON_SKIN_CATALOG = [
         evolvedFormName: 'Gigantamax Blastoise',
         replacedFormNames: ['Squirtle', 'Wartortle'],
         baseFacePicture: 'assets/images/PokemonArena/Squirtle/skins/blastoise/fp.png',
-        evolvedFacePicture: 'assets/images/PokemonArena/Squirtle/skins/gigantamax/fp.png',
+        evolvedFacePicture: 'assets/images/PokemonArena/Squirtle/skins/gigantamax/fp-2026-08.jpg',
         pokemonTypes: ['Water'],
         baseSkillImagesBySkillId: {
             'squirtle-water-gun': 'assets/images/PokemonArena/Squirtle/skins/blastoise/skill1.png',
@@ -3217,7 +3217,7 @@ const POKEMON_SKIN_CATALOG = [
         evolvedFormName: 'Gigantamax Charizard',
         replacedFormNames: ['Charmander', 'Charmeleon', 'Mega Charizard X', 'Mega Charizard Y'],
         baseFacePicture: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardfp.jpg',
-        evolvedFacePicture: 'assets/images/PokemonArena/Charmander/skins/gigantamax/fp.png',
+        evolvedFacePicture: 'assets/images/PokemonArena/Charmander/skins/gigantamax/fp-2026-08.jpg',
         pokemonTypes: ['Fire', 'Flying'],
         baseSkillImagesBySkillId: {
             'charmander-ember': 'assets/images/PokemonArena/Charmander/skins/charizard/charizardskill1.webp',
