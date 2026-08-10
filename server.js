@@ -8672,6 +8672,13 @@ const resolveNewsChangeAssets = (entry = {}) => {
     };
 };
 
+const correctCanonicalNewsChangeText = (entry = {}, text = '') => {
+    if (entry?.skillId !== 'pidgey-passive-evolution-pidgeotto') return text;
+    return text
+        .replace(/Pidgey has dealt 100 total damage/g, 'Pidgey has dealt 50 total damage')
+        .replace(/At 100 damage/g, 'At 50 damage');
+};
+
 const normalizeNewsChanges = (value) =>
     (Array.isArray(value) ? value : [])
         .map((entry) => {
@@ -8682,7 +8689,10 @@ const normalizeNewsChanges = (value) =>
             if (!entry || typeof entry !== 'object') {
                 return null;
             }
-            const text = typeof entry.text === 'string' ? entry.text.trim() : '';
+            const text = correctCanonicalNewsChangeText(
+                entry,
+                typeof entry.text === 'string' ? entry.text.trim() : ''
+            );
             if (!text) {
                 return null;
             }
@@ -18697,6 +18707,7 @@ if (require.main === module) {
     module.exports = {
         app,
         normalizeArenaMode,
+        correctCanonicalNewsChangeText,
         applyRequiredCanonicalSkillCorrections,
         adjustRandomAssignments,
         createEmptyChakraPool,

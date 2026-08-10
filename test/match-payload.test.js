@@ -4,6 +4,7 @@ const characters = require('../characters.js');
 
 const {
     normalizeArenaMode,
+    correctCanonicalNewsChangeText,
     applyRequiredCanonicalSkillCorrections,
     makeEmptyPendingTurn,
     sanitizeSavedTeamIndicesForArena,
@@ -18,6 +19,24 @@ const {
     isRepeatLadderSurrenderer,
     resolveExpiredTurnStartChoiceIfNeeded,
 } = require('../server.js');
+
+test('old Pidgey news text is served with the canonical 50 damage threshold', () => {
+    const corrected = correctCanonicalNewsChangeText(
+        { skillId: 'pidgey-passive-evolution-pidgeotto' },
+        'Evolution triggers after Pidgey has dealt 100 total damage. At 100 damage, Pidgey evolves.'
+    );
+    assert.equal(
+        corrected,
+        'Evolution triggers after Pidgey has dealt 50 total damage. At 50 damage, Pidgey evolves.'
+    );
+    assert.equal(
+        correctCanonicalNewsChangeText(
+            { skillId: 'unrelated-skill' },
+            'This unrelated skill mentions 100 total damage.'
+        ),
+        'This unrelated skill mentions 100 total damage.'
+    );
+});
 
 test('a rejected queued-skill replacement does not mutate the live energy pool', () => {
     const rosterIndex = characters.findIndex((character) =>
