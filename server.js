@@ -15434,11 +15434,27 @@ app.post('/api/match/:matchId/skill/targets', requireSession, async (req, res) =
         return res.status(400).json({ error: 'Skill target could not be resolved.' });
     }
 
+    const damagePreviews = battleLogic.computeTargetDamagePreviews({
+        match: hydrated,
+        actingUsername: username,
+        actorSlot,
+        skillIndex,
+        characters: charactersData,
+        targets: options.targets,
+    });
+
     return res.json({
         ok: true,
         targetType: options.targetType,
         mode: options.mode,
-        targets: options.targets,
+        targets: options.targets.map((target) => ({
+            ...target,
+            damagePreview:
+                damagePreviews.find(
+                    (preview) =>
+                        preview?.username === target.username && Number(preview?.slot) === Number(target.slot)
+                ) || null,
+        })),
         currentTurn: hydrated.currentTurn,
         turnExpiresAt: hydrated.turnExpiresAt,
         pendingTurn: getPendingTurn(hydrated, username),

@@ -5427,7 +5427,11 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         const clearTargetHighlights = () => {
             lastTargetHighlightSignature = '';
             clearQueuedSkillTapReorderState();
-            document.querySelectorAll('.target-overlay, .target-lock-marker, .blind-potential-skill-icon').forEach((el) => el.remove());
+            document
+                .querySelectorAll(
+                    '.target-overlay, .target-lock-marker, .blind-potential-skill-icon, .target-damage-preview'
+                )
+                .forEach((el) => el.remove());
             [...playerCards, ...enemyCards].forEach((card) => {
                 card?.classList.remove('targetable', 'target-invalid', 'blind-random-target');
             });
@@ -5516,6 +5520,9 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                         slot: Number.parseInt(target?.slot, 10),
                         valid: target?.valid !== false,
                         reason: target?.reason || '',
+                        damage: target?.damagePreview?.totalDamage ?? null,
+                        damageAvailable: target?.damagePreview?.available === true,
+                        effectivenessModifier: target?.damagePreview?.effectivenessModifier ?? 0,
                     })),
                 })
                 : '';
@@ -5607,6 +5614,41 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 const lock = document.createElement('div');
                 lock.className = `target-lock-marker${blindedCast ? ' blind-random-target' : ''}`;
                 face.parentElement?.appendChild(lock);
+                const preview = target?.damagePreview;
+                if (preview && (preview.available || preview.variable || preview.effectivenessModifier)) {
+                    const tooltip = document.createElement('div');
+                    tooltip.className = 'target-damage-preview';
+                    tooltip.setAttribute('role', 'tooltip');
+
+                    const damageLine = document.createElement('strong');
+                    damageLine.className = 'target-damage-preview-total';
+                    damageLine.textContent = preview.available
+                        ? `${preview.variable ? 'Up to ' : ''}${preview.totalDamage} damage`
+                        : 'Damage varies';
+                    tooltip.appendChild(damageLine);
+
+                    const defendingTypes = Array.isArray(preview.defendingTypes)
+                        ? preview.defendingTypes.filter(Boolean)
+                        : [];
+                    if (preview.moveType && defendingTypes.length) {
+                        const typeLine = document.createElement('span');
+                        typeLine.textContent = `${preview.moveType} → ${defendingTypes.join(' / ')}`;
+                        tooltip.appendChild(typeLine);
+                    }
+                    if (preview.effectivenessLabel && Number(preview.effectivenessModifier)) {
+                        const effectivenessLine = document.createElement('span');
+                        const modifier = Number(preview.effectivenessModifier);
+                        effectivenessLine.className = modifier > 0 ? 'is-effective' : 'is-resisted';
+                        effectivenessLine.textContent = `${preview.effectivenessLabel} (${modifier > 0 ? '+' : ''}${modifier})`;
+                        tooltip.appendChild(effectivenessLine);
+                    } else if (preview.moveType && defendingTypes.length) {
+                        const neutralLine = document.createElement('span');
+                        neutralLine.className = 'is-neutral';
+                        neutralLine.textContent = 'Neutral damage';
+                        tooltip.appendChild(neutralLine);
+                    }
+                    card.appendChild(tooltip);
+                }
             });
             if (blindedCast) {
                 getAliveBlindPotentialTargets().forEach((target) => {
@@ -13859,7 +13901,14 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                     options?.mode || '',
                     ...(Array.isArray(options?.targets)
                         ? options.targets.map((target) =>
-                              [target?.username || '', Number(target?.slot), target?.alive === false ? 0 : 1].join(':')
+                              [
+                                  target?.username || '',
+                                  Number(target?.slot),
+                                  target?.alive === false ? 0 : 1,
+                                  target?.damagePreview?.totalDamage ?? '',
+                                  target?.damagePreview?.available === true ? 1 : 0,
+                                  target?.damagePreview?.effectivenessModifier ?? 0,
+                              ].join(':')
                           )
                         : []),
                 ].join('|');

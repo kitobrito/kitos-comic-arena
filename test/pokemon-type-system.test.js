@@ -13,6 +13,7 @@ const {
 } = require('../pokemonTypeSystem');
 const {
     buildInitialBoard,
+    computeTargetDamagePreviews,
     processTurnStartStatusEffects,
     resolvePendingTurnSkills,
     tickStatusesForTurnEnd,
@@ -115,6 +116,71 @@ test('type effectiveness applies once per target across immediate multi-packet d
 
     assert.equal(match.board.Gary[0].hp, 75);
     assert.equal(match.board.Gary[0].state.pokemonTypeEffectivenessEvent.modifier, 5);
+});
+
+test('target damage previews match multi-packet type bonuses and resistance floors', () => {
+    const attack = {
+        id: 'test-fire-preview',
+        name: 'Preview Flame',
+        target: 'single-enemy',
+        energy: [],
+        cooldown: 0,
+        classes: ['Fire', 'Special', 'Instant'],
+        effects: [
+            { type: 'damage', amount: 10, scope: 'target' },
+            { type: 'damage', amount: 10, scope: 'target', metadata: { ignoreDamageReduction: true } },
+        ],
+    };
+    const roster = [
+        makePokemon('attacker', ['Fire'], [attack]),
+        makePokemon('grass-target', ['Grass']),
+        makePokemon('water-dragon-target', ['Water', 'Dragon']),
+    ];
+    const match = makeMatch(roster, { Ash: [0], Gary: [1, 2] });
+    const previews = computeTargetDamagePreviews({
+        match,
+        actingUsername: 'Ash',
+        actorSlot: 0,
+        skillIndex: 0,
+        characters: roster,
+        targets: [
+            { username: 'Gary', slot: 0 },
+            { username: 'Gary', slot: 1 },
+        ],
+    });
+
+    assert.equal(previews[0].baseDamage, 20);
+    assert.equal(previews[0].totalDamage, 25);
+    assert.equal(previews[0].effectivenessLabel, 'Super Effective');
+    assert.equal(previews[0].effectivenessModifier, 5);
+    assert.equal(previews[1].totalDamage, 15);
+    assert.equal(previews[1].effectivenessLabel, 'Double Not Very Effective');
+    assert.equal(previews[1].effectivenessModifier, -10);
+});
+
+test('fixed damage previews do not apply Pokemon type effectiveness', () => {
+    const attack = {
+        id: 'test-fixed-preview',
+        target: 'single-enemy',
+        energy: [],
+        cooldown: 0,
+        classes: ['Fire', 'Physical', 'Instant'],
+        effects: [{ type: 'damage', amount: 10, scope: 'target', metadata: { fixedDamage: true } }],
+    };
+    const roster = [makePokemon('attacker', ['Fire'], [attack]), makePokemon('target', ['Grass'])];
+    const match = makeMatch(roster, { Ash: [0], Gary: [1] });
+    const [preview] = computeTargetDamagePreviews({
+        match,
+        actingUsername: 'Ash',
+        actorSlot: 0,
+        skillIndex: 0,
+        characters: roster,
+        targets: [{ username: 'Gary', slot: 0 }],
+    });
+
+    assert.equal(preview.totalDamage, 10);
+    assert.equal(preview.effectivenessModifier, 0);
+    assert.equal(preview.effectivenessLabel, '');
 });
 
 test('AOE effectiveness is calculated independently with a five-damage resistance floor', () => {
@@ -364,10 +430,13 @@ test('client includes active typing and effectiveness cue hooks', () => {
     const selection = fs.readFileSync(path.join(root, 'selection.html'), 'utf8');
     assert.match(script, /pokemonTypeOverride/);
     assert.match(script, /pokemonTypeEffectivenessEvent/);
+    assert.match(script, /target-damage-preview/);
     assert.match(script, /Type: \$\{pokemonTypeText\}/);
     assert.match(styles, /\.hp-delta-popup\.type-effective/);
     assert.match(styles, /\.hp-delta-popup\.type-resisted/);
+    assert.match(styles, /\.target-damage-preview/);
     assert.match(ingame, /pokemon-type-classes-v1/);
+    assert.match(ingame, /target-damage-preview-v1/);
     assert.match(ingame, /styles\/style\.css\?v=[^"']*pokemon-type-classes-v1/);
     assert.match(selection, /pokemon-type-classes-v1/);
 });
