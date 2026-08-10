@@ -11,7 +11,11 @@ const {
     createSeededRandom,
     normalizeMatchVersionFields,
 } = require('../matchStability');
-const { adjustRandomAssignments, buildMatchPayloadForUser } = require('../server');
+const {
+    adjustRandomAssignments,
+    buildAbandonedActiveMatchFilter,
+    buildMatchPayloadForUser,
+} = require('../server');
 
 const makeMatch = (arena = 'comic') => ({
     matchId: `stability-${arena}`,
@@ -231,4 +235,30 @@ test('global match middleware serializes live HTTP mutations and recovery reads'
         assert.notEqual(routeIndex, -1, route);
         assert.ok(routeIndex > middlewareIndex, `${route} should run behind serialized middleware`);
     });
+});
+
+test('database recovery retires only abandoned active matches', () => {
+    const now = new Date('2026-08-09T20:00:00.000Z');
+    assert.deepEqual(buildAbandonedActiveMatchFilter(now), {
+        status: 'active',
+        $or: [
+            { turnExpiresAt: { $lte: new Date('2026-08-09T19:50:00.000Z') } },
+            {
+                currentTurn: { $in: [null, ''] },
+                createdAt: { $lte: new Date('2026-08-09T19:50:00.000Z') },
+            },
+        ],
+    });
+});
+
+test('version polling advances an expired opponent turn and stale sweeps are bounded', () => {
+    const server = fs.readFileSync(path.join(__dirname, '..', 'server.js'), 'utf8');
+    const versionStart = server.indexOf("app.get('/api/match/:matchId/version'");
+    const versionEnd = server.indexOf("app.get('/api/match/:matchId'", versionStart + 1);
+    assert.notEqual(versionStart, -1);
+    assert.notEqual(versionEnd, -1);
+    assert.match(server.slice(versionStart, versionEnd), /hydrateAndAdvanceMatch\(matchId\)/);
+    assert.match(server, /\.limit\(TURN_SWEEP_BATCH_SIZE\)/);
+    assert.match(server, /Promise\.allSettled/);
+    assert.match(server, /retireAbandonedActiveMatches\(new Date\(\)\)/);
 });
