@@ -73,6 +73,10 @@ const PORT = process.env.PORT || 4000;
 const TURN_DURATION_MS = 60 * 1000;
 const TURN_EXPIRY_GRACE_MS = 3 * 1000;
 const MATCH_INACTIVITY_TURN_LIMIT = 3;
+const ABANDONED_ACTIVE_MATCH_MS = 10 * 60 * 1000;
+const ABANDONED_MATCH_CLEANUP_INTERVAL_MS = 60 * 1000;
+const TURN_SWEEP_BATCH_SIZE = 12;
+const TURN_SWEEP_CONCURRENCY = 4;
 const MATCH_FOUND_HOLD_MS = 3 * 1000;
 const BATTLE_BOT_QUEUE_TIMEOUT_MS = 20 * 1000;
 const BATTLE_BOT_ACTION_DELAY_MIN_MS = 15 * 1000;
@@ -2084,6 +2088,7 @@ const wsServer = new WebSocketServer({
 });
 let turnSweepTimer = null;
 let turnSweepInFlight = false;
+let lastAbandonedMatchCleanupAtMs = 0;
 const activeBattleBotTurns = new Set();
 const scheduledBattleBotTurns = new Set();
 const GAME_BOT_USERNAME_PREFIX = '__game_bot__:';
@@ -10422,11 +10427,74 @@ const advanceExpiredMatchAndBroadcast = async (matchId) => {
     return advanced;
 };
 
+const buildAbandonedActiveMatchFilter = (now = new Date()) => {
+    const nowMs = now instanceof Date ? now.getTime() : new Date(now).getTime();
+    const safeNowMs = Number.isFinite(nowMs) ? nowMs : Date.now();
+    const cutoff = new Date(safeNowMs - ABANDONED_ACTIVE_MATCH_MS);
+    return {
+        status: 'active',
+        $or: [
+            { turnExpiresAt: { $lte: cutoff } },
+            {
+                currentTurn: { $in: [null, ''] },
+                createdAt: { $lte: cutoff },
+            },
+        ],
+    };
+};
+
+const retireAbandonedActiveMatches = async (now = new Date()) => {
+    if (!matchesCollection) return { matchedCount: 0, modifiedCount: 0 };
+    const endedAt = now instanceof Date ? now : new Date(now);
+    const result = await matchesCollection.updateMany(
+        buildAbandonedActiveMatchFilter(endedAt),
+        {
+            $set: {
+                status: 'ended',
+                winner: null,
+                surrenderedBy: null,
+                endReason: 'stale_cleanup',
+                endedAt,
+                currentTurn: null,
+                turnStartedAt: null,
+                turnExpiresAt: null,
+            },
+            $inc: { stateRevision: 1 },
+        }
+    );
+    if ((Number(result?.modifiedCount) || 0) > 0) {
+        console.info('[matchmaking] retired abandoned active matches', {
+            modifiedCount: result.modifiedCount,
+            cutoffMinutes: ABANDONED_ACTIVE_MATCH_MS / 60000,
+        });
+    }
+    return result;
+};
+
+const runExpiredMatchBatch = async (entries = []) => {
+    for (let offset = 0; offset < entries.length; offset += TURN_SWEEP_CONCURRENCY) {
+        const batch = entries.slice(offset, offset + TURN_SWEEP_CONCURRENCY);
+        await Promise.allSettled(
+            batch.map((entry) => {
+                const matchId = typeof entry?.matchId === 'string' ? entry.matchId : '';
+                if (!matchId) return Promise.resolve(null);
+                return matchCommandCoordinator.execute(matchId, 'turn-expiry-sweep', () =>
+                    advanceExpiredMatchAndBroadcast(matchId)
+                );
+            })
+        );
+    }
+};
+
 const sweepExpiredMatches = async () => {
     if (!matchesCollection || turnSweepInFlight) return;
     turnSweepInFlight = true;
     try {
         const now = new Date();
+        if (now.getTime() - lastAbandonedMatchCleanupAtMs >= ABANDONED_MATCH_CLEANUP_INTERVAL_MS) {
+            await retireAbandonedActiveMatches(now);
+            lastAbandonedMatchCleanupAtMs = now.getTime();
+        }
         const expiredMatches = await matchesCollection
             .find(
                 {
@@ -10435,15 +10503,10 @@ const sweepExpiredMatches = async () => {
                 },
                 { projection: { matchId: 1 } }
             )
-            .limit(50)
+            .sort({ turnExpiresAt: -1 })
+            .limit(TURN_SWEEP_BATCH_SIZE)
             .toArray();
-        for (const entry of expiredMatches) {
-            const matchId = typeof entry?.matchId === 'string' ? entry.matchId : '';
-            if (!matchId) continue;
-            await matchCommandCoordinator.execute(matchId, 'turn-expiry-sweep', () =>
-                advanceExpiredMatchAndBroadcast(matchId)
-            );
-        }
+        await runExpiredMatchBatch(expiredMatches);
     } finally {
         turnSweepInFlight = false;
     }
@@ -14539,7 +14602,7 @@ app.post('/api/draft/:draftId/team', requireSession, async (req, res) => {
 
 app.get('/api/match/:matchId/version', requireSession, async (req, res) => {
     const { matchId } = req.params;
-    const match = await matchesCollection.findOne(
+    let match = await matchesCollection.findOne(
         { matchId },
         {
             projection: {
@@ -14559,6 +14622,17 @@ app.get('/api/match/:matchId/version', requireSession, async (req, res) => {
     const playerEntry = findMatchPlayerByUsername(match, req.authUser.username);
     if (!playerEntry) {
         return res.status(403).json({ error: 'Not part of this match.' });
+    }
+    const turnExpiryMs = match.turnExpiresAt ? new Date(match.turnExpiresAt).getTime() : NaN;
+    if (
+        match.status === 'active' &&
+        Number.isFinite(turnExpiryMs) &&
+        Date.now() > turnExpiryMs + TURN_EXPIRY_GRACE_MS
+    ) {
+        match = await hydrateAndAdvanceMatch(matchId);
+        if (!match) {
+            return res.status(404).json({ error: 'Match not found.' });
+        }
     }
     return res.json({
         ok: true,
@@ -18591,6 +18665,13 @@ app.use((error, req, res, next) => {
 const startServer = async () => {
     await initDb();
 
+    try {
+        await retireAbandonedActiveMatches(new Date());
+        lastAbandonedMatchCleanupAtMs = Date.now();
+    } catch (error) {
+        console.error('Failed to retire abandoned matches during startup:', error);
+    }
+
     const server = app.listen(PORT, '0.0.0.0', () => {
         console.log(`Naruto-Arena API listening on http://localhost:${PORT}`);
     });
@@ -18743,6 +18824,8 @@ if (require.main === module) {
         enqueuePlayer,
         findQueuedEntry,
         buildMatchmakingWaitingPayload,
+        buildAbandonedActiveMatchFilter,
+        retireAbandonedActiveMatches,
         maybeCreateBattleBotMatch,
         setPersistenceCollectionsForTests,
         persistMatchState,

@@ -4307,12 +4307,13 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         const updateEndTurnButtons = () => {
             const pending = getPendingTurnWithOptimisticQueues();
             const hasUnresolvedRandom = pending.unresolvedRandom > 0;
-            const isSyncingRandomEnergy = randomChakraRequestsInFlight > 0;
             if (endTurnCancelButton) {
                 endTurnCancelButton.style.opacity = '1';
             }
             if (endTurnOkButton) {
-                endTurnOkButton.disabled = isEndingTurn || isSyncingRandomEnergy;
+                // Keep confirmation clickable while the last energy choice is saving.
+                // The click handler already waits for that request and recovers on timeout.
+                endTurnOkButton.disabled = isEndingTurn;
                 endTurnOkButton.style.opacity = endTurnOkButton.disabled ? '0.4' : '1';
                 endTurnOkButton.textContent = hasUnresolvedRandom ? 'CHOOSE' : 'OK';
             }
@@ -14912,6 +14913,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             }
             try {
                 if (randomChakraRequestsInFlight > 0) {
+                    setEndTurnModalStatus('Saving your energy selection...', 'info');
                     const energySettled = await waitForRandomChakraAdjustments();
                     if (!energySettled) {
                         const recovered = await recoverCurrentMatchState({

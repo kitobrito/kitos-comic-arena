@@ -35,6 +35,7 @@ test('battle page cache-busts the shared script for the confirmation hotfix', ()
     assert.match(ingame, /styles\/style\.css\?v=pokemon-battle-polish-v1/);
     assert.match(ingame, /styles\/ingame-experimental\.css\?v=pokemon-gameplay-fixes-v4/);
     assert.match(ingame, /scripts\/script\.js\?v=pokemon-battle-polish-v2/);
+    assert.match(ingame, /match-db-recovery-v1/);
 });
 
 test('end-turn dialog blocks the battle below it and clears competing overlays', () => {
@@ -49,7 +50,9 @@ test('end-turn dialog blocks the battle below it and clears competing overlays',
 test('turn confirmation waits for random energy requests to reach the server', () => {
     assert.match(script, /let randomChakraRequestsInFlight = 0/);
     assert.match(script, /waitForRandomChakraAdjustments = async \(timeoutMs = 8000\)/);
-    assert.match(script, /endTurnOkButton\.disabled = isEndingTurn \|\| isSyncingRandomEnergy/);
+    assert.match(script, /endTurnOkButton\.disabled = isEndingTurn/);
+    assert.doesNotMatch(script, /endTurnOkButton\.disabled = isEndingTurn \|\| isSyncingRandomEnergy/);
+    assert.match(script, /Saving your energy selection/);
     assert.doesNotMatch(script, /Syncing your random energy selection/);
     assert.doesNotMatch(script, /endTurnOkButton\.textContent = isSyncingRandomEnergy/);
     assert.match(script, /reason: 'end-turn-energy-sync'/);
