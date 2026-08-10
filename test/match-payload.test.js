@@ -67,6 +67,61 @@ test('a rejected queued-skill replacement does not mutate the live energy pool',
     assert.equal(match.pendingTurns.EnergyTester.queuedByActorSlot[0].skillIndex, 0);
 });
 
+test('one energy cannot lock in skills for two different characters', () => {
+    const rosterIndex = characters.findIndex((character) =>
+        (character?.skills || []).some(
+            (skill) =>
+                Array.isArray(skill?.energy) &&
+                skill.energy.length === 1 &&
+                String(skill.energy[0]).toLowerCase() !== 'random' &&
+                skill.target === 'self'
+        )
+    );
+    const skillIndex = characters[rosterIndex].skills.findIndex(
+        (skill) =>
+            Array.isArray(skill?.energy) &&
+            skill.energy.length === 1 &&
+            String(skill.energy[0]).toLowerCase() !== 'random' &&
+            skill.target === 'self'
+    );
+    const energyType = String(characters[rosterIndex].skills[skillIndex].energy[0]).toLowerCase();
+    const pool = { taijutsu: 0, ninjutsu: 0, bloodline: 0, genjutsu: 0 };
+    pool[energyType] = 1;
+    const match = {
+        players: [{ username: 'EnergyTester' }, { username: 'Opponent' }],
+        board: {
+            EnergyTester: [0, 1].map(() => ({
+                alive: true,
+                rosterIndex,
+                state: { statuses: [], skillCooldowns: {} },
+            })),
+            Opponent: [],
+        },
+        chakraPools: { EnergyTester: pool },
+        pendingTurns: { EnergyTester: makeEmptyPendingTurn() },
+    };
+
+    queueSkillForActorSlot({
+        match,
+        username: 'EnergyTester',
+        actorSlot: 0,
+        skillIndex,
+        targetSelection: { username: 'EnergyTester', slot: 0 },
+    });
+    assert.throws(
+        () => queueSkillForActorSlot({
+            match,
+            username: 'EnergyTester',
+            actorSlot: 1,
+            skillIndex,
+            targetSelection: { username: 'EnergyTester', slot: 1 },
+        }),
+        /Not enough chakra/
+    );
+    assert.deepEqual(match.pendingTurns.EnergyTester.queueOrder, [0]);
+    assert.equal(match.pendingTurns.EnergyTester.queuedByActorSlot[1], undefined);
+});
+
 test('required gameplay fixes survive stored character overrides without removing extra fields', () => {
     const canonical = [{
         characterId: 'magnemite',

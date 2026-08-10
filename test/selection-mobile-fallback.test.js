@@ -48,6 +48,18 @@ test('a dismissed finished match does not strand a new matchmaking search withou
     assert.match(selectionHtml, /matchmaking-dismissed-recovery-v1/);
 });
 
+test('an authoritative active match reopens after a premature local finished marker', () => {
+    assert.match(
+        script,
+        /if \(isDismissedEndedMatch\(data\.matchId\)\) \{[\s\S]*?clearDismissedEndedMatch\(data\.matchId\);[\s\S]*?\}\s*const startAtMs/
+    );
+    assert.doesNotMatch(
+        script,
+        /if \(data\?\.matchFound && data\.matchId\) \{\s*if \(isDismissedEndedMatch\(data\.matchId\)\) \{\s*return;\s*\}/
+    );
+    assert.match(selectionHtml, /matchmaking-authority-recovery-v1/);
+});
+
 test('small desktop windows use non-overlapping compact selection rails', () => {
     assert.match(
         experimentalStyles,

@@ -6,6 +6,7 @@ const test = require('node:test');
 const root = path.join(__dirname, '..');
 const ingame = fs.readFileSync(path.join(root, 'ingame.html'), 'utf8');
 const script = fs.readFileSync(path.join(root, 'scripts', 'script.js'), 'utf8');
+const server = fs.readFileSync(path.join(root, 'server.js'), 'utf8');
 
 test('turn confirmation uses standard click activation on every input type', () => {
     assert.match(script, /endTurnOkButton\.addEventListener\('click', \(event\) => \{/);
@@ -106,4 +107,10 @@ test('match recovery is bounded and a lethal ladder board requests the terminal 
     assert.match(script, /signal: controller\.signal/);
     assert.match(script, /reason: 'ladder-terminal-board'/);
     assert.match(script, /Confirming the final ladder result/);
+});
+
+test('temporary session lookup failures keep the player on the recoverable match URL', () => {
+    assert.match(server, /Session lookup failed:/);
+    assert.match(server, /res\.status\(503\)\.json\(\{ error: 'Session temporarily unavailable\. Please retry\.' \}\)/);
+    assert.doesNotMatch(server, /Session verification failed:[\s\S]{0,120}res\.status\(401\)/);
 });

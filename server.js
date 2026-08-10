@@ -9785,13 +9785,20 @@ const validateBackgroundUrl = async (url) => {
 };
 
 const requireSession = async (req, res, next) => {
-    try {
-        const token = req.cookies?.[SESSION_COOKIE_NAME];
-        if (!token) {
-            return res.status(401).json({ error: 'Unauthorized.' });
-        }
+    const token = req.cookies?.[SESSION_COOKIE_NAME];
+    if (!token) {
+        return res.status(401).json({ error: 'Unauthorized.' });
+    }
 
-        const decoded = jwt.verify(token, JWT_SECRET);
+    let decoded;
+    try {
+        decoded = jwt.verify(token, JWT_SECRET);
+    } catch (error) {
+        console.warn('Session token verification failed:', error?.message || String(error));
+        return res.status(401).json({ error: 'Unauthorized.' });
+    }
+
+    try {
         const user = await usersCollection.findOne({ username: decoded.username });
         if (!user) {
             return res.status(401).json({ error: 'Unauthorized.' });
@@ -9802,8 +9809,10 @@ const requireSession = async (req, res, next) => {
         };
         next();
     } catch (error) {
-        console.error('Session verification failed:', error);
-        return res.status(401).json({ error: 'Unauthorized.' });
+        // A temporary database failure is not an authentication failure. Returning
+        // 401 here made the battle client abandon its URL and redirect to selection.
+        console.error('Session lookup failed:', error);
+        return res.status(503).json({ error: 'Session temporarily unavailable. Please retry.' });
     }
 };
 
