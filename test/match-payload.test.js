@@ -325,6 +325,12 @@ test('batch evolution, Smokescreen, and Scyther changes survive stored overrides
     stalePidgey.skills.find(
         (skill) => skill.id === 'pidgey-passive-evolution-pidgeotto'
     ).skilldescription = 'Old 100 damage threshold.';
+    const staleNestedPidgeyTracker = stalePidgey.skills
+        .flatMap((skill) => skill.effects || [])
+        .map((effect) => effect?.metadata?.onSuccessfulDamageApplyStatusToOwner?.metadata)
+        .find((metadata) => metadata?.stackMetadataKey === 'pidgeyDamageDealt');
+    staleNestedPidgeyTracker.stackMax = 100;
+    staleNestedPidgeyTracker.tooltipTextTemplate = 'Old 100 damage tracker.';
 
     const staleGastly = staleCharacters.find((character) => character.id === 'gastly');
     const gastlyTracker = staleGastly.startStatuses.find(
@@ -366,6 +372,12 @@ test('batch evolution, Smokescreen, and Scyther changes survive stored overrides
     assert.equal(correctedPidgeyTracker.metadata.stackMax, 50);
     assert.equal(correctedPidgeyTracker.metadata.applyStatusAtStack.value, 50);
     assert.equal(correctedPidgeyTracker.metadata.customTrackerField, true);
+    const correctedNestedPidgeyTracker = correctedPidgey.skills
+        .flatMap((skill) => skill.effects || [])
+        .map((effect) => effect?.metadata?.onSuccessfulDamageApplyStatusToOwner?.metadata)
+        .find((metadata) => metadata?.stackMetadataKey === 'pidgeyDamageDealt');
+    assert.equal(correctedNestedPidgeyTracker.stackMax, 50);
+    assert.match(correctedNestedPidgeyTracker.tooltipTextTemplate, /\/50.*At 50 damage/);
 
     const correctedGastlyTracker = corrected.find(
         (character) => character.id === 'gastly'
