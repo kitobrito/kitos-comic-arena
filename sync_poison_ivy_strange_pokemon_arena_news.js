@@ -132,7 +132,7 @@ const newsPost = {
         skillShowcase(
             'pidgey',
             'pidgey-passive-evolution-pidgeotto',
-            'Evolution - Pidgeotto triggers after Pidgey has dealt 100 total damage during battle. Once the counter is filled, Pidgey evolves into Pidgeotto and upgrades the entire kit.'
+            'Evolution - Pidgeotto triggers after Pidgey has dealt 50 total damage during battle. Once the counter is filled, Pidgey evolves into Pidgeotto and upgrades the entire kit.'
         ),
         skillShowcase(
             'pidgey',

@@ -16858,7 +16858,10 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         }
         if (!data?.matchFound || !data?.matchId) return false;
         if (isDismissedEndedMatch(data.matchId)) {
-            return false;
+            // Matchmaking only reports server-active matches. If the browser marked
+            // one finished before its final server write completed, trust the live
+            // server state and reopen it instead of polling that same match forever.
+            clearDismissedEndedMatch(data.matchId);
         }
         const startAtMs = data.matchStartsAt ? new Date(data.matchStartsAt).getTime() : Date.now();
         const shouldHold = !data.matchReady && startAtMs > Date.now();
@@ -16899,9 +16902,6 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 return;
             }
             if (data?.matchFound && data.matchId) {
-                if (isDismissedEndedMatch(data.matchId)) {
-                    return;
-                }
                 handleMatchFound(data);
             }
         } catch (error) {
