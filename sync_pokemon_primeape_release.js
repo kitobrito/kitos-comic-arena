@@ -18,7 +18,8 @@ const paragraphs = [
     'We are sorry that Comic Arena was unavailable during the past week. Thank you for your patience while we restored the game and its database. We know the shutdown interrupted matches, missions, and time with your accounts, and we appreciate everyone who waited for the Arena to return.',
     'Primeape is joining Pokemon Arena with no character-unlock mission. Rock Smash tears down Barrier and Shield, Knock Off removes helpful effects, Rage Fist grows stronger as Primeape loses HP, and Close Combat delivers heavy Piercing damage. Anger Point gives Primeape 20 additional damage after a Super Effective skill or Critical Hit lands on him.',
     'For the first seven days of the release, win 20 Quick or Ladder games with Primeape to unlock his Annihilape evolution skin. The mission accepts wins against players or bots. When the seven-day event ends, Annihilape moves to the Skin Shop for 750 unlock points.',
-    'Five more Kanto evolution skins are now joining the Skin Shop for 750 unlock points each: Mega Venusaur, Gigantamax Venusaur, Mega Blastoise, Gigantamax Blastoise, and Gigantamax Charizard. Each begins battle with its normal Venusaur, Blastoise, or Charizard artwork, then changes to the selected Mega or Gigantamax portrait and skill art when the Pokemon evolves. The existing Mega Charizard X and Y skin is also now 750 points.',
+    'Five more Kanto evolution skins are now joining the Skin Shop for 750 unlock points each: Mega Venusaur, Gigantamax Venusaur, Mega Blastoise, Gigantamax Blastoise, and Gigantamax Charizard. Each begins battle with its normal Venusaur, Blastoise, or Charizard artwork, then changes to the selected Mega or Gigantamax portrait and skill art when the Pokemon evolves. The Mega Charizard X and Y skin remains the special 1,350-point skin.',
+    'As an apology for the shutdown, database recovery, and repeated disruptions, every player account that existed when this update went live has received 250 Pokemon Arena unlock points. We also tightened database and stale-match recovery so an interrupted battle cannot keep an account stuck outside bot matchmaking.',
 ];
 
 const changes = (primeape?.skills || []).map((skill) => ({
@@ -144,6 +145,16 @@ primeapeSkinPreview.forEach((preview) => {
         skillName: '750-Point Evolution Skin',
         ...preview,
     });
+});
+
+changes.push({
+    groupKey: 'pokemon-compensation:service-apology-2026-08-10',
+    groupName: 'Player Compensation and Matchmaking Recovery',
+    collapsible: true,
+    changeType: 'new',
+    characterName: 'Pokemon Arena',
+    skillName: '250 Unlock Points Granted',
+    text: 'Every existing player account received 250 Pokemon Arena unlock points. Stalled saved battles are also retired promptly so they cannot keep players out of bot matchmaking.',
 });
 
 const newsPost = {

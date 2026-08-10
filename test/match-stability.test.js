@@ -237,18 +237,23 @@ test('global match middleware serializes live HTTP mutations and recovery reads'
     });
 });
 
-test('database recovery retires only abandoned active matches', () => {
+test('database recovery promptly retires only abandoned active matches', () => {
     const now = new Date('2026-08-09T20:00:00.000Z');
     assert.deepEqual(buildAbandonedActiveMatchFilter(now), {
         status: 'active',
         $or: [
-            { turnExpiresAt: { $lte: new Date('2026-08-09T19:50:00.000Z') } },
+            { turnExpiresAt: { $lte: new Date('2026-08-09T19:58:00.000Z') } },
             {
                 currentTurn: { $in: [null, ''] },
-                createdAt: { $lte: new Date('2026-08-09T19:50:00.000Z') },
+                createdAt: { $lte: new Date('2026-08-09T19:58:00.000Z') },
             },
         ],
     });
+});
+
+test('MongoDB operations are bounded so a stalled write cannot hold a match lane forever', () => {
+    const server = fs.readFileSync(path.join(__dirname, '..', 'server.js'), 'utf8');
+    assert.match(server, /const MONGO_CLIENT_OPTIONS = Object\.freeze\(\{[\s\S]*?timeoutMS:\s*15 \* 1000/);
 });
 
 test('version polling advances an expired opponent turn and stale sweeps are bounded', () => {
