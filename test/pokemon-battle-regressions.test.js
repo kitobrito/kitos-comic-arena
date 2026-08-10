@@ -230,6 +230,102 @@ test('Flareon ongoing effects end when Flareon is defeated', () => {
         .forEach((effect) => assert.equal(effect.metadata.endIfSourceDies, true, effect.statusId));
 });
 
+test('Perish Song persists and defeats its target after Jigglypuff is defeated', () => {
+    const jigglypuffIndex = characters.findIndex((character) => character.id === 'jigglypuff');
+    const enemyIndex = characters.findIndex((character) => character.id === 'pikachu');
+    const players = [{ username: 'Ash', team: [jigglypuffIndex] }, { username: 'Gary', team: [enemyIndex] }];
+    const match = makeMatch(players);
+    match.board.Ash[0].alive = false;
+    match.board.Ash[0].hp = 0;
+    match.board.Gary[0].state.statuses.push({
+        id: 'jigglypuff_perish_song',
+        remainingTurns: 1,
+        sourceSkillId: 'jigglypuff-perish-song',
+        sourceUsername: 'Ash',
+        sourceSlot: 0,
+        metadata: { harmful: true, unremovable: true, instantKillOnExpire: true },
+    });
+
+    tickStatusesForTurnEnd({ match, endingUsername: 'Gary' });
+
+    assert.equal(match.board.Gary[0].alive, false);
+    assert.equal(match.board.Gary[0].hp, 0);
+});
+
+test('Sing advances every enemy Perish Song once on each of its two channeled turns', () => {
+    const jigglypuffIndex = characters.findIndex((character) => character.id === 'jigglypuff');
+    const enemyIndex = characters.findIndex((character) => character.id === 'pikachu');
+    const players = [{ username: 'Ash', team: [jigglypuffIndex] }, { username: 'Gary', team: [enemyIndex, enemyIndex] }];
+    const match = makeMatch(players);
+    match.board.Ash[0].state.statuses.push({
+        id: 'jigglypuff_sing_channel',
+        remainingTurns: 2,
+        sourceSkillId: 'jigglypuff-sing',
+        sourceUsername: 'Ash',
+        sourceSlot: 0,
+        metadata: {
+            ongoingClass: 'channeled',
+            advanceAllEnemyPerishEachTurn: true,
+            turnEndTrigger: 'source_turn',
+        },
+    });
+    match.board.Gary[1].state.statuses.push({
+        id: 'jigglypuff_perish_song',
+        remainingTurns: 4,
+        sourceSkillId: 'jigglypuff-perish-song',
+        sourceUsername: 'Ash',
+        sourceSlot: 0,
+        metadata: { harmful: true, unremovable: true, instantKillOnExpire: true },
+    });
+
+    tickStatusesForTurnEnd({ match, endingUsername: 'Ash' });
+    assert.equal(
+        match.board.Gary[1].state.statuses.find((status) => status.id === 'jigglypuff_perish_song').remainingTurns,
+        3
+    );
+
+    match.economy.turnCounts.Ash = 2;
+    tickStatusesForTurnEnd({ match, endingUsername: 'Ash' });
+    assert.equal(
+        match.board.Gary[1].state.statuses.find((status) => status.id === 'jigglypuff_perish_song').remainingTurns,
+        2
+    );
+});
+
+test('Humiliate instantly grants Random chakra when its target is affected by Sing', () => {
+    const jigglypuffIndex = characters.findIndex((character) => character.id === 'jigglypuff');
+    const enemyIndex = characters.findIndex((character) => character.id === 'pikachu');
+    const humiliateIndex = characters[jigglypuffIndex].skills.findIndex(
+        (skill) => skill.id === 'jigglypuff-humiliate'
+    );
+    const players = [{ username: 'Ash', team: [jigglypuffIndex] }, { username: 'Gary', team: [enemyIndex] }];
+    const match = makeMatch(players);
+    match.board.Gary[0].state.statuses.push({
+        id: 'jigglypuff_sing',
+        remainingTurns: 2,
+        sourceSkillId: 'jigglypuff-sing',
+        sourceUsername: 'Ash',
+        sourceSlot: 0,
+        metadata: { harmful: true, cannotUseHarmfulSkills: true, ongoingClass: 'channeled' },
+    });
+    match.pendingTurns.Ash = {
+        queueOrder: ['0'],
+        queuedByActorSlot: {
+            0: { skillIndex: humiliateIndex, targetSelection: [{ username: 'Gary', slot: 0 }] },
+        },
+    };
+
+    const originalRandom = Math.random;
+    Math.random = () => 0;
+    try {
+        resolvePendingTurnSkills({ match, actingUsername: 'Ash', characters });
+    } finally {
+        Math.random = originalRandom;
+    }
+
+    assert.equal(match.chakraPools.Ash.taijutsu, 6);
+});
+
 test('stored Abra overrides keep custom fields while canonical two-target Teleport survives', () => {
     const canonicalAbra = characters.find((character) => character.id === 'abra');
     const staleAbra = {
