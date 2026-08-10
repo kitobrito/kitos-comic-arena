@@ -271,6 +271,16 @@ const createHarnessServer = async () => {
                     slot: 1,
                     rosterIndex: characters.findIndex((entry) => entry.id === 'clefairy'),
                     alive: true,
+                    damagePreview: {
+                        available: true,
+                        baseDamage: 20,
+                        totalDamage: 25,
+                        moveType: 'Fire',
+                        defendingTypes: ['Grass'],
+                        effectivenessLabel: 'Super Effective',
+                        effectivenessModifier: 5,
+                        variable: false,
+                    },
                 }],
                 pendingTurn: state.payload.pendingTurn,
             }));
@@ -830,6 +840,31 @@ test('mobile experimental battle keeps skills tappable through queue, chakra sel
     await expect.poll(() => harness.state.turnEnds).toBe(1);
     await expect(page.locator('.ready-text')).toHaveText("OPPONENT'S TURN...");
     await expect(page.locator('.match-issue-banner')).toBeHidden();
+});
+
+test('selected Pokemon moves show projected damage and effectiveness on portrait hover', async ({ page }) => {
+    const clefairyIndex = characters.findIndex((entry) => entry.id === 'clefairy');
+    harness.state.payload.player.team[1] = 'clefairy';
+    harness.state.payload.board.ash[1] = {
+        slot: 1,
+        rosterIndex: clefairyIndex,
+        alive: true,
+        hp: 100,
+        state: { statuses: [], cooldowns: {}, skillUses: {} },
+    };
+
+    await page.goto(`${harness.baseUrl}/ingame.html?matchId=match-e2e-1&arena=pokemon&layout=classic`);
+    await waitForBattleIntroToFinish(page);
+    await page.locator('.player-characters .character-card').first().locator('.skillimage').nth(2).click({ force: true });
+    await expect.poll(() => harness.state.pokemonSkillTargets).toBe(1);
+
+    const targetCard = page.locator('.player-characters .character-card').nth(1);
+    await targetCard.hover();
+    const preview = targetCard.locator('.target-damage-preview');
+    await expect(preview).toBeVisible();
+    await expect(preview).toContainText('25 damage');
+    await expect(preview).toContainText('Fire → Grass');
+    await expect(preview).toContainText('Super Effective (+5)');
 });
 
 test('pokemon battle intro uses the current match background', async ({ page }) => {

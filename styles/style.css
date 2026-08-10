@@ -3046,6 +3046,53 @@ body.arena-mode-pokemon .chakra-box.white {
     animation: target-lock-pulse 760ms ease-out both;
 }
 
+.target-damage-preview {
+    position: absolute;
+    top: 80px;
+    left: 50%;
+    z-index: 55;
+    display: none;
+    min-width: 150px;
+    max-width: 210px;
+    padding: 7px 9px 6px;
+    transform: translateX(-50%);
+    border: 2px solid #f3d54e;
+    border-radius: 5px;
+    background: rgba(10, 14, 19, 0.97);
+    color: #f5f7fa;
+    font-family: 'Libre Franklin', Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.25;
+    text-align: center;
+    white-space: normal;
+    box-shadow: 0 3px 0 #000, 0 0 12px rgba(255, 220, 74, 0.55);
+    pointer-events: none;
+}
+
+.character-card.targetable:hover .target-damage-preview,
+.character-card.targetable:focus-within .target-damage-preview {
+    display: grid;
+    gap: 2px;
+}
+
+.target-damage-preview-total {
+    color: #ffffff;
+    font-size: 13px;
+}
+
+.target-damage-preview .is-effective {
+    color: #74f58a;
+}
+
+.target-damage-preview .is-resisted {
+    color: #ff9f9f;
+}
+
+.target-damage-preview .is-neutral {
+    color: #d6dde7;
+}
+
 .character-card.blind-random-target .target-overlay {
     background: rgba(116, 78, 255, 0.24);
     border-color: rgba(177, 142, 255, 0.95);

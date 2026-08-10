@@ -2882,6 +2882,145 @@ const resolveEffectChancePercent = ({
     return Math.max(0, Math.min(100, chance));
 };
 
+const computeTargetDamagePreviews = ({
+    match,
+    actingUsername,
+    actorSlot,
+    skillIndex,
+    characters,
+    targets = [],
+}) => {
+    if (!match || !actingUsername || !Number.isInteger(actorSlot) || !Number.isInteger(skillIndex)) {
+        return [];
+    }
+    const actorUnit = match.board?.[actingUsername]?.[actorSlot] || null;
+    if (!actorUnit || actorUnit.alive === false) return [];
+    const actorState = ensureUnitStateShape(actorUnit);
+    const actorCharacter = resolveEffectiveCharacter({
+        characters,
+        rosterIndex: actorUnit.rosterIndex,
+        actorState,
+    });
+    const skill = resolveEffectiveSkill({
+        characters,
+        rosterIndex: actorUnit.rosterIndex,
+        skillIndex,
+        actorState,
+    });
+    if (!skill) return [];
+
+    const effects = Array.isArray(skill.effects) ? skill.effects : [];
+    const damagingEffects = effects.filter((effect) => {
+        const type = typeof effect?.type === 'string' ? effect.type.trim().toLowerCase() : '';
+        return type === 'damage' || type === 'health_steal_damage';
+    });
+    const moveType = getPokemonMoveType(skill.classes || []);
+    const actorArena = String(actorCharacter?.arena || actorCharacter?.universe || '').trim().toLowerCase();
+    const descriptionMentionsDamage = /\b(?:deal|deals|take|takes|inflict|inflicts)\b[^.]{0,80}\bdamage\b/i.test(
+        `${skill.skilldescription || ''} ${skill.description || ''}`
+    );
+    const cloneValue = (value) => {
+        if (typeof structuredClone === 'function') return structuredClone(value);
+        return JSON.parse(JSON.stringify(value));
+    };
+
+    return (Array.isArray(targets) ? targets : []).map((target) => {
+        const targetUsername = typeof target?.username === 'string' ? target.username : '';
+        const targetSlot = Number.parseInt(target?.slot, 10);
+        const targetUnit = Number.isInteger(targetSlot) ? match.board?.[targetUsername]?.[targetSlot] || null : null;
+        if (!targetUnit) return { username: targetUsername, slot: targetSlot, available: false };
+
+        const previewActorUnit = cloneValue(actorUnit);
+        const previewTargetUnit = cloneValue(targetUnit);
+        const previewActorState = ensureUnitStateShape(previewActorUnit);
+        const previewTargetState = ensureUnitStateShape(previewTargetUnit);
+        const isEnemy = targetUsername !== actingUsername;
+        const applicableEffects = damagingEffects.filter((effect) => {
+            const scope = typeof effect?.scope === 'string' ? effect.scope.trim().toLowerCase() : 'target';
+            if (scope === 'self') return !isEnemy && targetSlot === actorSlot;
+            if (scope === 'all-enemy' || scope === 'random-enemy') return isEnemy;
+            if (scope === 'all-other-enemies' || scope === 'other-enemies' || scope === 'random-other-enemy') {
+                return isEnemy;
+            }
+            return true;
+        });
+
+        const packets = applicableEffects
+            .filter((effect) =>
+                !effect?.condition ||
+                doesEffectConditionMatch({
+                    condition: effect.condition,
+                    actorState: previewActorState,
+                    targetState: previewTargetState,
+                    actorUnit: previewActorUnit,
+                    actorUsername: actingUsername,
+                    targetUnit: previewTargetUnit,
+                    targetUsername,
+                    match,
+                })
+            )
+            .map((effect) => ({
+                amount: Math.max(
+                    0,
+                    resolveEffectDamageAmount({
+                        effect,
+                        actorState: previewActorState,
+                        actorUnit: previewActorUnit,
+                        targetState: previewTargetState,
+                        targetUnit: previewTargetUnit,
+                        skillClasses: skill.classes || [],
+                        match,
+                        actorUsername: actingUsername,
+                        actorSlot,
+                        targetUsername,
+                    })
+                ),
+                fixedDamage: Boolean(effect?.metadata?.fixedDamage),
+                chance: Number.isFinite(Number(effect?.chance)) ? Number(effect.chance) : null,
+            }))
+            .filter((packet) => packet.amount > 0);
+
+        const targetCharacter = resolveEffectiveCharacter({
+            characters,
+            rosterIndex: targetUnit.rosterIndex,
+            actorState: previewTargetState,
+        });
+        const targetArena = String(targetCharacter?.arena || targetCharacter?.universe || '').trim().toLowerCase();
+        const defendingTypes =
+            actorArena === 'pokemon' && targetArena === 'pokemon'
+                ? getActivePokemonTypes({ character: targetCharacter, unit: targetUnit })
+                : [];
+        const effectiveness = getPokemonTypeEffectiveness(moveType, defendingTypes);
+        let totalDamage = packets.reduce((sum, packet) => sum + packet.amount, 0);
+        const typeEligiblePacket = packets.find((packet) => !packet.fixedDamage);
+        const appliedModifier =
+            typeEligiblePacket || (descriptionMentionsDamage && packets.length === 0)
+                ? effectiveness.modifier
+                : 0;
+        if (typeEligiblePacket && appliedModifier !== 0) {
+            totalDamage =
+                appliedModifier < 0
+                    ? totalDamage - typeEligiblePacket.amount + Math.max(5, typeEligiblePacket.amount + appliedModifier)
+                    : totalDamage + appliedModifier;
+        }
+
+        return {
+            username: targetUsername,
+            slot: targetSlot,
+            available: packets.length > 0,
+            baseDamage: roundCombatAmountUp(packets.reduce((sum, packet) => sum + packet.amount, 0)),
+            totalDamage: roundCombatAmountUp(totalDamage),
+            moveType: moveType || '',
+            defendingTypes,
+            effectivenessLabel: appliedModifier === 0 ? '' : effectiveness.label,
+            effectivenessModifier: appliedModifier,
+            variable:
+                packets.some((packet) => packet.chance !== null && packet.chance < 100) ||
+                (descriptionMentionsDamage && packets.length === 0),
+        };
+    });
+};
+
 const getTargetBonusDamageFromSource = ({
     targetState,
     sourceCharacterId,
@@ -13552,6 +13691,7 @@ module.exports = {
     getSkillTargetType,
     resolveEffectiveSkill,
     computeTargetOptions,
+    computeTargetDamagePreviews,
     validateTargetSelection,
     resolvePendingTurnSkills,
     computeEffectiveEnergyCost,
