@@ -327,14 +327,19 @@ test('Clefairy, Jigglypuff, and Beedrill resolve their evolved skill sets', () =
     }
 });
 
-test('Jigglypuff and Wigglytuff Wish are invisible and advertise the Perish Song reaction', () => {
-    const wish = wave.find((character) => character.id === 'jigglypuff').skills.find((skill) => skill.id === 'jigglypuff-wish');
+test('Jigglypuff and Wigglytuff use the shorter Perish Song countdowns and reactive Wish', () => {
+    const jigglypuff = wave.find((character) => character.id === 'jigglypuff');
+    const perishSong = jigglypuff.skills.find((skill) => skill.id === 'jigglypuff-perish-song');
+    const wish = jigglypuff.skills.find((skill) => skill.id === 'jigglypuff-wish');
+    assert.equal(perishSong.effects[0].duration, 4);
+    assert.match(perishSong.skilldescription, /4 turns/);
+    assert.equal(perishSong.evolvesTo.effects[0].duration, 3);
+    assert.match(perishSong.evolvesTo.skilldescription, /3 turns/);
     assert.ok(wish.classes.includes('Invisible'));
     assert.equal(wish.effects[0].metadata.wishAdvancePerishOnHarmful, true);
     assert.ok(wish.evolvesTo.classes.includes('Invisible'));
     assert.equal(wish.evolvesTo.effects[0].metadata.wishAdvancePerishOnHarmful, true);
 });
-
 test('wave-two evolutions are exposed to both Pokemon roster viewers, including Fell Stinger', () => {
     const root = path.resolve(__dirname, '..');
     const selectionSource = fs.readFileSync(path.join(root, 'scripts', 'script.js'), 'utf8');

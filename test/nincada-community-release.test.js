@@ -9,6 +9,7 @@ const {
     computeEffectiveEnergyCost,
     configureBattleRuntime,
     resetBattleRuntime,
+    resolveEffectiveSkill,
     resolvePendingTurnSkills,
     tickStatusesForTurnEnd,
 } = require('../battleLogic');
@@ -109,6 +110,20 @@ test('Nincada and both battle forms use supplied art, exact costs, types, and 2n
     ].forEach((asset) => assert.ok(fs.existsSync(path.join(root, asset)), asset));
 });
 
+test('Nincada battle forms are exposed on the character page and refreshed in battle', () => {
+    const characterPage = fs.readFileSync(path.join(root, 'pokemon-charactersandskills.html'), 'utf8');
+    const ingamePage = fs.readFileSync(path.join(root, 'ingame.html'), 'utf8');
+    const selectionPage = fs.readFileSync(path.join(root, 'selection.html'), 'utf8');
+    const clientScript = fs.readFileSync(path.join(root, 'scripts', 'script.js'), 'utf8');
+
+    assert.match(characterPage, /Array\.isArray\(character\.battleForms\)/);
+    assert.match(characterPage, /dataset\.battleFormSkills = form\.id/);
+    assert.match(characterPage, /View form skills/);
+    assert.match(clientScript, /normalizeEffectiveCharacterLookupId/);
+    assert.match(clientScript, /\[\.\.\.baseBattleForms, \.\.\.rosterData, \.\.\.allBattleForms\]/);
+    assert.match(ingamePage, /nincada-form-skills-v2/);
+    assert.match(selectionPage, /nincada-form-skills-v2/);
+});
 test('Metal Claw tracks all damage dealt and grows when Nincada already has defense', () => {
     const match = makeMatch({ ash: [nincadaIndex], gary: [charmanderIndex] });
     useSkill(match, 'ash', 0, 0, 'gary', 0);
@@ -132,23 +147,29 @@ test('Metal Claw tracks all damage dealt and grows when Nincada already has defe
     assert.equal(tracker.metadata.nincadaDamageDealt, 30);
 });
 
-test('Hidden Power can roll 40 damage and stun Nincada non-Strategic skills', () => {
-    configureBattleRuntime({ random: () => 0.999 });
-    try {
-        const match = makeMatch({ ash: [nincadaIndex], gary: [charmanderIndex] });
-        useSkill(match, 'ash', 0, 2, 'gary', 0);
-        assert.equal(match.board.gary[0].hp, 60);
-        assert.deepEqual(
-            match.board.ash[0].state.statuses.find(
+test('Hidden Power rolls 10, 20, or 30 damage and only the high roll stuns', () => {
+    [
+        { roll: 0, expectedHp: 90, shouldStun: false },
+        { roll: 0.5, expectedHp: 80, shouldStun: false },
+        { roll: 0.999, expectedHp: 70, shouldStun: true },
+    ].forEach(({ roll, expectedHp, shouldStun }) => {
+        configureBattleRuntime({ random: () => roll });
+        try {
+            const match = makeMatch({ ash: [nincadaIndex], gary: [charmanderIndex] });
+            useSkill(match, 'ash', 0, 2, 'gary', 0);
+            assert.equal(match.board.gary[0].hp, expectedHp);
+            const recoil = match.board.ash[0].state.statuses.find(
                 (status) => status.id === 'nincada_hidden_power_recoil_stun'
-            )?.metadata?.cannotUseSkillIndices,
-            [0, 2]
-        );
-    } finally {
-        resetBattleRuntime();
-    }
+            );
+            assert.equal(Boolean(recoil), shouldStun);
+            if (shouldStun) {
+                assert.deepEqual(recoil.metadata.cannotUseSkillIndices, [0, 2]);
+            }
+        } finally {
+            resetBattleRuntime();
+        }
+    });
 });
-
 test('Struggle Bug counters a Physical skill and grants Nincada evasion', () => {
     const match = makeMatch({ ash: [nincadaIndex], gary: [charmanderIndex] });
     useSkill(match, 'ash', 0, 1, 'ash', 0);
@@ -197,6 +218,24 @@ test('Evolve can transform Nincada and revive the lowest fainted ally as 1-HP Sh
         shedinja.state.statuses.find((status) => status.id === 'nincada_shedinja_evolution')
             .metadata.effectiveCharacterId,
         'shedinja'
+    );
+    assert.equal(
+        resolveEffectiveSkill({
+            characters,
+            rosterIndex: nincadaIndex,
+            skillIndex: 0,
+            actorState: actor.state,
+        }).id,
+        'ninjask-skitter-smack'
+    );
+    assert.equal(
+        resolveEffectiveSkill({
+            characters,
+            rosterIndex: bulbasaurIndex,
+            skillIndex: 0,
+            actorState: shedinja.state,
+        }).id,
+        'shedinja-bug-buzz'
     );
     assert.equal(
         shedinja.state.statuses.find((status) => status.id === 'shedinja_wonder_guard')
