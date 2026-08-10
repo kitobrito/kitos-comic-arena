@@ -3819,23 +3819,28 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 .pop() || '';
         };
 
+        const normalizeEffectiveCharacterLookupId = (character) =>
+            String(character?.characterId || character?.id || '').trim().toLowerCase();
+
         const getEffectiveCharacterForUnit = (unit) => {
             const rosterIndex = Number.isInteger(unit?.rosterIndex) ? unit.rosterIndex : null;
             const baseCharacter = Number.isInteger(rosterIndex) ? rosterData?.[rosterIndex] : null;
             const overrideId = getEffectiveCharacterOverrideIdFromUnit(unit);
-            if (!overrideId || !Array.isArray(rosterData)) return baseCharacter;
-            const battleForms = rosterData.flatMap((character) =>
+            const normalizedOverrideId = String(overrideId || '').trim().toLowerCase();
+            if (!normalizedOverrideId || !Array.isArray(rosterData)) return baseCharacter;
+            const baseBattleForms = Array.isArray(baseCharacter?.battleForms)
+                ? baseCharacter.battleForms
+                : [];
+            const allBattleForms = rosterData.flatMap((character) =>
                 Array.isArray(character?.battleForms) ? character.battleForms : []
             );
             return (
-                [...rosterData, ...battleForms].find(
+                [...baseBattleForms, ...rosterData, ...allBattleForms].find(
                     (character) =>
-                        character?.id === overrideId ||
-                        character?.characterId === overrideId
+                        normalizeEffectiveCharacterLookupId(character) === normalizedOverrideId
                 ) || baseCharacter
             );
         };
-
         const getEffectiveCharacterPresentationForUnit = (
             unit,
             profile = profileCache?.profile || null

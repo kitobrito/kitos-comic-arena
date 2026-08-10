@@ -30758,8 +30758,8 @@ const characters = [
                 "id": "jigglypuff-perish-song",
                 "name": "Perish Song",
                 "skillimage": "assets/images/PokemonArena/jigglypuff/parishsong.webp",
-                "skilldescription": "Marks one enemy for 5 turns. When it expires, they are instantly defeated. Ends if Jigglypuff dies.",
-                "description": "Marks one enemy for 5 turns. When it expires, they are instantly defeated. Ends if Jigglypuff dies.",
+                "skilldescription": "Marks one enemy for 4 turns. When it expires, they are instantly defeated. Ends if Jigglypuff dies.",
+                "description": "Marks one enemy for 4 turns. When it expires, they are instantly defeated. Ends if Jigglypuff dies.",
                 "energy": [
                     "Random",
                     "Random",
@@ -30777,7 +30777,7 @@ const characters = [
                     {
                         "type": "apply_status",
                         "statusId": "jigglypuff_perish_song",
-                        "duration": 5,
+                        "duration": 4,
                         "scope": "target",
                         "metadata": {
                             "harmful": true,
@@ -30793,8 +30793,8 @@ const characters = [
                     "id": "wigglytuff-perish-song",
                     "name": "Wigglytuff Perish Song",
                     "skillimage": "assets/images/PokemonArena/jigglypuff/wigglytuffparishsong.webp",
-                    "skilldescription": "Marks one enemy for 4 turns. When it expires, they are instantly defeated. Ends if Wigglytuff dies.",
-                    "description": "Marks one enemy for 4 turns. When it expires, they are instantly defeated. Ends if Wigglytuff dies.",
+                    "skilldescription": "Marks one enemy for 3 turns. When it expires, they are instantly defeated. Ends if Wigglytuff dies.",
+                    "description": "Marks one enemy for 3 turns. When it expires, they are instantly defeated. Ends if Wigglytuff dies.",
                     "energy": [
                         "Random",
                         "Random",
@@ -30812,7 +30812,7 @@ const characters = [
                         {
                             "type": "apply_status",
                             "statusId": "jigglypuff_perish_song",
-                            "duration": 4,
+                            "duration": 3,
                             "scope": "target",
                             "metadata": {
                                 "harmful": true,
@@ -33877,8 +33877,8 @@ const characters = [
                 "id": "nincada-hidden-power",
                 "name": "Hidden Power",
                 "skillimage": "assets/images/PokemonArena/Nincada/Nincada-Hidden-Power.jpg",
-                "skilldescription": "Randomly deals 20, 30, or 40 Special damage to one enemy. If it deals 40, Metal Claw and Hidden Power are stunned for 1 turn.",
-                "description": "Randomly deals 20, 30, or 40 Special damage to one enemy. If it deals 40, Metal Claw and Hidden Power are stunned for 1 turn.",
+                "skilldescription": "Randomly deals 10, 20, or 30 Special damage to one enemy. If it deals 30, Metal Claw and Hidden Power are stunned for 1 turn.",
+                "description": "Randomly deals 10, 20, or 30 Special damage to one enemy. If it deals 30, Metal Claw and Hidden Power are stunned for 1 turn.",
                 "energy": [
                     "Random"
                 ],
@@ -33904,10 +33904,23 @@ const characters = [
                             "randomizeMetadataKeyFromOptions": {
                                 "metadataKey": "hiddenPowerDamage",
                                 "options": [
+                                    10,
                                     20,
-                                    30,
-                                    40
+                                    30
                                 ]
+                            }
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusMetadataEquals": {
+                                "statusId": "nincada_hidden_power_roll",
+                                "metadataKey": "hiddenPowerDamage",
+                                "value": 10
                             }
                         }
                     },
@@ -33938,19 +33951,6 @@ const characters = [
                         }
                     },
                     {
-                        "type": "damage",
-                        "amount": 40,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "statusMetadataEquals": {
-                                "statusId": "nincada_hidden_power_roll",
-                                "metadataKey": "hiddenPowerDamage",
-                                "value": 40
-                            }
-                        }
-                    },
-                    {
                         "type": "apply_status",
                         "statusId": "nincada_hidden_power_recoil_stun",
                         "duration": 1,
@@ -33960,7 +33960,7 @@ const characters = [
                             "statusMetadataEquals": {
                                 "statusId": "nincada_hidden_power_roll",
                                 "metadataKey": "hiddenPowerDamage",
-                                "value": 40
+                                "value": 30
                             }
                         },
                         "metadata": {

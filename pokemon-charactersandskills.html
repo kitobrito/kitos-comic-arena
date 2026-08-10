@@ -593,8 +593,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </section>
     </aside>
   </div>
-  <script src="./characters.js?v=pokemon-balance-v3&gen2-starters-v1&mewtwo-combos-v1&aegislash-special-classes-v1&ditto-community-v1&chikorita-affliction-cycle-v1&scraggy-community-v1&scraggy-balance-v2&dragapult-community-v2&nincada-community-v1&primeape-release-v1"></script>
-  <script src="./pokemon-wave-2-live.js?v=pokemon-balance-v3&aegislash-special-classes-v1&ditto-community-v1"></script>
+  <script src="./characters.js?v=pokemon-balance-v3&gen2-starters-v1&mewtwo-combos-v1&aegislash-special-classes-v1&ditto-community-v1&chikorita-affliction-cycle-v1&scraggy-community-v1&scraggy-balance-v2&dragapult-community-v2&nincada-community-v1&primeape-release-v1&jigglypuff-nincada-balance-v2"></script>
+  <script src="./pokemon-wave-2-live.js?v=pokemon-balance-v3&aegislash-special-classes-v1&ditto-community-v1&jigglypuff-perish-v2"></script>
   <script src="./scripts/index.js?v=pokemon-wave-2-launch-v1" defer></script>
   <script>
     (function () {
@@ -908,6 +908,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         await skinCatalogPromise;
 
         var visibleSkills = getVisibleSkills(character);
+        var visibleBattleForms = (character && Array.isArray(character.battleForms) ? character.battleForms : []).map(function (form) {
+          return {
+            id: form && (form.characterId || form.id) ? String(form.characterId || form.id).toLowerCase() : "",
+            name: form && form.name ? String(form.name) : "Alternate Form",
+            facePicture: form && form.facePicture ? String(form.facePicture) : "",
+            skills: (form && Array.isArray(form.skills) ? form.skills : []).filter(function (skill) {
+              return skill && !skill.hiddenFromSelectionViewer;
+            })
+          };
+        }).filter(function (form) {
+          return form.id && form.skills.length;
+        });
         var characterId = String(character.characterId || character.id || "").toLowerCase();
         var characterSkins = skinCatalog.filter(function (skin) {
           return skin && String(skin.characterId || "").toLowerCase() === characterId;
@@ -1127,6 +1139,38 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             grid.appendChild(evolutionPanel);
           });
 
+          visibleBattleForms.forEach(function (form) {
+            var formToggle = document.createElement("button");
+            formToggle.type = "button";
+            formToggle.className = "character-evolution-toggle";
+            formToggle.dataset.battleForm = form.id;
+            formToggle.setAttribute("aria-expanded", "false");
+            var formPortrait = document.createElement("img");
+            formPortrait.src = form.facePicture || character.facePicture || "";
+            formPortrait.alt = form.name + " portrait";
+            var formTitle = document.createElement("strong");
+            formTitle.textContent = form.name;
+            var formPrompt = document.createElement("span");
+            formPrompt.textContent = "View form skills";
+            formToggle.appendChild(formPortrait);
+            formToggle.appendChild(formTitle);
+            formToggle.appendChild(formPrompt);
+            var formPanel = document.createElement("div");
+            formPanel.className = "character-modal-skill-grid character-evolution-skills";
+            formPanel.dataset.battleFormSkills = form.id;
+            formPanel.hidden = true;
+            form.skills.forEach(function (skill) {
+              formPanel.appendChild(createSkillCard(skill));
+            });
+            formToggle.addEventListener("click", function () {
+              var opening = formPanel.hidden;
+              formPanel.hidden = !opening;
+              formToggle.setAttribute("aria-expanded", opening ? "true" : "false");
+              formPrompt.textContent = opening ? "Hide form skills" : "View form skills";
+            });
+            grid.appendChild(formToggle);
+            grid.appendChild(formPanel);
+          });
           skillsView.appendChild(grid);
         }
 
