@@ -30758,8 +30758,8 @@ const characters = [
                 "id": "jigglypuff-perish-song",
                 "name": "Perish Song",
                 "skillimage": "assets/images/PokemonArena/jigglypuff/parishsong.webp",
-                "skilldescription": "Marks one enemy for 4 turns. When it expires, they are instantly defeated. Ends if Jigglypuff dies.",
-                "description": "Marks one enemy for 4 turns. When it expires, they are instantly defeated. Ends if Jigglypuff dies.",
+                "skilldescription": "Marks one enemy for 4 turns. When it expires, they are instantly defeated, even if Jigglypuff has died.",
+                "description": "Marks one enemy for 4 turns. When it expires, they are instantly defeated, even if Jigglypuff has died.",
                 "energy": [
                     "Random",
                     "Random",
@@ -30783,7 +30783,6 @@ const characters = [
                             "harmful": true,
                             "visible": true,
                             "unremovable": true,
-                            "endIfSourceDies": true,
                             "instantKillOnExpire": true,
                             "uniqueEnemyMarkFromSource": true
                         }
@@ -30793,8 +30792,8 @@ const characters = [
                     "id": "wigglytuff-perish-song",
                     "name": "Wigglytuff Perish Song",
                     "skillimage": "assets/images/PokemonArena/jigglypuff/wigglytuffparishsong.webp",
-                    "skilldescription": "Marks one enemy for 3 turns. When it expires, they are instantly defeated. Ends if Wigglytuff dies.",
-                    "description": "Marks one enemy for 3 turns. When it expires, they are instantly defeated. Ends if Wigglytuff dies.",
+                    "skilldescription": "Marks one enemy for 3 turns. When it expires, they are instantly defeated, even if Wigglytuff has died.",
+                    "description": "Marks one enemy for 3 turns. When it expires, they are instantly defeated, even if Wigglytuff has died.",
                     "energy": [
                         "Random",
                         "Random",
@@ -30818,7 +30817,6 @@ const characters = [
                                 "harmful": true,
                                 "visible": true,
                                 "unremovable": true,
-                                "endIfSourceDies": true,
                                 "instantKillOnExpire": true,
                                 "uniqueEnemyMarkFromSource": true
                             }
@@ -30830,42 +30828,49 @@ const characters = [
                 "id": "jigglypuff-sing",
                 "name": "Sing",
                 "skillimage": "assets/images/PokemonArena/jigglypuff/sing.webp",
-                "skilldescription": "Stuns all enemy harmful skills for 1 turn and advances Perish Song once.",
-                "description": "Stuns all enemy harmful skills for 1 turn and advances Perish Song once.",
+                "skilldescription": "Channels for 2 turns. Each turn, one enemy cannot use harmful skills and every enemy Perish Song advances once.",
+                "description": "Channels for 2 turns. Each turn, one enemy cannot use harmful skills and every enemy Perish Song advances once.",
                 "energy": [
                     "Ninjutsu",
                     "Random"
                 ],
                 "cooldown": 3,
-                "target": "all-enemy",
+                "target": "single-enemy",
                 "damage": 0,
                 "classes": [
                     "Mental",
                     "Ranged",
-                    "Instant"
+                    "Channeled"
                 ],
                 "effects": [
                     {
                         "type": "apply_status",
                         "statusId": "jigglypuff_sing",
-                        "duration": 1,
-                        "scope": "all-enemy",
+                        "duration": 2,
+                        "scope": "target",
                         "metadata": {
                             "cannotUseHarmfulSkills": true,
                             "harmful": true
                         }
                     },
                     {
-                        "type": "accelerate_perish",
-                        "scope": "all-enemy"
+                        "type": "apply_status",
+                        "statusId": "jigglypuff_sing_channel",
+                        "duration": 2,
+                        "scope": "self",
+                        "metadata": {
+                            "advanceAllEnemyPerishEachTurn": true,
+                            "turnEndTrigger": "source_turn",
+                            "tooltipText": "Sing is channeling and advances every enemy Perish Song once each turn."
+                        }
                     }
                 ],
                 "evolvesTo": {
                     "id": "wigglytuff-sing",
                     "name": "Wigglytuff Sing",
                     "skillimage": "assets/images/PokemonArena/jigglypuff/wigglytuffsing.webp",
-                    "skilldescription": "Stuns all enemy harmful skills for 2 turns and advances Perish Song once.",
-                    "description": "Stuns all enemy harmful skills for 2 turns and advances Perish Song once.",
+                    "skilldescription": "Channels for 2 turns. Each turn, all enemies cannot use harmful skills and every enemy Perish Song advances once.",
+                    "description": "Channels for 2 turns. Each turn, all enemies cannot use harmful skills and every enemy Perish Song advances once.",
                     "energy": [
                         "Ninjutsu",
                         "Ninjutsu",
@@ -30877,7 +30882,7 @@ const characters = [
                     "classes": [
                         "Mental",
                         "Ranged",
-                        "Instant"
+                        "Channeled"
                     ],
                     "effects": [
                         {
@@ -30891,8 +30896,15 @@ const characters = [
                             }
                         },
                         {
-                            "type": "accelerate_perish",
-                            "scope": "all-enemy"
+                            "type": "apply_status",
+                            "statusId": "jigglypuff_sing_channel",
+                            "duration": 2,
+                            "scope": "self",
+                            "metadata": {
+                                "advanceAllEnemyPerishEachTurn": true,
+                                "turnEndTrigger": "source_turn",
+                                "tooltipText": "Sing is channeling and advances every enemy Perish Song once each turn."
+                            }
                         }
                     ]
                 }
@@ -30901,8 +30913,8 @@ const characters = [
                 "id": "jigglypuff-wish",
                 "name": "Wish",
                 "skillimage": "assets/images/PokemonArena/jigglypuff/wish.webp",
-                "skilldescription": "Next turn, Jigglypuff or one ally heals 25 HP. Before it heals, a Perish Song target using a harmful skill on them advances its countdown once.",
-                "description": "Next turn, Jigglypuff or one ally heals 25 HP. Before it heals, a Perish Song target using a harmful skill on them advances its countdown once.",
+                "skilldescription": "Next turn, Jigglypuff or one ally heals 20 HP. Before it heals, a Perish Song target using a harmful skill on them advances its countdown once.",
+                "description": "Next turn, Jigglypuff or one ally heals 20 HP. Before it heals, a Perish Song target using a harmful skill on them advances its countdown once.",
                 "energy": [
                     "Random"
                 ],
@@ -30921,7 +30933,7 @@ const characters = [
                         "duration": 1,
                         "scope": "target",
                         "metadata": {
-                            "turnStartHeal": 25,
+                            "turnStartHeal": 20,
                             "onOwnerTargetedBySkillTrigger": true,
                             "onOwnerTargetedByEnemyOnly": true,
                             "onOwnerTargetedByRequireNewSkill": true,
@@ -30933,8 +30945,8 @@ const characters = [
                     "id": "wigglytuff-wish",
                     "name": "Wigglytuff Wish",
                     "skillimage": "assets/images/PokemonArena/jigglypuff/wigglytuffwish.webp",
-                    "skilldescription": "Next turn, Wigglytuff's whole team heals 25 HP. Before it heals, a Perish Song target using a harmful skill on them advances its countdown once.",
-                    "description": "Next turn, Wigglytuff's whole team heals 25 HP. Before it heals, a Perish Song target using a harmful skill on them advances its countdown once.",
+                    "skilldescription": "Next turn, Wigglytuff's whole team heals 20 HP. Before it heals, a Perish Song target using a harmful skill on them advances its countdown once.",
+                    "description": "Next turn, Wigglytuff's whole team heals 20 HP. Before it heals, a Perish Song target using a harmful skill on them advances its countdown once.",
                     "energy": [
                         "Random",
                         "Random"
@@ -30954,7 +30966,7 @@ const characters = [
                             "duration": 1,
                             "scope": "all-allies",
                             "metadata": {
-                                "turnStartHeal": 25,
+                                "turnStartHeal": 20,
                                 "onOwnerTargetedBySkillTrigger": true,
                                 "onOwnerTargetedByEnemyOnly": true,
                                 "onOwnerTargetedByRequireNewSkill": true,
@@ -30968,11 +30980,9 @@ const characters = [
                 "id": "jigglypuff-humiliate",
                 "name": "Humiliate",
                 "skillimage": "assets/images/PokemonArena/jigglypuff/humilate.webp",
-                "skilldescription": "If the target uses a new harmful skill this turn, gain 1 Random chakra and advance Perish Song once.",
-                "description": "If the target uses a new harmful skill this turn, gain 1 Random chakra and advance Perish Song once.",
-                "energy": [
-                    "Random"
-                ],
+                "skilldescription": "Costs no chakra. If the target is affected by Sing, instantly gain 1 Random chakra. If they use a new harmful skill this turn, gain 1 Random chakra and advance Perish Song once.",
+                "description": "Costs no chakra. If the target is affected by Sing, instantly gain 1 Random chakra. If they use a new harmful skill this turn, gain 1 Random chakra and advance Perish Song once.",
+                "energy": [],
                 "cooldown": 2,
                 "target": "single-enemy",
                 "damage": 0,
@@ -30995,17 +31005,26 @@ const characters = [
                             "perishAcceleration": true,
                             "gainRandomChakraForSource": true
                         }
+                    },
+                    {
+                        "type": "gain_chakra",
+                        "chakraType": "random",
+                        "amount": 1,
+                        "scope": "self",
+                        "evaluateBeforeChannelCancel": true,
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "jigglypuff_sing"
+                        }
                     }
                 ],
                 "evolvesTo": {
                     "id": "wigglytuff-humiliate",
                     "name": "Wigglytuff Humiliate",
                     "skillimage": "assets/images/PokemonArena/jigglypuff/wigglytuffhumilate.webp",
-                    "skilldescription": "If the target uses any new skill this turn, gain 1 Random chakra and advance Perish Song once.",
-                    "description": "If the target uses any new skill this turn, gain 1 Random chakra and advance Perish Song once.",
-                    "energy": [
-                        "Random"
-                    ],
+                    "skilldescription": "Costs no chakra. If the target is affected by Sing, instantly gain 1 Random chakra. If they use any new skill this turn, gain 1 Random chakra and advance Perish Song once.",
+                    "description": "Costs no chakra. If the target is affected by Sing, instantly gain 1 Random chakra. If they use any new skill this turn, gain 1 Random chakra and advance Perish Song once.",
+                    "energy": [],
                     "cooldown": 2,
                     "target": "single-enemy",
                     "damage": 0,
@@ -31026,6 +31045,17 @@ const characters = [
                                 "triggerOnOwnerUseSkill": true,
                                 "perishAcceleration": true,
                                 "gainRandomChakraForSource": true
+                            }
+                        },
+                        {
+                            "type": "gain_chakra",
+                            "chakraType": "random",
+                            "amount": 1,
+                            "scope": "self",
+                            "evaluateBeforeChannelCancel": true,
+                            "condition": {
+                                "scope": "target",
+                                "statusId": "jigglypuff_sing"
                             }
                         }
                     ]

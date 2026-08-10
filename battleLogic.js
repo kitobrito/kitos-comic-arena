@@ -6228,6 +6228,41 @@ const cancelChanneledStatusesForActor = ({ match, sourceUsername, sourceSlot, ne
     });
 };
 
+const collectPreChannelCancelChakraGains = ({ match, skill, queued, actorUnit, actorState, actingUsername }) => {
+    const matchedEffects = new Set();
+    const effects = (Array.isArray(skill?.effects) ? skill.effects : []).filter(
+        (effect) =>
+            String(effect?.type || '').trim().toLowerCase() === 'gain_chakra' &&
+            Boolean(effect?.evaluateBeforeChannelCancel)
+    );
+    effects.forEach((effect) => {
+        const condition = effect?.condition;
+        const conditionTargets = condition?.scope === 'target'
+            ? (Array.isArray(queued?.targetSelection) ? queued.targetSelection : []).map((target) => ({
+                  unit: target?.username && Number.isInteger(target?.slot)
+                      ? match.board?.[target.username]?.[target.slot] || null
+                      : null,
+                  username: target?.username || null,
+              }))
+            : [{ unit: actorUnit, username: actingUsername }];
+        const conditionMatches = conditionTargets.some((target) => {
+            if (!target?.unit || target.unit.alive === false) return false;
+            return doesEffectConditionMatch({
+                condition,
+                actorState,
+                targetState: ensureUnitStateShape(target.unit),
+                actorUnit,
+                targetUnit: target.unit,
+                actorUsername: actingUsername,
+                targetUsername: target.username,
+                match,
+            });
+        });
+        if (conditionMatches) matchedEffects.add(effect);
+    });
+    return matchedEffects;
+};
+
 const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
     if (!match || !actingUsername) return;
     const pending = match.pendingTurns?.[actingUsername];
@@ -6364,6 +6399,14 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
             skillUses[skill.id] = (Number(skillUses[skill.id]) || 0) + 1;
             actorState.skillUses = skillUses;
         }
+        const preChannelCancelChakraGains = collectPreChannelCancelChakraGains({
+            match,
+            skill,
+            queued,
+            actorUnit,
+            actorState,
+            actingUsername,
+        });
         if (!queued?.isAutoCast) {
             cancelChanneledStatusesForActor({
                 match,
@@ -10586,8 +10629,35 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         : rawEffect && typeof rawEffect === 'object'
                         ? rawEffect
                         : {};
+                if (
+                    gainChakraEffectConfig?.evaluateBeforeChannelCancel &&
+                    !preChannelCancelChakraGains.has(rawEffect)
+                ) {
+                    return;
+                }
                 const amount = Math.max(0, Number(gainChakraEffectConfig?.amount) || 0);
                 if (amount <= 0) return;
+                if (
+                    gainChakraEffectConfig?.condition &&
+                    !gainChakraEffectConfig?.evaluateBeforeChannelCancel
+                ) {
+                    const conditionScope = gainChakraEffectConfig.condition.scope === 'target' ? 'target' : 'self';
+                    const conditionRecipients = resolveRecipients({ scope: conditionScope });
+                    const conditionMatches = conditionRecipients.some((recipient) => {
+                        if (!recipient?.unit || recipient.unit.alive === false) return false;
+                        return doesEffectConditionMatch({
+                            condition: gainChakraEffectConfig.condition,
+                            actorState,
+                            targetState: ensureUnitStateShape(recipient.unit),
+                            actorUnit,
+                            targetUnit: recipient.unit,
+                            actorUsername: actingUsername,
+                            targetUsername: recipient.username,
+                            match,
+                        });
+                    });
+                    if (!conditionMatches) return;
+                }
                 const rawType =
                     typeof gainChakraEffectConfig?.chakraType === 'string'
                         ? gainChakraEffectConfig.chakraType.trim().toLowerCase()
@@ -11399,6 +11469,24 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                         ? status?.sourceUsername === endingUsername
                         : username === endingUsername;
                 if (!shouldTrigger) return;
+                if (Boolean(status?.metadata?.advanceAllEnemyPerishEachTurn)) {
+                    players
+                        .filter((entry) => entry?.username && entry.username !== status?.sourceUsername)
+                        .forEach((opponent) => {
+                            const enemyUnits = Array.isArray(match.board?.[opponent.username])
+                                ? match.board[opponent.username]
+                                : [];
+                            enemyUnits.forEach((enemyUnit) => {
+                                if (!enemyUnit || enemyUnit.alive === false) return;
+                                advanceJigglypuffPerishSong({
+                                    match,
+                                    targetState: ensureUnitStateShape(enemyUnit),
+                                    sourceUsername: status?.sourceUsername,
+                                    sourceSlot: Number(status?.sourceSlot),
+                                });
+                            });
+                        });
+                }
                 const turnEndApplyStatusToSelf = status?.metadata?.turnEndApplyStatusToSelf;
                 if (turnEndApplyStatusToSelf && typeof turnEndApplyStatusToSelf === 'object') {
                     const skippedSkillId =
@@ -13161,11 +13249,13 @@ const triggerStoredStatusEffects = ({
         const sourceUnit = status?.sourceUsername && Number.isInteger(status?.sourceSlot)
             ? match.board?.[status.sourceUsername]?.[Number(status.sourceSlot)] || null
             : null;
-        if (sourceUnit && sourceUnit.alive !== false && targetUnit.alive !== false) {
+        if (targetUnit.alive !== false) {
             targetUnit.hp = 0;
             targetUnit.alive = false;
             triggerTeamMemberDeathHooks({ match, deadUsername: targetUsername, deadSlot: targetSlot });
             triggerOwnerDeathHooks({ unit: targetUnit, match, username: targetUsername, slot: targetSlot });
+        }
+        if (sourceUnit && sourceUnit.alive !== false) {
             const sourceState = ensureUnitStateShape(sourceUnit);
             const tracker = sourceState.statuses.find((entry) => entry?.id === 'jigglypuff_evolution_tracker');
             if (tracker && !hasStatus(sourceState, 'jigglypuff_wigglytuff_evolution')) {
