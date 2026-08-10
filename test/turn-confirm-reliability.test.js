@@ -6,6 +6,7 @@ const test = require('node:test');
 const root = path.join(__dirname, '..');
 const ingame = fs.readFileSync(path.join(root, 'ingame.html'), 'utf8');
 const script = fs.readFileSync(path.join(root, 'scripts', 'script.js'), 'utf8');
+const server = fs.readFileSync(path.join(root, 'server.js'), 'utf8');
 
 test('turn confirmation uses standard click activation on every input type', () => {
     assert.match(script, /endTurnOkButton\.addEventListener\('click', \(event\) => \{/);
@@ -19,6 +20,15 @@ test('turn confirmation cannot remain disabled forever on a stalled skill queue'
     assert.match(script, /reason: 'end-turn-queue-timeout'/);
     assert.match(script, /reason: 'end-turn-queue-timeout',[\s\S]*?silent: true/);
     assert.doesNotMatch(script, /Attack queue restored\. Review your attacks, then press OK again\./);
+});
+
+test('skill affordability is rechecked when the target selection is committed', () => {
+    assert.match(
+        script,
+        /const queueSelectedSkill = \(\{[\s\S]*?const effectiveSkill = getEffectiveSkillForActorSlot\(actorSlot, skillIdx\) \|\| null;[\s\S]*?if \(!isActorSkillSelectableNow\(actorSlot, skillIdx, effectiveSkill\)\)/
+    );
+    assert.match(script, /That skill is no longer affordable with your remaining energy\./);
+    assert.match(ingame, /energy-commit-guard-v1/);
 });
 
 test('battle page cache-busts the shared script for the confirmation hotfix', () => {
@@ -97,4 +107,10 @@ test('match recovery is bounded and a lethal ladder board requests the terminal 
     assert.match(script, /signal: controller\.signal/);
     assert.match(script, /reason: 'ladder-terminal-board'/);
     assert.match(script, /Confirming the final ladder result/);
+});
+
+test('temporary session lookup failures keep the player on the recoverable match URL', () => {
+    assert.match(server, /Session lookup failed:/);
+    assert.match(server, /res\.status\(503\)\.json\(\{ error: 'Session temporarily unavailable\. Please retry\.' \}\)/);
+    assert.doesNotMatch(server, /Session verification failed:[\s\S]{0,120}res\.status\(401\)/);
 });

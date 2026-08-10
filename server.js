@@ -8337,6 +8337,7 @@ const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonical
                 ? canonicalCharacter.startStatuses
                 : []
             ).find((status) => status?.statusId === canonicalEvolutionTrackerStatusId);
+            const canonicalTrackerMetadata = canonicalTracker?.metadata;
             const mergedStartStatuses = Array.isArray(character.startStatuses)
                 ? character.startStatuses
                 : [];
@@ -8353,6 +8354,31 @@ const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonical
                     },
                 };
             });
+            const correctNestedEvolutionTrackers = (value) => {
+                if (Array.isArray(value)) return value.map(correctNestedEvolutionTrackers);
+                if (!value || typeof value !== 'object') return value;
+                const corrected = Object.fromEntries(
+                    Object.entries(value).map(([key, nestedValue]) => [
+                        key,
+                        correctNestedEvolutionTrackers(nestedValue),
+                    ])
+                );
+                if (
+                    canonicalTrackerMetadata &&
+                    corrected.stackMetadataKey === canonicalTrackerMetadata.stackMetadataKey
+                ) {
+                    corrected.stackMax = canonicalTrackerMetadata.stackMax;
+                    corrected.tooltipTextTemplate = canonicalTrackerMetadata.tooltipTextTemplate;
+                    if (corrected.applyStatusAtStack && canonicalTrackerMetadata.applyStatusAtStack) {
+                        corrected.applyStatusAtStack = {
+                            ...corrected.applyStatusAtStack,
+                            value: canonicalTrackerMetadata.applyStatusAtStack.value,
+                        };
+                    }
+                }
+                return corrected;
+            };
+            correctedCharacter.skills = correctNestedEvolutionTrackers(correctedCharacter.skills);
         }
         return correctedCharacter;
     });
@@ -8646,6 +8672,13 @@ const resolveNewsChangeAssets = (entry = {}) => {
     };
 };
 
+const correctCanonicalNewsChangeText = (entry = {}, text = '') => {
+    if (entry?.skillId !== 'pidgey-passive-evolution-pidgeotto') return text;
+    return text
+        .replace(/Pidgey has dealt 100 total damage/g, 'Pidgey has dealt 50 total damage')
+        .replace(/At 100 damage/g, 'At 50 damage');
+};
+
 const normalizeNewsChanges = (value) =>
     (Array.isArray(value) ? value : [])
         .map((entry) => {
@@ -8656,7 +8689,10 @@ const normalizeNewsChanges = (value) =>
             if (!entry || typeof entry !== 'object') {
                 return null;
             }
-            const text = typeof entry.text === 'string' ? entry.text.trim() : '';
+            const text = correctCanonicalNewsChangeText(
+                entry,
+                typeof entry.text === 'string' ? entry.text.trim() : ''
+            );
             if (!text) {
                 return null;
             }
@@ -9785,13 +9821,20 @@ const validateBackgroundUrl = async (url) => {
 };
 
 const requireSession = async (req, res, next) => {
-    try {
-        const token = req.cookies?.[SESSION_COOKIE_NAME];
-        if (!token) {
-            return res.status(401).json({ error: 'Unauthorized.' });
-        }
+    const token = req.cookies?.[SESSION_COOKIE_NAME];
+    if (!token) {
+        return res.status(401).json({ error: 'Unauthorized.' });
+    }
 
-        const decoded = jwt.verify(token, JWT_SECRET);
+    let decoded;
+    try {
+        decoded = jwt.verify(token, JWT_SECRET);
+    } catch (error) {
+        console.warn('Session token verification failed:', error?.message || String(error));
+        return res.status(401).json({ error: 'Unauthorized.' });
+    }
+
+    try {
         const user = await usersCollection.findOne({ username: decoded.username });
         if (!user) {
             return res.status(401).json({ error: 'Unauthorized.' });
@@ -9802,8 +9845,10 @@ const requireSession = async (req, res, next) => {
         };
         next();
     } catch (error) {
-        console.error('Session verification failed:', error);
-        return res.status(401).json({ error: 'Unauthorized.' });
+        // A temporary database failure is not an authentication failure. Returning
+        // 401 here made the battle client abandon its URL and redirect to selection.
+        console.error('Session lookup failed:', error);
+        return res.status(503).json({ error: 'Session temporarily unavailable. Please retry.' });
     }
 };
 
@@ -12840,10 +12885,13 @@ const queueSkillForActorSlot = ({
     classChoice,
     absorptionChoice,
 }) => {
-    const pool = match.chakraPools?.[username];
-    if (!pool) {
+    const sourcePool = match.chakraPools?.[username];
+    if (!sourcePool) {
         throw new Error('Chakra pool unavailable.');
     }
+    // Queue validation is transactional: failed replacements must not consume
+    // chakra from the live match pool before the new request is accepted.
+    const pool = { ...sourcePool };
     const pending = getPendingTurn(match, username);
     const actorKey = String(actorSlot);
     const existing = pending.queuedByActorSlot[actorKey];
@@ -18659,6 +18707,7 @@ if (require.main === module) {
     module.exports = {
         app,
         normalizeArenaMode,
+        correctCanonicalNewsChangeText,
         applyRequiredCanonicalSkillCorrections,
         adjustRandomAssignments,
         createEmptyChakraPool,
@@ -18682,6 +18731,7 @@ if (require.main === module) {
         ensureRequiredMissionCatalogEntries,
         resolveMissionUnlockPointCost,
         areQueuedSkillRequestsEquivalent,
+        queueSkillForActorSlot,
         resolveExpiredTurnStartChoiceIfNeeded,
         autoAdvanceTurnIfExpired,
         normalizeRecentLadderGames,

@@ -4,6 +4,7 @@ const characters = require('../characters.js');
 
 const {
     normalizeArenaMode,
+    correctCanonicalNewsChangeText,
     applyRequiredCanonicalSkillCorrections,
     makeEmptyPendingTurn,
     sanitizeSavedTeamIndicesForArena,
@@ -12,11 +13,133 @@ const {
     buildMatchPayloadForUser,
     buildMatchActionStatePayload,
     areQueuedSkillRequestsEquivalent,
+    queueSkillForActorSlot,
     normalizeRecentLadderGames,
     countCurrentLadderSurrenderStreakByUser,
     isRepeatLadderSurrenderer,
     resolveExpiredTurnStartChoiceIfNeeded,
 } = require('../server.js');
+
+test('old Pidgey news text is served with the canonical 50 damage threshold', () => {
+    const corrected = correctCanonicalNewsChangeText(
+        { skillId: 'pidgey-passive-evolution-pidgeotto' },
+        'Evolution triggers after Pidgey has dealt 100 total damage. At 100 damage, Pidgey evolves.'
+    );
+    assert.equal(
+        corrected,
+        'Evolution triggers after Pidgey has dealt 50 total damage. At 50 damage, Pidgey evolves.'
+    );
+    assert.equal(
+        correctCanonicalNewsChangeText(
+            { skillId: 'unrelated-skill' },
+            'This unrelated skill mentions 100 total damage.'
+        ),
+        'This unrelated skill mentions 100 total damage.'
+    );
+});
+
+test('a rejected queued-skill replacement does not mutate the live energy pool', () => {
+    const rosterIndex = characters.findIndex((character) =>
+        (character?.skills || []).some((skill) => (skill?.energy || []).length >= 2)
+    );
+    const skillIndex = characters[rosterIndex].skills.findIndex(
+        (skill) => (skill?.energy || []).length >= 2
+    );
+    const originalPool = { taijutsu: 0, ninjutsu: 0, bloodline: 0, genjutsu: 0 };
+    const match = {
+        players: [{ username: 'EnergyTester' }, { username: 'Opponent' }],
+        board: {
+            EnergyTester: [{ alive: true, rosterIndex, state: { statuses: [], skillCooldowns: {} } }],
+            Opponent: [],
+        },
+        chakraPools: { EnergyTester: { ...originalPool } },
+        pendingTurns: {
+            EnergyTester: {
+                queuedByActorSlot: {
+                    0: {
+                        actorSlot: 0,
+                        skillIndex: 0,
+                        targetSelection: [],
+                        reservedSpecific: { taijutsu: 1 },
+                        requiredRandom: 0,
+                    },
+                },
+                queueOrder: [0],
+                unresolvedRandom: 0,
+                randomAssignments: { ...originalPool },
+                turnStartChoice: null,
+            },
+        },
+    };
+
+    assert.throws(
+        () => queueSkillForActorSlot({
+            match,
+            username: 'EnergyTester',
+            actorSlot: 0,
+            skillIndex,
+            targetSelection: [],
+        }),
+        /Not enough chakra/
+    );
+    assert.deepEqual(match.chakraPools.EnergyTester, originalPool);
+    assert.equal(match.pendingTurns.EnergyTester.queuedByActorSlot[0].skillIndex, 0);
+});
+
+test('one energy cannot lock in skills for two different characters', () => {
+    const rosterIndex = characters.findIndex((character) =>
+        (character?.skills || []).some(
+            (skill) =>
+                Array.isArray(skill?.energy) &&
+                skill.energy.length === 1 &&
+                String(skill.energy[0]).toLowerCase() !== 'random' &&
+                skill.target === 'self'
+        )
+    );
+    const skillIndex = characters[rosterIndex].skills.findIndex(
+        (skill) =>
+            Array.isArray(skill?.energy) &&
+            skill.energy.length === 1 &&
+            String(skill.energy[0]).toLowerCase() !== 'random' &&
+            skill.target === 'self'
+    );
+    const energyType = String(characters[rosterIndex].skills[skillIndex].energy[0]).toLowerCase();
+    const pool = { taijutsu: 0, ninjutsu: 0, bloodline: 0, genjutsu: 0 };
+    pool[energyType] = 1;
+    const match = {
+        players: [{ username: 'EnergyTester' }, { username: 'Opponent' }],
+        board: {
+            EnergyTester: [0, 1].map(() => ({
+                alive: true,
+                rosterIndex,
+                state: { statuses: [], skillCooldowns: {} },
+            })),
+            Opponent: [],
+        },
+        chakraPools: { EnergyTester: pool },
+        pendingTurns: { EnergyTester: makeEmptyPendingTurn() },
+    };
+
+    queueSkillForActorSlot({
+        match,
+        username: 'EnergyTester',
+        actorSlot: 0,
+        skillIndex,
+        targetSelection: { username: 'EnergyTester', slot: 0 },
+    });
+    assert.throws(
+        () => queueSkillForActorSlot({
+            match,
+            username: 'EnergyTester',
+            actorSlot: 1,
+            skillIndex,
+            targetSelection: { username: 'EnergyTester', slot: 1 },
+        }),
+        /Not enough chakra/
+    );
+    assert.deepEqual(match.pendingTurns.EnergyTester.queueOrder, [0]);
+    assert.equal(match.pendingTurns.EnergyTester.queuedByActorSlot[1], undefined);
+});
 
 test('required gameplay fixes survive stored character overrides without removing extra fields', () => {
     const canonical = [{
@@ -221,6 +344,12 @@ test('batch evolution, Smokescreen, and Scyther changes survive stored overrides
     stalePidgey.skills.find(
         (skill) => skill.id === 'pidgey-passive-evolution-pidgeotto'
     ).skilldescription = 'Old 100 damage threshold.';
+    const staleNestedPidgeyTracker = stalePidgey.skills
+        .flatMap((skill) => skill.effects || [])
+        .map((effect) => effect?.metadata?.onSuccessfulDamageApplyStatusToOwner?.metadata)
+        .find((metadata) => metadata?.stackMetadataKey === 'pidgeyDamageDealt');
+    staleNestedPidgeyTracker.stackMax = 100;
+    staleNestedPidgeyTracker.tooltipTextTemplate = 'Old 100 damage tracker.';
 
     const staleGastly = staleCharacters.find((character) => character.id === 'gastly');
     const gastlyTracker = staleGastly.startStatuses.find(
@@ -262,6 +391,12 @@ test('batch evolution, Smokescreen, and Scyther changes survive stored overrides
     assert.equal(correctedPidgeyTracker.metadata.stackMax, 50);
     assert.equal(correctedPidgeyTracker.metadata.applyStatusAtStack.value, 50);
     assert.equal(correctedPidgeyTracker.metadata.customTrackerField, true);
+    const correctedNestedPidgeyTracker = correctedPidgey.skills
+        .flatMap((skill) => skill.effects || [])
+        .map((effect) => effect?.metadata?.onSuccessfulDamageApplyStatusToOwner?.metadata)
+        .find((metadata) => metadata?.stackMetadataKey === 'pidgeyDamageDealt');
+    assert.equal(correctedNestedPidgeyTracker.stackMax, 50);
+    assert.match(correctedNestedPidgeyTracker.tooltipTextTemplate, /\/50.*At 50 damage/);
 
     const correctedGastlyTracker = corrected.find(
         (character) => character.id === 'gastly'
