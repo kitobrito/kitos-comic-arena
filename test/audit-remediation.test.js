@@ -365,7 +365,9 @@ test('transport, database, and fatal-error safeguards are explicitly bounded', (
 test('match status hydration and expiry sweeps share the per-match command lane', () => {
     assert.match(server, /const hydrateMatchForStatus = \(matchId\) =>\s*matchCommandCoordinator\.execute/);
     assert.match(server, /status: 'active',\s*turnExpiresAt: \{ \$lte: now \}/);
-    assert.match(server, /\.limit\(50\)/);
+    assert.match(server, /\.limit\(TURN_SWEEP_BATCH_SIZE\)/);
+    assert.match(server, /Promise\.allSettled/);
+    assert.match(server, /retireAbandonedActiveMatches/);
     assert.match(server, /if \(!matchesCollection \|\| turnSweepInFlight\) return/);
     assert.match(server, /advanceExpiredMatchAndBroadcast\(matchId\)/);
 });
