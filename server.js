@@ -63,6 +63,7 @@ const {
     syncPokemonPrimeapeRelease,
 } = require('./sync_pokemon_primeape_release');
 const { syncPokemonBattleExperienceNews } = require('./sync_pokemon_battle_experience_news');
+const { syncPokemonCompensationGrant } = require('./sync_pokemon_compensation_grant');
 let charactersData = require('./characters');
 
 const app = express();
@@ -73,7 +74,7 @@ const PORT = process.env.PORT || 4000;
 const TURN_DURATION_MS = 60 * 1000;
 const TURN_EXPIRY_GRACE_MS = 3 * 1000;
 const MATCH_INACTIVITY_TURN_LIMIT = 3;
-const ABANDONED_ACTIVE_MATCH_MS = 10 * 60 * 1000;
+const ABANDONED_ACTIVE_MATCH_MS = 2 * 60 * 1000;
 const ABANDONED_MATCH_CLEANUP_INTERVAL_MS = 60 * 1000;
 const TURN_SWEEP_BATCH_SIZE = 12;
 const TURN_SWEEP_CONCURRENCY = 4;
@@ -88,6 +89,7 @@ const DEFAULT_URI = process.env.MONGODB_URI;
 const MONGO_CLIENT_OPTIONS = Object.freeze({
     maxPoolSize: 15,
     minPoolSize: 1,
+    timeoutMS: 15 * 1000,
     serverSelectionTimeoutMS: 8000,
     socketTimeoutMS: 45000,
     retryWrites: true,
@@ -13612,6 +13614,12 @@ async function initDb() {
     setPrimeapeReleaseWindow(primeapeReleaseSync.eventWindow);
     if (primeapeReleaseSync.migrated) {
         console.log('Published the Primeape and Annihilape seven-day release.');
+    }
+    const compensationSync = await syncPokemonCompensationGrant(db);
+    if (compensationSync.migrated) {
+        console.log(
+            `Granted 250 Pokemon Arena points to ${compensationSync.modifiedCount} player accounts.`
+        );
     }
     console.log('Connected to MongoDB.');
 }

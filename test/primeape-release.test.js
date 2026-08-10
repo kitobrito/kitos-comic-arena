@@ -293,4 +293,9 @@ test('release synchronization preserves the original event window across restart
     assert.match(announcement, /sorry.*unavailable.*past week/i);
     assert.match(announcement, /win 20.*Primeape/i);
     assert.match(announcement, /750 unlock points/i);
+    assert.match(announcement, /Mega Charizard X and Y.*1,350-point skin/i);
+    assert.match(announcement, /every player account.*250 Pokemon Arena unlock points/i);
+    assert.ok(newsPost.changes.some((change) =>
+        change.groupKey === 'pokemon-compensation:service-apology-2026-08-10'
+    ));
 });
