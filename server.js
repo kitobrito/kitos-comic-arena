@@ -8337,6 +8337,7 @@ const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonical
                 ? canonicalCharacter.startStatuses
                 : []
             ).find((status) => status?.statusId === canonicalEvolutionTrackerStatusId);
+            const canonicalTrackerMetadata = canonicalTracker?.metadata;
             const mergedStartStatuses = Array.isArray(character.startStatuses)
                 ? character.startStatuses
                 : [];
@@ -8353,6 +8354,31 @@ const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonical
                     },
                 };
             });
+            const correctNestedEvolutionTrackers = (value) => {
+                if (Array.isArray(value)) return value.map(correctNestedEvolutionTrackers);
+                if (!value || typeof value !== 'object') return value;
+                const corrected = Object.fromEntries(
+                    Object.entries(value).map(([key, nestedValue]) => [
+                        key,
+                        correctNestedEvolutionTrackers(nestedValue),
+                    ])
+                );
+                if (
+                    canonicalTrackerMetadata &&
+                    corrected.stackMetadataKey === canonicalTrackerMetadata.stackMetadataKey
+                ) {
+                    corrected.stackMax = canonicalTrackerMetadata.stackMax;
+                    corrected.tooltipTextTemplate = canonicalTrackerMetadata.tooltipTextTemplate;
+                    if (corrected.applyStatusAtStack && canonicalTrackerMetadata.applyStatusAtStack) {
+                        corrected.applyStatusAtStack = {
+                            ...corrected.applyStatusAtStack,
+                            value: canonicalTrackerMetadata.applyStatusAtStack.value,
+                        };
+                    }
+                }
+                return corrected;
+            };
+            correctedCharacter.skills = correctNestedEvolutionTrackers(correctedCharacter.skills);
         }
         return correctedCharacter;
     });
