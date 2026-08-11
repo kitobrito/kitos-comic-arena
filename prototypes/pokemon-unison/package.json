@@ -1,0 +1,12 @@
+{
+  "name": "pokemon-unison-standalone",
+  "version": "0.7.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "coverage": "node scripts/roster-parity.mjs",
+    "start": "node reference/server.mjs",
+    "test": "node --test test/*.test.mjs",
+    "replay": "node reference/replay-cli.mjs"
+  }
+}

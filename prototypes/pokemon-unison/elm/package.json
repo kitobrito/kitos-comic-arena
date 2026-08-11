@@ -1,0 +1,11 @@
+{
+  "name": "pokemon-unison-elm",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "elm make src/Main.elm --optimize --output=../reference/elm.js"
+  },
+  "devDependencies": {
+    "elm": "0.19.1-6"
+  }
+}
