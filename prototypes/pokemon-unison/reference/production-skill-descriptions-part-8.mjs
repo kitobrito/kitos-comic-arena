@@ -1,0 +1,20 @@
+export const DESCRIPTION_PART_8 = Object.freeze({
+    "blissey-eggbomb": "Deals 30 affliction damage to one enemy and causes them to ignore all healing effects for 1 turn.",
+    "blissey-emergency-life-support": "Heals one ally for 50 HP and removes all enemy skills affecting them, or revives a defeated ally with 50 HP. This skill costs 1 less Random energy while Pokémon Center Healing is active.",
+    "blissey-pokemon-center-healing": "Heals Blissey's team for 15 HP and grants them 10 Shield each turn for 3 turns. During this skill, Softboil will always make its target unable to die.",
+    "blissey-softboil": "Heals one ally for 25 HP. Blissey and the other ally are also healed for 10 HP. The primary target has a 50% chance to become unable to die for 1 turn.",
+    "chansey-eggbomb": "Deals 20 affliction damage to one enemy and causes them to ignore all healing effects for 1 turn.",
+    "chansey-emergency-life-support": "Heals one ally for 50 HP, and removes all enemy skills currently affecting them.",
+    "chansey-passive-evolution-blissey": "After Chansey has healed 100 total HP during the battle, it evolves into Blissey. Blissey's skills are improved.",
+    "chansey-pokemon-center-healing": "Heals Chansey's team for 10 HP and grants them 5 Shield each turn for 3 turns. During this skill, Softboil will always make its target unable to die.",
+    "chansey-softboil": "Heals one ally for 25 HP. That ally has a 50% chance to become unable to die for 1 turn.",
+    "pidgeotto-gust": "Pidgeotto deals 20 piercing damage to one enemy and 15 piercing damage to all other enemies. If the target is affected by Sand-Attack, this skill deals 10 additional piercing damage to that enemy. While Whirlwind is active, Gust deals 10 additional piercing damage to all other enemies.",
+    "pidgeotto-peck": "Pidgeotto deals 30 piercing damage to one enemy. If the target is affected by Sand-Attack, Peck deals 15 additional piercing damage. While Whirlwind is active, Peck also deals 15 piercing damage to all other enemies.",
+    "pidgeotto-sand-attack": "For 3 turns, one enemy's harmful skills target any character randomly. Pidgeotto's Gust and Peck deal additional damage to enemies affected by Sand-Attack.",
+    "pidgeotto-whirlwind": "For 3 turns, Pidgeotto gains 50% evasion, and Gust and Peck deal 10 additional piercing damage to all other enemies.",
+    "pidgey-gust": "Pidgey deals 15 piercing damage to one enemy and 10 piercing damage to all other enemies. If the target is affected by Sand-Attack, this skill deals 10 additional piercing damage to that enemy.",
+    "pidgey-passive-evolution-pidgeotto": "After Pidgey has dealt 50 total damage during battle, he evolves into Pidgeotto. Pidgeotto's skills are improved.",
+    "pidgey-peck": "Pidgey deals 20 piercing damage to one enemy. If the target is affected by Sand-Attack, Peck deals 10 additional piercing damage. While Whirlwind is active, Peck also deals 10 piercing damage to all other enemies.",
+    "pidgey-sand-attack": "For 2 turns, one enemy's harmful skills target any character randomly. Gust and Peck deal additional damage to enemies affected by Sand-Attack.",
+    "pidgey-whirlwind": "For 2 turns, Pidgey gains 25% evasion, and Gust and Peck deal 5 additional piercing damage to all other enemies."
+});

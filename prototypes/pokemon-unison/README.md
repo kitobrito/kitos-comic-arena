@@ -7,15 +7,17 @@ overrides remain authoritative and untouched.
 
 ## What is implemented
 
-- thirty-one fully ported playable characters: Pokemon Trainer, Charmander, Squirtle,
+- thirty-four fully ported playable characters: Pokemon Trainer, Charmander, Squirtle,
   Bulbasaur, Pikachu, Butterfree, Koffing, Gastly, Abra, Krabby, Scyther, Eevee,
   Jolteon, Flareon, Vaporeon, Ekans, Machop, Magikarp, Mr. Mime, Hitmonchan,
   Hitmonlee, Aerodactyl, Magnemite, Onix, Meowth, Clefairy, Jigglypuff, Beedrill,
-  Zubat, Chansey, and Pidgey
+  Articuno, Moltres, Zapdos, Zubat, Chansey, and Pidgey
 - all four production-inspired skill slots and evolution passives for Charmander,
   Squirtle, and Bulbasaur
 - the Charmeleon, Wartortle, and Ivysaur replacement skill sets
-- every active base/evolved skill and reviewed passive for the thirty-one-character roster
+- every active base/evolved skill and reviewed passive for the thirty-four-character roster
+- exact full current Comic Arena descriptions for all 216 standalone skill definitions,
+  protected by an automated source-parity test
 - Pokemon Trainer's weighted turn-start Ball Cycle, four capture balls, permanent
   banish and copied forms, two-use Potion, alternating stackable X-Stats, Rare
   Candy force-evolution, and banish-safe Revive
@@ -97,7 +99,7 @@ Set-Location prototypes/pokemon-unison
 
 The report reads the current local `characters.js` as build-time migration input;
 the standalone game does not load it at runtime. The current checked baseline is
-46 source characters: thirty-one fully ported and 15 not yet
+46 source characters: thirty-four fully ported and 12 not yet
 started. Any source character, name, or skill-definition drift fails the parity
 regression until the manifest is reviewed.
 

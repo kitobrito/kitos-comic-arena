@@ -66,7 +66,7 @@ test('Gastly and Haunter expose the current four-slot forms and costs', () => {
     assert.deepEqual(gastly.skills.find((skill) => skill.id === 'gastly-glare').energy, [Energy.GENJUTSU]);
     assert.equal(
         gastly.skills.find((skill) => skill.id === 'gastly-glare').description,
-        'The next used skill deals 15 affliction damage to them.'
+        'Guard Breaks one enemy and paralyzes their cooldowns for 2 turns. If that enemy uses a new skill while affected, they take 15 affliction damage.'
     );
 });
 

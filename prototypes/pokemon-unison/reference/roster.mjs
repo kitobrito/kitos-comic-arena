@@ -1,4 +1,5 @@
 import { skillArt } from './skill-art.mjs';
+import { productionSkillDescription } from './production-skill-descriptions-current.mjs';
 
 export const Energy = Object.freeze({
     TAIJUTSU: 'taijutsu',
@@ -33,6 +34,7 @@ const skill = (entry) => ({
     harmful: true,
     classes: ['Physical'],
     ...entry,
+    description: productionSkillDescription(entry.id) ?? entry.description,
     image: entry.image ?? skillArt(entry.id),
 });
 const rageBonus = { counter: 'rage', multiplier: 5 };
@@ -3334,6 +3336,298 @@ const beedrillSkills = [
     }),
 ];
 
+const articunoSkills = [
+    skill({
+        id: 'articuno-blizzard', name: 'Blizzard',
+        description: 'Deals 15 damage to all enemies and paralyzes their cooldowns for 1 turn.',
+        target: 'all-enemy', energy: [Energy.NINJUTSU], cooldown: 1,
+        moveType: Type.ICE, classes: ['Ice', 'Special', 'Instant'],
+        effects: [
+            { kind: 'damage', scope: 'all-enemy', amount: 15, damageKind: 'normal' },
+            { kind: 'status', scope: 'all-enemy', status: {
+                id: 'articuno-blizzard-paralysis', name: 'Blizzard',
+                description: 'Skill cooldowns cannot decrease for 1 turn.',
+                hidden: false, harmful: true, durationActions: 1, durationAnchor: 'target',
+                paralyzeCooldowns: true,
+            } },
+        ],
+    }),
+    skill({
+        id: 'articuno-ice-beam', name: 'Ice Beam',
+        description: 'Deals 15 affliction damage and has a 50% chance to stun Special skills for 1 turn.',
+        target: 'single-enemy', energy: [Energy.NINJUTSU], cooldown: 0,
+        moveType: Type.ICE, classes: ['Ice', 'Special', 'Affliction', 'Instant'],
+        effects: [
+            { kind: 'damage', amount: 15, damageKind: 'affliction' },
+            { kind: 'status', chance: 50, status: {
+                id: 'articuno-ice-beam-stun', name: 'Ice Beam',
+                description: 'Special skills are stunned for 1 turn.',
+                hidden: false, harmful: true, durationActions: 1, durationAnchor: 'target',
+                cannotUseSkillClasses: ['Special'],
+            } },
+        ],
+    }),
+    skill({
+        id: 'articuno-sheer-cold', name: 'Sheer Cold',
+        description: 'Casts Blizzard then Ice Beam on the enemy team and permanently gains 5 damage each use.',
+        target: 'all-enemy', energy: [Energy.NINJUTSU, Energy.NINJUTSU, Energy.RANDOM], cooldown: 2,
+        moveType: Type.ICE, classes: ['Ice', 'Special', 'Affliction', 'Instant'],
+        effects: [
+            {
+                kind: 'damage', scope: 'all-enemy', amount: 30, damageKind: 'affliction',
+                bonusFromActorStatus: {
+                    statusId: 'articuno-sheer-cold-tracker',
+                    field: 'bonusDamage',
+                },
+            },
+            { kind: 'status', scope: 'all-enemy', status: {
+                id: 'articuno-blizzard-paralysis', name: 'Blizzard',
+                description: 'Skill cooldowns cannot decrease for 1 turn.',
+                hidden: false, harmful: true, durationActions: 1, durationAnchor: 'target',
+                paralyzeCooldowns: true,
+            } },
+            { kind: 'status', scope: 'all-enemy', chance: 50, status: {
+                id: 'articuno-ice-beam-stun', name: 'Ice Beam',
+                description: 'Special skills are stunned for 1 turn.',
+                hidden: false, harmful: true, durationActions: 1, durationAnchor: 'target',
+                cannotUseSkillClasses: ['Special'],
+            } },
+            {
+                kind: 'increment-actor-status-field',
+                statusId: 'articuno-sheer-cold-tracker',
+                field: 'bonusDamage',
+                delta: 5,
+            },
+        ],
+    }),
+    skill({
+        id: 'articuno-fast-agility', name: 'Fast Agility',
+        description: 'Articuno becomes invulnerable for 1 turn.',
+        target: 'self', energy: [Energy.RANDOM], cooldown: 4,
+        moveType: Type.PSYCHIC, classes: ['Psychic', 'Physical', 'Instant'], harmful: false,
+        effects: [{ kind: 'status', status: {
+            id: 'articuno-fast-agility', name: 'Fast Agility',
+            description: 'Invulnerable to enemy skills for 1 turn.',
+            hidden: false, harmful: false, durationActions: 1, invulnerable: true,
+            replaceExisting: true,
+        } }],
+    }),
+];
+
+const moltresSkills = [
+    skill({
+        id: 'moltres-fire-spin', name: 'Fire Spin',
+        description: "For 2 turns, enemies using a new harmful skill on Moltres' team take 10 affliction damage. Gains 1 Heat.",
+        target: 'self', energy: [Energy.BLOODLINE], cooldown: 3,
+        moveType: Type.FIRE, classes: ['Fire', 'Special', 'Affliction', 'Instant'], harmful: false,
+        effects: [
+            { kind: 'source-status', status: {
+                id: 'moltres-fire-spin-active', name: 'Fire Spin',
+                description: "Enemies using a harmful skill on Moltres' team take 10 affliction damage.",
+                hidden: false, harmful: false, durationActions: 2, durationAnchor: 'source',
+                replaceExisting: true,
+                teamHarmfulSkillTrap: {
+                    damageToActor: 10,
+                    damageKind: 'fixed-affliction',
+                    moveType: Type.FIRE,
+                    skillClasses: ['Fire', 'Special', 'Affliction'],
+                },
+            } },
+            {
+                kind: 'increment-actor-status-field', statusId: 'moltres-heat-tracker',
+                field: 'heat', delta: 1, maximum: 3,
+            },
+        ],
+    }),
+    skill({
+        id: 'moltres-sunny-day', name: 'Sunny Day',
+        description: 'For 2 turns, enemies take 3 additional affliction damage. Moltres gains 1 Heat.',
+        target: 'all-enemy', energy: [Energy.BLOODLINE], cooldown: 4,
+        moveType: Type.FIRE, classes: ['Fire', 'Special', 'Instant', 'Bypassing'],
+        effects: [
+            { kind: 'status', scope: 'all-enemy', status: {
+                id: 'moltres-sunny-day', name: 'Sunny Day',
+                description: 'Takes 3 additional affliction damage from all sources.',
+                hidden: false, harmful: true, durationActions: 2, durationAnchor: 'target',
+                replaceExisting: true, afflictionDamageTakenBonusFlat: 3,
+            } },
+            {
+                kind: 'increment-actor-status-field', statusId: 'moltres-heat-tracker',
+                field: 'heat', delta: 1, maximum: 3,
+            },
+        ],
+    }),
+    skill({
+        id: 'moltres-heat-wave', name: 'Heat Wave',
+        description: 'Deals 20 affliction damage to one enemy and 10 to all others. Gains 1 Heat.',
+        target: 'single-enemy', energy: [Energy.BLOODLINE, Energy.RANDOM], cooldown: 0,
+        moveType: Type.FIRE, classes: ['Fire', 'Special', 'Affliction', 'Instant'],
+        effects: [
+            { kind: 'damage', amount: 20, damageKind: 'affliction' },
+            { kind: 'damage', scope: 'other-enemies', amount: 10, damageKind: 'affliction' },
+            {
+                kind: 'increment-actor-status-field', statusId: 'moltres-heat-tracker',
+                field: 'heat', delta: 1, maximum: 3,
+            },
+        ],
+    }),
+    skill({
+        id: 'moltres-overheat', name: 'Overheat',
+        description: 'Consumes all Heat to deal 15 affliction damage per Heat to all enemies. Each use permanently lowers damage per Heat by 5 and reduces this skill\'s cost.',
+        target: 'all-enemy', energy: [Energy.BLOODLINE, Energy.BLOODLINE, Energy.RANDOM], cooldown: 0,
+        energyByActorStatusField: {
+            statusId: 'moltres-heat-tracker',
+            field: 'overheatUses',
+            tiers: [
+                { atLeast: 2, energy: [Energy.BLOODLINE] },
+                { atLeast: 1, energy: [Energy.BLOODLINE, Energy.BLOODLINE] },
+            ],
+        },
+        moveType: Type.FIRE, classes: ['Fire', 'Special', 'Affliction', 'Instant'],
+        effects: [
+            {
+                kind: 'damage', scope: 'all-enemy', amount: 0, damageKind: 'affliction',
+                amountFromActorStatus: {
+                    statusId: 'moltres-heat-tracker',
+                    countField: 'heat',
+                    amountPerCount: 15,
+                    penaltyField: 'overheatPenalty',
+                },
+            },
+            {
+                kind: 'reset-actor-status-field', statusId: 'moltres-heat-tracker',
+                field: 'heat', value: 0,
+            },
+            {
+                kind: 'increment-actor-status-field', statusId: 'moltres-heat-tracker',
+                field: 'overheatPenalty', delta: 5,
+            },
+            {
+                kind: 'increment-actor-status-field', statusId: 'moltres-heat-tracker',
+                field: 'overheatUses', delta: 1,
+            },
+        ],
+    }),
+    skill({
+        id: 'moltres-heat', name: 'Passive: Heat',
+        description: 'Moltres stores up to 3 Heat from its skills. Overheat consumes every stored Heat.',
+        target: 'passive', energy: [], cooldown: 0,
+        moveType: Type.FIRE, classes: ['Fire', 'Passive', 'Instant'], harmful: false,
+        effects: [],
+    }),
+];
+
+const zapdosSkills = [
+    skill({
+        id: 'zapdos-charge', name: 'Charge',
+        description: 'Channels for 2 turns. Zapdos skills cost 1 less Yellow energy each turn; using another skill ends Charge.',
+        target: 'self', energy: [], cooldown: 1,
+        moveType: Type.ELECTRIC, classes: ['Electric', 'Special', 'Channeled'], harmful: false,
+        effects: [{ kind: 'source-status', status: {
+            id: 'zapdos-charge-active', name: 'Charge',
+            description: 'Zapdos skills cost less Yellow energy; using another skill ends Charge.',
+            hidden: false, harmful: false, durationActions: 2, durationAnchor: 'source',
+            replaceExisting: true,
+            specificCostReductions: { [Energy.GENJUTSU]: 1 },
+            increaseSpecificCostReductionEachTurn: { [Energy.GENJUTSU]: 1 },
+            maximumSpecificCostReduction: 2,
+            consumeOnOwnerSkillIds: [
+                'zapdos-thunderbolt',
+                'zapdos-zap-cannon',
+                'zapdos-flight',
+            ],
+        } }],
+    }),
+    skill({
+        id: 'zapdos-thunderbolt', name: 'Thunderbolt',
+        description: 'For 3 turns, harmful enemy skills trigger 5 piercing damage and +1 cooldown. Recast detonates for 15 piercing team damage and paralyzes cooldowns.',
+        target: 'self', energy: [Energy.GENJUTSU], cooldown: 0,
+        moveType: Type.ELECTRIC, classes: ['Electric', 'Special', 'Instant', 'Bypassing'], harmful: false,
+        effects: [
+            { kind: 'source-status', unlessInitialActorStatus: 'zapdos-thunderbolt-active', status: {
+                id: 'zapdos-thunderbolt-active', name: 'Thunderbolt',
+                description: 'Enemy harmful skills targeting this team trigger piercing damage and cooldown pressure.',
+                hidden: false, harmful: false, durationActions: 3, durationAnchor: 'source',
+                replaceExisting: true,
+                teamHarmfulSkillTrap: {
+                    damageToActor: 5,
+                    damageKind: 'piercing',
+                    moveType: Type.ELECTRIC,
+                    skillClasses: ['Electric', 'Special'],
+                    damageOverrideFromOwnerStatus: {
+                        statusId: 'zapdos-flight-active',
+                        field: 'thunderboltTriggerDamage',
+                    },
+                    statusOnActor: {
+                        id: 'zapdos-thunderbolt-cooldown-pressure',
+                        name: 'Thunderbolt',
+                        description: 'The newly used skill receives 1 additional cooldown.',
+                        hidden: false, harmful: true, durationActions: 1,
+                        durationAnchor: 'target', replaceExisting: true,
+                        newSkillCooldownIncrease: 1,
+                    },
+                    advanceStatusOnActor: {
+                        statusId: 'zapdos-zap-cannon',
+                        sourceMustMatch: true,
+                        onExpireDamageDelta: 10,
+                        durationDelta: -1,
+                    },
+                },
+            } },
+            {
+                kind: 'damage', scope: 'all-enemy', amount: 15, damageKind: 'piercing',
+                requiresInitialActorStatus: 'zapdos-thunderbolt-active',
+            },
+            { kind: 'status', scope: 'all-enemy', requiresInitialActorStatus: 'zapdos-thunderbolt-active', status: {
+                id: 'zapdos-thunderbolt-paralysis', name: 'Thunderbolt',
+                description: 'Skill cooldowns cannot decrease for 1 turn.',
+                hidden: false, harmful: true, durationActions: 1, durationAnchor: 'target',
+                paralyzeCooldowns: true,
+            } },
+            {
+                kind: 'remove-actor-status',
+                requiresInitialActorStatus: 'zapdos-thunderbolt-active',
+                statusIds: ['zapdos-thunderbolt-active'],
+            },
+        ],
+    }),
+    skill({
+        id: 'zapdos-zap-cannon', name: 'Zap Cannon',
+        description: 'Marks an enemy for 3 turns. Thunderbolt triggers shorten it and add 10 damage. On expiry, deals 30 plus bonus piercing damage and stuns for 1 turn.',
+        target: 'single-enemy', energy: [Energy.GENJUTSU, Energy.GENJUTSU, Energy.RANDOM], cooldown: 0,
+        moveType: Type.ELECTRIC,
+        classes: ['Electric', 'Special', 'Instant', 'Uncounterable', 'Unreflectable'],
+        effects: [{ kind: 'status', status: {
+            id: 'zapdos-zap-cannon', name: 'Zap Cannon',
+            description: 'On expiry, takes 30 plus stored bonus piercing damage and is stunned.',
+            hidden: false, harmful: true, durationActions: 3, durationAnchor: 'target',
+            replaceExisting: true, endIfSourceDies: true,
+            onExpireDamage: 30, onExpireDamageKind: 'piercing',
+            onExpireMoveType: Type.ELECTRIC,
+            onExpireSkillClasses: ['Electric', 'Special'],
+            onExpireStatus: {
+                id: 'zapdos-zap-cannon-stun', name: 'Zap Cannon',
+                description: 'Cannot use skills for 1 turn.',
+                hidden: false, harmful: true, durationActions: 1, durationAnchor: 'target',
+                cannotUseSkills: true,
+            },
+        } }],
+    }),
+    skill({
+        id: 'zapdos-flight', name: 'Flight',
+        description: 'For 2 turns, Zapdos is invulnerable to non-affliction enemy skills and Thunderbolt triggers deal 7 instead of 5.',
+        target: 'self', energy: [Energy.RANDOM], cooldown: 4,
+        moveType: Type.FLYING, classes: ['Flying', 'Physical', 'Instant'], harmful: false,
+        effects: [{ kind: 'source-status', status: {
+            id: 'zapdos-flight-active', name: 'Flight',
+            description: 'Invulnerable to non-affliction enemy skills; Thunderbolt triggers deal 7 damage.',
+            hidden: false, harmful: false, durationActions: 2, durationAnchor: 'source',
+            replaceExisting: true, invulnerableToNonAffliction: true,
+            thunderboltTriggerDamage: 7,
+        } }],
+    }),
+];
+
 export const ROSTER = Object.freeze({
     'pokemon-trainer': {
         id: 'pokemon-trainer',
@@ -4135,6 +4429,76 @@ export const ROSTER = Object.freeze({
             },
         },
         skills: beedrillSkills,
+    },
+    articuno: {
+        id: 'articuno', name: 'Articuno', types: [Type.ICE, Type.FLYING],
+        facePicture: '/game-assets/images/PokemonArena/articuno/fp.png',
+        passiveName: 'Sheer Cold Escalation',
+        passiveDescription: 'Every Sheer Cold permanently adds 5 damage to future uses.',
+        startStatuses: [{
+            id: 'articuno-sheer-cold-tracker',
+            name: 'Sheer Cold Escalation',
+            description: 'Sheer Cold has 0 permanent bonus damage.',
+            hidden: false, harmful: false, durationActions: null, unremovable: true,
+            sourceSkillId: 'articuno-sheer-cold', bonusDamage: 0,
+        }],
+        forms: {
+            base: {
+                id: 'base', name: 'Articuno', types: [Type.ICE, Type.FLYING],
+                facePicture: '/game-assets/images/PokemonArena/articuno/fp.png',
+                skillIds: [
+                    'articuno-blizzard',
+                    'articuno-ice-beam',
+                    'articuno-sheer-cold',
+                    'articuno-fast-agility',
+                ],
+            },
+        },
+        skills: articunoSkills,
+    },
+    moltres: {
+        id: 'moltres', name: 'Moltres', types: [Type.FIRE, Type.FLYING],
+        facePicture: '/game-assets/images/PokemonArena/moltres/FP.png',
+        passiveName: 'Heat',
+        passiveDescription: 'Stores up to 3 Heat; Overheat consumes it and permanently weakens each future Heat stack.',
+        startStatuses: [{
+            id: 'moltres-heat-tracker',
+            name: 'Heat',
+            description: 'Moltres has 0/3 Heat and Overheat has not been used.',
+            hidden: false, harmful: false, durationActions: null, unremovable: true,
+            sourceSkillId: 'moltres-heat', heat: 0, overheatPenalty: 0, overheatUses: 0,
+        }],
+        forms: {
+            base: {
+                id: 'base', name: 'Moltres', types: [Type.FIRE, Type.FLYING],
+                facePicture: '/game-assets/images/PokemonArena/moltres/FP.png',
+                skillIds: [
+                    'moltres-fire-spin',
+                    'moltres-sunny-day',
+                    'moltres-heat-wave',
+                    'moltres-overheat',
+                ],
+            },
+        },
+        skills: moltresSkills,
+    },
+    zapdos: {
+        id: 'zapdos', name: 'Zapdos', types: [Type.ELECTRIC, Type.FLYING],
+        facePicture: '/game-assets/images/PokemonArena/zapdos/fp.png',
+        passiveDescription: 'Thunderbolt punishes harmful skills and accelerates Zap Cannon.',
+        forms: {
+            base: {
+                id: 'base', name: 'Zapdos', types: [Type.ELECTRIC, Type.FLYING],
+                facePicture: '/game-assets/images/PokemonArena/zapdos/fp.png',
+                skillIds: [
+                    'zapdos-charge',
+                    'zapdos-thunderbolt',
+                    'zapdos-zap-cannon',
+                    'zapdos-flight',
+                ],
+            },
+        },
+        skills: zapdosSkills,
     },
     zubat: {
         id: 'zubat', name: 'Zubat', types: [Type.POISON, Type.FLYING],

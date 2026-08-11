@@ -38,8 +38,10 @@ const DAMAGING_EFFECT_KINDS = new Set([
 const ACTOR_ONLY_EFFECT_KINDS = new Set([
     'source-status',
     'increment-actor-counter',
+    'increment-actor-status-field',
     'remove-actor-status',
     'reset-actor-counter',
+    'reset-actor-status-field',
     'reset-actor-unique-skill-group',
     'record-unique-skill',
     'consume-actor-tracked-shield',
@@ -300,14 +302,38 @@ function effectiveSkillCosts(actor, skill) {
         .filter(statusActive)
         .map((status) => status.skillCostOverrides?.[skill.id])
         .find(Array.isArray);
-    const baseCosts = override ?? skill.energy;
+    const dynamicCost = skill.energyByActorStatusField
+        ? (() => {
+            const config = skill.energyByActorStatusField;
+            const status = actor.statuses.find(
+                (entry) => statusActive(entry) && entry.id === config.statusId
+            );
+            const value = Math.max(0, Number(status?.[config.field]) || 0);
+            const tier = [...(config.tiers ?? [])]
+                .sort((left, right) => (right.atLeast ?? 0) - (left.atLeast ?? 0))
+                .find((entry) => value >= (entry.atLeast ?? 0));
+            return Array.isArray(tier?.energy) ? tier.energy : null;
+        })()
+        : null;
+    const baseCosts = override ?? dynamicCost ?? skill.energy;
     const reduction = skill.randomCostReductionCounter
         ? Math.max(0, actor.counters[skill.randomCostReductionCounter] ?? 0)
         : 0;
     let remainingReduction = reduction;
+    const specificReductions = actor.statuses.reduce((totals, status) => {
+        if (!statusActive(status)) return totals;
+        Object.entries(status.specificCostReductions ?? {}).forEach(([cost, amount]) => {
+            totals[cost] = (totals[cost] ?? 0) + Math.max(0, Number(amount) || 0);
+        });
+        return totals;
+    }, {});
     const reducedCosts = baseCosts.filter((cost) => {
         if (cost === Energy.RANDOM && remainingReduction > 0) {
             remainingReduction -= 1;
+            return false;
+        }
+        if ((specificReductions[cost] ?? 0) > 0) {
+            specificReductions[cost] -= 1;
             return false;
         }
         return true;
@@ -879,6 +905,15 @@ function incomingBlocked(state, actor, target, skill) {
         );
         if (classGuard) {
             log(state, 'blocked', `${getSpecies(target).name} avoided ${skill.name} with ${classGuard.name}.`);
+            return true;
+        }
+        const nonAfflictionGuard = target.statuses.find((status) =>
+            statusActive(status) &&
+            status.invulnerableToNonAffliction &&
+            !skill.classes?.includes('Affliction')
+        );
+        if (nonAfflictionGuard) {
+            log(state, 'blocked', `${getSpecies(target).name} avoided ${skill.name} with ${nonAfflictionGuard.name}.`);
             return true;
         }
     }
@@ -1495,12 +1530,34 @@ function applyEffectToTarget(state, context, effect, target) {
                     total + (Number(status[effect.bonusFromTargetStatus.field]) || 0) *
                         (effect.bonusFromTargetStatus.multiplier ?? 1), 0)
             : 0;
+        const actorStatusScaledAmount = effect.amountFromActorStatus
+            ? actor.statuses
+                .filter(statusActive)
+                .filter((status) => status.id === effect.amountFromActorStatus.statusId)
+                .reduce((total, status) => {
+                    const count = Math.max(
+                        0,
+                        Number(status[effect.amountFromActorStatus.countField]) || 0
+                    );
+                    const penalty = effect.amountFromActorStatus.penaltyField
+                        ? Math.max(
+                            0,
+                            Number(status[effect.amountFromActorStatus.penaltyField]) || 0
+                        )
+                        : 0;
+                    const perCount = Math.max(
+                        0,
+                        (effect.amountFromActorStatus.amountPerCount ?? 0) - penalty
+                    );
+                    return total + count * perCount;
+                }, 0)
+            : 0;
         const dealt = damageUnit(
             state,
             actor,
             target,
             skill,
-            effect.amount + counterBonus + actorStatusBonus + targetStatusBonus,
+            effect.amount + counterBonus + actorStatusBonus + targetStatusBonus + actorStatusScaledAmount,
             effect.damageKind,
             effect.applyTypeAdjustment === false
                 ? false
@@ -1756,8 +1813,27 @@ function applyEffectToTarget(state, context, effect, target) {
         });
     } else if (effect.kind === 'increment-actor-counter') {
         incrementCounter(state, actor, effect.counter, effect.delta ?? 1, effect.maximum);
+    } else if (effect.kind === 'increment-actor-status-field') {
+        const status = actor.statuses.find(
+            (entry) => statusActive(entry) && entry.id === effect.statusId
+        );
+        if (status && effect.field) {
+            const current = Math.max(0, Number(status[effect.field]) || 0);
+            const maximum = Number.isFinite(effect.maximum)
+                ? effect.maximum
+                : Number.POSITIVE_INFINITY;
+            status[effect.field] = Math.min(
+                maximum,
+                Math.max(0, current + (Number(effect.delta) || 0))
+            );
+        }
     } else if (effect.kind === 'reset-actor-counter') {
         actor.counters[effect.counter] = 0;
+    } else if (effect.kind === 'reset-actor-status-field') {
+        const status = actor.statuses.find(
+            (entry) => statusActive(entry) && entry.id === effect.statusId
+        );
+        if (status && effect.field) status[effect.field] = Math.max(0, Number(effect.value) || 0);
     } else if (effect.kind === 'reset-actor-unique-skill-group') {
         if (!actor.uniqueSkillUses) actor.uniqueSkillUses = {};
         delete actor.uniqueSkillUses[effect.group];
@@ -2058,6 +2134,7 @@ function effectConditionMet(context, target, effect) {
         return false;
     }
     const initialStatuses = context.initialTargetStatuses ?? [];
+    const initialActorStatuses = context.initialActorStatuses ?? [];
     if (
         effect.requiresInitialTargetStatus &&
         !initialStatuses.some((status) => statusActive(status) && status.id === effect.requiresInitialTargetStatus)
@@ -2072,6 +2149,18 @@ function effectConditionMet(context, target, effect) {
     if (effect.unlessActorStatus && hasStatus(actor, (status) => status.id === effect.unlessActorStatus)) {
         return false;
     }
+    if (
+        effect.requiresInitialActorStatus &&
+        !initialActorStatuses.some(
+            (status) => statusActive(status) && status.id === effect.requiresInitialActorStatus
+        )
+    ) return false;
+    if (
+        effect.unlessInitialActorStatus &&
+        initialActorStatuses.some(
+            (status) => statusActive(status) && status.id === effect.unlessInitialActorStatus
+        )
+    ) return false;
     if (effect.requiresTargetAlive === true && !target.alive) return false;
     if (effect.requiresTargetAlive === false && target.alive) return false;
     if (effect.requiresEnemyTarget && target.player === action.player) return false;
@@ -2290,8 +2379,88 @@ function resolveSourceTurnStartStatuses(state, player) {
     });
 }
 
+function triggerTeamHarmfulSkillTraps(state, actor, skill, target) {
+    if (actor.player === target.player) return;
+    for (const owner of livingTargets(state, target.player)) {
+        for (const status of [...owner.statuses]) {
+            if (!statusActive(status) || !status.teamHarmfulSkillTrap) continue;
+            const trap = status.teamHarmfulSkillTrap;
+            const source = sourceUnitForStatus(state, status) ?? owner;
+            if (!source?.alive) continue;
+            const overrideStatus = trap.damageOverrideFromOwnerStatus
+                ? owner.statuses.find((entry) =>
+                    statusActive(entry) &&
+                    entry.id === trap.damageOverrideFromOwnerStatus.statusId
+                )
+                : null;
+            const overrideDamage = overrideStatus && trap.damageOverrideFromOwnerStatus?.field
+                ? Number(overrideStatus[trap.damageOverrideFromOwnerStatus.field])
+                : Number.NaN;
+            const amount = Math.max(
+                0,
+                Number.isFinite(overrideDamage) ? overrideDamage : Number(trap.damageToActor) || 0
+            );
+            if (amount > 0) {
+                if (trap.damageKind === 'fixed-affliction') {
+                    dealFixedStatusDamage(state, source, actor, status.name, amount);
+                } else {
+                    damageUnit(
+                        state,
+                        source,
+                        actor,
+                        {
+                            id: status.sourceSkillId ?? status.id,
+                            name: status.name,
+                            moveType: trap.moveType ?? null,
+                            classes: trap.skillClasses ?? [],
+                        },
+                        amount,
+                        trap.damageKind ?? 'piercing',
+                        false
+                    );
+                }
+            }
+            if (!actor.alive) continue;
+            if (trap.statusOnActor) {
+                addStatus(state, actor, {
+                    player: source.player,
+                    slot: source.slot,
+                    targetPlayer: actor.player,
+                }, {
+                    ...trap.statusOnActor,
+                    sourceSkillId: trap.statusOnActor.sourceSkillId ?? status.sourceSkillId,
+                });
+            }
+            const advance = trap.advanceStatusOnActor;
+            if (!advance?.statusId) continue;
+            const matching = actor.statuses.find((entry) =>
+                statusActive(entry) &&
+                entry.id === advance.statusId &&
+                (!advance.sourceMustMatch || (
+                    entry.sourcePlayer === source.player && entry.sourceSlot === source.slot
+                ))
+            );
+            if (!matching) continue;
+            if (advance.onExpireDamageDelta) {
+                matching.onExpireDamage = Math.max(
+                    0,
+                    (Number(matching.onExpireDamage) || 0) + advance.onExpireDamageDelta
+                );
+            }
+            if (advance.durationDelta && Number.isInteger(matching.durationActions)) {
+                matching.durationActions += advance.durationDelta;
+                if (matching.durationActions <= 0) {
+                    triggerStatusExpiration(state, actor, matching);
+                    actor.statuses = actor.statuses.filter((entry) => entry !== matching);
+                }
+            }
+        }
+    }
+}
+
 function triggerHarmfulSkillHooks(state, actor, skill, target) {
     if (!skillIsHarmfulToTarget(skill, actor, target)) return;
+    triggerTeamHarmfulSkillTraps(state, actor, skill, target);
     for (const status of [...actor.statuses]) {
         if (!statusActive(status) || !status.onHarmfulSkill) continue;
         const hook = status.onHarmfulSkill;
@@ -2577,26 +2746,37 @@ function triggerStatusExpiration(state, target, status) {
             targetSlot: target.slot,
         });
     }
-    const amount = Math.max(0, Number(status.onExpireDamage) || 0);
-    if (amount <= 0 || !target.alive) return;
+    if (!target.alive) return;
     const source = sourceUnitForStatus(state, status);
-    if (!source) return;
-    const dealt = damageUnit(
-        state,
-        source,
-        target,
-        {
-            id: status.sourceSkillId ?? status.id,
-            name: status.name,
-            moveType: status.onExpireMoveType ?? null,
-            classes: status.onExpireSkillClasses ?? [],
-        },
-        amount,
-        status.onExpireDamageKind ?? 'fixed-piercing',
-        false
-    );
-    if (dealt > 0 && status.onExpireEvolveSourceForm && source.alive) {
-        evolveUnit(state, source, status.onExpireEvolveSourceForm);
+    const amount = Math.max(0, Number(status.onExpireDamage) || 0);
+    if (amount > 0 && source) {
+        const dealt = damageUnit(
+            state,
+            source,
+            target,
+            {
+                id: status.sourceSkillId ?? status.id,
+                name: status.name,
+                moveType: status.onExpireMoveType ?? null,
+                classes: status.onExpireSkillClasses ?? [],
+            },
+            amount,
+            status.onExpireDamageKind ?? 'fixed-piercing',
+            false
+        );
+        if (dealt > 0 && status.onExpireEvolveSourceForm && source.alive) {
+            evolveUnit(state, source, status.onExpireEvolveSourceForm);
+        }
+    }
+    if (target.alive && source && status.onExpireStatus) {
+        addStatus(state, target, {
+            player: source.player,
+            slot: source.slot,
+            targetPlayer: target.player,
+        }, {
+            ...status.onExpireStatus,
+            sourceSkillId: status.onExpireStatus.sourceSkillId ?? status.sourceSkillId,
+        });
     }
 }
 
@@ -2663,6 +2843,18 @@ function grantRandomEnergy(state, player, count, reason) {
 function processTurnStartEffects(state, player) {
     livingTargets(state, player).forEach((unit) => {
         unit.statuses.filter(statusActive).forEach((status) => {
+            Object.entries(status.increaseSpecificCostReductionEachTurn ?? {}).forEach(
+                ([cost, amount]) => {
+                    if (!status.specificCostReductions) status.specificCostReductions = {};
+                    status.specificCostReductions[cost] = Math.min(
+                        Number.isFinite(status.maximumSpecificCostReduction)
+                            ? status.maximumSpecificCostReduction
+                            : Number.POSITIVE_INFINITY,
+                        Math.max(0, Number(status.specificCostReductions[cost]) || 0) +
+                            Math.max(0, Number(amount) || 0)
+                    );
+                }
+            );
             if (status.turnStartActorCounter) {
                 incrementCounter(
                     state,
@@ -2821,6 +3013,7 @@ function resolveActionWithoutAdvancingTurn(inputState, action) {
         typeAdjustedTargets: new Set(),
         initialTargetHp: target.hp,
         initialTargetStatuses: clone(target.statuses),
+        initialActorStatuses: clone(actor.statuses),
         previousSkillId,
     };
     affectedTargets.forEach((recipient) => prepareTargetForSkill(state, effectContext, recipient));
