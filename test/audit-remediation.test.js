@@ -347,7 +347,8 @@ test('transport, database, and fatal-error safeguards are explicitly bounded', (
     assert.match(server, /perMessageDeflate:\s*\{/);
     assert.match(server, /threshold: 1024/);
     assert.match(server, /maxPoolSize: 15/);
-    assert.match(server, /serverSelectionTimeoutMS: 8000/);
+    assert.match(server, /timeoutMS: 6 \* 1000/);
+    assert.match(server, /serverSelectionTimeoutMS: 5000/);
     assert.match(server, /socketTimeoutMS: 45000/);
     assert.match(server, /new MongoClient\(DEFAULT_URI, MONGO_CLIENT_OPTIONS\)/);
     assert.match(server, /mongoClient\.on\('serverHeartbeatFailed'/);

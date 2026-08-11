@@ -42,6 +42,7 @@ const battleLogic = require('./battleLogic');
 const {
     MatchRevisionConflictError,
     assertMatchInvariants,
+    createCoordinatedMatchHandler,
     createMatchCommandCoordinator,
     getMatchStateRevision,
     getMatchTurnNumber,
@@ -76,6 +77,7 @@ const TURN_EXPIRY_GRACE_MS = 3 * 1000;
 const MATCH_INACTIVITY_TURN_LIMIT = 3;
 const ABANDONED_ACTIVE_MATCH_MS = 2 * 60 * 1000;
 const ABANDONED_MATCH_CLEANUP_INTERVAL_MS = 60 * 1000;
+const MATCH_MAINTENANCE_STALL_MS = 30 * 1000;
 const TURN_SWEEP_BATCH_SIZE = 12;
 const TURN_SWEEP_CONCURRENCY = 4;
 const MATCH_FOUND_HOLD_MS = 3 * 1000;
@@ -89,8 +91,8 @@ const DEFAULT_URI = process.env.MONGODB_URI;
 const MONGO_CLIENT_OPTIONS = Object.freeze({
     maxPoolSize: 15,
     minPoolSize: 1,
-    timeoutMS: 15 * 1000,
-    serverSelectionTimeoutMS: 8000,
+    timeoutMS: 6 * 1000,
+    serverSelectionTimeoutMS: 5000,
     socketTimeoutMS: 45000,
     retryWrites: true,
 });
@@ -2090,7 +2092,10 @@ const wsServer = new WebSocketServer({
 });
 let turnSweepTimer = null;
 let turnSweepInFlight = false;
-let lastAbandonedMatchCleanupAtMs = 0;
+let turnSweepStartedAtMs = 0;
+let abandonedMatchCleanupTimer = null;
+let abandonedMatchCleanupInFlight = false;
+let abandonedMatchCleanupStartedAtMs = 0;
 const activeBattleBotTurns = new Set();
 const scheduledBattleBotTurns = new Set();
 const GAME_BOT_USERNAME_PREFIX = '__game_bot__:';
@@ -10473,6 +10478,18 @@ const retireAbandonedActiveMatches = async (now = new Date()) => {
     return result;
 };
 
+const runAbandonedMatchCleanup = async (now = new Date()) => {
+    if (!matchesCollection || abandonedMatchCleanupInFlight) return null;
+    abandonedMatchCleanupInFlight = true;
+    abandonedMatchCleanupStartedAtMs = Date.now();
+    try {
+        return await retireAbandonedActiveMatches(now);
+    } finally {
+        abandonedMatchCleanupInFlight = false;
+        abandonedMatchCleanupStartedAtMs = 0;
+    }
+};
+
 const runExpiredMatchBatch = async (entries = []) => {
     for (let offset = 0; offset < entries.length; offset += TURN_SWEEP_CONCURRENCY) {
         const batch = entries.slice(offset, offset + TURN_SWEEP_CONCURRENCY);
@@ -10491,12 +10508,9 @@ const runExpiredMatchBatch = async (entries = []) => {
 const sweepExpiredMatches = async () => {
     if (!matchesCollection || turnSweepInFlight) return;
     turnSweepInFlight = true;
+    turnSweepStartedAtMs = Date.now();
     try {
         const now = new Date();
-        if (now.getTime() - lastAbandonedMatchCleanupAtMs >= ABANDONED_MATCH_CLEANUP_INTERVAL_MS) {
-            await retireAbandonedActiveMatches(now);
-            lastAbandonedMatchCleanupAtMs = now.getTime();
-        }
         const expiredMatches = await matchesCollection
             .find(
                 {
@@ -10511,6 +10525,7 @@ const sweepExpiredMatches = async () => {
         await runExpiredMatchBatch(expiredMatches);
     } finally {
         turnSweepInFlight = false;
+        turnSweepStartedAtMs = 0;
     }
 };
 
@@ -13625,7 +13640,24 @@ async function initDb() {
 }
 
 app.get('/health', (req, res) => {
-    res.json({ status: 'ok' });
+    const nowMs = Date.now();
+    const turnSweepStalled =
+        turnSweepInFlight &&
+        turnSweepStartedAtMs > 0 &&
+        nowMs - turnSweepStartedAtMs > MATCH_MAINTENANCE_STALL_MS;
+    const abandonedCleanupStalled =
+        abandonedMatchCleanupInFlight &&
+        abandonedMatchCleanupStartedAtMs > 0 &&
+        nowMs - abandonedMatchCleanupStartedAtMs > MATCH_MAINTENANCE_STALL_MS;
+    const healthy = !turnSweepStalled && !abandonedCleanupStalled;
+    res.status(healthy ? 200 : 503).json({
+        status: healthy ? 'ok' : 'degraded',
+        matchMaintenance: {
+            turnSweepStalled,
+            abandonedCleanupStalled,
+            activeCommandLanes: matchCommandCoordinator.getActiveLaneCount(),
+        },
+    });
 });
 
 const RESERVED_MATCH_ROUTE_IDS = new Set(['status', 'join', 'cancel']);
@@ -13647,27 +13679,15 @@ app.use('/api/match/:matchId', (req, res, next) => {
         }
         return sendJson(payload);
     };
-    const commandName = `${String(req.method || 'GET').toLowerCase()} ${req.path || '/'}`;
-    matchCommandCoordinator
-        .execute(
-            matchId,
-            commandName,
-            () =>
-                new Promise((resolve) => {
-                    let settled = false;
-                    const release = () => {
-                        if (settled) return;
-                        settled = true;
-                        resolve();
-                    };
-                    res.once('finish', release);
-                    res.once('close', release);
-                    next();
-                }),
-            { log: req.method !== 'GET' }
-        )
-        .catch(next);
+    next();
 });
+
+const withMatchCommand = (handler, options = {}) =>
+    createCoordinatedMatchHandler({
+        coordinator: matchCommandCoordinator,
+        handler,
+        ...options,
+    });
 
 app.get('/api/latest-releases', async (req, res) => {
     const arena = normalizeArenaMode(req.query?.arena || '');
@@ -14608,7 +14628,7 @@ app.post('/api/draft/:draftId/team', requireSession, async (req, res) => {
     }
 });
 
-app.get('/api/match/:matchId/version', requireSession, async (req, res) => {
+app.get('/api/match/:matchId/version', requireSession, withMatchCommand(async (req, res) => {
     const { matchId } = req.params;
     let match = await matchesCollection.findOne(
         { matchId },
@@ -14649,9 +14669,9 @@ app.get('/api/match/:matchId/version', requireSession, async (req, res) => {
         turnExpiresAt: match.turnExpiresAt || null,
         status: match.status || 'active',
     });
-});
+}, { log: false }));
 
-app.get('/api/match/:matchId', requireSession, async (req, res) => {
+app.get('/api/match/:matchId', requireSession, withMatchCommand(async (req, res) => {
     const { matchId } = req.params;
     const match = await matchesCollection.findOne({ matchId });
     const hydratedTurn = await ensureMatchTurnData(match);
@@ -14668,9 +14688,9 @@ app.get('/api/match/:matchId', requireSession, async (req, res) => {
     }
     scheduleBattleBotTurn(hydrated);
     return res.json(buildMatchPayloadForUser(hydrated, req.authUser.username));
-});
+}, { log: false }));
 
-app.post('/api/match/:matchId/surrender', requireSession, async (req, res) => {
+app.post('/api/match/:matchId/surrender', requireSession, withMatchCommand(async (req, res) => {
     const { matchId } = req.params;
     const storedMatch = await matchesCollection.findOne({ matchId });
     if (!storedMatch) {
@@ -14757,9 +14777,9 @@ app.post('/api/match/:matchId/surrender', requireSession, async (req, res) => {
         endedAt,
         ladderResult: ladderResults?.[username] || null,
     });
-});
+}));
 
-app.post('/api/match/:matchId/turn/end', requireSession, async (req, res) => {
+app.post('/api/match/:matchId/turn/end', requireSession, withMatchCommand(async (req, res) => {
     try {
         const { matchId } = req.params;
         const match = await matchesCollection.findOne({ matchId });
@@ -14852,9 +14872,9 @@ app.post('/api/match/:matchId/turn/end', requireSession, async (req, res) => {
             details: String(error?.stack || error?.message || error),
         });
     }
-});
+}));
 
-app.post('/api/match/:matchId/skill/queue', requireSession, async (req, res) => {
+app.post('/api/match/:matchId/skill/queue', requireSession, withMatchCommand(async (req, res) => {
     const { matchId } = req.params;
     const actorSlot = Number.parseInt(req.body?.actorSlot, 10);
     const skillIndex = Number.parseInt(req.body?.skillIndex, 10);
@@ -14982,9 +15002,9 @@ app.post('/api/match/:matchId/skill/queue', requireSession, async (req, res) => 
         });
         return res.status(400).json({ error: error.message || 'Failed to queue skill.' });
     }
-});
+}));
 
-app.post('/api/match/:matchId/turn/start-choice', requireSession, async (req, res) => {
+app.post('/api/match/:matchId/turn/start-choice', requireSession, withMatchCommand(async (req, res) => {
     try {
         const { matchId } = req.params;
         const choiceKey =
@@ -15064,9 +15084,9 @@ app.post('/api/match/:matchId/turn/start-choice', requireSession, async (req, re
             error: 'Failed to resolve turn start choice.',
         });
     }
-});
+}));
 
-app.post('/api/match/:matchId/skill/cancel', requireSession, async (req, res) => {
+app.post('/api/match/:matchId/skill/cancel', requireSession, withMatchCommand(async (req, res) => {
     const { matchId } = req.params;
     const actorSlot = Number.parseInt(req.body?.actorSlot, 10);
     if (!Number.isInteger(actorSlot) || actorSlot < 0) {
@@ -15132,9 +15152,9 @@ app.post('/api/match/:matchId/skill/cancel', requireSession, async (req, res) =>
         turnExpiresAt: hydrated.turnExpiresAt,
         turnDurationMs: getTurnDurationMsForUser(hydrated, hydrated?.currentTurn),
     });
-});
+}));
 
-app.post('/api/match/:matchId/skill/reorder', requireSession, async (req, res) => {
+app.post('/api/match/:matchId/skill/reorder', requireSession, withMatchCommand(async (req, res) => {
     const { matchId } = req.params;
     const actorSlots = Array.isArray(req.body?.actorSlots) ? req.body.actorSlots : [];
     const match = await matchesCollection.findOne({ matchId });
@@ -15192,9 +15212,9 @@ app.post('/api/match/:matchId/skill/reorder', requireSession, async (req, res) =
         turnExpiresAt: hydrated.turnExpiresAt,
         turnDurationMs: getTurnDurationMsForUser(hydrated, hydrated?.currentTurn),
     });
-});
+}));
 
-app.post('/api/match/:matchId/turn/random/adjust', requireSession, async (req, res) => {
+app.post('/api/match/:matchId/turn/random/adjust', requireSession, withMatchCommand(async (req, res) => {
     const { matchId } = req.params;
     const chakraType = typeof req.body?.chakraType === 'string' ? req.body.chakraType.trim().toLowerCase() : '';
     const deltaRaw = Number.parseInt(req.body?.delta, 10);
@@ -15274,9 +15294,9 @@ app.post('/api/match/:matchId/turn/random/adjust', requireSession, async (req, r
         }
         return res.status(400).json({ error: error.message || 'Unable to adjust random chakra.' });
     }
-});
+}));
 
-app.post('/api/match/:matchId/chakra/exchange', requireSession, async (req, res) => {
+app.post('/api/match/:matchId/chakra/exchange', requireSession, withMatchCommand(async (req, res) => {
     const { matchId } = req.params;
     const chakraType = typeof req.body?.chakraType === 'string' ? req.body.chakraType.trim().toLowerCase() : '';
     const spendAssignments =
@@ -15349,9 +15369,9 @@ app.post('/api/match/:matchId/chakra/exchange', requireSession, async (req, res)
         }
         return res.status(400).json({ error: error.message || 'Unable to exchange chakra.' });
     }
-});
+}));
 
-app.post('/api/match/:matchId/skill/targets', requireSession, async (req, res) => {
+app.post('/api/match/:matchId/skill/targets', requireSession, withMatchCommand(async (req, res) => {
     const { matchId } = req.params;
     const actorSlot = Number.parseInt(req.body?.actorSlot, 10);
     const skillIndex = Number.parseInt(req.body?.skillIndex, 10);
@@ -15467,7 +15487,7 @@ app.post('/api/match/:matchId/skill/targets', requireSession, async (req, res) =
         turnExpiresAt: hydrated.turnExpiresAt,
         pendingTurn: getPendingTurn(hydrated, username),
     });
-});
+}));
 
 app.post('/api/refresh', requireSession, async (req, res) => {
     try {
@@ -18690,8 +18710,7 @@ const startServer = async () => {
     await initDb();
 
     try {
-        await retireAbandonedActiveMatches(new Date());
-        lastAbandonedMatchCleanupAtMs = Date.now();
+        await runAbandonedMatchCleanup(new Date());
     } catch (error) {
         console.error('Failed to retire abandoned matches during startup:', error);
     }
@@ -18723,6 +18742,13 @@ const startServer = async () => {
             });
         }, 2000);
     }
+    if (!abandonedMatchCleanupTimer) {
+        abandonedMatchCleanupTimer = setInterval(() => {
+            runAbandonedMatchCleanup(new Date()).catch((error) => {
+                console.error('Failed to retire abandoned matches:', error);
+            });
+        }, ABANDONED_MATCH_CLEANUP_INTERVAL_MS);
+    }
 
     let shutdownStarted = false;
     const shutdownServer = async (signal, exitCode = 0) => {
@@ -18732,6 +18758,10 @@ const startServer = async () => {
         if (turnSweepTimer) {
             clearInterval(turnSweepTimer);
             turnSweepTimer = null;
+        }
+        if (abandonedMatchCleanupTimer) {
+            clearInterval(abandonedMatchCleanupTimer);
+            abandonedMatchCleanupTimer = null;
         }
         wsConnections.forEach((ws) => {
             try {
@@ -18850,6 +18880,7 @@ if (require.main === module) {
         buildMatchmakingWaitingPayload,
         buildAbandonedActiveMatchFilter,
         retireAbandonedActiveMatches,
+        runAbandonedMatchCleanup,
         maybeCreateBattleBotMatch,
         setPersistenceCollectionsForTests,
         persistMatchState,

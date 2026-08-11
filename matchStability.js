@@ -71,6 +71,32 @@ const createMatchCommandCoordinator = ({ logger = console } = {}) => {
     };
 };
 
+const createCoordinatedMatchHandler = ({ coordinator, handler, log } = {}) => {
+    if (!coordinator || typeof coordinator.execute !== 'function') {
+        throw new TypeError('A match command coordinator is required.');
+    }
+    if (typeof handler !== 'function') {
+        throw new TypeError('A match route handler is required.');
+    }
+
+    return async (req, res, next) => {
+        const matchId = String(req?.params?.matchId || '').trim();
+        const commandName = `${String(req?.method || 'GET').toLowerCase()} ${req?.path || '/'}`;
+        const shouldLog = typeof log === 'function' ? log(req) : log ?? req?.method !== 'GET';
+        try {
+            return await coordinator.execute(
+                matchId,
+                commandName,
+                () => handler(req, res, next),
+                { log: shouldLog }
+            );
+        } catch (error) {
+            if (typeof next === 'function') return next(error);
+            throw error;
+        }
+    };
+};
+
 const normalizeTargetEntries = (selection) => {
     if (Array.isArray(selection)) return selection;
     return selection && typeof selection === 'object' ? [selection] : [];
@@ -164,6 +190,7 @@ const createSeededRandom = (seed = 1) => {
 module.exports = {
     MatchRevisionConflictError,
     assertMatchInvariants,
+    createCoordinatedMatchHandler,
     createMatchCommandCoordinator,
     createSeededRandom,
     getMatchStateRevision,

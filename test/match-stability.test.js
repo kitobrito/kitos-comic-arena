@@ -1,12 +1,14 @@
 'use strict';
 
 const assert = require('node:assert/strict');
+const { EventEmitter } = require('node:events');
 const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
 
 const {
     assertMatchInvariants,
+    createCoordinatedMatchHandler,
     createMatchCommandCoordinator,
     createSeededRandom,
     normalizeMatchVersionFields,
@@ -106,6 +108,45 @@ test('match command coordinator allows unrelated matches to progress independent
     assert.equal(secondCompleted, true);
     releaseFirst();
     await first;
+});
+
+test('coordinated route holds its match lane until database work finishes after a client disconnect', async () => {
+    const coordinator = createMatchCommandCoordinator({ logger: {} });
+    let finishHandler;
+    const handlerGate = new Promise((resolve) => {
+        finishHandler = resolve;
+    });
+    const response = new EventEmitter();
+    const observed = [];
+    const coordinated = createCoordinatedMatchHandler({
+        coordinator,
+        handler: async () => {
+            observed.push('request:start');
+            await handlerGate;
+            observed.push('request:database-finished');
+        },
+        log: false,
+    });
+
+    const request = coordinated(
+        { method: 'POST', path: '/turn/random/adjust', params: { matchId: 'shared-match' } },
+        response,
+        (error) => {
+            throw error;
+        }
+    );
+    await new Promise((resolve) => setImmediate(resolve));
+    response.emit('close');
+    const nextCommand = coordinator.execute('shared-match', 'next-command', async () => {
+        observed.push('next:start');
+    }, { log: false });
+    await new Promise((resolve) => setImmediate(resolve));
+
+    assert.deepEqual(observed, ['request:start']);
+    finishHandler();
+    await Promise.all([request, nextCommand]);
+    assert.deepEqual(observed, ['request:start', 'request:database-finished', 'next:start']);
+    assert.equal(coordinator.getActiveLaneCount(), 0);
 });
 
 test('match invariants accept both arenas and reject invalid mutable state', () => {
@@ -210,26 +251,24 @@ test('battle client coalesces rapid random chakra changes before committing', ()
     assert.match(script, /pendingRandomChakraAdjustments\.push\(\{ chakraType, delta \}\)/);
     assert.match(script, /body: JSON\.stringify\(\{ adjustments \}\)/);
     assert.match(script, /window\.setTimeout\(\s*flushRandomChakraAdjustmentBatch,\s*160/);
-    assert.match(script, /controller\.abort\(\), 7000/);
+    assert.doesNotMatch(script, /controller\.abort\(\), 7000/);
 });
 
-test('global match middleware serializes live HTTP mutations and recovery reads', () => {
+test('match routes serialize the full async handler instead of releasing on socket close', () => {
     const server = fs.readFileSync(path.join(__dirname, '..', 'server.js'), 'utf8');
     const middlewareIndex = server.indexOf("app.use('/api/match/:matchId'");
     assert.notEqual(middlewareIndex, -1);
-    assert.match(
-        server.slice(middlewareIndex, middlewareIndex + 1800),
-        /matchCommandCoordinator\s*\.execute\(\s*matchId/
-    );
+    assert.doesNotMatch(server.slice(middlewareIndex, middlewareIndex + 1800), /res\.once\('close'/);
+    assert.match(server, /const withMatchCommand = \(handler, options = \{\}\)/);
     [
-        "app.get('/api/match/:matchId'",
-        "app.post('/api/match/:matchId/turn/end'",
-        "app.post('/api/match/:matchId/skill/queue'",
-        "app.post('/api/match/:matchId/skill/cancel'",
-        "app.post('/api/match/:matchId/skill/reorder'",
-        "app.post('/api/match/:matchId/turn/random/adjust'",
-        "app.post('/api/match/:matchId/chakra/exchange'",
-        "app.post('/api/match/:matchId/skill/targets'",
+        "app.get('/api/match/:matchId', requireSession, withMatchCommand(",
+        "app.post('/api/match/:matchId/turn/end', requireSession, withMatchCommand(",
+        "app.post('/api/match/:matchId/skill/queue', requireSession, withMatchCommand(",
+        "app.post('/api/match/:matchId/skill/cancel', requireSession, withMatchCommand(",
+        "app.post('/api/match/:matchId/skill/reorder', requireSession, withMatchCommand(",
+        "app.post('/api/match/:matchId/turn/random/adjust', requireSession, withMatchCommand(",
+        "app.post('/api/match/:matchId/chakra/exchange', requireSession, withMatchCommand(",
+        "app.post('/api/match/:matchId/skill/targets', requireSession, withMatchCommand(",
     ].forEach((route) => {
         const routeIndex = server.indexOf(route);
         assert.notEqual(routeIndex, -1, route);
@@ -253,10 +292,12 @@ test('database recovery promptly retires only abandoned active matches', () => {
 
 test('MongoDB operations are bounded so a stalled write cannot hold a match lane forever', () => {
     const server = fs.readFileSync(path.join(__dirname, '..', 'server.js'), 'utf8');
-    assert.match(server, /const MONGO_CLIENT_OPTIONS = Object\.freeze\(\{[\s\S]*?timeoutMS:\s*15 \* 1000/);
+    const client = fs.readFileSync(path.join(__dirname, '..', 'scripts', 'script.js'), 'utf8');
+    assert.match(server, /const MONGO_CLIENT_OPTIONS = Object\.freeze\(\{[\s\S]*?timeoutMS:\s*6 \* 1000/);
+    assert.match(client, /const MATCH_COMMAND_TIMEOUT_MS = 12000/);
 });
 
-test('version polling advances an expired opponent turn and stale sweeps are bounded', () => {
+test('version polling advances expired turns and abandoned cleanup is independent of the turn sweep', () => {
     const server = fs.readFileSync(path.join(__dirname, '..', 'server.js'), 'utf8');
     const versionStart = server.indexOf("app.get('/api/match/:matchId/version'");
     const versionEnd = server.indexOf("app.get('/api/match/:matchId'", versionStart + 1);
@@ -265,5 +306,9 @@ test('version polling advances an expired opponent turn and stale sweeps are bou
     assert.match(server.slice(versionStart, versionEnd), /hydrateAndAdvanceMatch\(matchId\)/);
     assert.match(server, /\.limit\(TURN_SWEEP_BATCH_SIZE\)/);
     assert.match(server, /Promise\.allSettled/);
-    assert.match(server, /retireAbandonedActiveMatches\(new Date\(\)\)/);
+    const sweepStart = server.indexOf('const sweepExpiredMatches = async () =>');
+    const sweepEnd = server.indexOf('const attachWebSocketSupport', sweepStart);
+    assert.doesNotMatch(server.slice(sweepStart, sweepEnd), /retireAbandonedActiveMatches/);
+    assert.match(server, /abandonedMatchCleanupTimer = setInterval\(\(\) => \{\s*runAbandonedMatchCleanup/);
+    assert.match(server, /status: healthy \? 'ok' : 'degraded'/);
 });

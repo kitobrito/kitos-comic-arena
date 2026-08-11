@@ -2747,7 +2747,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         let serverClockOffsetMs = 0;
         let hasServerClockOffset = false;
         let matchCommandRequestChain = Promise.resolve();
-        const MATCH_COMMAND_TIMEOUT_MS = 8000;
+        const MATCH_COMMAND_TIMEOUT_MS = 12000;
         const MATCH_SOCKET_HEARTBEAT_INTERVAL_MS = 4000;
         const MATCH_SOCKET_STALE_AFTER_MS = 12000;
         const getPayloadRevision = (payload) => {
@@ -15168,23 +15168,15 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             randomChakraRequestQueue = randomChakraRequestQueue
                 .catch(() => {})
                 .then(async () => {
-                    const controller = new AbortController();
-                    const timeoutId = window.setTimeout(() => controller.abort(), 7000);
-                    let response;
-                    try {
-                        response = await fetchMatchCommand(
-                            `${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/turn/random/adjust`,
-                            {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                credentials: 'include',
-                                body: JSON.stringify({ adjustments }),
-                                signal: controller.signal,
-                            }
-                        );
-                    } finally {
-                        window.clearTimeout(timeoutId);
-                    }
+                    const response = await fetchMatchCommand(
+                        `${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/turn/random/adjust`,
+                        {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            credentials: 'include',
+                            body: JSON.stringify({ adjustments }),
+                        }
+                    );
                     const data = await response.json();
                     if (response.status === 401 || response.status === 403) {
                         redirectToSelectionLogin(currentMatchArena, {

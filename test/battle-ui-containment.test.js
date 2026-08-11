@@ -90,11 +90,12 @@ test('battle sync applies socket snapshots immediately and polls revisions while
 });
 
 test('battle commands time out without permanently blocking the serialized request chain', () => {
-    assert.match(script, /const MATCH_COMMAND_TIMEOUT_MS = 8000/);
+    assert.match(script, /const MATCH_COMMAND_TIMEOUT_MS = 12000/);
     assert.match(script, /Number\(requestOptions\.matchCommandTimeoutMs\) \|\| MATCH_COMMAND_TIMEOUT_MS/);
     assert.match(script, /timeoutError\.name = 'MatchCommandTimeoutError'/);
     assert.match(script, /requestImmediateMatchSync\('command-timeout'\)/);
     assert.match(script, /matchCommandRequestChain = request\.then\(\s*\(\) => undefined,\s*\(\) => undefined/s);
+    assert.doesNotMatch(script, /controller\.abort\(\), 7000/);
 });
 
 test('battle sockets heartbeat and immediately reconcile after mobile resume or reconnect', () => {
