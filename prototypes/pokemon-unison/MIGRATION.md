@@ -117,15 +117,22 @@ are not runtime dependencies.
     two-use evolution with healing and flat unpierceable reduction, packet-based
     Hive Swarm protection and stun immunity, Hive Sting replacement, scaled Fell
     Stinger with survivor-only permanent blind, Rare Candy, and seeded replays.
+36. Articuno, Moltres, and Zapdos's complete active kits, including escalating
+    Sheer Cold, class-specific stuns and cooldown paralysis, Heat generation and
+    degrading Overheat costs, source-team harmful-skill traps, Charge discounts,
+    Thunderbolt detonation and Zap Cannon acceleration, and Flight protection.
+37. Replaced abbreviated standalone skill summaries with the exact full current
+    Comic Arena descriptions for all 216 ported skill definitions and added a
+    parity gate against `characters.js`.
 
 ## Next milestones
 
 1. Move the executable engine boundary from the JavaScript oracle to Haskell.
 2. Compile the Elm battle client against protocol v2.
 3. Add standalone accounts, teams, and progression.
-4. Add matchmaking, reconnect windows, surrender, and turn timers.
+4. Add matchmaking, reconnect windows, and turn timers.
 5. Port the remaining roster in reviewed content batches; current coverage is
-   thirty-one full, zero partial, and 14 not started.
+   thirty-four full, zero partial, and 12 not started.
 6. Add standalone selection, missions, unlocks, skins, admin tools, and hosting.
 
 ## Rules for future porting
@@ -135,4 +142,6 @@ are not runtime dependencies.
 - Validate every action on the standalone server.
 - Serialize state separately for each viewer before sending it.
 - Add regression tests for every ported skill and passive.
+- Copy each skill's complete production description and keep description parity
+  green; abbreviated prototype summaries are not acceptable player-facing text.
 - Keep the running game and all user overrides unchanged.
