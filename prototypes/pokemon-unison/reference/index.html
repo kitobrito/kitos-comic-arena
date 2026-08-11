@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow, noarchive">
+    <title>Pokemon Unison Standalone</title>
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./arena-theme.css">
+</head>
+<body class="selection-mode">
+    <main class="arena-app">
+        <section id="lobby-panel" class="selection-screen" aria-label="Standalone character selection">
+            <header class="selection-header glass-panel">
+                <div class="brand-lockup">
+                    <img src="/game-assets/images/PokemonArena/pokemonarenalogo.png" alt="Pokemon Arena" class="arena-logo">
+                    <div>
+                        <p class="eyebrow">POKEMON UNISON · STANDALONE</p>
+                        <h1>Choose Your Team</h1>
+                        <p id="lobby-status">Select three Pokemon for each side, then start a solo or private match.</p>
+                    </div>
+                </div>
+                <div class="selection-badge">
+                    <span>UNISON BUILD</span>
+                    <strong id="selection-badge-count">Loading roster...</strong>
+                    <small>Separate from live Comic Arena</small>
+                </div>
+            </header>
+
+            <div class="selection-layout">
+                <aside class="selection-preview glass-panel" aria-label="Selected character preview">
+                    <div class="preview-art-stage">
+                        <span class="preview-kicker">CHARACTER SHOWCASE</span>
+                        <img id="selection-preview-shadow" src="" alt="" class="selection-preview-shadow" aria-hidden="true">
+                        <img id="selection-preview-image" src="" alt="Selected Pokemon" class="selection-preview-image">
+                        <div class="preview-floor" aria-hidden="true"></div>
+                        <div id="selection-form-controls" class="selection-form-controls" aria-label="Character form" hidden>
+                            <button id="selection-base-form" class="selection-form-button active" type="button" data-selection-form="base">Base</button>
+                            <button id="selection-evolution-form" class="selection-form-button" type="button" data-selection-form="evolution">Evolution</button>
+                        </div>
+                    </div>
+                    <div class="preview-copy">
+                        <div class="preview-title-row">
+                            <div>
+                                <h2 id="selection-preview-name">Select a Pokemon</h2>
+                                <p id="selection-preview-types">Type</p>
+                            </div>
+                            <span id="selection-preview-count" class="preview-count">4 SKILLS</span>
+                        </div>
+                        <p id="selection-preview-passive" class="preview-passive">Choose a portrait to review its standalone kit.</p>
+                        <p class="preview-section-label">Current skills</p>
+                        <div id="selection-preview-skills" class="preview-skills"></div>
+                        <section id="selection-alternate-section" class="selection-alternate-section" hidden>
+                            <p class="preview-section-label">Alternate / replacement skills</p>
+                            <div id="selection-preview-alternates" class="preview-skills preview-alternate-skills"></div>
+                        </section>
+                        <article id="selection-skill-detail" class="selection-skill-detail" aria-live="polite">
+                            <img id="selection-skill-detail-image" src="" alt="">
+                            <div class="selection-skill-detail-copy">
+                                <span id="selection-skill-detail-kind">Current skill</span>
+                                <h3 id="selection-skill-detail-name">Choose a skill</h3>
+                                <p id="selection-skill-detail-description">Its complete description will appear here.</p>
+                                <small id="selection-skill-detail-meta"></small>
+                            </div>
+                        </article>
+                    </div>
+                </aside>
+
+                <section class="roster-console glass-panel" aria-label="Playable Pokemon roster">
+                    <div class="console-heading">
+                        <div>
+                            <p class="eyebrow">CHARACTER SELECT</p>
+                            <h2>Standalone Roster</h2>
+                        </div>
+                        <span id="roster-count" class="count">Loading roster…</span>
+                    </div>
+                    <div id="roster-grid" class="roster-grid"></div>
+                </section>
+
+                <section class="team-console glass-panel" aria-label="Team selection">
+                    <div class="team-console-heading">
+                        <div>
+                            <p class="eyebrow">TEAM LOADOUT</p>
+                            <h2>Pick three per side</h2>
+                        </div>
+                            <span>Click a slot, then click a portrait</span>
+                    </div>
+                    <div class="team-builder">
+                        <div class="team-draft team-draft-a">
+                            <div class="team-draft-label"><strong>PLAYER A</strong><small>Your team</small></div>
+                            <div id="team-select-a" class="team-slots"></div>
+                        </div>
+                        <div class="team-draft team-draft-b">
+                            <div class="team-draft-label"><strong>PLAYER B</strong><small>Bot or invited opponent</small></div>
+                            <div id="team-select-b" class="team-slots"></div>
+                        </div>
+                    </div>
+                    <div class="lobby-actions">
+                        <button id="solo-match-button" class="primary-action" type="button" disabled>Play Solo vs Bot</button>
+                        <button id="new-match-button" type="button" disabled>Create Private Match</button>
+                    </div>
+                    <div id="invite-panel" class="invite-panel" hidden>
+                        <label for="invite-url">Player B invite</label>
+                        <input id="invite-url" type="text" readonly>
+                        <button id="copy-invite-button" type="button">Copy Invite</button>
+                    </div>
+                </section>
+            </div>
+            <footer class="standalone-note">Independent prototype · no live matches, accounts, or production data are connected.</footer>
+        </section>
+
+        <section id="game-root" class="battle-screen" hidden aria-label="Pokemon Unison battle">
+            <div class="battle-stage">
+                <header class="game-hud glass-panel">
+                    <div class="hud-player hud-player-a">
+                        <span class="hud-avatar">A</span>
+                        <div><strong id="seat-label">Player A</strong><small id="connection-label">Connected</small></div>
+                    </div>
+                    <div class="turn-card">
+                        <span id="turn-label">Waiting</span>
+                        <strong id="current-player">No match</strong>
+                        <span id="winner-label"></span>
+                        <button id="resolve-turn-top-button" class="top-end-turn" type="button">End Turn</button>
+                    </div>
+                    <div class="hud-player hud-player-b">
+                        <div><strong>Player B</strong><small>Opponent</small></div>
+                        <span class="hud-avatar">B</span>
+                    </div>
+                    <div class="hud-energy hud-energy-a"><span>PLAYER A ENERGY</span><div id="energy-a" class="energy-row"></div></div>
+                    <div class="hud-energy hud-energy-b"><span>PLAYER B ENERGY</span><div id="energy-b" class="energy-row"></div></div>
+                </header>
+
+                <div class="battlefield" aria-label="Battlefield">
+                    <svg id="targeting-arrow" class="targeting-arrow" aria-hidden="true" preserveAspectRatio="none">
+                        <defs>
+                            <marker id="targeting-arrow-head" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto" markerUnits="strokeWidth">
+                                <path d="M0,0 L8,4.5 L0,9 Z"></path>
+                            </marker>
+                        </defs>
+                        <path id="targeting-arrow-path"></path>
+                    </svg>
+                    <section class="combat-lane combat-lane-a">
+                        <div class="team-heading"><span>YOUR TEAM</span><small id="team-a-names"></small></div>
+                        <div id="team-a" class="team" data-player="A"></div>
+                    </section>
+                    <section class="battle-center">
+                        <div class="battle-mark" aria-hidden="true"><span>POKEMON</span><strong>UNISON</strong></div>
+                        <article id="targeting-readout" class="targeting-readout glass-panel" hidden aria-live="polite">
+                            <img id="targeting-skill-image" class="targeting-skill-image" src="" alt="">
+                            <div class="targeting-skill-copy">
+                                <span id="targeting-kicker" class="targeting-kicker">SELECTED SKILL</span>
+                                <strong id="targeting-skill-name"></strong>
+                                <p id="targeting-skill-description"></p>
+                                <div class="targeting-skill-footer">
+                                    <span id="targeting-skill-cost"></span>
+                                    <span id="targeting-skill-cooldown"></span>
+                                </div>
+                                <small id="targeting-target-name">Hover a glowing target</small>
+                            </div>
+                        </article>
+                        <article class="queue-panel glass-panel" aria-label="Queued team turn">
+                            <div class="panel-heading compact-heading">
+                                <div><p class="eyebrow">TURN ORDER</p><h2>Queued Actions</h2></div>
+                                <span id="queue-count">0 / 3</span>
+                            </div>
+                            <ol id="queue-list" class="queue-list"></ol>
+                        </article>
+                    </section>
+                    <section class="combat-lane combat-lane-b">
+                        <div class="team-heading"><span>OPPONENT</span><small id="team-b-names"></small></div>
+                        <div id="team-b" class="team" data-player="B"></div>
+                    </section>
+                </div>
+
+                <section class="command-deck glass-panel">
+                    <div class="command-header">
+                        <div><p class="eyebrow">BATTLE COMMANDS</p><h2>Choose a Pokemon, skill, and target</h2></div>
+                        <span id="legal-count" class="count"></span>
+                    </div>
+                    <div id="command-help" class="command-help">Waiting for a match.</div>
+                    <div id="skill-list" class="skill-list"></div>
+                    <div id="target-list" class="target-list"></div>
+                </section>
+
+                <aside class="battle-feed glass-panel">
+                    <div class="panel-heading compact-heading">
+                        <div><p class="eyebrow">BATTLE LOG</p><h2>Latest Events</h2></div>
+                        <span id="seed-label" class="count"></span>
+                    </div>
+                    <ol id="event-log" class="event-log"></ol>
+                </aside>
+
+                <nav class="toolbar glass-panel" aria-label="Match controls">
+                    <button id="auto-button" type="button">Auto Queue</button>
+                    <button id="undo-queue-button" type="button">Undo</button>
+                    <button id="resolve-turn-button" class="primary-action" type="button">End Turn</button>
+                    <button id="export-button" type="button">Replay</button>
+                    <button id="surrender-button" class="danger-action" type="button">Surrender</button>
+                    <span id="action-error" role="alert"></span>
+                </nav>
+
+                <details class="replay-panel glass-panel">
+                    <summary>Portable match transcript</summary>
+                    <textarea id="replay-json" spellcheck="false" readonly aria-label="Replay JSON"></textarea>
+                </details>
+            </div>
+        </section>
+    </main>
+    <script type="module" src="./app.mjs"></script>
+</body>
+</html>

@@ -1,0 +1,1311 @@
+import { ROSTER, unitPresentation } from './roster.mjs';
+import { selectionRenderForms } from './selection-art.mjs';
+import { skillArt } from './skill-art.mjs';
+
+const applicationBaseUrl = new URL('.', import.meta.url);
+
+function applicationUrl(path = '') {
+    return new URL(String(path).replace(/^\/+/, ''), applicationBaseUrl).href;
+}
+
+function applicationLocation(search = '') {
+    return `${applicationBaseUrl.pathname}${search}`;
+}
+
+const elements = {
+    actionError: document.querySelector('#action-error'),
+    autoButton: document.querySelector('#auto-button'),
+    commandHelp: document.querySelector('#command-help'),
+    connectionLabel: document.querySelector('#connection-label'),
+    copyInviteButton: document.querySelector('#copy-invite-button'),
+    currentPlayer: document.querySelector('#current-player'),
+    energyA: document.querySelector('#energy-a'),
+    energyB: document.querySelector('#energy-b'),
+    eventLog: document.querySelector('#event-log'),
+    exportButton: document.querySelector('#export-button'),
+    gameRoot: document.querySelector('#game-root'),
+    invitePanel: document.querySelector('#invite-panel'),
+    inviteUrl: document.querySelector('#invite-url'),
+    legalCount: document.querySelector('#legal-count'),
+    lobbyPanel: document.querySelector('#lobby-panel'),
+    lobbyStatus: document.querySelector('#lobby-status'),
+    newMatchButton: document.querySelector('#new-match-button'),
+    queueCount: document.querySelector('#queue-count'),
+    queueList: document.querySelector('#queue-list'),
+    replayJson: document.querySelector('#replay-json'),
+    replayPanel: document.querySelector('.replay-panel'),
+    resolveTurnButton: document.querySelector('#resolve-turn-button'),
+    resolveTurnTopButton: document.querySelector('#resolve-turn-top-button'),
+    rosterCount: document.querySelector('#roster-count'),
+    rosterGrid: document.querySelector('#roster-grid'),
+    seatLabel: document.querySelector('#seat-label'),
+    seedLabel: document.querySelector('#seed-label'),
+    surrenderButton: document.querySelector('#surrender-button'),
+    selectionPreviewCount: document.querySelector('#selection-preview-count'),
+    selectionPreviewFormControls: document.querySelector('#selection-form-controls'),
+    selectionPreviewImage: document.querySelector('#selection-preview-image'),
+    selectionPreviewShadow: document.querySelector('#selection-preview-shadow'),
+    selectionPreviewName: document.querySelector('#selection-preview-name'),
+    selectionPreviewPassive: document.querySelector('#selection-preview-passive'),
+    selectionPreviewSkills: document.querySelector('#selection-preview-skills'),
+    selectionPreviewAlternates: document.querySelector('#selection-preview-alternates'),
+    selectionAlternateSection: document.querySelector('#selection-alternate-section'),
+    selectionSkillDetail: document.querySelector('#selection-skill-detail'),
+    selectionSkillDetailImage: document.querySelector('#selection-skill-detail-image'),
+    selectionSkillDetailKind: document.querySelector('#selection-skill-detail-kind'),
+    selectionSkillDetailName: document.querySelector('#selection-skill-detail-name'),
+    selectionSkillDetailDescription: document.querySelector('#selection-skill-detail-description'),
+    selectionSkillDetailMeta: document.querySelector('#selection-skill-detail-meta'),
+    selectionPreviewTypes: document.querySelector('#selection-preview-types'),
+    selectionBaseForm: document.querySelector('#selection-base-form'),
+    selectionEvolutionForm: document.querySelector('#selection-evolution-form'),
+    selectionBadgeCount: document.querySelector('#selection-badge-count'),
+    soloMatchButton: document.querySelector('#solo-match-button'),
+    skillList: document.querySelector('#skill-list'),
+    targetList: document.querySelector('#target-list'),
+    targetingArrow: document.querySelector('#targeting-arrow'),
+    targetingArrowPath: document.querySelector('#targeting-arrow-path'),
+    targetingKicker: document.querySelector('#targeting-kicker'),
+    targetingReadout: document.querySelector('#targeting-readout'),
+    targetingSkillCooldown: document.querySelector('#targeting-skill-cooldown'),
+    targetingSkillCost: document.querySelector('#targeting-skill-cost'),
+    targetingSkillDescription: document.querySelector('#targeting-skill-description'),
+    targetingSkillImage: document.querySelector('#targeting-skill-image'),
+    targetingSkillName: document.querySelector('#targeting-skill-name'),
+    targetingTargetName: document.querySelector('#targeting-target-name'),
+    teamA: document.querySelector('#team-a'),
+    teamANames: document.querySelector('#team-a-names'),
+    teamB: document.querySelector('#team-b'),
+    teamBNames: document.querySelector('#team-b-names'),
+    teamSelectA: document.querySelector('#team-select-a'),
+    teamSelectB: document.querySelector('#team-select-b'),
+    turnLabel: document.querySelector('#turn-label'),
+    undoQueueButton: document.querySelector('#undo-queue-button'),
+    winnerLabel: document.querySelector('#winner-label'),
+};
+
+let session = null;
+let snapshot = null;
+let selectedActorSlot = null;
+let selectedSkillId = null;
+let selectedPaymentAction = null;
+let selectedRandomEnergy = [];
+let rosterCatalog = [];
+let activeDraftPlayer = 'A';
+let activeDraftSlot = 0;
+let previewSpeciesId = 'charmander';
+let previewSelectionForm = 'base';
+let previewSkillId = null;
+let hoveredTargetCard = null;
+const teamDraft = {
+    A: ['charmander', 'squirtle', 'bulbasaur'],
+    B: ['pikachu', 'zubat', 'chansey'],
+};
+
+function escapeHtml(value) {
+    return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+}
+
+function skillIconMarkup(skill, index, className) {
+    if (!skill?.image) {
+        return `<span class="${className} skill-art-fallback">${index + 1}</span>`;
+    }
+    return `<img class="${className} skill-art" src="${escapeHtml(skill.image)}" alt="" aria-hidden="true" decoding="async">`;
+}
+
+function findSkillById(skillId) {
+    if (!skillId) return null;
+    for (const species of Object.values(ROSTER)) {
+        const skill = species.skills?.find((candidate) => candidate.id === skillId);
+        if (skill) return skill;
+    }
+    return null;
+}
+
+function statusEffectDescription(status) {
+    if (status.description) return status.description;
+    const effects = [];
+    const damageKind = (kind = 'affliction') => kind.replaceAll('-', ' ');
+    if (status.periodicDamage) {
+        effects.push(`Takes ${status.periodicDamage} ${damageKind(status.periodicDamageKind)} damage each turn.`);
+    }
+    if (status.periodicDrain) {
+        effects.push(`Loses ${status.periodicDrain} HP each turn and heals the source by the HP lost.`);
+    }
+    if (status.turnEndDamage) {
+        effects.push(`Takes ${status.turnEndDamage} ${damageKind(status.turnEndDamageKind)} damage at turn end.`);
+    }
+    if (status.onExpireDamage) {
+        effects.push(`Takes ${status.onExpireDamage} ${damageKind(status.onExpireDamageKind)} damage when this effect expires.`);
+    }
+    if (status.healBlocked) effects.push('Cannot be healed.');
+    if (status.paralyzeCooldowns) effects.push('Cooldowns are paralyzed and do not recover.');
+    if (status.cannotUseSkills) effects.push('Cannot use skills.');
+    if (status.stunHarmful) effects.push('Harmful skills are stunned.');
+    if (status.cannotUseNonMentalSkills) effects.push('Can only use Mental skills.');
+    if (status.cannotUseSkillClasses?.length) {
+        effects.push(`${status.cannotUseSkillClasses.join(' and ')} skills are stunned.`);
+    }
+    if (status.cannotUseHelpfulSkills) effects.push('Cannot use helpful skills.');
+    if (status.newSkillCooldownIncrease) {
+        effects.push(`Newly used skills receive ${status.newSkillCooldownIncrease} extra cooldown${status.newSkillCooldownIncrease === 1 ? '' : 's'}.`);
+    }
+    if (status.newSkillCooldownIncreaseOnFirstUse) {
+        effects.push(`Each skill receives ${status.newSkillCooldownIncreaseOnFirstUse} extra cooldown${status.newSkillCooldownIncreaseOnFirstUse === 1 ? '' : 's'} the first time it is used.`);
+    }
+    if (status.randomCostIncrease) {
+        effects.push(`Skills cost ${status.randomCostIncrease} additional Random energy.`);
+    }
+    if (status.skillFailChance) {
+        effects.push(`Skills have a ${status.skillFailChance}% chance to fail${status.skillFailDamage ? ` and cost ${status.skillFailDamage} HP` : ''}.`);
+    }
+    if (status.guardBroken) effects.push('Defensive damage reduction is bypassed.');
+    if (status.invulnerable) effects.push('Invulnerable to enemy skills.');
+    if (status.invulnerableToSkillClasses?.length) {
+        effects.push(`Invulnerable to ${status.invulnerableToSkillClasses.join(' and ')} skills.`);
+    }
+    if (status.blockNextHarmful) effects.push('Blocks the next harmful enemy skill.');
+    if (status.blockAllHarmful) effects.push('Blocks harmful enemy skills.');
+    if (status.reflectNextOwnerUseSkill) effects.push('Reflects the next qualifying skill back onto its user.');
+    if (status.evadeChancePercent) effects.push(`Has ${status.evadeChancePercent}% evasion.`);
+    if (status.turnStartDamage) {
+        effects.push(`Takes ${status.turnStartDamage} damage at the beginning of the source's next turn.`);
+    }
+    if (status.preventTeamAccuracyReduction) effects.push('Allied accuracy cannot be reduced.');
+    if (status.preventEnemyEvasion) effects.push('Enemy evasion cannot be increased.');
+    if (status.damageReductionPercent) effects.push(`Takes ${status.damageReductionPercent}% less ordinary damage.`);
+    if (status.damageReductionFlat) effects.push(`Takes ${status.damageReductionFlat} less ordinary damage per hit.`);
+    if (status.unpierceableDamageReductionPercent) {
+        effects.push(`Takes ${status.unpierceableDamageReductionPercent}% less non-fixed damage.`);
+    }
+    if (status.unpierceableDamageReductionFlat) {
+        effects.push(`Takes ${status.unpierceableDamageReductionFlat} less non-affliction damage per packet, including piercing damage.`);
+    }
+    if (status.outgoingDamageDebuff) effects.push(`Deals ${status.outgoingDamageDebuff} less damage per packet.`);
+    if (status.damageBonusFlat) effects.push(`Deals ${status.damageBonusFlat} additional damage per packet.`);
+    if (status.nonAfflictionDamageBonusFlat) effects.push(`Deals ${status.nonAfflictionDamageBonusFlat} additional non-affliction damage per packet.`);
+    if (status.healReceivedMultiplier && status.healReceivedMultiplier !== 1) {
+        effects.push(`Receives ${Math.round((status.healReceivedMultiplier - 1) * 100)}% more healing.`);
+    }
+    if (status.additionalIncomingShieldPoints) {
+        effects.push(`Receives ${status.additionalIncomingShieldPoints} additional Shield from new grants.`);
+    }
+    if (status.minimumHp) effects.push(`Cannot fall below ${status.minimumHp} HP.`);
+    if (status.onUseSkill?.damageToOwner) {
+        effects.push(`The next skill used costs ${status.onUseSkill.damageToOwner} HP${status.onUseSkill.healSource ? ` and heals the source by ${status.onUseSkill.healSource}` : ''}.`);
+    }
+    if (status.skillCostOverrides) effects.push('The listed skill costs are temporarily modified.');
+    if (status.trackedShieldPoints) effects.push(`${status.trackedShieldPoints} Shield remains tied to this effect.`);
+    if (status.trackedBarrierPoints) effects.push(`${status.trackedBarrierPoints} Barrier remains tied to this effect.`);
+    if (status.storedDamageBonus) {
+        effects.push(`The next ${status.storedDamageBonusSkillName ?? 'qualifying skill'} deals ${status.storedDamageBonus} additional damage.`);
+    }
+    if (status.storedPiercingBonus) {
+        effects.push(`The next qualifying piercing attack deals ${status.storedPiercingBonus} additional damage.`);
+    }
+    if (status.tauntSource) effects.push('Must use harmful targeted skills on the taunting Pokémon.');
+    if (status.fullBlind) effects.push('Harmful targeted skills are redirected.');
+    if (status.invulnerableToHelpfulSkills) effects.push('Cannot be targeted by helpful skills.');
+    if (status.ignoreEnemyNonDamageEffects) effects.push('Ignores enemy non-damaging effects.');
+    if (status.onEnemyTargeted?.damageToActor) {
+        effects.push(`Enemies that target this Pokémon take ${status.onEnemyTargeted.damageToActor} damage and receive its retaliation effect.`);
+    }
+    return effects.join(' ') || `${status.name} remains active.`;
+}
+
+function statusIconMarkup(status, index) {
+    const sourceArtAliases = {
+        'pikachu-static-passive': 'pikachu-passive-static',
+    };
+    const sourceId = status.sourceSkillId ?? sourceArtAliases[status.id] ?? status.id;
+    const catalogSkill = findSkillById(sourceId);
+    const sourceSkill = catalogSkill ?? {
+        image: skillArt(sourceId),
+        description: status.id === 'pikachu-static-passive'
+            ? ROSTER.pikachu.passiveDescription
+            : status.name,
+    };
+    const description = statusEffectDescription(status);
+    const duration = Number.isInteger(status.durationActions)
+        ? `${status.durationActions} turn${status.durationActions === 1 ? '' : 's'} remaining`
+        : 'Permanent effect';
+    return `<button type="button" class="status-icon" aria-expanded="false"
+        aria-label="${escapeHtml(`${status.name}. ${description}. ${duration}`)}">
+        ${skillIconMarkup(sourceSkill, index, 'status-skill-art')}
+        <span class="status-tooltip" role="tooltip"><strong>${escapeHtml(status.name)}</strong><span>${escapeHtml(description)}</span><small>${escapeHtml(duration)}</small></span>
+    </button>`;
+}
+
+function protectionTrackMarkup(kind, currentValue, capacityValue) {
+    const current = Math.max(0, Number(currentValue) || 0);
+    const capacity = Math.max(current, Number(capacityValue) || 0);
+    const percent = capacity > 0 ? Math.min(100, (current / capacity) * 100) : 0;
+    const label = `${current}/${capacity}`;
+    return `
+        <div class="protection-track protection-${kind} ${current > 0 ? 'is-active' : 'is-empty'}"
+             role="img" aria-label="${escapeHtml(kind)} ${label}" title="${escapeHtml(kind)} ${label}">
+            <div class="protection-fill" style="width:${percent}%"></div>
+            <span>${label}</span>
+        </div>
+    `;
+}
+
+function passiveCounterMarkup(unit) {
+    if (unit.speciesId !== 'bulbasaur') return '';
+    const sun = Math.max(0, Math.min(5, Number(unit.counters.sun) || 0));
+    return `<div class="sun-meter" role="img" aria-label="Sun ${sun} of 5" title="Sun ${sun}/5">
+        ${Array.from({ length: 5 }, (_, index) => `<span class="sun-orb ${index < sun ? 'active' : ''}"></span>`).join('')}
+        <small>${sun}/5</small>
+    </div>`;
+}
+
+async function api(path, { method = 'GET', body, token = session?.token } = {}) {
+    const response = await fetch(applicationUrl(path), {
+        method,
+        headers: {
+            ...(body ? { 'content-type': 'application/json' } : {}),
+            ...(token ? { authorization: `Bearer ${token}` } : {}),
+        },
+        body: body ? JSON.stringify(body) : undefined,
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.message || `Request failed (${response.status}).`);
+    return payload;
+}
+
+function tokenKey(matchId, player) {
+    return `pokemon-unison:${matchId}:${player}`;
+}
+
+function inviteKey(matchId) {
+    return `pokemon-unison:${matchId}:invite`;
+}
+
+function saveSession(next) {
+    session = next;
+    sessionStorage.setItem(tokenKey(next.matchId, next.player), next.token);
+}
+
+function energyLabel(key) {
+    return {
+        taijutsu: 'GREEN',
+        ninjutsu: 'BLUE',
+        bloodline: 'RED',
+        genjutsu: 'YELLOW',
+        random: 'RANDOM',
+        total: 'TOTAL',
+    }[key] ?? key.toUpperCase();
+}
+
+function formatEnergyCosts(costs) {
+    return costs.length > 0 ? costs.map(energyLabel).join(' + ') : 'Free';
+}
+
+function energyCostMarkup(costs, compact = false) {
+    if (!costs.length) return `<span class="skill-cost-free">FREE</span>`;
+    return `<span class="skill-cost ${compact ? 'compact' : ''}" role="img" aria-label="Costs ${escapeHtml(formatEnergyCosts(costs))}">
+        ${costs.map((cost) => `<i class="cost-square cost-${escapeHtml(cost)}" title="${escapeHtml(energyLabel(cost))}"></i>`).join('')}
+    </span>`;
+}
+
+function clearTargetingArrow() {
+    hoveredTargetCard?.classList.remove('target-hovered');
+    hoveredTargetCard = null;
+    elements.targetingArrow.classList.remove('is-visible');
+    elements.targetingArrowPath.removeAttribute('d');
+    if (!elements.targetingReadout.hidden) {
+        elements.targetingTargetName.textContent = 'Hover a glowing target';
+    }
+}
+
+function drawTargetingArrow(card, targetName) {
+    if (!card || elements.targetingReadout.hidden) return;
+    hoveredTargetCard?.classList.remove('target-hovered');
+    hoveredTargetCard = card;
+    hoveredTargetCard.classList.add('target-hovered');
+    elements.targetingTargetName.textContent = `TARGET: ${targetName}`;
+    requestAnimationFrame(() => {
+        if (hoveredTargetCard !== card || elements.targetingReadout.hidden) return;
+        const field = elements.targetingArrow.parentElement.getBoundingClientRect();
+        const panel = elements.targetingReadout.getBoundingClientRect();
+        const target = card.getBoundingClientRect();
+        if (!field.width || !field.height || !panel.width || !target.width) return;
+        const panelCenter = { x: panel.left + panel.width / 2, y: panel.top + panel.height / 2 };
+        const targetCenter = { x: target.left + target.width / 2, y: target.top + target.height / 2 };
+        const dx = targetCenter.x - panelCenter.x;
+        const dy = targetCenter.y - panelCenter.y;
+        const panelScale = Math.max(
+            Math.abs(dx) / Math.max(1, panel.width / 2),
+            Math.abs(dy) / Math.max(1, panel.height / 2),
+            1
+        );
+        const targetScale = Math.max(
+            Math.abs(dx) / Math.max(1, target.width / 2),
+            Math.abs(dy) / Math.max(1, target.height / 2),
+            1
+        );
+        const startX = panelCenter.x + dx / panelScale - field.left;
+        const startY = panelCenter.y + dy / panelScale - field.top;
+        const endX = targetCenter.x - dx / targetScale - field.left;
+        const endY = targetCenter.y - dy / targetScale - field.top;
+        const horizontal = Math.abs(dx) >= Math.abs(dy);
+        const firstControlX = horizontal ? startX + (endX - startX) * 0.48 : startX;
+        const firstControlY = horizontal ? startY : startY + (endY - startY) * 0.48;
+        const secondControlX = horizontal ? startX + (endX - startX) * 0.52 : endX;
+        const secondControlY = horizontal ? endY : startY + (endY - startY) * 0.52;
+        elements.targetingArrow.setAttribute('viewBox', `0 0 ${field.width} ${field.height}`);
+        elements.targetingArrowPath.setAttribute(
+            'd',
+            `M ${startX} ${startY} C ${firstControlX} ${firstControlY}, ${secondControlX} ${secondControlY}, ${endX} ${endY}`
+        );
+        elements.targetingArrow.classList.add('is-visible');
+    });
+}
+
+function hideTargetingReadout() {
+    clearTargetingArrow();
+    elements.targetingReadout.hidden = true;
+}
+
+function renderTargetingReadout(skill, energyCosts, { kicker = 'SELECTED SKILL', prompt = 'Hover a glowing target' } = {}) {
+    if (!skill) {
+        hideTargetingReadout();
+        return;
+    }
+    clearTargetingArrow();
+    elements.targetingReadout.hidden = false;
+    elements.targetingKicker.textContent = kicker;
+    elements.targetingSkillImage.src = skill.image ?? '';
+    elements.targetingSkillImage.alt = `${skill.name} skill`;
+    elements.targetingSkillImage.hidden = !skill.image;
+    elements.targetingSkillName.textContent = skill.name;
+    elements.targetingSkillDescription.textContent = skill.description;
+    elements.targetingSkillCost.innerHTML = energyCostMarkup(energyCosts ?? skill.energy);
+    elements.targetingSkillCooldown.textContent = `CD ${skill.cooldown}`;
+    elements.targetingTargetName.textContent = prompt;
+    if (selectedPaymentAction) {
+        const lockedUnit = snapshot?.state.teams[selectedPaymentAction.targetPlayer]?.[selectedPaymentAction.targetSlot];
+        const lockedCard = document.querySelector(
+            `.unit[data-player="${selectedPaymentAction.targetPlayer}"][data-slot="${selectedPaymentAction.targetSlot}"]`
+        );
+        if (lockedUnit && lockedCard) {
+            drawTargetingArrow(lockedCard, unitPresentation(lockedUnit).name);
+        }
+    }
+}
+
+function renderEnergy(container, pool) {
+    container.replaceChildren();
+    Object.entries(pool).forEach(([key, value]) => {
+        const token = document.createElement('span');
+        token.className = `energy energy-${key}`;
+        token.innerHTML = `<i aria-hidden="true"></i><b>${escapeHtml(energyLabel(key))}</b><span>× ${value}</span>`;
+        container.append(token);
+    });
+}
+
+function displayedEnergyPool(view, player) {
+    if (player !== session.player) return view.energy[player];
+    const available = view.availableEnergy ?? view.energy[player] ?? {};
+    const displayed = Object.fromEntries(concreteEnergyTypes.map((type) => [type, available[type] ?? 0]));
+    if (!selectedPaymentAction || view.currentPlayer !== player) return displayed;
+    (selectedPaymentAction.energyCosts ?? []).filter((cost) => cost !== 'random').forEach((cost) => {
+        displayed[cost] = Math.max(0, (displayed[cost] ?? 0) - 1);
+    });
+    selectedRandomEnergy.forEach((cost) => {
+        displayed[cost] = Math.max(0, (displayed[cost] ?? 0) - 1);
+    });
+    return displayed;
+}
+
+const concreteEnergyTypes = ['taijutsu', 'ninjutsu', 'bloodline', 'genjutsu'];
+
+function sameAction(left, right) {
+    return Boolean(
+        left && right &&
+        left.player === right.player &&
+        left.actorSlot === right.actorSlot &&
+        left.skillId === right.skillId &&
+        left.targetPlayer === right.targetPlayer &&
+        left.targetSlot === right.targetSlot
+    );
+}
+
+function isAutomaticAreaTarget(skill) {
+    return skill?.target === 'all-enemy' || skill?.target === 'all-allies';
+}
+
+function remainingEnergyAfterFixedCosts(action) {
+    const available = snapshot.state.availableEnergy ?? snapshot.state.energy[session.player] ?? {};
+    const remaining = Object.fromEntries(concreteEnergyTypes.map((type) => [type, available[type] ?? 0]));
+    (action.energyCosts ?? []).filter((cost) => cost !== 'random').forEach((cost) => {
+        remaining[cost] = Math.max(0, (remaining[cost] ?? 0) - 1);
+    });
+    return remaining;
+}
+
+function renderRandomEnergyPayment(action) {
+    const required = action.randomEnergyRequired ?? 0;
+    if (required <= 0) return;
+    const remaining = remainingEnergyAfterFixedCosts(action);
+    const panel = document.createElement('section');
+    panel.className = 'energy-payment';
+    const heading = document.createElement('div');
+    heading.className = 'energy-payment-heading';
+    heading.innerHTML = `<strong>Choose Random Energy</strong><span>${selectedRandomEnergy.length}/${required} selected</span>`;
+    panel.append(heading);
+
+    const choices = document.createElement('div');
+    choices.className = 'energy-payment-choices';
+    concreteEnergyTypes.forEach((type) => {
+        const selectedCount = selectedRandomEnergy.filter((entry) => entry === type).length;
+        const availableCount = remaining[type] ?? 0;
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = `energy-choice energy-${type}`;
+        button.disabled = selectedRandomEnergy.length >= required || selectedCount >= availableCount;
+        button.innerHTML = `<i aria-hidden="true"></i><b>${escapeHtml(energyLabel(type))}</b><span>${selectedCount}/${availableCount}</span>`;
+        button.addEventListener('click', () => {
+            selectedRandomEnergy.push(type);
+            render();
+        });
+        choices.append(button);
+    });
+    panel.append(choices);
+
+    const selected = document.createElement('div');
+    selected.className = 'energy-payment-selected';
+    selectedRandomEnergy.forEach((type, index) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = `energy-token energy-${type}`;
+        button.innerHTML = `<i aria-hidden="true"></i>${escapeHtml(energyLabel(type))}<span aria-hidden="true">×</span>`;
+        button.setAttribute('aria-label', `Remove ${energyLabel(type)} payment`);
+        button.addEventListener('click', () => {
+            selectedRandomEnergy.splice(index, 1);
+            renderCommands();
+        });
+        selected.append(button);
+    });
+    panel.append(selected);
+
+    const confirm = document.createElement('button');
+    confirm.type = 'button';
+    confirm.className = 'confirm-energy-payment';
+    confirm.disabled = selectedRandomEnergy.length !== required;
+    confirm.textContent = selectedRandomEnergy.length === required
+        ? 'Queue with this energy'
+        : `Choose ${required - selectedRandomEnergy.length} more`;
+    confirm.addEventListener('click', () => queueAction({ ...action, randomEnergy: [...selectedRandomEnergy] }));
+    panel.append(confirm);
+    elements.targetList.append(panel);
+}
+
+function catalogSpecies(speciesId) {
+    return rosterCatalog.find((species) => species.id === speciesId) ?? null;
+}
+
+function renderSelectionSkillDetail(skill, index, alternate = false) {
+    if (!skill) return;
+    previewSkillId = skill.id;
+    elements.selectionSkillDetailImage.src = skillArt(skill.id, index) || '';
+    elements.selectionSkillDetailImage.alt = `${skill.name} skill icon`;
+    elements.selectionSkillDetailKind.textContent = alternate ? 'Alternate / replacement skill' : `Current skill ${index + 1}`;
+    elements.selectionSkillDetailName.textContent = skill.name;
+    elements.selectionSkillDetailDescription.textContent = skill.description || 'No description available.';
+    elements.selectionSkillDetailMeta.innerHTML = `${energyCostMarkup(skill.energy)}<span>Cooldown ${skill.cooldown}</span><span>${escapeHtml(skill.target || 'No target')}</span>`;
+    for (const card of elements.selectionPreviewSkills.querySelectorAll('.preview-skill')) {
+        card.classList.toggle('selected', card.dataset.skillId === skill.id);
+        card.setAttribute('aria-pressed', String(card.dataset.skillId === skill.id));
+    }
+    for (const card of elements.selectionPreviewAlternates.querySelectorAll('.preview-skill')) {
+        card.classList.toggle('selected', card.dataset.skillId === skill.id);
+        card.setAttribute('aria-pressed', String(card.dataset.skillId === skill.id));
+    }
+}
+
+function appendSelectionSkillCard(container, skill, index, alternate = false) {
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = `preview-skill${alternate ? ' alternate' : ''}`;
+    card.dataset.skillId = skill.id;
+    card.innerHTML = `
+        ${skillIconMarkup(skill, index, 'skill-number')}
+        <div><strong>${escapeHtml(skill.name)}</strong><small>${energyCostMarkup(skill.energy)}<span>CD ${skill.cooldown}</span></small></div>
+    `;
+    card.title = `Click to read ${skill.name}`;
+    card.addEventListener('click', () => renderSelectionSkillDetail(skill, index, alternate));
+    container.append(card);
+}
+
+function renderSelectionPreview() {
+    const catalogEntry = catalogSpecies(previewSpeciesId) ?? rosterCatalog[0];
+    if (!catalogEntry) return;
+    previewSpeciesId = catalogEntry.id;
+    const species = ROSTER[catalogEntry.id];
+    const renderForms = selectionRenderForms(catalogEntry.id, catalogEntry.name);
+    const activeRender = renderForms.find((entry) => entry.id === previewSelectionForm)
+        ?? renderForms[0]
+        ?? { id: 'base', name: catalogEntry.name, url: catalogEntry.facePicture };
+    const alternateRender = renderForms.find((entry) => entry.id !== activeRender.id) ?? null;
+    previewSelectionForm = activeRender.id;
+    const evolvedFormId = Object.keys(species?.forms ?? {}).find((formId) => formId !== 'base');
+    const formId = activeRender.id === 'evolution' && evolvedFormId ? evolvedFormId : 'base';
+    const form = species?.forms?.[formId] ?? species?.forms?.base;
+    const skillIds = form?.skillIds ?? species?.skills?.slice(0, 4).map((skill) => skill.id) ?? [];
+    const skills = skillIds
+        .map((skillId) => species?.skills?.find((skill) => skill.id === skillId))
+        .filter(Boolean);
+    const formSkillIds = Object.values(species?.forms ?? {}).flatMap((entry) => entry.skillIds ?? []);
+    const primarySkillIds = new Set(formSkillIds.length ? formSkillIds : skillIds);
+    const alternateSkills = (species?.skills ?? []).filter((skill) => !primarySkillIds.has(skill.id));
+    elements.selectionPreviewImage.src = activeRender.url || catalogEntry.facePicture;
+    elements.selectionPreviewImage.alt = `${activeRender.name || catalogEntry.name} render`;
+    elements.selectionPreviewImage.dataset.speciesId = catalogEntry.id;
+    elements.selectionPreviewImage.dataset.selectionForm = activeRender.id;
+    elements.selectionPreviewImage.classList.toggle('uses-featured-render', Boolean(activeRender.url));
+    elements.selectionPreviewShadow.src = alternateRender?.url || '';
+    elements.selectionPreviewShadow.classList.toggle('visible', Boolean(alternateRender?.url));
+    elements.selectionPreviewName.textContent = activeRender.name || catalogEntry.name;
+    elements.selectionPreviewTypes.textContent = (form?.types ?? catalogEntry.types).join(' / ');
+    elements.selectionPreviewFormControls.hidden = renderForms.length < 2;
+    elements.selectionBaseForm.classList.toggle('active', activeRender.id === 'base');
+    elements.selectionBaseForm.setAttribute('aria-pressed', String(activeRender.id === 'base'));
+    elements.selectionEvolutionForm.classList.toggle('active', activeRender.id === 'evolution');
+    elements.selectionEvolutionForm.setAttribute('aria-pressed', String(activeRender.id === 'evolution'));
+    const evolutionRender = renderForms.find((entry) => entry.id === 'evolution');
+    elements.selectionEvolutionForm.textContent = evolutionRender?.name || 'Evolution';
+    elements.selectionPreviewCount.textContent = alternateSkills.length
+        ? `${skills.length} + ${alternateSkills.length} ALT`
+        : `${skills.length} SKILLS`;
+    elements.selectionPreviewPassive.textContent = catalogEntry.passiveDescription || 'No passive description.';
+    elements.selectionPreviewSkills.replaceChildren();
+    elements.selectionPreviewAlternates.replaceChildren();
+    skills.forEach((skill, index) => {
+        appendSelectionSkillCard(elements.selectionPreviewSkills, skill, index, false);
+    });
+    alternateSkills.forEach((skill, index) => {
+        appendSelectionSkillCard(elements.selectionPreviewAlternates, skill, skills.length + index, true);
+    });
+    elements.selectionAlternateSection.hidden = alternateSkills.length === 0;
+    const selectedSkill = skills.find((skill) => skill.id === previewSkillId)
+        ?? alternateSkills.find((skill) => skill.id === previewSkillId)
+        ?? skills[0]
+        ?? alternateSkills[0];
+    const alternateSelected = alternateSkills.some((skill) => skill.id === selectedSkill?.id);
+    renderSelectionSkillDetail(
+        selectedSkill,
+        alternateSelected ? skills.length + alternateSkills.indexOf(selectedSkill) : Math.max(0, skills.indexOf(selectedSkill)),
+        alternateSelected
+    );
+}
+
+function renderDraftSlots(player) {
+    const container = player === 'A' ? elements.teamSelectA : elements.teamSelectB;
+    container.replaceChildren();
+    teamDraft[player].forEach((speciesId, slot) => {
+        const species = catalogSpecies(speciesId);
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'team-slot';
+        button.setAttribute('aria-label', `Player ${player} slot ${slot + 1}`);
+        if (activeDraftPlayer === player && activeDraftSlot === slot) button.classList.add('active');
+        button.innerHTML = `
+            <span class="team-slot-number">${slot + 1}</span>
+            <img src="${escapeHtml(species?.facePicture || '')}" alt="${escapeHtml(species?.name || 'Empty slot')}">
+            <span class="team-slot-name">${escapeHtml(species?.name || 'Choose')}</span>
+        `;
+        button.addEventListener('click', () => {
+            activeDraftPlayer = player;
+            activeDraftSlot = slot;
+            if (previewSpeciesId !== speciesId) previewSelectionForm = 'base';
+            previewSpeciesId = speciesId;
+            renderTeamSelectors();
+        });
+        container.append(button);
+    });
+}
+
+function assignDraftSpecies(speciesId) {
+    const currentId = teamDraft[activeDraftPlayer][activeDraftSlot];
+    const existingSlot = teamDraft[activeDraftPlayer].indexOf(speciesId);
+    if (existingSlot >= 0 && existingSlot !== activeDraftSlot) {
+        teamDraft[activeDraftPlayer][existingSlot] = currentId;
+    }
+    teamDraft[activeDraftPlayer][activeDraftSlot] = speciesId;
+    if (previewSpeciesId !== speciesId) previewSelectionForm = 'base';
+    previewSpeciesId = speciesId;
+    activeDraftSlot = (activeDraftSlot + 1) % 3;
+    renderTeamSelectors();
+}
+
+function renderRosterGrid() {
+    elements.rosterGrid.replaceChildren();
+    rosterCatalog.forEach((species) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'roster-card';
+        if (species.id === previewSpeciesId) button.classList.add('previewed');
+        const assignments = [];
+        for (const player of ['A', 'B']) {
+            teamDraft[player].forEach((speciesId, slot) => {
+                if (speciesId === species.id) assignments.push(`${player}${slot + 1}`);
+            });
+        }
+        if (assignments.length) button.classList.add('drafted');
+        button.setAttribute('aria-label', `Inspect ${species.name} skills`);
+        button.innerHTML = `
+            <img src="${escapeHtml(species.facePicture)}" alt="${escapeHtml(species.name)}">
+            <span class="roster-card-name">${escapeHtml(species.name)}</span>
+            <span class="roster-card-type">${escapeHtml(species.types.join(' / '))}</span>
+            ${assignments.length ? `<span class="draft-mark">${assignments.join(' · ')}</span>` : ''}
+        `;
+        button.addEventListener('click', () => {
+            if (previewSpeciesId !== species.id) previewSelectionForm = 'base';
+            if (previewSpeciesId !== species.id) previewSkillId = null;
+            assignDraftSpecies(species.id);
+        });
+        elements.rosterGrid.append(button);
+    });
+}
+
+elements.selectionBaseForm.addEventListener('click', () => {
+    previewSelectionForm = 'base';
+    renderSelectionPreview();
+});
+
+elements.selectionEvolutionForm.addEventListener('click', () => {
+    previewSelectionForm = 'evolution';
+    renderSelectionPreview();
+});
+
+function renderTeamSelectors() {
+    renderDraftSlots('A');
+    renderDraftSlots('B');
+    renderRosterGrid();
+    renderSelectionPreview();
+}
+
+function selectedTeams() {
+    return { A: [...teamDraft.A], B: [...teamDraft.B] };
+}
+
+async function loadRoster() {
+    const payload = await api('/api/roster', { token: null });
+    rosterCatalog = payload.characters ?? [];
+    if (rosterCatalog.length < 3) throw new Error('The standalone roster is not ready for team selection.');
+    elements.rosterCount.textContent = `${rosterCatalog.length} PLAYABLE POKEMON`;
+    elements.selectionBadgeCount.textContent = `${rosterCatalog.length} PLAYABLE`;
+    renderTeamSelectors();
+    elements.newMatchButton.disabled = false;
+    elements.soloMatchButton.disabled = false;
+}
+
+function renderTeam(container, units, player, view) {
+    container.replaceChildren();
+    units.forEach((unit) => {
+        const species = ROSTER[unit.effectiveSpeciesId ?? unit.speciesId];
+        const presentation = unitPresentation(unit);
+        const card = document.createElement('article');
+        card.className = 'unit';
+        card.dataset.player = player;
+        card.dataset.slot = String(unit.slot);
+        const actorSelectable =
+            !snapshot.waitingForOpponent &&
+            player === session.player &&
+            player === view.currentPlayer &&
+            unit.alive &&
+            view.legalActions.some((action) => action.actorSlot === unit.slot);
+        if (actorSelectable) card.classList.add('selectable');
+        if (!unit.alive) card.classList.add('defeated');
+        if (player === session.player && selectedActorSlot === unit.slot) card.classList.add('selected');
+        const healthHue = Math.round(Math.max(0, Math.min(100, unit.hp)) * 1.2);
+        const burnStacks = unit.statuses
+            .filter((status) => status.name?.toLowerCase().includes('burn') || status.id?.includes('burn'))
+            .reduce((total, status) => total + Math.max(1, Number(status.stacks) || 1), 0);
+        const cooldownsParalyzed = unit.statuses.some((status) => status.paralyzeCooldowns);
+        const burnStrength = Math.min(1, 0.22 + burnStacks * 0.16);
+        const portraitEffects = `
+            ${burnStacks > 0 ? '<span class="portrait-fire-effect" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>' : ''}
+            ${cooldownsParalyzed ? '<span class="portrait-static-effect" aria-hidden="true"><i></i><i></i><i></i></span>' : ''}
+        `;
+        const skillPips = presentation.skillIds.map((skillId, index) => {
+            const skill = species.skills.find((candidate) => candidate.id === skillId);
+            const cooldown = unit.cooldowns[skillId] ?? 0;
+            const availableAction = player === session.player && view.legalActions.find((action) =>
+                action.actorSlot === unit.slot && action.skillId === skillId
+            );
+            const usable = Boolean(availableAction);
+            const inspectable = player !== session.player;
+            const selected = player === session.player &&
+                selectedActorSlot === unit.slot && selectedSkillId === skillId;
+            return `<button type="button" class="unit-skill ${cooldown ? 'cooling' : ''} ${selected ? 'selected' : ''} ${inspectable ? 'inspect-only' : ''}"
+                data-skill-id="${escapeHtml(skillId)}" aria-label="${inspectable ? 'Inspect' : 'Select'} ${escapeHtml(skill?.name || skillId)}"
+                ${usable || inspectable ? '' : 'disabled'}>${skillIconMarkup(skill, index, 'unit-skill-art')}${energyCostMarkup(availableAction?.energyCosts ?? skill.energy, true)}${cooldown ? `<i class="skill-cooldown">${cooldown}</i>` : ''}</button>`;
+        }).join('');
+        card.innerHTML = `
+            <button type="button" class="unit-portrait ${burnStacks > 0 ? 'is-burning' : ''} ${cooldownsParalyzed ? 'is-paralyzed' : ''}"
+                style="--burn-strength:${burnStrength};--burn-stacks:${Math.min(6, burnStacks)}"
+                aria-label="${escapeHtml(presentation.name)} portrait">
+                <img src="${escapeHtml(presentation.facePicture)}" alt="${escapeHtml(presentation.name)}">
+                ${portraitEffects}
+                <div class="hp-track"><div class="hp-fill" style="width:${unit.hp}%;--health-hue:${healthHue}"></div><span>${unit.hp}/100</span></div>
+                ${protectionTrackMarkup('shield', unit.shield, unit.shieldCapacity)}
+                ${protectionTrackMarkup('barrier', unit.barrier, unit.barrierCapacity)}
+                ${passiveCounterMarkup(unit)}
+            </button>
+            <div class="unit-body">
+                <div class="unit-name"><strong>${escapeHtml(presentation.name)}</strong><span>${escapeHtml(presentation.types.join(' / '))}</span></div>
+                <div class="unit-skills">${skillPips}</div>
+                <div class="unit-stats"><span>${Object.keys(unit.cooldowns).length} COOLDOWNS</span></div>
+                <div class="status-list">
+                    ${unit.statuses.map(statusIconMarkup).join('')}
+                    ${Object.entries(unit.counters).filter(([key, value]) => value > 0 && !(unit.speciesId === 'bulbasaur' && key === 'sun')).map(([key, value]) => `<span class="status">${escapeHtml(key)} ${value}</span>`).join('')}
+                </div>
+            </div>
+        `;
+        const selectedSkill = selectedActor() && selectedSkillId
+            ? ROSTER[selectedActor().effectiveSpeciesId ?? selectedActor().speciesId]?.skills.find(
+                (skill) => skill.id === selectedSkillId
+            )
+            : null;
+        const matchingTargets = view.legalActions.filter((action) =>
+            action.actorSlot === selectedActorSlot && action.skillId === selectedSkillId
+        );
+        let targetAction = matchingTargets.find((action) =>
+            action.targetPlayer === player && action.targetSlot === unit.slot
+        );
+        if (
+            !targetAction &&
+            ((selectedSkill?.target === 'all-enemy' && player !== session.player) ||
+                (selectedSkill?.target === 'all-allies' && player === session.player))
+        ) {
+            targetAction = matchingTargets[0];
+        }
+        const portraitButton = card.querySelector('.unit-portrait');
+        const effectLabel = `${burnStacks > 0 ? `. Burn ${burnStacks} stack${burnStacks === 1 ? '' : 's'}` : ''}${cooldownsParalyzed ? '. Cooldowns paralyzed' : ''}`;
+        if (targetAction && unit.alive) {
+            card.classList.add('targetable');
+            if (sameAction(selectedPaymentAction, targetAction)) card.classList.add('payment-target');
+            card.addEventListener('pointerenter', () => drawTargetingArrow(card, presentation.name));
+            card.addEventListener('pointerleave', () => clearTargetingArrow());
+            card.addEventListener('focusin', () => drawTargetingArrow(card, presentation.name));
+            card.addEventListener('focusout', (event) => {
+                if (!card.contains(event.relatedTarget)) clearTargetingArrow();
+            });
+            card.addEventListener('pointerdown', () => drawTargetingArrow(card, presentation.name));
+            portraitButton.disabled = false;
+            portraitButton.setAttribute('aria-label', `Target ${presentation.name}${effectLabel}`);
+            portraitButton.addEventListener('click', (event) => {
+                event.stopPropagation();
+                chooseTargetAction(targetAction);
+            });
+            card.addEventListener('click', (event) => {
+                if (event.target.closest('.unit-portrait, .unit-skill, .status-icon')) return;
+                chooseTargetAction(targetAction);
+            });
+        } else if (actorSelectable) {
+            portraitButton.disabled = false;
+            portraitButton.setAttribute('aria-label', `Select ${presentation.name}${effectLabel}`);
+            portraitButton.addEventListener('click', () => {
+                selectedActorSlot = unit.slot;
+                selectedSkillId = null;
+                selectedPaymentAction = null;
+                selectedRandomEnergy = [];
+                elements.actionError.textContent = '';
+                render();
+            });
+        } else {
+            portraitButton.disabled = true;
+        }
+        card.querySelectorAll('.unit-skill:not(:disabled)').forEach((skillButton) => {
+            skillButton.addEventListener('click', (event) => {
+                event.stopPropagation();
+                if (player !== session.player) {
+                    const inspectedSkill = species.skills.find((skill) => skill.id === skillButton.dataset.skillId);
+                    selectedSkillId = null;
+                    selectedPaymentAction = null;
+                    selectedRandomEnergy = [];
+                    render();
+                    renderTargetingReadout(inspectedSkill, inspectedSkill?.energy, {
+                        kicker: 'OPPONENT SKILL',
+                        prompt: `Viewing ${presentation.name}'s skill`,
+                    });
+                    return;
+                }
+                if (targetAction && unit.alive) {
+                    chooseTargetAction(targetAction);
+                    return;
+                }
+                selectedActorSlot = unit.slot;
+                selectedSkillId = skillButton.dataset.skillId;
+                selectedPaymentAction = null;
+                selectedRandomEnergy = [];
+                elements.actionError.textContent = '';
+                const chosenSkill = species.skills.find((skill) => skill.id === selectedSkillId);
+                const areaAction = view.legalActions.find((action) =>
+                    action.actorSlot === unit.slot && action.skillId === selectedSkillId
+                );
+                if (isAutomaticAreaTarget(chosenSkill) && areaAction) {
+                    chooseTargetAction(areaAction);
+                    return;
+                }
+                render();
+            });
+        });
+        card.querySelectorAll('.status-icon').forEach((statusButton) => {
+            statusButton.addEventListener('click', (event) => {
+                event.stopPropagation();
+                const opening = !statusButton.classList.contains('is-open');
+                document.querySelectorAll('.status-icon.is-open').forEach((entry) => {
+                    entry.classList.remove('is-open');
+                    entry.setAttribute('aria-expanded', 'false');
+                });
+                statusButton.classList.toggle('is-open', opening);
+                statusButton.setAttribute('aria-expanded', String(opening));
+            });
+        });
+        container.append(card);
+    });
+}
+
+function chooseTargetAction(action) {
+    if ((action.randomEnergyRequired ?? 0) === 0) {
+        queueAction({ ...action, randomEnergy: [] });
+        return;
+    }
+    selectedPaymentAction = { ...action };
+    selectedRandomEnergy = [];
+    elements.actionError.textContent = '';
+    render();
+}
+
+function selectedActor() {
+    return snapshot?.state.teams[session.player]?.[selectedActorSlot] ?? null;
+}
+
+function dismissSelectedSkill() {
+    if (!selectedSkillId) return;
+    selectedSkillId = null;
+    selectedPaymentAction = null;
+    selectedRandomEnergy = [];
+    elements.actionError.textContent = '';
+    clearTargetingArrow();
+    render();
+}
+
+function protectsSelectedSkill(target) {
+    return Boolean(target?.closest?.(
+        '#targeting-readout, .unit.targetable, .target-button, .random-energy-payment, .unit-skill, .skill-button'
+    ));
+}
+
+function renderCommands() {
+    const view = snapshot.state;
+    const actions = view.legalActions;
+    hideTargetingReadout();
+    elements.legalCount.textContent = `${actions.length} LEGAL TARGETS`;
+    elements.skillList.replaceChildren();
+    elements.targetList.replaceChildren();
+    if (snapshot.waitingForOpponent) {
+        elements.commandHelp.textContent = 'Waiting for Player B to open the invite link.';
+        return;
+    }
+    if (view.winner) {
+        elements.commandHelp.textContent = view.winner === 'draw' ? 'Match complete: draw.' : `Player ${view.winner} won.`;
+        return;
+    }
+    if (view.currentPlayer !== session.player) {
+        elements.commandHelp.textContent = `Waiting for Player ${view.currentPlayer}.`;
+        return;
+    }
+    if (actions.length === 0) {
+        elements.commandHelp.textContent = 'No more Pokemon can be queued. End the team turn.';
+        return;
+    }
+    const actor = selectedActor();
+    if (!actor?.alive) {
+        elements.commandHelp.textContent = `Select one of your living Pokemon on Team ${session.player}.`;
+        return;
+    }
+    const species = ROSTER[actor.effectiveSpeciesId ?? actor.speciesId];
+    const presentation = unitPresentation(actor);
+    elements.commandHelp.textContent = `${presentation.name} selected. Choose an available skill.`;
+    species.skills.filter((skill) => presentation.skillIds.includes(skill.id)).forEach((skill, index) => {
+        const matching = actions.filter((action) => action.actorSlot === actor.slot && action.skillId === skill.id);
+        const cooldown = actor.cooldowns[skill.id] ?? 0;
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'skill-button';
+        if (selectedSkillId === skill.id) button.classList.add('selected');
+        button.disabled = matching.length === 0;
+        button.innerHTML = `
+            ${skillIconMarkup(skill, index, 'skill-button-icon')}
+            <span class="skill-button-copy"><strong>${escapeHtml(skill.name)}</strong><small>${escapeHtml(skill.description)}</small><span class="skill-meta">${energyCostMarkup(matching[0]?.energyCosts ?? skill.energy)}<span>CD ${skill.cooldown}${cooldown ? ` · ${cooldown} LEFT` : ''}</span></span></span>
+        `;
+        button.addEventListener('click', (event) => {
+            event.stopPropagation();
+            selectedSkillId = skill.id;
+            selectedPaymentAction = null;
+            selectedRandomEnergy = [];
+            elements.actionError.textContent = '';
+            if (isAutomaticAreaTarget(skill) && matching[0]) {
+                chooseTargetAction(matching[0]);
+                return;
+            }
+            render();
+        });
+        elements.skillList.append(button);
+    });
+    if (!selectedSkillId) return;
+    const selectedSkill = species.skills.find((skill) => skill.id === selectedSkillId);
+    const selectedSkillAction = actions.find((action) =>
+        action.actorSlot === actor.slot && action.skillId === selectedSkillId
+    );
+    renderTargetingReadout(selectedSkill, selectedSkillAction?.energyCosts ?? selectedSkill?.energy);
+    elements.commandHelp.textContent = isAutomaticAreaTarget(selectedSkill)
+        ? `${presentation.name} selected ${selectedSkill?.name}. The full team target is locked.`
+        : `${presentation.name} selected ${selectedSkill?.name}. Hover a glowing target card, then click it.`;
+    if (!isAutomaticAreaTarget(selectedSkill)) actions
+        .filter((action) => action.actorSlot === actor.slot && action.skillId === selectedSkillId)
+        .forEach((action) => {
+            const target = view.teams[action.targetPlayer][action.targetSlot];
+            const targetPresentation = unitPresentation(target);
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'target-button';
+            if (sameAction(selectedPaymentAction, action)) button.classList.add('selected');
+            button.textContent =
+                selectedSkill.target === 'all-enemy'
+                    ? 'Target all enemies'
+                    : selectedSkill.target === 'all-allies'
+                      ? 'Target all allies'
+                      : selectedSkill.target === 'self'
+                        ? `Use on ${presentation.name}`
+                        : `Target ${action.targetPlayer} · ${targetPresentation.name}`;
+            button.addEventListener('click', () => chooseTargetAction(action));
+            elements.targetList.append(button);
+        });
+    const activePaymentAction = actions.find((action) => sameAction(action, selectedPaymentAction));
+    if (activePaymentAction) renderRandomEnergyPayment(activePaymentAction);
+}
+
+function describeQueuedAction(action, view) {
+    const actor = view.teams[action.player]?.[action.actorSlot];
+    const target = view.teams[action.targetPlayer]?.[action.targetSlot];
+    const actorName = actor ? unitPresentation(actor).name : `slot ${action.actorSlot + 1}`;
+    const targetName = target ? unitPresentation(target).name : `slot ${action.targetSlot + 1}`;
+    const skill = actor
+        ? ROSTER[actor.effectiveSpeciesId ?? actor.speciesId]?.skills.find((candidate) => candidate.id === action.skillId)
+        : null;
+    const payment = Array.isArray(action.randomEnergy) && action.randomEnergy.length > 0
+        ? ` · ${action.randomEnergy.map(energyLabel).join(' + ')}`
+        : '';
+    return `${actorName} · ${skill?.name ?? action.skillId} → ${targetName}${payment}`;
+}
+
+function renderQueue() {
+    const actions = snapshot.pendingTurn?.actions ?? [];
+    elements.queueCount.textContent = snapshot.pendingTurn?.hidden ? 'HIDDEN' : `${actions.length} / 3`;
+    elements.queueList.replaceChildren();
+    if (snapshot.pendingTurn?.hidden) {
+        const item = document.createElement('li');
+        item.className = 'queue-placeholder';
+        item.textContent = 'Opponent choices remain hidden.';
+        elements.queueList.append(item);
+        return;
+    }
+    if (actions.length === 0) {
+        const item = document.createElement('li');
+        item.className = 'queue-placeholder';
+        item.textContent = 'Choose up to one action per Pokemon.';
+        elements.queueList.append(item);
+        return;
+    }
+    actions.forEach((action, index) => {
+        const item = document.createElement('li');
+        item.innerHTML = `<span>${index + 1}</span><strong>${escapeHtml(describeQueuedAction(action, snapshot.state))}</strong>`;
+        elements.queueList.append(item);
+    });
+}
+
+function renderEvents(events) {
+    elements.eventLog.replaceChildren();
+    [...events].reverse().forEach((event) => {
+        const item = document.createElement('li');
+        item.innerHTML = `<span>T${event.turn + 1}</span><span>${escapeHtml(event.message)}</span>`;
+        elements.eventLog.append(item);
+    });
+}
+
+function render() {
+    if (!snapshot || !session) return;
+    const view = snapshot.state;
+    elements.gameRoot.hidden = false;
+    elements.lobbyPanel.hidden = true;
+    document.body.classList.remove('selection-mode');
+    document.body.classList.add('battle-mode');
+    elements.turnLabel.textContent = `Turn ${view.turnNumber + 1}`;
+    elements.currentPlayer.textContent = `Player ${view.currentPlayer}`;
+    elements.winnerLabel.textContent = view.winner ? (view.winner === 'draw' ? 'Draw' : `Player ${view.winner} won`) : '';
+    elements.seatLabel.textContent = snapshot.mode === 'solo'
+        ? `Player ${session.player} · vs ${snapshot.opponent.name}`
+        : `Player ${session.player}`;
+    elements.connectionLabel.textContent = snapshot.waitingForOpponent
+        ? 'Waiting for opponent'
+        : snapshot.mode === 'solo'
+          ? `Solo · revision ${snapshot.revision}`
+          : `Revision ${snapshot.revision}`;
+    elements.seedLabel.textContent = `MATCH ${session.matchId.slice(0, 8)}`;
+    renderEnergy(elements.energyA, displayedEnergyPool(view, 'A'));
+    renderEnergy(elements.energyB, displayedEnergyPool(view, 'B'));
+    renderTeam(elements.teamA, view.teams.A, 'A', view);
+    renderTeam(elements.teamB, view.teams.B, 'B', view);
+    elements.teamANames.textContent = view.teams.A.map((unit) => unitPresentation(unit).name).join(' · ');
+    elements.teamBNames.textContent = view.teams.B.map((unit) => unitPresentation(unit).name).join(' · ');
+    renderQueue();
+    renderCommands();
+    renderEvents(view.recentEvents);
+    elements.autoButton.disabled =
+        snapshot.waitingForOpponent || view.winner || view.currentPlayer !== session.player || view.legalActions.length === 0;
+    const ownsTurn = !snapshot.waitingForOpponent && !view.winner && view.currentPlayer === session.player;
+    elements.undoQueueButton.disabled = !ownsTurn || (snapshot.pendingTurn?.actions.length ?? 0) === 0;
+    elements.resolveTurnButton.disabled = !ownsTurn;
+    elements.resolveTurnTopButton.disabled = !ownsTurn;
+}
+
+async function queueAction(action) {
+    try {
+        elements.actionError.textContent = '';
+        snapshot = await api(`/api/matches/${encodeURIComponent(session.matchId)}/queue`, {
+            method: 'POST',
+            body: {
+                actorSlot: action.actorSlot,
+                skillId: action.skillId,
+                targetPlayer: action.targetPlayer,
+                targetSlot: action.targetSlot,
+                randomEnergy: action.randomEnergy ?? [],
+            },
+        });
+        selectedActorSlot = null;
+        selectedSkillId = null;
+        selectedPaymentAction = null;
+        selectedRandomEnergy = [];
+        render();
+    } catch (error) {
+        elements.actionError.textContent = error.message;
+    }
+}
+
+async function undoQueued() {
+    try {
+        elements.actionError.textContent = '';
+        snapshot = await api(`/api/matches/${encodeURIComponent(session.matchId)}/queue`, { method: 'DELETE' });
+        selectedActorSlot = null;
+        selectedSkillId = null;
+        selectedPaymentAction = null;
+        selectedRandomEnergy = [];
+        render();
+    } catch (error) {
+        elements.actionError.textContent = error.message;
+    }
+}
+
+async function resolveTurn() {
+    try {
+        elements.actionError.textContent = '';
+        snapshot = await api(`/api/matches/${encodeURIComponent(session.matchId)}/resolve`, { method: 'POST' });
+        selectedActorSlot = null;
+        selectedSkillId = null;
+        selectedPaymentAction = null;
+        selectedRandomEnergy = [];
+        render();
+    } catch (error) {
+        elements.actionError.textContent = error.message;
+    }
+}
+
+async function surrenderMatch() {
+    if (!session || !window.confirm('Surrender this match and return to character select?')) return;
+    try {
+        elements.surrenderButton.disabled = true;
+        await api(`/api/matches/${encodeURIComponent(session.matchId)}/surrender`, { method: 'POST' });
+        sessionStorage.removeItem(tokenKey(session.matchId, session.player));
+        sessionStorage.removeItem(inviteKey(session.matchId));
+        window.location.assign(applicationLocation());
+    } catch (error) {
+        elements.actionError.textContent = error.message;
+        elements.surrenderButton.disabled = false;
+    }
+}
+
+async function createMatch(opponent = 'human') {
+    try {
+        elements.newMatchButton.disabled = true;
+        elements.soloMatchButton.disabled = true;
+        elements.lobbyStatus.textContent = opponent === 'bot' ? 'Creating a solo match…' : 'Creating a private match…';
+        const created = await api('/api/matches', {
+            method: 'POST',
+            body: { opponent, teams: selectedTeams() },
+            token: null,
+        });
+        saveSession({ matchId: created.matchId, player: created.player, token: created.token });
+        snapshot = created;
+        if (created.mode === 'solo') {
+            elements.invitePanel.hidden = true;
+            elements.lobbyStatus.textContent = 'Solo match ready. The Training Bot controls Player B.';
+        } else {
+            const inviteUrl = new URL(created.invitePath, window.location.href).href;
+            sessionStorage.setItem(inviteKey(created.matchId), inviteUrl);
+            elements.inviteUrl.value = inviteUrl;
+            elements.invitePanel.hidden = false;
+            elements.lobbyStatus.textContent = 'Private match created. Open the invite link for Player B.';
+        }
+        history.replaceState(null, '', applicationLocation(`?match=${encodeURIComponent(created.matchId)}`));
+        render();
+    } catch (error) {
+        elements.lobbyStatus.textContent = error.message;
+    } finally {
+        elements.newMatchButton.disabled = false;
+        elements.soloMatchButton.disabled = false;
+    }
+}
+
+async function joinMatch(matchId, inviteCode) {
+    const savedToken = sessionStorage.getItem(tokenKey(matchId, 'B'));
+    const joined = savedToken
+        ? await api(`/api/matches/${encodeURIComponent(matchId)}/state`, { token: savedToken })
+        : await api(`/api/matches/${encodeURIComponent(matchId)}/join`, {
+              method: 'POST', body: { inviteCode }, token: null,
+          });
+    const token = savedToken || joined.token;
+    saveSession({ matchId, player: 'B', token });
+    snapshot = joined;
+    history.replaceState(null, '', applicationLocation(`?match=${encodeURIComponent(matchId)}`));
+    render();
+}
+
+async function resumeMatch(matchId) {
+    for (const player of ['A', 'B']) {
+        const token = sessionStorage.getItem(tokenKey(matchId, player));
+        if (!token) continue;
+        try {
+            const resumed = await api(`/api/matches/${encodeURIComponent(matchId)}/state`, { token });
+            saveSession({ matchId, player, token });
+            snapshot = resumed;
+            const savedInvite = player === 'A' ? sessionStorage.getItem(inviteKey(matchId)) : '';
+            if (resumed.waitingForOpponent && savedInvite) {
+                elements.inviteUrl.value = savedInvite;
+                elements.invitePanel.hidden = false;
+            }
+            render();
+            return true;
+        } catch {
+            sessionStorage.removeItem(tokenKey(matchId, player));
+        }
+    }
+    return false;
+}
+
+async function refresh() {
+    if (!session) return;
+    try {
+        const next = await api(`/api/matches/${encodeURIComponent(session.matchId)}/state`);
+        elements.actionError.textContent = '';
+        elements.connectionLabel.textContent = next.waitingForOpponent
+            ? 'Waiting for opponent'
+            : next.mode === 'solo'
+              ? `Solo · revision ${next.revision}`
+              : `Revision ${next.revision}`;
+        if (
+            !snapshot ||
+            next.revision !== snapshot.revision ||
+            next.queueRevision !== snapshot.queueRevision ||
+            next.waitingForOpponent !== snapshot.waitingForOpponent
+        ) {
+            snapshot = next;
+            selectedActorSlot = null;
+            selectedSkillId = null;
+            selectedPaymentAction = null;
+            selectedRandomEnergy = [];
+            render();
+        }
+    } catch (error) {
+        elements.connectionLabel.textContent = 'Disconnected';
+        elements.actionError.textContent = error.message;
+    }
+}
+
+document.addEventListener('click', () => {
+    document.querySelectorAll('.status-icon.is-open').forEach((entry) => {
+        entry.classList.remove('is-open');
+        entry.setAttribute('aria-expanded', 'false');
+    });
+});
+
+document.addEventListener('dblclick', (event) => {
+    if (protectsSelectedSkill(event.target)) return;
+    dismissSelectedSkill();
+});
+
+document.addEventListener('pointerup', (event) => {
+    if (event.pointerType !== 'touch' || protectsSelectedSkill(event.target)) return;
+    dismissSelectedSkill();
+});
+
+window.addEventListener('resize', () => {
+    if (!hoveredTargetCard?.isConnected) return;
+    const targetName = hoveredTargetCard.querySelector('.unit-name strong')?.textContent ?? 'Pokemon';
+    drawTargetingArrow(hoveredTargetCard, targetName);
+});
+
+elements.newMatchButton.addEventListener('click', () => createMatch('human'));
+elements.soloMatchButton.addEventListener('click', () => createMatch('bot'));
+elements.copyInviteButton.addEventListener('click', async () => {
+    await navigator.clipboard.writeText(elements.inviteUrl.value);
+    elements.copyInviteButton.textContent = 'Copied';
+    setTimeout(() => { elements.copyInviteButton.textContent = 'Copy Invite'; }, 1200);
+});
+elements.autoButton.addEventListener('click', () => {
+    const action = snapshot?.state.legalActions[0];
+    if (action) queueAction({ ...action, randomEnergy: [...(action.suggestedRandomEnergy ?? [])] });
+});
+elements.undoQueueButton.addEventListener('click', undoQueued);
+elements.resolveTurnButton.addEventListener('click', resolveTurn);
+elements.resolveTurnTopButton.addEventListener('click', resolveTurn);
+elements.surrenderButton.addEventListener('click', surrenderMatch);
+elements.exportButton.addEventListener('click', async () => {
+    try {
+        const replayData = await api(`/api/matches/${encodeURIComponent(session.matchId)}/replay`);
+        elements.replayJson.value = JSON.stringify(replayData, null, 2);
+        elements.replayPanel.open = true;
+        elements.replayJson.focus();
+        elements.replayJson.select();
+    } catch (error) {
+        elements.actionError.textContent = error.message;
+    }
+});
+
+async function start() {
+    const params = new URLSearchParams(window.location.search);
+    const matchId = params.get('match');
+    const inviteCode = params.get('invite');
+    try {
+        await loadRoster();
+        if (matchId && inviteCode) {
+            await joinMatch(matchId, inviteCode);
+        } else if (matchId && !(await resumeMatch(matchId))) {
+            elements.lobbyStatus.textContent = 'This tab has no player token for that match. Build a new team or use its invite link.';
+        }
+    } catch (error) {
+        elements.lobbyStatus.textContent = `Could not start: ${error.message}`;
+    }
+}
+
+await start();
+setInterval(refresh, 800);

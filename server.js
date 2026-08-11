@@ -71,6 +71,18 @@ const app = express();
 app.set('trust proxy', 1);
 app.use(compression());
 
+const POKEMON_UNISON_PREVIEW_PATH = '/pokemon-unison-20c771d870f2d5d1a13d37c9';
+let pokemonUnisonHandlerPromise = null;
+const getPokemonUnisonHandler = () => {
+    if (!pokemonUnisonHandlerPromise) {
+        pokemonUnisonHandlerPromise = import('./prototypes/pokemon-unison/reference/server.mjs').then(
+            ({ createPokemonUnisonHandler }) =>
+                createPokemonUnisonHandler({ publicBasePath: `${POKEMON_UNISON_PREVIEW_PATH}/` })
+        );
+    }
+    return pokemonUnisonHandlerPromise;
+};
+
 const PORT = process.env.PORT || 4000;
 const TURN_DURATION_MS = 60 * 1000;
 const TURN_EXPIRY_GRACE_MS = 3 * 1000;
@@ -9527,6 +9539,30 @@ app.use(
                 formAction: ["'self'"],
             },
         },
+    })
+);
+app.get(POKEMON_UNISON_PREVIEW_PATH, (req, res, next) => {
+    const requestedPath = String(req.originalUrl || '').split('?')[0];
+    if (requestedPath.endsWith('/')) {
+        next();
+        return;
+    }
+    res.redirect(302, `${POKEMON_UNISON_PREVIEW_PATH}/${req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : ''}`);
+});
+app.use(POKEMON_UNISON_PREVIEW_PATH, async (req, res, next) => {
+    res.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
+    try {
+        const handler = await getPokemonUnisonHandler();
+        return handler(req, res);
+    } catch (error) {
+        return next(error);
+    }
+});
+app.use(
+    '/game-assets',
+    express.static(path.join(__dirname, 'assets'), {
+        etag: true,
+        maxAge: '7d',
     })
 );
 app.get('/characters.js', (req, res) => {

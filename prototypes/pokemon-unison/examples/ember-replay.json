@@ -1,0 +1,33 @@
+{
+  "protocolVersion": 1,
+  "seed": 42,
+  "teams": {
+    "A": [
+      "charmander",
+      "squirtle",
+      "bulbasaur"
+    ],
+    "B": [
+      "pikachu",
+      "zubat",
+      "chansey"
+    ]
+  },
+  "startingPlayer": "A",
+  "actions": [
+    {
+      "player": "A",
+      "actorSlot": 0,
+      "skillId": "charmander-ember",
+      "targetPlayer": "B",
+      "targetSlot": 1
+    },
+    {
+      "player": "B",
+      "actorSlot": 1,
+      "skillId": "zubat-bite",
+      "targetPlayer": "A",
+      "targetSlot": 0
+    }
+  ]
+}

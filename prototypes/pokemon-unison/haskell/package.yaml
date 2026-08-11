@@ -1,0 +1,26 @@
+name: pokemon-unison-prototype
+version: 0.1.0.0
+license: BSD-3-Clause
+language: GHC2021
+
+library:
+  source-dirs: src
+  dependencies:
+    - aeson
+    - base >= 4.18 && < 5
+    - containers
+    - text
+
+tests:
+  engine-spec:
+    source-dirs: test
+    main: Main.hs
+    dependencies:
+      - base
+      - hspec
+      - pokemon-unison-prototype
+
+ghc-options:
+  - -Wall
+  - -Wcompat
+  - -Werror=incomplete-patterns
