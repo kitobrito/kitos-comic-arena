@@ -81,6 +81,9 @@ const elements = {
     teamSelectB: document.querySelector('#team-select-b'),
     turnLabel: document.querySelector('#turn-label'),
     undoQueueButton: document.querySelector('#undo-queue-button'),
+    weatherBanner: document.querySelector('#weather-banner'),
+    weatherName: document.querySelector('#weather-name'),
+    weatherRounds: document.querySelector('#weather-rounds'),
     winnerLabel: document.querySelector('#winner-label'),
 };
 
@@ -1043,6 +1046,15 @@ function renderEvents(events) {
     });
 }
 
+function renderWeatherBanner(weather) {
+    elements.weatherBanner.hidden = !weather;
+    if (!weather) return;
+    elements.weatherName.textContent = weather.name;
+    const rounds = weather.roundsRemaining === 1 ? '1 turn left' : `${weather.roundsRemaining} turns left`;
+    elements.weatherRounds.textContent = rounds;
+    elements.weatherBanner.title = weather.description ?? '';
+}
+
 function render() {
     if (!snapshot || !session) return;
     const view = snapshot.state;
@@ -1071,6 +1083,7 @@ function render() {
     renderQueue();
     renderCommands();
     renderEvents(view.recentEvents);
+    renderWeatherBanner(view.weather);
     elements.autoButton.disabled =
         snapshot.waitingForOpponent || view.winner || view.currentPlayer !== session.player || view.legalActions.length === 0;
     const ownsTurn = !snapshot.waitingForOpponent && !view.winner && view.currentPlayer === session.player;

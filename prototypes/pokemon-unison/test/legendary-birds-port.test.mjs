@@ -70,7 +70,7 @@ test('the legendary birds expose every production skill, cost, cooldown, type, p
     assert.deepEqual(
         ROSTER.articuno.skills.map(({ energy, cooldown }) => ({ energy, cooldown })),
         [
-            { energy: [Energy.NINJUTSU], cooldown: 1 },
+            { energy: [Energy.NINJUTSU], cooldown: 2 },
             { energy: [Energy.NINJUTSU], cooldown: 0 },
             { energy: [Energy.NINJUTSU, Energy.NINJUTSU, Energy.RANDOM], cooldown: 2 },
             { energy: [Energy.RANDOM], cooldown: 4 },
@@ -107,53 +107,77 @@ test('the legendary birds expose every production skill, cost, cooldown, type, p
         .forEach((skill) => assert.match(skill.image, /PokemonArena\/(articuno|moltres|zapdos)/i));
 });
 
-test('Blizzard paralyzes team cooldowns and Ice Beam can stun only Special skills', () => {
+test('Blizzard stuns Physical skills, summons Hail, and Ice Beam can stun only Special skills', () => {
     const controlTeams = {
         A: birdTeams.A,
         B: ['zapdos', 'pidgey', 'eevee'],
     };
     let game = createGame({ seed: 1, teams: controlTeams });
-    game.teams.B.forEach((unit) => { unit.cooldowns.test = 2; });
     game = enact(game, action('A', 0, 'articuno-blizzard', 'B', 0));
 
-    assert.deepEqual(game.teams.B.map((unit) => unit.cooldowns.test), [2, 2, 2]);
-    assert.deepEqual(game.teams.B.map((unit) => Boolean(status(unit, 'articuno-blizzard-paralysis'))), [true, true, true]);
+    // 10 base damage; zapdos and pidgey are part-Flying, which Ice hits super-effectively (+5).
+    assert.deepEqual(game.teams.B.map((unit) => unit.hp), [85, 85, 90]);
+    assert.deepEqual(game.teams.B.map((unit) => Boolean(status(unit, 'articuno-blizzard-stun'))), [true, true, true]);
+    assert.match(
+        validateAction(game, action('B', 0, 'zapdos-flight', 'B', 0)),
+        /Physical skills are stunned/i
+    );
+    assert.equal(game.weather?.key, 'hail');
+    assert.equal(game.weather?.roundsRemaining, 4);
+
+    // Let Blizzard's 1-turn Physical stun actually expire before isolating Ice Beam's Special-only stun.
+    game = pass(game);
+    assert.deepEqual(game.teams.B.map((unit) => unit.hp), [82, 82, 87], 'Hail ticked once more, 3 damage to the non-Ice team');
+    assert.deepEqual(game.teams.B.map((unit) => Boolean(status(unit, 'articuno-blizzard-stun'))), [false, false, false]);
 
     ready(game, 'A', { clearCooldowns: true });
     game = enact(game, action('A', 0, 'articuno-ice-beam', 'B', 0));
+    // 15 base + 5 from Hail's Ice bonus (Ice Beam is not excluded), then +5 more for Flying-type effectiveness.
+    assert.equal(game.teams.B[0].hp, 57);
     assert.ok(status(game.teams.B[0], 'articuno-ice-beam-stun'));
     assert.match(
-        validateAction(game, action('B', 0, 'zapdos-thunderbolt', 'B', 0)),
+        validateAction(game, action('B', 0, 'zapdos-thunderstorm', 'B', 0)),
         /Special skills are stunned/i
     );
     assert.equal(validateAction(game, action('B', 0, 'zapdos-flight', 'B', 0)), null);
 });
 
-test('Sheer Cold hits the full team, repeats Blizzard and Ice Beam control, and gains 5 permanent damage', () => {
+test('Sheer Cold hits the full team, repeats Blizzard and Ice Beam control, summons Hail, and gains 5 permanent damage', () => {
     let game = createGame({ seed: 3, teams: neutralTeams });
     game = enact(game, action('A', 0, 'articuno-sheer-cold', 'B', 0));
     assert.deepEqual(game.teams.B.map((unit) => unit.hp), [70, 70, 70]);
     assert.equal(status(game.teams.A[0], 'articuno-sheer-cold-tracker')?.bonusDamage, 5);
-    assert.deepEqual(game.teams.B.map((unit) => Boolean(status(unit, 'articuno-blizzard-paralysis'))), [true, true, true]);
+    assert.deepEqual(game.teams.B.map((unit) => Boolean(status(unit, 'articuno-blizzard-stun'))), [true, true, true]);
+    assert.equal(game.weather?.key, 'hail');
 
     game = pass(game);
+    // Hail ticked once during the pass: 3 damage to the non-Ice team.
+    assert.deepEqual(game.teams.B.map((unit) => unit.hp), [67, 67, 67]);
+    assert.equal(game.weather?.roundsRemaining, 3, 'Hail is now on its second of four rounds');
+
     ready(game, 'A', { clearCooldowns: true });
     game = enact(game, action('A', 0, 'articuno-sheer-cold', 'B', 0));
-    assert.deepEqual(game.teams.B.map((unit) => unit.hp), [35, 35, 35]);
+    // 30 base + 5 permanent tracker bonus + 5 from Hail's own Ice bonus (Sheer Cold is not excluded from it).
+    assert.deepEqual(game.teams.B.map((unit) => unit.hp), [27, 27, 27]);
     assert.equal(status(game.teams.A[0], 'articuno-sheer-cold-tracker')?.bonusDamage, 10);
+    assert.equal(game.weather?.key, 'hail', 'Hail does not refresh, but the still-active weather remains Hail');
+    assert.equal(game.weather?.roundsRemaining, 3, 'recasting Blizzard-adjacent Hail while active does not reset its duration');
 });
 
-test('Sunny Day adds exactly 3 affliction damage and Heat Wave gains one capped Heat', () => {
+test('Sunny Day summons weather that boosts affliction and Fire damage, and Heat Wave gains capped Heat', () => {
     let game = createGame({ seed: 11, teams: neutralTeams });
-    game = enact(game, action('A', 1, 'moltres-sunny-day', 'B', 0));
-    assert.equal(status(game.teams.A[1], 'moltres-heat-tracker')?.heat, 1);
-    assert.deepEqual(game.teams.B.map((unit) => Boolean(status(unit, 'moltres-sunny-day'))), [true, true, true]);
+    game = enact(game, action('A', 1, 'moltres-sunny-day', 'A', 1));
+    // Base +1 Heat, plus +1 more from Sunny Day's own "gain extra Heat while it lasts" clause.
+    assert.equal(status(game.teams.A[1], 'moltres-heat-tracker')?.heat, 2);
+    assert.equal(game.weather?.key, 'sunny-day');
+    assert.equal(game.weather?.roundsRemaining, 4);
 
     game = pass(game);
     ready(game, 'A', { clearCooldowns: true });
     game = enact(game, action('A', 1, 'moltres-heat-wave', 'B', 0));
-    assert.deepEqual(game.teams.B.map((unit) => unit.hp), [77, 87, 87]);
-    assert.equal(status(game.teams.A[1], 'moltres-heat-tracker')?.heat, 2);
+    // 20+3+5=28 to the primary target, 10+3+5=18 to the others (affliction +3, Fire +5).
+    assert.deepEqual(game.teams.B.map((unit) => unit.hp), [72, 82, 82]);
+    assert.equal(status(game.teams.A[1], 'moltres-heat-tracker')?.heat, 3, 'capped at 3 even with the weather bonus');
 
     status(game.teams.A[1], 'moltres-heat-tracker').heat = 3;
     ready(game, 'A', { clearCooldowns: true });
@@ -225,22 +249,26 @@ test('Charge discounts Yellow costs, increases on Zapdos turns, and ends after a
     assert.equal(status(game.teams.A[2], 'zapdos-charge-active'), undefined);
 });
 
-test('Thunderbolt traps harmful skills, pressures their cooldown, detonates on recast, and Flight boosts it', () => {
+test('Thunderstorm traps harmful skills, pressures their cooldown, detonates on recast, and Flight boosts it', () => {
     let game = createGame({ seed: 23, teams: birdTeams });
-    game = enact(game, action('A', 2, 'zapdos-thunderbolt', 'A', 2));
+    game = enact(game, action('A', 2, 'zapdos-thunderstorm', 'A', 2));
+    assert.equal(game.weather?.key, 'thunderstorm');
+    assert.equal(game.weather?.roundsRemaining, 4);
 
     game = enact(game, action('B', 0, 'chansey-eggbomb', 'A', 0));
+    // The trap's own trigger damage is excluded from Thunderstorm's Electric bonus, so this is unchanged.
     assert.equal(game.teams.B[0].hp, 95);
     assert.equal(game.teams.B[0].cooldowns['chansey-eggbomb'], 3);
 
     ready(game, 'A', { clearCooldowns: true });
-    game = enact(game, action('A', 2, 'zapdos-thunderbolt', 'A', 2));
+    game = enact(game, action('A', 2, 'zapdos-thunderstorm', 'A', 2));
     assert.deepEqual(game.teams.B.map((unit) => unit.hp), [80, 80, 85]);
-    assert.equal(status(game.teams.A[2], 'zapdos-thunderbolt-active'), undefined);
-    assert.deepEqual(game.teams.B.map((unit) => Boolean(status(unit, 'zapdos-thunderbolt-paralysis'))), [true, true, true]);
+    assert.equal(status(game.teams.A[2], 'zapdos-thunderstorm-active'), undefined);
+    assert.deepEqual(game.teams.B.map((unit) => Boolean(status(unit, 'zapdos-thunderstorm-paralysis'))), [true, true, true]);
+    assert.equal(game.weather, null, 'detonating Thunderstorm ends the weather early');
 
     game = createGame({ seed: 29, teams: birdTeams });
-    game = enact(game, action('A', 2, 'zapdos-thunderbolt', 'A', 2));
+    game = enact(game, action('A', 2, 'zapdos-thunderstorm', 'A', 2));
     ready(game, 'A', { clearCooldowns: true });
     game = enact(game, action('A', 2, 'zapdos-flight', 'A', 2));
     game = enact(game, action('B', 1, 'pidgey-gust', 'A', 2));
@@ -249,9 +277,9 @@ test('Thunderbolt traps harmful skills, pressures their cooldown, detonates on r
     assert.equal(game.events.some((event) => event.kind === 'blocked' && /Flight/.test(event.message)), true);
 });
 
-test('Thunderbolt accelerates Zap Cannon, adds 10 piercing damage, and its expiry stuns', () => {
+test('Thunderstorm accelerates Zap Cannon, adds 10 piercing damage, and its expiry stuns', () => {
     let game = createGame({ seed: 31, teams: birdTeams });
-    game = enact(game, action('A', 2, 'zapdos-thunderbolt', 'A', 2));
+    game = enact(game, action('A', 2, 'zapdos-thunderstorm', 'A', 2));
     ready(game, 'A', { clearCooldowns: true });
     game = enact(game, action('A', 2, 'zapdos-zap-cannon', 'B', 0));
 
@@ -262,7 +290,8 @@ test('Thunderbolt accelerates Zap Cannon, adds 10 piercing damage, and its expir
 
     ready(game, 'B', { clearCooldowns: true });
     game = pass(game);
-    assert.equal(game.teams.B[0].hp, 55);
+    // 40 base + 5 from Thunderstorm's own Electric bonus (Zap Cannon is not the excluded skill).
+    assert.equal(game.teams.B[0].hp, 50);
     assert.equal(status(game.teams.B[0], 'zapdos-zap-cannon'), undefined);
     assert.ok(status(game.teams.B[0], 'zapdos-zap-cannon-stun'));
     ready(game, 'B');
@@ -273,8 +302,8 @@ test('a full legendary-bird team turn replays deterministically', () => {
     let game = createGame({ seed: 37, teams: neutralTeams });
     const queued = [
         action('A', 0, 'articuno-sheer-cold', 'B', 0, [Energy.BLOODLINE]),
-        action('A', 1, 'moltres-sunny-day', 'B', 0),
-        action('A', 2, 'zapdos-thunderbolt', 'A', 2),
+        action('A', 1, 'moltres-sunny-day', 'A', 1),
+        action('A', 2, 'zapdos-thunderstorm', 'A', 2),
     ];
     const resolved = resolveQueuedTurn(game, queued);
     assert.equal(resolved.ok, true, resolved.error);

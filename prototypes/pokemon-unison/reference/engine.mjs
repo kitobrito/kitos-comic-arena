@@ -45,6 +45,8 @@ const ACTOR_ONLY_EFFECT_KINDS = new Set([
     'reset-actor-unique-skill-group',
     'record-unique-skill',
     'consume-actor-tracked-shield',
+    'set-weather',
+    'clear-weather',
 ]);
 const SILENCE_ALLOWED_EFFECT_KINDS = new Set([...DAMAGING_EFFECT_KINDS, 'chance']);
 
@@ -85,6 +87,117 @@ export function typeEffectiveness(moveType, defenderTypes = []) {
         '-2': 'Double Not Very Effective',
     };
     return { score, modifier: score * 5, label: labels[score] ?? '' };
+}
+
+const WEATHER_TURNS_PER_ROUND = 2;
+
+function setWeather(state, weather) {
+    const current = state.weather;
+    if (current && current.key === weather.key && weather.blockRefreshIfActive) {
+        log(state, 'weather', `${weather.name} is already active and cannot be refreshed.`, {
+            weatherKey: weather.key,
+        });
+        return;
+    }
+    if (current && current.key !== weather.key) {
+        log(state, 'weather', `${current.name} fades as ${weather.name} begins.`, {
+            previousWeatherKey: current.key,
+            weatherKey: weather.key,
+        });
+    } else {
+        log(state, 'weather', current ? `${weather.name} is refreshed.` : `${weather.name} begins.`, {
+            weatherKey: weather.key,
+        });
+    }
+    state.weather = {
+        key: weather.key,
+        name: weather.name,
+        description: weather.description ?? '',
+        sourcePlayer: weather.sourcePlayer,
+        sourceSlot: weather.sourceSlot,
+        excludeSkillId: weather.excludeSkillId ?? null,
+        roundsRemaining: weather.rounds,
+        totalRounds: weather.rounds,
+        lastDecrementTurn: state.turnNumber,
+        blockRefreshIfActive: Boolean(weather.blockRefreshIfActive),
+        damageTypeModifiers: weather.damageTypeModifiers ?? {},
+        afflictionDamageBonusFlat: weather.afflictionDamageBonusFlat ?? 0,
+        costTypeModifiers: weather.costTypeModifiers ?? {},
+        evasionImmuneTypes: weather.evasionImmuneTypes ?? [],
+        periodicNonTypeDamage: weather.periodicNonTypeDamage ?? null,
+    };
+}
+
+function clearWeather(state, reason) {
+    if (!state.weather) return;
+    log(state, 'weather', `${state.weather.name} ends.`, {
+        weatherKey: state.weather.key,
+        reason: reason ?? 'expired',
+    });
+    state.weather = null;
+}
+
+function resolveWeatherPeriodicDamage(state) {
+    const weather = state.weather;
+    const periodic = weather?.periodicNonTypeDamage;
+    if (!periodic) return;
+    const source = findUnit(state, weather.sourcePlayer, weather.sourceSlot);
+    players.forEach((player) => {
+        livingTargets(state, player).forEach((unit) => {
+            if (getForm(unit).types?.includes(periodic.immuneType)) return;
+            dealFixedStatusDamage(state, source, unit, weather.name, periodic.amount);
+        });
+    });
+}
+
+function advanceWeather(state) {
+    if (!state.weather) return;
+    if (state.turnNumber - state.weather.lastDecrementTurn < WEATHER_TURNS_PER_ROUND) return;
+    state.weather.lastDecrementTurn = state.turnNumber;
+    state.weather.roundsRemaining -= 1;
+    if (state.weather.roundsRemaining <= 0) {
+        resolveWeatherPeriodicDamage(state);
+        clearWeather(state, 'expired');
+    } else {
+        resolveWeatherPeriodicDamage(state);
+    }
+}
+
+function weatherDamageTypeBonus(state, skill) {
+    const weather = state.weather;
+    if (!weather || !skill) return 0;
+    if (weather.excludeSkillId && skill.id === weather.excludeSkillId) return 0;
+    return Number(weather.damageTypeModifiers?.[skill.moveType]) || 0;
+}
+
+function weatherAfflictionBonus(state, damageKind) {
+    const weather = state.weather;
+    if (!weather || damageKind !== 'affliction') return 0;
+    return Number(weather.afflictionDamageBonusFlat) || 0;
+}
+
+function weatherEvasionImmune(state, skill) {
+    const weather = state.weather;
+    if (!weather || !skill) return false;
+    return (weather.evasionImmuneTypes ?? []).includes(skill.moveType);
+}
+
+function weatherCostModifierFor(state, skill) {
+    const weather = state.weather;
+    if (!weather || !skill) return 0;
+    return Number(weather.costTypeModifiers?.[skill.moveType]) || 0;
+}
+
+function weatherStatusFieldBonus(state, actor, effect) {
+    const weather = state.weather;
+    const config = effect.bonusFromWeather;
+    if (!weather || !config) return 0;
+    if (weather.key !== config.weatherKey) return 0;
+    if (
+        config.sourceMustMatch &&
+        (weather.sourcePlayer !== actor.player || weather.sourceSlot !== actor.slot)
+    ) return 0;
+    return Number(config.amount) || 0;
 }
 
 function makeUnit(speciesId, slot, player) {
@@ -191,6 +304,7 @@ export function createGame({
         turnNumber: 0,
         currentPlayer: startingPlayer,
         winner: null,
+        weather: null,
         teams: {
             A: makeTeam(teams.A, 'A'),
             B: makeTeam(teams.B, 'B'),
@@ -297,7 +411,7 @@ function stunnedSkillClasses(unit, skill) {
         .filter((skillClass) => skillClasses.has(skillClass)))];
 }
 
-function effectiveSkillCosts(actor, skill) {
+function effectiveSkillCosts(state, actor, skill) {
     const override = actor.statuses
         .filter(statusActive)
         .map((status) => status.skillCostOverrides?.[skill.id])
@@ -319,7 +433,8 @@ function effectiveSkillCosts(actor, skill) {
     const reduction = skill.randomCostReductionCounter
         ? Math.max(0, actor.counters[skill.randomCostReductionCounter] ?? 0)
         : 0;
-    let remainingReduction = reduction;
+    const weatherCostModifier = weatherCostModifierFor(state, skill);
+    let remainingReduction = reduction + Math.max(0, -weatherCostModifier);
     const specificReductions = actor.statuses.reduce((totals, status) => {
         if (!statusActive(status)) return totals;
         Object.entries(status.specificCostReductions ?? {}).forEach(([cost, amount]) => {
@@ -341,7 +456,7 @@ function effectiveSkillCosts(actor, skill) {
     const randomCostIncrease = actor.statuses.reduce(
         (total, status) => total + (statusActive(status) ? status.randomCostIncrease ?? 0 : 0),
         0
-    );
+    ) + Math.max(0, weatherCostModifier);
     return reducedCosts.concat(Array(randomCostIncrease).fill(Energy.RANDOM));
 }
 
@@ -492,7 +607,7 @@ export function legalActions(state, player = state.currentPlayer) {
             if ((actor.cooldowns[skill.id] ?? 0) > 0) return;
             if (validateActorCondition(actor, skill)) return;
             if (Number.isInteger(skill.maxUses) && (actor.skillUses?.[skill.id] ?? 0) >= skill.maxUses) return;
-            const energyCosts = effectiveSkillCosts(actor, skill);
+            const energyCosts = effectiveSkillCosts(state, actor, skill);
             const spendPlan = createSpendPlan(state.energy[player], energyCosts);
             if (spendPlan.error) return;
             if (
@@ -558,7 +673,7 @@ export function validateAction(state, action, { requireExplicitRandom = false } 
     }
     const spendPlan = createSpendPlan(
         state.energy[action.player],
-        effectiveSkillCosts(actor, skill),
+        effectiveSkillCosts(state, actor, skill),
         action.randomEnergy,
         { requireExplicitRandom }
     );
@@ -580,7 +695,7 @@ function buildQueuedPlanningState(state, queuedActions = []) {
         const skill = getSkill(actor, action.skillId);
         planning.energy[action.player] = buildSpendPlan(
             planning.energy[action.player],
-            effectiveSkillCosts(actor, skill),
+            effectiveSkillCosts(state, actor, skill),
             action.randomEnergy
         );
         usedActors.add(action.actorSlot);
@@ -883,7 +998,7 @@ function incomingBlocked(state, actor, target, skill) {
             (total, status) => total + (statusActive(status) ? status.evadeChancePercent ?? 0 : 0),
             0
         );
-        if (evadeChance > 0 && !skill.ignoreEvasion) {
+        if (evadeChance > 0 && !skill.ignoreEvasion && !weatherEvasionImmune(state, skill)) {
             const roll = nextRandom(state) * 100;
             log(state, 'roll', `${getSpecies(target).name} rolled ${roll.toFixed(2)} against ${evadeChance}% evasion.`, {
                 roll,
@@ -1186,12 +1301,13 @@ function damageUnit(
         ),
         0
     );
+    const weatherBonus = weatherDamageTypeBonus(state, skill) + weatherAfflictionBonus(state, damageKind);
     const outgoingBase = (
         damageKind === 'affliction' || fixedDamage
-            ? amount
+            ? amount + weatherBonus
             : Math.max(
                 0,
-                amount + outgoingSkillBonus(actor, skill) +
+                amount + weatherBonus + outgoingSkillBonus(actor, skill) +
                     outgoingGeneralBonus(actor, skill, damageKind) - outgoingDebuff(actor)
             )
     );
@@ -1822,10 +1938,21 @@ function applyEffectToTarget(state, context, effect, target) {
             const maximum = Number.isFinite(effect.maximum)
                 ? effect.maximum
                 : Number.POSITIVE_INFINITY;
+            const delta = (Number(effect.delta) || 0) + weatherStatusFieldBonus(state, actor, effect);
             status[effect.field] = Math.min(
                 maximum,
-                Math.max(0, current + (Number(effect.delta) || 0))
+                Math.max(0, current + delta)
             );
+        }
+    } else if (effect.kind === 'set-weather') {
+        setWeather(state, {
+            ...effect.weather,
+            sourcePlayer: actor.player,
+            sourceSlot: actor.slot,
+        });
+    } else if (effect.kind === 'clear-weather') {
+        if (!effect.weatherKey || state.weather?.key === effect.weatherKey) {
+            clearWeather(state, 'consumed');
         }
     } else if (effect.kind === 'reset-actor-counter') {
         actor.counters[effect.counter] = 0;
@@ -2149,6 +2276,24 @@ function effectConditionMet(context, target, effect) {
     if (effect.unlessActorStatus && hasStatus(actor, (status) => status.id === effect.unlessActorStatus)) {
         return false;
     }
+    if (
+        effect.requiresActorStatusFieldAtMost &&
+        !actor.statuses.some((status) =>
+            statusActive(status) &&
+            status.id === effect.requiresActorStatusFieldAtMost.statusId &&
+            (Number(status[effect.requiresActorStatusFieldAtMost.field]) ?? Infinity) <=
+                effect.requiresActorStatusFieldAtMost.atMost
+        )
+    ) return false;
+    if (
+        effect.unlessActorStatusFieldAtMost &&
+        actor.statuses.some((status) =>
+            statusActive(status) &&
+            status.id === effect.unlessActorStatusFieldAtMost.statusId &&
+            (Number(status[effect.unlessActorStatusFieldAtMost.field]) ?? Infinity) <=
+                effect.unlessActorStatusFieldAtMost.atMost
+        )
+    ) return false;
     if (
         effect.requiresInitialActorStatus &&
         !initialActorStatuses.some(
@@ -2962,7 +3107,7 @@ function resolveActionWithoutAdvancingTurn(inputState, action) {
     const previousSkillId = actor.lastSkillId ?? null;
     state.energy[action.player] = buildSpendPlan(
         state.energy[action.player],
-        effectiveSkillCosts(actor, skill),
+        effectiveSkillCosts(state, actor, skill),
         action.randomEnergy
     );
     state.actions.push(clone(action));
@@ -3045,6 +3190,7 @@ function finishTeamTurn(state, actingPlayer, actingSlots) {
         }
         ageStatuses(state, actingPlayer);
         state.turnNumber += 1;
+        advanceWeather(state);
         state.currentPlayer = otherPlayer(actingPlayer);
         decrementCooldowns(state, state.currentPlayer);
         resolveSourceTurnStartStatuses(state, state.currentPlayer);
@@ -3165,6 +3311,15 @@ export function viewerState(state, viewer) {
         turnNumber: state.turnNumber,
         currentPlayer: state.currentPlayer,
         winner: state.winner,
+        weather: state.weather ? {
+            key: state.weather.key,
+            name: state.weather.name,
+            description: state.weather.description,
+            sourcePlayer: state.weather.sourcePlayer,
+            sourceSlot: state.weather.sourceSlot,
+            roundsRemaining: state.weather.roundsRemaining,
+            totalRounds: state.weather.totalRounds,
+        } : null,
         viewer,
         teams: Object.fromEntries(
             players.map((player) => [

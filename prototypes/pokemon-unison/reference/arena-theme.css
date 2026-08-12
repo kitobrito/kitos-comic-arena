@@ -1745,6 +1745,39 @@ img.skill-art {
     text-transform: uppercase;
 }
 
+.weather-banner {
+    position: relative;
+    z-index: 5;
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 6px;
+    margin: 0 auto 8px;
+    padding: 5px 14px;
+    border: 1px solid var(--arena-line);
+    border-top: 2px solid var(--arena-red-bright);
+    border-radius: 999px;
+    background: var(--arena-panel);
+    box-shadow: var(--arena-shadow), inset 0 1px rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    max-width: max-content;
+}
+
+.weather-banner-name {
+    font-size: 0.76rem;
+    font-weight: 900;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--arena-red-bright);
+}
+
+.weather-banner-rounds {
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--arena-muted);
+    white-space: nowrap;
+}
+
 .battle-mark {
     display: grid;
     place-items: center;

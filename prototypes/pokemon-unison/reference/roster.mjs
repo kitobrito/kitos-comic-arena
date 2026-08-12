@@ -34,7 +34,7 @@ const skill = (entry) => ({
     harmful: true,
     classes: ['Physical'],
     ...entry,
-    description: productionSkillDescription(entry.id) ?? entry.description,
+    description: entry.forceDescription ?? productionSkillDescription(entry.id) ?? entry.description,
     image: entry.image ?? skillArt(entry.id),
 });
 const rageBonus = { counter: 'rage', multiplier: 5 };
@@ -3340,15 +3340,26 @@ const articunoSkills = [
     skill({
         id: 'articuno-blizzard', name: 'Blizzard',
         description: 'Deals 15 damage to all enemies and paralyzes their cooldowns for 1 turn.',
-        target: 'all-enemy', energy: [Energy.NINJUTSU], cooldown: 1,
+        forceDescription: "Deals 10 damage to all enemies and stuns their Physical skills for 1 turn. Summons Hail for 4 turns: non-Ice Pokemon take 3 damage each turn, Ice skills besides Blizzard deal +5 damage and cannot be evaded, Fire skills deal -5 damage. Hail cannot be refreshed while already active.",
+        target: 'all-enemy', energy: [Energy.NINJUTSU], cooldown: 2,
         moveType: Type.ICE, classes: ['Ice', 'Special', 'Instant'],
         effects: [
-            { kind: 'damage', scope: 'all-enemy', amount: 15, damageKind: 'normal' },
+            { kind: 'damage', scope: 'all-enemy', amount: 10, damageKind: 'normal' },
             { kind: 'status', scope: 'all-enemy', status: {
-                id: 'articuno-blizzard-paralysis', name: 'Blizzard',
-                description: 'Skill cooldowns cannot decrease for 1 turn.',
+                id: 'articuno-blizzard-stun', name: 'Blizzard',
+                description: 'Physical skills are stunned for 1 turn.',
                 hidden: false, harmful: true, durationActions: 1, durationAnchor: 'target',
-                paralyzeCooldowns: true,
+                cannotUseSkillClasses: ['Physical'],
+            } },
+            { kind: 'set-weather', scope: 'self', weather: {
+                key: 'hail', name: 'Hail',
+                description: 'Non-Ice Pokemon take 3 damage each turn. Ice skills deal +5 damage (Blizzard excluded) and cannot be evaded. Fire skills deal -5 damage.',
+                rounds: 4,
+                blockRefreshIfActive: true,
+                excludeSkillId: 'articuno-blizzard',
+                damageTypeModifiers: { [Type.ICE]: 5, [Type.FIRE]: -5 },
+                evasionImmuneTypes: [Type.ICE],
+                periodicNonTypeDamage: { immuneType: Type.ICE, amount: 3 },
             } },
         ],
     }),
@@ -3381,16 +3392,26 @@ const articunoSkills = [
                 },
             },
             { kind: 'status', scope: 'all-enemy', status: {
-                id: 'articuno-blizzard-paralysis', name: 'Blizzard',
-                description: 'Skill cooldowns cannot decrease for 1 turn.',
+                id: 'articuno-blizzard-stun', name: 'Blizzard',
+                description: 'Physical skills are stunned for 1 turn.',
                 hidden: false, harmful: true, durationActions: 1, durationAnchor: 'target',
-                paralyzeCooldowns: true,
+                cannotUseSkillClasses: ['Physical'],
             } },
             { kind: 'status', scope: 'all-enemy', chance: 50, status: {
                 id: 'articuno-ice-beam-stun', name: 'Ice Beam',
                 description: 'Special skills are stunned for 1 turn.',
                 hidden: false, harmful: true, durationActions: 1, durationAnchor: 'target',
                 cannotUseSkillClasses: ['Special'],
+            } },
+            { kind: 'set-weather', scope: 'self', weather: {
+                key: 'hail', name: 'Hail',
+                description: 'Non-Ice Pokemon take 3 damage each turn. Ice skills deal +5 damage (Blizzard excluded) and cannot be evaded. Fire skills deal -5 damage.',
+                rounds: 4,
+                blockRefreshIfActive: true,
+                excludeSkillId: 'articuno-blizzard',
+                damageTypeModifiers: { [Type.ICE]: 5, [Type.FIRE]: -5 },
+                evasionImmuneTypes: [Type.ICE],
+                periodicNonTypeDamage: { immuneType: Type.ICE, amount: 3 },
             } },
             {
                 kind: 'increment-actor-status-field',
@@ -3436,24 +3457,29 @@ const moltresSkills = [
             {
                 kind: 'increment-actor-status-field', statusId: 'moltres-heat-tracker',
                 field: 'heat', delta: 1, maximum: 3,
+                bonusFromWeather: { weatherKey: 'sunny-day', sourceMustMatch: true, amount: 1 },
             },
         ],
     }),
     skill({
         id: 'moltres-sunny-day', name: 'Sunny Day',
         description: 'For 2 turns, enemies take 3 additional affliction damage. Moltres gains 1 Heat.',
-        target: 'all-enemy', energy: [Energy.BLOODLINE], cooldown: 4,
-        moveType: Type.FIRE, classes: ['Fire', 'Special', 'Instant', 'Bypassing'],
+        forceDescription: 'Summons Sunny Day for 4 turns: affliction damage +3, Fire skills +5 damage, Water skills -5 damage, Grass skills cost 1 less Random energy, Electric skills cost 1 more Random energy. While it lasts, Moltres gains 1 additional Heat from her skills. Gains 1 Heat.',
+        target: 'self', energy: [Energy.BLOODLINE], cooldown: 4,
+        moveType: Type.FIRE, classes: ['Fire', 'Special', 'Instant'], harmful: false,
         effects: [
-            { kind: 'status', scope: 'all-enemy', status: {
-                id: 'moltres-sunny-day', name: 'Sunny Day',
-                description: 'Takes 3 additional affliction damage from all sources.',
-                hidden: false, harmful: true, durationActions: 2, durationAnchor: 'target',
-                replaceExisting: true, afflictionDamageTakenBonusFlat: 3,
+            { kind: 'set-weather', scope: 'self', weather: {
+                key: 'sunny-day', name: 'Sunny Day',
+                description: 'Affliction damage +3. Fire skills +5 damage, Water skills -5 damage. Grass skills cost 1 less Random energy, Electric skills cost 1 more Random energy.',
+                rounds: 4,
+                damageTypeModifiers: { [Type.FIRE]: 5, [Type.WATER]: -5 },
+                afflictionDamageBonusFlat: 3,
+                costTypeModifiers: { [Type.GRASS]: -1, [Type.ELECTRIC]: 1 },
             } },
             {
                 kind: 'increment-actor-status-field', statusId: 'moltres-heat-tracker',
                 field: 'heat', delta: 1, maximum: 3,
+                bonusFromWeather: { weatherKey: 'sunny-day', sourceMustMatch: true, amount: 1 },
             },
         ],
     }),
@@ -3468,6 +3494,7 @@ const moltresSkills = [
             {
                 kind: 'increment-actor-status-field', statusId: 'moltres-heat-tracker',
                 field: 'heat', delta: 1, maximum: 3,
+                bonusFromWeather: { weatherKey: 'sunny-day', sourceMustMatch: true, amount: 1 },
             },
         ],
     }),
@@ -3525,29 +3552,29 @@ const zapdosSkills = [
         moveType: Type.ELECTRIC, classes: ['Electric', 'Special', 'Channeled'], harmful: false,
         effects: [{ kind: 'source-status', status: {
             id: 'zapdos-charge-active', name: 'Charge',
-            description: 'Zapdos skills cost less Yellow energy; using another skill ends Charge.',
+            description: 'Zapdos skills cost less Yellow energy; using another skill ends Charge. Zap Cannon resolves instantly once this has been active for 2 turns.',
             hidden: false, harmful: false, durationActions: 2, durationAnchor: 'source',
             replaceExisting: true,
             specificCostReductions: { [Energy.GENJUTSU]: 1 },
             increaseSpecificCostReductionEachTurn: { [Energy.GENJUTSU]: 1 },
             maximumSpecificCostReduction: 2,
             consumeOnOwnerSkillIds: [
-                'zapdos-thunderbolt',
-                'zapdos-zap-cannon',
+                'zapdos-thunderstorm',
                 'zapdos-flight',
             ],
         } }],
     }),
     skill({
-        id: 'zapdos-thunderbolt', name: 'Thunderbolt',
-        description: 'For 3 turns, harmful enemy skills trigger 5 piercing damage and +1 cooldown. Recast detonates for 15 piercing team damage and paralyzes cooldowns.',
+        id: 'zapdos-thunderstorm', name: 'Thunderstorm',
+        description: "Summons Thunderstorm for 4 turns: harmful enemy skills targeting Zapdos' team trigger 5 piercing damage and +1 cooldown, and Electric skills besides Thunderstorm itself deal +5 damage. Recast detonates for 15 piercing team damage, paralyzes cooldowns, and ends the weather.",
+        image: skillArt('zapdos-thunderbolt'),
         target: 'self', energy: [Energy.GENJUTSU], cooldown: 0,
         moveType: Type.ELECTRIC, classes: ['Electric', 'Special', 'Instant', 'Bypassing'], harmful: false,
         effects: [
-            { kind: 'source-status', unlessInitialActorStatus: 'zapdos-thunderbolt-active', status: {
-                id: 'zapdos-thunderbolt-active', name: 'Thunderbolt',
+            { kind: 'source-status', unlessInitialActorStatus: 'zapdos-thunderstorm-active', status: {
+                id: 'zapdos-thunderstorm-active', name: 'Thunderstorm',
                 description: 'Enemy harmful skills targeting this team trigger piercing damage and cooldown pressure.',
-                hidden: false, harmful: false, durationActions: 3, durationAnchor: 'source',
+                hidden: false, harmful: false, durationActions: 4, durationAnchor: 'source',
                 replaceExisting: true,
                 teamHarmfulSkillTrap: {
                     damageToActor: 5,
@@ -3559,8 +3586,8 @@ const zapdosSkills = [
                         field: 'thunderboltTriggerDamage',
                     },
                     statusOnActor: {
-                        id: 'zapdos-thunderbolt-cooldown-pressure',
-                        name: 'Thunderbolt',
+                        id: 'zapdos-thunderstorm-cooldown-pressure',
+                        name: 'Thunderstorm',
                         description: 'The newly used skill receives 1 additional cooldown.',
                         hidden: false, harmful: true, durationActions: 1,
                         durationAnchor: 'target', replaceExisting: true,
@@ -3574,20 +3601,31 @@ const zapdosSkills = [
                     },
                 },
             } },
+            { kind: 'set-weather', scope: 'self', unlessInitialActorStatus: 'zapdos-thunderstorm-active', weather: {
+                key: 'thunderstorm', name: 'Thunderstorm',
+                description: "Electric skills deal +5 damage (Thunderstorm's own damage excluded).",
+                rounds: 4,
+                excludeSkillId: 'zapdos-thunderstorm',
+                damageTypeModifiers: { [Type.ELECTRIC]: 5 },
+            } },
             {
                 kind: 'damage', scope: 'all-enemy', amount: 15, damageKind: 'piercing',
-                requiresInitialActorStatus: 'zapdos-thunderbolt-active',
+                requiresInitialActorStatus: 'zapdos-thunderstorm-active',
             },
-            { kind: 'status', scope: 'all-enemy', requiresInitialActorStatus: 'zapdos-thunderbolt-active', status: {
-                id: 'zapdos-thunderbolt-paralysis', name: 'Thunderbolt',
+            { kind: 'status', scope: 'all-enemy', requiresInitialActorStatus: 'zapdos-thunderstorm-active', status: {
+                id: 'zapdos-thunderstorm-paralysis', name: 'Thunderstorm',
                 description: 'Skill cooldowns cannot decrease for 1 turn.',
                 hidden: false, harmful: true, durationActions: 1, durationAnchor: 'target',
                 paralyzeCooldowns: true,
             } },
             {
                 kind: 'remove-actor-status',
-                requiresInitialActorStatus: 'zapdos-thunderbolt-active',
-                statusIds: ['zapdos-thunderbolt-active'],
+                requiresInitialActorStatus: 'zapdos-thunderstorm-active',
+                statusIds: ['zapdos-thunderstorm-active'],
+            },
+            {
+                kind: 'clear-weather', weatherKey: 'thunderstorm',
+                requiresInitialActorStatus: 'zapdos-thunderstorm-active',
             },
         ],
     }),
@@ -3597,21 +3635,42 @@ const zapdosSkills = [
         target: 'single-enemy', energy: [Energy.GENJUTSU, Energy.GENJUTSU, Energy.RANDOM], cooldown: 0,
         moveType: Type.ELECTRIC,
         classes: ['Electric', 'Special', 'Instant', 'Uncounterable', 'Unreflectable'],
-        effects: [{ kind: 'status', status: {
-            id: 'zapdos-zap-cannon', name: 'Zap Cannon',
-            description: 'On expiry, takes 30 plus stored bonus piercing damage and is stunned.',
-            hidden: false, harmful: true, durationActions: 3, durationAnchor: 'target',
-            replaceExisting: true, endIfSourceDies: true,
-            onExpireDamage: 30, onExpireDamageKind: 'piercing',
-            onExpireMoveType: Type.ELECTRIC,
-            onExpireSkillClasses: ['Electric', 'Special'],
-            onExpireStatus: {
-                id: 'zapdos-zap-cannon-stun', name: 'Zap Cannon',
-                description: 'Cannot use skills for 1 turn.',
-                hidden: false, harmful: true, durationActions: 1, durationAnchor: 'target',
-                cannotUseSkills: true,
+        effects: [
+            {
+                kind: 'status',
+                unlessActorStatusFieldAtMost: { statusId: 'zapdos-charge-active', field: 'durationActions', atMost: 1 },
+                status: {
+                    id: 'zapdos-zap-cannon', name: 'Zap Cannon',
+                    description: 'On expiry, takes 30 plus stored bonus piercing damage and is stunned.',
+                    hidden: false, harmful: true, durationActions: 3, durationAnchor: 'target',
+                    replaceExisting: true, endIfSourceDies: true,
+                    onExpireDamage: 30, onExpireDamageKind: 'piercing',
+                    onExpireMoveType: Type.ELECTRIC,
+                    onExpireSkillClasses: ['Electric', 'Special'],
+                    onExpireStatus: {
+                        id: 'zapdos-zap-cannon-stun', name: 'Zap Cannon',
+                        description: 'Cannot use skills for 1 turn.',
+                        hidden: false, harmful: true, durationActions: 1, durationAnchor: 'target',
+                        cannotUseSkills: true,
+                    },
+                },
             },
-        } }],
+            {
+                kind: 'damage', amount: 30, damageKind: 'piercing',
+                requiresActorStatusFieldAtMost: { statusId: 'zapdos-charge-active', field: 'durationActions', atMost: 1 },
+            },
+            {
+                kind: 'status',
+                requiresActorStatusFieldAtMost: { statusId: 'zapdos-charge-active', field: 'durationActions', atMost: 1 },
+                status: {
+                    id: 'zapdos-zap-cannon-stun', name: 'Zap Cannon',
+                    description: 'Cannot use skills for 1 turn.',
+                    hidden: false, harmful: true, durationActions: 1, durationAnchor: 'target',
+                    cannotUseSkills: true,
+                },
+            },
+            { kind: 'remove-actor-status', statusIds: ['zapdos-charge-active'] },
+        ],
     }),
     skill({
         id: 'zapdos-flight', name: 'Flight',
@@ -3620,7 +3679,7 @@ const zapdosSkills = [
         moveType: Type.FLYING, classes: ['Flying', 'Physical', 'Instant'], harmful: false,
         effects: [{ kind: 'source-status', status: {
             id: 'zapdos-flight-active', name: 'Flight',
-            description: 'Invulnerable to non-affliction enemy skills; Thunderbolt triggers deal 7 damage.',
+            description: 'Invulnerable to non-affliction enemy skills; Thunderstorm triggers deal 7 damage.',
             hidden: false, harmful: false, durationActions: 2, durationAnchor: 'source',
             replaceExisting: true, invulnerableToNonAffliction: true,
             thunderboltTriggerDamage: 7,
@@ -4485,14 +4544,14 @@ export const ROSTER = Object.freeze({
     zapdos: {
         id: 'zapdos', name: 'Zapdos', types: [Type.ELECTRIC, Type.FLYING],
         facePicture: '/game-assets/images/PokemonArena/zapdos/fp.png',
-        passiveDescription: 'Thunderbolt punishes harmful skills and accelerates Zap Cannon.',
+        passiveDescription: 'Thunderstorm punishes harmful skills, buffs Electric skills, and accelerates Zap Cannon.',
         forms: {
             base: {
                 id: 'base', name: 'Zapdos', types: [Type.ELECTRIC, Type.FLYING],
                 facePicture: '/game-assets/images/PokemonArena/zapdos/fp.png',
                 skillIds: [
                     'zapdos-charge',
-                    'zapdos-thunderbolt',
+                    'zapdos-thunderstorm',
                     'zapdos-zap-cannon',
                     'zapdos-flight',
                 ],
