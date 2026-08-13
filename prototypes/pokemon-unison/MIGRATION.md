@@ -147,6 +147,13 @@ are not runtime dependencies.
     or deliberately deferred (starter/evolution-choice missions, the
     real-time-windowed Primeape event, and — notably — team-selection gate
     enforcement, which is tracked but not yet blocked on unlock state).
+41. Ported the character-skin system: all 23 production Pokemon-arena skins
+    (`reference/skin-catalog.mjs`), unlock/equip logic matching production's
+    endpoints exactly (`reference/skin-service.mjs`,
+    `GET /api/skins`/`POST /api/skins/unlock`/`POST /api/skins/equip`), and
+    the six battle-affecting type-override skins captured as data
+    (`SKIN_TYPE_OVERRIDES`) though not yet wired into the battle engine. See
+    [SKIN_PORT.md](./SKIN_PORT.md).
 
 ## Next milestones
 
@@ -157,9 +164,11 @@ are not runtime dependencies.
 4. Add matchmaking, reconnect windows, and turn timers.
 5. ~~Port the remaining roster in reviewed content batches.~~ Done — 46/46
    characters fully ported (#38).
-6. Enforce mission-based character unlocks in team selection, add a client
-   mission-browser UI, then skins and a real store (PayPal) on top of the
-   same accounts foundation, plus admin tools.
+6. ~~Add skins.~~ Done (#41). Remaining: enforce mission-based character
+   unlocks in team selection, wire the six skin type-overrides into the
+   battle engine at match setup, add a client UI for missions/skins, then a
+   real store (PayPal) on top of the same accounts foundation, plus admin
+   tools.
 
 ## Rules for future porting
 

@@ -1,7 +1,9 @@
 import { createHmac, randomBytes, randomUUID, timingSafeEqual } from 'node:crypto';
 
+import { createDefaultMissionState } from './mission-catalog.mjs';
 import { comparePassword, hashPassword } from './password-hashing.mjs';
 import { createMemoryPlayerStorage } from './player-storage.mjs';
+import { createDefaultSkinState } from './skin-catalog.mjs';
 
 const clone = (value) => JSON.parse(JSON.stringify(value));
 
@@ -66,22 +68,6 @@ function verifyToken(token, secret) {
     }
     if (typeof payload?.exp === 'number' && Date.now() >= payload.exp) return null;
     return payload;
-}
-
-function createDefaultMissionState() {
-    return {
-        progressByMissionId: {},
-        unlockedCharacterIds: [],
-        unlockPoints: 0,
-        purchasedUnlocks: [],
-    };
-}
-
-function createDefaultSkinState() {
-    return {
-        unlockedSkinIds: [],
-        equippedSkinByCharacterId: {},
-    };
 }
 
 function createDefaultProfile() {

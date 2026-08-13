@@ -9,6 +9,8 @@ import { createDefaultMissionState } from './mission-catalog.mjs';
 import { createMissionService } from './mission-service.mjs';
 import { createPlayerService, PlayerServiceError } from './player-service.mjs';
 import { createJsonPlayerStorage } from './player-storage.mjs';
+import { createDefaultSkinState } from './skin-catalog.mjs';
+import { createSkinService, SkinServiceError } from './skin-service.mjs';
 
 const referenceRoot = resolve(fileURLToPath(new URL('.', import.meta.url)));
 const repositoryRoot = resolve(referenceRoot, '..', '..', '..');
@@ -70,6 +72,14 @@ function normalizePublicBasePath(value = '/') {
     return normalized === '/' ? '/' : `${normalized}/`;
 }
 
+function requireAuthenticatedPlayer(request, playerService) {
+    const player = playerService.verifySession(bearerToken(request));
+    if (!player) {
+        throw new PlayerServiceError(401, 'invalid_session', 'Sign in first.');
+    }
+    return player;
+}
+
 async function handlePlayersApi(request, response, url, playerService) {
     const parts = routeParts(url.pathname);
     if (parts[0] !== 'api' || parts[1] !== 'players') return false;
@@ -120,7 +130,39 @@ async function handleMissionsApi(request, response, url, missionService, playerS
     return true;
 }
 
-async function handleApi(request, response, url, matchService, playerService, missionService, publicBasePath) {
+async function handleSkinsApi(request, response, url, skinService, playerService) {
+    const parts = routeParts(url.pathname);
+    if (parts[0] !== 'api' || parts[1] !== 'skins') return false;
+
+    if (request.method === 'GET' && parts.length === 2) {
+        const player = playerService.verifySession(bearerToken(request));
+        const skinsState = player?.profile?.skins ?? createDefaultSkinState();
+        sendJson(response, 200, {
+            skins: skinService.catalog(),
+            unlockedSkinIds: skinsState.unlockedSkinIds,
+            equippedSkinByCharacterId: skinsState.equippedSkinByCharacterId,
+            unlockPoints: player?.profile?.missions?.unlockPoints ?? 0,
+        });
+        return true;
+    }
+    if (request.method === 'POST' && parts[2] === 'unlock' && parts.length === 3) {
+        const player = requireAuthenticatedPlayer(request, playerService);
+        const body = await readJson(request);
+        const updated = skinService.unlock(player.id, body.skinId);
+        sendJson(response, 200, { player: updated });
+        return true;
+    }
+    if (request.method === 'POST' && parts[2] === 'equip' && parts.length === 3) {
+        const player = requireAuthenticatedPlayer(request, playerService);
+        const body = await readJson(request);
+        const updated = skinService.equip(player.id, body.characterId, body.skinId);
+        sendJson(response, 200, { player: updated });
+        return true;
+    }
+    return false;
+}
+
+async function handleApi(request, response, url, matchService, playerService, missionService, skinService, publicBasePath) {
     const parts = routeParts(url.pathname);
     if (request.method === 'GET' && url.pathname === '/api/health') {
         sendJson(response, 200, { ok: true, matches: matchService.size(), players: playerService.size() });
@@ -134,6 +176,9 @@ async function handleApi(request, response, url, matchService, playerService, mi
         return true;
     }
     if (await handleMissionsApi(request, response, url, missionService, playerService)) {
+        return true;
+    }
+    if (await handleSkinsApi(request, response, url, skinService, playerService)) {
         return true;
     }
     if (request.method === 'POST' && url.pathname === '/api/matches') {
@@ -220,6 +265,7 @@ function serveStatic(response, url) {
 export function createPokemonUnisonHandler({
     playerService = createPlayerService(),
     missionService = createMissionService({ playerService }),
+    skinService = createSkinService({ playerService }),
     matchService = createMatchService({ onMatchComplete: missionService.onMatchComplete }),
     publicBasePath = '/',
 } = {}) {
@@ -228,7 +274,18 @@ export function createPokemonUnisonHandler({
         const url = new URL(request.url ?? '/', 'http://localhost');
         try {
             if (url.pathname.startsWith('/api/')) {
-                if (!(await handleApi(request, response, url, matchService, playerService, missionService, normalizedBasePath))) {
+                if (
+                    !(await handleApi(
+                        request,
+                        response,
+                        url,
+                        matchService,
+                        playerService,
+                        missionService,
+                        skinService,
+                        normalizedBasePath
+                    ))
+                ) {
                     sendJson(response, 404, { error: 'api_not_found', message: 'API route not found.' });
                 }
                 return;
@@ -238,7 +295,11 @@ export function createPokemonUnisonHandler({
                 response.end('Not found');
             }
         } catch (error) {
-            if (error instanceof MatchServiceError || error instanceof PlayerServiceError) {
+            if (
+                error instanceof MatchServiceError ||
+                error instanceof PlayerServiceError ||
+                error instanceof SkinServiceError
+            ) {
                 sendJson(response, error.status, { error: error.code, message: error.message });
                 return;
             }
@@ -261,8 +322,9 @@ if (launchedDirectly) {
     const playerStorage = createJsonPlayerStorage(resolve(dataDir, 'players'));
     const playerService = createPlayerService({ storage: playerStorage });
     const missionService = createMissionService({ playerService });
+    const skinService = createSkinService({ playerService });
     const matchService = createMatchService({ storage, onMatchComplete: missionService.onMatchComplete });
-    const server = createPokemonUnisonServer({ matchService, playerService, missionService });
+    const server = createPokemonUnisonServer({ matchService, playerService, missionService, skinService });
     server.listen(port, '127.0.0.1', () => {
         console.log(`Pokemon Unison standalone: http://127.0.0.1:${port}`);
         console.log('This server is isolated from the current Comic/Pokemon Arena application.');

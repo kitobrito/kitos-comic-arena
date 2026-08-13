@@ -6,6 +6,7 @@ import { createMatchService } from '../reference/match-service.mjs';
 import { createMissionService } from '../reference/mission-service.mjs';
 import { createPlayerService } from '../reference/player-service.mjs';
 import { createPokemonUnisonServer } from '../reference/server.mjs';
+import { createSkinService } from '../reference/skin-service.mjs';
 
 const root = new URL('../', import.meta.url);
 
@@ -361,6 +362,86 @@ test('winning a linked-account match advances that account\'s mission progress a
     ).json();
     assert.deepEqual(finalMissions.unlockedCharacterIds, ['onix']);
     assert.equal(finalMissions.unlockPoints, 50);
+});
+
+test('GET /api/skins exposes the catalog plus the signed-in player\'s own unlocks', async (t) => {
+    const server = createPokemonUnisonServer();
+    await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+    t.after(() => new Promise((resolve) => server.close(resolve)));
+    const { port } = server.address();
+    const origin = `http://127.0.0.1:${port}`;
+
+    const anonymous = await (await fetch(`${origin}/api/skins`)).json();
+    assert.ok(Array.isArray(anonymous.skins));
+    assert.ok(anonymous.skins.some((skin) => skin.skinId === 'ditto-shiny'));
+    assert.deepEqual(anonymous.unlockedSkinIds, []);
+    assert.equal(anonymous.unlockPoints, 0);
+});
+
+test('unlocking and equipping a skin over HTTP spends points and updates the account, and rejects an unauthenticated caller', async (t) => {
+    const catalog = [
+        { skinId: 'ditto-shiny', characterId: 'ditto', unlockPointCost: 200 },
+        { skinId: 'pikachu-raichu', characterId: 'pikachu', unlockPointCost: 750 },
+    ];
+    const playerService = createPlayerService();
+    const skinService = createSkinService({ playerService, catalog });
+    const server = createPokemonUnisonServer({ playerService, skinService });
+    await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+    t.after(() => new Promise((resolve) => server.close(resolve)));
+    const { port } = server.address();
+    const origin = `http://127.0.0.1:${port}`;
+
+    const unauthedUnlock = await fetch(`${origin}/api/skins/unlock`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ skinId: 'ditto-shiny' }),
+    });
+    assert.equal(unauthedUnlock.status, 401);
+
+    const registered = await (
+        await fetch(`${origin}/api/players/register`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ username: 'SkinBuyer', email: '', password: 'longenough1' }),
+        })
+    ).json();
+
+    const insufficientResponse = await fetch(`${origin}/api/skins/unlock`, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${registered.token}`, 'content-type': 'application/json' },
+        body: JSON.stringify({ skinId: 'ditto-shiny' }),
+    });
+    assert.equal(insufficientResponse.status, 400);
+
+    // Grant points directly through the player service (there's no store yet in this test).
+    playerService.updateProfile(registered.player.id, (profile) => ({
+        ...profile,
+        missions: { ...profile.missions, unlockPoints: 200 },
+    }));
+
+    const unlockResponse = await fetch(`${origin}/api/skins/unlock`, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${registered.token}`, 'content-type': 'application/json' },
+        body: JSON.stringify({ skinId: 'ditto-shiny' }),
+    });
+    assert.equal(unlockResponse.status, 200);
+    const unlocked = await unlockResponse.json();
+    assert.deepEqual(unlocked.player.profile.skins.unlockedSkinIds, ['ditto-shiny']);
+    assert.equal(unlocked.player.profile.missions.unlockPoints, 0);
+
+    const equipResponse = await fetch(`${origin}/api/skins/equip`, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${registered.token}`, 'content-type': 'application/json' },
+        body: JSON.stringify({ characterId: 'ditto', skinId: 'ditto-shiny' }),
+    });
+    assert.equal(equipResponse.status, 200);
+    const equipped = await equipResponse.json();
+    assert.deepEqual(equipped.player.profile.skins.equippedSkinByCharacterId, { ditto: 'ditto-shiny' });
+
+    const meResponse = await (
+        await fetch(`${origin}/api/players/me`, { headers: { authorization: `Bearer ${registered.token}` } })
+    ).json();
+    assert.deepEqual(meResponse.player.profile.skins.equippedSkinByCharacterId, { ditto: 'ditto-shiny' });
 });
 
 test('server confines requests to reference and game asset roots', async () => {

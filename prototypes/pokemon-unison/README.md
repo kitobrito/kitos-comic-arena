@@ -54,14 +54,21 @@ overrides remain authoritative and untouched.
   every match a linked account wins, exposed at `GET /api/missions`; see
   [MISSION_PORT.md](./MISSION_PORT.md) for exactly what was ported vs.
   deliberately deferred
+- all 23 production Pokemon-arena character skins, with unlock/equip
+  purchase logic matching production exactly (insufficient-points and
+  duplicate-unlock rejection, mission-reward-only skins, per-character
+  equip validation) at `GET /api/skins`, `POST /api/skins/unlock`, and
+  `POST /api/skins/equip`; see [SKIN_PORT.md](./SKIN_PORT.md) for what's
+  ported vs. deferred (skin art, and wiring the six battle-affecting
+  type-override skins into the engine)
 
 This is deliberately an expanding standalone slice, not a content-complete port. Complex
-production mechanics such as additional evolution branches, skins,
-matchmaking, progression, and payments stay in the existing application until
-their own migration phase is built out here. Mission-based character-unlock
-*enforcement* in team selection, a client mission-browser UI, skins, and the
-real-money store are also still to come — see MISSION_PORT.md and
-MIGRATION.md's "Next milestones".
+production mechanics such as additional evolution branches, matchmaking,
+progression, and payments stay in the existing application until their own
+migration phase is built out here. Mission-based character-unlock
+*enforcement* in team selection, a client mission/skin UI, and the
+real-money store are also still to come — see MISSION_PORT.md, SKIN_PORT.md,
+and MIGRATION.md's "Next milestones".
 
 ## Run it now
 
@@ -197,5 +204,6 @@ npm run build
 See [MIGRATION.md](./MIGRATION.md) for the next checkpoint and
 [PROTOCOL.md](./PROTOCOL.md) for the boundary between the engine and client.
 The reviewed starter mappings and known adaptations are recorded in
-[STARTER_PORT.md](./STARTER_PORT.md), and the mission-catalog port mapping in
-[MISSION_PORT.md](./MISSION_PORT.md).
+[STARTER_PORT.md](./STARTER_PORT.md), the mission-catalog port mapping in
+[MISSION_PORT.md](./MISSION_PORT.md), and the skin-catalog port mapping in
+[SKIN_PORT.md](./SKIN_PORT.md).
