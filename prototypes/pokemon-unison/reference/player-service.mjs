@@ -212,6 +212,14 @@ export function createPlayerService({ storage = createMemoryPlayerStorage(), ses
             return player ? publicPlayer(player) : null;
         },
 
+        updateProfile(id, updater) {
+            const player = players.get(id);
+            if (!player) return null;
+            player.profile = updater(clone(player.profile));
+            persist(player);
+            return publicPlayer(player);
+        },
+
         size() {
             return players.size;
         },

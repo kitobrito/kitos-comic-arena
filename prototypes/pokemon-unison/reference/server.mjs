@@ -5,6 +5,8 @@ import { fileURLToPath } from 'node:url';
 
 import { createMatchService, MatchServiceError } from './match-service.mjs';
 import { createJsonMatchStorage } from './match-storage.mjs';
+import { createDefaultMissionState } from './mission-catalog.mjs';
+import { createMissionService } from './mission-service.mjs';
 import { createPlayerService, PlayerServiceError } from './player-service.mjs';
 import { createJsonPlayerStorage } from './player-storage.mjs';
 
@@ -104,7 +106,21 @@ async function handlePlayersApi(request, response, url, playerService) {
     return false;
 }
 
-async function handleApi(request, response, url, matchService, playerService, publicBasePath) {
+async function handleMissionsApi(request, response, url, missionService, playerService) {
+    if (request.method !== 'GET' || url.pathname !== '/api/missions') return false;
+    const player = playerService.verifySession(bearerToken(request));
+    const missionsState = player?.profile?.missions ?? createDefaultMissionState();
+    sendJson(response, 200, {
+        missions: missionService.catalog(),
+        missionProgressByMissionId: missionsState.progressByMissionId,
+        unlockedCharacterIds: missionsState.unlockedCharacterIds,
+        unlockPoints: missionsState.unlockPoints,
+        purchasedUnlocks: missionsState.purchasedUnlocks,
+    });
+    return true;
+}
+
+async function handleApi(request, response, url, matchService, playerService, missionService, publicBasePath) {
     const parts = routeParts(url.pathname);
     if (request.method === 'GET' && url.pathname === '/api/health') {
         sendJson(response, 200, { ok: true, matches: matchService.size(), players: playerService.size() });
@@ -117,6 +133,9 @@ async function handleApi(request, response, url, matchService, playerService, pu
     if (await handlePlayersApi(request, response, url, playerService)) {
         return true;
     }
+    if (await handleMissionsApi(request, response, url, missionService, playerService)) {
+        return true;
+    }
     if (request.method === 'POST' && url.pathname === '/api/matches') {
         const body = await readJson(request);
         const created = matchService.create({
@@ -124,6 +143,7 @@ async function handleApi(request, response, url, matchService, playerService, pu
             teams: body.teams,
             startingPlayer: body.startingPlayer,
             opponent: body.opponent,
+            playerId: playerService.verifySession(body.playerToken)?.id ?? null,
         });
         sendJson(response, 201, {
             ...created,
@@ -138,7 +158,9 @@ async function handleApi(request, response, url, matchService, playerService, pu
     const matchId = parts[2];
     if (request.method === 'POST' && parts[3] === 'join' && parts.length === 4) {
         const body = await readJson(request);
-        sendJson(response, 200, matchService.join(matchId, body.inviteCode));
+        sendJson(response, 200, matchService.join(matchId, body.inviteCode, {
+            playerId: playerService.verifySession(body.playerToken)?.id ?? null,
+        }));
         return true;
     }
     if (request.method === 'GET' && parts[3] === 'state' && parts.length === 4) {
@@ -196,8 +218,9 @@ function serveStatic(response, url) {
 }
 
 export function createPokemonUnisonHandler({
-    matchService = createMatchService(),
     playerService = createPlayerService(),
+    missionService = createMissionService({ playerService }),
+    matchService = createMatchService({ onMatchComplete: missionService.onMatchComplete }),
     publicBasePath = '/',
 } = {}) {
     const normalizedBasePath = normalizePublicBasePath(publicBasePath);
@@ -205,7 +228,7 @@ export function createPokemonUnisonHandler({
         const url = new URL(request.url ?? '/', 'http://localhost');
         try {
             if (url.pathname.startsWith('/api/')) {
-                if (!(await handleApi(request, response, url, matchService, playerService, normalizedBasePath))) {
+                if (!(await handleApi(request, response, url, matchService, playerService, missionService, normalizedBasePath))) {
                     sendJson(response, 404, { error: 'api_not_found', message: 'API route not found.' });
                 }
                 return;
@@ -236,9 +259,10 @@ if (launchedDirectly) {
     const dataDir = process.env.POKEMON_UNISON_DATA_DIR ?? resolve(referenceRoot, '..', 'runtime-data');
     const storage = createJsonMatchStorage(resolve(dataDir, 'matches'));
     const playerStorage = createJsonPlayerStorage(resolve(dataDir, 'players'));
-    const matchService = createMatchService({ storage });
     const playerService = createPlayerService({ storage: playerStorage });
-    const server = createPokemonUnisonServer({ matchService, playerService });
+    const missionService = createMissionService({ playerService });
+    const matchService = createMatchService({ storage, onMatchComplete: missionService.onMatchComplete });
+    const server = createPokemonUnisonServer({ matchService, playerService, missionService });
     server.listen(port, '127.0.0.1', () => {
         console.log(`Pokemon Unison standalone: http://127.0.0.1:${port}`);
         console.log('This server is isolated from the current Comic/Pokemon Arena application.');

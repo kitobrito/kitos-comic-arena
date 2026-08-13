@@ -1285,7 +1285,7 @@ async function createMatch(opponent = 'human') {
         elements.lobbyStatus.textContent = opponent === 'bot' ? 'Creating a solo match…' : 'Creating a private match…';
         const created = await api('/api/matches', {
             method: 'POST',
-            body: { opponent, teams: selectedTeams() },
+            body: { opponent, teams: selectedTeams(), playerToken: playerSession?.token },
             token: null,
         });
         saveSession({ matchId: created.matchId, player: created.player, token: created.token });
@@ -1315,7 +1315,7 @@ async function joinMatch(matchId, inviteCode) {
     const joined = savedToken
         ? await api(`/api/matches/${encodeURIComponent(matchId)}/state`, { token: savedToken })
         : await api(`/api/matches/${encodeURIComponent(matchId)}/join`, {
-              method: 'POST', body: { inviteCode }, token: null,
+              method: 'POST', body: { inviteCode, playerToken: playerSession?.token }, token: null,
           });
     const token = savedToken || joined.token;
     saveSession({ matchId, player: 'B', token });

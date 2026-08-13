@@ -2,6 +2,9 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
+import { createMatchService } from '../reference/match-service.mjs';
+import { createMissionService } from '../reference/mission-service.mjs';
+import { createPlayerService } from '../reference/player-service.mjs';
 import { createPokemonUnisonServer } from '../reference/server.mjs';
 
 const root = new URL('../', import.meta.url);
@@ -252,6 +255,112 @@ test('standalone HTTP API registers, logs in, verifies, and logs out a player', 
 
     const healthResponse = await (await fetch(`${origin}/api/health`)).json();
     assert.equal(healthResponse.players, 1);
+});
+
+test('GET /api/missions exposes the catalog plus the signed-in player\'s own progress', async (t) => {
+    const server = createPokemonUnisonServer();
+    await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+    t.after(() => new Promise((resolve) => server.close(resolve)));
+    const { port } = server.address();
+    const origin = `http://127.0.0.1:${port}`;
+
+    const anonymous = await (await fetch(`${origin}/api/missions`)).json();
+    assert.ok(Array.isArray(anonymous.missions));
+    assert.ok(anonymous.missions.length > 0);
+    assert.ok(anonymous.missions.some((mission) => mission.missionId === 'scyther-trial'));
+    assert.deepEqual(anonymous.unlockedCharacterIds, []);
+    assert.equal(anonymous.unlockPoints, 0);
+
+    const registered = await (
+        await fetch(`${origin}/api/players/register`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ username: 'MissionRunner', email: '', password: 'longenough1' }),
+        })
+    ).json();
+    const authed = await (
+        await fetch(`${origin}/api/missions`, { headers: { authorization: `Bearer ${registered.token}` } })
+    ).json();
+    assert.deepEqual(authed.missionProgressByMissionId, {});
+    assert.deepEqual(authed.unlockedCharacterIds, []);
+});
+
+test('winning a linked-account match advances that account\'s mission progress and leaves an anonymous opponent unaffected', async (t) => {
+    const catalog = [
+        {
+            missionId: 'one-win-catch',
+            reward_character: 'onix',
+            reward_unlock_points: 50,
+            goals: [{ type: 'win_matches', wins: 1 }],
+        },
+    ];
+    const playerService = createPlayerService();
+    const missionService = createMissionService({ playerService, catalog });
+    const matchService = createMatchService({ onMatchComplete: missionService.onMatchComplete });
+    const server = createPokemonUnisonServer({ playerService, missionService, matchService });
+    await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+    t.after(() => new Promise((resolve) => server.close(resolve)));
+    const { port } = server.address();
+    const origin = `http://127.0.0.1:${port}`;
+
+    const registered = await (
+        await fetch(`${origin}/api/players/register`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ username: 'LinkedWinner', email: '', password: 'longenough1' }),
+        })
+    ).json();
+
+    const created = await (
+        await fetch(`${origin}/api/matches`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ opponent: 'bot', playerToken: registered.token }),
+        })
+    ).json();
+
+    const surrenderResponse = await fetch(`${origin}/api/matches/${created.matchId}/surrender`, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${created.token}` },
+    });
+    assert.equal(surrenderResponse.status, 200);
+    assert.equal((await surrenderResponse.json()).state.winner, 'B');
+
+    // A losing, linked account's mission progress must not advance.
+    const loserMissions = await (
+        await fetch(`${origin}/api/missions`, { headers: { authorization: `Bearer ${registered.token}` } })
+    ).json();
+    assert.deepEqual(loserMissions.unlockedCharacterIds, []);
+    assert.equal(loserMissions.unlockPoints, 0);
+
+    // Create a private match linked to the same account as Player A, then have the
+    // (anonymous) Player B surrender — surrender always hands the win to the other
+    // seat, so this deterministically makes the linked account (A) the winner.
+    const secondMatch = await (
+        await fetch(`${origin}/api/matches`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ playerToken: registered.token }),
+        })
+    ).json();
+    const joined = await (
+        await fetch(`${origin}/api/matches/${secondMatch.matchId}/join`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ inviteCode: secondMatch.inviteCode }),
+        })
+    ).json();
+    const secondSurrenderResponse = await fetch(`${origin}/api/matches/${secondMatch.matchId}/surrender`, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${joined.token}` },
+    });
+    assert.equal((await secondSurrenderResponse.json()).state.winner, 'A');
+
+    const finalMissions = await (
+        await fetch(`${origin}/api/missions`, { headers: { authorization: `Bearer ${registered.token}` } })
+    ).json();
+    assert.deepEqual(finalMissions.unlockedCharacterIds, ['onix']);
+    assert.equal(finalMissions.unlockPoints, 50);
 });
 
 test('server confines requests to reference and game asset roots', async () => {

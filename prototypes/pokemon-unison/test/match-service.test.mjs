@@ -244,6 +244,52 @@ test('bot planning is stable for the same authoritative state', () => {
     assert.equal(planDeterministicBotTurn(first.state).every((action) => action.player === 'A'), true);
 });
 
+test('matches track linked player accounts and notify onMatchComplete exactly once when a winner is set', async () => {
+    const completions = [];
+    const service = createMatchService({
+        onMatchComplete: (summary) => {
+            completions.push(summary);
+        },
+    });
+    const created = service.create({ seed: 1, playerId: 'account-a' });
+    const joined = service.join(created.matchId, created.inviteCode, { playerId: 'account-b' });
+    assert.equal(completions.length, 0);
+
+    service.surrender(created.matchId, created.token);
+    await Promise.resolve();
+    await Promise.resolve();
+
+    assert.equal(completions.length, 1);
+    assert.deepEqual(completions[0].playerIds, { A: 'account-a', B: 'account-b' });
+    assert.equal(completions[0].winner, 'B');
+    assert.equal(completions[0].mode, 'private');
+    assert.equal(completions[0].teamSpeciesIds.A.length, 3);
+    assert.equal(completions[0].teamSpeciesIds.B.length, 3);
+
+    service.surrender(created.matchId, joined.token);
+    await Promise.resolve();
+    await Promise.resolve();
+    assert.equal(completions.length, 1);
+});
+
+test('anonymous matches (no linked account) still notify onMatchComplete with null playerIds', async () => {
+    const completions = [];
+    const service = createMatchService({
+        onMatchComplete: (summary) => {
+            completions.push(summary);
+        },
+    });
+    const created = service.create({ seed: 2, opponent: 'bot' });
+
+    service.surrender(created.matchId, created.token);
+    await Promise.resolve();
+    await Promise.resolve();
+
+    assert.equal(completions.length, 1);
+    assert.deepEqual(completions[0].playerIds, { A: null, B: null });
+    assert.equal(completions[0].mode, 'solo');
+});
+
 test('team turn queues stay private, support undo, and resolve as one public revision', () => {
     const service = createMatchService();
     const created = service.create({ seed: 111 });

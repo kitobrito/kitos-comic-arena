@@ -135,18 +135,31 @@ are not runtime dependencies.
     account/profile schema mirrors production's field names for the
     mission/skin/currency data it doesn't populate yet, so those phases can
     attach without renaming anything.
+40. Linked matches to accounts (`matchService.create()`/`join()` accept an
+    optional `playerId`; matches call an injected `onMatchComplete` hook
+    exactly once, the first time `game.winner` is set) and ported the
+    goal-based mission system on top: 26 production Pokemon-arena missions
+    (`reference/mission-catalog.mjs`), a pure evaluation engine matching
+    production's post-match evaluation loop, a `GET /api/missions` endpoint,
+    and a `reference/mission-service.mjs` bridge that updates
+    `profile.missions`/`profile.skins` when a linked account wins. See
+    [MISSION_PORT.md](./MISSION_PORT.md) for exactly what was ported, adapted,
+    or deliberately deferred (starter/evolution-choice missions, the
+    real-time-windowed Primeape event, and — notably — team-selection gate
+    enforcement, which is tracked but not yet blocked on unlock state).
 
 ## Next milestones
 
 1. Move the executable engine boundary from the JavaScript oracle to Haskell.
 2. Compile the Elm battle client against protocol v2.
-3. ~~Add standalone accounts, teams, and progression.~~ Accounts and teams are
-   done (#39); progression (missions/unlocks) is next, see #6 below.
+3. ~~Add standalone accounts, teams, and progression.~~ Accounts, match
+   linking, and mission progression are done (#39, #40).
 4. Add matchmaking, reconnect windows, and turn timers.
 5. ~~Port the remaining roster in reviewed content batches.~~ Done — 46/46
    characters fully ported (#38).
-6. Add standalone missions, unlocks, and skins on top of the new accounts
-   foundation (#39), then a real store (PayPal) and admin tools.
+6. Enforce mission-based character unlocks in team selection, add a client
+   mission-browser UI, then skins and a real store (PayPal) on top of the
+   same accounts foundation, plus admin tools.
 
 ## Rules for future porting
 
