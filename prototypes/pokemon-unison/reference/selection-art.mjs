@@ -45,6 +45,7 @@ export const SELECTION_RENDER_BY_ID = Object.freeze({
     scraggy: 'scraggy.png.webp',
     dragapult: 'dragapult.jpg.webp',
     primeape: 'primeape.jpg.webp',
+    ditto: 'ditto.webp',
 });
 
 export const SELECTION_EVOLUTION_RENDER_BY_ID = Object.freeze({

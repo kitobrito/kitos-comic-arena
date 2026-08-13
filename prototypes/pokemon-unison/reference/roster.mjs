@@ -5810,6 +5810,31 @@ export const ROSTER = Object.freeze({
             }),
         ],
     },
+    ditto: {
+        id: 'ditto', name: 'Ditto', types: [Type.NORMAL],
+        facePicture: '/game-assets/images/PokemonArena/Ditto/Done/FP.jpg',
+        passiveDescription: 'At the start of the game, Ditto transforms into the enemy directly opposite it. Copied skills deal 5 less damage and cost only Random energy. If the opposing character is another Ditto, Ditto keeps its four Transform skills.',
+        autoTransformOppositeAtStart: true,
+        forms: {
+            base: {
+                id: 'base', name: 'Ditto', types: [Type.NORMAL],
+                facePicture: '/game-assets/images/PokemonArena/Ditto/Done/FP.jpg',
+                skillIds: ['ditto-transform-1', 'ditto-transform-2', 'ditto-transform-3', 'ditto-transform-4'],
+            },
+        },
+        skills: [1, 2, 3, 4].map((index) => skill({
+            id: `ditto-transform-${index}`, name: 'Transform',
+            description: 'Ditto targets one other living ally or enemy and permanently transforms into them, triggering its passive.',
+            target: 'single-enemy-or-ally', energy: [Energy.RANDOM], cooldown: 0,
+            moveType: Type.NORMAL, classes: ['Normal', 'Special', 'Strategic', 'Instant'], harmful: false,
+            effects: [
+                { kind: 'copy-target-character', copyStatusFields: {
+                    id: 'ditto-transformation-active', name: 'Transform',
+                    outgoingDamageDebuff: 5, forceRandomCosts: true,
+                } },
+            ],
+        })),
+    },
 });
 
 export function unitPresentation(unit) {

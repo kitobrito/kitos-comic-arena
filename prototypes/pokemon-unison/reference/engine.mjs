@@ -372,6 +372,7 @@ export function createGame({
         turns: [],
         events: [],
     };
+    applyStartOfGameTransforms(state);
     state.events.push({
         turn: 0,
         kind: 'match-start',
@@ -489,7 +490,10 @@ function effectiveSkillCosts(state, actor, skill) {
             return Array.isArray(tier?.energy) ? tier.energy : null;
         })()
         : null;
-    const baseCosts = override ?? dynamicCost ?? skill.energy;
+    const forceRandom = actor.statuses.some((status) => statusActive(status) && status.forceRandomCosts);
+    const baseCosts = forceRandom
+        ? (override ?? dynamicCost ?? skill.energy).map(() => Energy.RANDOM)
+        : override ?? dynamicCost ?? skill.energy;
     const reduction = skill.randomCostReductionCounter
         ? Math.max(0, actor.counters[skill.randomCostReductionCounter] ?? 0)
         : 0;
@@ -793,6 +797,40 @@ export function remainingQueuedEnergy(state, queuedActions = []) {
 
 function log(state, kind, message, details = {}) {
     state.events.push({ turn: state.turnNumber, kind, message, ...details });
+}
+
+function applyStartOfGameTransforms(state) {
+    players.forEach((player) => {
+        state.teams[player].forEach((unit) => {
+            const species = ROSTER[unit.speciesId];
+            if (!species?.autoTransformOppositeAtStart) return;
+            const opponent = state.teams[otherPlayer(player)][unit.slot];
+            if (!opponent || opponent.speciesId === unit.speciesId) return;
+            const copiedSpeciesId = opponent.effectiveSpeciesId ?? opponent.speciesId;
+            const copiedForm = opponent.effectiveSpeciesId ? opponent.effectiveForm ?? 'base' : opponent.form;
+            unit.effectiveSpeciesId = copiedSpeciesId;
+            unit.effectiveForm = copiedForm;
+            unit.statuses.push({
+                id: 'ditto-transformation-active',
+                name: 'Transform',
+                hidden: false,
+                harmful: false,
+                durationActions: null,
+                unremovable: true,
+                outgoingDamageDebuff: 5,
+                forceRandomCosts: true,
+                sourcePlayer: player,
+                sourceSlot: unit.slot,
+                appliedTurn: 0,
+            });
+            log(state, 'copy', `${species.name} transformed into ${ROSTER[copiedSpeciesId]?.name ?? copiedSpeciesId}.`, {
+                player,
+                actorSlot: unit.slot,
+                effectiveSpeciesId: copiedSpeciesId,
+                effectiveForm: copiedForm,
+            });
+        });
+    });
 }
 
 function evolveUnit(state, unit, formId) {
@@ -2517,8 +2555,9 @@ function applyEffectToTarget(state, context, effect, target) {
             harmful: false,
             durationActions: null,
             unremovable: true,
+            ...effect.copyStatusFields,
         });
-        log(state, 'copy', `Pokemon Trainer copied ${getForm(actor).name}'s current form and skills.`, {
+        log(state, 'copy', `${getSpecies(actor).name} copied ${getForm(actor).name}'s current form and skills.`, {
             player: actor.player,
             actorSlot: actor.slot,
             effectiveSpeciesId: copiedSpeciesId,
