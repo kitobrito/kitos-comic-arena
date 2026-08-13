@@ -55,11 +55,11 @@ test('Scyther exposes its four current skills and current override values', () =
     ]);
     assert.deepEqual(scyther.skills.find((skill) => skill.id === 'scyther-fury-cutter').energy, [Energy.TAIJUTSU]);
     assert.deepEqual(scyther.skills.find((skill) => skill.id === 'scyther-x-cutter').energy, [Energy.TAIJUTSU, Energy.TAIJUTSU]);
-    assert.equal(scyther.skills.find((skill) => skill.id === 'scyther-double-team').cooldown, 4);
+    assert.equal(scyther.skills.find((skill) => skill.id === 'scyther-double-team').cooldown, 5);
     assert.equal(
         scyther.skills.find((skill) => skill.id === 'scyther-fury-cutter')
             .effects.find((effect) => effect.requiresActorStatus)?.actorCounterOnDamage.delta,
-        1
+        2
     );
 });
 
@@ -93,7 +93,7 @@ test('Swords Dance refreshes for three source turns and makes Fury Cutter pierci
     game = enact(game, action('A', 0, 'scyther-fury-cutter', 'B', 0));
     assert.equal(game.teams.B[0].shield, 15);
     assert.equal(game.teams.B[0].hp, 100);
-    assert.equal(game.teams.A[0].counters['fury-cutter'], 1);
+    assert.equal(game.teams.A[0].counters['fury-cutter'], 2);
 });
 
 test('X-Cutter resolves its low-HP and Swords Dance critical layers deterministically', () => {
@@ -111,7 +111,7 @@ test('X-Cutter resolves its low-HP and Swords Dance critical layers deterministi
     const xCutterDamage = game.events
         .filter((event) => event.kind === 'damage' && event.message.includes("X-Cutter"))
         .reduce((total, event) => total + event.amount, 0);
-    assert.equal(xCutterDamage, 200);
+    assert.equal(xCutterDamage, 150);
     assert.equal(game.teams.B[0].hp, 1);
 });
 
@@ -127,7 +127,8 @@ test('Double Team guarantees evasion and refreshes when Scyther defeats an enemy
     assert.equal(game.teams.B[0].alive, false);
     assert.equal(
         game.teams.A[0].statuses.find((status) => status.id === 'scyther-double-team-active')?.durationActions,
-        1
+        2,
+        'the kill added 1 turn, exactly offsetting the natural end-of-turn decrement'
     );
 
     game = enact(game, action('B', 1, 'zubat-leech-life', 'A', 0));

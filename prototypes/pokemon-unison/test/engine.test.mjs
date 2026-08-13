@@ -95,13 +95,15 @@ test('Leech Seed ticks three times and heals its living source', () => {
     let game = createGame();
     game.teams.A[2].hp = 50;
     game = enact(game, action('A', 2, 'bulbasaur-leech-seed', 'B', 2));
-    assert.equal(game.teams.B[2].hp, 90);
-    assert.equal(game.teams.A[2].hp, 60);
+    // The 20 HP immediate burst and the first of two periodic 5 HP ticks both land before
+    // the caster's next real action, since the target's turn starts immediately afterward.
+    assert.equal(game.teams.B[2].hp, 75);
+    assert.equal(game.teams.A[2].hp, 75);
 
     game = enact(game, legalActions(game)[0]);
     game = enact(game, legalActions(game)[0]);
-    assert.equal(game.teams.B[2].hp, 80);
-    assert.equal(game.teams.A[2].hp, 70);
+    assert.equal(game.teams.B[2].hp, 70);
+    assert.equal(game.teams.A[2].hp, 80);
 });
 
 test('authoritative validation rejects out-of-turn and cross-team targets', () => {

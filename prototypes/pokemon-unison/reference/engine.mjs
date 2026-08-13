@@ -125,6 +125,8 @@ function setWeather(state, weather) {
         costTypeModifiers: weather.costTypeModifiers ?? {},
         evasionImmuneTypes: weather.evasionImmuneTypes ?? [],
         periodicNonTypeDamage: weather.periodicNonTypeDamage ?? null,
+        transformMoveType: weather.transformMoveType ?? {},
+        periodicRandomTargetDamage: weather.periodicRandomTargetDamage ?? null,
     };
 }
 
@@ -140,14 +142,64 @@ function clearWeather(state, reason) {
 function resolveWeatherPeriodicDamage(state) {
     const weather = state.weather;
     const periodic = weather?.periodicNonTypeDamage;
-    if (!periodic) return;
-    const source = findUnit(state, weather.sourcePlayer, weather.sourceSlot);
-    players.forEach((player) => {
-        livingTargets(state, player).forEach((unit) => {
-            if (getForm(unit).types?.includes(periodic.immuneType)) return;
-            dealFixedStatusDamage(state, source, unit, weather.name, periodic.amount);
+    if (periodic) {
+        const source = findUnit(state, weather.sourcePlayer, weather.sourceSlot);
+        const immuneTypes = periodic.immuneTypes ?? (periodic.immuneType ? [periodic.immuneType] : []);
+        players.forEach((player) => {
+            livingTargets(state, player).forEach((unit) => {
+                if (getForm(unit).types?.some((type) => immuneTypes.includes(type))) return;
+                dealFixedStatusDamage(state, source, unit, weather.name, periodic.amount);
+            });
         });
-    });
+    }
+    resolveWeatherRandomTargetDamage(state);
+}
+
+function resolveWeatherRandomTargetDamage(state) {
+    const weather = state.weather;
+    const config = weather?.periodicRandomTargetDamage;
+    if (!config) return;
+    const source = findUnit(state, weather.sourcePlayer, weather.sourceSlot);
+    if (!source) return;
+    const immuneTypes = config.immuneTypes ?? [];
+    const eligible = players.flatMap((player) =>
+        livingTargets(state, player).filter(
+            (unit) => !getForm(unit).types?.some((type) => immuneTypes.includes(type))
+        )
+    );
+    if (!eligible.length) return;
+    const picked = eligible[Math.floor(nextRandom(state) * eligible.length)];
+    damageUnit(
+        state,
+        source,
+        picked,
+        {
+            id: weather.excludeSkillId ?? weather.key,
+            name: weather.name,
+            moveType: config.moveType ?? null,
+            classes: config.skillClasses ?? [],
+        },
+        config.amount,
+        config.damageKind ?? 'piercing',
+        false
+    );
+    if (config.paralyzeCooldowns && picked.alive) {
+        addStatus(state, picked, {
+            player: source.player,
+            slot: source.slot,
+            targetPlayer: picked.player,
+        }, {
+            id: `${weather.key}-random-target-paralysis`,
+            name: weather.name,
+            description: 'Skill cooldowns cannot decrease for 1 turn.',
+            hidden: false,
+            harmful: true,
+            durationActions: 1,
+            durationAnchor: 'target',
+            replaceExisting: true,
+            paralyzeCooldowns: true,
+        });
+    }
 }
 
 function advanceWeather(state) {
@@ -472,8 +524,9 @@ function validateTarget(state, action, skill) {
     if (!target) return 'Target does not exist.';
     const actor = findUnit(state, action.player, action.actorSlot);
     if (target.banished) return 'A captured Pokemon is no longer a legal target.';
-    const canTargetDefeatedAlly = skill.target === 'single-ally-or-dead-ally';
+    const canTargetDefeatedAlly = skill.target === 'single-ally-or-dead-ally' || skill.target === 'dead-ally';
     if (!target.alive && !canTargetDefeatedAlly) return 'Target must be a living Pokémon.';
+    if (skill.target === 'dead-ally' && target.alive) return 'This skill can only target a defeated ally.';
     const allied = action.targetPlayer === action.player;
     if (
         skill.targetCannotHaveStatus &&
@@ -502,7 +555,9 @@ function validateTarget(state, action, skill) {
         return 'This skill must target another ally.';
     }
     if (canTargetDefeatedAlly && (!allied || action.targetSlot === action.actorSlot)) {
-        return 'This skill must target another ally, living or defeated.';
+        return skill.target === 'dead-ally'
+            ? 'This skill must target a defeated ally.'
+            : 'This skill must target another ally, living or defeated.';
     }
     if (
         skill.target === 'single-enemy-or-ally' &&
@@ -779,7 +834,7 @@ function incrementCounter(state, unit, counter, delta = 1, maximum = Number.POSI
         evolveUnit(state, unit, 'golbat');
     } else if (unit.speciesId === 'chansey' && counter === 'evolution' && next >= 100) {
         evolveUnit(state, unit, 'blissey');
-    } else if (unit.speciesId === 'pidgey' && counter === 'evolution' && next >= 100) {
+    } else if (unit.speciesId === 'pidgey' && counter === 'evolution' && next >= 50) {
         evolveUnit(state, unit, 'pidgeotto');
     } else if (
         unit.speciesId === 'bulbasaur' &&
@@ -1214,6 +1269,9 @@ function triggerOwnerKillHooks(state, actor) {
             status.durationActions = status.onOwnerKillRefreshDuration;
             status.appliedTurn = state.turnNumber;
         }
+        if (statusActive(status) && Number.isInteger(status.onOwnerKillExtendDuration)) {
+            status.durationActions = Math.max(0, Number(status.durationActions) || 0) + status.onOwnerKillExtendDuration;
+        }
         if (!statusActive(status) || !status.onOwnerKillRefreshSelf) continue;
         addStatus(state, actor, {
             player: actor.player,
@@ -1284,6 +1342,11 @@ function damageUnit(
         });
         return 0;
     }
+    const transformedMoveType = state.weather?.transformMoveType?.[skill.moveType];
+    if (transformedMoveType) {
+        skill = { ...skill, moveType: transformedMoveType };
+        if (damageKind !== 'piercing') damageKind = 'piercing';
+    }
     const wasAlive = target.alive;
     const hpBefore = target.hp;
     const fixedDamage = damageKind.startsWith('fixed-');
@@ -1321,19 +1384,23 @@ function damageUnit(
             ? Math.max(5, finalAmount + effectiveness.modifier)
             : finalAmount + effectiveness.modifier;
     }
+    const afflictionReductionApplies =
+        (damageKind === 'affliction' || damageKind === 'fixed-affliction') &&
+        !skill.ignoreDamageReduction;
+    const reductionApplies = damageKind === 'normal' || afflictionReductionApplies;
     const reduction = target.statuses.reduce(
         (largest, status) =>
             statusActive(status) ? Math.max(largest, status.damageReductionPercent ?? 0) : largest,
         0
     );
-    if (damageKind === 'normal' && reduction > 0 && !hasStatus(target, (status) => status.guardBroken)) {
+    if (reductionApplies && reduction > 0 && !hasStatus(target, (status) => status.guardBroken)) {
         finalAmount = Math.ceil(finalAmount * (1 - reduction / 100));
     }
     const flatReduction = target.statuses.reduce(
         (total, status) => total + (statusActive(status) ? status.damageReductionFlat ?? 0 : 0),
         0
     );
-    if (damageKind === 'normal' && flatReduction > 0 && !hasStatus(target, (status) => status.guardBroken)) {
+    if (reductionApplies && flatReduction > 0 && !hasStatus(target, (status) => status.guardBroken)) {
         finalAmount = Math.max(0, finalAmount - flatReduction);
     }
     const unpierceableReduction = target.statuses.reduce(
@@ -1672,7 +1739,9 @@ function applyEffectToTarget(state, context, effect, target) {
             state,
             actor,
             target,
-            skill,
+            effect.ignoreDamageReduction !== undefined
+                ? { ...skill, ignoreDamageReduction: effect.ignoreDamageReduction }
+                : skill,
             effect.amount + counterBonus + actorStatusBonus + targetStatusBonus + actorStatusScaledAmount,
             effect.damageKind,
             effect.applyTypeAdjustment === false
@@ -1813,7 +1882,9 @@ function applyEffectToTarget(state, context, effect, target) {
             state,
             actor,
             target,
-            skill,
+            effect.ignoreDamageReduction !== undefined
+                ? { ...skill, ignoreDamageReduction: effect.ignoreDamageReduction }
+                : skill,
             effect.amount + bonus,
             effect.damageKind,
             shouldApplyTypeAdjustment(context, target)
@@ -1827,6 +1898,15 @@ function applyEffectToTarget(state, context, effect, target) {
                 effect.actorCounterFromDamage.counter,
                 dealt,
                 effect.actorCounterFromDamage.maximum
+            );
+        }
+        if (dealt > 0 && effect.actorCounterOnDamage) {
+            incrementCounter(
+                state,
+                actor,
+                effect.actorCounterOnDamage.counter,
+                effect.actorCounterOnDamage.delta ?? 1,
+                effect.actorCounterOnDamage.maximum
             );
         }
         if (effect.consumeActorStatus) {
@@ -1944,6 +2024,8 @@ function applyEffectToTarget(state, context, effect, target) {
                 Math.max(0, current + delta)
             );
         }
+    } else if (effect.kind === 'grant-random-energy-to-actor') {
+        grantRandomEnergy(state, actor.player, effect.amount ?? 1, effect.reason ?? skill.name);
     } else if (effect.kind === 'set-weather') {
         setWeather(state, {
             ...effect.weather,
@@ -2205,6 +2287,7 @@ function applyEffectToTarget(state, context, effect, target) {
                 targetPlayer: target.player,
                 targetSlot: target.slot,
             });
+            if (effect.actorCounter) incrementCounter(state, actor, effect.actorCounter, 1, 3);
         }
     } else if (effect.kind === 'cleanse-enemy-affliction') {
         const before = target.statuses.length;
@@ -2449,6 +2532,7 @@ function resolvePeriodicStatuses(state, player) {
                             name: status.name,
                             moveType: status.periodicMoveType ?? null,
                             classes: status.periodicSkillClasses ?? [],
+                            ignoreDamageReduction: status.ignoreDamageReduction,
                         },
                         amount,
                         status.periodicDamageKind,
@@ -2484,13 +2568,22 @@ function resolveSourceTurnStartStatuses(state, player) {
         state.teams[targetPlayer].forEach((target) => {
             if (!target.alive) return;
             for (const status of [...target.statuses]) {
-                if (!statusActive(status) || (!status.turnStartDamage && !status.turnStartHeal)) continue;
+                if (
+                    !statusActive(status) ||
+                    (!status.turnStartDamage && !status.turnStartHeal && !status.turnStartAdvanceAllEnemyPerish)
+                ) continue;
                 const triggerPlayer = status.turnStartAnchor === 'target'
                     ? target.player
                     : status.sourcePlayer;
                 if (triggerPlayer !== player) continue;
                 if (status.turnStartHeal) {
                     healUnit(state, target, status.turnStartHeal, status.name);
+                }
+                if (status.turnStartAdvanceAllEnemyPerish) {
+                    const perishSource = sourceUnitForStatus(state, status) ?? target;
+                    livingTargets(state, otherPlayer(target.player)).forEach((enemy) =>
+                        acceleratePerishSong(state, perishSource, enemy)
+                    );
                 }
                 const source = sourceUnitForStatus(state, status);
                 if (status.turnStartDamage && source && status.turnStartDamageKind) {
@@ -2503,6 +2596,7 @@ function resolveSourceTurnStartStatuses(state, player) {
                             name: status.name,
                             moveType: status.turnStartMoveType ?? null,
                             classes: status.turnStartSkillClasses ?? [],
+                            ignoreDamageReduction: status.ignoreDamageReduction,
                         },
                         status.turnStartDamage,
                         status.turnStartDamageKind,
@@ -2707,17 +2801,26 @@ function skillCooldownIncrease(actor, skill) {
 }
 
 function triggerCounteredDamagingSkill(state, actor, skill) {
+    if (skill.cannotBeCountered || skill.classes?.includes('Uncounterable')) return false;
     const status = actor.statuses.find((entry) =>
         statusActive(entry) &&
         entry.counterNextNewDamagingSkill &&
         (actor.skillUses?.[skill.id] ?? 0) === 1
     );
     if (!status) return false;
-    const baseDamage = skill.effects.reduce((total, effect) =>
-        ['damage', 'drain', 'fixed-affliction-damage'].includes(effect.kind)
-            ? total + Math.max(0, Number(effect.amount) || 0)
-            : total,
-    0);
+    // Mirrors production's resolveEffectDamageAmount: the countered skill's damage is evaluated
+    // from the attacker's own buffed state (their outgoing bonuses/multipliers), not the raw
+    // listed amount, since the skill never actually resolves against the target to pick up any
+    // target-side reduction or type effectiveness.
+    const baseDamage = skill.effects.reduce((total, effect) => {
+        if (!['damage', 'drain', 'fixed-affliction-damage'].includes(effect.kind)) return total;
+        const rawAmount = Math.max(0, Number(effect.amount) || 0);
+        if (rawAmount <= 0) return total;
+        const bonus = outgoingSkillBonus(actor, skill) +
+            outgoingGeneralBonus(actor, skill, effect.damageKind) -
+            outgoingDebuff(actor);
+        return total + Math.max(0, (rawAmount + bonus) * outgoingClassMultiplier(actor, skill));
+    }, 0);
     if (baseDamage <= 0) return false;
     const source = sourceUnitForStatus(state, status);
     status.durationActions = 0;
@@ -2823,6 +2926,7 @@ function triggerTurnEndHooks(state, player) {
                                 name: status.name,
                                 moveType: status.turnEndMoveType ?? null,
                                 classes: status.turnEndSkillClasses ?? [],
+                                ignoreDamageReduction: status.ignoreDamageReduction,
                             },
                             status.turnEndDamage,
                             status.turnEndDamageKind,
@@ -2904,6 +3008,7 @@ function triggerStatusExpiration(state, target, status) {
                 name: status.name,
                 moveType: status.onExpireMoveType ?? null,
                 classes: status.onExpireSkillClasses ?? [],
+                ignoreDamageReduction: status.ignoreDamageReduction,
             },
             amount,
             status.onExpireDamageKind ?? 'fixed-piercing',
@@ -2923,6 +3028,50 @@ function triggerStatusExpiration(state, target, status) {
             sourceSkillId: status.onExpireStatus.sourceSkillId ?? status.sourceSkillId,
         });
     }
+    if (status.onExpireReplaySkillId && target.alive) {
+        replayDelayedSkill(state, target, status);
+    }
+}
+
+function replayDelayedSkill(state, actor, status) {
+    const replayTarget = findUnit(state, status.onExpireReplayTargetPlayer, status.onExpireReplayTargetSlot);
+    const replaySkill = getSkill(actor, status.onExpireReplaySkillId);
+    if (!replayTarget || !replaySkill) return;
+    log(state, 'skill', `${getSpecies(actor).name}'s delayed ${replaySkill.name} activates on ${getSpecies(replayTarget).name}.`, {
+        player: actor.player,
+        actorSlot: actor.slot,
+        targetPlayer: replayTarget.player,
+        targetSlot: replayTarget.slot,
+        skillId: replaySkill.id,
+    });
+    const affectsAllEnemies = replaySkill.effects.some(
+        (effect) => effect.scope === 'all-enemy' ||
+            effect.scope === 'other-enemies' ||
+            effect.scope === 'all-other-enemies'
+    );
+    const affectedTargets = replaySkill.target === 'all-enemy' || affectsAllEnemies
+        ? livingTargets(state, otherPlayer(actor.player))
+        : [replayTarget];
+    const replayContext = {
+        action: {
+            player: actor.player,
+            actorSlot: actor.slot,
+            skillId: replaySkill.id,
+            targetPlayer: replayTarget.player,
+            targetSlot: replayTarget.slot,
+        },
+        actor,
+        target: replayTarget,
+        skill: replaySkill,
+        blockedTargets: new Set(),
+        typeAdjustedTargets: new Set(),
+        initialTargetHp: replayTarget.hp,
+        initialTargetStatuses: clone(replayTarget.statuses),
+        initialActorStatuses: clone(actor.statuses),
+        previousSkillId: actor.lastSkillId ?? null,
+    };
+    affectedTargets.forEach((recipient) => prepareTargetForSkill(state, replayContext, recipient));
+    replaySkill.effects.forEach((effect) => resolveEffect(state, replayContext, effect));
 }
 
 function ageStatuses(state, actingPlayer) {
@@ -3126,6 +3275,39 @@ function resolveActionWithoutAdvancingTurn(inputState, action) {
     triggerHarmfulSkillHooks(state, actor, skill, target);
     const countered = triggerCounteredDamagingSkill(state, actor, skill);
     if (!actor.alive || countered || skillFails(state, actor, skill)) {
+        actor.lastSkillId = skill.id;
+        const cooldownIncrease = skillCooldownIncrease(actor, skill);
+        actor.cooldowns[cooldownSkillIdAfterAction(actor, skill.id)] =
+            skill.cooldown + 1 + cooldownIncrease;
+        updateWinner(state);
+        return { ok: true, state };
+    }
+    const delayMark = actor.statuses.find((status) =>
+        statusActive(status) && status.delayNextHarmfulSkillActivation
+    );
+    if (delayMark && skillIsHarmfulToTarget(skill, actor, target)) {
+        delayMark.durationActions = 0;
+        actor.statuses = actor.statuses.filter(statusActive);
+        log(state, 'delayed', `${getSpecies(actor).name}'s ${skill.name} was delayed by ${delayMark.name} and will activate in 1 turn.`, {
+            player: actor.player,
+            actorSlot: actor.slot,
+            skillId: skill.id,
+        });
+        addStatus(state, actor, {
+            player: actor.player,
+            slot: actor.slot,
+            targetPlayer: actor.player,
+        }, {
+            id: `${skill.id}-delayed-activation`,
+            name: skill.name,
+            hidden: true,
+            harmful: false,
+            durationActions: 1,
+            durationAnchor: 'source',
+            onExpireReplaySkillId: skill.id,
+            onExpireReplayTargetPlayer: target.player,
+            onExpireReplayTargetSlot: target.slot,
+        });
         actor.lastSkillId = skill.id;
         const cooldownIncrease = skillCooldownIncrease(actor, skill);
         actor.cooldowns[cooldownSkillIdAfterAction(actor, skill.id)] =

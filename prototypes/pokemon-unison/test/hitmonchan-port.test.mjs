@@ -80,7 +80,7 @@ test('Thunder Punch pierces reduction, damages the other enemies, and freezes ta
     assert.equal(game.teams.B[0].cooldowns['chansey-eggbomb'], 1);
 });
 
-test('Fire Punch bypasses defense and deals exactly two target-turn affliction ticks', () => {
+test('Fire Punch\'s immediate hit bypasses reduction but its burn ticks do not, over exactly two target-turn ticks', () => {
     let game = matchup();
     game.teams.B[0].shield = 10;
     game.teams.B[0].shieldCapacity = 10;
@@ -90,15 +90,18 @@ test('Fire Punch bypasses defense and deals exactly two target-turn affliction t
     });
 
     game = enact(game, action('A', 0, 'hitmonchan-fire-punch', 'B', 0));
+    // The immediate 25 affliction damage always ignores reduction, matching production.
     assert.equal(game.teams.B[0].hp, 75);
     assert.equal(game.teams.B[0].shield, 10);
 
+    // The follow-up burn ticks are ordinary affliction damage, so the 50% reduction status
+    // now applies to them too (5 -> ceil(5 * 0.5) = 3 per tick), matching production.
     game = pass(game);
-    assert.equal(game.teams.B[0].hp, 70);
+    assert.equal(game.teams.B[0].hp, 72);
     game = pass(game);
-    assert.equal(game.teams.B[0].hp, 70);
+    assert.equal(game.teams.B[0].hp, 72);
     game = pass(game);
-    assert.equal(game.teams.B[0].hp, 65);
+    assert.equal(game.teams.B[0].hp, 69);
     assert.equal(
         game.teams.B[0].statuses.some((status) => status.id === 'hitmonchan-fire-punch-burn'),
         false

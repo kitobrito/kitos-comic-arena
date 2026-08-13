@@ -309,6 +309,20 @@ function formatEnergyCosts(costs) {
     return costs.length > 0 ? costs.map(energyLabel).join(' + ') : 'Free';
 }
 
+const TYPE_COLORS = {
+    Normal: '#A8A878', Fire: '#F08030', Water: '#6890F0', Electric: '#F8D030',
+    Grass: '#78C850', Ice: '#98D8D8', Fighting: '#C03028', Poison: '#A040A0',
+    Ground: '#E0C068', Flying: '#A890F0', Psychic: '#F85888', Bug: '#A8B820',
+    Rock: '#B8A038', Ghost: '#705898', Dragon: '#7038F8', Dark: '#705848',
+    Steel: '#B8B8D0', Fairy: '#EE99AC',
+};
+
+function typeBadgeMarkup(moveType) {
+    if (!moveType) return '';
+    const color = TYPE_COLORS[moveType] ?? '#888';
+    return `<span class="type-badge" style="background:${color}">${escapeHtml(moveType)}</span>`;
+}
+
 function energyCostMarkup(costs, compact = false) {
     if (!costs.length) return `<span class="skill-cost-free">FREE</span>`;
     return `<span class="skill-cost ${compact ? 'compact' : ''}" role="img" aria-label="Costs ${escapeHtml(formatEnergyCosts(costs))}">
@@ -386,7 +400,7 @@ function renderTargetingReadout(skill, energyCosts, { kicker = 'SELECTED SKILL',
     elements.targetingSkillImage.src = skill.image ?? '';
     elements.targetingSkillImage.alt = `${skill.name} skill`;
     elements.targetingSkillImage.hidden = !skill.image;
-    elements.targetingSkillName.textContent = skill.name;
+    elements.targetingSkillName.innerHTML = `${escapeHtml(skill.name)}${typeBadgeMarkup(skill.moveType)}`;
     elements.targetingSkillDescription.textContent = skill.description;
     elements.targetingSkillCost.innerHTML = energyCostMarkup(energyCosts ?? skill.energy);
     elements.targetingSkillCooldown.textContent = `CD ${skill.cooldown}`;
@@ -519,7 +533,7 @@ function renderSelectionSkillDetail(skill, index, alternate = false) {
     elements.selectionSkillDetailImage.src = skillArt(skill.id, index) || '';
     elements.selectionSkillDetailImage.alt = `${skill.name} skill icon`;
     elements.selectionSkillDetailKind.textContent = alternate ? 'Alternate / replacement skill' : `Current skill ${index + 1}`;
-    elements.selectionSkillDetailName.textContent = skill.name;
+    elements.selectionSkillDetailName.innerHTML = `${escapeHtml(skill.name)}${typeBadgeMarkup(skill.moveType)}`;
     elements.selectionSkillDetailDescription.textContent = skill.description || 'No description available.';
     elements.selectionSkillDetailMeta.innerHTML = `${energyCostMarkup(skill.energy)}<span>Cooldown ${skill.cooldown}</span><span>${escapeHtml(skill.target || 'No target')}</span>`;
     for (const card of elements.selectionPreviewSkills.querySelectorAll('.preview-skill')) {
@@ -539,7 +553,7 @@ function appendSelectionSkillCard(container, skill, index, alternate = false) {
     card.dataset.skillId = skill.id;
     card.innerHTML = `
         ${skillIconMarkup(skill, index, 'skill-number')}
-        <div><strong>${escapeHtml(skill.name)}</strong><small>${energyCostMarkup(skill.energy)}<span>CD ${skill.cooldown}</span></small></div>
+        <div><strong>${escapeHtml(skill.name)}${typeBadgeMarkup(skill.moveType)}</strong><small>${energyCostMarkup(skill.energy)}<span>CD ${skill.cooldown}</span></small></div>
     `;
     card.title = `Click to read ${skill.name}`;
     card.addEventListener('click', () => renderSelectionSkillDetail(skill, index, alternate));
@@ -949,7 +963,7 @@ function renderCommands() {
         button.disabled = matching.length === 0;
         button.innerHTML = `
             ${skillIconMarkup(skill, index, 'skill-button-icon')}
-            <span class="skill-button-copy"><strong>${escapeHtml(skill.name)}</strong><small>${escapeHtml(skill.description)}</small><span class="skill-meta">${energyCostMarkup(matching[0]?.energyCosts ?? skill.energy)}<span>CD ${skill.cooldown}${cooldown ? ` · ${cooldown} LEFT` : ''}</span></span></span>
+            <span class="skill-button-copy"><strong>${escapeHtml(skill.name)}${typeBadgeMarkup(skill.moveType)}</strong><small>${escapeHtml(skill.description)}</small><span class="skill-meta">${energyCostMarkup(matching[0]?.energyCosts ?? skill.energy)}<span>CD ${skill.cooldown}${cooldown ? ` · ${cooldown} LEFT` : ''}</span></span></span>
         `;
         button.addEventListener('click', (event) => {
             event.stopPropagation();

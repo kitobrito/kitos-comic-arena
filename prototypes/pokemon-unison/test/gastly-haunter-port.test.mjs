@@ -83,12 +83,10 @@ test('Lick counts successful damage toward evolution and scales its stun chance 
         /harmful skills are stunned/
     );
 
-    for (let index = 0; index < 2; index += 1) {
-        ready(game, 'A');
-        delete game.teams.A[0].cooldowns['gastly-lick'];
-        game = enact(game, action('A', 0, 'gastly-lick', 'B', 1));
-    }
-    assert.equal(game.teams.A[0].counters.evolution, 50);
+    ready(game, 'A');
+    delete game.teams.A[0].cooldowns['gastly-lick'];
+    game = enact(game, action('A', 0, 'gastly-lick', 'B', 1));
+    assert.equal(game.teams.A[0].counters.evolution, 35);
     assert.equal(game.teams.A[0].form, 'haunter');
     assert.equal(game.teams.A[0].hp, 60);
     assert.equal(unitPresentation(game.teams.A[0]).name, 'Haunter');
@@ -100,7 +98,7 @@ test('Curse deals immediate damage, costs Gastly 35 HP once, and ticks on later 
 
     assert.equal(game.teams.A[0].form, 'base');
     assert.equal(game.teams.A[0].hp, 65);
-    assert.equal(game.teams.A[0].counters.evolution, 35);
+    assert.equal(game.teams.A[0].counters.evolution, undefined);
     assert.equal(game.teams.B[0].hp, 85);
     assert.equal(game.teams.B[0].statuses.some((status) => status.id === 'gastly-curse-mark'), true);
 
@@ -140,6 +138,9 @@ test('Glare punishes only a skill being used for the first time and then consume
     game = enact(game, action('A', 0, 'gastly-glare', 'B', 0));
     ready(game, 'B');
     delete game.teams.B[0].cooldowns['pidgey-gust'];
+    // Reset Pidgey's unrelated evolution progress so this second Gust cast can't incidentally
+    // cross its evolution threshold and heal Pidgey, which would muddy the Glare assertion below.
+    game.teams.B[0].counters.evolution = 0;
     game = enact(game, action('B', 0, 'pidgey-gust', 'A', 1));
     assert.equal(game.teams.B[0].hp, 85);
     assert.equal(game.teams.B[0].statuses.some((status) => status.id === 'gastly-glare-lock'), true);

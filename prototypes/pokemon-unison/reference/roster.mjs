@@ -57,6 +57,7 @@ const guardBreak = (durationActions) => ({
     hidden: false,
     harmful: true,
     durationActions,
+    durationAnchor: 'target',
     guardBroken: true,
 });
 
@@ -69,6 +70,8 @@ const charmanderSkills = [
         energy: [Energy.BLOODLINE],
         cooldown: 0,
         moveType: Type.FIRE,
+        classes: ['Fire', 'Special', 'Instant', 'Affliction'],
+        ignoreDamageReduction: true,
         effects: [
             { kind: 'damage', amount: 20, damageKind: 'affliction', bonusPerCounter: rageBonus },
             {
@@ -89,6 +92,7 @@ const charmanderSkills = [
         energy: [Energy.TAIJUTSU],
         cooldown: 1,
         moveType: Type.NORMAL,
+        classes: ['Normal', 'Physical', 'Instant'],
         effects: [
             { kind: 'damage', amount: 20, damageKind: 'normal', bonusPerCounter: rageBonus },
             {
@@ -109,6 +113,8 @@ const charmanderSkills = [
         energy: [Energy.BLOODLINE, Energy.RANDOM],
         cooldown: 2,
         moveType: Type.FIRE,
+        classes: ['Fire', 'Special', 'Instant', 'Affliction'],
+        ignoreDamageReduction: true,
         effects: [
             { kind: 'damage', scope: 'all-enemy', amount: 20, damageKind: 'affliction', bonusPerCounter: rageBonus },
             {
@@ -129,6 +135,7 @@ const charmanderSkills = [
         cooldown: 3,
         moveType: Type.NORMAL,
         harmful: false,
+        classes: ['Normal', 'Physical', 'Instant', 'Invisible'],
         effects: [{
             kind: 'status',
             status: {
@@ -136,7 +143,8 @@ const charmanderSkills = [
                 name: 'Rage',
                 hidden: true,
                 harmful: false,
-                durationActions: 7,
+                durationActions: 4,
+                durationAnchor: 'source',
                 damageReductionPercent: 25,
                 rageCounterMax: 2,
             },
@@ -150,9 +158,10 @@ const charmanderSkills = [
         energy: [Energy.BLOODLINE, Energy.BLOODLINE],
         cooldown: 0,
         moveType: Type.FIRE,
+        classes: ['Fire', 'Physical', 'Instant', 'Affliction'],
         effects: [
             { kind: 'damage', amount: 15, damageKind: 'normal', bonusPerCounter: rageBonus },
-            { kind: 'damage', amount: 30, damageKind: 'affliction' },
+            { kind: 'damage', amount: 30, damageKind: 'affliction', ignoreDamageReduction: true },
             { kind: 'status', chance: 30, status: burn() },
         ],
     }),
@@ -164,6 +173,7 @@ const charmanderSkills = [
         energy: [Energy.TAIJUTSU, Energy.RANDOM],
         cooldown: 1,
         moveType: Type.DRAGON,
+        classes: ['Dragon', 'Physical', 'Instant'],
         effects: [
             { kind: 'damage', amount: 30, damageKind: 'normal', bonusPerCounter: rageBonus },
             { kind: 'damage', amount: 10, damageKind: 'piercing', chance: 30 },
@@ -177,6 +187,8 @@ const charmanderSkills = [
         energy: [Energy.BLOODLINE, Energy.RANDOM, Energy.RANDOM],
         cooldown: 2,
         moveType: Type.FIRE,
+        classes: ['Fire', 'Special', 'Instant', 'Affliction'],
+        ignoreDamageReduction: true,
         effects: [
             { kind: 'damage', scope: 'all-enemy', amount: 30, damageKind: 'affliction', bonusPerCounter: rageBonus },
             { kind: 'status', scope: 'all-enemy', chance: 30, status: burn() },
@@ -191,6 +203,7 @@ const charmanderSkills = [
         cooldown: 3,
         moveType: Type.NORMAL,
         harmful: false,
+        classes: ['Normal', 'Physical', 'Instant', 'Invisible'],
         effects: [{
             kind: 'status',
             status: {
@@ -198,7 +211,8 @@ const charmanderSkills = [
                 name: 'Rage',
                 hidden: true,
                 harmful: false,
-                durationActions: 7,
+                durationActions: 4,
+                durationAnchor: 'source',
                 damageReductionPercent: 50,
                 rageCounterMax: 4,
             },
@@ -215,6 +229,7 @@ const squirtleSkills = [
         energy: [Energy.NINJUTSU],
         cooldown: 0,
         moveType: Type.WATER,
+        classes: ['Water', 'Special', 'Instant'],
         effects: [
             { kind: 'damage', amount: 20, damageKind: 'normal' },
             { kind: 'status', status: {
@@ -225,7 +240,7 @@ const squirtleSkills = [
                 durationActions: 1,
                 periodicDamage: 10,
                 onHarmfulSkill: {
-                    status: guardBreak(3),
+                    status: guardBreak(2),
                     sourceCounter: 'evolution',
                     sourceCounterMaximum: 3,
                 },
@@ -241,6 +256,7 @@ const squirtleSkills = [
         cooldown: 2,
         moveType: Type.WATER,
         harmful: false,
+        classes: ['Water', 'Strategic', 'Instant', 'Invisible'],
         effects: [{ kind: 'status', status: {
             id: 'squirtle-withdraw',
             name: 'Withdraw',
@@ -259,6 +275,7 @@ const squirtleSkills = [
         energy: [Energy.NINJUTSU, Energy.RANDOM],
         cooldown: 0,
         moveType: Type.WATER,
+        classes: ['Water', 'Special', 'Instant'],
         effects: [{ kind: 'status', status: {
             id: 'squirtle-bubble',
             name: 'Bubble',
@@ -277,8 +294,9 @@ const squirtleSkills = [
         energy: [Energy.TAIJUTSU, Energy.RANDOM],
         cooldown: 4,
         moveType: Type.NORMAL,
+        classes: ['Normal', 'Physical', 'Instant'],
         effects: [
-            { kind: 'cleanse', actorCounter: 'evolution' },
+            { kind: 'cleanse-enemy-statuses', actorCounter: 'evolution' },
             { kind: 'damage', scope: 'all-enemy', amount: 15, damageKind: 'normal' },
         ],
     }),
@@ -290,6 +308,7 @@ const squirtleSkills = [
         energy: [Energy.NINJUTSU, Energy.NINJUTSU],
         cooldown: 0,
         moveType: Type.WATER,
+        classes: ['Water', 'Special', 'Instant'],
         effects: [
             { kind: 'damage', amount: 30, damageKind: 'normal' },
             { kind: 'status', status: {
@@ -299,7 +318,7 @@ const squirtleSkills = [
                 harmful: true,
                 durationActions: 1,
                 periodicDamage: 20,
-                onHarmfulSkill: { status: guardBreak(5) },
+                onHarmfulSkill: { status: guardBreak(3) },
             } },
         ],
     }),
@@ -312,6 +331,7 @@ const squirtleSkills = [
         cooldown: 2,
         moveType: Type.WATER,
         harmful: false,
+        classes: ['Water', 'Strategic', 'Instant', 'Invisible'],
         effects: [{ kind: 'status', scope: 'selected-and-self', status: {
             id: 'wartortle-shell-guard',
             name: 'Shell Guard',
@@ -329,6 +349,7 @@ const squirtleSkills = [
         energy: [Energy.NINJUTSU, Energy.RANDOM, Energy.RANDOM],
         cooldown: 2,
         moveType: Type.WATER,
+        classes: ['Water', 'Special', 'Instant'],
         effects: [{ kind: 'status', scope: 'all-enemy', status: {
             id: 'wartortle-bubblebeam',
             name: 'Bubblebeam',
@@ -347,8 +368,9 @@ const squirtleSkills = [
         energy: [Energy.TAIJUTSU, Energy.RANDOM, Energy.RANDOM],
         cooldown: 4,
         moveType: Type.WATER,
+        classes: ['Water', 'Physical', 'Instant'],
         effects: [
-            { kind: 'cleanse', scope: 'all-allies' },
+            { kind: 'cleanse-enemy-statuses', scope: 'all-allies' },
             { kind: 'damage', scope: 'all-enemy', amount: 25, damageKind: 'normal' },
         ],
     }),
@@ -358,21 +380,29 @@ const bulbasaurSkills = [
     skill({
         id: 'bulbasaur-leech-seed',
         name: 'Leech Seed',
-        description: 'For 3 turns, steals 10 HP and grants Bulbasaur 1 Sun each tick.',
+        description: 'Steals 20 HP immediately, then 5 HP at the start of the target’s next 2 turns; grants Bulbasaur 1 Sun each time it deals damage.',
         target: 'single-enemy',
         energy: [Energy.TAIJUTSU],
         cooldown: 1,
         moveType: Type.GRASS,
-        effects: [{ kind: 'status', status: {
-            id: 'bulbasaur-leech-seed',
-            name: 'Leech Seed',
-            hidden: false,
-            harmful: true,
-            durationActions: 5,
-            periodicDrain: 10,
-            sourceCounter: 'sun',
-            sourceCounterMaximum: 5,
-        } }],
+        classes: ['Grass', 'Physical', 'Control'],
+        effects: [
+            {
+                kind: 'drain', amount: 20, damageKind: 'normal',
+                actorCounterOnDamage: { counter: 'sun', delta: 1, maximum: 5 },
+            },
+            { kind: 'status', status: {
+                id: 'bulbasaur-leech-seed',
+                name: 'Leech Seed',
+                hidden: false,
+                harmful: true,
+                durationActions: 2,
+                durationAnchor: 'target',
+                periodicDrain: 5,
+                sourceCounter: 'sun',
+                sourceCounterMaximum: 5,
+            } },
+        ],
     }),
     skill({
         id: 'bulbasaur-vine-whip',
@@ -382,6 +412,7 @@ const bulbasaurSkills = [
         energy: [Energy.TAIJUTSU, Energy.RANDOM],
         cooldown: 1,
         moveType: Type.GRASS,
+        classes: ['Grass', 'Physical', 'Instant'],
         effects: [
             { kind: 'damage', amount: 25, damageKind: 'piercing' },
             { kind: 'damage', amount: 15, damageKind: 'piercing', chance: 0, chanceCounter: sunCritical },
@@ -403,6 +434,7 @@ const bulbasaurSkills = [
         energy: [Energy.RANDOM, Energy.RANDOM],
         cooldown: 2,
         moveType: Type.GRASS,
+        classes: ['Grass', 'Physical', 'Instant'],
         effects: [
             { kind: 'damage', amount: 15, damageKind: 'normal' },
             { kind: 'damage', scope: 'other-enemies', amount: 10, damageKind: 'normal' },
@@ -418,6 +450,7 @@ const bulbasaurSkills = [
         randomCostReductionCounter: 'sun',
         cooldown: 3,
         moveType: Type.GRASS,
+        classes: ['Grass', 'Special', 'Instant', 'Uncounterable'],
         effects: [
             { kind: 'damage', amount: 50, damageKind: 'normal' },
             { kind: 'reset-actor-counter', counter: 'sun' },
@@ -426,21 +459,29 @@ const bulbasaurSkills = [
     skill({
         id: 'ivysaur-leech-seed',
         name: "Ivysaur's Leech Seed",
-        description: 'For 3 turns, steals 15 HP and grants Ivysaur 1 Sun each tick.',
+        description: 'Steals 25 HP immediately, then 10 HP at the start of the target’s next 2 turns; grants Ivysaur 1 Sun each time it deals damage.',
         target: 'single-enemy',
         energy: [Energy.TAIJUTSU, Energy.RANDOM],
         cooldown: 1,
         moveType: Type.GRASS,
-        effects: [{ kind: 'status', status: {
-            id: 'ivysaur-leech-seed',
-            name: "Ivysaur's Leech Seed",
-            hidden: false,
-            harmful: true,
-            durationActions: 5,
-            periodicDrain: 15,
-            sourceCounter: 'sun',
-            sourceCounterMaximum: 5,
-        } }],
+        classes: ['Grass', 'Physical', 'Control'],
+        effects: [
+            {
+                kind: 'drain', amount: 25, damageKind: 'normal',
+                actorCounterOnDamage: { counter: 'sun', delta: 1, maximum: 5 },
+            },
+            { kind: 'status', status: {
+                id: 'ivysaur-leech-seed',
+                name: "Ivysaur's Leech Seed",
+                hidden: false,
+                harmful: true,
+                durationActions: 2,
+                durationAnchor: 'target',
+                periodicDrain: 10,
+                sourceCounter: 'sun',
+                sourceCounterMaximum: 5,
+            } },
+        ],
     }),
     skill({
         id: 'ivysaur-vine-whip',
@@ -450,6 +491,7 @@ const bulbasaurSkills = [
         energy: [Energy.TAIJUTSU, Energy.RANDOM],
         cooldown: 1,
         moveType: Type.GRASS,
+        classes: ['Grass', 'Physical', 'Instant'],
         effects: [
             { kind: 'damage', amount: 35, damageKind: 'piercing' },
             { kind: 'damage', amount: 15, damageKind: 'piercing', chance: 0, chanceCounter: sunCritical },
@@ -471,6 +513,7 @@ const bulbasaurSkills = [
         energy: [Energy.RANDOM, Energy.RANDOM, Energy.RANDOM],
         cooldown: 2,
         moveType: Type.GRASS,
+        classes: ['Grass', 'Physical', 'Instant'],
         effects: [
             { kind: 'damage', amount: 30, damageKind: 'normal' },
             { kind: 'damage', scope: 'other-enemies', amount: 25, damageKind: 'normal' },
@@ -486,6 +529,7 @@ const bulbasaurSkills = [
         randomCostReductionCounter: 'sun',
         cooldown: 3,
         moveType: Type.GRASS,
+        classes: ['Grass', 'Special', 'Instant', 'Uncounterable'],
         effects: [
             { kind: 'damage', amount: 65, damageKind: 'normal' },
             { kind: 'reset-actor-counter', counter: 'sun' },
@@ -538,7 +582,7 @@ const butterfreeSkills = [
         effects: [
             { kind: 'status', status: {
                 id: 'butterfree-stun-spore-lock', name: 'Stun Spore', hidden: false, harmful: true,
-                durationActions: 3, turnEndDamage: 10, paralyzeCooldowns: true,
+                durationActions: 2, durationAnchor: 'source', turnEndDamage: 10, paralyzeCooldowns: true,
             } },
             { kind: 'source-status', status: {
                 id: 'butterfree-stun-spore-swap', name: 'Sleep Powder Ready', hidden: true, harmful: false,
@@ -586,10 +630,10 @@ const pidgeySkills = [
         target: 'single-enemy', energy: [Energy.BLOODLINE], cooldown: 0,
         moveType: Type.FLYING, classes: ['Flying', 'Physical', 'Instant'],
         effects: [
-            { kind: 'damage', amount: 15, damageKind: 'normal-ignore-reduction', actorCounterFromDamage: { counter: 'evolution', maximum: 100 } },
-            { kind: 'damage', scope: 'other-enemies', amount: 10, damageKind: 'normal-ignore-reduction', actorCounterFromDamage: { counter: 'evolution', maximum: 100 } },
-            { kind: 'damage', amount: 10, damageKind: 'normal-ignore-reduction', requiresTargetStatus: 'pidgey-sand-attack', actorCounterFromDamage: { counter: 'evolution', maximum: 100 } },
-            { kind: 'damage', scope: 'other-enemies', amount: 5, damageKind: 'normal-ignore-reduction', requiresActorStatus: 'pidgey-whirlwind', actorCounterFromDamage: { counter: 'evolution', maximum: 100 } },
+            { kind: 'damage', amount: 15, damageKind: 'normal-ignore-reduction', actorCounterFromDamage: { counter: 'evolution', maximum: 50 } },
+            { kind: 'damage', scope: 'other-enemies', amount: 10, damageKind: 'normal-ignore-reduction', actorCounterFromDamage: { counter: 'evolution', maximum: 50 } },
+            { kind: 'damage', amount: 10, damageKind: 'normal-ignore-reduction', requiresTargetStatus: 'pidgey-sand-attack', actorCounterFromDamage: { counter: 'evolution', maximum: 50 } },
+            { kind: 'damage', scope: 'other-enemies', amount: 5, damageKind: 'normal-ignore-reduction', requiresActorStatus: 'pidgey-whirlwind', actorCounterFromDamage: { counter: 'evolution', maximum: 50 } },
         ],
     }),
     skill({
@@ -599,7 +643,7 @@ const pidgeySkills = [
         moveType: Type.NORMAL, classes: ['Normal', 'Physical', 'Instant'], harmful: false,
         effects: [{ kind: 'status', status: {
             id: 'pidgey-whirlwind', name: 'Whirlwind', hidden: false, harmful: false,
-            durationActions: 4, evadeChancePercent: 25,
+            durationActions: 2, durationAnchor: 'source', evadeChancePercent: 25,
         } }],
     }),
     skill({
@@ -608,9 +652,9 @@ const pidgeySkills = [
         target: 'single-enemy', energy: [Energy.TAIJUTSU, Energy.RANDOM], cooldown: 0,
         moveType: Type.FLYING, classes: ['Flying', 'Physical', 'Instant'],
         effects: [
-            { kind: 'damage', amount: 20, damageKind: 'normal-ignore-reduction', actorCounterFromDamage: { counter: 'evolution', maximum: 100 } },
-            { kind: 'damage', amount: 10, damageKind: 'normal-ignore-reduction', requiresTargetStatus: 'pidgey-sand-attack', actorCounterFromDamage: { counter: 'evolution', maximum: 100 } },
-            { kind: 'damage', scope: 'other-enemies', amount: 10, damageKind: 'normal-ignore-reduction', requiresActorStatus: 'pidgey-whirlwind', actorCounterFromDamage: { counter: 'evolution', maximum: 100 } },
+            { kind: 'damage', amount: 20, damageKind: 'normal-ignore-reduction', actorCounterFromDamage: { counter: 'evolution', maximum: 50 } },
+            { kind: 'damage', amount: 10, damageKind: 'normal-ignore-reduction', requiresTargetStatus: 'pidgey-sand-attack', actorCounterFromDamage: { counter: 'evolution', maximum: 50 } },
+            { kind: 'damage', scope: 'other-enemies', amount: 10, damageKind: 'normal-ignore-reduction', requiresActorStatus: 'pidgey-whirlwind', actorCounterFromDamage: { counter: 'evolution', maximum: 50 } },
         ],
     }),
     skill({
@@ -620,7 +664,7 @@ const pidgeySkills = [
         moveType: Type.GROUND, classes: ['Ground', 'Physical', 'Instant'],
         effects: [{ kind: 'status', status: {
             id: 'pidgey-sand-attack', name: 'Sand-Attack', hidden: false, harmful: true,
-            durationActions: 3, fullBlind: true,
+            durationActions: 2, durationAnchor: 'target', fullBlind: true,
         } }],
     }),
     skill({
@@ -642,7 +686,7 @@ const pidgeySkills = [
         moveType: Type.NORMAL, classes: ['Normal', 'Physical', 'Instant'], harmful: false,
         effects: [{ kind: 'status', status: {
             id: 'pidgeotto-whirlwind', name: 'Whirlwind', hidden: false, harmful: false,
-            durationActions: 6, evadeChancePercent: 50,
+            durationActions: 3, durationAnchor: 'source', evadeChancePercent: 50,
         } }],
     }),
     skill({
@@ -663,7 +707,7 @@ const pidgeySkills = [
         moveType: Type.GROUND, classes: ['Ground', 'Physical', 'Instant'],
         effects: [{ kind: 'status', status: {
             id: 'pidgeotto-sand-attack', name: 'Sand-Attack', hidden: false, harmful: true,
-            durationActions: 5, fullBlind: true,
+            durationActions: 3, durationAnchor: 'target', fullBlind: true,
         } }],
     }),
 ];
@@ -711,18 +755,18 @@ const trainerSkills = [
     captureBall({
         id: 'pokemon-trainer-great-ball',
         name: 'Great Ball',
-        description: 'Captures an enemy at 25 HP or less (35 if stunned or paralyzed); otherwise stuns and protects it for two turns.',
+        description: 'Captures an enemy at 25 HP or less (35 if stunned or paralyzed); otherwise stuns and protects it for one turn.',
         energy: [Energy.NINJUTSU, Energy.RANDOM],
         threshold: 25,
-        durationActions: 3,
+        durationActions: 1,
     }),
     captureBall({
         id: 'pokemon-trainer-ultra-ball',
         name: 'Ultra Ball',
-        description: 'Captures an enemy at 40 HP or less (50 if stunned or paralyzed); otherwise stuns and protects it for three turns.',
+        description: 'Captures an enemy at 40 HP or less (50 if stunned or paralyzed); otherwise stuns and protects it for one turn.',
         energy: [Energy.GENJUTSU, Energy.GENJUTSU],
         threshold: 40,
-        durationActions: 5,
+        durationActions: 1,
     }),
     skill({
         id: 'pokemon-trainer-master-ball',
@@ -746,8 +790,8 @@ const trainerSkills = [
         name: 'Potion',
         description: 'Restores 30 HP to the Trainer or one ally. May be used twice per match.',
         target: 'self-or-single-ally',
-        energy: [Energy.RANDOM, Energy.RANDOM],
-        cooldown: 3,
+        energy: [Energy.RANDOM],
+        cooldown: 1,
         maxUses: 2,
         moveType: Type.NORMAL,
         classes: ['Normal', 'Physical', 'Instant'],
@@ -774,10 +818,7 @@ const trainerSkills = [
                     hidden: false,
                     harmful: false,
                     durationActions: null,
-                    nonAfflictionDamageBonusFlat: 5,
-                    damageReductionFlat: 5,
                     damageBonusBySkillClass: { Physical: 5 },
-                    mergeNumericFields: ['nonAfflictionDamageBonusFlat', 'damageReductionFlat'],
                     mergeMapFields: ['damageBonusBySkillClass'],
                 },
             },
@@ -823,16 +864,15 @@ const trainerSkills = [
     skill({
         id: 'pokemon-trainer-revive',
         name: 'Revive',
-        description: 'Restores 50 HP to a living ally or revives a defeated, non-banished ally with 30 HP.',
-        target: 'single-ally-or-dead-ally',
+        description: 'Revives one defeated ally with 30 HP. This skill cannot target living allies.',
+        target: 'dead-ally',
         energy: [Energy.RANDOM, Energy.RANDOM, Energy.RANDOM],
         cooldown: 4,
         moveType: Type.NORMAL,
         classes: ['Normal', 'Physical', 'Instant'],
         harmful: false,
         effects: [
-            { kind: 'heal', amount: 50, requiresTargetAlive: true },
-            { kind: 'revive', amount: 30, requiresTargetAlive: false },
+            { kind: 'revive', amount: 30 },
         ],
     }),
 ];
@@ -950,7 +990,7 @@ const koffingSkills = [
                 hidden: true, harmful: false, durationActions: 1,
                 onOwnerDeathDamageEnemyTeam: { amount: 5 },
             } },
-            { kind: 'damage', scope: 'all-enemy', amount: 20, damageKind: 'affliction' },
+            { kind: 'damage', scope: 'all-enemy', amount: 20, damageKind: 'affliction', ignoreDamageReduction: true },
             { kind: 'health-loss', scope: 'self', amount: 20 },
             koffingEvolutionProgress,
         ],
@@ -1005,7 +1045,7 @@ const koffingSkills = [
                 hidden: true, harmful: false, durationActions: 1,
                 onOwnerDeathDamageEnemyTeam: { amount: 5 },
             } },
-            { kind: 'damage', scope: 'all-enemy', amount: 30, damageKind: 'affliction' },
+            { kind: 'damage', scope: 'all-enemy', amount: 30, damageKind: 'affliction', ignoreDamageReduction: true },
             { kind: 'health-loss', scope: 'self', amount: 30 },
         ],
     }),
@@ -1023,7 +1063,7 @@ const koffingSkills = [
 
 const gastlyEvolutionProgress = {
     counter: 'evolution',
-    maximum: 50,
+    maximum: 35,
 };
 
 const curseMark = (evolved = false) => ({
@@ -1044,6 +1084,7 @@ const gastlySkills = [
         description: 'Deals 20 affliction damage. Its 1% harmful-skill stun chance gains 1% for every missing HP.',
         target: 'single-enemy', energy: [Energy.NINJUTSU], cooldown: 0,
         moveType: Type.GHOST, classes: ['Ghost', 'Special', 'Affliction', 'Instant'],
+        ignoreDamageReduction: true,
         effects: [
             { kind: 'damage', amount: 20, damageKind: 'affliction', actorCounterFromDamage: gastlyEvolutionProgress },
             { kind: 'status', chance: 1, chancePerMissingHp: 1, status: {
@@ -1089,6 +1130,7 @@ const gastlySkills = [
         description: 'Deals 20 affliction damage. Its 2% harmful-skill stun chance gains 2% for every missing HP.',
         target: 'single-enemy', energy: [Energy.NINJUTSU], cooldown: 0,
         moveType: Type.GHOST, classes: ['Ghost', 'Special', 'Affliction', 'Instant'],
+        ignoreDamageReduction: true,
         effects: [
             { kind: 'damage', amount: 20, damageKind: 'affliction' },
             { kind: 'status', chance: 2, chancePerMissingHp: 2, status: {
@@ -1099,13 +1141,12 @@ const gastlySkills = [
     }),
     skill({
         id: 'haunter-curse', name: 'Curse',
-        description: 'Immediately and permanently curses one enemy for 20 affliction damage, then applies both current 35-HP self-loss packets.',
+        description: 'Immediately and permanently curses one enemy for 20 affliction damage, then Haunter loses 35 HP.',
         target: 'single-enemy', energy: [Energy.NINJUTSU, Energy.GENJUTSU], cooldown: 0,
         moveType: Type.GHOST, classes: ['Ghost', 'Special', 'Affliction', 'Instant'],
         effects: [
             { kind: 'fixed-affliction-damage', amount: 20 },
             { kind: 'status', status: curseMark(true) },
-            { kind: 'health-loss', scope: 'self', amount: 35 },
             { kind: 'health-loss', scope: 'self', amount: 35 },
         ],
     }),
@@ -1401,7 +1442,7 @@ const scytherSkills = [
                 kind: 'damage', amount: 15, damageKind: 'normal-ignore-reduction',
                 requiresActorStatus: 'scyther-swords-dance-active',
                 bonusPerCounter: { counter: 'fury-cutter', multiplier: 5 },
-                actorCounterOnDamage: { counter: 'fury-cutter', delta: 1, maximum: 99 },
+                actorCounterOnDamage: { counter: 'fury-cutter', delta: 2, maximum: 99 },
             },
         ],
     }),
@@ -1439,25 +1480,17 @@ const scytherSkills = [
                     },
                 ],
             },
-            {
-                kind: 'chance', percent: 25, actorHpAtMost: 50,
-                effects: [{ kind: 'damage', amount: 15, damageKind: 'normal-ignore-reduction' }],
-            },
-            {
-                kind: 'chance', percent: 25, requiresActorStatus: 'scyther-swords-dance-active',
-                effects: [{ kind: 'damage', amount: 15, damageKind: 'normal-ignore-reduction' }],
-            },
         ],
     }),
     skill({
         id: 'scyther-double-team', name: 'Double Team',
         description: 'Grants 100% evasion through Scyther next turn and refreshes if Scyther defeats an enemy.',
-        target: 'self', energy: [Energy.RANDOM], cooldown: 4,
+        target: 'self', energy: [Energy.RANDOM], cooldown: 5,
         moveType: Type.NORMAL, classes: ['Normal', 'Physical', 'Instant'], harmful: false,
         effects: [{ kind: 'status', status: {
             id: 'scyther-double-team-active', name: 'Double Team', hidden: false, harmful: false,
-            durationActions: 1, durationAnchor: 'source', replaceExisting: true,
-            evadeChancePercent: 100, onOwnerKillRefreshDuration: 1,
+            durationActions: 2, durationAnchor: 'source', replaceExisting: true,
+            evadeChancePercent: 100, onOwnerKillExtendDuration: 1,
         } }],
     }),
 ];
@@ -1489,7 +1522,7 @@ const eeveeSkills = [
         target: 'random-enemy', energy: [Energy.RANDOM, Energy.RANDOM, Energy.RANDOM], cooldown: 2,
         moveType: Type.NORMAL, classes: ['Normal', 'Special', 'Affliction', 'Instant'],
         effects: [
-            { kind: 'damage', scope: 'random-enemy', amount: 30, damageKind: 'affliction' },
+            { kind: 'damage', scope: 'random-enemy', amount: 30, damageKind: 'affliction', ignoreDamageReduction: true },
             { kind: 'damage', scope: 'random-enemy', amount: 20, damageKind: 'normal-ignore-reduction' },
             { kind: 'damage', scope: 'random-enemy', amount: 10, damageKind: 'normal' },
         ],
@@ -1605,6 +1638,8 @@ const flareonSkills = [
                 id: 'flareon-heating-up-burn-aura', name: 'Heating Up',
                 hidden: false, harmful: true, durationActions: null,
                 turnEndAnchor: 'target', turnEndDamage: 5, endIfSourceDies: true,
+                turnEndDamageKind: 'affliction', turnEndMoveType: Type.FIRE,
+                turnEndSkillClasses: ['Fire', 'Special', 'Affliction'],
             } },
         ],
     }),
@@ -1618,6 +1653,8 @@ const flareonSkills = [
             id: 'flareon-fire-spin-burn', name: 'Fire Spin', hidden: false, harmful: true,
             durationActions: 3, durationAnchor: 'target', turnEndAnchor: 'target',
             turnEndDamage: 15, endIfSourceDies: true, invulnerableToHelpfulSkills: true,
+            turnEndDamageKind: 'affliction', turnEndMoveType: Type.FIRE,
+            turnEndSkillClasses: ['Fire', 'Special', 'Affliction'],
         } }],
     }),
     skill({
@@ -1626,16 +1663,20 @@ const flareonSkills = [
         target: 'single-enemy', energy: [Energy.GENJUTSU, Energy.BLOODLINE], cooldown: 2,
         moveType: Type.FIRE, classes: ['Fire', 'Special', 'Affliction', 'Instant'],
         effects: [
-            { kind: 'damage', amount: 20, damageKind: 'affliction' },
+            { kind: 'damage', amount: 20, damageKind: 'affliction', ignoreDamageReduction: true },
             { kind: 'status', status: {
                 id: 'flareon-fire-blast-burn', name: 'Fire Blast Burn',
                 hidden: false, harmful: true, durationActions: null,
                 turnEndAnchor: 'target', turnEndDamage: 10, endIfSourceDies: true,
+                turnEndDamageKind: 'affliction', turnEndMoveType: Type.FIRE,
+                turnEndSkillClasses: ['Fire', 'Special', 'Affliction'],
             } },
             { kind: 'status', scope: 'all-other-enemies', status: {
                 id: 'flareon-fire-blast-splash-burn', name: 'Fire Blast Splash',
                 hidden: false, harmful: true, durationActions: null,
                 turnEndAnchor: 'target', turnEndDamage: 5, endIfSourceDies: true,
+                turnEndDamageKind: 'affliction', turnEndMoveType: Type.FIRE,
+                turnEndSkillClasses: ['Fire', 'Special', 'Affliction'],
             } },
         ],
     }),
@@ -1748,7 +1789,7 @@ const ekansSkills = [
         moveType: Type.POISON, classes: ['Poison', 'Physical', 'Affliction', 'Instant'],
         effects: [
             { kind: 'damage', amount: 10, damageKind: 'normal' },
-            { kind: 'damage', amount: 15, damageKind: 'affliction' },
+            { kind: 'damage', amount: 15, damageKind: 'affliction', ignoreDamageReduction: true },
             {
                 kind: 'status',
                 requiresAnyTargetStatus: ['ekans-badly-poison', 'ekans-badly-poison-2'],
@@ -1762,7 +1803,7 @@ const ekansSkills = [
         target: 'single-enemy', energy: [Energy.BLOODLINE], cooldown: 2,
         moveType: Type.POISON, classes: ['Poison', 'Special', 'Affliction', 'Instant'],
         effects: [
-            { kind: 'damage', amount: 2, damageKind: 'affliction' },
+            { kind: 'damage', amount: 2, damageKind: 'affliction', ignoreDamageReduction: true },
             { kind: 'status', unlessInitialTargetStatus: 'ekans-badly-poison', status: badlyPoisoned('ekans-badly-poison') },
         ],
     }),
@@ -1797,7 +1838,7 @@ const ekansSkills = [
         moveType: Type.POISON, classes: ['Poison', 'Physical', 'Affliction', 'Instant'],
         effects: [
             { kind: 'damage', amount: 25, damageKind: 'normal' },
-            { kind: 'damage', amount: 20, damageKind: 'affliction' },
+            { kind: 'damage', amount: 20, damageKind: 'affliction', ignoreDamageReduction: true },
             {
                 kind: 'status',
                 requiresAnyTargetStatus: ['ekans-badly-poison', 'ekans-badly-poison-2'],
@@ -1811,7 +1852,7 @@ const ekansSkills = [
         target: 'single-enemy', energy: [Energy.BLOODLINE], cooldown: 2,
         moveType: Type.POISON, classes: ['Poison', 'Special', 'Affliction', 'Instant'],
         effects: [
-            { kind: 'damage', amount: 2, damageKind: 'affliction' },
+            { kind: 'damage', amount: 2, damageKind: 'affliction', ignoreDamageReduction: true },
             {
                 kind: 'status', unlessInitialTargetStatus: 'ekans-badly-poison',
                 status: badlyPoisoned('ekans-badly-poison'),
@@ -1852,7 +1893,7 @@ const ekansSkills = [
 const machopBulkUp = (evolved = false) => ({
     id: 'machop-bulk-up-bonus', name: 'Bulk Up', hidden: false, harmful: false,
     durationActions: null,
-    machopBulkUpBonus: evolved ? 10 : 5,
+    machopBulkUpBonus: evolved ? 15 : 10,
     mergeNumericFields: ['machopBulkUpBonus', 'trackedShieldPoints'],
     removeWhenTrackedShieldExhausted: true,
 });
@@ -1878,13 +1919,13 @@ const machopCounterMark = (evolved = false) => ({
 const machopSkills = [
     skill({
         id: 'machop-brick-break', name: 'Brick Break',
-        description: 'Destroys all enemy defense and deals 35 damage, gaining 10 damage when defense was destroyed.',
-        target: 'single-enemy', energy: [Energy.NINJUTSU, Energy.RANDOM], cooldown: 1,
+        description: 'Destroys all enemy defense and deals 20 damage, gaining 10 damage when defense was destroyed.',
+        target: 'single-enemy', energy: [Energy.NINJUTSU], cooldown: 1,
         moveType: Type.FIGHTING, classes: ['Fighting', 'Physical', 'Instant'],
         effects: [
             { kind: 'destroy-shield', actorStatusIfDestroyed: brickBreakDefenseBonus },
             {
-                kind: 'damage', amount: 35, damageKind: 'normal',
+                kind: 'damage', amount: 20, damageKind: 'normal',
                 bonusFromActorStatus: { statusId: 'machop-bulk-up-bonus', field: 'machopBulkUpBonus' },
             },
             { kind: 'remove-actor-status', statusIds: ['machop-bulk-up-bonus'] },
@@ -1893,7 +1934,7 @@ const machopSkills = [
     skill({
         id: 'machop-counter', name: 'Counter',
         description: 'Counters the target first newly used damaging skill, reflects its damage plus 5, and evolves Machop on success.',
-        target: 'single-enemy', energy: [Energy.NINJUTSU], cooldown: 2,
+        target: 'single-enemy', energy: [Energy.NINJUTSU], cooldown: 3,
         moveType: Type.FIGHTING, classes: ['Fighting', 'Physical', 'Instant', 'Invisible'],
         effects: [
             {
@@ -1918,38 +1959,33 @@ const machopSkills = [
     }),
     skill({
         id: 'machop-taunt', name: 'Taunt',
-        description: 'For two target turns, the enemy may only use harmful targeted skills on Machop and deals 25% less Physical damage.',
+        description: 'For three target turns, the enemy may only use harmful targeted skills on Machop and deals 25% less Physical damage.',
         target: 'single-enemy', energy: [Energy.GENJUTSU], cooldown: 2,
         moveType: Type.DARK, classes: ['Dark', 'Special', 'Instant'],
         effects: [{ kind: 'status', status: {
             id: 'machop-taunt', name: 'Taunt', hidden: false, harmful: true,
-            durationActions: 2, durationAnchor: 'target', tauntSource: true,
+            durationActions: 3, durationAnchor: 'target', tauntSource: true,
             damageMultiplierBySkillClass: { Physical: 0.75 },
         } }],
     }),
     skill({
         id: 'machoke-brick-break', name: 'Brick Break',
-        description: 'Destroys all enemy defense and deals 45 damage; Bulk Up adds damage and stuns non-Mental skills.',
-        target: 'single-enemy', energy: [Energy.NINJUTSU, Energy.RANDOM, Energy.RANDOM], cooldown: 1,
+        description: 'Destroys all enemy defense and deals 35 damage; Bulk Up adds damage.',
+        target: 'single-enemy', energy: [Energy.NINJUTSU, Energy.RANDOM], cooldown: 1,
         moveType: Type.FIGHTING, classes: ['Fighting', 'Physical', 'Instant'],
         effects: [
             { kind: 'destroy-shield', actorStatusIfDestroyed: brickBreakDefenseBonus },
             {
-                kind: 'damage', amount: 45, damageKind: 'normal',
+                kind: 'damage', amount: 35, damageKind: 'normal',
                 bonusFromActorStatus: { statusId: 'machop-bulk-up-bonus', field: 'machopBulkUpBonus' },
             },
-            { kind: 'status', requiresActorStatus: 'machop-bulk-up-bonus', status: {
-                id: 'machoke-brick-break-stun', name: 'Brick Break Stun',
-                hidden: false, harmful: true, durationActions: 1, durationAnchor: 'target',
-                cannotUseNonMentalSkills: true,
-            } },
             { kind: 'remove-actor-status', statusIds: ['machop-bulk-up-bonus'] },
         ],
     }),
     skill({
         id: 'machoke-counter', name: 'Counter',
         description: 'Counters the target first newly used damaging skill, reflects twice its damage, and adds 10 while Machoke lives.',
-        target: 'single-enemy', energy: [Energy.NINJUTSU, Energy.RANDOM], cooldown: 2,
+        target: 'single-enemy', energy: [Energy.NINJUTSU], cooldown: 3,
         moveType: Type.FIGHTING, classes: ['Fighting', 'Physical', 'Instant', 'Invisible'],
         effects: [
             {
@@ -2034,6 +2070,7 @@ const magikarpSkills = [
         description: 'Deals 65 affliction damage during Dragon Rage, then prevents Gyarados from using a new skill on its next turn.',
         target: 'single-enemy', energy: [Energy.RANDOM, Energy.RANDOM, Energy.RANDOM, Energy.RANDOM], cooldown: 3,
         moveType: Type.NORMAL, classes: ['Normal', 'Special', 'Instant'],
+        ignoreDamageReduction: true,
         effects: [
             { kind: 'damage', amount: 65, damageKind: 'affliction' },
             { kind: 'source-status', status: {
@@ -2207,7 +2244,7 @@ const hitmonchanSkills = [
         target: 'single-enemy', energy: [Energy.BLOODLINE], cooldown: 2,
         moveType: Type.FIRE, classes: ['Fire', 'Physical', 'Instant'],
         effects: [
-            { kind: 'damage', amount: 25, damageKind: 'affliction' },
+            { kind: 'damage', amount: 25, damageKind: 'affliction', ignoreDamageReduction: true },
             { kind: 'status', status: {
                 id: 'hitmonchan-fire-punch-burn', name: 'Fire Punch Burn',
                 hidden: false, harmful: true, durationActions: 2, durationAnchor: 'target',
@@ -2476,7 +2513,7 @@ const magnemiteMagnetRise = (evolved = false) => ({
 const magnemiteSkills = [
     skill({
         id: 'magnemite-spark', name: 'Spark',
-        description: 'Deals 10 piercing damage to one enemy and 5 piercing damage to every other enemy. Thunder Wave adds and consumes 15 bonus damage; stored piercing vulnerability is also consumed.',
+        description: 'Deals 10 piercing damage to one enemy and 5 piercing damage to every other enemy. Thunder Wave adds and consumes 15 bonus damage.',
         target: 'single-enemy', energy: [Energy.RANDOM], cooldown: 0,
         moveType: Type.ELECTRIC, classes: ['Electric', 'Special', 'Instant'],
         effects: [
@@ -2485,15 +2522,6 @@ const magnemiteSkills = [
                 kind: 'damage', amount: 15, damageKind: 'normal-ignore-reduction',
                 requiresTargetStatus: 'magnemite-thunder-wave-mark',
                 consumeTargetStatus: 'magnemite-thunder-wave-mark',
-            },
-            {
-                kind: 'damage', amount: 0, damageKind: 'normal-ignore-reduction',
-                requiresTargetStatus: 'magnemite-piercing-vulnerability',
-                bonusFromTargetStatus: {
-                    statusId: 'magnemite-piercing-vulnerability',
-                    field: 'storedPiercingBonus',
-                },
-                consumeTargetStatus: 'magnemite-piercing-vulnerability',
             },
             { kind: 'damage', scope: 'all-other-enemies', amount: 5, damageKind: 'normal-ignore-reduction' },
             magnemiteEvolutionProgress,
@@ -2540,7 +2568,7 @@ const magnemiteSkills = [
     }),
     skill({
         id: 'magneton-spark', name: 'Spark',
-        description: 'Hits the selected enemy for 10 piercing damage and every other enemy for 5 piercing damage three times. Thunder Wave adds 15 to the first selected hit, which also consumes stored piercing vulnerability.',
+        description: 'Hits the selected enemy for 10 piercing damage and every other enemy for 5 piercing damage three times. Thunder Wave adds 15 to the first selected hit; stored piercing vulnerability adds a flat 10 more.',
         target: 'single-enemy', energy: [Energy.RANDOM, Energy.RANDOM], cooldown: 0,
         moveType: Type.ELECTRIC, classes: ['Electric', 'Special', 'Instant'],
         effects: [
@@ -2551,12 +2579,8 @@ const magnemiteSkills = [
                 consumeTargetStatus: 'magnemite-thunder-wave-mark',
             },
             {
-                kind: 'damage', amount: 0, damageKind: 'normal-ignore-reduction',
+                kind: 'damage', amount: 10, damageKind: 'normal-ignore-reduction',
                 requiresTargetStatus: 'magnemite-piercing-vulnerability',
-                bonusFromTargetStatus: {
-                    statusId: 'magnemite-piercing-vulnerability',
-                    field: 'storedPiercingBonus',
-                },
                 consumeTargetStatus: 'magnemite-piercing-vulnerability',
             },
             { kind: 'damage', scope: 'all-other-enemies', amount: 5, damageKind: 'normal-ignore-reduction' },
@@ -2583,18 +2607,14 @@ const magnemiteSkills = [
     }),
     skill({
         id: 'magneton-flash-cannon', name: 'Flash Cannon',
-        description: 'Deals 40 damage, consumes all stored piercing vulnerability as bonus piercing damage, then stores 10 more for the next qualifying attack.',
+        description: 'Deals 40 damage, consumes stored piercing vulnerability for a flat 10 bonus piercing damage, then stores it again for the next qualifying attack.',
         target: 'single-enemy', energy: [Energy.RANDOM, Energy.RANDOM, Energy.RANDOM], cooldown: 1,
         moveType: Type.STEEL, classes: ['Steel', 'Special', 'Instant'],
         effects: [
             { kind: 'damage', amount: 40, damageKind: 'normal' },
             {
-                kind: 'damage', amount: 0, damageKind: 'normal-ignore-reduction',
+                kind: 'damage', amount: 10, damageKind: 'normal-ignore-reduction',
                 requiresTargetStatus: 'magnemite-piercing-vulnerability',
-                bonusFromTargetStatus: {
-                    statusId: 'magnemite-piercing-vulnerability',
-                    field: 'storedPiercingBonus',
-                },
                 consumeTargetStatus: 'magnemite-piercing-vulnerability',
             },
             { kind: 'status', status: magnemitePiercingVulnerability(10) },
@@ -2948,8 +2968,8 @@ const clefairySkills = [
     skill({
         id: 'clefairy-metronome', name: 'Metronome',
         description: 'Casts a seeded random copy-safe damaging skill on an enemy or a copy-safe healing skill on an ally.',
-        target: 'single-character', energy: [Energy.RANDOM], cooldown: 2,
-        moveType: Type.NORMAL, classes: ['Normal', 'Special', 'Instant'],
+        target: 'single-character', energy: [Energy.RANDOM, Energy.RANDOM], cooldown: 2,
+        moveType: Type.NORMAL, classes: ['Normal', 'Mental', 'Instant'],
         effects: [{ kind: 'metronome', actorCounterFromHealing: clefairyEvolutionHealing }],
     }),
     skill({
@@ -2990,7 +3010,7 @@ const clefairySkills = [
         id: 'clefable-metronome', name: 'Clefable Metronome',
         description: 'Casts a seeded random copy-safe damaging skill on an enemy or a copy-safe healing skill on an ally.',
         target: 'single-character', energy: [Energy.RANDOM], cooldown: 2,
-        moveType: Type.NORMAL, classes: ['Normal', 'Special', 'Instant'],
+        moveType: Type.NORMAL, classes: ['Normal', 'Mental', 'Instant'],
         effects: [{ kind: 'metronome', actorCounterFromHealing: clefairyEvolutionHealing }],
     }),
     skill({
@@ -3042,7 +3062,7 @@ const perishSongMark = ({ evolved = false } = {}) => ({
     description: 'When this countdown expires, this Pokemon is instantly defeated. The mark ends if its source is defeated.',
     hidden: false,
     harmful: true,
-    durationActions: evolved ? 4 : 5,
+    durationActions: evolved ? 3 : 4,
     durationAnchor: 'target',
     replaceExisting: true,
     unremovable: true,
@@ -3052,28 +3072,40 @@ const perishSongMark = ({ evolved = false } = {}) => ({
     evolveSourceForm: 'wigglytuff',
 });
 
-const singLock = ({ evolved = false } = {}) => ({
-    id: 'jigglypuff-sing-lock',
+const singStun = ({ evolved = false } = {}) => ({
+    id: 'jigglypuff-sing-stun',
     name: evolved ? 'Wigglytuff Sing' : 'Sing',
-    description: `Harmful skills are stunned for ${evolved ? 2 : 1} turn${evolved ? 's' : ''}.`,
+    description: 'Harmful skills are stunned.',
     hidden: false,
     harmful: true,
-    durationActions: evolved ? 2 : 1,
+    durationActions: 2,
     durationAnchor: 'target',
     replaceExisting: true,
     stunHarmful: true,
 });
 
+const singChannel = ({ evolved = false } = {}) => ({
+    id: 'jigglypuff-sing-channel',
+    name: evolved ? 'Wigglytuff Sing' : 'Sing',
+    description: 'Sing is channeling and advances every enemy Perish Song once each turn.',
+    hidden: false,
+    harmful: false,
+    durationActions: 2,
+    durationAnchor: 'source',
+    replaceExisting: true,
+    turnStartAdvanceAllEnemyPerish: true,
+});
+
 const wishStatus = ({ evolved = false } = {}) => ({
     id: 'jigglypuff-wish-heal',
     name: evolved ? 'Wigglytuff Wish' : 'Wish',
-    description: 'At the start of this Pokemon next turn, it restores 25 HP. A marked enemy using a new harmful skill on it advances Perish Song.',
+    description: 'At the start of this Pokemon next turn, it restores 20 HP. A marked enemy using a new harmful skill on it advances Perish Song.',
     hidden: true,
     harmful: false,
     durationActions: 1,
     durationAnchor: 'target',
     turnStartAnchor: 'target',
-    turnStartHeal: 25,
+    turnStartHeal: 20,
     consumeAfterTurnStart: true,
     replaceExisting: true,
     onEnemyTargeted: {
@@ -3106,65 +3138,71 @@ const humiliateStatus = ({ evolved = false } = {}) => ({
 const jigglypuffSkills = [
     skill({
         id: 'jigglypuff-perish-song', name: 'Perish Song',
-        description: 'Marks one enemy for 5 turns. When it expires, they are instantly defeated. Ends if Jigglypuff dies.',
+        description: 'Marks one enemy for 4 turns. When it expires, they are instantly defeated. Ends if Jigglypuff dies.',
         target: 'single-enemy', energy: [Energy.RANDOM, Energy.RANDOM, Energy.RANDOM], cooldown: 0,
         moveType: Type.NORMAL, classes: ['Normal', 'Special', 'Instant'],
         effects: [{ kind: 'status', status: perishSongMark() }],
     }),
     skill({
         id: 'jigglypuff-sing', name: 'Sing',
-        description: 'Stuns all enemy harmful skills for 1 turn and advances Perish Song once.',
-        target: 'all-enemy', energy: [Energy.NINJUTSU, Energy.RANDOM], cooldown: 3,
-        moveType: Type.NORMAL, classes: ['Normal', 'Special', 'Instant'],
+        description: 'Channels for 2 turns. Each turn, one enemy cannot use harmful skills and every enemy Perish Song advances once.',
+        target: 'single-enemy', energy: [Energy.NINJUTSU, Energy.RANDOM], cooldown: 3,
+        moveType: Type.NORMAL, classes: ['Normal', 'Special', 'Channeled'],
         effects: [
-            { kind: 'status', scope: 'all-enemy', status: singLock() },
-            { kind: 'accelerate-perish-song', scope: 'all-enemy' },
+            { kind: 'status', status: singStun() },
+            { kind: 'source-status', status: singChannel() },
         ],
     }),
     skill({
         id: 'jigglypuff-wish', name: 'Wish',
-        description: 'Next turn, Jigglypuff or one ally heals 25 HP. A marked enemy using a new harmful skill on them advances Perish Song once.',
+        description: 'Next turn, Jigglypuff or one ally heals 20 HP. A marked enemy using a new harmful skill on them advances Perish Song once.',
         target: 'self-or-single-ally', energy: [Energy.RANDOM], cooldown: 2,
         moveType: Type.NORMAL, classes: ['Normal', 'Special', 'Instant', 'Invisible'], harmful: false,
         effects: [{ kind: 'status', status: wishStatus() }],
     }),
     skill({
         id: 'jigglypuff-humiliate', name: 'Humiliate',
-        description: 'If the target uses a new harmful skill this turn, gain 1 random energy and advance Perish Song once.',
-        target: 'single-enemy', energy: [Energy.RANDOM], cooldown: 2,
+        description: 'Costs no energy. If the target is affected by Sing, instantly gain 1 random energy. If they use a new harmful skill this turn, gain 1 random energy and advance Perish Song once.',
+        target: 'single-enemy', energy: [], cooldown: 2,
         moveType: Type.NORMAL, classes: ['Normal', 'Physical', 'Instant', 'Invisible'],
-        effects: [{ kind: 'status', status: humiliateStatus() }],
+        effects: [
+            { kind: 'grant-random-energy-to-actor', requiresTargetStatus: 'jigglypuff-sing-stun', amount: 1 },
+            { kind: 'status', status: humiliateStatus() },
+        ],
     }),
     skill({
         id: 'wigglytuff-perish-song', name: 'Wigglytuff Perish Song',
-        description: 'Marks one enemy for 4 turns. When it expires, they are instantly defeated. Ends if Wigglytuff dies.',
+        description: 'Marks one enemy for 3 turns. When it expires, they are instantly defeated. Ends if Wigglytuff dies.',
         target: 'single-enemy', energy: [Energy.RANDOM, Energy.RANDOM, Energy.RANDOM], cooldown: 0,
         moveType: Type.NORMAL, classes: ['Normal', 'Special', 'Instant'],
         effects: [{ kind: 'status', status: perishSongMark({ evolved: true }) }],
     }),
     skill({
         id: 'wigglytuff-sing', name: 'Wigglytuff Sing',
-        description: 'Stuns all enemy harmful skills for 2 turns and advances Perish Song once.',
+        description: 'Channels for 2 turns. Each turn, all enemies cannot use harmful skills and every enemy Perish Song advances once.',
         target: 'all-enemy', energy: [Energy.NINJUTSU, Energy.NINJUTSU, Energy.RANDOM], cooldown: 3,
-        moveType: Type.NORMAL, classes: ['Normal', 'Special', 'Instant'],
+        moveType: Type.NORMAL, classes: ['Normal', 'Special', 'Channeled'],
         effects: [
-            { kind: 'status', scope: 'all-enemy', status: singLock({ evolved: true }) },
-            { kind: 'accelerate-perish-song', scope: 'all-enemy' },
+            { kind: 'status', scope: 'all-enemy', status: singStun({ evolved: true }) },
+            { kind: 'source-status', status: singChannel({ evolved: true }) },
         ],
     }),
     skill({
         id: 'wigglytuff-wish', name: 'Wigglytuff Wish',
-        description: "Next turn, Wigglytuff's whole team heals 25 HP. A marked enemy using a new harmful skill on them advances Perish Song once.",
+        description: "Next turn, Wigglytuff's whole team heals 20 HP. A marked enemy using a new harmful skill on them advances Perish Song once.",
         target: 'all-allies', energy: [Energy.RANDOM, Energy.RANDOM], cooldown: 2,
         moveType: Type.NORMAL, classes: ['Normal', 'Special', 'Instant', 'Invisible'], harmful: false,
         effects: [{ kind: 'status', scope: 'all-allies', status: wishStatus({ evolved: true }) }],
     }),
     skill({
         id: 'wigglytuff-humiliate', name: 'Wigglytuff Humiliate',
-        description: 'If the target uses any new skill this turn, gain 1 random energy and advance Perish Song once.',
-        target: 'single-enemy', energy: [Energy.RANDOM], cooldown: 2,
+        description: 'Costs no energy. If the target is affected by Sing, instantly gain 1 random energy. If they use any new skill this turn, gain 1 random energy and advance Perish Song once.',
+        target: 'single-enemy', energy: [], cooldown: 2,
         moveType: Type.NORMAL, classes: ['Normal', 'Physical', 'Instant', 'Invisible'],
-        effects: [{ kind: 'status', status: humiliateStatus({ evolved: true }) }],
+        effects: [
+            { kind: 'grant-random-energy-to-actor', requiresTargetStatus: 'jigglypuff-sing-stun', amount: 1 },
+            { kind: 'status', status: humiliateStatus({ evolved: true }) },
+        ],
     }),
 ];
 
@@ -3340,26 +3378,28 @@ const articunoSkills = [
     skill({
         id: 'articuno-blizzard', name: 'Blizzard',
         description: 'Deals 15 damage to all enemies and paralyzes their cooldowns for 1 turn.',
-        forceDescription: "Deals 10 damage to all enemies and stuns their Physical skills for 1 turn. Summons Hail for 4 turns: non-Ice Pokemon take 3 damage each turn, Ice skills besides Blizzard deal +5 damage and cannot be evaded, Fire skills deal -5 damage. Hail cannot be refreshed while already active.",
+        forceDescription: "Deals 10 damage to all enemies. The next harmful skill each of them uses is delayed 1 turn before it activates. Summons Hail for 4 turns: Ice and Water Pokemon take no damage, everyone else takes 3 each turn. Ice skills besides Blizzard deal +5 damage and cannot be evaded, Fire skills deal -5 damage, Grass and Bug skills cost 1 more Random energy. Hail cannot be refreshed while already active.",
         target: 'all-enemy', energy: [Energy.NINJUTSU], cooldown: 2,
         moveType: Type.ICE, classes: ['Ice', 'Special', 'Instant'],
         effects: [
             { kind: 'damage', scope: 'all-enemy', amount: 10, damageKind: 'normal' },
             { kind: 'status', scope: 'all-enemy', status: {
-                id: 'articuno-blizzard-stun', name: 'Blizzard',
-                description: 'Physical skills are stunned for 1 turn.',
+                id: 'articuno-blizzard-delay', name: 'Blizzard',
+                description: 'The next harmful skill this Pokemon uses does not activate until 1 turn later.',
                 hidden: false, harmful: true, durationActions: 1, durationAnchor: 'target',
-                cannotUseSkillClasses: ['Physical'],
+                delayNextHarmfulSkillActivation: true,
             } },
             { kind: 'set-weather', scope: 'self', weather: {
                 key: 'hail', name: 'Hail',
-                description: 'Non-Ice Pokemon take 3 damage each turn. Ice skills deal +5 damage (Blizzard excluded) and cannot be evaded. Fire skills deal -5 damage.',
+                description: 'Ice and Water Pokemon take no damage; everyone else takes 3 each turn. Water skills become Ice-typed and deal piercing damage. Ice skills deal +5 damage (Blizzard excluded) and cannot be evaded. Fire skills deal -5 damage. Grass and Bug skills cost 1 more Random energy.',
                 rounds: 4,
                 blockRefreshIfActive: true,
                 excludeSkillId: 'articuno-blizzard',
                 damageTypeModifiers: { [Type.ICE]: 5, [Type.FIRE]: -5 },
+                costTypeModifiers: { [Type.GRASS]: 1, [Type.BUG]: 1 },
                 evasionImmuneTypes: [Type.ICE],
-                periodicNonTypeDamage: { immuneType: Type.ICE, amount: 3 },
+                periodicNonTypeDamage: { immuneTypes: [Type.ICE, Type.WATER], amount: 3 },
+                transformMoveType: { [Type.WATER]: Type.ICE },
             } },
         ],
     }),
@@ -3392,10 +3432,10 @@ const articunoSkills = [
                 },
             },
             { kind: 'status', scope: 'all-enemy', status: {
-                id: 'articuno-blizzard-stun', name: 'Blizzard',
-                description: 'Physical skills are stunned for 1 turn.',
+                id: 'articuno-blizzard-delay', name: 'Blizzard',
+                description: 'The next harmful skill this Pokemon uses does not activate until 1 turn later.',
                 hidden: false, harmful: true, durationActions: 1, durationAnchor: 'target',
-                cannotUseSkillClasses: ['Physical'],
+                delayNextHarmfulSkillActivation: true,
             } },
             { kind: 'status', scope: 'all-enemy', chance: 50, status: {
                 id: 'articuno-ice-beam-stun', name: 'Ice Beam',
@@ -3405,13 +3445,15 @@ const articunoSkills = [
             } },
             { kind: 'set-weather', scope: 'self', weather: {
                 key: 'hail', name: 'Hail',
-                description: 'Non-Ice Pokemon take 3 damage each turn. Ice skills deal +5 damage (Blizzard excluded) and cannot be evaded. Fire skills deal -5 damage.',
+                description: 'Ice and Water Pokemon take no damage; everyone else takes 3 each turn. Water skills become Ice-typed and deal piercing damage. Ice skills deal +5 damage (Blizzard excluded) and cannot be evaded. Fire skills deal -5 damage. Grass and Bug skills cost 1 more Random energy.',
                 rounds: 4,
                 blockRefreshIfActive: true,
                 excludeSkillId: 'articuno-blizzard',
                 damageTypeModifiers: { [Type.ICE]: 5, [Type.FIRE]: -5 },
+                costTypeModifiers: { [Type.GRASS]: 1, [Type.BUG]: 1 },
                 evasionImmuneTypes: [Type.ICE],
-                periodicNonTypeDamage: { immuneType: Type.ICE, amount: 3 },
+                periodicNonTypeDamage: { immuneTypes: [Type.ICE, Type.WATER], amount: 3 },
+                transformMoveType: { [Type.WATER]: Type.ICE },
             } },
             {
                 kind: 'increment-actor-status-field',
@@ -3449,7 +3491,7 @@ const moltresSkills = [
                 replaceExisting: true,
                 teamHarmfulSkillTrap: {
                     damageToActor: 10,
-                    damageKind: 'fixed-affliction',
+                    damageKind: 'affliction',
                     moveType: Type.FIRE,
                     skillClasses: ['Fire', 'Special', 'Affliction'],
                 },
@@ -3464,16 +3506,15 @@ const moltresSkills = [
     skill({
         id: 'moltres-sunny-day', name: 'Sunny Day',
         description: 'For 2 turns, enemies take 3 additional affliction damage. Moltres gains 1 Heat.',
-        forceDescription: 'Summons Sunny Day for 4 turns: affliction damage +3, Fire skills +5 damage, Water skills -5 damage, Grass skills cost 1 less Random energy, Electric skills cost 1 more Random energy. While it lasts, Moltres gains 1 additional Heat from her skills. Gains 1 Heat.',
+        forceDescription: 'Summons Sunny Day for 4 turns: Fire skills +5 damage, Water skills -5 damage, Grass skills cost 1 less Random energy, Electric skills cost 1 more Random energy. While it lasts, Moltres gains 1 additional Heat from her skills. Gains 1 Heat.',
         target: 'self', energy: [Energy.BLOODLINE], cooldown: 4,
         moveType: Type.FIRE, classes: ['Fire', 'Special', 'Instant'], harmful: false,
         effects: [
             { kind: 'set-weather', scope: 'self', weather: {
                 key: 'sunny-day', name: 'Sunny Day',
-                description: 'Affliction damage +3. Fire skills +5 damage, Water skills -5 damage. Grass skills cost 1 less Random energy, Electric skills cost 1 more Random energy.',
+                description: 'Fire skills +5 damage, Water skills -5 damage. Grass skills cost 1 less Random energy, Electric skills cost 1 more Random energy.',
                 rounds: 4,
                 damageTypeModifiers: { [Type.FIRE]: 5, [Type.WATER]: -5 },
-                afflictionDamageBonusFlat: 3,
                 costTypeModifiers: { [Type.GRASS]: -1, [Type.ELECTRIC]: 1 },
             } },
             {
@@ -3566,7 +3607,7 @@ const zapdosSkills = [
     }),
     skill({
         id: 'zapdos-thunderstorm', name: 'Thunderstorm',
-        description: "Summons Thunderstorm for 4 turns: harmful enemy skills targeting Zapdos' team trigger 5 piercing damage and +1 cooldown, and Electric skills besides Thunderstorm itself deal +5 damage. Recast detonates for 15 piercing team damage, paralyzes cooldowns, and ends the weather.",
+        description: "Summons Thunderstorm for 4 turns: harmful enemy skills targeting Zapdos' team trigger 5 piercing damage and +1 cooldown, Electric skills besides Thunderstorm itself deal +5 damage, and each turn a random non-Electric, non-Ground Pokemon from either team takes 10 piercing damage and has its cooldowns paralyzed for 1 turn. Recast detonates for 15 piercing team damage, paralyzes cooldowns, and ends the weather.",
         image: skillArt('zapdos-thunderbolt'),
         target: 'self', energy: [Energy.GENJUTSU], cooldown: 0,
         moveType: Type.ELECTRIC, classes: ['Electric', 'Special', 'Instant', 'Bypassing'], harmful: false,
@@ -3603,10 +3644,17 @@ const zapdosSkills = [
             } },
             { kind: 'set-weather', scope: 'self', unlessInitialActorStatus: 'zapdos-thunderstorm-active', weather: {
                 key: 'thunderstorm', name: 'Thunderstorm',
-                description: "Electric skills deal +5 damage (Thunderstorm's own damage excluded).",
+                description: "Electric skills deal +5 damage (Thunderstorm's own damage excluded). Each turn, 10 piercing damage strikes one random non-Electric, non-Ground Pokemon from either team and paralyzes its cooldowns for 1 turn.",
                 rounds: 4,
                 excludeSkillId: 'zapdos-thunderstorm',
                 damageTypeModifiers: { [Type.ELECTRIC]: 5 },
+                periodicRandomTargetDamage: {
+                    amount: 10,
+                    damageKind: 'piercing',
+                    moveType: Type.ELECTRIC,
+                    immuneTypes: [Type.ELECTRIC, Type.GROUND],
+                    paralyzeCooldowns: true,
+                },
             } },
             {
                 kind: 'damage', scope: 'all-enemy', amount: 15, damageKind: 'piercing',
@@ -3705,9 +3753,9 @@ export const ROSTER = Object.freeze({
                 fromSkillId: 'pokemon-trainer-pokeball',
                 statusId: 'pokemon-trainer-turn-ball',
                 options: [
-                    { skillId: 'pokemon-trainer-pokeball', name: 'Pokeball', weight: 4 },
-                    { skillId: 'pokemon-trainer-great-ball', name: 'Great Ball', weight: 3 },
-                    { skillId: 'pokemon-trainer-ultra-ball', name: 'Ultra Ball', weight: 2 },
+                    { skillId: 'pokemon-trainer-pokeball', name: 'Pokeball', weight: 8 },
+                    { skillId: 'pokemon-trainer-great-ball', name: 'Great Ball', weight: 6 },
+                    { skillId: 'pokemon-trainer-ultra-ball', name: 'Ultra Ball', weight: 5 },
                     { skillId: 'pokemon-trainer-master-ball', name: 'Master Ball', weight: 1 },
                 ],
             },
@@ -3817,6 +3865,7 @@ export const ROSTER = Object.freeze({
                 id: 'pikachu-thundershock', name: 'Thundershock',
                 description: 'Deals 20 piercing damage and 15 to another enemy, paralyzes cooldowns, and discounts Thunder.',
                 target: 'single-enemy', energy: [Energy.GENJUTSU], cooldown: 0, moveType: Type.ELECTRIC,
+                classes: ['Electric', 'Special', 'Instant'],
                 effects: [
                     { kind: 'damage', amount: 20, damageKind: 'piercing' },
                     { kind: 'random-other-enemy-damage', amount: 15, damageKind: 'piercing' },
@@ -3826,11 +3875,11 @@ export const ROSTER = Object.freeze({
                     } },
                     { kind: 'status', requiresTargetStatus: 'pikachu-static-mark', status: {
                         id: 'cooldown-paralyze', name: 'Cooldowns Paralyzed by Static', hidden: false, harmful: true,
-                        durationActions: 3, paralyzeCooldowns: true,
+                        durationActions: 2, durationAnchor: 'target', paralyzeCooldowns: true,
                     } },
                     { kind: 'source-status', status: {
                         id: 'pikachu-thundershock-thunder-cost', name: 'Thunder Discount',
-                        hidden: false, harmful: false, durationActions: 2,
+                        hidden: false, harmful: false, durationActions: 1, durationAnchor: 'source',
                         skillCostOverrides: { 'pikachu-thunder': [Energy.GENJUTSU, Energy.RANDOM] },
                     } },
                 ],
@@ -3840,6 +3889,7 @@ export const ROSTER = Object.freeze({
                 description: 'Deals 35 piercing damage, costs Pikachu 15 HP, and increases the target’s next skill cooldown.',
                 target: 'single-enemy', energy: [Energy.TAIJUTSU, Energy.GENJUTSU], cooldown: 0,
                 moveType: Type.ELECTRIC,
+                classes: ['Electric', 'Physical', 'Instant'],
                 effects: [
                     { kind: 'damage', amount: 35, damageKind: 'piercing' },
                     { kind: 'health-loss', scope: 'self', amount: 15 },
@@ -3849,7 +3899,7 @@ export const ROSTER = Object.freeze({
                     } },
                     { kind: 'status', requiresTargetStatus: 'pikachu-static-mark', status: {
                         id: 'pikachu-volt-tackle-cooldown-shock', name: 'Static Cooldown Shock',
-                        hidden: false, harmful: true, durationActions: 7, newSkillCooldownIncrease: 2,
+                        hidden: false, harmful: true, durationActions: 4, durationAnchor: 'target', newSkillCooldownIncrease: 2,
                     } },
                 ],
             }),
@@ -3858,6 +3908,7 @@ export const ROSTER = Object.freeze({
                 description: 'Deals 45 piercing damage; Static adds damage, stuns harmful skills, and refreshes its mark.',
                 target: 'single-enemy', energy: [Energy.GENJUTSU, Energy.GENJUTSU], cooldown: 1,
                 moveType: Type.ELECTRIC,
+                classes: ['Electric', 'Special', 'Instant'],
                 effects: [
                     { kind: 'damage', amount: 45, damageKind: 'piercing' },
                     { kind: 'damage', amount: 5, damageKind: 'piercing', requiresTargetStatus: 'pikachu-static-mark' },
@@ -3875,6 +3926,7 @@ export const ROSTER = Object.freeze({
                 description: 'Pikachu becomes invulnerable through the opposing turn.',
                 target: 'self', energy: [Energy.RANDOM, Energy.RANDOM], cooldown: 4,
                 moveType: Type.PSYCHIC, harmful: false,
+                classes: ['Psychic', 'Strategic', 'Instant'],
                 effects: [{ kind: 'status', status: {
                     id: 'agility', name: 'Agility', hidden: false, harmful: false,
                     durationActions: 1, invulnerable: true,
@@ -3930,7 +3982,7 @@ export const ROSTER = Object.freeze({
     gastly: {
         id: 'gastly', name: 'Gastly', types: [Type.GHOST, Type.POISON],
         facePicture: '/game-assets/images/PokemonArena/gastley/gastleyfp.webp',
-        passiveDescription: 'Tracks actual HP lost and Lick damage dealt; at 50 total it evolves into Haunter and restores 10 HP.',
+        passiveDescription: 'Tracks Lick damage dealt; at 35 total it evolves into Haunter and restores 10 HP.',
         forcedEvolutionForm: 'haunter',
         startStatuses: [{
             id: 'gastly-evolution-tracker',
@@ -3939,9 +3991,7 @@ export const ROSTER = Object.freeze({
             harmful: false,
             durationActions: null,
             unremovable: true,
-            damageTakenCounter: 'evolution',
-            damageTakenCounterMaximum: 50,
-            evolveOnCounter: { counter: 'evolution', threshold: 50, form: 'haunter' },
+            evolveOnCounter: { counter: 'evolution', threshold: 35, form: 'haunter' },
         }],
         forms: {
             base: {
@@ -4587,7 +4637,7 @@ export const ROSTER = Object.freeze({
                     { kind: 'drain', amount: 5, damageKind: 'normal', requiresActorStatus: 'zubat-bite-bonus', consumeActorStatus: 'zubat-bite-bonus', actorCounterFromDamage: { counter: 'evolution', maximum: 50 } },
                     { kind: 'status', status: {
                         id: 'zubat-leech-life-reckoning', name: 'Leech Life Reckoning', hidden: false, harmful: true,
-                        durationActions: 1, onUseSkill: {
+                        durationActions: 1, durationAnchor: 'target', onUseSkill: {
                             damageToOwner: 5, healSource: 5, sourceCounter: 'evolution',
                             sourceCounterDelta: 5, sourceCounterMaximum: 50, consume: true,
                         },
@@ -4601,7 +4651,7 @@ export const ROSTER = Object.freeze({
                 target: 'single-enemy', energy: [Energy.GENJUTSU], cooldown: 3, moveType: Type.NORMAL,
                 effects: [{ kind: 'status', status: {
                     id: 'zubat-supersonic-mark', name: 'Supersonic', hidden: false, harmful: true,
-                    durationActions: 1, randomCostIncrease: 1, skillFailChance: 45, skillFailDamage: 15,
+                    durationActions: 1, durationAnchor: 'target', randomCostIncrease: 1, skillFailChance: 45, skillFailDamage: 15,
                 } }],
             }),
             skill({
@@ -4612,7 +4662,7 @@ export const ROSTER = Object.freeze({
                     { kind: 'damage', amount: 20, damageKind: 'normal' },
                     { kind: 'source-status', status: {
                         id: 'zubat-bite-bonus', name: 'Bite Empowerment', hidden: true, harmful: false,
-                        durationActions: 2,
+                        durationActions: 1, durationAnchor: 'source',
                     } },
                     { kind: 'modify-cooldowns', amount: 1, requiresTargetStatus: 'zubat-supersonic-mark' },
                     { kind: 'steal-energy', requiresActorStatus: 'zubat-draining-fangs-active' },
@@ -4624,7 +4674,7 @@ export const ROSTER = Object.freeze({
                 target: 'self', energy: [Energy.BLOODLINE], cooldown: 3, moveType: Type.DARK, harmful: false,
                 effects: [{ kind: 'status', status: {
                     id: 'zubat-draining-fangs-active', name: 'Draining Fangs', hidden: false, harmful: false,
-                    durationActions: 6,
+                    durationActions: 3, durationAnchor: 'source',
                 } }],
             }),
             skill({
@@ -4637,7 +4687,7 @@ export const ROSTER = Object.freeze({
                     { kind: 'drain', amount: 10, damageKind: 'normal', requiresActorStatus: 'golbat-bite-bonus', consumeActorStatus: 'golbat-bite-bonus' },
                     { kind: 'status', status: {
                         id: 'golbat-leech-life-reckoning', name: 'Leech Life Reckoning', hidden: false, harmful: true,
-                        durationActions: 1, onUseSkill: { damageToOwner: 20, healSource: 20, consume: true },
+                        durationActions: 1, durationAnchor: 'target', onUseSkill: { damageToOwner: 20, healSource: 20, consume: true },
                     } },
                     { kind: 'steal-energy', requiresActorStatus: 'golbat-draining-fangs-active' },
                 ],
@@ -4648,7 +4698,7 @@ export const ROSTER = Object.freeze({
                 target: 'single-enemy', energy: [Energy.GENJUTSU, Energy.RANDOM], cooldown: 3, moveType: Type.NORMAL,
                 effects: [{ kind: 'status', status: {
                     id: 'golbat-supersonic-mark', name: 'Supersonic', hidden: false, harmful: true,
-                    durationActions: 3, randomCostIncrease: 1, skillFailChance: 45, skillFailDamage: 15,
+                    durationActions: 2, durationAnchor: 'target', randomCostIncrease: 1, skillFailChance: 45, skillFailDamage: 15,
                 } }],
             }),
             skill({
@@ -4659,7 +4709,7 @@ export const ROSTER = Object.freeze({
                     { kind: 'damage', amount: 30, damageKind: 'normal-ignore-reduction' },
                     { kind: 'source-status', status: {
                         id: 'golbat-bite-bonus', name: 'Bite Empowerment', hidden: true, harmful: false,
-                        durationActions: 2,
+                        durationActions: 1, durationAnchor: 'source',
                     } },
                     { kind: 'modify-cooldowns', amount: 1, requiresTargetStatus: 'golbat-supersonic-mark' },
                     { kind: 'steal-energy', requiresActorStatus: 'golbat-draining-fangs-active' },
@@ -4671,7 +4721,7 @@ export const ROSTER = Object.freeze({
                 target: 'self', energy: [Energy.BLOODLINE, Energy.RANDOM], cooldown: 3, moveType: Type.DARK, harmful: false,
                 effects: [{ kind: 'status', status: {
                     id: 'golbat-draining-fangs-active', name: 'Draining Fangs', hidden: false, harmful: false,
-                    durationActions: 6,
+                    durationActions: 3, durationAnchor: 'source',
                 } }],
             }),
         ],
@@ -4698,6 +4748,7 @@ export const ROSTER = Object.freeze({
                 id: 'chansey-eggbomb', name: 'Egg Bomb',
                 description: 'Deals 20 affliction damage and blocks healing through the target turn.',
                 target: 'single-enemy', energy: [Energy.RANDOM], cooldown: 1, moveType: Type.NORMAL,
+                ignoreDamageReduction: true,
                 effects: [
                     { kind: 'damage', amount: 20, damageKind: 'affliction' },
                     { kind: 'status', status: {
@@ -4709,13 +4760,13 @@ export const ROSTER = Object.freeze({
             skill({
                 id: 'chansey-pokemon-center-healing', name: 'Pokémon Center Healing',
                 description: 'Heals all allies for 10, then grants each living ally 5 defense at the end of three Chansey turns.',
-                target: 'all-allies', energy: [Energy.BLOODLINE], cooldown: 3,
-                moveType: Type.NORMAL, harmful: false,
+                target: 'all-allies', energy: [Energy.RANDOM], cooldown: 3,
+                moveType: Type.NORMAL, classes: ['Normal', 'Physical', 'Instant'], harmful: false,
                 effects: [
                     { kind: 'heal', scope: 'all-allies', amount: 10, actorCounterFromHealing: { counter: 'evolution', maximum: 100 } },
                     { kind: 'source-status', scope: 'self', status: {
                         id: 'chansey-pokemon-center-active', name: 'Pokémon Center Healing', hidden: false, harmful: false,
-                        durationActions: 4, turnEndShieldAllies: 5,
+                        durationActions: 3, durationAnchor: 'source', turnEndShieldAllies: 5,
                         skillCostOverrides: { 'chansey-emergency-life-support': [Energy.BLOODLINE, Energy.GENJUTSU] },
                     } },
                 ],
@@ -4749,6 +4800,7 @@ export const ROSTER = Object.freeze({
                 id: 'blissey-eggbomb', name: 'Egg Bomb',
                 description: 'Deals 30 affliction damage and blocks healing through the target turn.',
                 target: 'single-enemy', energy: [Energy.RANDOM, Energy.RANDOM], cooldown: 1, moveType: Type.NORMAL,
+                ignoreDamageReduction: true,
                 effects: [
                     { kind: 'damage', amount: 30, damageKind: 'affliction' },
                     { kind: 'status', status: {
@@ -4760,13 +4812,13 @@ export const ROSTER = Object.freeze({
             skill({
                 id: 'blissey-pokemon-center-healing', name: 'Pokémon Center Healing',
                 description: 'Heals all allies for 15, then grants each living ally 10 defense at the end of three Blissey turns.',
-                target: 'all-allies', energy: [Energy.BLOODLINE, Energy.RANDOM], cooldown: 3,
-                moveType: Type.NORMAL, harmful: false,
+                target: 'all-allies', energy: [Energy.RANDOM, Energy.RANDOM], cooldown: 3,
+                moveType: Type.NORMAL, classes: ['Normal', 'Physical', 'Instant'], harmful: false,
                 effects: [
                     { kind: 'heal', scope: 'all-allies', amount: 15 },
                     { kind: 'source-status', scope: 'self', status: {
                         id: 'blissey-pokemon-center-active', name: 'Pokémon Center Healing', hidden: false, harmful: false,
-                        durationActions: 4, turnEndShieldAllies: 10,
+                        durationActions: 3, durationAnchor: 'source', turnEndShieldAllies: 10,
                         skillCostOverrides: { 'blissey-emergency-life-support': [Energy.BLOODLINE, Energy.GENJUTSU] },
                     } },
                 ],
@@ -4804,7 +4856,7 @@ export const ROSTER = Object.freeze({
     pidgey: {
         id: 'pidgey', name: 'Pidgey', types: [Type.NORMAL, Type.FLYING],
         facePicture: '/game-assets/images/PokemonArena/pidgey/pidgeyfp.webp',
-        passiveDescription: 'After dealing 100 total damage, Pidgey evolves into Pidgeotto and restores 10 HP.',
+        passiveDescription: 'After dealing 50 total damage, Pidgey evolves into Pidgeotto and restores 10 HP.',
         forcedEvolutionForm: 'pidgeotto',
         forms: {
             base: {

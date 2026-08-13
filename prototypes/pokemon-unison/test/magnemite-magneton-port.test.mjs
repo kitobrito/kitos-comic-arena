@@ -116,7 +116,7 @@ test('Thunder Wave freezes cooldown recovery, blocks only harmful skills, and em
     assert.equal(game.teams.B[0].cooldowns['chansey-pokemon-center-healing'], 1);
 });
 
-test('Swift stacks target-side piercing vulnerability and Spark consumes the full stored amount', () => {
+test('Swift stacks target-side piercing vulnerability, but only evolved Spark ever consumes it', () => {
     let game = createGame({ seed: 733, teams: magnemiteTeams });
     game = enact(game, action('A', 0, 'magnemite-swift', 'B', 1));
     ready(game, 'A');
@@ -131,10 +131,13 @@ test('Swift stacks target-side piercing vulnerability and Spark consumes the ful
 
     ready(game, 'A');
     game = enact(game, action('A', 0, 'magnemite-spark', 'B', 1));
-    assert.equal(game.teams.B[1].hp, 20);
+    // Base Magnemite's Spark never reads or consumes stored piercing vulnerability; that's a
+    // Magneton-only interaction, so the stack survives untouched and Spark deals its flat 10.
+    assert.equal(game.teams.B[1].hp, 30);
     assert.equal(
-        game.teams.B[1].statuses.some((status) => status.id === 'magnemite-piercing-vulnerability'),
-        false
+        game.teams.B[1].statuses.find((status) => status.id === 'magnemite-piercing-vulnerability')
+            ?.storedPiercingBonus,
+        10
     );
 });
 
@@ -186,7 +189,8 @@ test('Magneton upgrades Spark to three team packets, Thunder Wave to the enemy t
     cannonGame.teams.A[0].form = 'magneton';
     ready(cannonGame, 'A');
     cannonGame = enact(cannonGame, action('A', 0, 'magneton-flash-cannon', 'B', 1));
-    assert.equal(cannonGame.teams.B[1].hp, 55);
+    // Consuming any stored piercing vulnerability grants a flat 10 bonus, not the stored amount.
+    assert.equal(cannonGame.teams.B[1].hp, 50);
     assert.equal(
         cannonGame.teams.B[1].statuses.find((status) => status.id === 'magnemite-piercing-vulnerability')
             ?.storedPiercingBonus,
