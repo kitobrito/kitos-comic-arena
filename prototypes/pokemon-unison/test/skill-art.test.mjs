@@ -48,7 +48,7 @@ test('the standalone art catalog mirrors every Pokemon Arena skill image', () =>
 test('every current standalone skill exposes an existing local image', () => {
     const skills = Object.values(ROSTER).flatMap((species) => species.skills);
 
-    assert.equal(skills.length, 224);
+    assert.equal(skills.length, 228);
     skills.forEach((skill) => {
         assert.equal(typeof skill.image, 'string', `${skill.id} has no image path`);
         assert.ok(

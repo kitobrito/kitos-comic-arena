@@ -5020,6 +5020,93 @@ export const ROSTER = Object.freeze({
             }),
         ],
     },
+    dragonite: {
+        id: 'dragonite', name: 'Dragonite', types: [Type.DRAGON, Type.FLYING],
+        facePicture: '/game-assets/images/PokemonArena/dragonite/fp.png',
+        passiveDescription: 'After Dragonite uses a new skill, it gains a stacking 10 unpierceable damage reduction for 2 turns. If an enemy does not attack while taunted by Dragonite, that taunt refreshes once.',
+        startStatuses: [{
+            id: 'dragonite-pressure-passive', name: 'Pressure',
+            description: 'Using a new skill grants a stacking 10 unpierceable damage reduction for 2 turns.',
+            hidden: true, harmful: false, durationActions: null, unremovable: true,
+            sourceSkillId: 'dragonite-pressure',
+            onUseSkill: {
+                applyStatusesToOwner: [{
+                    id: 'dragonite-pressure-reduction', name: 'Pressure',
+                    description: 'Unpierceable damage reduction from a Pressure stack.',
+                    hidden: false, harmful: false, durationActions: 2, durationAnchor: 'source',
+                    unpierceableDamageReductionFlat: 10,
+                    sourceSkillId: 'dragonite-pressure',
+                }],
+            },
+        }],
+        forms: {
+            base: {
+                id: 'base', name: 'Dragonite', types: [Type.DRAGON, Type.FLYING],
+                facePicture: '/game-assets/images/PokemonArena/dragonite/fp.png',
+                skillIds: ['dragonite-dragon-claw', 'dragonite-hyper-beam', 'dragonite-draco-meteor', 'dragonite-dragon-boost'],
+            },
+        },
+        skills: [
+            skill({
+                id: 'dragonite-dragon-claw', name: 'Dragon Claw',
+                description: 'Deals 30 piercing damage, steals 1 random energy, and taunts the target for 1 turn.',
+                target: 'single-enemy', energy: [Energy.TAIJUTSU, Energy.NINJUTSU], cooldown: 2,
+                moveType: Type.DRAGON, classes: ['Dragon', 'Physical', 'Instant'],
+                effects: [
+                    { kind: 'damage', amount: 30, damageKind: 'piercing' },
+                    { kind: 'steal-energy' },
+                    { kind: 'status', status: {
+                        id: 'dragonite-taunt', name: 'Taunt', hidden: false, harmful: true,
+                        durationActions: 1, durationAnchor: 'target', tauntSource: true,
+                    } },
+                ],
+            }),
+            skill({
+                id: 'dragonite-hyper-beam', name: 'Hyper Beam',
+                description: 'Deals 35 affliction damage, stuns helpful skills, and taunts the target for 1 turn.',
+                target: 'single-enemy', energy: [Energy.NINJUTSU, Energy.GENJUTSU], cooldown: 2,
+                moveType: Type.NORMAL, classes: ['Normal', 'Special', 'Affliction', 'Instant'],
+                effects: [
+                    { kind: 'damage', amount: 35, damageKind: 'affliction' },
+                    { kind: 'status', status: {
+                        id: 'dragonite-hyper-beam-stun', name: 'Hyper Beam Stun', hidden: false, harmful: true,
+                        durationActions: 1, durationAnchor: 'target', cannotUseHelpfulSkills: true,
+                    } },
+                    { kind: 'status', status: {
+                        id: 'dragonite-taunt', name: 'Taunt', hidden: false, harmful: true,
+                        durationActions: 1, durationAnchor: 'target', tauntSource: true,
+                    } },
+                ],
+            }),
+            skill({
+                id: 'dragonite-draco-meteor', name: 'Draco Meteor',
+                description: 'Deals 15 damage to all enemies for 2 turns and taunts each target for 1 turn on cast.',
+                target: 'all-enemy', energy: [Energy.NINJUTSU, Energy.BLOODLINE, Energy.RANDOM], cooldown: 3,
+                moveType: Type.DRAGON, classes: ['Dragon', 'Physical', 'Action'],
+                effects: [
+                    { kind: 'status', scope: 'all-enemy', status: {
+                        id: 'dragonite-draco-meteor-dot', name: 'Draco Meteor', hidden: false, harmful: true,
+                        durationActions: 2, durationAnchor: 'target',
+                        turnStartAnchor: 'target', turnStartDamage: 15, turnStartDamageKind: 'normal',
+                        turnStartMoveType: Type.DRAGON, turnStartSkillClasses: ['Dragon', 'Physical', 'Action'],
+                    } },
+                    { kind: 'status', scope: 'all-enemy', status: {
+                        id: 'dragonite-taunt', name: 'Taunt', hidden: false, harmful: true,
+                        durationActions: 1, durationAnchor: 'target', tauntSource: true,
+                    } },
+                ],
+            }),
+            skill({
+                id: 'dragonite-dragon-boost', name: 'Dragon Boost',
+                description: 'Dragonite gains 1 Blue energy.',
+                target: 'self', energy: [Energy.RANDOM], cooldown: 3,
+                moveType: Type.DRAGON, classes: ['Dragon', 'Special', 'Instant'], harmful: false,
+                effects: [
+                    { kind: 'grant-energy-to-actor', energyType: Energy.NINJUTSU, amount: 1 },
+                ],
+            }),
+        ],
+    },
 });
 
 export function unitPresentation(unit) {

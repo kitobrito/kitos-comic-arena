@@ -2049,6 +2049,17 @@ function applyEffectToTarget(state, context, effect, target) {
         }
     } else if (effect.kind === 'grant-random-energy-to-actor') {
         grantRandomEnergy(state, actor.player, effect.amount ?? 1, effect.reason ?? skill.name);
+    } else if (effect.kind === 'grant-energy-to-actor') {
+        const amount = Math.max(0, Number(effect.amount) || 0);
+        state.energy[actor.player][effect.energyType] =
+            (state.energy[actor.player][effect.energyType] ?? 0) + amount;
+        if (amount > 0) {
+            log(state, 'energy', `${getSpecies(actor).name} gained ${amount} ${effect.energyType} energy.`, {
+                player: actor.player,
+                energy: effect.energyType,
+                amount,
+            });
+        }
     } else if (effect.kind === 'set-weather') {
         setWeather(state, {
             ...effect.weather,
