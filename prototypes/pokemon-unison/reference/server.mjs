@@ -7,10 +7,13 @@ import { createMatchService, MatchServiceError } from './match-service.mjs';
 import { createJsonMatchStorage } from './match-storage.mjs';
 import { createDefaultMissionState } from './mission-catalog.mjs';
 import { createMissionService } from './mission-service.mjs';
+import { isPayPalConfigured } from './paypal-client.mjs';
 import { createPlayerService, PlayerServiceError } from './player-service.mjs';
 import { createJsonPlayerStorage } from './player-storage.mjs';
+import { createJsonPurchaseStorage } from './purchase-storage.mjs';
 import { createDefaultSkinState } from './skin-catalog.mjs';
 import { createSkinService, SkinServiceError } from './skin-service.mjs';
+import { createStoreService, StoreServiceError } from './store-service.mjs';
 
 const referenceRoot = resolve(fileURLToPath(new URL('.', import.meta.url)));
 const repositoryRoot = resolve(referenceRoot, '..', '..', '..');
@@ -70,6 +73,14 @@ function routeParts(pathname) {
 function normalizePublicBasePath(value = '/') {
     const normalized = `/${String(value).replace(/^\/+|\/+$/g, '')}`;
     return normalized === '/' ? '/' : `${normalized}/`;
+}
+
+function resolvePublicAppUrl(request) {
+    if (process.env.POKEMON_UNISON_PUBLIC_URL) return process.env.POKEMON_UNISON_PUBLIC_URL.replace(/\/+$/, '');
+    const host = request.headers.host;
+    if (!host) return '';
+    const protocol = request.headers['x-forwarded-proto'] ?? 'http';
+    return `${protocol}://${host}`;
 }
 
 function requireAuthenticatedPlayer(request, playerService) {
@@ -162,7 +173,53 @@ async function handleSkinsApi(request, response, url, skinService, playerService
     return false;
 }
 
-async function handleApi(request, response, url, matchService, playerService, missionService, skinService, publicBasePath) {
+async function handleStoreApi(request, response, url, storeService, playerService) {
+    const parts = routeParts(url.pathname);
+    if (parts[0] !== 'api' || parts[1] !== 'store') return false;
+
+    if (request.method === 'GET' && parts.length === 2) {
+        const player = playerService.verifySession(bearerToken(request));
+        sendJson(response, 200, storeService.storefront(player?.id ?? null));
+        return true;
+    }
+    if (request.method === 'POST' && parts[2] === 'paypal' && parts[3] === 'create-order' && parts.length === 4) {
+        const player = requireAuthenticatedPlayer(request, playerService);
+        const body = await readJson(request);
+        const baseUrl = resolvePublicAppUrl(request);
+        const result = await storeService.createOrder(player.id, body.packageId, {
+            returnUrl: `${baseUrl}/?unlockPointsPayment=paypal`,
+            cancelUrl: `${baseUrl}/?unlockPointsPayment=paypal-cancelled`,
+        });
+        sendJson(response, 200, { ok: true, ...result });
+        return true;
+    }
+    if (request.method === 'POST' && parts[2] === 'paypal' && parts[3] === 'capture' && parts.length === 4) {
+        const player = requireAuthenticatedPlayer(request, playerService);
+        const body = await readJson(request);
+        const result = await storeService.captureOrder(player.id, body.orderId);
+        sendJson(response, 200, { ok: true, ...result });
+        return true;
+    }
+    if (request.method === 'POST' && parts[2] === 'characters' && parts[4] === 'purchase' && parts.length === 5) {
+        const player = requireAuthenticatedPlayer(request, playerService);
+        const result = storeService.purchaseCharacterWithPoints(player.id, parts[3]);
+        sendJson(response, 200, { ok: true, ...result });
+        return true;
+    }
+    return false;
+}
+
+async function handleApi(
+    request,
+    response,
+    url,
+    matchService,
+    playerService,
+    missionService,
+    skinService,
+    storeService,
+    publicBasePath
+) {
     const parts = routeParts(url.pathname);
     if (request.method === 'GET' && url.pathname === '/api/health') {
         sendJson(response, 200, { ok: true, matches: matchService.size(), players: playerService.size() });
@@ -179,6 +236,9 @@ async function handleApi(request, response, url, matchService, playerService, mi
         return true;
     }
     if (await handleSkinsApi(request, response, url, skinService, playerService)) {
+        return true;
+    }
+    if (await handleStoreApi(request, response, url, storeService, playerService)) {
         return true;
     }
     if (request.method === 'POST' && url.pathname === '/api/matches') {
@@ -266,6 +326,7 @@ export function createPokemonUnisonHandler({
     playerService = createPlayerService(),
     missionService = createMissionService({ playerService }),
     skinService = createSkinService({ playerService }),
+    storeService = createStoreService({ playerService }),
     matchService = createMatchService({ onMatchComplete: missionService.onMatchComplete }),
     publicBasePath = '/',
 } = {}) {
@@ -283,6 +344,7 @@ export function createPokemonUnisonHandler({
                         playerService,
                         missionService,
                         skinService,
+                        storeService,
                         normalizedBasePath
                     ))
                 ) {
@@ -298,7 +360,8 @@ export function createPokemonUnisonHandler({
             if (
                 error instanceof MatchServiceError ||
                 error instanceof PlayerServiceError ||
-                error instanceof SkinServiceError
+                error instanceof SkinServiceError ||
+                error instanceof StoreServiceError
             ) {
                 sendJson(response, error.status, { error: error.code, message: error.message });
                 return;
@@ -320,15 +383,24 @@ if (launchedDirectly) {
     const dataDir = process.env.POKEMON_UNISON_DATA_DIR ?? resolve(referenceRoot, '..', 'runtime-data');
     const storage = createJsonMatchStorage(resolve(dataDir, 'matches'));
     const playerStorage = createJsonPlayerStorage(resolve(dataDir, 'players'));
+    const purchaseStorage = createJsonPurchaseStorage(resolve(dataDir, 'purchases'));
     const playerService = createPlayerService({ storage: playerStorage });
     const missionService = createMissionService({ playerService });
     const skinService = createSkinService({ playerService });
+    const storeService = createStoreService({ playerService, purchaseStorage });
     const matchService = createMatchService({ storage, onMatchComplete: missionService.onMatchComplete });
-    const server = createPokemonUnisonServer({ matchService, playerService, missionService, skinService });
+    const server = createPokemonUnisonServer({
+        matchService,
+        playerService,
+        missionService,
+        skinService,
+        storeService,
+    });
     server.listen(port, '127.0.0.1', () => {
         console.log(`Pokemon Unison standalone: http://127.0.0.1:${port}`);
         console.log('This server is isolated from the current Comic/Pokemon Arena application.');
         console.log(`Persistent match data: ${storage.directory}`);
         console.log(`Persistent player data: ${playerStorage.directory}`);
+        console.log(`PayPal payments: ${isPayPalConfigured() ? 'configured' : 'not configured (PAYPAL_CLIENT_ID/PAYPAL_CLIENT_SECRET unset)'}`);
     });
 }

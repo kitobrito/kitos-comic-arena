@@ -154,6 +154,17 @@ are not runtime dependencies.
     the six battle-affecting type-override skins captured as data
     (`SKIN_TYPE_OVERRIDES`) though not yet wired into the battle engine. See
     [SKIN_PORT.md](./SKIN_PORT.md).
+42. Ported the unlock-points store: the 3 Pokemon-arena point packages
+    (`reference/store-catalog.mjs`), a real PayPal REST v2 client
+    (`reference/paypal-client.mjs` — OAuth, order create, order capture),
+    idempotent purchase records (`reference/purchase-storage.mjs`), and a
+    points-based direct character purchase mirroring production's
+    unlock-points character-buy endpoint (`reference/store-service.mjs`,
+    `GET /api/store`, `POST /api/store/paypal/create-order`,
+    `POST /api/store/paypal/capture`,
+    `POST /api/store/characters/:characterId/purchase`). Dormant (503) until
+    real `PAYPAL_CLIENT_ID`/`PAYPAL_CLIENT_SECRET` are supplied — no real
+    transaction has been executed. See [STORE_PORT.md](./STORE_PORT.md).
 
 ## Next milestones
 
@@ -164,11 +175,11 @@ are not runtime dependencies.
 4. Add matchmaking, reconnect windows, and turn timers.
 5. ~~Port the remaining roster in reviewed content batches.~~ Done — 46/46
    characters fully ported (#38).
-6. ~~Add skins.~~ Done (#41). Remaining: enforce mission-based character
-   unlocks in team selection, wire the six skin type-overrides into the
-   battle engine at match setup, add a client UI for missions/skins, then a
-   real store (PayPal) on top of the same accounts foundation, plus admin
-   tools.
+6. ~~Add skins, then a real store (PayPal).~~ Done (#41, #42). Remaining:
+   enforce mission-based character unlocks in team selection, wire the six
+   skin type-overrides into the battle engine at match setup, add a client
+   UI for missions/skins/the store, verify a real PayPal sandbox purchase
+   end-to-end once credentials exist, then admin tools.
 
 ## Rules for future porting
 

@@ -61,14 +61,22 @@ overrides remain authoritative and untouched.
   `POST /api/skins/equip`; see [SKIN_PORT.md](./SKIN_PORT.md) for what's
   ported vs. deferred (skin art, and wiring the six battle-affecting
   type-override skins into the engine)
+- an unlock-points store with a real PayPal integration (order create and
+  capture against PayPal's actual REST v2 API, idempotent on repeated
+  capture, gated by `PAYPAL_CLIENT_ID`/`PAYPAL_CLIENT_SECRET` — reports
+  unavailable rather than faking a purchase when unset) at `GET /api/store`,
+  `POST /api/store/paypal/create-order`, `POST /api/store/paypal/capture`,
+  and a points-based direct character purchase at
+  `POST /api/store/characters/:characterId/purchase`; see
+  [STORE_PORT.md](./STORE_PORT.md)
 
 This is deliberately an expanding standalone slice, not a content-complete port. Complex
-production mechanics such as additional evolution branches, matchmaking,
-progression, and payments stay in the existing application until their own
-migration phase is built out here. Mission-based character-unlock
-*enforcement* in team selection, a client mission/skin UI, and the
-real-money store are also still to come — see MISSION_PORT.md, SKIN_PORT.md,
-and MIGRATION.md's "Next milestones".
+production mechanics such as additional evolution branches, matchmaking, and
+progression stay in the existing application until their own migration phase
+is built out here. Mission-based character-unlock *enforcement* in team
+selection and a client UI for missions/skins/the store are also still to
+come — see MISSION_PORT.md, SKIN_PORT.md, STORE_PORT.md, and MIGRATION.md's
+"Next milestones".
 
 ## Run it now
 
@@ -94,15 +102,28 @@ window. The bot plans through the same authoritative legal-action queue as a
 human. Artwork is served read-only from the existing repository `assets` folder
 through a path-confined route.
 
-Match snapshots are stored under `runtime-data/matches`, and player accounts
-under `runtime-data/players`, inside this standalone project. That directory
-is ignored by Git. Match tokens and invite codes are kept in browser session
+Match snapshots are stored under `runtime-data/matches`, player accounts
+under `runtime-data/players`, and PayPal purchase records under
+`runtime-data/purchases`, inside this standalone project. That directory is
+ignored by Git. Match tokens and invite codes are kept in browser session
 storage; only their cryptographic digests are written to the match files.
 Persistent player session tokens are kept in browser `localStorage` (separate
 from the per-match session storage) and are never written to disk — only the
 scrypt password hash is. Set `POKEMON_UNISON_DATA_DIR` to use a different
-standalone storage root (it now holds both the `matches/` and `players/`
-subdirectories).
+standalone storage root (it now holds `matches/`, `players/`, and
+`purchases/` subdirectories).
+
+### PayPal
+
+The store is fully wired to PayPal's real REST v2 API, but dormant by
+default. Set `PAYPAL_CLIENT_ID` and `PAYPAL_CLIENT_SECRET` (from a PayPal
+developer app) to enable it; `PAYPAL_ENV=live` switches from the sandbox API
+to the live one (sandbox is the default). Until those are set,
+`GET /api/store` reports `paypalAvailable: false` and the order
+create/capture endpoints return `503`, matching production's own
+`isPayPalConfigured()` gate exactly. `POKEMON_UNISON_PUBLIC_URL` overrides
+the return/cancel URLs PayPal redirects back to after checkout (defaults to
+the request's own `Host` header).
 
 ### Dependencies
 
@@ -200,10 +221,15 @@ npm run build
    ported (`unlockPoints`, `unlockedCharacterIds`, `progressByMissionId`,
    `unlockedSkinIds`, `equippedSkinByCharacterId`) so future mission/skin/store
    phases can build directly on it.
+9. The store is real PayPal integration code, not a simulation — but I never
+   execute a real transaction on your behalf. It stays dormant (503) until
+   you supply real `PAYPAL_CLIENT_ID`/`PAYPAL_CLIENT_SECRET`, and testing an
+   actual sandbox purchase end-to-end is on you.
 
 See [MIGRATION.md](./MIGRATION.md) for the next checkpoint and
 [PROTOCOL.md](./PROTOCOL.md) for the boundary between the engine and client.
 The reviewed starter mappings and known adaptations are recorded in
 [STARTER_PORT.md](./STARTER_PORT.md), the mission-catalog port mapping in
-[MISSION_PORT.md](./MISSION_PORT.md), and the skin-catalog port mapping in
-[SKIN_PORT.md](./SKIN_PORT.md).
+[MISSION_PORT.md](./MISSION_PORT.md), the skin-catalog port mapping in
+[SKIN_PORT.md](./SKIN_PORT.md), and the store port mapping in
+[STORE_PORT.md](./STORE_PORT.md).

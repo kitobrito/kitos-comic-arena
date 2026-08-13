@@ -7,6 +7,7 @@ import { createMissionService } from '../reference/mission-service.mjs';
 import { createPlayerService } from '../reference/player-service.mjs';
 import { createPokemonUnisonServer } from '../reference/server.mjs';
 import { createSkinService } from '../reference/skin-service.mjs';
+import { createStoreService } from '../reference/store-service.mjs';
 
 const root = new URL('../', import.meta.url);
 
@@ -442,6 +443,113 @@ test('unlocking and equipping a skin over HTTP spends points and updates the acc
         await fetch(`${origin}/api/players/me`, { headers: { authorization: `Bearer ${registered.token}` } })
     ).json();
     assert.deepEqual(meResponse.player.profile.skins.equippedSkinByCharacterId, { ditto: 'ditto-shiny' });
+});
+
+test('GET /api/store exposes the pokemon-arena point packages and reports PayPal as unconfigured here', async (t) => {
+    const previous = { PAYPAL_CLIENT_ID: process.env.PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET: process.env.PAYPAL_CLIENT_SECRET };
+    delete process.env.PAYPAL_CLIENT_ID;
+    delete process.env.PAYPAL_CLIENT_SECRET;
+    t.after(() => {
+        Object.entries(previous).forEach(([key, value]) => {
+            if (value === undefined) delete process.env[key];
+            else process.env[key] = value;
+        });
+    });
+
+    const server = createPokemonUnisonServer();
+    await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+    t.after(() => new Promise((resolve) => server.close(resolve)));
+    const { port } = server.address();
+    const origin = `http://127.0.0.1:${port}`;
+
+    const store = await (await fetch(`${origin}/api/store`)).json();
+    assert.equal(store.paypalAvailable, false);
+    assert.equal(store.unlockPoints, 0);
+    assert.ok(store.packages.some((entry) => entry.packageId === 'pokemon-750-points'));
+});
+
+test('POST /api/store/paypal/create-order requires auth and returns 503 when PayPal is not configured', async (t) => {
+    const previous = { PAYPAL_CLIENT_ID: process.env.PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET: process.env.PAYPAL_CLIENT_SECRET };
+    delete process.env.PAYPAL_CLIENT_ID;
+    delete process.env.PAYPAL_CLIENT_SECRET;
+    t.after(() => {
+        Object.entries(previous).forEach(([key, value]) => {
+            if (value === undefined) delete process.env[key];
+            else process.env[key] = value;
+        });
+    });
+
+    const server = createPokemonUnisonServer();
+    await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+    t.after(() => new Promise((resolve) => server.close(resolve)));
+    const { port } = server.address();
+    const origin = `http://127.0.0.1:${port}`;
+
+    const unauthed = await fetch(`${origin}/api/store/paypal/create-order`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ packageId: 'pokemon-750-points' }),
+    });
+    assert.equal(unauthed.status, 401);
+
+    const registered = await (
+        await fetch(`${origin}/api/players/register`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ username: 'StoreShopper', email: '', password: 'longenough1' }),
+        })
+    ).json();
+    const unconfigured = await fetch(`${origin}/api/store/paypal/create-order`, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${registered.token}`, 'content-type': 'application/json' },
+        body: JSON.stringify({ packageId: 'pokemon-750-points' }),
+    });
+    assert.equal(unconfigured.status, 503);
+});
+
+test('POST /api/store/characters/:characterId/purchase spends points over HTTP and rejects an unauthenticated caller', async (t) => {
+    const missionCatalog = [
+        { missionId: 'catch-onix', reward_character: 'onix', level_requirement: 13, goals: [{ type: 'win_matches', wins: 10 }] },
+    ];
+    const playerService = createPlayerService();
+    const storeService = createStoreService({ playerService, missionCatalog });
+    const server = createPokemonUnisonServer({ playerService, storeService });
+    await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+    t.after(() => new Promise((resolve) => server.close(resolve)));
+    const { port } = server.address();
+    const origin = `http://127.0.0.1:${port}`;
+
+    const unauthed = await fetch(`${origin}/api/store/characters/onix/purchase`, { method: 'POST' });
+    assert.equal(unauthed.status, 401);
+
+    const registered = await (
+        await fetch(`${origin}/api/players/register`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ username: 'CharacterShopper', email: '', password: 'longenough1' }),
+        })
+    ).json();
+
+    const insufficientResponse = await fetch(`${origin}/api/store/characters/onix/purchase`, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${registered.token}` },
+    });
+    assert.equal(insufficientResponse.status, 400);
+
+    playerService.updateProfile(registered.player.id, (profile) => ({
+        ...profile,
+        missions: { ...profile.missions, unlockPoints: 1000 },
+    }));
+
+    const purchaseResponse = await fetch(`${origin}/api/store/characters/onix/purchase`, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${registered.token}` },
+    });
+    assert.equal(purchaseResponse.status, 200);
+    const purchased = await purchaseResponse.json();
+    assert.equal(purchased.cost, 350);
+    assert.deepEqual(purchased.player.profile.missions.unlockedCharacterIds, ['onix']);
+    assert.equal(purchased.player.profile.missions.unlockPoints, 650);
 });
 
 test('server confines requests to reference and game asset roots', async () => {
