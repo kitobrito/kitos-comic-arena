@@ -41,7 +41,7 @@
     { "id": "dragonite", "name": "Dragonite", "sourceSkillDefinitions": 5, "status": "ported-full" },
     { "id": "cyndaquil", "name": "Cyndaquil", "sourceSkillDefinitions": 5, "status": "ported-full" },
     { "id": "chikorita", "name": "Chikorita", "sourceSkillDefinitions": 5, "status": "ported-full" },
-    { "id": "totodile", "name": "Totodile", "sourceSkillDefinitions": 5, "status": "not-started" },
+    { "id": "totodile", "name": "Totodile", "sourceSkillDefinitions": 5, "status": "ported-full" },
     { "id": "aegislash", "name": "Aegislash", "sourceSkillDefinitions": 5, "status": "not-started" },
     { "id": "ditto", "name": "Ditto", "sourceSkillDefinitions": 5, "status": "not-started" },
     { "id": "scraggy", "name": "Scraggy", "sourceSkillDefinitions": 5, "status": "not-started" },

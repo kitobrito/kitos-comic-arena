@@ -1383,7 +1383,11 @@ function damageUnit(
                         : 0
                 ) + (damageKind === 'affliction'
                     ? status.afflictionDamageTakenBonusFlat ?? 0
-                    : 0)
+                    : 0) + Object.entries(status.incomingDamageBonusBySkillClass ?? {}).reduce(
+                    (sum, [skillClass, amount]) =>
+                        skill.classes?.includes(skillClass) ? sum + amount : sum,
+                    0
+                )
                 : 0
         ),
         0
@@ -2263,6 +2267,24 @@ function applyEffectToTarget(state, context, effect, target) {
                 sourceSkillId: skill.id,
             });
         }
+    } else if (effect.kind === 'consume-actor-counter-into-target-stun') {
+        const source = actor.statuses.find((status) => statusActive(status) && status.id === effect.statusId);
+        const count = Math.max(0, Number(source?.[effect.field]) || 0);
+        if (count > 0) {
+            addStatus(state, target, {
+                player: actor.player, slot: actor.slot, targetPlayer: target.player,
+            }, {
+                ...effect.status,
+                durationActions: count,
+            });
+        }
+        if (source) source[effect.field] = 0;
+    } else if (effect.kind === 'consume-actor-empowerment') {
+        const status = actor.statuses.find((entry) => statusActive(entry) && entry.id === effect.statusId);
+        if (status && (Number(status[effect.flagField]) || 0) > 0) {
+            status[effect.targetField] = (Number(status[effect.targetField]) || 0) + (Number(effect.delta) || 0);
+            status[effect.flagField] = 0;
+        }
     } else if (effect.kind === 'steal-helpful-status') {
         const stolen = target.statuses.find((status) =>
             statusActive(status) &&
@@ -2297,7 +2319,11 @@ function applyEffectToTarget(state, context, effect, target) {
             });
         }
     } else if (effect.kind === 'modify-cooldowns') {
-        const skillIds = effect.allSkills ? activeSkillIds(target) : Object.keys(target.cooldowns);
+        const skillIds = effect.allSkills
+            ? activeSkillIds(target).filter((skillId) =>
+                !effect.harmfulOnly || getSkill(target, skillId)?.harmful !== false
+            )
+            : Object.keys(target.cooldowns);
         skillIds.forEach((skillId) => {
             target.cooldowns[skillId] = Math.max(0, (target.cooldowns[skillId] ?? 0) + effect.amount);
             if (target.cooldowns[skillId] === 0) delete target.cooldowns[skillId];
@@ -2724,7 +2750,8 @@ function resolveSourceTurnStartStatuses(state, player) {
             for (const status of [...target.statuses]) {
                 if (
                     !statusActive(status) ||
-                    (!status.turnStartDamage && !status.turnStartHeal && !status.turnStartAdvanceAllEnemyPerish)
+                    (!status.turnStartDamage && !status.turnStartHeal &&
+                        !status.turnStartHealPerField && !status.turnStartAdvanceAllEnemyPerish)
                 ) continue;
                 const triggerPlayer = status.turnStartAnchor === 'target'
                     ? target.player
@@ -2732,6 +2759,11 @@ function resolveSourceTurnStartStatuses(state, player) {
                 if (triggerPlayer !== player) continue;
                 if (status.turnStartHeal) {
                     healUnit(state, target, status.turnStartHeal, status.name);
+                }
+                if (status.turnStartHealPerField) {
+                    const count = Math.max(0, Number(status[status.turnStartHealPerField.field]) || 0);
+                    const healAmount = count * (Number(status.turnStartHealPerField.amount) || 0);
+                    if (healAmount > 0) healUnit(state, target, healAmount, status.name);
                 }
                 if (status.turnStartAdvanceAllEnemyPerish) {
                     const perishSource = sourceUnitForStatus(state, status) ?? target;
@@ -3327,6 +3359,14 @@ function triggerTargetedByEnemyHooks(state, actor, skill, target) {
         if (!statusActive(status) || !status.onTargetedByEnemySkill) continue;
         const hook = status.onTargetedByEnemySkill;
         if (hook.requireFirstUse && (actor.skillUses?.[skill.id] ?? 0) !== 1) continue;
+        if (
+            Array.isArray(hook.excludeSkillClasses) &&
+            hook.excludeSkillClasses.some((entry) => skill.classes?.includes(entry))
+        ) continue;
+        if (hook.decrementOwnField) {
+            const current = Math.max(0, Number(status[hook.decrementOwnField]) || 0);
+            if (current > 0) status[hook.decrementOwnField] = current - 1;
+        }
         const source = sourceUnitForStatus(state, status);
         if (!source?.alive) continue;
         if (hook.permanentClassDebuffAmount) {

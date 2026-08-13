@@ -52,5 +52,5 @@ test('every standalone skill displays the complete current Comic Arena descripti
         }
     }
 
-    assert.equal(checked, 236);
+    assert.equal(checked, 240);
 });

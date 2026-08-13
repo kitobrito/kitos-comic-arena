@@ -5283,6 +5283,100 @@ export const ROSTER = Object.freeze({
             }),
         ],
     },
+    totodile: {
+        id: 'totodile', name: 'Totodile', types: [Type.WATER],
+        facePicture: '/game-assets/images/PokemonArena/Cyndaquil/Totodile/FP.webp',
+        passiveDescription: 'Heals 5 HP each turn per Water Ring. Loses 1 ring whenever affected by a new non-Strategic skill.',
+        startStatuses: [{
+            id: 'totodile-water-rings-passive', name: 'Water Rings',
+            description: 'Heals 5 HP per Water Ring each turn; loses 1 ring from a new non-Strategic skill.',
+            hidden: true, harmful: false, durationActions: null, unremovable: true,
+            sourceSkillId: 'totodile-water-rings',
+            waterRings: 0,
+            aquaTailModifier: 0,
+            aquaTailEmpoweredFlag: 0,
+            turnStartAnchor: 'target', turnStartHealPerField: { field: 'waterRings', amount: 5 },
+            onTargetedByEnemySkill: {
+                requireFirstUse: true,
+                excludeSkillClasses: ['Strategic'],
+                decrementOwnField: 'waterRings',
+            },
+        }],
+        forms: {
+            base: {
+                id: 'base', name: 'Totodile', types: [Type.WATER],
+                facePicture: '/game-assets/images/PokemonArena/Cyndaquil/Totodile/FP.webp',
+                skillIds: [
+                    'totodile-aerial-water-gun', 'totodile-scary-face',
+                    'totodile-aqua-tail', 'totodile-superpower',
+                ],
+            },
+        },
+        skills: [
+            skill({
+                id: 'totodile-aerial-water-gun', name: 'Aerial Water Gun',
+                description: 'Deals 15 damage to all enemies, delays harmful skills for 1 turn, and gains 1 Water Ring. Scary Face targets are delayed for 1 additional turn.',
+                target: 'all-enemy', energy: [Energy.NINJUTSU], cooldown: 1,
+                moveType: Type.WATER, classes: ['Water', 'Special', 'Instant'],
+                effects: [
+                    { kind: 'increment-actor-status-field', statusId: 'totodile-water-rings-passive', field: 'waterRings', delta: 1 },
+                    { kind: 'damage', scope: 'all-enemy', amount: 15, damageKind: 'normal' },
+                    { kind: 'modify-cooldowns', scope: 'all-enemy', allSkills: true, harmfulOnly: true, amount: 2 },
+                    {
+                        kind: 'modify-cooldowns', scope: 'all-enemy', allSkills: true, harmfulOnly: true, amount: 1,
+                        requiresTargetStatus: 'totodile-scary-face-active',
+                    },
+                ],
+            }),
+            skill({
+                id: 'totodile-scary-face', name: 'Scary Face',
+                description: 'Guard Breaks one enemy and causes them to take 10 additional damage from Physical and Special skills for 2 turns.',
+                target: 'single-enemy', energy: [Energy.RANDOM], cooldown: 2,
+                moveType: Type.NORMAL, classes: ['Normal', 'Strategic', 'Instant'],
+                effects: [
+                    { kind: 'status', status: {
+                        id: 'totodile-scary-face-active', name: 'Scary Face', hidden: false, harmful: true,
+                        durationActions: 2, durationAnchor: 'target', guardBroken: true,
+                        incomingDamageBonusBySkillClass: { Physical: 10, Special: 10 },
+                    } },
+                ],
+            }),
+            skill({
+                id: 'totodile-aqua-tail', name: 'Aqua Tail',
+                description: 'Deals 45 piercing damage to one enemy. Consumes all Water Rings to fully stun the target for 1 turn per ring.',
+                target: 'single-enemy', energy: [Energy.NINJUTSU, Energy.NINJUTSU], cooldown: 1,
+                moveType: Type.WATER, classes: ['Water', 'Physical', 'Instant'],
+                effects: [
+                    {
+                        kind: 'damage', amount: 45, damageKind: 'piercing',
+                        bonusFromActorStatus: { statusId: 'totodile-water-rings-passive', field: 'aquaTailModifier' },
+                    },
+                    { kind: 'consume-actor-counter-into-target-stun', statusId: 'totodile-water-rings-passive', field: 'waterRings', status: {
+                        id: 'totodile-aqua-tail-stun', name: 'Aqua Tail Stun', hidden: false, harmful: true,
+                        durationAnchor: 'target', cannotUseSkills: true,
+                    } },
+                    {
+                        kind: 'consume-actor-empowerment', statusId: 'totodile-water-rings-passive',
+                        flagField: 'aquaTailEmpoweredFlag', targetField: 'aquaTailModifier', delta: -15,
+                    },
+                ],
+            }),
+            skill({
+                id: 'totodile-superpower', name: 'Superpower',
+                description: 'Totodile becomes invulnerable for 1 turn. Its next Aqua Tail gains 10 damage, then Aqua Tail permanently loses 5 damage (stacks).',
+                target: 'self', energy: [Energy.RANDOM], cooldown: 4,
+                moveType: Type.FIGHTING, classes: ['Fighting', 'Strategic', 'Instant'], harmful: false,
+                effects: [
+                    { kind: 'status', status: {
+                        id: 'totodile-superpower-invulnerable', name: 'Superpower', hidden: false, harmful: false,
+                        durationActions: 1, durationAnchor: 'source', invulnerable: true,
+                    } },
+                    { kind: 'increment-actor-status-field', statusId: 'totodile-water-rings-passive', field: 'aquaTailModifier', delta: 10 },
+                    { kind: 'increment-actor-status-field', statusId: 'totodile-water-rings-passive', field: 'aquaTailEmpoweredFlag', delta: 1 },
+                ],
+            }),
+        ],
+    },
 });
 
 export function unitPresentation(unit) {

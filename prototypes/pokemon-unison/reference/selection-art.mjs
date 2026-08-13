@@ -40,6 +40,7 @@ export const SELECTION_RENDER_BY_ID = Object.freeze({
     dragonite: 'Dragonite.png.webp',
     cyndaquil: 'cyndaquil.png.webp',
     chikorita: 'chikorita.png.webp',
+    totodile: 'totodile.png.webp',
 });
 
 export const SELECTION_EVOLUTION_RENDER_BY_ID = Object.freeze({
