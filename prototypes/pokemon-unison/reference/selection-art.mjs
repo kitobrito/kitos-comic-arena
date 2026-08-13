@@ -41,6 +41,7 @@ export const SELECTION_RENDER_BY_ID = Object.freeze({
     cyndaquil: 'cyndaquil.png.webp',
     chikorita: 'chikorita.png.webp',
     totodile: 'totodile.png.webp',
+    aegislash: 'AEGISLASH.webp',
 });
 
 export const SELECTION_EVOLUTION_RENDER_BY_ID = Object.freeze({

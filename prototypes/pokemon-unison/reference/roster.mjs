@@ -5377,6 +5377,108 @@ export const ROSTER = Object.freeze({
             }),
         ],
     },
+    aegislash: {
+        id: 'aegislash', name: 'Aegislash', types: [Type.STEEL, Type.GHOST],
+        facePicture: '/game-assets/images/PokemonArena/aegislash/OfficialPictures/Facepicturewithpassiveactive.jpg',
+        passiveDescription: 'Begins in Shield Stance. Damaging skills enter Blade Stance; non-damaging skills enter Shield Stance, refreshing 10 destructible defense and 5 unpierceable damage reduction. Idling preserves the current stance.',
+        startShield: 10,
+        startStatuses: [{
+            id: 'aegislash-shield-stance', name: 'Shield Stance', hidden: false, harmful: false,
+            durationActions: null, unremovable: true,
+            unpierceableDamageReductionFlat: 5,
+            removeStatusIdsOnApply: ['aegislash-blade-stance'],
+            sourceSkillId: 'aegislash-stance-change',
+        }],
+        forms: {
+            base: {
+                id: 'base', name: 'Aegislash', types: [Type.STEEL, Type.GHOST],
+                facePicture: '/game-assets/images/PokemonArena/aegislash/OfficialPictures/Facepicturewithpassiveactive.jpg',
+                skillIds: [
+                    'aegislash-slash', 'aegislash-swords-dance',
+                    'aegislash-kings-shield', 'aegislash-sacred-sword',
+                ],
+            },
+        },
+        skills: [
+            skill({
+                id: 'aegislash-slash', name: 'Cut',
+                description: 'Deals 20 piercing damage to one enemy. Aegislash enters Blade Stance.',
+                target: 'single-enemy', energy: [Energy.RANDOM], cooldown: 0,
+                moveType: Type.NORMAL, classes: ['Normal', 'Physical', 'Instant'],
+                effects: [
+                    { kind: 'damage', amount: 20, damageKind: 'piercing' },
+                    { kind: 'status', scope: 'self', status: {
+                        id: 'aegislash-blade-stance', name: 'Blade Stance', hidden: false, harmful: false,
+                        durationActions: null, unremovable: true,
+                        removeStatusIdsOnApply: ['aegislash-shield-stance'],
+                        sourceSkillId: 'aegislash-stance-change',
+                    } },
+                ],
+            }),
+            skill({
+                id: 'aegislash-swords-dance', name: 'Swords Dance',
+                description: "Permanently increases Sacred Sword's damage by 10 and Cut's damage by 5. This effect stacks. Aegislash enters Shield Stance.",
+                target: 'self', energy: [Energy.NINJUTSU], cooldown: 1,
+                moveType: Type.NORMAL, classes: ['Normal', 'Special', 'Strategic', 'Instant'], harmful: false,
+                effects: [
+                    { kind: 'status', status: {
+                        id: 'aegislash-swords-dance-active', name: 'Swords Dance', hidden: false, harmful: false,
+                        durationActions: null, unremovable: true,
+                        skillDamageBonuses: { 'aegislash-sacred-sword': 10, 'aegislash-slash': 5 },
+                        mergeMapFields: ['skillDamageBonuses'],
+                    } },
+                    { kind: 'shield', amount: 10 },
+                    { kind: 'status', status: {
+                        id: 'aegislash-shield-stance', name: 'Shield Stance', hidden: false, harmful: false,
+                        durationActions: null, unremovable: true,
+                        unpierceableDamageReductionFlat: 5,
+                        removeStatusIdsOnApply: ['aegislash-blade-stance'],
+                        sourceSkillId: 'aegislash-stance-change',
+                    } },
+                ],
+            }),
+            skill({
+                id: 'aegislash-kings-shield', name: "King's Shield",
+                description: "For 1 turn, Aegislash ignores all enemy damage. The first time each enemy uses a harmful skill on Aegislash, that enemy permanently deals 5 less non-affliction damage. This stacks. Aegislash enters Shield Stance.",
+                target: 'self', energy: [Energy.GENJUTSU], cooldown: 2,
+                moveType: Type.STEEL, classes: ['Steel', 'Special', 'Strategic', 'Instant'], harmful: false,
+                effects: [
+                    { kind: 'status', status: {
+                        id: 'aegislash-kings-shield-active', name: "King's Shield", hidden: false, harmful: false,
+                        durationActions: 1, durationAnchor: 'source', invulnerable: true,
+                        onTargetedByEnemySkill: {
+                            harmfulOnly: true, oncePerSource: true, permanentNonAfflictionDebuffAmount: 5,
+                            debuffStatusId: 'aegislash-kings-shield-penalty', debuffName: "King's Shield Penalty",
+                        },
+                    } },
+                    { kind: 'shield', amount: 10 },
+                    { kind: 'status', status: {
+                        id: 'aegislash-shield-stance', name: 'Shield Stance', hidden: false, harmful: false,
+                        durationActions: null, unremovable: true,
+                        unpierceableDamageReductionFlat: 5,
+                        removeStatusIdsOnApply: ['aegislash-blade-stance'],
+                        sourceSkillId: 'aegislash-stance-change',
+                    } },
+                ],
+            }),
+            skill({
+                id: 'aegislash-sacred-sword', name: 'Sacred Sword',
+                description: 'Deals 30 piercing damage to one enemy. This damage cannot be reduced or evaded. Aegislash enters Blade Stance.',
+                target: 'single-enemy', energy: [Energy.NINJUTSU, Energy.GENJUTSU], cooldown: 1,
+                moveType: Type.FIGHTING, classes: ['Fighting', 'Physical', 'Instant', 'Uncounterable', 'Unreflectable'],
+                ignoreEvasion: true,
+                effects: [
+                    { kind: 'damage', amount: 30, damageKind: 'piercing' },
+                    { kind: 'status', scope: 'self', status: {
+                        id: 'aegislash-blade-stance', name: 'Blade Stance', hidden: false, harmful: false,
+                        durationActions: null, unremovable: true,
+                        removeStatusIdsOnApply: ['aegislash-shield-stance'],
+                        sourceSkillId: 'aegislash-stance-change',
+                    } },
+                ],
+            }),
+        ],
+    },
 });
 
 export function unitPresentation(unit) {

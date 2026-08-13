@@ -266,8 +266,8 @@ function makeUnit(speciesId, slot, player) {
         banished: false,
         hp: MAX_HP,
         maxHp: MAX_HP,
-        shield: 0,
-        shieldCapacity: 0,
+        shield: Math.max(0, Number(species.startShield) || 0),
+        shieldCapacity: Math.max(0, Number(species.startShield) || 0),
         barrier: 0,
         barrierCapacity: 0,
         alive: true,
@@ -3359,13 +3359,34 @@ function triggerTargetedByEnemyHooks(state, actor, skill, target) {
         if (!statusActive(status) || !status.onTargetedByEnemySkill) continue;
         const hook = status.onTargetedByEnemySkill;
         if (hook.requireFirstUse && (actor.skillUses?.[skill.id] ?? 0) !== 1) continue;
+        if (hook.harmfulOnly && !skillIsHarmfulToTarget(skill, actor, target)) continue;
         if (
             Array.isArray(hook.excludeSkillClasses) &&
             hook.excludeSkillClasses.some((entry) => skill.classes?.includes(entry))
         ) continue;
+        if (hook.oncePerSource) {
+            const sourceKey = `${actor.player}:${actor.slot}`;
+            if (!Array.isArray(status.triggeredSources)) status.triggeredSources = [];
+            if (status.triggeredSources.includes(sourceKey)) continue;
+            status.triggeredSources.push(sourceKey);
+        }
         if (hook.decrementOwnField) {
             const current = Math.max(0, Number(status[hook.decrementOwnField]) || 0);
             if (current > 0) status[hook.decrementOwnField] = current - 1;
+        }
+        if (hook.permanentNonAfflictionDebuffAmount) {
+            addStatus(state, actor, {
+                player: target.player,
+                slot: target.slot,
+                targetPlayer: actor.player,
+            }, {
+                id: hook.debuffStatusId ?? `${status.id}-debuff`,
+                name: hook.debuffName ?? status.name,
+                hidden: false, harmful: true, durationActions: null,
+                outgoingDamageDebuff: hook.permanentNonAfflictionDebuffAmount,
+                mergeNumericFields: ['outgoingDamageDebuff'],
+                sourceSkillId: status.sourceSkillId,
+            });
         }
         const source = sourceUnitForStatus(state, status);
         if (!source?.alive) continue;
