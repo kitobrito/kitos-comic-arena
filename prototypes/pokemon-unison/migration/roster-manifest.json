@@ -37,7 +37,7 @@
     { "id": "moltres", "name": "Moltres", "sourceSkillDefinitions": 5, "status": "ported-full" },
     { "id": "zapdos", "name": "Zapdos", "sourceSkillDefinitions": 4, "status": "ported-full" },
     { "id": "mew", "name": "Mew", "sourceSkillDefinitions": 4, "status": "ported-full" },
-    { "id": "mewtwo", "name": "Mewtwo", "sourceSkillDefinitions": 4, "status": "not-started" },
+    { "id": "mewtwo", "name": "Mewtwo", "sourceSkillDefinitions": 4, "status": "ported-full" },
     { "id": "dragonite", "name": "Dragonite", "sourceSkillDefinitions": 5, "status": "not-started" },
     { "id": "cyndaquil", "name": "Cyndaquil", "sourceSkillDefinitions": 5, "status": "not-started" },
     { "id": "chikorita", "name": "Chikorita", "sourceSkillDefinitions": 5, "status": "not-started" },

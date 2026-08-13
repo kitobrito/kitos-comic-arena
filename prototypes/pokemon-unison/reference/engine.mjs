@@ -1780,6 +1780,9 @@ function applyEffectToTarget(state, context, effect, target) {
                 (status) => status.id !== effect.consumeTargetStatus
             );
         }
+        if (effect.consumeActorStatus) {
+            actor.statuses = actor.statuses.filter((status) => status.id !== effect.consumeActorStatus);
+        }
     } else if (effect.kind === 'heal') {
         const healed = healUnit(state, target, effect.amount, skill.name);
         if (healed > 0 && effect.actorCounterFromHealing) {
@@ -1818,6 +1821,20 @@ function applyEffectToTarget(state, context, effect, target) {
             skillId: skill.id,
             step,
             percent: percentages[step],
+            amount: healed,
+        });
+    } else if (effect.kind === 'flat-heal-sequence') {
+        if (!actor.skillSequenceSteps) actor.skillSequenceSteps = {};
+        const previousStep = Number(actor.skillSequenceSteps[skill.id]) || 0;
+        const step = context.previousSkillId === skill.id ? previousStep + 1 : 0;
+        actor.skillSequenceSteps[skill.id] = step;
+        const amount = Math.max(0, (Number(effect.amount) || 0) - step * (Number(effect.decrement) || 0));
+        const healed = healUnit(state, target, amount, skill.name);
+        log(state, 'heal-sequence', `${getForm(actor).name}'s ${skill.name} used its step ${step} amount.`, {
+            player: actor.player,
+            actorSlot: actor.slot,
+            skillId: skill.id,
+            step,
             amount: healed,
         });
     } else if (effect.kind === 'metronome') {
@@ -2163,9 +2180,43 @@ function applyEffectToTarget(state, context, effect, target) {
         }
         const healAmount = Math.floor(unitMaxHp(target) * (Number(effect.healPercent) || 0) / 100);
         if (healAmount > 0) healUnit(state, target, healAmount, skill.name);
+    } else if (effect.kind === 'steal-helpful-status') {
+        const stolen = target.statuses.find((status) =>
+            statusActive(status) &&
+            !status.harmful &&
+            !status.unremovable &&
+            status.durationActions !== null
+        );
+        if (stolen) {
+            target.statuses = target.statuses.filter((status) => status !== stolen);
+            const duration = Math.min(
+                Math.max(1, Number(effect.maxDuration) || 2),
+                Number(stolen.durationActions) || 1
+            );
+            addStatus(state, actor, {
+                player: actor.player,
+                slot: actor.slot,
+                targetPlayer: actor.player,
+            }, {
+                ...stolen,
+                id: `${skill.id}-stolen-${stolen.id}`,
+                durationActions: duration,
+                harmful: false,
+                unremovable: false,
+                sourceSkillId: skill.id,
+            });
+            log(state, 'status-stolen', `${getSpecies(actor).name} stole ${stolen.name} from ${getSpecies(target).name}.`, {
+                player: actor.player,
+                actorSlot: actor.slot,
+                targetPlayer: target.player,
+                targetSlot: target.slot,
+                statusId: stolen.id,
+            });
+        }
     } else if (effect.kind === 'modify-cooldowns') {
-        Object.keys(target.cooldowns).forEach((skillId) => {
-            target.cooldowns[skillId] = Math.max(0, target.cooldowns[skillId] + effect.amount);
+        const skillIds = effect.allSkills ? activeSkillIds(target) : Object.keys(target.cooldowns);
+        skillIds.forEach((skillId) => {
+            target.cooldowns[skillId] = Math.max(0, (target.cooldowns[skillId] ?? 0) + effect.amount);
             if (target.cooldowns[skillId] === 0) delete target.cooldowns[skillId];
         });
     } else if (effect.kind === 'extend-status-duration') {

@@ -215,6 +215,7 @@ test('custom teams are authoritative, unique, and limited to ported roster entri
         'chansey',
         'pidgey',
         'mew',
+        'mewtwo',
     ]);
 });
 

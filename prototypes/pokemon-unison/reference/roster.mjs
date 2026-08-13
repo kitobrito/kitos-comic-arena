@@ -4932,6 +4932,94 @@ export const ROSTER = Object.freeze({
             }),
         ],
     },
+    mewtwo: {
+        id: 'mewtwo', name: 'Mewtwo', types: [Type.PSYCHIC],
+        facePicture: '/game-assets/images/PokemonArena/mewtwo/fp.png',
+        passiveDescription: 'A deliberately direct bruiser with one efficient move for disruption, delay, sustain, and effect theft.',
+        forms: {
+            base: {
+                id: 'base', name: 'Mewtwo', types: [Type.PSYCHIC],
+                facePicture: '/game-assets/images/PokemonArena/mewtwo/fp.png',
+                skillIds: ['mewtwo-psychic', 'mewtwo-shadow-ball', 'mewtwo-drain-punch', 'mewtwo-recover'],
+            },
+        },
+        skills: [
+            skill({
+                id: 'mewtwo-psychic', name: 'Psychic',
+                description: "Deals 20 damage and steals one copy-safe helpful active effect from the enemy for up to 2 turns. For 1 turn, Mewtwo's next Drain Punch or Shadow Ball deals 5 additional damage.",
+                target: 'single-enemy', energy: [Energy.NINJUTSU], cooldown: 1,
+                moveType: Type.PSYCHIC, classes: ['Psychic', 'Special', 'Instant'],
+                effects: [
+                    { kind: 'damage', amount: 20, damageKind: 'normal' },
+                    { kind: 'steal-helpful-status', maxDuration: 2 },
+                    {
+                        kind: 'drain', amount: 5, damageKind: 'normal',
+                        requiresActorStatus: 'mewtwo-drain-punch-followup', consumeActorStatus: 'mewtwo-drain-punch-followup',
+                    },
+                    {
+                        kind: 'damage', amount: 5, damageKind: 'affliction',
+                        requiresActorStatus: 'mewtwo-shadow-ball-followup', consumeActorStatus: 'mewtwo-shadow-ball-followup',
+                    },
+                    { kind: 'source-status', status: {
+                        id: 'mewtwo-psychic-followup', name: 'Psychic Follow-Up', hidden: true, harmful: false,
+                        durationActions: 1, durationAnchor: 'source',
+                    } },
+                ],
+            }),
+            skill({
+                id: 'mewtwo-shadow-ball', name: 'Shadow Ball',
+                description: "Deals 20 damage and delays the target's skills for 1 turn. For 1 turn, Mewtwo's next Drain Punch or Psychic deals 5 affliction damage.",
+                target: 'single-enemy', energy: [Energy.BLOODLINE], cooldown: 1,
+                moveType: Type.GHOST, classes: ['Ghost', 'Special', 'Instant'],
+                effects: [
+                    { kind: 'damage', amount: 20, damageKind: 'normal' },
+                    { kind: 'modify-cooldowns', amount: 2, allSkills: true },
+                    {
+                        kind: 'damage', amount: 5, damageKind: 'normal',
+                        requiresActorStatus: 'mewtwo-psychic-followup', consumeActorStatus: 'mewtwo-psychic-followup',
+                    },
+                    {
+                        kind: 'drain', amount: 5, damageKind: 'normal',
+                        requiresActorStatus: 'mewtwo-drain-punch-followup', consumeActorStatus: 'mewtwo-drain-punch-followup',
+                    },
+                    { kind: 'source-status', status: {
+                        id: 'mewtwo-shadow-ball-followup', name: 'Shadow Ball Follow-Up', hidden: true, harmful: false,
+                        durationActions: 1, durationAnchor: 'source',
+                    } },
+                ],
+            }),
+            skill({
+                id: 'mewtwo-drain-punch', name: 'Drain Punch',
+                description: "Steals 20 HP from one enemy. For 1 turn, Mewtwo's next Shadow Ball or Psychic steals 5 HP.",
+                target: 'single-enemy', energy: [Energy.GENJUTSU], cooldown: 0,
+                moveType: Type.FIGHTING, classes: ['Fighting', 'Physical', 'Instant'],
+                effects: [
+                    { kind: 'drain', amount: 20, damageKind: 'normal' },
+                    {
+                        kind: 'damage', amount: 5, damageKind: 'normal',
+                        requiresActorStatus: 'mewtwo-psychic-followup', consumeActorStatus: 'mewtwo-psychic-followup',
+                    },
+                    {
+                        kind: 'damage', amount: 5, damageKind: 'affliction',
+                        requiresActorStatus: 'mewtwo-shadow-ball-followup', consumeActorStatus: 'mewtwo-shadow-ball-followup',
+                    },
+                    { kind: 'source-status', status: {
+                        id: 'mewtwo-drain-punch-followup', name: 'Drain Punch Follow-Up', hidden: true, harmful: false,
+                        durationActions: 1, durationAnchor: 'source',
+                    } },
+                ],
+            }),
+            skill({
+                id: 'mewtwo-recover', name: 'Recover',
+                description: 'Heals Mewtwo for 20 HP. Consecutive uses heal 2 less HP each time, stacking down to 0; using another skill resets it.',
+                target: 'self', energy: [Energy.TAIJUTSU], cooldown: 0,
+                moveType: Type.NORMAL, classes: ['Normal', 'Special', 'Instant'], harmful: false,
+                effects: [
+                    { kind: 'flat-heal-sequence', amount: 20, decrement: 2 },
+                ],
+            }),
+        ],
+    },
 });
 
 export function unitPresentation(unit) {
