@@ -381,6 +381,7 @@ export function createGame({
         state.energyStartGranted[startingPlayer] = true;
     }
     processTurnStartEffects(state, startingPlayer);
+    processCyclingClassAuras(state);
     return state;
 }
 
@@ -1392,7 +1393,11 @@ function damageUnit(
         fixedDamage
             ? amount + weatherBonus
             : damageKind === 'affliction'
-            ? amount + weatherBonus + outgoingSkillBonus(actor, skill)
+            ? Math.max(
+                0,
+                amount + weatherBonus + outgoingSkillBonus(actor, skill) +
+                    outgoingGeneralBonus(actor, skill, damageKind)
+            )
             : Math.max(
                 0,
                 amount + weatherBonus + outgoingSkillBonus(actor, skill) +
@@ -2228,6 +2233,36 @@ function applyEffectToTarget(state, context, effect, target) {
                 );
             });
         });
+    } else if (effect.kind === 'cycling-class-damage-debuff') {
+        const source = actor.statuses.find((status) => statusActive(status) && status.cyclingClassAura);
+        const resolved = resolveActiveCyclingClass(state, source);
+        if (resolved) {
+            addStatus(state, target, {
+                player: actor.player, slot: actor.slot, targetPlayer: target.player,
+            }, {
+                id: effect.statusId,
+                name: effect.name ?? 'Sweet Scent Weakness',
+                hidden: false, harmful: true, durationActions: null,
+                damageBonusBySkillClass: { [resolved.activeClass]: -(Number(effect.amount) || 0) },
+                mergeMapFields: ['damageBonusBySkillClass'],
+                sourceSkillId: skill.id,
+            });
+        }
+    } else if (effect.kind === 'cycling-class-stun') {
+        const source = actor.statuses.find((status) => statusActive(status) && status.cyclingClassAura);
+        const resolved = resolveActiveCyclingClass(state, source);
+        if (resolved) {
+            addStatus(state, target, {
+                player: actor.player, slot: actor.slot, targetPlayer: target.player,
+            }, {
+                id: effect.statusId,
+                name: effect.name ?? 'Sweet Scent Stun',
+                hidden: false, harmful: true,
+                durationActions: effect.durationActions ?? 3, durationAnchor: 'target',
+                cannotUseSkillClasses: [resolved.activeClass],
+                sourceSkillId: skill.id,
+            });
+        }
     } else if (effect.kind === 'steal-helpful-status') {
         const stolen = target.statuses.find((status) =>
             statusActive(status) &&
@@ -3253,6 +3288,75 @@ function grantRandomEnergy(state, player, count, reason) {
     return gained;
 }
 
+function resolveActiveCyclingClass(state, source) {
+    const config = source?.cyclingClassAura;
+    if (!config || !Array.isArray(config.classes) || config.classes.length === 0) return null;
+    const classIndex = Math.max(0, state.turnNumber - 2) % config.classes.length;
+    return { config, classIndex, activeClass: config.classes[classIndex] };
+}
+
+function processCyclingClassAuras(state) {
+    players.forEach((ownerPlayer) => {
+        state.teams[ownerPlayer].forEach((owner) => {
+            if (!owner.alive) return;
+            const source = owner.statuses.find((status) => statusActive(status) && status.cyclingClassAura);
+            const resolved = resolveActiveCyclingClass(state, source);
+            if (!resolved) return;
+            const { config, activeClass } = resolved;
+            livingTargets(state, otherPlayer(ownerPlayer)).forEach((enemy) => {
+                addStatus(state, enemy, {
+                    player: ownerPlayer,
+                    slot: owner.slot,
+                    targetPlayer: enemy.player,
+                }, {
+                    id: `${config.statusIdPrefix}-${ownerPlayer}-${owner.slot}`,
+                    name: config.name ?? 'Sweet Scent',
+                    hidden: false, harmful: true, replaceExisting: true,
+                    durationActions: config.refreshDurationActions ?? 2,
+                    damageBonusBySkillClass: { [activeClass]: -(Number(config.amount) || 0) },
+                    sourceSkillId: source.sourceSkillId,
+                });
+            });
+        });
+    });
+}
+
+function triggerTargetedByEnemyHooks(state, actor, skill, target) {
+    if (actor.player === target.player) return;
+    for (const status of [...target.statuses]) {
+        if (!statusActive(status) || !status.onTargetedByEnemySkill) continue;
+        const hook = status.onTargetedByEnemySkill;
+        if (hook.requireFirstUse && (actor.skillUses?.[skill.id] ?? 0) !== 1) continue;
+        const source = sourceUnitForStatus(state, status);
+        if (!source?.alive) continue;
+        if (hook.permanentClassDebuffAmount) {
+            const sourceCycling = source.statuses.find((entry) => statusActive(entry) && entry.cyclingClassAura);
+            const resolved = resolveActiveCyclingClass(state, sourceCycling);
+            if (resolved) {
+                addStatus(state, actor, {
+                    player: source.player,
+                    slot: source.slot,
+                    targetPlayer: actor.player,
+                }, {
+                    id: hook.debuffStatusId ?? `${status.id}-debuff`,
+                    name: hook.debuffName ?? status.name,
+                    hidden: false, harmful: true, durationActions: null,
+                    damageBonusBySkillClass: { [resolved.activeClass]: -hook.permanentClassDebuffAmount },
+                    mergeMapFields: ['damageBonusBySkillClass'],
+                    sourceSkillId: status.sourceSkillId,
+                });
+            }
+        }
+        if (hook.incrementSourceStacksField) {
+            const tracker = source.statuses.find((entry) => statusActive(entry) && entry.cyclingClassAura);
+            if (tracker) {
+                tracker[hook.incrementSourceStacksField] =
+                    (Number(tracker[hook.incrementSourceStacksField]) || 0) + 1;
+            }
+        }
+    }
+}
+
 function processTurnStartEffects(state, player) {
     livingTargets(state, player).forEach((unit) => {
         unit.statuses.filter(statusActive).forEach((status) => {
@@ -3391,6 +3495,7 @@ function resolveActionWithoutAdvancingTurn(inputState, action) {
         skillId: skill.id,
     });
     triggerOwnerUseSkillHooks(state, actor, skill, target);
+    triggerTargetedByEnemyHooks(state, actor, skill, target);
     triggerHarmfulSkillHooks(state, actor, skill, target);
     const countered = triggerCounteredDamagingSkill(state, actor, skill);
     if (!actor.alive || countered || skillFails(state, actor, skill)) {
@@ -3502,6 +3607,7 @@ function finishTeamTurn(state, actingPlayer, actingSlots) {
         }
         if (!state.winner) {
             processTurnStartEffects(state, state.currentPlayer);
+            processCyclingClassAuras(state);
             if (state.economyMode === 'arena') {
                 if (!state.energyStartGranted?.[state.currentPlayer]) {
                     grantRandomEnergy(

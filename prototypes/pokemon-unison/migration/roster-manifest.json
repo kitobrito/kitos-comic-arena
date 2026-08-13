@@ -40,7 +40,7 @@
     { "id": "mewtwo", "name": "Mewtwo", "sourceSkillDefinitions": 4, "status": "ported-full" },
     { "id": "dragonite", "name": "Dragonite", "sourceSkillDefinitions": 5, "status": "ported-full" },
     { "id": "cyndaquil", "name": "Cyndaquil", "sourceSkillDefinitions": 5, "status": "ported-full" },
-    { "id": "chikorita", "name": "Chikorita", "sourceSkillDefinitions": 5, "status": "not-started" },
+    { "id": "chikorita", "name": "Chikorita", "sourceSkillDefinitions": 5, "status": "ported-full" },
     { "id": "totodile", "name": "Totodile", "sourceSkillDefinitions": 5, "status": "not-started" },
     { "id": "aegislash", "name": "Aegislash", "sourceSkillDefinitions": 5, "status": "not-started" },
     { "id": "ditto", "name": "Ditto", "sourceSkillDefinitions": 5, "status": "not-started" },

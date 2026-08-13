@@ -122,7 +122,7 @@ test('standalone HTTP API can play a full human and bot round without an invite'
     const origin = `http://127.0.0.1:${port}`;
 
     const roster = await (await fetch(`${origin}/api/roster`)).json();
-    assert.equal(roster.characters.length, 38);
+    assert.equal(roster.characters.length, 39);
 
     const created = await (
         await fetch(`${origin}/api/matches`, {

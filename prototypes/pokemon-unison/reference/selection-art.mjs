@@ -39,6 +39,7 @@ export const SELECTION_RENDER_BY_ID = Object.freeze({
     mewtwo: 'Mewtwo_Render.webp.webp',
     dragonite: 'Dragonite.png.webp',
     cyndaquil: 'cyndaquil.png.webp',
+    chikorita: 'chikorita.png.webp',
 });
 
 export const SELECTION_EVOLUTION_RENDER_BY_ID = Object.freeze({

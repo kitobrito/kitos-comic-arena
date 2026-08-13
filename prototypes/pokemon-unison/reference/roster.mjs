@@ -5194,6 +5194,95 @@ export const ROSTER = Object.freeze({
             }),
         ],
     },
+    chikorita: {
+        id: 'chikorita', name: 'Chikorita', types: [Type.GRASS],
+        facePicture: '/game-assets/images/PokemonArena/Cyndaquil/Chikorita/FP.webp',
+        passiveDescription: 'Lowers all enemy damage by 5 for one class each turn, cycling between Physical, Special, and Affliction.',
+        startStatuses: [{
+            id: 'chikorita-sweet-scent-passive', name: 'Sweet Scent',
+            description: 'Cycles a -5 damage aura between Physical, Special, and Affliction each turn.',
+            hidden: true, harmful: false, durationActions: null, unremovable: true,
+            sourceSkillId: 'chikorita-sweet-scent',
+            solarBeamStacks: 0,
+            cyclingClassAura: {
+                classes: ['Physical', 'Special', 'Affliction'],
+                amount: 5,
+                statusIdPrefix: 'chikorita-sweet-scent-aura',
+                refreshDurationActions: 2,
+            },
+        }],
+        forms: {
+            base: {
+                id: 'base', name: 'Chikorita', types: [Type.GRASS],
+                facePicture: '/game-assets/images/PokemonArena/Cyndaquil/Chikorita/FP.webp',
+                skillIds: [
+                    'chikorita-aerial-razor-leaf', 'chikorita-light-screen',
+                    'chikorita-chikorita-solar-beam', 'chikorita-vine-defense',
+                ],
+            },
+        },
+        skills: [
+            skill({
+                id: 'chikorita-aerial-razor-leaf', name: 'Aerial Razor Leaf',
+                description: "Deals 20 piercing damage to one enemy and 15 damage to the others, then permanently lowers their damage for Sweet Scent's current class by 10 and 5 respectively.",
+                target: 'single-enemy', energy: [Energy.TAIJUTSU], cooldown: 1,
+                moveType: Type.GRASS, classes: ['Grass', 'Physical', 'Instant'],
+                effects: [
+                    { kind: 'damage', amount: 20, damageKind: 'piercing' },
+                    { kind: 'damage', scope: 'other-enemies', amount: 15, damageKind: 'normal' },
+                    { kind: 'cycling-class-damage-debuff', amount: 10, statusId: 'chikorita-razor-leaf-debuff' },
+                    { kind: 'cycling-class-damage-debuff', scope: 'other-enemies', amount: 5, statusId: 'chikorita-razor-leaf-debuff' },
+                ],
+            }),
+            skill({
+                id: 'chikorita-light-screen', name: 'Light Screen',
+                description: "Grants Chikorita or an ally 25 destructible defense for 1 turn. Enemies using a new skill on them lose 5 damage for Sweet Scent's current class and add 1 Solar Beam stack.",
+                target: 'self-or-single-ally', energy: [Energy.RANDOM], cooldown: 2,
+                moveType: Type.PSYCHIC, classes: ['Psychic', 'Strategic', 'Instant', 'Invisible'], harmful: false,
+                effects: [
+                    { kind: 'shield', amount: 25, trackedStatus: {
+                        id: 'chikorita-light-screen-active', name: 'Light Screen', hidden: false, harmful: false,
+                        durationActions: 1, durationAnchor: 'target',
+                        onTargetedByEnemySkill: {
+                            requireFirstUse: true, permanentClassDebuffAmount: 5,
+                            incrementSourceStacksField: 'solarBeamStacks',
+                            debuffStatusId: 'chikorita-light-screen-debuff',
+                            debuffName: 'Light Screen Weakness',
+                        },
+                    } },
+                ],
+            }),
+            skill({
+                id: 'chikorita-chikorita-solar-beam', name: 'Chikorita Solar Beam',
+                description: "Deals 35 damage plus 5 per Light Screen stack, consumes all stacks, and stuns the target's skills in Sweet Scent's current class for 3 turns.",
+                target: 'single-enemy', energy: [Energy.TAIJUTSU, Energy.TAIJUTSU], cooldown: 3,
+                moveType: Type.GRASS, classes: ['Grass', 'Special', 'Instant'],
+                effects: [
+                    {
+                        kind: 'damage', amount: 35, damageKind: 'normal',
+                        amountFromActorStatus: {
+                            statusId: 'chikorita-sweet-scent-passive',
+                            countField: 'solarBeamStacks', amountPerCount: 5,
+                        },
+                    },
+                    { kind: 'cycling-class-stun', statusId: 'chikorita-solar-beam-stun', durationActions: 3 },
+                    { kind: 'reset-actor-status-field', statusId: 'chikorita-sweet-scent-passive', field: 'solarBeamStacks', value: 0 },
+                ],
+            }),
+            skill({
+                id: 'chikorita-vine-defense', name: 'Vine Defense',
+                description: 'Chikorita becomes invulnerable for 1 turn.',
+                target: 'self', energy: [Energy.RANDOM], cooldown: 4,
+                moveType: Type.GRASS, classes: ['Grass', 'Strategic', 'Instant'], harmful: false,
+                effects: [
+                    { kind: 'status', status: {
+                        id: 'chikorita-vine-defense-active', name: 'Vine Defense', hidden: false, harmful: false,
+                        durationActions: 1, durationAnchor: 'source', invulnerable: true,
+                    } },
+                ],
+            }),
+        ],
+    },
 });
 
 export function unitPresentation(unit) {
