@@ -2057,7 +2057,18 @@ function applyEffectToTarget(state, context, effect, target) {
         if (effect.copyActorStatusNumeric) {
             copyActorStatusNumericToTemplate(actor, statusTemplate, effect.copyActorStatusNumeric);
         }
-        const appliedStatus = addStatus(state, target, {
+        if (effect.durationFromTargetStatusField) {
+            const { statusId, field, multiplier, minimum, maximum } = effect.durationFromTargetStatusField;
+            const sourceStatus = target.statuses.find((entry) => entry.id === statusId);
+            const raw = Math.max(0, Number(sourceStatus?.[field]) || 0) * (Number(multiplier) || 1);
+            statusTemplate.durationActions = Math.min(
+                Number.isFinite(maximum) ? maximum : Infinity,
+                Math.max(Number.isFinite(minimum) ? minimum : 0, raw)
+            );
+        }
+        const appliedStatus = statusTemplate.durationActions === 0
+            ? null
+            : addStatus(state, target, {
             player: action.player,
             slot: actor.slot,
             targetPlayer: target.player,
@@ -2310,6 +2321,24 @@ function applyEffectToTarget(state, context, effect, target) {
             status[effect.targetField] = (Number(status[effect.targetField]) || 0) + (Number(effect.delta) || 0);
             status[effect.flagField] = 0;
         }
+    } else if (effect.kind === 'stacking-mark') {
+        const existing = target.statuses.find((status) => status.id === effect.statusId);
+        const currentStacks = Math.max(0, Number(existing?.[effect.stackField]) || 0);
+        const nextStacks = Math.min(
+            Number.isFinite(effect.stackMax) ? effect.stackMax : Infinity,
+            currentStacks + 1
+        );
+        target.statuses = target.statuses.filter((status) => status.id !== effect.statusId);
+        addStatus(state, target, {
+            player: actor.player, slot: actor.slot, targetPlayer: target.player,
+        }, {
+            ...effect.status,
+            id: effect.statusId,
+            [effect.stackField]: nextStacks,
+            ...(effect.scaledField
+                ? { [effect.scaledField]: nextStacks * (Number(effect.perStack) || 0) }
+                : {}),
+        });
     } else if (effect.kind === 'steal-helpful-status') {
         const stolen = target.statuses.find((status) =>
             statusActive(status) &&
@@ -3129,6 +3158,9 @@ function triggerTurnEndHooks(state, player) {
                 }
                 if (status.skipTurnEndOnAppliedTurn && status.appliedTurn === state.turnNumber) return;
                 if (status.turnEndHeal) healUnit(state, target, status.turnEndHeal, status.name);
+                const turnEndDamage = status.doubleTurnEndDamageIfTargetStunned && hasAnyStunLikeStatus(target)
+                    ? (Number(status.turnEndDamage) || 0) * 2
+                    : status.turnEndDamage;
                 if (status.turnEndDamageKind) {
                     const source = sourceUnitForStatus(state, status);
                     if (source) {
@@ -3143,7 +3175,7 @@ function triggerTurnEndHooks(state, player) {
                                 classes: status.turnEndSkillClasses ?? [],
                                 ignoreDamageReduction: status.ignoreDamageReduction,
                             },
-                            status.turnEndDamage,
+                            turnEndDamage,
                             status.turnEndDamageKind,
                             false
                         );
@@ -3154,7 +3186,7 @@ function triggerTurnEndHooks(state, player) {
                         sourceUnitForStatus(state, status),
                         target,
                         status.name,
-                        status.turnEndDamage
+                        turnEndDamage
                     );
                 }
             });

@@ -43,6 +43,7 @@ export const SELECTION_RENDER_BY_ID = Object.freeze({
     totodile: 'totodile.png.webp',
     aegislash: 'AEGISLASH.webp',
     scraggy: 'scraggy.png.webp',
+    dragapult: 'dragapult.jpg.webp',
 });
 
 export const SELECTION_EVOLUTION_RENDER_BY_ID = Object.freeze({

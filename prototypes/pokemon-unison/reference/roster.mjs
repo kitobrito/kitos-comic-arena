@@ -5636,6 +5636,88 @@ export const ROSTER = Object.freeze({
             }),
         ],
     },
+    dragapult: {
+        id: 'dragapult', name: 'Dragapult', types: [Type.DRAGON, Type.GHOST],
+        facePicture: '/game-assets/images/PokemonArena/Dragapult/FP.jpg',
+        passiveDescription: 'Marks enemies with Dragon Darts, which deal recurring damage at the end of each of their turns.',
+        forms: {
+            base: {
+                id: 'base', name: 'Dragapult', types: [Type.DRAGON, Type.GHOST],
+                facePicture: '/game-assets/images/PokemonArena/Dragapult/FP.jpg',
+                skillIds: [
+                    'dragapult-dragon-darts', 'dragapult-ten-thousand-volt-thunderbolt',
+                    'dragapult-dragon-tail', 'dragapult-dragon-rush',
+                ],
+            },
+        },
+        skills: [
+            skill({
+                id: 'dragapult-dragon-darts', name: 'Dragon Darts',
+                description: 'Permanently marks one enemy with Dragon Darts. At the end of each turn, a marked enemy takes 10 damage per stack. This doubles while they are stunned. Dragapult can keep up to 2 stacks active on a single target.',
+                target: 'single-enemy', energy: [Energy.NINJUTSU], cooldown: 0,
+                moveType: Type.DRAGON, classes: ['Dragon', 'Special', 'Instant'],
+                effects: [
+                    { kind: 'stacking-mark', statusId: 'dragapult-dragon-darts-mark',
+                        stackField: 'dragapultDragonDartsStacks', stackMax: 2, scaledField: 'turnEndDamage', perStack: 10,
+                        status: {
+                            name: 'Dragon Darts', hidden: false, harmful: true,
+                            durationActions: null, turnEndAnchor: 'target',
+                            turnEndDamageKind: 'normal', doubleTurnEndDamageIfTargetStunned: true,
+                            turnEndMoveType: Type.DRAGON, turnEndSkillClasses: ['Dragon', 'Special', 'Instant'],
+                        },
+                    },
+                ],
+            }),
+            skill({
+                id: 'dragapult-ten-thousand-volt-thunderbolt', name: '10,000 Volt Thunderbolt',
+                description: 'Deals 15 piercing damage to one enemy and stuns their Physical skills for 2 turns.',
+                target: 'single-enemy', energy: [Energy.GENJUTSU, Energy.GENJUTSU], cooldown: 3,
+                moveType: Type.ELECTRIC, classes: ['Electric', 'Special', 'Instant'],
+                effects: [
+                    { kind: 'damage', amount: 15, damageKind: 'piercing' },
+                    { kind: 'status', status: {
+                        id: 'dragapult-thunderbolt-physical-stun', name: '10,000 Volt Thunderbolt', hidden: false, harmful: true,
+                        durationActions: 2, durationAnchor: 'target',
+                        stunLikeEffect: true, cannotUseSkillClasses: ['Physical'],
+                    } },
+                ],
+            }),
+            skill({
+                id: 'dragapult-dragon-tail', name: 'Dragon Tail',
+                description: 'Deals 30 damage to one enemy and stuns their Special skills for 2 turns.',
+                target: 'single-enemy', energy: [Energy.TAIJUTSU, Energy.TAIJUTSU], cooldown: 3,
+                moveType: Type.DRAGON, classes: ['Dragon', 'Physical', 'Instant'],
+                effects: [
+                    { kind: 'damage', amount: 30, damageKind: 'normal' },
+                    { kind: 'status', status: {
+                        id: 'dragapult-dragon-tail-special-stun', name: 'Dragon Tail', hidden: false, harmful: true,
+                        durationActions: 2, durationAnchor: 'target',
+                        stunLikeEffect: true, cannotUseSkillClasses: ['Special'],
+                    } },
+                ],
+            }),
+            skill({
+                id: 'dragapult-dragon-rush', name: 'Dragon Rush',
+                description: 'Dragapult becomes invulnerable for 1 turn and deals 30 damage to one enemy. The target is fully stunned for 1 turn per Dragon Darts stack on them.',
+                target: 'single-enemy', energy: [Energy.BLOODLINE, Energy.BLOODLINE], cooldown: 4,
+                moveType: Type.DRAGON, classes: ['Dragon', 'Physical', 'Instant'],
+                effects: [
+                    { kind: 'status', scope: 'self', status: {
+                        id: 'dragapult-dragon-rush-invulnerable', name: 'Dragon Rush', hidden: false, harmful: false,
+                        durationActions: 1, durationAnchor: 'source', invulnerable: true,
+                    } },
+                    { kind: 'damage', amount: 30, damageKind: 'normal' },
+                    { kind: 'status', durationFromTargetStatusField: {
+                        statusId: 'dragapult-dragon-darts-mark', field: 'dragapultDragonDartsStacks',
+                        multiplier: 1, minimum: 0, maximum: 2,
+                    }, status: {
+                        id: 'dragapult-dragon-rush-stun', name: 'Dragon Rush', hidden: false, harmful: true,
+                        stunLikeEffect: true, cannotUseSkills: true,
+                    } },
+                ],
+            }),
+        ],
+    },
 });
 
 export function unitPresentation(unit) {
