@@ -5718,6 +5718,98 @@ export const ROSTER = Object.freeze({
             }),
         ],
     },
+    primeape: {
+        id: 'primeape', name: 'Primeape', types: [Type.FIGHTING],
+        facePicture: '/game-assets/images/PokemonArena/Primeape/Primeape-FP.jpg',
+        passiveDescription: 'After Primeape is hit by a Super Effective skill, it deals 20 additional damage for 1 turn.',
+        startStatuses: [{
+            id: 'primeape-anger-point-passive', name: 'Anger Point',
+            description: 'Being hit by a Super Effective skill grants a 1-turn +20 damage buff and makes Rage Fist Piercing.',
+            hidden: true, harmful: false, durationActions: null, unremovable: true,
+            sourceSkillId: 'primeape-passive-anger-point',
+            onOwnerHitBySuperEffectiveOrCritical: {
+                id: 'primeape-anger-point-active', name: 'Anger Point', hidden: false, harmful: false,
+                durationActions: 1, durationAnchor: 'source', damageBonusFlat: 20,
+                sourceSkillId: 'primeape-passive-anger-point',
+            },
+        }],
+        forms: {
+            base: {
+                id: 'base', name: 'Primeape', types: [Type.FIGHTING],
+                facePicture: '/game-assets/images/PokemonArena/Primeape/Primeape-FP.jpg',
+                skillIds: [
+                    'primeape-rock-smash', 'primeape-knock-off',
+                    'primeape-rage-fist', 'primeape-close-combat',
+                ],
+            },
+        },
+        skills: [
+            skill({
+                id: 'primeape-rock-smash', name: 'Rock Smash',
+                description: 'Destroys all Barrier on Primeape and all Shield on one enemy, then deals 20 damage to them. If Primeape destroys Barrier from himself this way, Rage Fist deals 10 additional damage for 1 turn.',
+                target: 'single-enemy', energy: [Energy.GENJUTSU], cooldown: 0,
+                moveType: Type.FIGHTING, classes: ['Fighting', 'Physical', 'Instant'],
+                effects: [
+                    { kind: 'destroy-barrier', scope: 'self', actorStatusIfDestroyed: {
+                        id: 'primeape-rock-smash-empowerment', name: 'Rock Smash Empowerment', hidden: true, harmful: false,
+                        durationActions: 1, durationAnchor: 'source',
+                        skillDamageBonuses: { 'primeape-rage-fist': 10 },
+                    } },
+                    { kind: 'destroy-shield' },
+                    { kind: 'damage', amount: 20, damageKind: 'normal' },
+                ],
+            }),
+            skill({
+                id: 'primeape-knock-off', name: 'Knock Off',
+                description: 'Deals 15 damage to one enemy and removes all helpful effects from them. For 2 turns, that enemy cannot gain Shield. If Knock Off removes a helpful effect, Rock Smash and Close Combat deal 10 additional damage to that enemy for 2 turns.',
+                target: 'single-enemy', energy: [Energy.GENJUTSU], cooldown: 2,
+                moveType: Type.DARK, classes: ['Dark', 'Physical', 'Instant'],
+                effects: [
+                    { kind: 'damage', amount: 15, damageKind: 'normal' },
+                    { kind: 'strip-helpful-statuses', actorStatusIfRemoved: {
+                        id: 'primeape-knock-off-empowerment', name: 'Knock Off Empowerment', hidden: true, harmful: false,
+                        durationActions: 2, durationAnchor: 'source',
+                        skillDamageBonuses: { 'primeape-rock-smash': 10, 'primeape-close-combat': 10 },
+                    } },
+                    { kind: 'status', status: {
+                        id: 'primeape-knock-off-shield-block', name: 'Knock Off', hidden: false, harmful: true,
+                        durationActions: 2, durationAnchor: 'target', preventShieldGain: true,
+                    } },
+                ],
+            }),
+            skill({
+                id: 'primeape-rage-fist', name: 'Rage Fist',
+                description: 'Deals 15 damage to one enemy. This deals 5 additional damage for every 15 HP Primeape has lost. If Anger Point is active, Rage Fist becomes Piercing.',
+                target: 'single-enemy', energy: [Energy.RANDOM], cooldown: 1,
+                moveType: Type.GHOST, classes: ['Ghost', 'Physical', 'Instant'],
+                effects: [
+                    {
+                        kind: 'damage', amount: 15, damageKind: 'normal',
+                        unlessActorStatus: 'primeape-anger-point-active',
+                        amountFromActorMissingHp: { step: 5, divisor: 15 },
+                    },
+                    {
+                        kind: 'damage', amount: 15, damageKind: 'piercing',
+                        requiresActorStatus: 'primeape-anger-point-active',
+                        amountFromActorMissingHp: { step: 5, divisor: 15 },
+                    },
+                ],
+            }),
+            skill({
+                id: 'primeape-close-combat', name: 'Close Combat',
+                description: 'Deals 35 Piercing damage to one enemy. For 1 turn afterward, Primeape takes 10 additional damage from enemy skills. If Primeape is below 50 HP, Close Combat deals 10 additional damage.',
+                target: 'single-enemy', energy: [Energy.GENJUTSU, Energy.RANDOM], cooldown: 1,
+                moveType: Type.FIGHTING, classes: ['Fighting', 'Physical', 'Instant'],
+                effects: [
+                    { kind: 'damage', amount: 35, damageKind: 'piercing', bonusIfActorHpAtMost: { threshold: 49, amount: 10 } },
+                    { kind: 'status', scope: 'self', status: {
+                        id: 'primeape-close-combat-exposure', name: 'Close Combat', hidden: false, harmful: true,
+                        durationActions: 1, durationAnchor: 'source', damageTakenBonusFlat: 10,
+                    } },
+                ],
+            }),
+        ],
+    },
 });
 
 export function unitPresentation(unit) {

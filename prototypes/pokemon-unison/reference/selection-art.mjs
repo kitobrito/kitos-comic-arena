@@ -44,6 +44,7 @@ export const SELECTION_RENDER_BY_ID = Object.freeze({
     aegislash: 'AEGISLASH.webp',
     scraggy: 'scraggy.png.webp',
     dragapult: 'dragapult.jpg.webp',
+    primeape: 'primeape.jpg.webp',
 });
 
 export const SELECTION_EVOLUTION_RENDER_BY_ID = Object.freeze({

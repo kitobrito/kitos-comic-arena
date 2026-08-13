@@ -290,6 +290,7 @@ function makeUnit(speciesId, slot, player) {
 function grantShield(target, amount) {
     const granted = Math.max(0, Number(amount) || 0);
     if (granted <= 0) return 0;
+    if (target.statuses.some((status) => statusActive(status) && status.preventShieldGain)) return 0;
     const previous = Math.max(0, Number(target.shield) || 0);
     target.shield = previous + granted;
     target.shieldCapacity = previous > 0
@@ -1565,7 +1566,22 @@ function damageUnit(
         triggerOwnerKillHooks(state, actor);
     }
     if (finalAmount > 0) triggerSuccessfulEnemyDamageHooks(state, actor, target);
+    if (finalAmount > 0 && actor.player !== target.player && effectiveness.score > 0) {
+        triggerOwnerHitBySuperEffectiveHooks(state, target);
+    }
     return finalAmount;
+}
+
+function triggerOwnerHitBySuperEffectiveHooks(state, target) {
+    target.statuses.filter(statusActive).forEach((status) => {
+        const hook = status.onOwnerHitBySuperEffectiveOrCritical;
+        if (!hook) return;
+        addStatus(state, target, {
+            player: target.player,
+            slot: target.slot,
+            targetPlayer: target.player,
+        }, hook);
+    });
 }
 
 function healUnit(state, target, amount, reason) {
@@ -1793,6 +1809,14 @@ function applyEffectToTarget(state, context, effect, target) {
         const stunnedTargetBonus = effect.bonusIfTargetStunned && hasAnyStunLikeStatus(target)
             ? effect.bonusIfTargetStunned
             : 0;
+        const missingHpBonus = effect.amountFromActorMissingHp
+            ? Math.floor(
+                (unitMaxHp(actor) - actor.hp) / (Number(effect.amountFromActorMissingHp.divisor) || 1)
+            ) * (Number(effect.amountFromActorMissingHp.step) || 0)
+            : 0;
+        const actorHpBonus = effect.bonusIfActorHpAtMost && actor.hp <= effect.bonusIfActorHpAtMost.threshold
+            ? effect.bonusIfActorHpAtMost.amount
+            : 0;
         const dealt = damageUnit(
             state,
             actor,
@@ -1801,7 +1825,7 @@ function applyEffectToTarget(state, context, effect, target) {
                 ? { ...skill, ignoreDamageReduction: effect.ignoreDamageReduction }
                 : skill,
             effect.amount + counterBonus + actorStatusBonus + targetStatusBonus + actorStatusScaledAmount +
-                stunnedTargetBonus,
+                stunnedTargetBonus + missingHpBonus + actorHpBonus,
             effect.damageKind,
             effect.applyTypeAdjustment === false
                 ? false
@@ -2152,6 +2176,26 @@ function applyEffectToTarget(state, context, effect, target) {
         actor.statuses = actor.statuses.filter((status) => !removeIds.has(status.id));
     } else if (effect.kind === 'consume-actor-tracked-shield') {
         consumeTrackedShieldStatus(state, actor, effect.statusId);
+    } else if (effect.kind === 'destroy-barrier') {
+        const removed = target.barrier;
+        target.barrier = 0;
+        target.barrierCapacity = 0;
+        target.statuses = target.statuses.filter((status) => !status.trackedBarrierPoints);
+        if (removed > 0 && effect.actorStatusIfDestroyed) {
+            addStatus(state, actor, {
+                player: action.player,
+                slot: actor.slot,
+                targetPlayer: action.player,
+            }, {
+                ...effect.actorStatusIfDestroyed,
+                sourceSkillId: effect.actorStatusIfDestroyed.sourceSkillId ?? skill.id,
+            });
+        }
+        log(state, 'barrier-destroyed', `${getSpecies(actor).name} destroyed ${removed} barrier on ${getSpecies(target).name}.`, {
+            amount: removed,
+            targetPlayer: target.player,
+            targetSlot: target.slot,
+        });
     } else if (effect.kind === 'destroy-shield') {
         const removed = target.shield;
         target.shield = 0;
@@ -2510,6 +2554,24 @@ function applyEffectToTarget(state, context, effect, target) {
         target.statuses = target.statuses.filter((status) => !status.harmful || status.unremovable);
         if (before !== target.statuses.length && effect.actorCounter) {
             incrementCounter(state, actor, effect.actorCounter, 1, 3);
+        }
+    } else if (effect.kind === 'strip-helpful-statuses') {
+        const before = target.statuses.length;
+        target.statuses = target.statuses.filter((status) => status.harmful || status.unremovable);
+        const removed = before !== target.statuses.length;
+        if (removed) {
+            log(state, 'cleanse', `${getSpecies(actor).name} stripped ${getSpecies(target).name}'s helpful effects.`, {
+                targetPlayer: target.player,
+                targetSlot: target.slot,
+            });
+            if (effect.actorStatusIfRemoved) {
+                addStatus(state, actor, {
+                    player: action.player, slot: actor.slot, targetPlayer: action.player,
+                }, {
+                    ...effect.actorStatusIfRemoved,
+                    sourceSkillId: effect.actorStatusIfRemoved.sourceSkillId ?? skill.id,
+                });
+            }
         }
     } else if (effect.kind === 'cleanse-enemy-statuses') {
         const before = target.statuses.length;
