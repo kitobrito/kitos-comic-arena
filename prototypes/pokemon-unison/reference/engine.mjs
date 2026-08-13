@@ -21,6 +21,7 @@ const sandboxEnergy = () => ({
 const clone = (value) => JSON.parse(JSON.stringify(value));
 const otherPlayer = (player) => (player === 'A' ? 'B' : 'A');
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+const unitMaxHp = (unit) => Math.max(1, Number(unit?.maxHp) || MAX_HP);
 const statusActive = (status) =>
     status &&
     (status.durationActions === null ||
@@ -264,6 +265,7 @@ function makeUnit(speciesId, slot, player) {
         effectiveForm: null,
         banished: false,
         hp: MAX_HP,
+        maxHp: MAX_HP,
         shield: 0,
         shieldCapacity: 0,
         barrier: 0,
@@ -486,7 +488,11 @@ function effectiveSkillCosts(state, actor, skill) {
         ? Math.max(0, actor.counters[skill.randomCostReductionCounter] ?? 0)
         : 0;
     const weatherCostModifier = weatherCostModifierFor(state, skill);
-    let remainingReduction = reduction + Math.max(0, -weatherCostModifier);
+    const statusReduction = actor.statuses.reduce(
+        (total, status) => total + (statusActive(status) ? status.randomCostReduction ?? 0 : 0),
+        0
+    );
+    let remainingReduction = reduction + statusReduction + Math.max(0, -weatherCostModifier);
     const specificReductions = actor.statuses.reduce((totals, status) => {
         if (!statusActive(status)) return totals;
         Object.entries(status.specificCostReductions ?? {}).forEach(([cost, amount]) => {
@@ -1285,7 +1291,7 @@ function dealFixedStatusDamage(state, source, target, reason, amount) {
     if (!target?.alive || amount <= 0) return 0;
     const wasAlive = target.alive;
     const lost = Math.min(amount, target.hp);
-    target.hp = clamp(target.hp - lost, 0, MAX_HP);
+    target.hp = clamp(target.hp - lost, 0, unitMaxHp(target));
     target.alive = target.hp > 0;
     recordDamageTaken(state, target, lost);
     if (lost > 0) {
@@ -1471,7 +1477,7 @@ function damageUnit(
         0
     );
     const hpWithoutMinimum = target.hp - remaining;
-    target.hp = clamp(Math.max(minimumHp, hpWithoutMinimum), 0, MAX_HP);
+    target.hp = clamp(Math.max(minimumHp, hpWithoutMinimum), 0, unitMaxHp(target));
     target.alive = target.hp > 0;
     if (remaining > 0 && minimumHp > 0 && hpWithoutMinimum < minimumHp) {
         const preventedDeathStatus = target.statuses.find((status) =>
@@ -1541,7 +1547,7 @@ function healUnit(state, target, amount, reason) {
             statusActive(status) ? value * Math.max(0, Number(status.healReceivedMultiplier) || 1) : value,
         1
     );
-    const healed = Math.min(amount * multiplier, MAX_HP - target.hp);
+    const healed = Math.min(amount * multiplier, unitMaxHp(target) - target.hp);
     target.hp += healed;
     if (healed > 0) log(state, 'heal', `${getSpecies(target).name} restored ${healed} HP with ${reason}.`);
     return healed;
@@ -1620,9 +1626,9 @@ function chanceThreshold(actor, effect, target, context) {
         ? (actor.counters[effect.chanceCounter.counter] ?? 0) * effect.chanceCounter.multiplier
         : 0;
     const missingHpBonus = effect.chancePerMissingHp
-        ? (MAX_HP - actor.hp) * effect.chancePerMissingHp
+        ? (unitMaxHp(actor) - actor.hp) * effect.chancePerMissingHp
         : 0;
-    const initialTargetHp = context?.initialTargetHp ?? target?.hp ?? MAX_HP;
+    const initialTargetHp = context?.initialTargetHp ?? target?.hp ?? unitMaxHp(target);
     const targetHpBonus = effect.chanceBonusIfInitialTargetHpAtMost &&
         initialTargetHp <= effect.chanceBonusIfInitialTargetHpAtMost.threshold
         ? effect.chanceBonusIfInitialTargetHpAtMost.amount
@@ -1923,7 +1929,7 @@ function applyEffectToTarget(state, context, effect, target) {
             )
             : 0;
         const lost = Math.min(effect.amount, Math.max(0, target.hp - selfSkillMinimumHp));
-        target.hp = clamp(target.hp - lost, 0, MAX_HP);
+        target.hp = clamp(target.hp - lost, 0, unitMaxHp(target));
         target.alive = target.hp > 0;
         recordDamageTaken(state, target, lost);
         log(state, 'health-loss', `${getSpecies(target).name} lost ${lost} HP from ${skill.name}.`, {
@@ -2143,6 +2149,20 @@ function applyEffectToTarget(state, context, effect, target) {
             targetPlayer: target.player,
             targetSlot: target.slot,
         });
+    } else if (effect.kind === 'convert-shield-to-max-hp') {
+        const gained = Math.max(0, Number(target.shield) || 0);
+        if (gained > 0) {
+            target.shield = 0;
+            target.shieldCapacity = 0;
+            target.maxHp = unitMaxHp(target) + gained;
+            log(state, 'max-hp', `${getSpecies(target).name} converted ${gained} Shield into permanent maximum HP.`, {
+                amount: gained,
+                targetPlayer: target.player,
+                targetSlot: target.slot,
+            });
+        }
+        const healAmount = Math.floor(unitMaxHp(target) * (Number(effect.healPercent) || 0) / 100);
+        if (healAmount > 0) healUnit(state, target, healAmount, skill.name);
     } else if (effect.kind === 'modify-cooldowns') {
         Object.keys(target.cooldowns).forEach((skillId) => {
             target.cooldowns[skillId] = Math.max(0, target.cooldowns[skillId] + effect.amount);
@@ -2194,7 +2214,7 @@ function applyEffectToTarget(state, context, effect, target) {
         );
     } else if (effect.kind === 'revive') {
         if (!target.alive && !target.banished) {
-            target.hp = clamp(effect.amount, 1, MAX_HP);
+            target.hp = clamp(effect.amount, 1, unitMaxHp(target));
             target.alive = true;
             log(state, 'revive', `${getSpecies(target).name} returned with ${target.hp} HP.`, {
                 amount: target.hp,
@@ -2546,7 +2566,7 @@ function resolvePeriodicStatuses(state, player) {
                 const source = findUnit(state, status.sourcePlayer, status.sourceSlot);
                 const wasAlive = target.alive;
                 const amount = Math.min(status.periodicDrain, target.hp);
-                target.hp = clamp(target.hp - amount, 0, MAX_HP);
+                target.hp = clamp(target.hp - amount, 0, unitMaxHp(target));
                 target.alive = target.hp > 0;
                 recordDamageTaken(state, target, amount);
                 if (source?.alive) healUnit(state, source, amount, status.name);
@@ -2868,7 +2888,7 @@ function skillFails(state, actor, skill) {
     if (roll >= status.skillFailChance) return false;
     const wasAlive = actor.alive;
     const lost = Math.min(status.skillFailDamage ?? 0, actor.hp);
-    actor.hp = clamp(actor.hp - lost, 0, MAX_HP);
+    actor.hp = clamp(actor.hp - lost, 0, unitMaxHp(actor));
     actor.alive = actor.hp > 0;
     recordDamageTaken(state, actor, lost);
     log(state, 'skill-failed', `${getSpecies(actor).name}'s ${skill.name} failed because of ${status.name}.`, {
@@ -3472,6 +3492,7 @@ function censorUnit(unit, viewer) {
         effectiveForm: unit.effectiveForm ?? null,
         banished: Boolean(unit.banished),
         hp: unit.hp,
+        maxHp: unitMaxHp(unit),
         shield: unit.shield,
         shieldCapacity: unit.shieldCapacity ?? unit.shield,
         barrier: unit.barrier ?? 0,

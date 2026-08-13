@@ -4872,6 +4872,66 @@ export const ROSTER = Object.freeze({
         },
         skills: pidgeySkills,
     },
+    mew: {
+        id: 'mew', name: 'Mew', types: [Type.PSYCHIC],
+        facePicture: '/game-assets/images/PokemonArena/mew/fp.png',
+        passiveDescription: 'A mythical support that builds permanent barriers and converts accumulated shields into maximum HP.',
+        forms: {
+            base: {
+                id: 'base', name: 'Mew', types: [Type.PSYCHIC],
+                facePicture: '/game-assets/images/PokemonArena/mew/fp.png',
+                skillIds: ['mew-psychic-barrier', 'mew-psychic', 'mew-pink-bubble', 'mew-life-dew'],
+            },
+        },
+        skills: [
+            skill({
+                id: 'mew-psychic-barrier', name: 'Psychic Barrier',
+                description: 'Gives an enemy 15 permanent stacking Barrier. While any remains, their skills cost 1 additional Random.',
+                target: 'single-enemy', energy: [Energy.NINJUTSU], cooldown: 1,
+                moveType: Type.PSYCHIC, classes: ['Psychic', 'Mental', 'Instant'],
+                effects: [
+                    { kind: 'barrier', amount: 15, trackedStatus: {
+                        id: 'mew-psychic-barrier-active', name: 'Psychic Barrier', hidden: false, harmful: true,
+                        durationActions: null, randomCostIncrease: 1, removeWhenTrackedBarrierExhausted: true,
+                    } },
+                ],
+            }),
+            skill({
+                id: 'mew-psychic', name: 'Psychic',
+                description: "Deals 30 damage. If Psychic Barrier remains, the target's harmful skills deal 0 damage for 1 turn.",
+                target: 'single-enemy', energy: [Energy.NINJUTSU, Energy.RANDOM], cooldown: 1,
+                moveType: Type.PSYCHIC, classes: ['Psychic', 'Special', 'Instant'],
+                effects: [
+                    { kind: 'damage', amount: 30, damageKind: 'normal' },
+                    { kind: 'status', requiresTargetStatus: 'mew-psychic-barrier-active', status: {
+                        id: 'mew-psychic-suppression', name: 'Psychic Suppression', hidden: false, harmful: true,
+                        durationActions: 1, outgoingDamageDebuff: 999,
+                    } },
+                ],
+            }),
+            skill({
+                id: 'mew-pink-bubble', name: 'Pink Bubble',
+                description: 'Gives an ally 15 permanent stacking Shield. While any remains, their skills cost 1 less Random.',
+                target: 'self-or-single-ally', energy: [Energy.BLOODLINE], cooldown: 1,
+                moveType: Type.PSYCHIC, classes: ['Psychic', 'Mental', 'Instant'], harmful: false,
+                effects: [
+                    { kind: 'shield', amount: 15, trackedStatus: {
+                        id: 'mew-pink-bubble-active', name: 'Pink Bubble', hidden: false, harmful: false,
+                        durationActions: null, randomCostReduction: 1, removeWhenTrackedShieldExhausted: true,
+                    } },
+                ],
+            }),
+            skill({
+                id: 'mew-life-dew', name: 'Life Dew',
+                description: 'Mew and one ally consume all Pink Bubble Shield, gain that much maximum HP, then heal 25% of updated maximum HP.',
+                target: 'self-or-single-ally', energy: [Energy.BLOODLINE, Energy.RANDOM], cooldown: 2,
+                moveType: Type.WATER, classes: ['Water', 'Mental', 'Instant'], harmful: false,
+                effects: [
+                    { kind: 'convert-shield-to-max-hp', scope: 'selected-and-self', healPercent: 25 },
+                ],
+            }),
+        ],
+    },
 });
 
 export function unitPresentation(unit) {

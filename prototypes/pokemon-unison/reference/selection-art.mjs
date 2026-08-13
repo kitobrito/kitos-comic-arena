@@ -35,6 +35,7 @@ export const SELECTION_RENDER_BY_ID = Object.freeze({
     zubat: 'ZUBAT.png.webp',
     chansey: 'CHANSEY.png.webp',
     pidgey: 'Pidgey.webp.webp',
+    mew: 'Pokémon_Mew_art.png.webp',
 });
 
 export const SELECTION_EVOLUTION_RENDER_BY_ID = Object.freeze({

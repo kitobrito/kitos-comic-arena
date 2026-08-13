@@ -7,10 +7,10 @@ test('the migration manifest accounts for every authoritative Pokemon Arena char
     const report = buildRosterParityReport();
 
     assert.equal(report.sourceCharacters, 46);
-    assert.equal(report.standaloneCharacters, 34);
-    assert.equal(report['ported-full'], 34);
+    assert.equal(report.standaloneCharacters, 35);
+    assert.equal(report['ported-full'], 35);
     assert.equal(report['ported-partial'], 0);
-    assert.equal(report['not-started'], 12);
+    assert.equal(report['not-started'], 11);
     assert.equal(report.effectTypes.length, 36);
     assert.equal(report.targetTypes.length, 12);
     assert.deepEqual(report.errors, {

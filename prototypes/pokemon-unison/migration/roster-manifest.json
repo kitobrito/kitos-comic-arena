@@ -36,7 +36,7 @@
     { "id": "articuno", "name": "Articuno", "sourceSkillDefinitions": 4, "status": "ported-full" },
     { "id": "moltres", "name": "Moltres", "sourceSkillDefinitions": 5, "status": "ported-full" },
     { "id": "zapdos", "name": "Zapdos", "sourceSkillDefinitions": 4, "status": "ported-full" },
-    { "id": "mew", "name": "Mew", "sourceSkillDefinitions": 4, "status": "not-started" },
+    { "id": "mew", "name": "Mew", "sourceSkillDefinitions": 4, "status": "ported-full" },
     { "id": "mewtwo", "name": "Mewtwo", "sourceSkillDefinitions": 4, "status": "not-started" },
     { "id": "dragonite", "name": "Dragonite", "sourceSkillDefinitions": 5, "status": "not-started" },
     { "id": "cyndaquil", "name": "Cyndaquil", "sourceSkillDefinitions": 5, "status": "not-started" },
