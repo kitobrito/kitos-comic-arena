@@ -7,11 +7,8 @@ overrides remain authoritative and untouched.
 
 ## What is implemented
 
-- thirty-four fully ported playable characters: Pokemon Trainer, Charmander, Squirtle,
-  Bulbasaur, Pikachu, Butterfree, Koffing, Gastly, Abra, Krabby, Scyther, Eevee,
-  Jolteon, Flareon, Vaporeon, Ekans, Machop, Magikarp, Mr. Mime, Hitmonchan,
-  Hitmonlee, Aerodactyl, Magnemite, Onix, Meowth, Clefairy, Jigglypuff, Beedrill,
-  Articuno, Moltres, Zapdos, Zubat, Chansey, and Pidgey
+- all 46 currently-scoped playable characters, fully ported (see
+  `migration/roster-manifest.json` for the checked list)
 - all four production-inspired skill slots and evolution passives for Charmander,
   Squirtle, and Bulbasaur
 - the Charmeleon, Wartortle, and Ivysaur replacement skill sets
@@ -48,11 +45,14 @@ overrides remain authoritative and untouched.
 - regression tests for determinism, queue privacy and restart recovery, targeting,
   status expiry, replay rejection, type effectiveness, and safe asset serving
 - a checked 46-character migration manifest and source-drift coverage report
+- standalone player accounts: registration, login, and persistent HS256-signed
+  sessions, hashed with scrypt (not bcrypt — see "Dependencies" below), backed
+  by atomic per-player JSON storage that survives a server restart
 
 This is deliberately an expanding standalone slice, not a content-complete port. Complex
 production mechanics such as additional evolution branches, skins, missions,
-matchmaking, accounts, progression, payments, and all remaining Pokémon stay in the
-existing application until a later migration phase is justified.
+matchmaking, progression, and payments stay in the existing application until
+their own migration phase is built out here.
 
 ## Run it now
 
@@ -78,11 +78,27 @@ window. The bot plans through the same authoritative legal-action queue as a
 human. Artwork is served read-only from the existing repository `assets` folder
 through a path-confined route.
 
-Match snapshots are stored under `runtime-data/matches` inside this standalone
-project. That directory is ignored by Git. Player tokens and invite codes are
-kept in browser session storage; only their cryptographic digests are written to
-the match files. Set `POKEMON_UNISON_DATA_DIR` to use a different standalone
-storage location.
+Match snapshots are stored under `runtime-data/matches`, and player accounts
+under `runtime-data/players`, inside this standalone project. That directory
+is ignored by Git. Match tokens and invite codes are kept in browser session
+storage; only their cryptographic digests are written to the match files.
+Persistent player session tokens are kept in browser `localStorage` (separate
+from the per-match session storage) and are never written to disk — only the
+scrypt password hash is. Set `POKEMON_UNISON_DATA_DIR` to use a different
+standalone storage root (it now holds both the `matches/` and `players/`
+subdirectories).
+
+### Dependencies
+
+This prototype has no `npm install` step: it runs on Node's built-ins only
+(`node:http`, `node:fs`, `node:crypto`, `node:test`). Player passwords are
+hashed with `node:crypto`'s `scrypt` and sessions are signed HS256 tokens
+built directly on `node:crypto`'s HMAC — the same algorithm family
+production's `bcryptjs`/`jsonwebtoken` use, implemented without adding those
+packages, since no npm registry is reachable in this workspace. If that
+changes, `reference/password-hashing.mjs` and the token helpers in
+`reference/player-service.mjs` are the two places to swap in the real
+libraries.
 
 ## Run the tests
 
@@ -99,9 +115,9 @@ Set-Location prototypes/pokemon-unison
 
 The report reads the current local `characters.js` as build-time migration input;
 the standalone game does not load it at runtime. The current checked baseline is
-46 source characters: thirty-four fully ported and 12 not yet
-started. Any source character, name, or skill-definition drift fails the parity
-regression until the manifest is reviewed.
+46 source characters, all fully ported. Any source character, name, or
+skill-definition drift fails the parity regression until the manifest is
+reviewed.
 
 ## Haskell and Elm
 
@@ -162,6 +178,12 @@ npm run build
    `battleLogic.js`, `characters.js`, or stored overrides at runtime.
 7. Solo bots are deterministic participants in the standalone service; they do
    not call or reuse the production game's battle-bot implementation.
+8. Standalone player accounts are entirely local to this prototype (no
+   connection to production's MongoDB `users` collection). The account/profile
+   schema deliberately mirrors production's field names for the parts being
+   ported (`unlockPoints`, `unlockedCharacterIds`, `progressByMissionId`,
+   `unlockedSkinIds`, `equippedSkinByCharacterId`) so future mission/skin/store
+   phases can build directly on it.
 
 See [MIGRATION.md](./MIGRATION.md) for the next checkpoint and
 [PROTOCOL.md](./PROTOCOL.md) for the boundary between the engine and client.

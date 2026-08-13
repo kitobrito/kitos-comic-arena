@@ -5,6 +5,8 @@ import { fileURLToPath } from 'node:url';
 
 import { createMatchService, MatchServiceError } from './match-service.mjs';
 import { createJsonMatchStorage } from './match-storage.mjs';
+import { createPlayerService, PlayerServiceError } from './player-service.mjs';
+import { createJsonPlayerStorage } from './player-storage.mjs';
 
 const referenceRoot = resolve(fileURLToPath(new URL('.', import.meta.url)));
 const repositoryRoot = resolve(referenceRoot, '..', '..', '..');
@@ -66,14 +68,53 @@ function normalizePublicBasePath(value = '/') {
     return normalized === '/' ? '/' : `${normalized}/`;
 }
 
-async function handleApi(request, response, url, matchService, publicBasePath) {
+async function handlePlayersApi(request, response, url, playerService) {
+    const parts = routeParts(url.pathname);
+    if (parts[0] !== 'api' || parts[1] !== 'players') return false;
+
+    if (request.method === 'POST' && parts[2] === 'register' && parts.length === 3) {
+        const body = await readJson(request);
+        const result = await playerService.register({
+            username: body.username,
+            email: body.email,
+            password: body.password,
+        });
+        sendJson(response, 201, result);
+        return true;
+    }
+    if (request.method === 'POST' && parts[2] === 'login' && parts.length === 3) {
+        const body = await readJson(request);
+        const result = await playerService.login({ username: body.username, password: body.password });
+        sendJson(response, 200, result);
+        return true;
+    }
+    if (request.method === 'POST' && parts[2] === 'logout' && parts.length === 3) {
+        playerService.logout(bearerToken(request));
+        sendJson(response, 200, { ok: true });
+        return true;
+    }
+    if (request.method === 'GET' && parts[2] === 'me' && parts.length === 3) {
+        const player = playerService.verifySession(bearerToken(request));
+        if (!player) {
+            throw new PlayerServiceError(401, 'invalid_session', 'Sign in to view this player.');
+        }
+        sendJson(response, 200, { player });
+        return true;
+    }
+    return false;
+}
+
+async function handleApi(request, response, url, matchService, playerService, publicBasePath) {
     const parts = routeParts(url.pathname);
     if (request.method === 'GET' && url.pathname === '/api/health') {
-        sendJson(response, 200, { ok: true, matches: matchService.size() });
+        sendJson(response, 200, { ok: true, matches: matchService.size(), players: playerService.size() });
         return true;
     }
     if (request.method === 'GET' && url.pathname === '/api/roster') {
         sendJson(response, 200, matchService.roster());
+        return true;
+    }
+    if (await handlePlayersApi(request, response, url, playerService)) {
         return true;
     }
     if (request.method === 'POST' && url.pathname === '/api/matches') {
@@ -154,13 +195,17 @@ function serveStatic(response, url) {
     return true;
 }
 
-export function createPokemonUnisonHandler({ matchService = createMatchService(), publicBasePath = '/' } = {}) {
+export function createPokemonUnisonHandler({
+    matchService = createMatchService(),
+    playerService = createPlayerService(),
+    publicBasePath = '/',
+} = {}) {
     const normalizedBasePath = normalizePublicBasePath(publicBasePath);
     return async (request, response) => {
         const url = new URL(request.url ?? '/', 'http://localhost');
         try {
             if (url.pathname.startsWith('/api/')) {
-                if (!(await handleApi(request, response, url, matchService, normalizedBasePath))) {
+                if (!(await handleApi(request, response, url, matchService, playerService, normalizedBasePath))) {
                     sendJson(response, 404, { error: 'api_not_found', message: 'API route not found.' });
                 }
                 return;
@@ -170,7 +215,7 @@ export function createPokemonUnisonHandler({ matchService = createMatchService()
                 response.end('Not found');
             }
         } catch (error) {
-            if (error instanceof MatchServiceError) {
+            if (error instanceof MatchServiceError || error instanceof PlayerServiceError) {
                 sendJson(response, error.status, { error: error.code, message: error.message });
                 return;
             }
@@ -188,14 +233,16 @@ const launchedDirectly = typeof process !== 'undefined' && process.argv[1] &&
     resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (launchedDirectly) {
     const port = Number.parseInt(process.env.PORT ?? '4173', 10);
-    const storage = createJsonMatchStorage(
-        process.env.POKEMON_UNISON_DATA_DIR ?? resolve(referenceRoot, '..', 'runtime-data', 'matches')
-    );
+    const dataDir = process.env.POKEMON_UNISON_DATA_DIR ?? resolve(referenceRoot, '..', 'runtime-data');
+    const storage = createJsonMatchStorage(resolve(dataDir, 'matches'));
+    const playerStorage = createJsonPlayerStorage(resolve(dataDir, 'players'));
     const matchService = createMatchService({ storage });
-    const server = createPokemonUnisonServer({ matchService });
+    const playerService = createPlayerService({ storage: playerStorage });
+    const server = createPokemonUnisonServer({ matchService, playerService });
     server.listen(port, '127.0.0.1', () => {
         console.log(`Pokemon Unison standalone: http://127.0.0.1:${port}`);
         console.log('This server is isolated from the current Comic/Pokemon Arena application.');
         console.log(`Persistent match data: ${storage.directory}`);
+        console.log(`Persistent player data: ${playerStorage.directory}`);
     });
 }

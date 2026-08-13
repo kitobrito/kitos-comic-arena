@@ -190,6 +190,70 @@ test('standalone HTTP API records surrender', async (t) => {
     assert.equal((await response.json()).state.winner, 'B');
 });
 
+test('standalone HTTP API registers, logs in, verifies, and logs out a player', async (t) => {
+    const server = createPokemonUnisonServer();
+    await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+    t.after(() => new Promise((resolve) => server.close(resolve)));
+    const { port } = server.address();
+    const origin = `http://127.0.0.1:${port}`;
+
+    const registerResponse = await fetch(`${origin}/api/players/register`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ username: 'Serena', email: 'serena@example.com', password: 'poncho-fashion1' }),
+    });
+    assert.equal(registerResponse.status, 201);
+    const registered = await registerResponse.json();
+    assert.equal(registered.player.username, 'Serena');
+    assert.ok(registered.token);
+
+    const duplicateResponse = await fetch(`${origin}/api/players/register`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ username: 'serena', email: '', password: 'anotherpass1' }),
+    });
+    assert.equal(duplicateResponse.status, 409);
+
+    const meResponse = await fetch(`${origin}/api/players/me`, {
+        headers: { authorization: `Bearer ${registered.token}` },
+    });
+    assert.equal(meResponse.status, 200);
+    assert.equal((await meResponse.json()).player.id, registered.player.id);
+
+    const noTokenResponse = await fetch(`${origin}/api/players/me`);
+    assert.equal(noTokenResponse.status, 401);
+
+    const loginResponse = await fetch(`${origin}/api/players/login`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ username: 'Serena', password: 'poncho-fashion1' }),
+    });
+    assert.equal(loginResponse.status, 200);
+    const loggedIn = await loginResponse.json();
+    assert.equal(loggedIn.player.id, registered.player.id);
+
+    const badLoginResponse = await fetch(`${origin}/api/players/login`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ username: 'Serena', password: 'wrong-password' }),
+    });
+    assert.equal(badLoginResponse.status, 401);
+
+    const logoutResponse = await fetch(`${origin}/api/players/logout`, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${loggedIn.token}` },
+    });
+    assert.equal(logoutResponse.status, 200);
+
+    const afterLogoutResponse = await fetch(`${origin}/api/players/me`, {
+        headers: { authorization: `Bearer ${loggedIn.token}` },
+    });
+    assert.equal(afterLogoutResponse.status, 401);
+
+    const healthResponse = await (await fetch(`${origin}/api/health`)).json();
+    assert.equal(healthResponse.players, 1);
+});
+
 test('server confines requests to reference and game asset roots', async () => {
     const server = await readFile(new URL('reference/server.mjs', root), 'utf8');
     assert.match(server, /safeResolve/);

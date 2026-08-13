@@ -13,6 +13,17 @@ function applicationLocation(search = '') {
 }
 
 const elements = {
+    accountBar: document.querySelector('#account-bar'),
+    accountForm: document.querySelector('#account-form'),
+    accountUsername: document.querySelector('#account-username'),
+    accountEmail: document.querySelector('#account-email'),
+    accountPassword: document.querySelector('#account-password'),
+    accountLoginButton: document.querySelector('#account-login-button'),
+    accountRegisterButton: document.querySelector('#account-register-button'),
+    accountError: document.querySelector('#account-error'),
+    accountSignedIn: document.querySelector('#account-signed-in'),
+    accountUsernameLabel: document.querySelector('#account-username-label'),
+    accountLogoutButton: document.querySelector('#account-logout-button'),
     actionError: document.querySelector('#action-error'),
     autoButton: document.querySelector('#auto-button'),
     commandHelp: document.querySelector('#command-help'),
@@ -87,6 +98,8 @@ const elements = {
     winnerLabel: document.querySelector('#winner-label'),
 };
 
+const PLAYER_TOKEN_STORAGE_KEY = 'pokemon-unison:player-token';
+let playerSession = null;
 let session = null;
 let snapshot = null;
 let selectedActorSlot = null;
@@ -293,6 +306,100 @@ function saveSession(next) {
     session = next;
     sessionStorage.setItem(tokenKey(next.matchId, next.player), next.token);
 }
+
+function loadStoredPlayerToken() {
+    return localStorage.getItem(PLAYER_TOKEN_STORAGE_KEY) ?? '';
+}
+
+function savePlayerToken(token) {
+    if (token) {
+        localStorage.setItem(PLAYER_TOKEN_STORAGE_KEY, token);
+    } else {
+        localStorage.removeItem(PLAYER_TOKEN_STORAGE_KEY);
+    }
+}
+
+function renderAccountBar() {
+    const signedIn = Boolean(playerSession);
+    elements.accountForm.hidden = signedIn;
+    elements.accountSignedIn.hidden = !signedIn;
+    if (signedIn) {
+        elements.accountUsernameLabel.textContent = playerSession.player.username;
+    }
+}
+
+async function restorePlayerSession() {
+    const token = loadStoredPlayerToken();
+    if (!token) return;
+    try {
+        const { player } = await api('/api/players/me', { token });
+        playerSession = { player, token };
+    } catch {
+        savePlayerToken('');
+        playerSession = null;
+    }
+    renderAccountBar();
+}
+
+async function registerPlayer() {
+    elements.accountError.textContent = '';
+    try {
+        const { player, token } = await api('/api/players/register', {
+            method: 'POST',
+            token: null,
+            body: {
+                username: elements.accountUsername.value,
+                email: elements.accountEmail.value,
+                password: elements.accountPassword.value,
+            },
+        });
+        playerSession = { player, token };
+        savePlayerToken(token);
+        elements.accountForm.reset();
+        renderAccountBar();
+    } catch (error) {
+        elements.accountError.textContent = error.message;
+    }
+}
+
+async function loginPlayer() {
+    elements.accountError.textContent = '';
+    try {
+        const { player, token } = await api('/api/players/login', {
+            method: 'POST',
+            token: null,
+            body: {
+                username: elements.accountUsername.value,
+                password: elements.accountPassword.value,
+            },
+        });
+        playerSession = { player, token };
+        savePlayerToken(token);
+        elements.accountForm.reset();
+        renderAccountBar();
+    } catch (error) {
+        elements.accountError.textContent = error.message;
+    }
+}
+
+async function logoutPlayer() {
+    if (!playerSession) return;
+    try {
+        await api('/api/players/logout', { method: 'POST', token: playerSession.token });
+    } catch {
+        // The token may already be revoked or expired; clear local state regardless.
+    }
+    playerSession = null;
+    savePlayerToken('');
+    renderAccountBar();
+}
+
+elements.accountForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    loginPlayer();
+});
+elements.accountRegisterButton.addEventListener('click', registerPlayer);
+elements.accountLogoutButton.addEventListener('click', logoutPlayer);
 
 function energyLabel(key) {
     return {
@@ -1322,6 +1429,8 @@ async function start() {
     const params = new URLSearchParams(window.location.search);
     const matchId = params.get('match');
     const inviteCode = params.get('invite');
+    renderAccountBar();
+    await restorePlayerSession();
     try {
         await loadRoster();
         if (matchId && inviteCode) {

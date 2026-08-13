@@ -10,6 +10,20 @@
 </head>
 <body class="selection-mode">
     <main class="arena-app">
+        <div id="account-bar" class="account-bar glass-panel" aria-label="Player account">
+            <form id="account-form" class="account-form" autocomplete="on">
+                <input id="account-username" name="username" type="text" placeholder="Username" autocomplete="username" required minlength="3" maxlength="24">
+                <input id="account-email" name="email" type="email" placeholder="Email (register only)" autocomplete="email">
+                <input id="account-password" name="password" type="password" placeholder="Password" autocomplete="current-password" required minlength="8">
+                <button id="account-login-button" type="submit">Log In</button>
+                <button id="account-register-button" type="button">Register</button>
+                <span id="account-error" class="account-error" role="alert"></span>
+            </form>
+            <div id="account-signed-in" class="account-signed-in" hidden>
+                <span>Signed in as <strong id="account-username-label"></strong></span>
+                <button id="account-logout-button" type="button">Log Out</button>
+            </div>
+        </div>
         <section id="lobby-panel" class="selection-screen" aria-label="Standalone character selection">
             <header class="selection-header glass-panel">
                 <div class="brand-lockup">
