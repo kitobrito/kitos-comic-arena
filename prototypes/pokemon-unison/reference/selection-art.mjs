@@ -42,6 +42,7 @@ export const SELECTION_RENDER_BY_ID = Object.freeze({
     chikorita: 'chikorita.png.webp',
     totodile: 'totodile.png.webp',
     aegislash: 'AEGISLASH.webp',
+    scraggy: 'scraggy.png.webp',
 });
 
 export const SELECTION_EVOLUTION_RENDER_BY_ID = Object.freeze({
@@ -63,6 +64,7 @@ export const SELECTION_EVOLUTION_RENDER_BY_ID = Object.freeze({
     pidgey: { name: 'Pidgeotto', filename: 'pidgeotto.png.webp' },
     squirtle: { name: 'Wartortle', filename: 'Wartortle.webp.webp' },
     zubat: { name: 'Golbat', filename: 'Golbat_Render_01.webp.webp' },
+    scraggy: { name: 'Scrafty', filename: 'scrafty.png.webp' },
 });
 
 export function selectionRenderUrl(filename = '') {

@@ -44,7 +44,7 @@
     { "id": "totodile", "name": "Totodile", "sourceSkillDefinitions": 5, "status": "ported-full" },
     { "id": "aegislash", "name": "Aegislash", "sourceSkillDefinitions": 5, "status": "ported-full" },
     { "id": "ditto", "name": "Ditto", "sourceSkillDefinitions": 5, "status": "not-started" },
-    { "id": "scraggy", "name": "Scraggy", "sourceSkillDefinitions": 5, "status": "not-started" },
+    { "id": "scraggy", "name": "Scraggy", "sourceSkillDefinitions": 5, "status": "ported-full" },
     { "id": "dragapult", "name": "Dragapult", "sourceSkillDefinitions": 4, "status": "not-started" },
     { "id": "nincada", "name": "Nincada", "sourceSkillDefinitions": 14, "status": "not-started" },
     { "id": "primeape", "name": "Primeape", "sourceSkillDefinitions": 5, "status": "not-started" }

@@ -221,6 +221,7 @@ test('custom teams are authoritative, unique, and limited to ported roster entri
         'chikorita',
         'totodile',
         'aegislash',
+        'scraggy',
     ]);
 });
 

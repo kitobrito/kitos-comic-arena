@@ -5479,6 +5479,163 @@ export const ROSTER = Object.freeze({
             }),
         ],
     },
+    scraggy: {
+        id: 'scraggy', name: 'Scraggy', types: [Type.DARK, Type.FIGHTING],
+        facePicture: '/game-assets/images/PokemonArena/Scraggy/fp.png',
+        passiveDescription: 'Gains 1 Focus Energy from Leer or a landed Hi Jump Kick. At 3 stacks, permanently evolves into Scrafty with improved skills.',
+        forcedEvolutionForm: 'scrafty',
+        startStatuses: [{
+            id: 'scraggy-focus-energy-tracker', name: 'Focus Energy',
+            description: 'Tracks Focus Energy stacks; evolves Scraggy into Scrafty at 3 stacks.',
+            hidden: true, harmful: false, durationActions: null, unremovable: true,
+            sourceSkillId: 'scraggy-focus-energy',
+            evolveOnCounter: { counter: 'focusEnergy', threshold: 3, form: 'scrafty' },
+        }],
+        forms: {
+            base: {
+                id: 'base', name: 'Scraggy', types: [Type.DARK, Type.FIGHTING],
+                facePicture: '/game-assets/images/PokemonArena/Scraggy/fp.png',
+                skillIds: [
+                    'scraggy-headbutt', 'scraggy-leer',
+                    'scraggy-hi-jump-kick', 'scraggy-focus-blast',
+                ],
+            },
+            scrafty: {
+                id: 'scrafty', name: 'Scrafty', types: [Type.DARK, Type.FIGHTING],
+                facePicture: '/game-assets/images/PokemonArena/Scraggy/scraftyfp.png',
+                skillIds: [
+                    'scrafty-headbutt', 'scrafty-leer',
+                    'scrafty-hi-jump-kick', 'scrafty-focus-blast',
+                ],
+            },
+        },
+        skills: [
+            skill({
+                id: 'scraggy-headbutt', name: 'Headbutt',
+                description: 'Deals 20 damage to one enemy, increased to 25 damage if they are stunned.',
+                target: 'single-enemy', energy: [Energy.TAIJUTSU], cooldown: 0,
+                moveType: Type.NORMAL, classes: ['Normal', 'Physical', 'Instant'],
+                effects: [
+                    { kind: 'damage', amount: 20, damageKind: 'normal', bonusIfTargetStunned: 5 },
+                ],
+            }),
+            skill({
+                id: 'scraggy-leer', name: 'Leer',
+                description: "Stuns one enemy's harmful skills for 1 turn and their Physical skills for 2 turns. Scraggy gains 1 Focus Energy.",
+                target: 'single-enemy', energy: [Energy.GENJUTSU], cooldown: 2,
+                moveType: Type.NORMAL, classes: ['Normal', 'Physical', 'Instant'],
+                effects: [
+                    { kind: 'status', status: {
+                        id: 'scraggy-leer-harmful-stun', name: 'Leer', hidden: false, harmful: true,
+                        durationActions: 1, durationAnchor: 'target',
+                        stunLikeEffect: true, cannotUseHarmfulSkills: true,
+                    } },
+                    { kind: 'status', status: {
+                        id: 'scraggy-leer-melee-stun', name: 'Leer', hidden: false, harmful: true,
+                        durationActions: 2, durationAnchor: 'target',
+                        stunLikeEffect: true, cannotUseSkillClasses: ['Physical'],
+                    } },
+                    { kind: 'increment-actor-counter', counter: 'focusEnergy', delta: 1, maximum: 3 },
+                ],
+            }),
+            skill({
+                id: 'scraggy-hi-jump-kick', name: 'Hi Jump Kick',
+                description: 'Deals 35 damage to one enemy. This skill has a 25% chance to miss, but cannot miss a stunned enemy. If it misses, Scraggy loses 25 HP.',
+                target: 'single-enemy', energy: [Energy.TAIJUTSU, Energy.RANDOM], cooldown: 1,
+                moveType: Type.FIGHTING, classes: ['Fighting', 'Physical', 'Instant'],
+                effects: [
+                    { kind: 'chance', chance: 75, chanceCertainIfTargetStunned: true,
+                        effects: [
+                            { kind: 'damage', amount: 35, damageKind: 'normal' },
+                            { kind: 'increment-actor-counter', counter: 'focusEnergy', delta: 1, maximum: 3 },
+                        ],
+                        elseEffects: [
+                            { kind: 'damage', scope: 'self', amount: 25, damageKind: 'fixed-piercing' },
+                        ],
+                    },
+                ],
+            }),
+            skill({
+                id: 'scraggy-focus-blast', name: 'Focus Blast',
+                description: 'Deals 40 piercing damage to one enemy at the start of their following turn. This skill can only be used while Scraggy has at least 1 Focus Energy.',
+                target: 'single-enemy', energy: [Energy.TAIJUTSU, Energy.GENJUTSU], cooldown: 1,
+                moveType: Type.FIGHTING, classes: ['Fighting', 'Special', 'Control', 'Instant'],
+                actorCondition: { counterAtLeast: { counter: 'focusEnergy', value: 1 } },
+                effects: [
+                    { kind: 'status', status: {
+                        id: 'scraggy-focus-blast-mark', name: 'Focus Blast', hidden: false, harmful: true,
+                        durationActions: 2, durationAnchor: 'target', turnStartAnchor: 'target',
+                        skipFirstTurnStartTick: true, consumeAfterTurnStart: true,
+                        turnStartDamage: 40, turnStartDamageKind: 'piercing',
+                        turnStartSkillClasses: ['Fighting', 'Special', 'Control', 'Instant'],
+                    } },
+                ],
+            }),
+            skill({
+                id: 'scrafty-headbutt', name: 'Headbutt',
+                description: 'Deals 30 damage to one enemy, increased to 40 damage if they are stunned.',
+                target: 'single-enemy', energy: [Energy.TAIJUTSU, Energy.RANDOM], cooldown: 0,
+                moveType: Type.NORMAL, classes: ['Normal', 'Physical', 'Instant'],
+                effects: [
+                    { kind: 'damage', amount: 30, damageKind: 'normal', bonusIfTargetStunned: 10 },
+                ],
+            }),
+            skill({
+                id: 'scrafty-leer', name: 'Leer',
+                description: "Stuns one enemy's harmful skills for 1 turn and their Physical skills for 2 turns. Hi Jump Kick cannot miss enemies affected by Leer.",
+                target: 'single-enemy', energy: [Energy.RANDOM], cooldown: 2,
+                moveType: Type.NORMAL, classes: ['Normal', 'Physical', 'Instant'],
+                effects: [
+                    { kind: 'status', status: {
+                        id: 'scraggy-leer-harmful-stun', name: 'Leer', hidden: false, harmful: true,
+                        durationActions: 1, durationAnchor: 'target',
+                        stunLikeEffect: true, cannotUseHarmfulSkills: true,
+                    } },
+                    { kind: 'status', status: {
+                        id: 'scraggy-leer-melee-stun', name: 'Leer', hidden: false, harmful: true,
+                        durationActions: 2, durationAnchor: 'target',
+                        stunLikeEffect: true, cannotUseSkillClasses: ['Physical'],
+                    } },
+                ],
+            }),
+            skill({
+                id: 'scrafty-hi-jump-kick', name: 'Hi Jump Kick',
+                description: 'Deals 45 damage to one enemy. This skill has a 25% chance to miss, but cannot miss a stunned enemy. If it misses, Scrafty loses 35 HP.',
+                target: 'single-enemy', energy: [Energy.TAIJUTSU, Energy.RANDOM], cooldown: 1,
+                moveType: Type.FIGHTING, classes: ['Fighting', 'Physical', 'Instant'],
+                effects: [
+                    { kind: 'chance', chance: 75, chanceCertainIfTargetStunned: true,
+                        effects: [
+                            { kind: 'damage', amount: 45, damageKind: 'normal' },
+                        ],
+                        elseEffects: [
+                            { kind: 'damage', scope: 'self', amount: 35, damageKind: 'fixed-piercing' },
+                        ],
+                    },
+                ],
+            }),
+            skill({
+                id: 'scrafty-focus-blast', name: 'Focus Blast',
+                description: 'Scrafty becomes invulnerable to Physical skills for 1 turn and deals 40 piercing damage to one enemy at the start of their following turn.',
+                target: 'single-enemy', energy: [Energy.TAIJUTSU, Energy.GENJUTSU], cooldown: 2,
+                moveType: Type.FIGHTING, classes: ['Fighting', 'Special', 'Control', 'Instant'],
+                effects: [
+                    { kind: 'status', scope: 'self', status: {
+                        id: 'scrafty-focus-blast-invulnerability', name: 'Focus Blast', hidden: false, harmful: false,
+                        durationActions: 1, durationAnchor: 'source',
+                        invulnerableToSkillClasses: ['Physical'],
+                    } },
+                    { kind: 'status', status: {
+                        id: 'scraggy-focus-blast-mark', name: 'Focus Blast', hidden: false, harmful: true,
+                        durationActions: 2, durationAnchor: 'target', turnStartAnchor: 'target',
+                        skipFirstTurnStartTick: true, consumeAfterTurnStart: true,
+                        turnStartDamage: 40, turnStartDamageKind: 'piercing',
+                        turnStartSkillClasses: ['Fighting', 'Special', 'Control', 'Instant'],
+                    } },
+                ],
+            }),
+        ],
+    },
 });
 
 export function unitPresentation(unit) {

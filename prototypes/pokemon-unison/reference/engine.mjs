@@ -441,13 +441,17 @@ function cooldownSkillIdAfterAction(unit, usedSkillId) {
 }
 
 function validateActorCondition(actor, skill) {
-    if (!skill.actorCondition?.allOtherSkillsOnCooldown) return null;
-    const everyOtherSkillIsCoolingDown = activeSkillIds(actor)
-        .filter((skillId) => skillId !== skill.id)
-        .every((skillId) => (actor.cooldowns[skillId] ?? 0) > 0);
-    return everyOtherSkillIsCoolingDown
-        ? null
-        : 'All other active skills must be on cooldown.';
+    if (skill.actorCondition?.allOtherSkillsOnCooldown) {
+        const everyOtherSkillIsCoolingDown = activeSkillIds(actor)
+            .filter((skillId) => skillId !== skill.id)
+            .every((skillId) => (actor.cooldowns[skillId] ?? 0) > 0);
+        if (!everyOtherSkillIsCoolingDown) return 'All other active skills must be on cooldown.';
+    }
+    if (skill.actorCondition?.counterAtLeast) {
+        const { counter, value } = skill.actorCondition.counterAtLeast;
+        if ((actor.counters[counter] ?? 0) < value) return `Requires at least ${value} ${counter}.`;
+    }
+    return null;
 }
 
 function livingTargets(state, player) {
@@ -1673,7 +1677,24 @@ function chanceThreshold(actor, effect, target, context) {
                 (Number(status[effect.chanceBonusFromActorStatus.field]) || 0) *
                     (effect.chanceBonusFromActorStatus.multiplier ?? 1), 0)
         : 0;
-    return base + counterBonus + missingHpBonus + targetHpBonus + actorStatusBonus + actorStatusFieldBonus;
+    const stunCertainty = effect.chanceCertainIfTargetStunned && target && hasAnyStunLikeStatus(target)
+        ? 100
+        : 0;
+    return Math.max(
+        base + counterBonus + missingHpBonus + targetHpBonus + actorStatusBonus + actorStatusFieldBonus,
+        stunCertainty
+    );
+}
+
+function hasAnyStunLikeStatus(unit) {
+    return unit.statuses.some((status) => statusActive(status) && Boolean(
+        status.stunLikeEffect ||
+        status.cannotUseSkills ||
+        status.stunHarmful ||
+        status.cannotUseNonMentalSkills ||
+        status.cannotUseHarmfulSkills ||
+        (Array.isArray(status.cannotUseSkillClasses) && status.cannotUseSkillClasses.length > 0)
+    ));
 }
 
 function rollEffectChance(state, actor, skill, effect, target, context) {
@@ -1769,6 +1790,9 @@ function applyEffectToTarget(state, context, effect, target) {
                     return total + count * perCount;
                 }, 0)
             : 0;
+        const stunnedTargetBonus = effect.bonusIfTargetStunned && hasAnyStunLikeStatus(target)
+            ? effect.bonusIfTargetStunned
+            : 0;
         const dealt = damageUnit(
             state,
             actor,
@@ -1776,7 +1800,8 @@ function applyEffectToTarget(state, context, effect, target) {
             effect.ignoreDamageReduction !== undefined
                 ? { ...skill, ignoreDamageReduction: effect.ignoreDamageReduction }
                 : skill,
-            effect.amount + counterBonus + actorStatusBonus + targetStatusBonus + actorStatusScaledAmount,
+            effect.amount + counterBonus + actorStatusBonus + targetStatusBonus + actorStatusScaledAmount +
+                stunnedTargetBonus,
             effect.damageKind,
             effect.applyTypeAdjustment === false
                 ? false
@@ -2757,6 +2782,10 @@ function resolveSourceTurnStartStatuses(state, player) {
                     ? target.player
                     : status.sourcePlayer;
                 if (triggerPlayer !== player) continue;
+                if (status.skipFirstTurnStartTick && !status.firstTurnStartTickSkipped) {
+                    status.firstTurnStartTickSkipped = true;
+                    continue;
+                }
                 if (status.turnStartHeal) {
                     healUnit(state, target, status.turnStartHeal, status.name);
                 }
