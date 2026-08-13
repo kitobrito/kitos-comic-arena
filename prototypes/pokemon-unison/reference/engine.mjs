@@ -466,10 +466,16 @@ function hasStatus(unit, predicate) {
 
 function stunnedSkillClasses(unit, skill) {
     const skillClasses = new Set(skill.classes ?? []);
-    return [...new Set(unit.statuses
+    const classHits = [...new Set(unit.statuses
         .filter(statusActive)
         .flatMap((status) => status.cannotUseSkillClasses ?? [])
         .filter((skillClass) => skillClasses.has(skillClass)))];
+    const idBlocked = unit.statuses.some((status) =>
+        statusActive(status) &&
+        Array.isArray(status.cannotUseSkillIds) &&
+        status.cannotUseSkillIds.includes(skill.id)
+    );
+    return idBlocked ? [...classHits, skill.name] : classHits;
 }
 
 function effectiveSkillCosts(state, actor, skill) {
@@ -1160,12 +1166,27 @@ function incomingBlocked(state, actor, target, skill) {
         return true;
     }
     const guard = target.statuses.find(
-        (status) => statusActive(status) && (status.blockNextHarmful || status.blockAllHarmful)
+        (status) =>
+            statusActive(status) &&
+            (status.blockNextHarmful || status.blockAllHarmful) &&
+            (!status.requiresSkillClass || skill.classes?.includes(status.requiresSkillClass))
     );
     if (guard) {
         if (guard.blockNextHarmful) guard.durationActions = 0;
         if (guard.counterSourceOnBlock) {
             incrementCounter(state, sourceUnitForStatus(state, guard), guard.counterSourceOnBlock, 1, 3);
+        }
+        if (guard.reflectFixedDamage) {
+            damageUnit(
+                state, target, actor,
+                { id: guard.sourceSkillId ?? guard.id, name: guard.name, moveType: null, classes: guard.reflectSkillClasses ?? [] },
+                guard.reflectFixedDamage, guard.reflectDamageKind ?? 'piercing', false
+            );
+            if (guard.reflectApplyStatusToSource && target.alive) {
+                addStatus(state, target, {
+                    player: target.player, slot: target.slot, targetPlayer: target.player,
+                }, guard.reflectApplyStatusToSource);
+            }
         }
         log(state, 'blocked', `${getSpecies(target).name} blocked ${skill.name} with ${guard.name}.`);
         return true;
@@ -1855,6 +1876,9 @@ function applyEffectToTarget(state, context, effect, target) {
         const actorHpBonus = effect.bonusIfActorHpAtMost && actor.hp <= effect.bonusIfActorHpAtMost.threshold
             ? effect.bonusIfActorHpAtMost.amount
             : 0;
+        const actorShieldBonus = effect.bonusIfActorHasShield && actor.shield > 0
+            ? effect.bonusIfActorHasShield
+            : 0;
         const dealt = damageUnit(
             state,
             actor,
@@ -1863,7 +1887,7 @@ function applyEffectToTarget(state, context, effect, target) {
                 ? { ...skill, ignoreDamageReduction: effect.ignoreDamageReduction }
                 : skill,
             effect.amount + counterBonus + actorStatusBonus + targetStatusBonus + actorStatusScaledAmount +
-                stunnedTargetBonus + missingHpBonus + actorHpBonus,
+                stunnedTargetBonus + missingHpBonus + actorHpBonus + actorShieldBonus,
             effect.damageKind,
             effect.applyTypeAdjustment === false
                 ? false
@@ -2265,7 +2289,10 @@ function applyEffectToTarget(state, context, effect, target) {
                 0
             )
             : 0;
-        const granted = grantShield(target, effect.amount + counterBonus + incomingBonus);
+        const shieldBonus = effect.bonusIfTargetHasShield && target.shield > 0
+            ? effect.bonusIfTargetHasShield
+            : 0;
+        const granted = grantShield(target, effect.amount + counterBonus + incomingBonus + shieldBonus);
         if (effect.trackedStatus) {
             const trackedStatus = clone(effect.trackedStatus);
             if (effect.copyActorStatusNumeric) {
@@ -2421,6 +2448,56 @@ function applyEffectToTarget(state, context, effect, target) {
                 ? { [effect.scaledField]: nextStacks * (Number(effect.perStack) || 0) }
                 : {}),
         });
+    } else if (effect.kind === 'nincada-evolve') {
+        if (actor.hp >= 50) {
+            evolveUnit(state, actor, 'ninjask');
+            actor.statuses = actor.statuses.filter((status) => status.id !== 'nincada-evolution-tracker');
+        }
+        const faintedAlly = state.teams[actor.player].find(
+            (unit) => unit !== actor && !unit.alive && !unit.banished
+        );
+        if (faintedAlly) {
+            faintedAlly.alive = true;
+            faintedAlly.maxHp = 1;
+            faintedAlly.hp = 1;
+            faintedAlly.statuses = [];
+            faintedAlly.cooldowns = {};
+            faintedAlly.skillUses = {};
+            faintedAlly.effectiveSpeciesId = 'nincada';
+            faintedAlly.effectiveForm = 'shedinja';
+            const shedinjaForm = ROSTER.nincada?.forms?.shedinja;
+            (shedinjaForm?.addStatusesOnEnter ?? []).forEach((template) => {
+                addStatus(state, faintedAlly, {
+                    player: faintedAlly.player, slot: faintedAlly.slot, targetPlayer: faintedAlly.player,
+                }, template);
+            });
+            log(state, 'revive', `${getSpecies(faintedAlly).name} was revived as Shedinja with 1 maximum HP.`, {
+                targetPlayer: faintedAlly.player,
+                targetSlot: faintedAlly.slot,
+            });
+        }
+    } else if (effect.kind === 'random-tier-damage') {
+        const options = effect.options ?? [];
+        if (!options.length) return;
+        const picked = options[Math.floor(nextRandom(state) * options.length)];
+        log(state, 'random-tier', `${skill.name} rolled the ${picked.amount}-damage tier.`, {
+            player: actor.player, actorSlot: actor.slot, skillId: skill.id, amount: picked.amount,
+        });
+        const tierDealt = damageUnit(
+            state, actor, target, skill, picked.amount,
+            effect.damageKind ?? 'normal', shouldApplyTypeAdjustment(context, target)
+        );
+        if (tierDealt > 0 && effect.actorCounterFromDamage) {
+            incrementCounter(
+                state, actor, effect.actorCounterFromDamage.counter,
+                tierDealt, effect.actorCounterFromDamage.maximum
+            );
+        }
+        if (picked.selfStatus) {
+            addStatus(state, actor, {
+                player: actor.player, slot: actor.slot, targetPlayer: actor.player,
+            }, picked.selfStatus);
+        }
     } else if (effect.kind === 'steal-helpful-status') {
         const stolen = target.statuses.find((status) =>
             statusActive(status) &&
@@ -3081,6 +3158,10 @@ function triggerOwnerUseSkillHooks(state, actor, skill, target) {
         const hook = status.onUseSkill;
         if (hook.harmfulOnly && !skillIsHarmfulToTarget(skill, actor, target)) continue;
         if (hook.requireFirstSkillUse && (actor.skillUses?.[skill.id] ?? 0) > 1) continue;
+        if (
+            Array.isArray(hook.classesAny) &&
+            !hook.classesAny.some((entry) => skill.classes?.includes(entry))
+        ) continue;
         if (hook.damageToOwner) {
             dealFixedStatusDamage(
                 state,
@@ -3119,6 +3200,13 @@ function triggerOwnerUseSkillHooks(state, actor, skill, target) {
                 statusTemplate
             );
         });
+        if (source?.alive) {
+            (hook.applyStatusesToSource ?? []).forEach((statusTemplate) => {
+                addStatus(state, source, {
+                    player: source.player, slot: source.slot, targetPlayer: source.player,
+                }, statusTemplate);
+            });
+        }
         if (hook.incrementOwnNumericField) {
             const field = hook.incrementOwnNumericField;
             status[field] = Math.max(0, Number(status[field]) || 0) +
@@ -3150,22 +3238,25 @@ function triggerCounteredDamagingSkill(state, actor, skill) {
     const status = actor.statuses.find((entry) =>
         statusActive(entry) &&
         entry.counterNextNewDamagingSkill &&
-        (actor.skillUses?.[skill.id] ?? 0) === 1
+        (actor.skillUses?.[skill.id] ?? 0) === 1 &&
+        (!entry.counterRequiresSkillClass || skill.classes?.includes(entry.counterRequiresSkillClass))
     );
     if (!status) return false;
     // Mirrors production's resolveEffectDamageAmount: the countered skill's damage is evaluated
     // from the attacker's own buffed state (their outgoing bonuses/multipliers), not the raw
     // listed amount, since the skill never actually resolves against the target to pick up any
     // target-side reduction or type effectiveness.
-    const baseDamage = skill.effects.reduce((total, effect) => {
-        if (!['damage', 'drain', 'fixed-affliction-damage'].includes(effect.kind)) return total;
-        const rawAmount = Math.max(0, Number(effect.amount) || 0);
-        if (rawAmount <= 0) return total;
-        const bonus = outgoingSkillBonus(actor, skill) +
-            outgoingGeneralBonus(actor, skill, effect.damageKind) -
-            outgoingDebuff(actor);
-        return total + Math.max(0, (rawAmount + bonus) * outgoingClassMultiplier(actor, skill));
-    }, 0);
+    const baseDamage = Number.isFinite(status.counterFixedDamage)
+        ? status.counterFixedDamage
+        : skill.effects.reduce((total, effect) => {
+            if (!['damage', 'drain', 'fixed-affliction-damage'].includes(effect.kind)) return total;
+            const rawAmount = Math.max(0, Number(effect.amount) || 0);
+            if (rawAmount <= 0) return total;
+            const bonus = outgoingSkillBonus(actor, skill) +
+                outgoingGeneralBonus(actor, skill, effect.damageKind) -
+                outgoingDebuff(actor);
+            return total + Math.max(0, (rawAmount + bonus) * outgoingClassMultiplier(actor, skill));
+        }, 0);
     if (baseDamage <= 0) return false;
     const source = sourceUnitForStatus(state, status);
     status.durationActions = 0;
@@ -3191,6 +3282,11 @@ function triggerCounteredDamagingSkill(state, actor, skill) {
     });
     if (dealt > 0 && status.evolveSourceForm && source.alive) {
         evolveUnit(state, source, status.evolveSourceForm);
+    }
+    if (dealt > 0 && status.counterApplyStatusToSource && source.alive) {
+        addStatus(state, source, {
+            player: source.player, slot: source.slot, targetPlayer: source.player,
+        }, status.counterApplyStatusToSource);
     }
     return true;
 }

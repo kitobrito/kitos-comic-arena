@@ -16,6 +16,15 @@ function collectSkillDescriptions(skills, result = new Map()) {
     return result;
 }
 
+// Nincada's Ninjask/Shedinja forms live under battleForms (separate characters with their
+// own skills array), not skill.evolvesTo, so their descriptions must be collected separately.
+function collectBattleFormSkillDescriptions(character, result = new Map()) {
+    for (const form of character?.battleForms ?? []) {
+        collectSkillDescriptions(form.skills, result);
+    }
+    return result;
+}
+
 // These three skills carry a requested balance update (weather effects) that is
 // intentionally ahead of the live Comic Arena game and has not shipped there yet.
 // zapdos-thunderstorm also has no production counterpart because it was renamed
@@ -34,6 +43,7 @@ test('every standalone skill displays the complete current Comic Arena descripti
         const source = sourceById.get(characterId);
         assert.ok(source, `${characterId} is missing from characters.js`);
         const sourceDescriptions = collectSkillDescriptions(source.skills);
+        collectBattleFormSkillDescriptions(source, sourceDescriptions);
 
         for (const skill of character.skills) {
             if (AHEAD_OF_PRODUCTION_SKILL_IDS.has(skill.id)) {
@@ -52,5 +62,5 @@ test('every standalone skill displays the complete current Comic Arena descripti
         }
     }
 
-    assert.equal(checked, 264);
+    assert.equal(checked, 276);
 });

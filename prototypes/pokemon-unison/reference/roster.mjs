@@ -5835,6 +5835,213 @@ export const ROSTER = Object.freeze({
             ],
         })),
     },
+    nincada: {
+        id: 'nincada', name: 'Nincada', types: [Type.BUG, Type.GROUND],
+        facePicture: '/game-assets/images/PokemonArena/Nincada/Nincada-FP.jpg',
+        passiveDescription: 'After Nincada has dealt 50 total damage, Evolve becomes usable: at 50 HP or more Nincada becomes Ninjask, and its lowest-slot fainted ally (if any) becomes Shedinja with 1 maximum HP.',
+        startStatuses: [{
+            id: 'nincada-evolution-tracker', name: 'Evolve', hidden: true, harmful: false,
+            durationActions: null, unremovable: true, sourceSkillId: 'nincada-evolve',
+        }],
+        forms: {
+            base: {
+                id: 'base', name: 'Nincada', types: [Type.BUG, Type.GROUND],
+                facePicture: '/game-assets/images/PokemonArena/Nincada/Nincada-FP.jpg',
+                skillIds: ['nincada-metal-claw', 'nincada-struggle-bug', 'nincada-hidden-power', 'nincada-evolve'],
+            },
+            ninjask: {
+                id: 'ninjask', name: 'Ninjask', types: [Type.BUG, Type.FLYING],
+                facePicture: '/game-assets/images/PokemonArena/Nincada/Ninjask-FP.jpg',
+                healOnEnter: 0,
+                skillIds: ['ninjask-skitter-smack', 'ninjask-shadow-ball', 'ninjask-extreme-speed', 'ninjask-double-team'],
+                addStatusesOnEnter: [{
+                    id: 'ninjask-speed-boost-passive', name: 'Speed Boost', hidden: true, harmful: false,
+                    durationActions: null, unremovable: true, sourceSkillId: 'ninjask-speed-boost',
+                    onUseSkill: {
+                        applyStatusesToOwner: [{
+                            id: 'ninjask-speed-boost-passive', durationActions: null,
+                            evadeChancePercent: 5, mergeNumericFields: ['evadeChancePercent'],
+                        }],
+                    },
+                }],
+            },
+            shedinja: {
+                id: 'shedinja', name: 'Shedinja', types: [Type.BUG, Type.GHOST],
+                facePicture: '/game-assets/images/PokemonArena/Nincada/Shedinja-FP.jpg',
+                skillIds: ['shedinja-bug-buzz', 'shedinja-feint-attack', 'shedinja-solar-beam', 'shedinja-hex'],
+                addStatusesOnEnter: [{
+                    id: 'shedinja-wonder-guard-passive', name: 'Wonder Guard', hidden: true, harmful: false,
+                    durationActions: null, unremovable: true, sourceSkillId: 'shedinja-wonder-guard',
+                    ignoreNextEnemyDamageEffects: 3,
+                }],
+            },
+        },
+        skills: [
+            skill({
+                id: 'nincada-metal-claw', name: 'Metal Claw',
+                description: 'Deals 15 Physical damage to one enemy and grants Nincada 15 destructible defense. If Nincada already has destructible defense, both amounts are increased by 10.',
+                target: 'single-enemy', energy: [Energy.GENJUTSU], cooldown: 0,
+                moveType: Type.STEEL, classes: ['Steel', 'Physical', 'Instant'],
+                effects: [
+                    {
+                        kind: 'damage', amount: 15, damageKind: 'normal', bonusIfActorHasShield: 10,
+                        actorCounterFromDamage: { counter: 'nincadaDamage', maximum: 50 },
+                    },
+                    { kind: 'shield', scope: 'self', amount: 15, bonusIfTargetHasShield: 10 },
+                ],
+            }),
+            skill({
+                id: 'nincada-struggle-bug', name: 'Struggle Bug',
+                description: "For 1 turn, the first enemy Physical skill used on Nincada is countered and its user takes 15 Physical affliction damage. After a successful counter, Nincada gains 25% evasion for 1 turn.",
+                target: 'self', energy: [Energy.TAIJUTSU], cooldown: 2,
+                moveType: Type.BUG, classes: ['Bug', 'Physical', 'Affliction', 'Strategic', 'Action'], harmful: false,
+                effects: [
+                    { kind: 'status', status: {
+                        id: 'nincada-struggle-bug-counter', name: 'Struggle Bug', hidden: false, harmful: false,
+                        durationActions: 1, durationAnchor: 'source',
+                        blockNextHarmful: true, requiresSkillClass: 'Physical',
+                        reflectFixedDamage: 15, reflectDamageKind: 'affliction',
+                        reflectSkillClasses: ['Bug', 'Physical', 'Affliction'],
+                        reflectApplyStatusToSource: {
+                            id: 'nincada-struggle-bug-evasion', name: 'Struggle Bug Evasion', hidden: false, harmful: false,
+                            durationActions: 1, durationAnchor: 'source', evadeChancePercent: 25,
+                        },
+                    } },
+                ],
+            }),
+            skill({
+                id: 'nincada-hidden-power', name: 'Hidden Power',
+                description: 'Randomly deals 10, 20, or 30 Special damage to one enemy. If it deals 30, Metal Claw and Hidden Power are stunned for 1 turn.',
+                target: 'single-enemy', energy: [Energy.RANDOM], cooldown: 1,
+                moveType: Type.NORMAL, classes: ['Normal', 'Special', 'Instant'],
+                effects: [
+                    { kind: 'random-tier-damage', damageKind: 'normal',
+                        actorCounterFromDamage: { counter: 'nincadaDamage', maximum: 50 },
+                        options: [
+                            { amount: 10 },
+                            { amount: 20 },
+                            { amount: 30, selfStatus: {
+                                id: 'nincada-hidden-power-recoil-stun', name: 'Hidden Power Recoil', hidden: false, harmful: true,
+                                durationActions: 1, durationAnchor: 'source', stunLikeEffect: true,
+                                cannotUseSkillIds: ['nincada-metal-claw', 'nincada-hidden-power'],
+                            } },
+                        ],
+                    },
+                ],
+            }),
+            skill({
+                id: 'nincada-evolve', name: 'Evolve',
+                description: 'After Nincada has dealt 50 total damage, this can be used once. At 50 HP or more, Nincada evolves into Ninjask. The lowest-slot fainted ally, if any, becomes Shedinja with exactly 1 maximum HP. This cannot be countered or reflected.',
+                target: 'self', energy: [], cooldown: 0, maxUses: 1,
+                moveType: Type.GROUND, classes: ['Ground', 'Strategic', 'Evolution', 'Instant', 'Uncounterable', 'Unreflectable'],
+                harmful: false, cannotBeCountered: true,
+                actorCondition: { counterAtLeast: { counter: 'nincadaDamage', value: 50 } },
+                effects: [{ kind: 'nincada-evolve' }],
+            }),
+            skill({
+                id: 'ninjask-skitter-smack', name: 'Skitter Smack',
+                description: "Deals 25 piercing Physical damage to one enemy and ignores invulnerability. If Double Team was used during Ninjask's previous turn, this costs 1 Random instead.",
+                target: 'single-enemy', energy: [Energy.GENJUTSU], cooldown: 0,
+                moveType: Type.BUG, classes: ['Bug', 'Physical', 'Instant', 'Bypassing'], ignoreInvulnerability: true,
+                effects: [{ kind: 'damage', amount: 25, damageKind: 'piercing' }],
+            }),
+            skill({
+                id: 'ninjask-shadow-ball', name: 'Shadow Ball',
+                description: "Deals 35 Special damage to one enemy. If Double Team was used during Ninjask's previous turn, this deals 30 Special damage to the enemy team instead.",
+                target: 'single-enemy', energy: [Energy.GENJUTSU, Energy.RANDOM], cooldown: 2,
+                moveType: Type.GHOST, classes: ['Ghost', 'Special', 'Instant'],
+                effects: [{ kind: 'damage', amount: 35, damageKind: 'normal' }],
+            }),
+            skill({
+                id: 'ninjask-extreme-speed', name: 'Extreme Speed',
+                description: "Deals 20 Physical damage to one enemy and grants Ninjask 10% evasion for 1 turn. If Double Team was used during Ninjask's previous turn, the damage repeats the following turn and the evasion lasts 1 additional turn.",
+                target: 'single-enemy', energy: [Energy.TAIJUTSU, Energy.GENJUTSU], cooldown: 1,
+                moveType: Type.NORMAL, classes: ['Normal', 'Physical', 'Continuous', 'Instant'],
+                effects: [
+                    { kind: 'damage', amount: 20, damageKind: 'normal' },
+                    { kind: 'status', scope: 'self', status: {
+                        id: 'ninjask-extreme-speed-evasion', name: 'Extreme Speed', hidden: false, harmful: false,
+                        durationActions: 1, durationAnchor: 'source', evadeChancePercent: 10,
+                    } },
+                ],
+            }),
+            skill({
+                id: 'ninjask-double-team', name: 'Double Team',
+                description: "Ninjask gains 75% evasion for 1 turn. During Ninjask's following turn, its other skills receive their Double Team bonuses.",
+                target: 'self', energy: [Energy.RANDOM], cooldown: 4,
+                moveType: Type.NORMAL, classes: ['Normal', 'Strategic', 'Instant'], harmful: false,
+                effects: [{ kind: 'status', status: {
+                    id: 'ninjask-double-team-active', name: 'Double Team', hidden: false, harmful: false,
+                    durationActions: 1, durationAnchor: 'source', evadeChancePercent: 75,
+                } }],
+            }),
+            skill({
+                id: 'shedinja-bug-buzz', name: 'Bug Buzz',
+                description: 'Deals 30 Physical damage to one enemy and silences their non-damage skill effects for 1 turn.',
+                target: 'single-enemy', energy: [Energy.TAIJUTSU, Energy.RANDOM], cooldown: 0,
+                moveType: Type.BUG, classes: ['Bug', 'Physical', 'Instant'],
+                effects: [
+                    { kind: 'damage', amount: 30, damageKind: 'normal' },
+                    { kind: 'status', status: {
+                        id: 'shedinja-bug-buzz-silence', name: 'Bug Buzz', hidden: false, harmful: true,
+                        durationActions: 1, durationAnchor: 'target', silenceNonDamageEffects: true,
+                    } },
+                ],
+            }),
+            skill({
+                id: 'shedinja-feint-attack', name: 'Feint Attack',
+                description: "Marks one enemy for 1 turn. If they use a harmful skill, they take 30 Physical damage and cannot reduce damage or become invulnerable for 1 turn. If they use a Strategic skill, Shedinja's skills cost 1 less Random for 1 turn.",
+                target: 'single-enemy', energy: [Energy.GENJUTSU], cooldown: 2,
+                moveType: Type.DARK, classes: ['Dark', 'Physical', 'Strategic', 'Action'],
+                effects: [
+                    { kind: 'status', status: {
+                        id: 'shedinja-feint-attack-harmful', name: 'Feint Attack', hidden: false, harmful: true,
+                        durationActions: 1, durationAnchor: 'target',
+                        onUseSkill: {
+                            harmfulOnly: true, damageToOwner: 30,
+                            applyStatusesToOwner: [{
+                                id: 'shedinja-feint-attack-exposed', name: 'Feint Attack Exposure', hidden: false, harmful: true,
+                                durationActions: 1, durationAnchor: 'source', guardBroken: true,
+                            }],
+                        },
+                    } },
+                    { kind: 'status', status: {
+                        id: 'shedinja-feint-attack-strategic', name: 'Feint Attack', hidden: false, harmful: true,
+                        durationActions: 1, durationAnchor: 'target',
+                        onUseSkill: {
+                            classesAny: ['Strategic'],
+                            applyStatusesToSource: [{
+                                id: 'shedinja-feint-attack-cost-reduction', name: 'Feint Attack Discount', hidden: false, harmful: false,
+                                durationActions: 1, durationAnchor: 'source', randomCostReduction: 1,
+                            }],
+                        },
+                    } },
+                ],
+            }),
+            skill({
+                id: 'shedinja-solar-beam', name: 'Solar Beam',
+                description: 'Deals 35 Special damage to the enemy team, increased by 5 for every Shedinja turn since Solar Beam was last used. Its accumulated bonus resets after use.',
+                target: 'all-enemy', energy: [Energy.TAIJUTSU, Energy.GENJUTSU, Energy.RANDOM], cooldown: 1,
+                moveType: Type.GRASS, classes: ['Grass', 'Special', 'Instant'],
+                effects: [{ kind: 'damage', scope: 'all-enemy', amount: 35, damageKind: 'normal' }],
+            }),
+            skill({
+                id: 'shedinja-hex', name: 'Hex',
+                description: 'Deals 5 Special damage to the enemy team. Each enemy permanently takes 5 additional damage from Special skills. This effect stacks.',
+                target: 'all-enemy', energy: [Energy.RANDOM], cooldown: 0,
+                moveType: Type.GHOST, classes: ['Ghost', 'Special', 'Instant'],
+                effects: [
+                    { kind: 'damage', scope: 'all-enemy', amount: 5, damageKind: 'normal' },
+                    { kind: 'status', scope: 'all-enemy', status: {
+                        id: 'shedinja-hex-vulnerability', name: 'Hex', hidden: false, harmful: true,
+                        durationActions: null, unremovable: true,
+                        incomingDamageBonusBySkillClass: { Special: 5 },
+                        mergeMapFields: ['incomingDamageBonusBySkillClass'],
+                    } },
+                ],
+            }),
+        ],
+    },
 });
 
 export function unitPresentation(unit) {

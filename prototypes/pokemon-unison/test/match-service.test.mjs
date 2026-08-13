@@ -225,6 +225,7 @@ test('custom teams are authoritative, unique, and limited to ported roster entri
         'dragapult',
         'primeape',
         'ditto',
+        'nincada',
     ]);
 });
 
