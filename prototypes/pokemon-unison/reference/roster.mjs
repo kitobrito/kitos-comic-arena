@@ -5107,6 +5107,93 @@ export const ROSTER = Object.freeze({
             }),
         ],
     },
+    cyndaquil: {
+        id: 'cyndaquil', name: 'Cyndaquil', types: [Type.FIRE],
+        facePicture: '/game-assets/images/PokemonArena/Cyndaquil/FP.webp',
+        passiveDescription: 'Each new skill Cyndaquil uses permanently adds 5 damage to Aerial Flamethrower and Warming Up.',
+        startStatuses: [{
+            id: 'cyndaquil-warming-up-passive', name: 'Warming Up',
+            description: 'Using a skill permanently adds 5 damage to Aerial Flamethrower and Warming Up.',
+            hidden: true, harmful: false, durationActions: null, unremovable: true,
+            sourceSkillId: 'cyndaquil-warming-up',
+            skillDamageBonuses: { 'cyndaquil-aerial-flamethrower': 0, 'cyndaquil-warming-up': 0 },
+            onUseSkill: {
+                applyStatusesToOwner: [{
+                    id: 'cyndaquil-warming-up-passive', durationActions: null,
+                    skillDamageBonuses: { 'cyndaquil-aerial-flamethrower': 5, 'cyndaquil-warming-up': 5 },
+                    mergeMapFields: ['skillDamageBonuses'],
+                }],
+            },
+        }],
+        forms: {
+            base: {
+                id: 'base', name: 'Cyndaquil', types: [Type.FIRE],
+                facePicture: '/game-assets/images/PokemonArena/Cyndaquil/FP.webp',
+                skillIds: [
+                    'cyndaquil-aerial-tackle', 'cyndaquil-aerial-flamethrower',
+                    'cyndaquil-cynda-smokescreen', 'cyndaquil-skyward-leap',
+                ],
+            },
+        },
+        skills: [
+            skill({
+                id: 'cyndaquil-aerial-tackle', name: 'Aerial Tackle',
+                description: 'Deals 20 damage to one enemy and cancels any Control or Channeled skills they have active.',
+                target: 'single-enemy', energy: [Energy.RANDOM], cooldown: 0,
+                moveType: Type.NORMAL, classes: ['Normal', 'Physical', 'Instant'],
+                effects: [
+                    { kind: 'damage', amount: 20, damageKind: 'normal' },
+                    { kind: 'remove-source-control-statuses' },
+                ],
+            }),
+            skill({
+                id: 'cyndaquil-aerial-flamethrower', name: 'Aerial Flamethrower',
+                description: 'Deals 5 affliction damage to all enemies. Enemies affected by Cynda-Smokescreen take 5 additional affliction damage next turn.',
+                target: 'all-enemy', energy: [Energy.BLOODLINE], cooldown: 1,
+                moveType: Type.FIRE, classes: ['Fire', 'Special', 'Affliction', 'Instant'],
+                effects: [
+                    { kind: 'damage', scope: 'all-enemy', amount: 5, damageKind: 'affliction' },
+                    { kind: 'status', scope: 'all-enemy', requiresTargetStatus: 'cyndaquil-smokescreen-active', status: {
+                        id: 'cyndaquil-flamethrower-afterburn', name: 'Flamethrower Afterburn', hidden: false, harmful: true,
+                        durationActions: 1, durationAnchor: 'target',
+                        turnStartAnchor: 'target', turnStartDamage: 5, turnStartDamageKind: 'affliction',
+                        turnStartSkillClasses: ['Fire', 'Special', 'Affliction', 'Instant'],
+                        sourceSkillId: 'cyndaquil-aerial-flamethrower',
+                    } },
+                ],
+            }),
+            skill({
+                id: 'cyndaquil-cynda-smokescreen', name: 'Cynda-Smokescreen',
+                description: 'Fully blinds the enemy team for 1 turn. Aerial Flamethrower lasts 1 additional turn on affected enemies.',
+                target: 'all-enemy', energy: [Energy.RANDOM, Energy.RANDOM], cooldown: 3,
+                moveType: Type.NORMAL, classes: ['Normal', 'Strategic', 'Instant'],
+                effects: [
+                    { kind: 'status', scope: 'all-enemy', status: {
+                        id: 'cyndaquil-smokescreen-active', name: 'Cynda-Smokescreen', hidden: false, harmful: true,
+                        durationActions: 2, skillFailChance: 100,
+                    } },
+                ],
+            }),
+            skill({
+                id: 'cyndaquil-skyward-leap', name: 'Skyward Leap',
+                description: 'The next enemy skill used on Cyndaquil misses. After it misses, Aerial Tackle and Aerial Flamethrower deal 10 additional damage for 1 turn. Taking damage ends this effect.',
+                target: 'self', energy: [], cooldown: 2,
+                moveType: Type.FIRE, classes: ['Fire', 'Strategic', 'Instant'], harmful: false,
+                effects: [
+                    { kind: 'status', status: {
+                        id: 'cyndaquil-skyward-leap-active', name: 'Skyward Leap', hidden: false, harmful: false,
+                        durationActions: 2, durationAnchor: 'source',
+                        evadeChancePercent: 100, consumeOnEvade: true,
+                        onEvadeApplyStatus: {
+                            id: 'cyndaquil-skyward-bonus', name: 'Skyward Bonus', hidden: false, harmful: false,
+                            durationActions: 1, durationAnchor: 'source',
+                            skillDamageBonuses: { 'cyndaquil-aerial-tackle': 10, 'cyndaquil-aerial-flamethrower': 10 },
+                        },
+                    } },
+                ],
+            }),
+        ],
+    },
 });
 
 export function unitPresentation(unit) {

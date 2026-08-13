@@ -1071,6 +1071,23 @@ function incomingBlocked(state, actor, target, skill) {
                     targetSlot: target.slot,
                     skillId: skill.id,
                 });
+                target.statuses
+                    .filter((status) =>
+                        statusActive(status) &&
+                        (Number(status.evadeChancePercent) || 0) > 0 &&
+                        status.consumeOnEvade
+                    )
+                    .forEach((status) => {
+                        if (status.onEvadeApplyStatus) {
+                            addStatus(state, target, {
+                                player: status.sourcePlayer ?? target.player,
+                                slot: status.sourceSlot ?? target.slot,
+                                targetPlayer: target.player,
+                            }, status.onEvadeApplyStatus);
+                        }
+                        status.durationActions = 0;
+                    });
+                target.statuses = target.statuses.filter(statusActive);
                 return true;
             }
         }
@@ -1372,8 +1389,10 @@ function damageUnit(
     );
     const weatherBonus = weatherDamageTypeBonus(state, skill) + weatherAfflictionBonus(state, damageKind);
     const outgoingBase = (
-        damageKind === 'affliction' || fixedDamage
+        fixedDamage
             ? amount + weatherBonus
+            : damageKind === 'affliction'
+            ? amount + weatherBonus + outgoingSkillBonus(actor, skill)
             : Math.max(
                 0,
                 amount + weatherBonus + outgoingSkillBonus(actor, skill) +
@@ -2191,6 +2210,24 @@ function applyEffectToTarget(state, context, effect, target) {
         }
         const healAmount = Math.floor(unitMaxHp(target) * (Number(effect.healPercent) || 0) / 100);
         if (healAmount > 0) healUnit(state, target, healAmount, skill.name);
+    } else if (effect.kind === 'remove-source-control-statuses') {
+        const isControlStatus = (status) => Boolean(
+            status.cannotUseSkills || status.cannotUseHarmfulSkills || status.cannotUseHelpfulSkills ||
+            status.cannotUseNonMentalSkills || status.fullBlind || status.harmfulBlindToSourceTeam ||
+            status.paralyzeCooldowns || status.tauntSource ||
+            (Array.isArray(status.cannotUseSkillClasses) && status.cannotUseSkillClasses.length > 0) ||
+            status.ongoingClass === 'channeled'
+        );
+        players.forEach((player) => {
+            state.teams[player].forEach((unit) => {
+                unit.statuses = unit.statuses.filter((status) =>
+                    status.unremovable ||
+                    !isControlStatus(status) ||
+                    status.sourcePlayer !== target.player ||
+                    status.sourceSlot !== target.slot
+                );
+            });
+        });
     } else if (effect.kind === 'steal-helpful-status') {
         const stolen = target.statuses.find((status) =>
             statusActive(status) &&
