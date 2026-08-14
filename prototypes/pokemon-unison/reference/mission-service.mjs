@@ -3,7 +3,7 @@ import { createDefaultMissionState, evaluateMissionsForPlayer, MISSION_CATALOG }
 const clone = (value) => JSON.parse(JSON.stringify(value));
 
 export function createMissionService({ playerService, catalog = MISSION_CATALOG } = {}) {
-    function applyMatchResultToPlayer(playerId, { didWin, teamSpeciesIds }) {
+    function applyMatchResultToPlayer(playerId, { didWin, teamSpeciesIds, mode }) {
         playerService.updateProfile(playerId, (profile) => {
             const missionsState = profile.missions ?? createDefaultMissionState();
             const { missionsState: nextMissionsState, newlyUnlockedSkinIds } = evaluateMissionsForPlayer({
@@ -11,6 +11,7 @@ export function createMissionService({ playerService, catalog = MISSION_CATALOG 
                 missionsState,
                 didWin,
                 teamSpeciesIds,
+                mode,
             });
             const skinsState = profile.skins ?? { unlockedSkinIds: [], equippedSkinByCharacterId: {} };
             return {
@@ -31,14 +32,16 @@ export function createMissionService({ playerService, catalog = MISSION_CATALOG 
             return clone(catalog);
         },
 
-        // Wired as matchService's onMatchComplete hook (see reference/server.mjs).
-        onMatchComplete({ playerIds, winner, teamSpeciesIds }) {
+        // Wired as part of matchService's onMatchComplete fan-out (see
+        // reference/server.mjs), alongside ladderService.onMatchComplete.
+        onMatchComplete({ playerIds, winner, teamSpeciesIds, mode }) {
             for (const seat of ['A', 'B']) {
                 const playerId = playerIds?.[seat];
                 if (!playerId) continue;
                 applyMatchResultToPlayer(playerId, {
                     didWin: winner === seat,
                     teamSpeciesIds: teamSpeciesIds?.[seat] ?? [],
+                    mode,
                 });
             }
         },

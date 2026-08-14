@@ -39,6 +39,38 @@ test('a win_matches goal completes after enough wins and grants the reward chara
     assert.equal(missionsState.unlockPoints, 200);
 });
 
+test('mode_restriction gates goal progress to matches played in an allowed mode', () => {
+    const mission = {
+        missionId: 'ladder-only',
+        reward_unlock_points: 50,
+        mode_restriction: { allowed_modes: ['ladder'] },
+        goals: [{ type: 'win_ladder_matches', wins: 1 }],
+    };
+
+    // A win in a non-allowed mode (private) is a complete no-op for this
+    // mission - it neither advances nor completes it.
+    let { missionsState } = evaluate({ catalog: [mission], didWin: true, mode: 'private' });
+    assert.equal(missionsState.progressByMissionId['ladder-only']?.goalProgressByIndex?.[0]?.count ?? 0, 0);
+    assert.equal(missionsState.progressByMissionId['ladder-only']?.completedAt, undefined);
+
+    // The same win, in the allowed mode, does count.
+    ({ missionsState } = evaluate({ catalog: [mission], missionsState, didWin: true, mode: 'ladder' }));
+    assert.ok(missionsState.progressByMissionId['ladder-only'].completedAt);
+    assert.equal(missionsState.unlockPoints, 50);
+});
+
+test('mode_restriction is not enforced when the caller omits mode entirely (legacy/permissive callers)', () => {
+    const mission = {
+        missionId: 'ladder-only-legacy',
+        reward_unlock_points: 50,
+        mode_restriction: { allowed_modes: ['ladder'] },
+        goals: [{ type: 'win_ladder_matches', wins: 1 }],
+    };
+
+    const { missionsState } = evaluate({ catalog: [mission], didWin: true });
+    assert.ok(missionsState.progressByMissionId['ladder-only-legacy'].completedAt);
+});
+
 test('a win_matches goal requiring a specific character does not progress without that character on the team', () => {
     const mission = {
         missionId: 'needs-pikachu',

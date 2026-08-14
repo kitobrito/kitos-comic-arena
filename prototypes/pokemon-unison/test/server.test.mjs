@@ -775,3 +775,127 @@ test('Haskell serializer and Elm decoder share protocol-v1 boundary fields', asy
     assert.match(engine, /viewerState/);
     assert.match(engine, /validateAction game action == Right \(\)/);
 });
+
+async function registerHttpPlayer(origin, username) {
+    const response = await fetch(`${origin}/api/players/register`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ username, email: '', password: 'longenough1' }),
+    });
+    assert.equal(response.status, 201);
+    return response.json();
+}
+
+test('quick match matchmaking pairs two signed-in players into a live match over HTTP', async (t) => {
+    const server = createPokemonUnisonServer();
+    await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+    t.after(() => new Promise((resolve) => server.close(resolve)));
+    const { port } = server.address();
+    const origin = `http://127.0.0.1:${port}`;
+
+    const alice = await registerHttpPlayer(origin, 'AliceQueue');
+    const bob = await registerHttpPlayer(origin, 'BobQueue');
+    const teams = ['charmander', 'squirtle', 'bulbasaur'];
+
+    const aliceEnqueue = await fetch(`${origin}/api/queue`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ mode: 'quick', teams, playerToken: alice.token }),
+    });
+    assert.equal(aliceEnqueue.status, 201);
+    const aliceQueued = await aliceEnqueue.json();
+    assert.equal(aliceQueued.status, 'waiting');
+
+    const bobEnqueue = await fetch(`${origin}/api/queue`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ mode: 'quick', teams, playerToken: bob.token }),
+    });
+    assert.equal(bobEnqueue.status, 201);
+    const bobQueued = await bobEnqueue.json();
+    assert.equal(bobQueued.status, 'matched');
+    assert.ok(bobQueued.matchId);
+
+    const aliceStatus = await (
+        await fetch(`${origin}/api/queue/${encodeURIComponent(aliceQueued.queueToken)}`)
+    ).json();
+    assert.equal(aliceStatus.status, 'matched');
+    assert.equal(aliceStatus.matchId, bobQueued.matchId);
+
+    const aliceView = await (
+        await fetch(`${origin}/api/matches/${bobQueued.matchId}/state`, {
+            headers: { authorization: `Bearer ${aliceStatus.token}` },
+        })
+    ).json();
+    assert.equal(aliceView.mode, 'quick');
+    assert.equal(aliceView.waitingForOpponent, false);
+});
+
+test('/api/queue rejects anonymous requests and unknown/cancelled search tokens', async (t) => {
+    const server = createPokemonUnisonServer();
+    await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+    t.after(() => new Promise((resolve) => server.close(resolve)));
+    const { port } = server.address();
+    const origin = `http://127.0.0.1:${port}`;
+
+    const anonymousResponse = await fetch(`${origin}/api/queue`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ mode: 'ladder', teams: ['charmander', 'squirtle', 'bulbasaur'] }),
+    });
+    assert.equal(anonymousResponse.status, 401);
+
+    const alice = await registerHttpPlayer(origin, 'CancelAlice');
+    const enqueueResponse = await fetch(`${origin}/api/queue`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ mode: 'ladder', teams: ['charmander', 'squirtle', 'bulbasaur'], playerToken: alice.token }),
+    });
+    const queued = await enqueueResponse.json();
+
+    const cancelResponse = await fetch(`${origin}/api/queue/${encodeURIComponent(queued.queueToken)}`, { method: 'DELETE' });
+    assert.equal(cancelResponse.status, 200);
+
+    const statusAfterCancel = await fetch(`${origin}/api/queue/${encodeURIComponent(queued.queueToken)}`);
+    assert.equal(statusAfterCancel.status, 404);
+});
+
+test('/api/ladder/leaderboard reflects ladder-mode match results', async (t) => {
+    const server = createPokemonUnisonServer();
+    await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+    t.after(() => new Promise((resolve) => server.close(resolve)));
+    const { port } = server.address();
+    const origin = `http://127.0.0.1:${port}`;
+
+    const alice = await registerHttpPlayer(origin, 'LadderAlice');
+    const bob = await registerHttpPlayer(origin, 'LadderBob');
+    const teams = ['charmander', 'squirtle', 'bulbasaur'];
+
+    await fetch(`${origin}/api/queue`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ mode: 'ladder', teams, playerToken: alice.token }),
+    });
+    const bobQueued = await (
+        await fetch(`${origin}/api/queue`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ mode: 'ladder', teams, playerToken: bob.token }),
+        })
+    ).json();
+
+    // Surrender immediately resolves the match so ladder stats update
+    // without needing to play out real turns.
+    await fetch(`${origin}/api/matches/${bobQueued.matchId}/surrender`, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${bobQueued.token}` },
+    });
+
+    const leaderboardResponse = await fetch(`${origin}/api/ladder/leaderboard`);
+    assert.equal(leaderboardResponse.status, 200);
+    const leaderboard = await leaderboardResponse.json();
+    const aliceEntry = leaderboard.players.find((entry) => entry.username === 'LadderAlice');
+    assert.ok(aliceEntry);
+    assert.equal(aliceEntry.ladder.wins, 1);
+    assert.equal(aliceEntry.ladder.ladderRank, 1);
+});

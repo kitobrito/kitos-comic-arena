@@ -3,6 +3,7 @@ import { createReadStream, existsSync, statSync } from 'node:fs';
 import { extname, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { createLadderService } from './ladder-service.mjs';
 import { createMatchService, MatchServiceError } from './match-service.mjs';
 import { createJsonMatchStorage } from './match-storage.mjs';
 import { createDefaultMissionState, validateTeamOwnership } from './mission-catalog.mjs';
@@ -11,6 +12,7 @@ import { isPayPalConfigured } from './paypal-client.mjs';
 import { createPlayerService, PlayerServiceError } from './player-service.mjs';
 import { createJsonPlayerStorage } from './player-storage.mjs';
 import { createJsonPurchaseStorage } from './purchase-storage.mjs';
+import { createQueueService, QueueServiceError } from './queue-service.mjs';
 import { DEFAULT_TEAMS } from './roster.mjs';
 import { createDefaultSkinState, resolveSkinFormOverride } from './skin-catalog.mjs';
 import { createSkinService, SkinServiceError } from './skin-service.mjs';
@@ -55,14 +57,20 @@ function bearerToken(request) {
 // Both teams.A and teams.B are built by the creator at match-creation time
 // (the invited Player B hasn't joined yet), so this intentionally applies the
 // creator's own evolution progress to either slot a matching species appears in.
+function resolveFormOverridesForTeam(speciesIds, equippedSkinByCharacterId) {
+    if (!equippedSkinByCharacterId) return undefined;
+    return (speciesIds ?? []).map((speciesId) => {
+        const skinId = equippedSkinByCharacterId[speciesId];
+        return skinId ? resolveSkinFormOverride(skinId) : null;
+    });
+}
+
 function resolveFormOverridesForTeams(teams, equippedSkinByCharacterId) {
     if (!equippedSkinByCharacterId) return undefined;
-    const resolveTeam = (speciesIds) =>
-        (speciesIds ?? []).map((speciesId) => {
-            const skinId = equippedSkinByCharacterId[speciesId];
-            return skinId ? resolveSkinFormOverride(skinId) : null;
-        });
-    return { A: resolveTeam(teams?.A), B: resolveTeam(teams?.B) };
+    return {
+        A: resolveFormOverridesForTeam(teams?.A, equippedSkinByCharacterId),
+        B: resolveFormOverridesForTeam(teams?.B, equippedSkinByCharacterId),
+    };
 }
 
 async function readJson(request) {
@@ -235,6 +243,8 @@ async function handleApi(
     missionService,
     skinService,
     storeService,
+    ladderService,
+    queueService,
     publicBasePath
 ) {
     const parts = routeParts(url.pathname);
@@ -244,6 +254,10 @@ async function handleApi(
     }
     if (request.method === 'GET' && url.pathname === '/api/roster') {
         sendJson(response, 200, matchService.roster());
+        return true;
+    }
+    if (request.method === 'GET' && url.pathname === '/api/ladder/leaderboard') {
+        sendJson(response, 200, { players: ladderService.leaderboard() });
         return true;
     }
     if (await handlePlayersApi(request, response, url, playerService)) {
@@ -288,6 +302,40 @@ async function handleApi(
                 : {}),
         });
         return true;
+    }
+    if (request.method === 'POST' && url.pathname === '/api/queue') {
+        const body = await readJson(request);
+        const authedPlayer = playerService.verifySession(body.playerToken);
+        if (!authedPlayer) {
+            throw new PlayerServiceError(401, 'sign_in_required', 'Quick and Ranked matches require a signed-in player.');
+        }
+        const ownershipError = validateTeamOwnership(
+            body.teams ?? [],
+            authedPlayer.profile.missions?.unlockedCharacterIds ?? []
+        );
+        if (ownershipError) {
+            throw new MatchServiceError(403, 'character_locked', ownershipError);
+        }
+        const result = queueService.enqueue({
+            mode: body.mode,
+            playerId: authedPlayer.id,
+            teams: body.teams,
+            formOverrides: resolveFormOverridesForTeam(body.teams, authedPlayer.profile.skins?.equippedSkinByCharacterId),
+        });
+        sendJson(response, 201, result);
+        return true;
+    }
+    if (parts[0] === 'api' && parts[1] === 'queue' && parts[2] && parts.length === 3) {
+        const queueToken = parts[2];
+        if (request.method === 'GET') {
+            sendJson(response, 200, queueService.status(queueToken));
+            return true;
+        }
+        if (request.method === 'DELETE') {
+            queueService.cancel(queueToken);
+            sendJson(response, 200, { ok: true });
+            return true;
+        }
     }
     if (parts[0] !== 'api' || parts[1] !== 'matches' || !parts[2]) return false;
 
@@ -360,7 +408,14 @@ export function createPokemonUnisonHandler({
     missionService = createMissionService({ playerService }),
     skinService = createSkinService({ playerService }),
     storeService = createStoreService({ playerService }),
-    matchService = createMatchService({ onMatchComplete: missionService.onMatchComplete }),
+    ladderService = createLadderService({ playerService }),
+    matchService = createMatchService({
+        onMatchComplete: async (payload) => {
+            await missionService.onMatchComplete(payload);
+            await ladderService.onMatchComplete(payload);
+        },
+    }),
+    queueService = createQueueService({ matchService }),
     publicBasePath = '/',
 } = {}) {
     const normalizedBasePath = normalizePublicBasePath(publicBasePath);
@@ -378,6 +433,8 @@ export function createPokemonUnisonHandler({
                         missionService,
                         skinService,
                         storeService,
+                        ladderService,
+                        queueService,
                         normalizedBasePath
                     ))
                 ) {
@@ -394,7 +451,8 @@ export function createPokemonUnisonHandler({
                 error instanceof MatchServiceError ||
                 error instanceof PlayerServiceError ||
                 error instanceof SkinServiceError ||
-                error instanceof StoreServiceError
+                error instanceof StoreServiceError ||
+                error instanceof QueueServiceError
             ) {
                 sendJson(response, error.status, { error: error.code, message: error.message });
                 return;
@@ -421,13 +479,23 @@ if (launchedDirectly) {
     const missionService = createMissionService({ playerService });
     const skinService = createSkinService({ playerService });
     const storeService = createStoreService({ playerService, purchaseStorage });
-    const matchService = createMatchService({ storage, onMatchComplete: missionService.onMatchComplete });
+    const ladderService = createLadderService({ playerService });
+    const matchService = createMatchService({
+        storage,
+        onMatchComplete: async (payload) => {
+            await missionService.onMatchComplete(payload);
+            await ladderService.onMatchComplete(payload);
+        },
+    });
+    const queueService = createQueueService({ matchService });
     const server = createPokemonUnisonServer({
         matchService,
         playerService,
         missionService,
         skinService,
         storeService,
+        ladderService,
+        queueService,
     });
     server.listen(port, '127.0.0.1', () => {
         console.log(`Pokemon Unison standalone: http://127.0.0.1:${port}`);

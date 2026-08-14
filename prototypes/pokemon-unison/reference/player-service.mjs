@@ -1,5 +1,6 @@
 import { createHmac, randomBytes, randomUUID, timingSafeEqual } from 'node:crypto';
 
+import { createDefaultLadderState } from './ladder-catalog.mjs';
 import { createDefaultMissionState } from './mission-catalog.mjs';
 import { comparePassword, hashPassword } from './password-hashing.mjs';
 import { createMemoryPlayerStorage } from './player-storage.mjs';
@@ -74,6 +75,7 @@ function createDefaultProfile() {
     return {
         missions: createDefaultMissionState(),
         skins: createDefaultSkinState(),
+        ladder: createDefaultLadderState(),
     };
 }
 
@@ -196,6 +198,10 @@ export function createPlayerService({ storage = createMemoryPlayerStorage(), ses
         getById(id) {
             const player = players.get(id);
             return player ? publicPlayer(player) : null;
+        },
+
+        listAll() {
+            return [...players.values()].map(publicPlayer);
         },
 
         updateProfile(id, updater) {

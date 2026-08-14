@@ -171,6 +171,81 @@ button:focus-visible {
     font-size: 1.05rem;
 }
 
+.profile-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 14px;
+    padding: 12px;
+}
+
+.profile-card[hidden] {
+    display: none;
+}
+
+.profile-card-icon {
+    flex: 0 0 auto;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 2px solid var(--arena-red-bright);
+    background: radial-gradient(circle at 35% 30%, #fff 0 8%, var(--arena-red-bright) 9% 46%, #10191d 47% 52%, #fff 53% 62%, #10191d 63%);
+}
+
+.profile-card-body {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.profile-card-body > strong {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.profile-card-stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2px 12px;
+    margin: 0;
+}
+
+.profile-card-stat {
+    display: flex;
+    justify-content: space-between;
+    gap: 6px;
+    font-size: 0.7rem;
+}
+
+.profile-card-stat dt {
+    color: var(--arena-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.profile-card-stat dd {
+    margin: 0;
+    color: #fff;
+    font-weight: 700;
+}
+
+.profile-card-toggles {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.profile-toggle-button {
+    min-width: 90px;
+    padding: 0.35rem 0.6rem;
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    color: var(--arena-muted);
+    background: rgba(0, 0, 0, 0.3);
+}
+
 .selection-layout {
     display: grid;
     grid-template-columns: minmax(330px, 0.8fr) minmax(540px, 1.45fr);
@@ -647,11 +722,30 @@ img.skill-art {
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 8px;
-    max-height: 522px;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.roster-pager {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     margin-top: 12px;
-    padding-right: 4px;
-    overflow: auto;
-    scrollbar-color: var(--arena-red) rgba(0, 0, 0, 0.35);
+}
+
+.roster-page-arrow {
+    flex: 0 0 auto;
+    min-width: 0;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    font-size: 1.2rem;
+    line-height: 1;
+    border-radius: 50%;
+}
+
+.roster-page-arrow:disabled {
+    opacity: 0.35;
 }
 
 .roster-card {
@@ -846,9 +940,16 @@ img.skill-art {
 
 .lobby-actions {
     display: flex;
-    justify-content: flex-end;
+    flex-direction: column;
+    align-items: flex-end;
     gap: 8px;
     margin-top: 12px;
+}
+
+.lobby-actions-primary {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
 }
 
 .lobby-actions button {
@@ -857,6 +958,36 @@ img.skill-art {
     font-size: 0.7rem;
     font-weight: 900;
     letter-spacing: 0.06em;
+}
+
+.secondary-action {
+    min-width: 0 !important;
+    padding: 0.4rem 0.9rem;
+    font-size: 0.62rem !important;
+    color: var(--arena-muted);
+    background: transparent;
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.queue-search-panel {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.queue-search-panel[hidden] {
+    display: none;
+}
+
+.queue-search-panel p {
+    margin: 0;
+    color: var(--arena-muted);
+    font-size: 0.72rem;
+    letter-spacing: 0.02em;
 }
 
 .invite-panel {
@@ -2419,10 +2550,31 @@ img.skill-art {
     .lobby-actions {
         display: grid;
         grid-template-columns: 1fr;
+        align-items: stretch;
+    }
+
+    .lobby-actions-primary {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
     }
 
     .lobby-actions button {
         min-width: 0;
+    }
+
+    .profile-card {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .profile-card-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .profile-card-toggles {
+        flex-direction: row;
     }
 
     .invite-panel {

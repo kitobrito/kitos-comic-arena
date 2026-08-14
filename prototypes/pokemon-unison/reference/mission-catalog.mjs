@@ -797,10 +797,19 @@ function teamHasCharacterId(teamSpeciesIds, characterId) {
  * is treated as untrackable (a mission whose only goals are reach_rank can
  * never auto-complete, matching production's own behavior for a mission
  * whose only goals are all non-trackable). win_ladder_matches is treated
- * identically to win_matches since this prototype has no separate ladder
- * mode.
+ * identically to win_matches.
+ *
+ * `mode` is the match's mode ('solo' | 'private' | 'quick' | 'ladder') and
+ * gates each mission's `mode_restriction.allowed_modes`, if set: a match
+ * played in a non-allowed mode is a complete no-op for that mission this
+ * round (it neither advances nor resets any of its goals), matching
+ * production's behavior where only real Ladder/Quick wins count toward
+ * mode-restricted missions. Callers that don't know/care about mode (e.g.
+ * older tests exercising goal math directly) can omit it entirely, which is
+ * treated as unrestricted rather than as a non-qualifying mode - only a
+ * caller that passes an actual mode string enforces the restriction.
  */
-export function evaluateMissionsForPlayer({ catalog, missionsState, didWin, teamSpeciesIds }) {
+export function evaluateMissionsForPlayer({ catalog, missionsState, didWin, teamSpeciesIds, mode }) {
     const state = {
         progressByMissionId: { ...(missionsState?.progressByMissionId ?? {}) },
         unlockedCharacterIds: [...(missionsState?.unlockedCharacterIds ?? [])],
@@ -835,6 +844,8 @@ export function evaluateMissionsForPlayer({ catalog, missionsState, didWin, team
         const nextGoalProgressByIndex = { ...existingProgress.goalProgressByIndex };
         let hasTrackableGoals = false;
         let allComplete = goals.length > 0;
+        const allowedModes = mission.mode_restriction?.allowed_modes;
+        const matchQualifiesForMission = !allowedModes || mode === undefined || allowedModes.includes(mode);
 
         goals.forEach((goal, index) => {
             const type = String(goal?.type ?? '').trim().toLowerCase();

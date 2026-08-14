@@ -57,6 +57,20 @@ const elements = {
     lobbyPanel: document.querySelector('#lobby-panel'),
     lobbyStatus: document.querySelector('#lobby-status'),
     newMatchButton: document.querySelector('#new-match-button'),
+    rankedMatchButton: document.querySelector('#ranked-match-button'),
+    quickMatchButton: document.querySelector('#quick-match-button'),
+    queueSearchPanel: document.querySelector('#queue-search-panel'),
+    queueSearchStatus: document.querySelector('#queue-search-status'),
+    cancelQueueButton: document.querySelector('#cancel-queue-button'),
+    profileCard: document.querySelector('#profile-card'),
+    profileCardUsername: document.querySelector('#profile-card-username'),
+    profileCardRank: document.querySelector('#profile-card-rank'),
+    profileCardExp: document.querySelector('#profile-card-exp'),
+    profileCardRecord: document.querySelector('#profile-card-record'),
+    profileCardStreak: document.querySelector('#profile-card-streak'),
+    profileCardLadder: document.querySelector('#profile-card-ladder'),
+    rosterPagePrev: document.querySelector('#roster-page-prev'),
+    rosterPageNext: document.querySelector('#roster-page-next'),
     queueCount: document.querySelector('#queue-count'),
     queueList: document.querySelector('#queue-list'),
     replayJson: document.querySelector('#replay-json'),
@@ -138,6 +152,9 @@ let rosterCatalog = [];
 let activeDraftPlayer = 'A';
 let activeDraftSlot = 0;
 let previewSpeciesId = 'charmander';
+let activeQueueToken = null;
+let activeQueueMode = null;
+let rosterPage = 0;
 let previewSelectionForm = 'base';
 let previewSkillId = null;
 let hoveredTargetCard = null;
@@ -357,6 +374,21 @@ function renderAccountBar() {
     } else {
         elements.progressPanel.hidden = true;
     }
+    renderProfileCard();
+}
+
+function renderProfileCard() {
+    elements.profileCard.hidden = !playerSession;
+    if (!playerSession) return;
+    const ladder = playerSession.player.profile?.ladder ?? {
+        rank: 'Sparkstrike', level: 1, experiencePoints: 0, wins: 0, losses: 0, streak: 0, ladderRank: null,
+    };
+    elements.profileCardUsername.textContent = playerSession.player.username;
+    elements.profileCardRank.textContent = ladder.rank;
+    elements.profileCardExp.textContent = `${ladder.experiencePoints} XP · LV ${ladder.level}`;
+    elements.profileCardRecord.textContent = `${ladder.wins}W · ${ladder.losses}L`;
+    elements.profileCardStreak.textContent = ladder.streak > 0 ? `+${ladder.streak}` : String(ladder.streak);
+    elements.profileCardLadder.textContent = ladder.ladderRank ? `#${ladder.ladderRank}` : '—';
 }
 
 function isCharacterLocked(speciesId) {
@@ -414,11 +446,13 @@ async function loadAccountProgress() {
         return;
     }
     try {
-        const [missions, skins, store] = await Promise.all([
+        const [missions, skins, store, me] = await Promise.all([
             api('/api/missions', { token: playerSession.token }),
             api('/api/skins', { token: playerSession.token }),
             api('/api/store', { token: playerSession.token }),
+            api('/api/players/me', { token: playerSession.token }),
         ]);
+        playerSession.player = me.player;
         missionCatalog = missions.missions ?? [];
         missionProgressByMissionId = missions.missionProgressByMissionId ?? {};
         unlockedCharacterIds = missions.unlockedCharacterIds ?? [];
@@ -1182,9 +1216,16 @@ function assignDraftSpecies(speciesId) {
     renderTeamSelectors();
 }
 
+const ROSTER_PAGE_SIZE = 15;
+
 function renderRosterGrid() {
+    const pageCount = Math.max(1, Math.ceil(rosterCatalog.length / ROSTER_PAGE_SIZE));
+    rosterPage = Math.min(Math.max(0, rosterPage), pageCount - 1);
+    elements.rosterPagePrev.disabled = rosterPage <= 0;
+    elements.rosterPageNext.disabled = rosterPage >= pageCount - 1;
+    const pageItems = rosterCatalog.slice(rosterPage * ROSTER_PAGE_SIZE, (rosterPage + 1) * ROSTER_PAGE_SIZE);
     elements.rosterGrid.replaceChildren();
-    rosterCatalog.forEach((species) => {
+    pageItems.forEach((species) => {
         const button = document.createElement('button');
         button.type = 'button';
         button.className = 'roster-card';
@@ -1227,6 +1268,16 @@ function renderRosterGrid() {
     });
 }
 
+elements.rosterPagePrev.addEventListener('click', () => {
+    rosterPage -= 1;
+    renderRosterGrid();
+});
+
+elements.rosterPageNext.addEventListener('click', () => {
+    rosterPage += 1;
+    renderRosterGrid();
+});
+
 elements.selectionBaseForm.addEventListener('click', () => {
     previewSelectionForm = 'base';
     renderSelectionPreview();
@@ -1246,8 +1297,14 @@ function renderTeamSelectors() {
     renderDraftSlots('B');
     renderRosterGrid();
     renderSelectionPreview();
-    elements.newMatchButton.disabled = !teamsComplete();
-    elements.soloMatchButton.disabled = !teamsComplete();
+    setLobbyButtonsDisabled(!teamsComplete());
+}
+
+function setLobbyButtonsDisabled(disabled) {
+    elements.newMatchButton.disabled = disabled;
+    elements.soloMatchButton.disabled = disabled;
+    elements.rankedMatchButton.disabled = disabled || !playerSession;
+    elements.quickMatchButton.disabled = disabled || !playerSession;
 }
 
 function selectedTeams() {
@@ -1732,8 +1789,7 @@ async function surrenderMatch() {
 
 async function createMatch(opponent = 'human') {
     try {
-        elements.newMatchButton.disabled = true;
-        elements.soloMatchButton.disabled = true;
+        setLobbyButtonsDisabled(true);
         elements.lobbyStatus.textContent = opponent === 'bot' ? 'Creating a solo match…' : 'Creating a private match…';
         const created = await api('/api/matches', {
             method: 'POST',
@@ -1757,8 +1813,82 @@ async function createMatch(opponent = 'human') {
     } catch (error) {
         elements.lobbyStatus.textContent = error.message;
     } finally {
-        elements.newMatchButton.disabled = !teamsComplete();
-        elements.soloMatchButton.disabled = !teamsComplete();
+        setLobbyButtonsDisabled(!teamsComplete());
+    }
+}
+
+async function enterQueue(mode) {
+    if (!playerSession) {
+        elements.lobbyStatus.textContent = 'Sign in to use Ranked or Quick Match.';
+        return;
+    }
+    try {
+        setLobbyButtonsDisabled(true);
+        elements.lobbyStatus.textContent = mode === 'ladder' ? 'Searching for a Ranked opponent…' : 'Searching for a Quick Match opponent…';
+        const result = await api('/api/queue', {
+            method: 'POST',
+            body: { mode, teams: selectedTeams().A, playerToken: playerSession.token },
+            token: null,
+        });
+        if (result.status === 'matched') {
+            saveSession({ matchId: result.matchId, player: 'B', token: result.token });
+            snapshot = await api(`/api/matches/${encodeURIComponent(result.matchId)}/state`, { token: result.token });
+            history.replaceState(null, '', applicationLocation(`?match=${encodeURIComponent(result.matchId)}`));
+            render();
+            return;
+        }
+        activeQueueToken = result.queueToken;
+        activeQueueMode = mode;
+        elements.queueSearchPanel.hidden = false;
+        elements.invitePanel.hidden = true;
+        elements.queueSearchStatus.textContent = mode === 'ladder' ? 'Searching for a Ranked opponent…' : 'Searching for a Quick Match opponent…';
+    } catch (error) {
+        elements.lobbyStatus.textContent = error.message;
+        setLobbyButtonsDisabled(!teamsComplete());
+    }
+}
+
+async function cancelQueue() {
+    if (!activeQueueToken) return;
+    const token = activeQueueToken;
+    activeQueueToken = null;
+    activeQueueMode = null;
+    elements.queueSearchPanel.hidden = true;
+    try {
+        await api(`/api/queue/${encodeURIComponent(token)}`, { method: 'DELETE', token: null });
+    } catch {
+        // The search may have already resolved server-side; nothing to do.
+    }
+    elements.lobbyStatus.textContent = 'Search cancelled.';
+    setLobbyButtonsDisabled(!teamsComplete());
+}
+
+// Polled from the same 800ms loop as an in-match refresh() (see below) - a
+// player waiting in the matchmaking queue has no matchId/session yet, so it
+// can't reuse refresh()'s match-state polling, but it should use the same
+// cadence rather than run a second independent timer.
+async function pollActiveQueue() {
+    if (!activeQueueToken) return;
+    try {
+        const result = await api(`/api/queue/${encodeURIComponent(activeQueueToken)}`, { token: null });
+        if (result.status === 'matched') {
+            activeQueueToken = null;
+            activeQueueMode = null;
+            elements.queueSearchPanel.hidden = true;
+            // Whoever's own enqueue() call triggers a pairing becomes seat B
+            // (see enterQueue); whoever was already waiting and discovers the
+            // pairing via this poll was seat A all along.
+            saveSession({ matchId: result.matchId, player: 'A', token: result.token });
+            snapshot = await api(`/api/matches/${encodeURIComponent(result.matchId)}/state`, { token: result.token });
+            history.replaceState(null, '', applicationLocation(`?match=${encodeURIComponent(result.matchId)}`));
+            render();
+        }
+    } catch (error) {
+        activeQueueToken = null;
+        activeQueueMode = null;
+        elements.queueSearchPanel.hidden = true;
+        elements.lobbyStatus.textContent = error.message;
+        setLobbyButtonsDisabled(!teamsComplete());
     }
 }
 
@@ -1799,7 +1929,10 @@ async function resumeMatch(matchId) {
 }
 
 async function refresh() {
-    if (!session) return;
+    if (!session) {
+        await pollActiveQueue();
+        return;
+    }
     try {
         const next = await api(`/api/matches/${encodeURIComponent(session.matchId)}/state`);
         elements.actionError.textContent = '';
@@ -1860,6 +1993,9 @@ window.addEventListener('resize', () => {
 
 elements.newMatchButton.addEventListener('click', () => createMatch('human'));
 elements.soloMatchButton.addEventListener('click', () => createMatch('bot'));
+elements.rankedMatchButton.addEventListener('click', () => enterQueue('ladder'));
+elements.quickMatchButton.addEventListener('click', () => enterQueue('quick'));
+elements.cancelQueueButton.addEventListener('click', () => cancelQueue());
 elements.copyInviteButton.addEventListener('click', async () => {
     await navigator.clipboard.writeText(elements.inviteUrl.value);
     elements.copyInviteButton.textContent = 'Copied';

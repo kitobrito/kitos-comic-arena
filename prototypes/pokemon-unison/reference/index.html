@@ -69,6 +69,25 @@
                 </div>
             </header>
 
+            <aside id="profile-card" class="profile-card glass-panel" aria-label="Player profile" hidden>
+                <div class="profile-card-icon" aria-hidden="true"></div>
+                <div class="profile-card-body">
+                    <strong id="profile-card-username"></strong>
+                    <dl class="profile-card-stats">
+                        <div class="profile-card-stat"><dt>Rank</dt><dd id="profile-card-rank"></dd></div>
+                        <div class="profile-card-stat"><dt>Exp</dt><dd id="profile-card-exp"></dd></div>
+                        <div class="profile-card-stat"><dt>Record</dt><dd id="profile-card-record"></dd></div>
+                        <div class="profile-card-stat"><dt>Streak</dt><dd id="profile-card-streak"></dd></div>
+                        <div class="profile-card-stat"><dt>Clan</dt><dd>None</dd></div>
+                        <div class="profile-card-stat"><dt>Ladder</dt><dd id="profile-card-ladder"></dd></div>
+                    </dl>
+                </div>
+                <div class="profile-card-toggles">
+                    <button type="button" class="profile-toggle-button" disabled>Music Off</button>
+                    <button type="button" class="profile-toggle-button" disabled>SFX Off</button>
+                </div>
+            </aside>
+
             <div class="selection-layout">
                 <aside class="selection-preview glass-panel" aria-label="Selected character preview">
                     <div class="preview-top">
@@ -124,7 +143,11 @@
                         </div>
                         <span id="roster-count" class="count">Loading roster…</span>
                     </div>
-                    <div id="roster-grid" class="roster-grid"></div>
+                    <div class="roster-pager">
+                        <button id="roster-page-prev" class="roster-page-arrow" type="button" aria-label="Previous roster page">&lsaquo;</button>
+                        <div id="roster-grid" class="roster-grid"></div>
+                        <button id="roster-page-next" class="roster-page-arrow" type="button" aria-label="Next roster page">&rsaquo;</button>
+                    </div>
                 </section>
 
                 <section class="team-console glass-panel" aria-label="Team selection">
@@ -146,8 +169,16 @@
                         </div>
                     </div>
                     <div class="lobby-actions">
-                        <button id="solo-match-button" class="primary-action" type="button" disabled>Play Solo vs Bot</button>
-                        <button id="new-match-button" type="button" disabled>Create Private Match</button>
+                        <div class="lobby-actions-primary">
+                            <button id="ranked-match-button" class="primary-action" type="button" disabled>Ranked Match</button>
+                            <button id="quick-match-button" class="primary-action" type="button" disabled>Quick Match</button>
+                            <button id="new-match-button" class="primary-action" type="button" disabled>Private Match</button>
+                        </div>
+                        <button id="solo-match-button" class="secondary-action" type="button" disabled>Play Solo vs Bot</button>
+                    </div>
+                    <div id="queue-search-panel" class="queue-search-panel" hidden>
+                        <p id="queue-search-status">Searching for an opponent…</p>
+                        <button id="cancel-queue-button" type="button">Cancel Search</button>
                     </div>
                     <div id="invite-panel" class="invite-panel" hidden>
                         <label for="invite-url">Player B invite</label>

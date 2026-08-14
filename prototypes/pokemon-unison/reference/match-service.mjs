@@ -88,7 +88,7 @@ function publicMatch(match, player, now) {
         revision: match.revision,
         queueRevision: ownsPendingTurn ? match.queueRevision : 0,
         player,
-        mode: match.botPlayer ? 'solo' : 'private',
+        mode: match.mode,
         opponent: match.botPlayer ? { type: 'bot', player: match.botPlayer, name: 'Training Bot' } : { type: 'human' },
         waitingForOpponent: !match.joined.B,
         turnSecondsRemaining,
@@ -109,8 +109,13 @@ function validStoredMatch(match) {
         match.game &&
         match.joined &&
         match.tokenDigests?.A &&
-        (match.inviteDigest || match.botPlayer === 'B')
+        (match.inviteDigest || match.botPlayer === 'B' || match.tokenDigests?.B)
     );
+}
+
+function deriveLegacyMode(match) {
+    if (match.botPlayer === 'B') return 'solo';
+    return 'private';
 }
 
 export function planDeterministicBotTurn(game) {
@@ -138,6 +143,7 @@ export function createMatchService({ storage = createMemoryMatchStorage(), onMat
         match.pendingActions = Array.isArray(match.pendingActions) ? match.pendingActions : [];
         match.queueRevision = Number.isInteger(match.queueRevision) ? match.queueRevision : 0;
         match.botPlayer = match.botPlayer === 'B' ? 'B' : null;
+        match.mode = typeof match.mode === 'string' ? match.mode : deriveLegacyMode(match);
         match.playerIds = {
             A: typeof match.playerIds?.A === 'string' ? match.playerIds.A : null,
             B: typeof match.playerIds?.B === 'string' ? match.playerIds.B : null,
@@ -159,7 +165,7 @@ export function createMatchService({ storage = createMemoryMatchStorage(), onMat
             .then(() =>
                 onMatchComplete({
                     matchId: match.id,
-                    mode: match.botPlayer ? 'solo' : 'private',
+                    mode: match.mode,
                     winner: match.game.winner,
                     playerIds: { ...match.playerIds },
                     teamSpeciesIds: {
@@ -213,17 +219,26 @@ export function createMatchService({ storage = createMemoryMatchStorage(), onMat
     }
 
     return {
-        create({ seed, teams, startingPlayer, opponent = 'human', playerId = null, formOverrides } = {}) {
-            if (!['human', 'bot'].includes(opponent)) {
-                throw new MatchServiceError(400, 'invalid_opponent', 'Opponent must be human or bot.');
+        create({ seed, teams, startingPlayer, opponent = 'human', playerId = null, playerIds, formOverrides } = {}) {
+            if (!['human', 'bot', 'quick', 'ladder'].includes(opponent)) {
+                throw new MatchServiceError(400, 'invalid_opponent', 'Opponent must be human, bot, quick, or ladder.');
             }
+            // Quick/ladder matches come from the matchmaking queue with both
+            // players already known - there's no invite-link waiting room,
+            // the match is live for both seats immediately.
+            const isQueueMatch = opponent === 'quick' || opponent === 'ladder';
             const botPlayer = opponent === 'bot' ? 'B' : null;
             const selectedTeams = teams ?? DEFAULT_TEAMS;
             const teamError = validateMatchTeams(selectedTeams);
             if (teamError) throw new MatchServiceError(400, 'invalid_teams', teamError);
+            if (isQueueMatch && (!playerIds?.A || !playerIds?.B)) {
+                throw new MatchServiceError(400, 'invalid_player_ids', 'Quick and ladder matches require both players to be signed in.');
+            }
             const id = randomUUID();
             const token = makeSecret();
-            const inviteCode = botPlayer ? null : makeSecret(12);
+            const tokenB = isQueueMatch ? makeSecret() : null;
+            const inviteCode = botPlayer || isQueueMatch ? null : makeSecret(12);
+            const mode = opponent === 'human' ? 'private' : opponent === 'bot' ? 'solo' : opponent;
             const game = createGame({ seed, teams: selectedTeams, startingPlayer, economyMode: 'arena', formOverrides });
             const match = {
                 id,
@@ -231,12 +246,13 @@ export function createMatchService({ storage = createMemoryMatchStorage(), onMat
                 queueRevision: 0,
                 game,
                 pendingActions: [],
+                mode,
                 inviteDigest: inviteCode ? digestSecret(inviteCode) : null,
-                joined: { A: true, B: Boolean(botPlayer) },
+                joined: { A: true, B: Boolean(botPlayer) || isQueueMatch },
                 botPlayer,
-                playerIds: { A: playerId || null, B: null },
+                playerIds: { A: playerId || playerIds?.A || null, B: isQueueMatch ? playerIds.B : null },
                 completionNotified: false,
-                tokenDigests: { A: digestSecret(token), B: null },
+                tokenDigests: { A: digestSecret(token), B: tokenB ? digestSecret(tokenB) : null },
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
             };
@@ -248,6 +264,7 @@ export function createMatchService({ storage = createMemoryMatchStorage(), onMat
             return {
                 ...publicMatch(match, 'A', now),
                 token,
+                ...(tokenB ? { tokenB } : {}),
                 ...(inviteCode ? { inviteCode } : {}),
             };
         },
