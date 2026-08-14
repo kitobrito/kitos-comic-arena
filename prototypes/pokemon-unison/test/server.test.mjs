@@ -552,6 +552,77 @@ test('POST /api/store/characters/:characterId/purchase spends points over HTTP a
     assert.equal(purchased.player.profile.missions.unlockPoints, 650);
 });
 
+test('a linked account cannot create a match with a mission-gated character it has not unlocked, but can once unlocked, and anonymous play stays fully open', async (t) => {
+    const playerService = createPlayerService();
+    const server = createPokemonUnisonServer({ playerService });
+    await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+    t.after(() => new Promise((resolve) => server.close(resolve)));
+    const { port } = server.address();
+    const origin = `http://127.0.0.1:${port}`;
+
+    // Anonymous play remains fully unrestricted, including a gated character like dragapult.
+    const anonymousResponse = await fetch(`${origin}/api/matches`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+            opponent: 'bot',
+            teams: { A: ['dragapult', 'zubat', 'chansey'], B: ['pidgey', 'meowth', 'abra'] },
+        }),
+    });
+    assert.equal(anonymousResponse.status, 201);
+
+    const registered = await (
+        await fetch(`${origin}/api/players/register`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ username: 'GateChecker', email: '', password: 'longenough1' }),
+        })
+    ).json();
+
+    const lockedResponse = await fetch(`${origin}/api/matches`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+            opponent: 'bot',
+            playerToken: registered.token,
+            teams: { A: ['dragapult', 'zubat', 'chansey'], B: ['pidgey', 'meowth', 'abra'] },
+        }),
+    });
+    assert.equal(lockedResponse.status, 403);
+    assert.match((await lockedResponse.json()).message, /dragapult is locked/);
+
+    // Always-free characters remain selectable by a linked account with zero unlocks.
+    const freeResponse = await fetch(`${origin}/api/matches`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+            opponent: 'bot',
+            playerToken: registered.token,
+            teams: { A: ['charmander', 'zubat', 'chansey'], B: ['pidgey', 'meowth', 'abra'] },
+        }),
+    });
+    assert.equal(freeResponse.status, 201);
+
+    // Grant the unlock the same way a completed mission or store purchase would, then retry.
+    playerService.updateProfile(registered.player.id, (profile) => ({
+        ...profile,
+        missions: {
+            ...profile.missions,
+            unlockedCharacterIds: [...profile.missions.unlockedCharacterIds, 'dragapult'],
+        },
+    }));
+    const unlockedResponse = await fetch(`${origin}/api/matches`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+            opponent: 'bot',
+            playerToken: registered.token,
+            teams: { A: ['dragapult', 'zubat', 'chansey'], B: ['pidgey', 'meowth', 'abra'] },
+        }),
+    });
+    assert.equal(unlockedResponse.status, 201);
+});
+
 test('server confines requests to reference and game asset roots', async () => {
     const server = await readFile(new URL('reference/server.mjs', root), 'utf8');
     assert.match(server, /safeResolve/);

@@ -1,7 +1,14 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { createDefaultMissionState, evaluateMissionsForPlayer, MISSION_CATALOG } from '../reference/mission-catalog.mjs';
+import {
+    ALWAYS_UNLOCKED_CHARACTER_IDS,
+    createDefaultMissionState,
+    evaluateMissionsForPlayer,
+    MISSION_CATALOG,
+    normalizeCharacterId,
+    validateTeamOwnership,
+} from '../reference/mission-catalog.mjs';
 import { ROSTER } from '../reference/roster.mjs';
 
 function evaluate(overrides) {
@@ -207,4 +214,33 @@ test('the real MISSION_CATALOG completes a representative single-goal and same-t
     }
     assert.ok(dragoniteState.progressByMissionId['pokemon-wave-2-dragonite'].completedAt);
     assert.ok(dragoniteState.unlockedCharacterIds.includes('dragonite'));
+});
+
+test('ALWAYS_UNLOCKED_CHARACTER_IDS plus MISSION_CATALOG reward characters cover the full 46-character roster', () => {
+    const missionGranted = new Set(
+        MISSION_CATALOG.map((mission) => normalizeCharacterId(mission.reward_character)).filter(Boolean)
+    );
+    const covered = new Set([...ALWAYS_UNLOCKED_CHARACTER_IDS, ...missionGranted]);
+    const uncovered = Object.keys(ROSTER).filter((characterId) => !covered.has(characterId));
+    assert.deepEqual(uncovered, []);
+});
+
+test('ALWAYS_UNLOCKED_CHARACTER_IDS has no duplicates and every entry is a real ROSTER id', () => {
+    assert.deepEqual(ALWAYS_UNLOCKED_CHARACTER_IDS, [...new Set(ALWAYS_UNLOCKED_CHARACTER_IDS)]);
+    ALWAYS_UNLOCKED_CHARACTER_IDS.forEach((characterId) => {
+        assert.ok(ROSTER[characterId], `${characterId} is not a real ROSTER id`);
+    });
+});
+
+test('validateTeamOwnership allows an always-free team with no unlocks at all', () => {
+    assert.equal(validateTeamOwnership(['charmander', 'squirtle', 'bulbasaur'], []), null);
+});
+
+test('validateTeamOwnership rejects a mission-gated character the player has not unlocked', () => {
+    const error = validateTeamOwnership(['charmander', 'dragapult', 'squirtle'], []);
+    assert.match(error, /dragapult is locked/);
+});
+
+test('validateTeamOwnership allows a gated character once it is in the player\'s unlockedCharacterIds', () => {
+    assert.equal(validateTeamOwnership(['charmander', 'dragapult', 'squirtle'], ['dragapult']), null);
 });

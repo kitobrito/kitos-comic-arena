@@ -69,12 +69,17 @@ overrides remain authoritative and untouched.
   and a points-based direct character purchase at
   `POST /api/store/characters/:characterId/purchase`; see
   [STORE_PORT.md](./STORE_PORT.md)
+- mission-based character-unlock **enforcement**: a signed-in account
+  creating a match cannot select a mission-locked character it hasn't
+  unlocked (`POST /api/matches` returns 403), while anonymous play remains
+  fully open; see MISSION_PORT.md's "Gate enforcement" section for the two
+  deliberate scope limits (anonymous play is exempt by design, and only the
+  match creator's own team is checked)
 
 This is deliberately an expanding standalone slice, not a content-complete port. Complex
 production mechanics such as additional evolution branches, matchmaking, and
 progression stay in the existing application until their own migration phase
-is built out here. Mission-based character-unlock *enforcement* in team
-selection and a client UI for missions/skins/the store are also still to
+is built out here. A client UI for missions/skins/the store is also still to
 come — see MISSION_PORT.md, SKIN_PORT.md, STORE_PORT.md, and MIGRATION.md's
 "Next milestones".
 

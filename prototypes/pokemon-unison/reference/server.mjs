@@ -5,12 +5,13 @@ import { fileURLToPath } from 'node:url';
 
 import { createMatchService, MatchServiceError } from './match-service.mjs';
 import { createJsonMatchStorage } from './match-storage.mjs';
-import { createDefaultMissionState } from './mission-catalog.mjs';
+import { createDefaultMissionState, validateTeamOwnership } from './mission-catalog.mjs';
 import { createMissionService } from './mission-service.mjs';
 import { isPayPalConfigured } from './paypal-client.mjs';
 import { createPlayerService, PlayerServiceError } from './player-service.mjs';
 import { createJsonPlayerStorage } from './player-storage.mjs';
 import { createJsonPurchaseStorage } from './purchase-storage.mjs';
+import { DEFAULT_TEAMS } from './roster.mjs';
 import { createDefaultSkinState } from './skin-catalog.mjs';
 import { createSkinService, SkinServiceError } from './skin-service.mjs';
 import { createStoreService, StoreServiceError } from './store-service.mjs';
@@ -243,12 +244,22 @@ async function handleApi(
     }
     if (request.method === 'POST' && url.pathname === '/api/matches') {
         const body = await readJson(request);
+        const authedPlayer = playerService.verifySession(body.playerToken);
+        if (authedPlayer) {
+            const ownershipError = validateTeamOwnership(
+                body.teams?.A ?? DEFAULT_TEAMS.A,
+                authedPlayer.profile.missions?.unlockedCharacterIds ?? []
+            );
+            if (ownershipError) {
+                throw new MatchServiceError(403, 'character_locked', ownershipError);
+            }
+        }
         const created = matchService.create({
             seed: body.seed,
             teams: body.teams,
             startingPlayer: body.startingPlayer,
             opponent: body.opponent,
-            playerId: playerService.verifySession(body.playerToken)?.id ?? null,
+            playerId: authedPlayer?.id ?? null,
         });
         sendJson(response, 201, {
             ...created,

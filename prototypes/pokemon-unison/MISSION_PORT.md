@@ -15,13 +15,25 @@ A mission belongs to the Pokemon arena only if its literal `arena` field is
 Pokemon-arena mission lives in a separate `POKEMON_*_MISSION_ENTRY` constant
 merged in afterward.
 
-## Twelve characters that are never mission-gated
+## Twelve characters that are never mission-gated (plus 8 temporarily free)
 
 `pokemon-trainer`, `charmander`, `squirtle`, `bulbasaur`, `butterfree`,
 `koffing`, `zubat`, `chansey`, `pidgey`, `abra`, `meowth`, `nincada` never
 appear as a `reward_character` on any Pokemon-arena mission in production —
 they're unlocked from account creation. No mission entries exist for them,
 and none are needed here either.
+
+`reference/mission-catalog.mjs`'s `ALWAYS_UNLOCKED_CHARACTER_IDS` adds 8 more
+to this free list, temporarily: `eevee`, `jolteon`, `flareon`, `vaporeon`,
+`cyndaquil`, `chikorita`, `totodile`, `primeape`. These are genuinely
+mission-gated in production, but only through mechanics not yet built here
+(the Eevee/Johto-starter choice endpoints below, or — for Primeape — an
+unlock path that wasn't found in research at all; the only Primeape mission
+found grants a cosmetic skin, not the character). Leaving them permanently
+free is a deliberate tradeoff: making them unreachable would be a worse
+regression than leaving them free, since the character itself already works
+end-to-end. Move an entry out of this list the moment its real unlock
+mechanic is ported.
 
 ## Ported (26 entries in `MISSION_CATALOG`)
 
@@ -68,16 +80,35 @@ both called out inline in `reference/mission-catalog.mjs`:
   without checking the goal. That direct-pick endpoint isn't built here, so
   the goal is the only path to Pikachu in this prototype for now.
 
-## Gate enforcement is not implemented yet
+## Gate enforcement
 
-Mission completion correctly updates a player's
-`profile.missions.unlockedCharacterIds` and `unlockPoints`, and reward skins
-are recorded into `profile.skins.unlockedSkinIds` (ahead of Phase 3 actually
-defining a skin catalog to interpret them against). **Team selection does
-not yet check any of this** — `reference/roster.mjs`'s
-`validateMatchTeams`/`validateTeamSelection` still allow any of the 46
-ported characters regardless of a player's unlock state, matching today's
-existing (pre-mission) behavior exactly. Wiring `matchService.create()`/
-`join()` to reject a locked character for a linked account is a natural next
-increment, deliberately deferred rather than risking a wide, undertested
-change to the same validation path nearly every existing test exercises.
+Mission completion updates a player's `profile.missions.unlockedCharacterIds`
+and `unlockPoints`, and reward skins are recorded into
+`profile.skins.unlockedSkinIds`. This is now enforced:
+`validateTeamOwnership(speciesIds, unlockedCharacterIds)` in
+`reference/mission-catalog.mjs` checks a team against
+`ALWAYS_UNLOCKED_CHARACTER_IDS` plus the account's own unlocks, and
+`reference/server.mjs`'s `POST /api/matches` handler calls it — but **only
+for the match creator's own team (`teams.A`), and only when the request
+carries a valid `playerToken`.**
+
+Two deliberate scope limits, not oversights:
+
+- **Anonymous play (no linked account) stays fully unrestricted**, exactly
+  as before this change — every character is selectable. Gating an account
+  that doesn't exist would mean gating everyone, which contradicts the
+  "accounts are optional" design established since Phase 1.
+- **Team B is never gated here.** The match creator currently also picks
+  Player B's roster (whether it's a bot's team or an as-yet-unknown human
+  joiner's team) — there is no "Player B's own account" to check against at
+  creation time, since B may not exist yet. Enforcing B's ownership would
+  need to move to join time instead, which is a real, larger flow change
+  (reject a join if the already-fixed team doesn't match the joiner's
+  unlocks — a confusing UX for an invite link) rather than a validation
+  tweak, so it's left for a later pass.
+
+A completeness test (`test/mission-catalog.test.mjs`) checks that
+`ALWAYS_UNLOCKED_CHARACTER_IDS` plus every `MISSION_CATALOG` reward
+character together cover all 46 `ROSTER` entries with no gaps — this is
+what caught that Primeape and Eevee's three evolutions had no working unlock
+path yet and needed to go on the temporarily-free list above.

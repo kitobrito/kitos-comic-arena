@@ -11,6 +11,32 @@ const TRACKABLE_GOAL_TYPES = new Set([
     'win_matches_same_team',
 ]);
 
+// Characters selectable without any account/unlock check. Two groups:
+//
+// 1. Confirmed free in production — these 12 never appear as a
+//    reward_character on any Pokemon-arena mission (verified by direct
+//    research against server.js): pokemon-trainer, charmander, squirtle,
+//    bulbasaur, butterfree, koffing, zubat, chansey, pidgey, abra, meowth,
+//    nincada.
+// 2. Temporarily free here, pending an unbuilt unlock path — production
+//    gates these 8 through mechanics this prototype hasn't built yet
+//    (the direct-pick starter/evolution-choice endpoints, or an unresearched
+//    release mission): eevee, jolteon, flareon, vaporeon (Eevee's evolution
+//    choice), cyndaquil, chikorita, totodile (the Johto starter choice), and
+//    primeape (the only mission found for it grants a cosmetic skin, not the
+//    character itself — its real unlock path wasn't found in research).
+//    Leaving these locked with no way to ever unlock them would be a worse
+//    regression than leaving them free; when their real unlock mechanic is
+//    ported, move them out of this list.
+//
+// Every other ROSTER character (34 total) is gated: 26 by a real, working
+// mission in MISSION_CATALOG below, and the remaining 8 above by nothing yet.
+export const ALWAYS_UNLOCKED_CHARACTER_IDS = [
+    'pokemon-trainer', 'charmander', 'squirtle', 'bulbasaur', 'butterfree', 'koffing',
+    'zubat', 'chansey', 'pidgey', 'abra', 'meowth', 'nincada',
+    'eevee', 'jolteon', 'flareon', 'vaporeon', 'cyndaquil', 'chikorita', 'totodile', 'primeape',
+];
+
 // Rank-tier unlock-point pricing, ported verbatim from getMissionUnlockPointCostForRank
 // (server.js:199-205). Used by the future store phase (purchasing a mission-locked
 // character outright) as the fallback when a mission has no explicit unlock_point_cost.
@@ -30,17 +56,11 @@ export function resolveMissionUnlockPointCost(mission = {}) {
     return getMissionUnlockPointCostForRank(mission.level_requirement ?? mission.rank ?? 1);
 }
 
-// Twelve characters (pokemon-trainer, charmander, squirtle, bulbasaur, butterfree,
-// koffing, zubat, chansey, pidgey, abra, meowth, nincada) never appear as a
-// reward_character on any production Pokemon-arena mission — they are unlocked by
-// default from account creation. Every other ROSTER entry below is gated behind a
-// mission. NOTE: this catalog tracks and grants those unlocks in each player's
-// profile.missions, but the standalone prototype does not yet ENFORCE the gate —
-// team selection still allows any of the 46 ported characters regardless of a
-// player's unlockedCharacterIds. Enforcing that gate (and the direct-pick starter
-// mechanic for pikachu/charmander/bulbasaur/squirtle, and the Eevee/Johto-starter
-// evolution-choice missions, both of which unlock outside the goal-based path
-// entirely) are deferred to a follow-up pass.
+// The 26 characters gated below are enforced at team selection
+// (validateTeamOwnership, and reference/server.mjs's use of it) whenever a
+// match is created by a signed-in account — see ALWAYS_UNLOCKED_CHARACTER_IDS
+// above for the 20 that are exempt (12 confirmed free in production, 8
+// temporarily free pending an unbuilt unlock mechanic).
 //
 // Deliberately NOT ported in this pass (documented, not silently dropped):
 // - pikachu-starter-path: ported below as a normal goal-based mission (win 10 with
@@ -624,6 +644,20 @@ export const MISSION_CATALOG = [
 
 export function normalizeCharacterId(value) {
     return String(value ?? '').trim().toLowerCase();
+}
+
+/**
+ * Checks a team's species ids against ALWAYS_UNLOCKED_CHARACTER_IDS plus a
+ * player's own unlockedCharacterIds. Returns an error string naming the
+ * first locked character found, or null if the whole team is playable.
+ */
+export function validateTeamOwnership(speciesIds, unlockedCharacterIds = []) {
+    const allowed = new Set([
+        ...ALWAYS_UNLOCKED_CHARACTER_IDS,
+        ...unlockedCharacterIds.map(normalizeCharacterId),
+    ]);
+    const locked = (speciesIds ?? []).find((speciesId) => !allowed.has(normalizeCharacterId(speciesId)));
+    return locked ? `${locked} is locked. Unlock it through missions or the store first.` : null;
 }
 
 function normalizeGoalProgress(entry) {
