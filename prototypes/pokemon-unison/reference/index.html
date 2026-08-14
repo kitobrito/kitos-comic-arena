@@ -21,9 +21,37 @@
             </form>
             <div id="account-signed-in" class="account-signed-in" hidden>
                 <span>Signed in as <strong id="account-username-label"></strong></span>
+                <span id="account-points-label" class="account-points-label"></span>
+                <button id="progress-toggle-button" type="button">My Progress</button>
                 <button id="account-logout-button" type="button">Log Out</button>
             </div>
         </div>
+
+        <section id="progress-panel" class="progress-panel glass-panel" aria-label="Missions, skins, and store" hidden>
+            <div class="progress-panel-heading">
+                <div class="progress-tabs" role="tablist">
+                    <button id="progress-tab-missions" class="progress-tab active" type="button" role="tab" aria-selected="true">Missions</button>
+                    <button id="progress-tab-skins" class="progress-tab" type="button" role="tab" aria-selected="false">Skins</button>
+                    <button id="progress-tab-store" class="progress-tab" type="button" role="tab" aria-selected="false">Store</button>
+                </div>
+                <button id="progress-close-button" class="progress-close-button" type="button" aria-label="Close">&times;</button>
+            </div>
+
+            <section id="progress-missions" class="progress-tab-panel">
+                <div id="progress-missions-list" class="missions-list"></div>
+            </section>
+
+            <section id="progress-skins" class="progress-tab-panel" hidden>
+                <div id="progress-skins-list" class="skins-list"></div>
+            </section>
+
+            <section id="progress-store" class="progress-tab-panel" hidden>
+                <p class="store-balance">Unlock points: <strong id="store-points-balance">0</strong></p>
+                <div id="store-paypal-status" class="store-paypal-status"></div>
+                <div id="store-packages-list" class="store-packages-list"></div>
+            </section>
+        </section>
+
         <section id="lobby-panel" class="selection-screen" aria-label="Standalone character selection">
             <header class="selection-header glass-panel">
                 <div class="brand-lockup">

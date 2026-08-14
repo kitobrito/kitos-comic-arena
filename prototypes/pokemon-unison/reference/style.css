@@ -624,6 +624,212 @@ button:focus-visible {
     display: none;
 }
 
+.account-points-label {
+    color: #ffd166;
+    font-weight: 800;
+}
+
+.progress-panel {
+    margin: 0 auto 10px;
+    padding: 12px;
+    max-width: 1400px;
+}
+
+.progress-panel[hidden] {
+    display: none;
+}
+
+.progress-panel-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.progress-tabs {
+    display: flex;
+    gap: 6px;
+}
+
+.progress-tab {
+    padding: 0.5rem 0.9rem;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--arena-muted);
+    font-weight: 800;
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.progress-tab.active {
+    background: var(--arena-red);
+    border-color: var(--arena-red);
+    color: #fff;
+}
+
+.progress-close-button {
+    border: none;
+    background: transparent;
+    color: var(--arena-muted);
+    font-size: 1.3rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 6px;
+}
+
+.progress-tab-panel[hidden] {
+    display: none;
+}
+
+.missions-list,
+.skins-list,
+.store-packages-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 420px;
+    overflow-y: auto;
+}
+
+.mission-card,
+.skin-card,
+.store-package-card {
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 8px;
+    padding: 10px 12px;
+    background: rgba(0, 0, 0, 0.28);
+}
+
+.mission-card.completed {
+    border-color: rgba(120, 200, 120, 0.55);
+    background: rgba(60, 140, 60, 0.14);
+}
+
+.mission-card-heading,
+.skin-card-heading,
+.store-package-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    font-weight: 800;
+    font-size: 0.85rem;
+}
+
+.mission-card-status {
+    font-size: 0.7rem;
+    color: #8ee08e;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.mission-goal-list {
+    margin: 6px 0 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.mission-goal {
+    font-size: 0.72rem;
+    color: var(--arena-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.mission-goal.complete {
+    color: #8ee08e;
+}
+
+.mission-goal-bar {
+    flex: 1;
+    height: 5px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+}
+
+.mission-goal-bar-fill {
+    height: 100%;
+    background: var(--arena-red);
+}
+
+.skin-card-actions,
+.store-package-actions {
+    margin-top: 8px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.skin-card-actions button,
+.store-package-actions button {
+    padding: 0.4rem 0.7rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.7rem;
+    cursor: pointer;
+}
+
+.skin-card-actions button.equipped {
+    background: rgba(120, 200, 120, 0.35);
+    border-color: rgba(120, 200, 120, 0.6);
+}
+
+.store-paypal-status {
+    font-size: 0.72rem;
+    color: var(--arena-muted);
+    margin-bottom: 8px;
+}
+
+.progress-empty-note {
+    font-size: 0.75rem;
+    color: var(--arena-muted);
+}
+
+.roster-card.locked {
+    opacity: 0.65;
+}
+
+.roster-card-lock-badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: rgba(0, 0, 0, 0.65);
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: #ffd166;
+}
+
+.roster-card-buy-badge {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    left: 4px;
+    background: var(--arena-red);
+    border-radius: 4px;
+    padding: 2px 5px;
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: #fff;
+    text-align: center;
+    cursor: pointer;
+}
+
 .invite-panel {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr) auto;

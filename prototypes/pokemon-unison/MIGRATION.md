@@ -182,6 +182,12 @@ are not runtime dependencies.
     join without consuming the invite. See
     [MISSION_PORT.md](./MISSION_PORT.md)'s "Gate enforcement" section for
     both halves of this.
+45. Added the client "My Progress" panel: missions with live goal-progress
+    bars, a skin browser (unlock/equip), and a store tab for the point
+    packages, plus lock badges and an inline "Buy now" quick-purchase
+    directly on the roster grid for characters a signed-in account hasn't
+    unlocked. This closes out the "add a client UI for missions/skins/the
+    store" item from milestone #6 below.
 
 ## Next milestones
 
@@ -194,10 +200,10 @@ are not runtime dependencies.
 5. ~~Port the remaining roster in reviewed content batches.~~ Done — 46/46
    characters fully ported (#38).
 6. ~~Add skins, then a real store (PayPal), then enforce unlocks on both
-   sides of a match.~~ Done (#41, #42, #43, #44). Remaining: wire the six
-   skin type-overrides into the battle engine at match setup, add a client
-   UI for missions/skins/the store, verify a real PayPal sandbox purchase
-   end-to-end once credentials exist, then admin tools.
+   sides of a match, then a client UI for all of it.~~ Done
+   (#41, #42, #43, #44, #45). Remaining: wire the six skin type-overrides
+   into the battle engine at match setup, verify a real PayPal sandbox
+   purchase end-to-end once credentials exist, then admin tools.
 
 ## Rules for future porting
 

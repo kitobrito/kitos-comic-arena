@@ -76,13 +76,17 @@ overrides remain authoritative and untouched.
   character, without consuming the invite on a rejected join), while
   anonymous play remains fully open throughout; see MISSION_PORT.md's "Gate
   enforcement" section
+- a client "My Progress" panel (missions with live goal-progress bars, a
+  skin browser with unlock/equip, and a store tab for point packages),
+  reachable from the account bar once signed in, plus lock badges directly
+  on the roster grid for characters a signed-in account hasn't unlocked
+  (with an inline "Buy now" quick-purchase when they have enough points)
 
 This is deliberately an expanding standalone slice, not a content-complete port. Complex
 production mechanics such as additional evolution branches, matchmaking, and
 progression stay in the existing application until their own migration phase
-is built out here. A client UI for missions/skins/the store is also still to
-come — see MISSION_PORT.md, SKIN_PORT.md, STORE_PORT.md, and MIGRATION.md's
-"Next milestones".
+is built out here — see MISSION_PORT.md, SKIN_PORT.md, STORE_PORT.md, and
+MIGRATION.md's "Next milestones".
 
 ## Run it now
 

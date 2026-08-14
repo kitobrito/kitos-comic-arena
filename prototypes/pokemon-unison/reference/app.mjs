@@ -1,3 +1,4 @@
+import { ALWAYS_UNLOCKED_CHARACTER_IDS, resolveMissionUnlockPointCost } from './mission-catalog.mjs';
 import { ROSTER, unitPresentation } from './roster.mjs';
 import { selectionRenderForms } from './selection-art.mjs';
 import { skillArt } from './skill-art.mjs';
@@ -23,7 +24,22 @@ const elements = {
     accountError: document.querySelector('#account-error'),
     accountSignedIn: document.querySelector('#account-signed-in'),
     accountUsernameLabel: document.querySelector('#account-username-label'),
+    accountPointsLabel: document.querySelector('#account-points-label'),
     accountLogoutButton: document.querySelector('#account-logout-button'),
+    progressToggleButton: document.querySelector('#progress-toggle-button'),
+    progressPanel: document.querySelector('#progress-panel'),
+    progressCloseButton: document.querySelector('#progress-close-button'),
+    progressTabMissions: document.querySelector('#progress-tab-missions'),
+    progressTabSkins: document.querySelector('#progress-tab-skins'),
+    progressTabStore: document.querySelector('#progress-tab-store'),
+    progressMissions: document.querySelector('#progress-missions'),
+    progressSkins: document.querySelector('#progress-skins'),
+    progressStore: document.querySelector('#progress-store'),
+    progressMissionsList: document.querySelector('#progress-missions-list'),
+    progressSkinsList: document.querySelector('#progress-skins-list'),
+    storePointsBalance: document.querySelector('#store-points-balance'),
+    storePaypalStatus: document.querySelector('#store-paypal-status'),
+    storePackagesList: document.querySelector('#store-packages-list'),
     actionError: document.querySelector('#action-error'),
     autoButton: document.querySelector('#auto-button'),
     commandHelp: document.querySelector('#command-help'),
@@ -100,6 +116,15 @@ const elements = {
 
 const PLAYER_TOKEN_STORAGE_KEY = 'pokemon-unison:player-token';
 let playerSession = null;
+let activeProgressTab = 'missions';
+let unlockedCharacterIds = null;
+let missionCatalog = [];
+let missionProgressByMissionId = {};
+let unlockPoints = 0;
+let skinCatalog = [];
+let unlockedSkinIds = [];
+let equippedSkinByCharacterId = {};
+let storeInfo = null;
 let session = null;
 let snapshot = null;
 let selectedActorSlot = null;
@@ -325,8 +350,282 @@ function renderAccountBar() {
     elements.accountSignedIn.hidden = !signedIn;
     if (signedIn) {
         elements.accountUsernameLabel.textContent = playerSession.player.username;
+        elements.accountPointsLabel.textContent = `${unlockPoints} pts`;
+    } else {
+        elements.progressPanel.hidden = true;
     }
 }
+
+function isCharacterLocked(speciesId) {
+    if (!playerSession || !unlockedCharacterIds) return false;
+    if (ALWAYS_UNLOCKED_CHARACTER_IDS.includes(speciesId)) return false;
+    return !unlockedCharacterIds.includes(speciesId);
+}
+
+function missionUnlockCost(characterId) {
+    const mission = missionCatalog.find((entry) => entry.reward_character === characterId);
+    return mission ? resolveMissionUnlockPointCost(mission) : null;
+}
+
+async function loadAccountProgress() {
+    if (!playerSession) {
+        unlockedCharacterIds = null;
+        missionCatalog = [];
+        missionProgressByMissionId = {};
+        unlockPoints = 0;
+        skinCatalog = [];
+        unlockedSkinIds = [];
+        equippedSkinByCharacterId = {};
+        storeInfo = null;
+        renderAccountBar();
+        renderProgressPanel();
+        renderRosterGrid();
+        return;
+    }
+    try {
+        const [missions, skins, store] = await Promise.all([
+            api('/api/missions', { token: playerSession.token }),
+            api('/api/skins', { token: playerSession.token }),
+            api('/api/store', { token: playerSession.token }),
+        ]);
+        missionCatalog = missions.missions ?? [];
+        missionProgressByMissionId = missions.missionProgressByMissionId ?? {};
+        unlockedCharacterIds = missions.unlockedCharacterIds ?? [];
+        unlockPoints = missions.unlockPoints ?? 0;
+        skinCatalog = skins.skins ?? [];
+        unlockedSkinIds = skins.unlockedSkinIds ?? [];
+        equippedSkinByCharacterId = skins.equippedSkinByCharacterId ?? {};
+        storeInfo = store;
+    } catch (error) {
+        elements.accountError.textContent = error.message;
+    }
+    renderAccountBar();
+    renderProgressPanel();
+    renderRosterGrid();
+}
+
+function missionGoalMarkup(goal, progress) {
+    const type = String(goal?.type ?? '').toLowerCase();
+    if (type === 'text') {
+        return `<li class="mission-goal">${escapeHtml(goal.text ?? '')}</li>`;
+    }
+    const target = type === 'reach_rank' ? Number(goal.rank) || 0 : Number(goal.wins) || 0;
+    const count = Math.min(target, Number(progress?.count) || 0);
+    const complete = Boolean(progress?.completedAt);
+    const characters = goal.character_names ?? (goal.character_name ? [goal.character_name] : []);
+    const label = characters.length ? `${characters.join(' + ')}: ` : '';
+    const percent = target > 0 ? Math.round((count / target) * 100) : 0;
+    return `
+        <li class="mission-goal ${complete ? 'complete' : ''}">
+            <span>${complete ? '✓' : ''} ${escapeHtml(label)}${count}/${target}</span>
+            <span class="mission-goal-bar"><span class="mission-goal-bar-fill" style="width:${percent}%"></span></span>
+        </li>
+    `;
+}
+
+function renderProgressPanel() {
+    if (activeProgressTab === 'missions') renderMissionsTab();
+    else if (activeProgressTab === 'skins') renderSkinsTab();
+    else renderStoreTab();
+}
+
+function renderMissionsTab() {
+    if (!playerSession) {
+        elements.progressMissionsList.innerHTML = '<p class="progress-empty-note">Sign in to track mission progress.</p>';
+        return;
+    }
+    if (!missionCatalog.length) {
+        elements.progressMissionsList.innerHTML = '<p class="progress-empty-note">No missions available.</p>';
+        return;
+    }
+    elements.progressMissionsList.innerHTML = missionCatalog
+        .slice()
+        .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
+        .map((mission) => {
+            const progress = missionProgressByMissionId[mission.missionId];
+            const completed = Boolean(progress?.completedAt);
+            const goalsHtml = (mission.goals ?? [])
+                .map((goal, index) => missionGoalMarkup(goal, progress?.goalProgressByIndex?.[index]))
+                .join('');
+            return `
+                <article class="mission-card ${completed ? 'completed' : ''}">
+                    <div class="mission-card-heading">
+                        <span>${escapeHtml(mission.title ?? mission.missionId)}</span>
+                        ${completed ? '<span class="mission-card-status">Complete</span>' : ''}
+                    </div>
+                    <ul class="mission-goal-list">${goalsHtml}</ul>
+                </article>
+            `;
+        })
+        .join('');
+}
+
+async function unlockSkin(skinId) {
+    if (!playerSession) return;
+    try {
+        await api('/api/skins/unlock', { method: 'POST', token: playerSession.token, body: { skinId } });
+        await loadAccountProgress();
+    } catch (error) {
+        elements.accountError.textContent = error.message;
+    }
+}
+
+async function equipSkin(characterId, skinId) {
+    if (!playerSession) return;
+    try {
+        await api('/api/skins/equip', {
+            method: 'POST',
+            token: playerSession.token,
+            body: { characterId, skinId },
+        });
+        await loadAccountProgress();
+    } catch (error) {
+        elements.accountError.textContent = error.message;
+    }
+}
+
+function renderSkinsTab() {
+    if (!playerSession) {
+        elements.progressSkinsList.innerHTML = '<p class="progress-empty-note">Sign in to unlock and equip skins.</p>';
+        return;
+    }
+    if (!skinCatalog.length) {
+        elements.progressSkinsList.innerHTML = '<p class="progress-empty-note">No skins available.</p>';
+        return;
+    }
+    elements.progressSkinsList.replaceChildren();
+    skinCatalog
+        .slice()
+        .sort((a, b) => a.characterId.localeCompare(b.characterId))
+        .forEach((skin) => {
+            const speciesName = ROSTER[skin.characterId]?.name ?? skin.characterId;
+            const unlocked = unlockedSkinIds.includes(skin.skinId);
+            const equipped = equippedSkinByCharacterId[skin.characterId] === skin.skinId;
+            const card = document.createElement('article');
+            card.className = 'skin-card';
+            card.innerHTML = `
+                <div class="skin-card-heading">
+                    <span>${escapeHtml(skin.name)} <small>(${escapeHtml(speciesName)})</small></span>
+                    ${skin.missionRewardOnly ? '<small>Mission reward</small>' : `<small>${skin.unlockPointCost} pts</small>`}
+                </div>
+                <p class="progress-empty-note">${escapeHtml(skin.description ?? '')}</p>
+            `;
+            const actions = document.createElement('div');
+            actions.className = 'skin-card-actions';
+            if (!unlocked) {
+                if (!skin.missionRewardOnly) {
+                    const unlockButton = document.createElement('button');
+                    unlockButton.type = 'button';
+                    unlockButton.textContent = `Unlock for ${skin.unlockPointCost} pts`;
+                    unlockButton.addEventListener('click', () => unlockSkin(skin.skinId));
+                    actions.append(unlockButton);
+                } else {
+                    const lockedNote = document.createElement('span');
+                    lockedNote.className = 'progress-empty-note';
+                    lockedNote.textContent = 'Unlocked through missions.';
+                    actions.append(lockedNote);
+                }
+            } else {
+                const equipButton = document.createElement('button');
+                equipButton.type = 'button';
+                equipButton.textContent = equipped ? 'Equipped' : 'Equip';
+                if (equipped) equipButton.classList.add('equipped');
+                equipButton.addEventListener('click', () => equipSkin(skin.characterId, equipped ? '' : skin.skinId));
+                actions.append(equipButton);
+            }
+            card.append(actions);
+            elements.progressSkinsList.append(card);
+        });
+}
+
+async function purchaseCharacterWithPoints(characterId) {
+    if (!playerSession) return;
+    try {
+        await api(`/api/store/characters/${encodeURIComponent(characterId)}/purchase`, {
+            method: 'POST',
+            token: playerSession.token,
+        });
+        await loadAccountProgress();
+    } catch (error) {
+        elements.accountError.textContent = error.message;
+    }
+}
+
+async function buyPointPackage(packageId) {
+    if (!playerSession) return;
+    try {
+        const result = await api('/api/store/paypal/create-order', {
+            method: 'POST',
+            token: playerSession.token,
+            body: { packageId },
+        });
+        if (result.approveUrl) window.open(result.approveUrl, '_blank', 'noopener');
+    } catch (error) {
+        elements.accountError.textContent = error.message;
+    }
+}
+
+function renderStoreTab() {
+    elements.storePointsBalance.textContent = String(unlockPoints);
+    if (!playerSession) {
+        elements.storePaypalStatus.textContent = 'Sign in to buy unlock points.';
+        elements.storePackagesList.innerHTML = '';
+        return;
+    }
+    const paypalAvailable = Boolean(storeInfo?.paypalAvailable);
+    elements.storePaypalStatus.textContent = paypalAvailable
+        ? `PayPal payments are available (${storeInfo.paypalEnvironment}).`
+        : 'PayPal payments are not configured for this build yet.';
+    const packages = storeInfo?.packages ?? [];
+    elements.storePackagesList.replaceChildren();
+    packages.forEach((entry) => {
+        const card = document.createElement('article');
+        card.className = 'store-package-card';
+        card.innerHTML = `
+            <div class="store-package-heading">
+                <span>${escapeHtml(entry.label)}</span>
+                <small>$${escapeHtml(entry.amountUsd)}</small>
+            </div>
+            <p class="progress-empty-note">${escapeHtml(entry.description ?? '')}</p>
+        `;
+        const actions = document.createElement('div');
+        actions.className = 'store-package-actions';
+        const buyButton = document.createElement('button');
+        buyButton.type = 'button';
+        buyButton.textContent = 'Buy with PayPal';
+        buyButton.disabled = !paypalAvailable;
+        buyButton.addEventListener('click', () => buyPointPackage(entry.packageId));
+        actions.append(buyButton);
+        card.append(actions);
+        elements.storePackagesList.append(card);
+    });
+}
+
+function setProgressTab(tab) {
+    activeProgressTab = tab;
+    [
+        [elements.progressTabMissions, elements.progressMissions, 'missions'],
+        [elements.progressTabSkins, elements.progressSkins, 'skins'],
+        [elements.progressTabStore, elements.progressStore, 'store'],
+    ].forEach(([tabButton, panel, key]) => {
+        const active = key === tab;
+        tabButton.classList.toggle('active', active);
+        tabButton.setAttribute('aria-selected', String(active));
+        panel.hidden = !active;
+    });
+    renderProgressPanel();
+}
+
+elements.progressTabMissions.addEventListener('click', () => setProgressTab('missions'));
+elements.progressTabSkins.addEventListener('click', () => setProgressTab('skins'));
+elements.progressTabStore.addEventListener('click', () => setProgressTab('store'));
+elements.progressCloseButton.addEventListener('click', () => {
+    elements.progressPanel.hidden = true;
+});
+elements.progressToggleButton.addEventListener('click', () => {
+    elements.progressPanel.hidden = !elements.progressPanel.hidden;
+    if (!elements.progressPanel.hidden) renderProgressPanel();
+});
 
 async function restorePlayerSession() {
     const token = loadStoredPlayerToken();
@@ -339,6 +638,7 @@ async function restorePlayerSession() {
         playerSession = null;
     }
     renderAccountBar();
+    await loadAccountProgress();
 }
 
 async function registerPlayer() {
@@ -357,6 +657,7 @@ async function registerPlayer() {
         savePlayerToken(token);
         elements.accountForm.reset();
         renderAccountBar();
+        await loadAccountProgress();
     } catch (error) {
         elements.accountError.textContent = error.message;
     }
@@ -377,6 +678,7 @@ async function loginPlayer() {
         savePlayerToken(token);
         elements.accountForm.reset();
         renderAccountBar();
+        await loadAccountProgress();
     } catch (error) {
         elements.accountError.textContent = error.message;
     }
@@ -391,7 +693,7 @@ async function logoutPlayer() {
     }
     playerSession = null;
     savePlayerToken('');
-    renderAccountBar();
+    await loadAccountProgress();
 }
 
 elements.accountForm.addEventListener('submit', (event) => {
@@ -756,6 +1058,14 @@ function renderDraftSlots(player) {
 }
 
 function assignDraftSpecies(speciesId) {
+    // Only Player A's team is enforced server-side at match creation (the
+    // creator's own account); Player B's roster is either a bot's (never
+    // gated) or validated later against whoever actually joins, so it's
+    // deliberately left unrestricted here.
+    if (activeDraftPlayer === 'A' && isCharacterLocked(speciesId)) {
+        elements.lobbyStatus.textContent = `${ROSTER[speciesId]?.name ?? speciesId} is locked. Unlock it through missions or the store first.`;
+        return;
+    }
     const currentId = teamDraft[activeDraftPlayer][activeDraftSlot];
     const existingSlot = teamDraft[activeDraftPlayer].indexOf(speciesId);
     if (existingSlot >= 0 && existingSlot !== activeDraftSlot) {
@@ -782,14 +1092,28 @@ function renderRosterGrid() {
             });
         }
         if (assignments.length) button.classList.add('drafted');
+        const locked = isCharacterLocked(species.id);
+        const lockCost = locked ? missionUnlockCost(species.id) : null;
+        const canBuyNow = locked && lockCost !== null && unlockPoints >= lockCost;
+        if (locked) button.classList.add('locked');
         button.setAttribute('aria-label', `Inspect ${species.name} skills`);
+        // The buy action is a <span role="button"> rather than a nested <button>,
+        // since a real <button> can't validly contain another <button> — a browser
+        // would otherwise silently hoist it out of this card and break the layout.
         button.innerHTML = `
             <img src="${escapeHtml(species.facePicture)}" alt="${escapeHtml(species.name)}">
             <span class="roster-card-name">${escapeHtml(species.name)}</span>
             <span class="roster-card-type">${escapeHtml(species.types.join(' / '))}</span>
             ${assignments.length ? `<span class="draft-mark">${assignments.join(' · ')}</span>` : ''}
+            ${locked ? `<span class="roster-card-lock-badge">${lockCost !== null ? `LOCKED · ${lockCost} PTS` : 'LOCKED'}</span>` : ''}
+            ${canBuyNow ? '<span class="roster-card-buy-badge" role="button" tabindex="0">Buy now</span>' : ''}
         `;
-        button.addEventListener('click', () => {
+        button.addEventListener('click', (event) => {
+            if (canBuyNow && event.target.closest('.roster-card-buy-badge')) {
+                event.stopPropagation();
+                purchaseCharacterWithPoints(species.id);
+                return;
+            }
             if (previewSpeciesId !== species.id) previewSelectionForm = 'base';
             if (previewSpeciesId !== species.id) previewSkillId = null;
             assignDraftSpecies(species.id);
