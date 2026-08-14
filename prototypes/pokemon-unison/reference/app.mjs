@@ -161,6 +161,12 @@ let previewSpeciesId = 'charmander';
 let activeQueueToken = null;
 let activeQueueMode = null;
 let rosterPage = 0;
+// A won match advances mission progress and (for ladder matches) rating
+// server-side immediately, but nothing client-side re-fetches that until
+// this fires once per match - otherwise the profile card/missions panel
+// stay stale (still showing pre-match values) until the player navigates
+// away and back.
+let progressRefreshedForMatchId = null;
 let previewSelectionForm = 'base';
 let previewSkillId = null;
 let hoveredTargetCard = null;
@@ -1755,6 +1761,10 @@ function render() {
     elements.turnLabel.textContent = `Turn ${view.turnNumber + 1}`;
     elements.currentPlayer.textContent = `Player ${view.currentPlayer}`;
     elements.winnerLabel.textContent = view.winner ? (view.winner === 'draw' ? 'Draw' : `Player ${view.winner} won`) : '';
+    if (view.winner && playerSession && progressRefreshedForMatchId !== session.matchId) {
+        progressRefreshedForMatchId = session.matchId;
+        loadAccountProgress();
+    }
     renderTurnTimer();
     elements.seatLabel.textContent = snapshot.mode === 'solo'
         ? `Player ${session.player} · vs ${snapshot.opponent.name}`
