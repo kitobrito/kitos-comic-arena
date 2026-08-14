@@ -12,6 +12,7 @@ import {
     viewerState,
 } from './engine.mjs';
 import { createMemoryMatchStorage } from './match-storage.mjs';
+import { validateTeamOwnership } from './mission-catalog.mjs';
 import { DEFAULT_TEAMS, ROSTER_CATALOG, validateMatchTeams } from './roster.mjs';
 
 const clone = (value) => JSON.parse(JSON.stringify(value));
@@ -208,7 +209,7 @@ export function createMatchService({ storage = createMemoryMatchStorage(), onMat
             };
         },
 
-        join(matchId, inviteCode, { playerId = null } = {}) {
+        join(matchId, inviteCode, { playerId = null, unlockedCharacterIds = null } = {}) {
             const match = requireMatch(matches, matchId);
             if (match.botPlayer) {
                 throw new MatchServiceError(409, 'bot_match', 'This solo match already has a server-controlled opponent.');
@@ -218,6 +219,15 @@ export function createMatchService({ storage = createMemoryMatchStorage(), onMat
             }
             if (match.joined.B) {
                 throw new MatchServiceError(409, 'seat_taken', 'Player B has already joined this match.');
+            }
+            if (unlockedCharacterIds !== null) {
+                const ownershipError = validateTeamOwnership(
+                    match.game.teams.B.map((unit) => unit.speciesId),
+                    unlockedCharacterIds
+                );
+                if (ownershipError) {
+                    throw new MatchServiceError(403, 'character_locked', ownershipError);
+                }
             }
             const token = makeSecret();
             match.joined.B = true;

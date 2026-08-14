@@ -623,6 +623,70 @@ test('a linked account cannot create a match with a mission-gated character it h
     assert.equal(unlockedResponse.status, 201);
 });
 
+test('joining a private match with a locked team B character is rejected for a linked account, allowed once unlocked, and never gated for an anonymous joiner', async (t) => {
+    const playerService = createPlayerService();
+    const server = createPokemonUnisonServer({ playerService });
+    await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+    t.after(() => new Promise((resolve) => server.close(resolve)));
+    const { port } = server.address();
+    const origin = `http://127.0.0.1:${port}`;
+
+    const created = await (
+        await fetch(`${origin}/api/matches`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({
+                teams: { A: ['charmander', 'squirtle', 'bulbasaur'], B: ['dragapult', 'zubat', 'chansey'] },
+            }),
+        })
+    ).json();
+
+    const registered = await (
+        await fetch(`${origin}/api/players/register`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ username: 'Joiner', email: '', password: 'longenough1' }),
+        })
+    ).json();
+
+    const lockedJoinResponse = await fetch(`${origin}/api/matches/${created.matchId}/join`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ inviteCode: created.inviteCode, playerToken: registered.token }),
+    });
+    assert.equal(lockedJoinResponse.status, 403);
+    assert.match((await lockedJoinResponse.json()).message, /dragapult is locked/);
+
+    playerService.updateProfile(registered.player.id, (profile) => ({
+        ...profile,
+        missions: { ...profile.missions, unlockedCharacterIds: ['dragapult'] },
+    }));
+    const unlockedJoinResponse = await fetch(`${origin}/api/matches/${created.matchId}/join`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ inviteCode: created.inviteCode, playerToken: registered.token }),
+    });
+    assert.equal(unlockedJoinResponse.status, 200);
+    assert.equal((await unlockedJoinResponse.json()).player, 'B');
+
+    // A fresh match with the same locked composition, joined with no account at all.
+    const secondMatch = await (
+        await fetch(`${origin}/api/matches`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({
+                teams: { A: ['charmander', 'squirtle', 'bulbasaur'], B: ['dragapult', 'zubat', 'chansey'] },
+            }),
+        })
+    ).json();
+    const anonymousJoinResponse = await fetch(`${origin}/api/matches/${secondMatch.matchId}/join`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ inviteCode: secondMatch.inviteCode }),
+    });
+    assert.equal(anonymousJoinResponse.status, 200);
+});
+
 test('server confines requests to reference and game asset roots', async () => {
     const server = await readFile(new URL('reference/server.mjs', root), 'utf8');
     assert.match(server, /safeResolve/);

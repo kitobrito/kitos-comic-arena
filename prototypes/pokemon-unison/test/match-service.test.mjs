@@ -290,6 +290,31 @@ test('anonymous matches (no linked account) still notify onMatchComplete with nu
     assert.equal(completions[0].mode, 'solo');
 });
 
+test('join() rejects a locked team B character when unlockedCharacterIds is provided, and skips the check when it is null', () => {
+    const service = createMatchService();
+    const created = service.create({
+        teams: { A: ['charmander', 'squirtle', 'bulbasaur'], B: ['dragapult', 'zubat', 'chansey'] },
+    });
+
+    assert.throws(
+        () => service.join(created.matchId, created.inviteCode, { unlockedCharacterIds: [] }),
+        (error) => error instanceof MatchServiceError && error.code === 'character_locked' && /dragapult/.test(error.message)
+    );
+
+    // The seat must still be open for a retry — a rejected join must not consume it.
+    const joined = service.join(created.matchId, created.inviteCode, { unlockedCharacterIds: ['dragapult'] });
+    assert.equal(joined.player, 'B');
+});
+
+test('join() with unlockedCharacterIds omitted (anonymous joiner) is never gated', () => {
+    const service = createMatchService();
+    const created = service.create({
+        teams: { A: ['charmander', 'squirtle', 'bulbasaur'], B: ['dragapult', 'zubat', 'chansey'] },
+    });
+    const joined = service.join(created.matchId, created.inviteCode);
+    assert.equal(joined.player, 'B');
+});
+
 test('team turn queues stay private, support undo, and resolve as one public revision', () => {
     const service = createMatchService();
     const created = service.create({ seed: 111 });

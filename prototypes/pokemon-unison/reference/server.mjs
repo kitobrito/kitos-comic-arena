@@ -274,8 +274,10 @@ async function handleApi(
     const matchId = parts[2];
     if (request.method === 'POST' && parts[3] === 'join' && parts.length === 4) {
         const body = await readJson(request);
+        const joiningPlayer = playerService.verifySession(body.playerToken);
         sendJson(response, 200, matchService.join(matchId, body.inviteCode, {
-            playerId: playerService.verifySession(body.playerToken)?.id ?? null,
+            playerId: joiningPlayer?.id ?? null,
+            unlockedCharacterIds: joiningPlayer ? joiningPlayer.profile.missions?.unlockedCharacterIds ?? [] : null,
         }));
         return true;
     }

@@ -170,27 +170,34 @@ are not runtime dependencies.
     team against `ALWAYS_UNLOCKED_CHARACTER_IDS` (the 12 confirmed-free
     characters plus 8 temporarily free pending an unbuilt unlock mechanic)
     plus the account's own `unlockedCharacterIds`, wired into
-    `POST /api/matches` for the match creator's own team only, when a valid
+    `POST /api/matches` for the match creator's own team, when a valid
     `playerToken` is present — anonymous play stays fully open. A
     completeness test confirms the free-list plus every mission's reward
     character together cover all 46 `ROSTER` entries with no silent gaps.
-    See [MISSION_PORT.md](./MISSION_PORT.md)'s "Gate enforcement" section.
+44. Extended gate enforcement to `POST /api/matches/:id/join`:
+    `matchService.join()` now optionally checks the already-fixed team B
+    composition against the joining player's own `unlockedCharacterIds`
+    (`null` skips the check entirely for an anonymous joiner, distinct from
+    an empty array for a linked account with zero unlocks) and rejects the
+    join without consuming the invite. See
+    [MISSION_PORT.md](./MISSION_PORT.md)'s "Gate enforcement" section for
+    both halves of this.
 
 ## Next milestones
 
 1. Move the executable engine boundary from the JavaScript oracle to Haskell.
 2. Compile the Elm battle client against protocol v2.
 3. ~~Add standalone accounts, teams, and progression.~~ Accounts, match
-   linking, mission progression, and gate enforcement are done (#39, #40, #43).
+   linking, mission progression, and gate enforcement are done
+   (#39, #40, #43, #44).
 4. Add matchmaking, reconnect windows, and turn timers.
 5. ~~Port the remaining roster in reviewed content batches.~~ Done — 46/46
    characters fully ported (#38).
-6. ~~Add skins, then a real store (PayPal), then enforce unlocks.~~ Done
-   (#41, #42, #43). Remaining: gate Player B's team at join time (not just
-   the creator's team at creation), wire the six skin type-overrides into
-   the battle engine at match setup, add a client UI for missions/skins/the
-   store, verify a real PayPal sandbox purchase end-to-end once credentials
-   exist, then admin tools.
+6. ~~Add skins, then a real store (PayPal), then enforce unlocks on both
+   sides of a match.~~ Done (#41, #42, #43, #44). Remaining: wire the six
+   skin type-overrides into the battle engine at match setup, add a client
+   UI for missions/skins/the store, verify a real PayPal sandbox purchase
+   end-to-end once credentials exist, then admin tools.
 
 ## Rules for future porting
 

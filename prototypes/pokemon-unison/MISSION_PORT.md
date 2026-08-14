@@ -84,28 +84,29 @@ both called out inline in `reference/mission-catalog.mjs`:
 
 Mission completion updates a player's `profile.missions.unlockedCharacterIds`
 and `unlockPoints`, and reward skins are recorded into
-`profile.skins.unlockedSkinIds`. This is now enforced:
-`validateTeamOwnership(speciesIds, unlockedCharacterIds)` in
-`reference/mission-catalog.mjs` checks a team against
-`ALWAYS_UNLOCKED_CHARACTER_IDS` plus the account's own unlocks, and
-`reference/server.mjs`'s `POST /api/matches` handler calls it — but **only
-for the match creator's own team (`teams.A`), and only when the request
-carries a valid `playerToken`.**
+`profile.skins.unlockedSkinIds`. This is enforced on both sides of a match:
 
-Two deliberate scope limits, not oversights:
+- **Creation** (`POST /api/matches`): `reference/server.mjs` checks the
+  creator's own team (`teams.A`) against `validateTeamOwnership()`
+  (`reference/mission-catalog.mjs`) whenever the request carries a valid
+  `playerToken`.
+- **Join** (`POST /api/matches/:id/join`): since the match creator also
+  picks Player B's roster up front (a bot's team, or an as-yet-unknown human
+  joiner's), Player B's account isn't known until they actually join — so
+  `matchService.join()` itself checks the already-fixed team B composition
+  against the *joining* player's `unlockedCharacterIds` (passed in from
+  `reference/server.mjs`, resolved from their `playerToken`) and rejects the
+  join outright if they don't own everything on it. A rejected join does not
+  consume the invite — the seat stays open for a retry (e.g. after the
+  intended player unlocks what's missing, or the creator issues a new invite
+  with a team the joiner can actually play).
 
-- **Anonymous play (no linked account) stays fully unrestricted**, exactly
-  as before this change — every character is selectable. Gating an account
-  that doesn't exist would mean gating everyone, which contradicts the
-  "accounts are optional" design established since Phase 1.
-- **Team B is never gated here.** The match creator currently also picks
-  Player B's roster (whether it's a bot's team or an as-yet-unknown human
-  joiner's team) — there is no "Player B's own account" to check against at
-  creation time, since B may not exist yet. Enforcing B's ownership would
-  need to move to join time instead, which is a real, larger flow change
-  (reject a join if the already-fixed team doesn't match the joiner's
-  unlocks — a confusing UX for an invite link) rather than a validation
-  tweak, so it's left for a later pass.
+**Anonymous play (no linked account) stays fully unrestricted** on both
+sides, exactly as before any of this — every character is selectable, and
+`unlockedCharacterIds` is passed as `null` (not `[]`) to mean "skip the
+check entirely," distinct from a linked account with zero unlocks. Gating an
+account that doesn't exist would mean gating everyone, which contradicts the
+"accounts are optional" design established since Phase 1.
 
 A completeness test (`test/mission-catalog.test.mjs`) checks that
 `ALWAYS_UNLOCKED_CHARACTER_IDS` plus every `MISSION_CATALOG` reward

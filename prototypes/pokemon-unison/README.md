@@ -69,12 +69,13 @@ overrides remain authoritative and untouched.
   and a points-based direct character purchase at
   `POST /api/store/characters/:characterId/purchase`; see
   [STORE_PORT.md](./STORE_PORT.md)
-- mission-based character-unlock **enforcement**: a signed-in account
-  creating a match cannot select a mission-locked character it hasn't
-  unlocked (`POST /api/matches` returns 403), while anonymous play remains
-  fully open; see MISSION_PORT.md's "Gate enforcement" section for the two
-  deliberate scope limits (anonymous play is exempt by design, and only the
-  match creator's own team is checked)
+- mission-based character-unlock **enforcement on both sides of a match**: a
+  signed-in account cannot create a match with a mission-locked character it
+  hasn't unlocked, and cannot join one either (`POST /api/matches` and
+  `POST /api/matches/:id/join` both return 403, naming the locked
+  character, without consuming the invite on a rejected join), while
+  anonymous play remains fully open throughout; see MISSION_PORT.md's "Gate
+  enforcement" section
 
 This is deliberately an expanding standalone slice, not a content-complete port. Complex
 production mechanics such as additional evolution branches, matchmaking, and
