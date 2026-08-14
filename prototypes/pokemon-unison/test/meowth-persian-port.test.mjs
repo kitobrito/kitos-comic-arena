@@ -117,7 +117,9 @@ test('Fury Swipes applies immediate and three-turn typed packets while Persian p
         durationActions: null, damageReductionFlat: 5,
     });
     base = enact(base, action('A', 0, 'meowth-fury-swipes', 'B', 0));
-    assert.equal(base.teams.B[0].hp, 90);
+    // Both the 5 Physical and 5 affliction packets are ordinary reducible damage in production
+    // (Fury Swipes has no immunity flag anywhere), so the flat-5 reduction fully absorbs each.
+    assert.equal(base.teams.B[0].hp, 100);
     assert.equal(
         base.teams.B[0].statuses.find((status) => status.id === 'meowth-fury-swipes-physical')
             ?.durationActions,
@@ -136,7 +138,9 @@ test('Fury Swipes applies immediate and three-turn typed packets while Persian p
         durationActions: null, damageReductionFlat: 5,
     });
     evolved = enact(evolved, action('A', 0, 'persian-fury-swipes', 'B', 0));
-    assert.equal(evolved.teams.B[0].hp, 80);
+    // The Physical packet pierces reduction (5 + 5 from the coincident first tick = 10 unreduced);
+    // the affliction packet is ordinary reducible damage and the flat-5 reduction fully absorbs it.
+    assert.equal(evolved.teams.B[0].hp, 90);
     assert.equal(
         evolved.teams.B[0].statuses.find((status) => status.id === 'meowth-fury-swipes-physical')
             ?.periodicDamageKind,

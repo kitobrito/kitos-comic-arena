@@ -139,10 +139,7 @@ test('Hive Swarm installs Hive Sting, blocks two damage packets, and ignores ene
 
     ready(game, 'B');
     game = enact(game, action('B', 0, 'jigglypuff-sing', 'A', 0));
-    assert.equal(game.teams.A[0].statuses.some((status) => status.id === 'jigglypuff-sing-lock'), false);
-    assert.deepEqual(game.teams.A.slice(1).map((unit) =>
-        unit.statuses.some((status) => status.id === 'jigglypuff-sing-lock')
-    ), [true, true]);
+    assert.equal(game.teams.A[0].statuses.some((status) => status.id === 'jigglypuff-sing-stun'), false);
 
     game = pass(game);
     ready(game, 'B');

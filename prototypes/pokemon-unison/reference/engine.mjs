@@ -21,6 +21,7 @@ const sandboxEnergy = () => ({
 const clone = (value) => JSON.parse(JSON.stringify(value));
 const otherPlayer = (player) => (player === 'A' ? 'B' : 'A');
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+const unitMaxHp = (unit) => Math.max(1, Number(unit?.maxHp) || MAX_HP);
 const statusActive = (status) =>
     status &&
     (status.durationActions === null ||
@@ -45,6 +46,8 @@ const ACTOR_ONLY_EFFECT_KINDS = new Set([
     'reset-actor-unique-skill-group',
     'record-unique-skill',
     'consume-actor-tracked-shield',
+    'set-weather',
+    'clear-weather',
 ]);
 const SILENCE_ALLOWED_EFFECT_KINDS = new Set([...DAMAGING_EFFECT_KINDS, 'chance']);
 
@@ -87,6 +90,169 @@ export function typeEffectiveness(moveType, defenderTypes = []) {
     return { score, modifier: score * 5, label: labels[score] ?? '' };
 }
 
+const WEATHER_TURNS_PER_ROUND = 2;
+
+function setWeather(state, weather) {
+    const current = state.weather;
+    if (current && current.key === weather.key && weather.blockRefreshIfActive) {
+        log(state, 'weather', `${weather.name} is already active and cannot be refreshed.`, {
+            weatherKey: weather.key,
+        });
+        return;
+    }
+    if (current && current.key !== weather.key) {
+        log(state, 'weather', `${current.name} fades as ${weather.name} begins.`, {
+            previousWeatherKey: current.key,
+            weatherKey: weather.key,
+        });
+    } else {
+        log(state, 'weather', current ? `${weather.name} is refreshed.` : `${weather.name} begins.`, {
+            weatherKey: weather.key,
+        });
+    }
+    state.weather = {
+        key: weather.key,
+        name: weather.name,
+        description: weather.description ?? '',
+        sourcePlayer: weather.sourcePlayer,
+        sourceSlot: weather.sourceSlot,
+        excludeSkillId: weather.excludeSkillId ?? null,
+        roundsRemaining: weather.rounds,
+        totalRounds: weather.rounds,
+        lastDecrementTurn: state.turnNumber,
+        blockRefreshIfActive: Boolean(weather.blockRefreshIfActive),
+        damageTypeModifiers: weather.damageTypeModifiers ?? {},
+        afflictionDamageBonusFlat: weather.afflictionDamageBonusFlat ?? 0,
+        costTypeModifiers: weather.costTypeModifiers ?? {},
+        evasionImmuneTypes: weather.evasionImmuneTypes ?? [],
+        periodicNonTypeDamage: weather.periodicNonTypeDamage ?? null,
+        transformMoveType: weather.transformMoveType ?? {},
+        periodicRandomTargetDamage: weather.periodicRandomTargetDamage ?? null,
+    };
+}
+
+function clearWeather(state, reason) {
+    if (!state.weather) return;
+    log(state, 'weather', `${state.weather.name} ends.`, {
+        weatherKey: state.weather.key,
+        reason: reason ?? 'expired',
+    });
+    state.weather = null;
+}
+
+function resolveWeatherPeriodicDamage(state) {
+    const weather = state.weather;
+    const periodic = weather?.periodicNonTypeDamage;
+    if (periodic) {
+        const source = findUnit(state, weather.sourcePlayer, weather.sourceSlot);
+        const immuneTypes = periodic.immuneTypes ?? (periodic.immuneType ? [periodic.immuneType] : []);
+        players.forEach((player) => {
+            livingTargets(state, player).forEach((unit) => {
+                if (getForm(unit).types?.some((type) => immuneTypes.includes(type))) return;
+                dealFixedStatusDamage(state, source, unit, weather.name, periodic.amount);
+            });
+        });
+    }
+    resolveWeatherRandomTargetDamage(state);
+}
+
+function resolveWeatherRandomTargetDamage(state) {
+    const weather = state.weather;
+    const config = weather?.periodicRandomTargetDamage;
+    if (!config) return;
+    const source = findUnit(state, weather.sourcePlayer, weather.sourceSlot);
+    if (!source) return;
+    const immuneTypes = config.immuneTypes ?? [];
+    const eligible = players.flatMap((player) =>
+        livingTargets(state, player).filter(
+            (unit) => !getForm(unit).types?.some((type) => immuneTypes.includes(type))
+        )
+    );
+    if (!eligible.length) return;
+    const picked = eligible[Math.floor(nextRandom(state) * eligible.length)];
+    damageUnit(
+        state,
+        source,
+        picked,
+        {
+            id: weather.excludeSkillId ?? weather.key,
+            name: weather.name,
+            moveType: config.moveType ?? null,
+            classes: config.skillClasses ?? [],
+        },
+        config.amount,
+        config.damageKind ?? 'piercing',
+        false
+    );
+    if (config.paralyzeCooldowns && picked.alive) {
+        addStatus(state, picked, {
+            player: source.player,
+            slot: source.slot,
+            targetPlayer: picked.player,
+        }, {
+            id: `${weather.key}-random-target-paralysis`,
+            name: weather.name,
+            description: 'Skill cooldowns cannot decrease for 1 turn.',
+            hidden: false,
+            harmful: true,
+            durationActions: 1,
+            durationAnchor: 'target',
+            replaceExisting: true,
+            paralyzeCooldowns: true,
+        });
+    }
+}
+
+function advanceWeather(state) {
+    if (!state.weather) return;
+    if (state.turnNumber - state.weather.lastDecrementTurn < WEATHER_TURNS_PER_ROUND) return;
+    state.weather.lastDecrementTurn = state.turnNumber;
+    state.weather.roundsRemaining -= 1;
+    if (state.weather.roundsRemaining <= 0) {
+        resolveWeatherPeriodicDamage(state);
+        clearWeather(state, 'expired');
+    } else {
+        resolveWeatherPeriodicDamage(state);
+    }
+}
+
+function weatherDamageTypeBonus(state, skill) {
+    const weather = state.weather;
+    if (!weather || !skill) return 0;
+    if (weather.excludeSkillId && skill.id === weather.excludeSkillId) return 0;
+    return Number(weather.damageTypeModifiers?.[skill.moveType]) || 0;
+}
+
+function weatherAfflictionBonus(state, damageKind) {
+    const weather = state.weather;
+    if (!weather || damageKind !== 'affliction') return 0;
+    return Number(weather.afflictionDamageBonusFlat) || 0;
+}
+
+function weatherEvasionImmune(state, skill) {
+    const weather = state.weather;
+    if (!weather || !skill) return false;
+    return (weather.evasionImmuneTypes ?? []).includes(skill.moveType);
+}
+
+function weatherCostModifierFor(state, skill) {
+    const weather = state.weather;
+    if (!weather || !skill) return 0;
+    return Number(weather.costTypeModifiers?.[skill.moveType]) || 0;
+}
+
+function weatherStatusFieldBonus(state, actor, effect) {
+    const weather = state.weather;
+    const config = effect.bonusFromWeather;
+    if (!weather || !config) return 0;
+    if (weather.key !== config.weatherKey) return 0;
+    if (
+        config.sourceMustMatch &&
+        (weather.sourcePlayer !== actor.player || weather.sourceSlot !== actor.slot)
+    ) return 0;
+    return Number(config.amount) || 0;
+}
+
 function makeUnit(speciesId, slot, player) {
     const species = ROSTER[speciesId];
     if (!species) throw new Error(`Unknown species: ${speciesId}`);
@@ -99,8 +265,9 @@ function makeUnit(speciesId, slot, player) {
         effectiveForm: null,
         banished: false,
         hp: MAX_HP,
-        shield: 0,
-        shieldCapacity: 0,
+        maxHp: MAX_HP,
+        shield: Math.max(0, Number(species.startShield) || 0),
+        shieldCapacity: Math.max(0, Number(species.startShield) || 0),
         barrier: 0,
         barrierCapacity: 0,
         alive: true,
@@ -123,6 +290,7 @@ function makeUnit(speciesId, slot, player) {
 function grantShield(target, amount) {
     const granted = Math.max(0, Number(amount) || 0);
     if (granted <= 0) return 0;
+    if (target.statuses.some((status) => statusActive(status) && status.preventShieldGain)) return 0;
     const previous = Math.max(0, Number(target.shield) || 0);
     target.shield = previous + granted;
     target.shieldCapacity = previous > 0
@@ -191,6 +359,7 @@ export function createGame({
         turnNumber: 0,
         currentPlayer: startingPlayer,
         winner: null,
+        weather: null,
         teams: {
             A: makeTeam(teams.A, 'A'),
             B: makeTeam(teams.B, 'B'),
@@ -203,6 +372,7 @@ export function createGame({
         turns: [],
         events: [],
     };
+    applyStartOfGameTransforms(state);
     state.events.push({
         turn: 0,
         kind: 'match-start',
@@ -213,6 +383,7 @@ export function createGame({
         state.energyStartGranted[startingPlayer] = true;
     }
     processTurnStartEffects(state, startingPlayer);
+    processCyclingClassAuras(state);
     return state;
 }
 
@@ -272,13 +443,17 @@ function cooldownSkillIdAfterAction(unit, usedSkillId) {
 }
 
 function validateActorCondition(actor, skill) {
-    if (!skill.actorCondition?.allOtherSkillsOnCooldown) return null;
-    const everyOtherSkillIsCoolingDown = activeSkillIds(actor)
-        .filter((skillId) => skillId !== skill.id)
-        .every((skillId) => (actor.cooldowns[skillId] ?? 0) > 0);
-    return everyOtherSkillIsCoolingDown
-        ? null
-        : 'All other active skills must be on cooldown.';
+    if (skill.actorCondition?.allOtherSkillsOnCooldown) {
+        const everyOtherSkillIsCoolingDown = activeSkillIds(actor)
+            .filter((skillId) => skillId !== skill.id)
+            .every((skillId) => (actor.cooldowns[skillId] ?? 0) > 0);
+        if (!everyOtherSkillIsCoolingDown) return 'All other active skills must be on cooldown.';
+    }
+    if (skill.actorCondition?.counterAtLeast) {
+        const { counter, value } = skill.actorCondition.counterAtLeast;
+        if ((actor.counters[counter] ?? 0) < value) return `Requires at least ${value} ${counter}.`;
+    }
+    return null;
 }
 
 function livingTargets(state, player) {
@@ -291,13 +466,19 @@ function hasStatus(unit, predicate) {
 
 function stunnedSkillClasses(unit, skill) {
     const skillClasses = new Set(skill.classes ?? []);
-    return [...new Set(unit.statuses
+    const classHits = [...new Set(unit.statuses
         .filter(statusActive)
         .flatMap((status) => status.cannotUseSkillClasses ?? [])
         .filter((skillClass) => skillClasses.has(skillClass)))];
+    const idBlocked = unit.statuses.some((status) =>
+        statusActive(status) &&
+        Array.isArray(status.cannotUseSkillIds) &&
+        status.cannotUseSkillIds.includes(skill.id)
+    );
+    return idBlocked ? [...classHits, skill.name] : classHits;
 }
 
-function effectiveSkillCosts(actor, skill) {
+function effectiveSkillCosts(state, actor, skill) {
     const override = actor.statuses
         .filter(statusActive)
         .map((status) => status.skillCostOverrides?.[skill.id])
@@ -315,11 +496,19 @@ function effectiveSkillCosts(actor, skill) {
             return Array.isArray(tier?.energy) ? tier.energy : null;
         })()
         : null;
-    const baseCosts = override ?? dynamicCost ?? skill.energy;
+    const forceRandom = actor.statuses.some((status) => statusActive(status) && status.forceRandomCosts);
+    const baseCosts = forceRandom
+        ? (override ?? dynamicCost ?? skill.energy).map(() => Energy.RANDOM)
+        : override ?? dynamicCost ?? skill.energy;
     const reduction = skill.randomCostReductionCounter
         ? Math.max(0, actor.counters[skill.randomCostReductionCounter] ?? 0)
         : 0;
-    let remainingReduction = reduction;
+    const weatherCostModifier = weatherCostModifierFor(state, skill);
+    const statusReduction = actor.statuses.reduce(
+        (total, status) => total + (statusActive(status) ? status.randomCostReduction ?? 0 : 0),
+        0
+    );
+    let remainingReduction = reduction + statusReduction + Math.max(0, -weatherCostModifier);
     const specificReductions = actor.statuses.reduce((totals, status) => {
         if (!statusActive(status)) return totals;
         Object.entries(status.specificCostReductions ?? {}).forEach(([cost, amount]) => {
@@ -341,7 +530,7 @@ function effectiveSkillCosts(actor, skill) {
     const randomCostIncrease = actor.statuses.reduce(
         (total, status) => total + (statusActive(status) ? status.randomCostIncrease ?? 0 : 0),
         0
-    );
+    ) + Math.max(0, weatherCostModifier);
     return reducedCosts.concat(Array(randomCostIncrease).fill(Energy.RANDOM));
 }
 
@@ -357,8 +546,9 @@ function validateTarget(state, action, skill) {
     if (!target) return 'Target does not exist.';
     const actor = findUnit(state, action.player, action.actorSlot);
     if (target.banished) return 'A captured Pokemon is no longer a legal target.';
-    const canTargetDefeatedAlly = skill.target === 'single-ally-or-dead-ally';
+    const canTargetDefeatedAlly = skill.target === 'single-ally-or-dead-ally' || skill.target === 'dead-ally';
     if (!target.alive && !canTargetDefeatedAlly) return 'Target must be a living Pokémon.';
+    if (skill.target === 'dead-ally' && target.alive) return 'This skill can only target a defeated ally.';
     const allied = action.targetPlayer === action.player;
     if (
         skill.targetCannotHaveStatus &&
@@ -387,7 +577,9 @@ function validateTarget(state, action, skill) {
         return 'This skill must target another ally.';
     }
     if (canTargetDefeatedAlly && (!allied || action.targetSlot === action.actorSlot)) {
-        return 'This skill must target another ally, living or defeated.';
+        return skill.target === 'dead-ally'
+            ? 'This skill must target a defeated ally.'
+            : 'This skill must target another ally, living or defeated.';
     }
     if (
         skill.target === 'single-enemy-or-ally' &&
@@ -492,7 +684,7 @@ export function legalActions(state, player = state.currentPlayer) {
             if ((actor.cooldowns[skill.id] ?? 0) > 0) return;
             if (validateActorCondition(actor, skill)) return;
             if (Number.isInteger(skill.maxUses) && (actor.skillUses?.[skill.id] ?? 0) >= skill.maxUses) return;
-            const energyCosts = effectiveSkillCosts(actor, skill);
+            const energyCosts = effectiveSkillCosts(state, actor, skill);
             const spendPlan = createSpendPlan(state.energy[player], energyCosts);
             if (spendPlan.error) return;
             if (
@@ -558,7 +750,7 @@ export function validateAction(state, action, { requireExplicitRandom = false } 
     }
     const spendPlan = createSpendPlan(
         state.energy[action.player],
-        effectiveSkillCosts(actor, skill),
+        effectiveSkillCosts(state, actor, skill),
         action.randomEnergy,
         { requireExplicitRandom }
     );
@@ -580,7 +772,7 @@ function buildQueuedPlanningState(state, queuedActions = []) {
         const skill = getSkill(actor, action.skillId);
         planning.energy[action.player] = buildSpendPlan(
             planning.energy[action.player],
-            effectiveSkillCosts(actor, skill),
+            effectiveSkillCosts(state, actor, skill),
             action.randomEnergy
         );
         usedActors.add(action.actorSlot);
@@ -611,6 +803,40 @@ export function remainingQueuedEnergy(state, queuedActions = []) {
 
 function log(state, kind, message, details = {}) {
     state.events.push({ turn: state.turnNumber, kind, message, ...details });
+}
+
+function applyStartOfGameTransforms(state) {
+    players.forEach((player) => {
+        state.teams[player].forEach((unit) => {
+            const species = ROSTER[unit.speciesId];
+            if (!species?.autoTransformOppositeAtStart) return;
+            const opponent = state.teams[otherPlayer(player)][unit.slot];
+            if (!opponent || opponent.speciesId === unit.speciesId) return;
+            const copiedSpeciesId = opponent.effectiveSpeciesId ?? opponent.speciesId;
+            const copiedForm = opponent.effectiveSpeciesId ? opponent.effectiveForm ?? 'base' : opponent.form;
+            unit.effectiveSpeciesId = copiedSpeciesId;
+            unit.effectiveForm = copiedForm;
+            unit.statuses.push({
+                id: 'ditto-transformation-active',
+                name: 'Transform',
+                hidden: false,
+                harmful: false,
+                durationActions: null,
+                unremovable: true,
+                outgoingDamageDebuff: 5,
+                forceRandomCosts: true,
+                sourcePlayer: player,
+                sourceSlot: unit.slot,
+                appliedTurn: 0,
+            });
+            log(state, 'copy', `${species.name} transformed into ${ROSTER[copiedSpeciesId]?.name ?? copiedSpeciesId}.`, {
+                player,
+                actorSlot: unit.slot,
+                effectiveSpeciesId: copiedSpeciesId,
+                effectiveForm: copiedForm,
+            });
+        });
+    });
 }
 
 function evolveUnit(state, unit, formId) {
@@ -664,7 +890,7 @@ function incrementCounter(state, unit, counter, delta = 1, maximum = Number.POSI
         evolveUnit(state, unit, 'golbat');
     } else if (unit.speciesId === 'chansey' && counter === 'evolution' && next >= 100) {
         evolveUnit(state, unit, 'blissey');
-    } else if (unit.speciesId === 'pidgey' && counter === 'evolution' && next >= 100) {
+    } else if (unit.speciesId === 'pidgey' && counter === 'evolution' && next >= 50) {
         evolveUnit(state, unit, 'pidgeotto');
     } else if (
         unit.speciesId === 'bulbasaur' &&
@@ -883,7 +1109,7 @@ function incomingBlocked(state, actor, target, skill) {
             (total, status) => total + (statusActive(status) ? status.evadeChancePercent ?? 0 : 0),
             0
         );
-        if (evadeChance > 0 && !skill.ignoreEvasion) {
+        if (evadeChance > 0 && !skill.ignoreEvasion && !weatherEvasionImmune(state, skill)) {
             const roll = nextRandom(state) * 100;
             log(state, 'roll', `${getSpecies(target).name} rolled ${roll.toFixed(2)} against ${evadeChance}% evasion.`, {
                 roll,
@@ -895,6 +1121,23 @@ function incomingBlocked(state, actor, target, skill) {
                     targetSlot: target.slot,
                     skillId: skill.id,
                 });
+                target.statuses
+                    .filter((status) =>
+                        statusActive(status) &&
+                        (Number(status.evadeChancePercent) || 0) > 0 &&
+                        status.consumeOnEvade
+                    )
+                    .forEach((status) => {
+                        if (status.onEvadeApplyStatus) {
+                            addStatus(state, target, {
+                                player: status.sourcePlayer ?? target.player,
+                                slot: status.sourceSlot ?? target.slot,
+                                targetPlayer: target.player,
+                            }, status.onEvadeApplyStatus);
+                        }
+                        status.durationActions = 0;
+                    });
+                target.statuses = target.statuses.filter(statusActive);
                 return true;
             }
         }
@@ -923,12 +1166,27 @@ function incomingBlocked(state, actor, target, skill) {
         return true;
     }
     const guard = target.statuses.find(
-        (status) => statusActive(status) && (status.blockNextHarmful || status.blockAllHarmful)
+        (status) =>
+            statusActive(status) &&
+            (status.blockNextHarmful || status.blockAllHarmful) &&
+            (!status.requiresSkillClass || skill.classes?.includes(status.requiresSkillClass))
     );
     if (guard) {
         if (guard.blockNextHarmful) guard.durationActions = 0;
         if (guard.counterSourceOnBlock) {
             incrementCounter(state, sourceUnitForStatus(state, guard), guard.counterSourceOnBlock, 1, 3);
+        }
+        if (guard.reflectFixedDamage) {
+            damageUnit(
+                state, target, actor,
+                { id: guard.sourceSkillId ?? guard.id, name: guard.name, moveType: null, classes: guard.reflectSkillClasses ?? [] },
+                guard.reflectFixedDamage, guard.reflectDamageKind ?? 'piercing', false
+            );
+            if (guard.reflectApplyStatusToSource && target.alive) {
+                addStatus(state, target, {
+                    player: target.player, slot: target.slot, targetPlayer: target.player,
+                }, guard.reflectApplyStatusToSource);
+            }
         }
         log(state, 'blocked', `${getSpecies(target).name} blocked ${skill.name} with ${guard.name}.`);
         return true;
@@ -1099,6 +1357,9 @@ function triggerOwnerKillHooks(state, actor) {
             status.durationActions = status.onOwnerKillRefreshDuration;
             status.appliedTurn = state.turnNumber;
         }
+        if (statusActive(status) && Number.isInteger(status.onOwnerKillExtendDuration)) {
+            status.durationActions = Math.max(0, Number(status.durationActions) || 0) + status.onOwnerKillExtendDuration;
+        }
         if (!statusActive(status) || !status.onOwnerKillRefreshSelf) continue;
         addStatus(state, actor, {
             player: actor.player,
@@ -1112,7 +1373,7 @@ function dealFixedStatusDamage(state, source, target, reason, amount) {
     if (!target?.alive || amount <= 0) return 0;
     const wasAlive = target.alive;
     const lost = Math.min(amount, target.hp);
-    target.hp = clamp(target.hp - lost, 0, MAX_HP);
+    target.hp = clamp(target.hp - lost, 0, unitMaxHp(target));
     target.alive = target.hp > 0;
     recordDamageTaken(state, target, lost);
     if (lost > 0) {
@@ -1169,6 +1430,11 @@ function damageUnit(
         });
         return 0;
     }
+    const transformedMoveType = state.weather?.transformMoveType?.[skill.moveType];
+    if (transformedMoveType) {
+        skill = { ...skill, moveType: transformedMoveType };
+        if (damageKind !== 'piercing') damageKind = 'piercing';
+    }
     const wasAlive = target.alive;
     const hpBefore = target.hp;
     const fixedDamage = damageKind.startsWith('fixed-');
@@ -1181,17 +1447,28 @@ function damageUnit(
                         : 0
                 ) + (damageKind === 'affliction'
                     ? status.afflictionDamageTakenBonusFlat ?? 0
-                    : 0)
+                    : 0) + Object.entries(status.incomingDamageBonusBySkillClass ?? {}).reduce(
+                    (sum, [skillClass, amount]) =>
+                        skill.classes?.includes(skillClass) ? sum + amount : sum,
+                    0
+                )
                 : 0
         ),
         0
     );
+    const weatherBonus = weatherDamageTypeBonus(state, skill) + weatherAfflictionBonus(state, damageKind);
     const outgoingBase = (
-        damageKind === 'affliction' || fixedDamage
-            ? amount
+        fixedDamage
+            ? amount + weatherBonus
+            : damageKind === 'affliction'
+            ? Math.max(
+                0,
+                amount + weatherBonus + outgoingSkillBonus(actor, skill) +
+                    outgoingGeneralBonus(actor, skill, damageKind)
+            )
             : Math.max(
                 0,
-                amount + outgoingSkillBonus(actor, skill) +
+                amount + weatherBonus + outgoingSkillBonus(actor, skill) +
                     outgoingGeneralBonus(actor, skill, damageKind) - outgoingDebuff(actor)
             )
     );
@@ -1205,19 +1482,23 @@ function damageUnit(
             ? Math.max(5, finalAmount + effectiveness.modifier)
             : finalAmount + effectiveness.modifier;
     }
+    const afflictionReductionApplies =
+        (damageKind === 'affliction' || damageKind === 'fixed-affliction') &&
+        !skill.ignoreDamageReduction;
+    const reductionApplies = damageKind === 'normal' || afflictionReductionApplies;
     const reduction = target.statuses.reduce(
         (largest, status) =>
             statusActive(status) ? Math.max(largest, status.damageReductionPercent ?? 0) : largest,
         0
     );
-    if (damageKind === 'normal' && reduction > 0 && !hasStatus(target, (status) => status.guardBroken)) {
+    if (reductionApplies && reduction > 0 && !hasStatus(target, (status) => status.guardBroken)) {
         finalAmount = Math.ceil(finalAmount * (1 - reduction / 100));
     }
     const flatReduction = target.statuses.reduce(
         (total, status) => total + (statusActive(status) ? status.damageReductionFlat ?? 0 : 0),
         0
     );
-    if (damageKind === 'normal' && flatReduction > 0 && !hasStatus(target, (status) => status.guardBroken)) {
+    if (reductionApplies && flatReduction > 0 && !hasStatus(target, (status) => status.guardBroken)) {
         finalAmount = Math.max(0, finalAmount - flatReduction);
     }
     const unpierceableReduction = target.statuses.reduce(
@@ -1288,7 +1569,7 @@ function damageUnit(
         0
     );
     const hpWithoutMinimum = target.hp - remaining;
-    target.hp = clamp(Math.max(minimumHp, hpWithoutMinimum), 0, MAX_HP);
+    target.hp = clamp(Math.max(minimumHp, hpWithoutMinimum), 0, unitMaxHp(target));
     target.alive = target.hp > 0;
     if (remaining > 0 && minimumHp > 0 && hpWithoutMinimum < minimumHp) {
         const preventedDeathStatus = target.statuses.find((status) =>
@@ -1344,7 +1625,22 @@ function damageUnit(
         triggerOwnerKillHooks(state, actor);
     }
     if (finalAmount > 0) triggerSuccessfulEnemyDamageHooks(state, actor, target);
+    if (finalAmount > 0 && actor.player !== target.player && effectiveness.score > 0) {
+        triggerOwnerHitBySuperEffectiveHooks(state, target);
+    }
     return finalAmount;
+}
+
+function triggerOwnerHitBySuperEffectiveHooks(state, target) {
+    target.statuses.filter(statusActive).forEach((status) => {
+        const hook = status.onOwnerHitBySuperEffectiveOrCritical;
+        if (!hook) return;
+        addStatus(state, target, {
+            player: target.player,
+            slot: target.slot,
+            targetPlayer: target.player,
+        }, hook);
+    });
 }
 
 function healUnit(state, target, amount, reason) {
@@ -1358,7 +1654,7 @@ function healUnit(state, target, amount, reason) {
             statusActive(status) ? value * Math.max(0, Number(status.healReceivedMultiplier) || 1) : value,
         1
     );
-    const healed = Math.min(amount * multiplier, MAX_HP - target.hp);
+    const healed = Math.min(amount * multiplier, unitMaxHp(target) - target.hp);
     target.hp += healed;
     if (healed > 0) log(state, 'heal', `${getSpecies(target).name} restored ${healed} HP with ${reason}.`);
     return healed;
@@ -1437,9 +1733,9 @@ function chanceThreshold(actor, effect, target, context) {
         ? (actor.counters[effect.chanceCounter.counter] ?? 0) * effect.chanceCounter.multiplier
         : 0;
     const missingHpBonus = effect.chancePerMissingHp
-        ? (MAX_HP - actor.hp) * effect.chancePerMissingHp
+        ? (unitMaxHp(actor) - actor.hp) * effect.chancePerMissingHp
         : 0;
-    const initialTargetHp = context?.initialTargetHp ?? target?.hp ?? MAX_HP;
+    const initialTargetHp = context?.initialTargetHp ?? target?.hp ?? unitMaxHp(target);
     const targetHpBonus = effect.chanceBonusIfInitialTargetHpAtMost &&
         initialTargetHp <= effect.chanceBonusIfInitialTargetHpAtMost.threshold
         ? effect.chanceBonusIfInitialTargetHpAtMost.amount
@@ -1456,7 +1752,24 @@ function chanceThreshold(actor, effect, target, context) {
                 (Number(status[effect.chanceBonusFromActorStatus.field]) || 0) *
                     (effect.chanceBonusFromActorStatus.multiplier ?? 1), 0)
         : 0;
-    return base + counterBonus + missingHpBonus + targetHpBonus + actorStatusBonus + actorStatusFieldBonus;
+    const stunCertainty = effect.chanceCertainIfTargetStunned && target && hasAnyStunLikeStatus(target)
+        ? 100
+        : 0;
+    return Math.max(
+        base + counterBonus + missingHpBonus + targetHpBonus + actorStatusBonus + actorStatusFieldBonus,
+        stunCertainty
+    );
+}
+
+function hasAnyStunLikeStatus(unit) {
+    return unit.statuses.some((status) => statusActive(status) && Boolean(
+        status.stunLikeEffect ||
+        status.cannotUseSkills ||
+        status.stunHarmful ||
+        status.cannotUseNonMentalSkills ||
+        status.cannotUseHarmfulSkills ||
+        (Array.isArray(status.cannotUseSkillClasses) && status.cannotUseSkillClasses.length > 0)
+    ));
 }
 
 function rollEffectChance(state, actor, skill, effect, target, context) {
@@ -1552,12 +1865,29 @@ function applyEffectToTarget(state, context, effect, target) {
                     return total + count * perCount;
                 }, 0)
             : 0;
+        const stunnedTargetBonus = effect.bonusIfTargetStunned && hasAnyStunLikeStatus(target)
+            ? effect.bonusIfTargetStunned
+            : 0;
+        const missingHpBonus = effect.amountFromActorMissingHp
+            ? Math.floor(
+                (unitMaxHp(actor) - actor.hp) / (Number(effect.amountFromActorMissingHp.divisor) || 1)
+            ) * (Number(effect.amountFromActorMissingHp.step) || 0)
+            : 0;
+        const actorHpBonus = effect.bonusIfActorHpAtMost && actor.hp <= effect.bonusIfActorHpAtMost.threshold
+            ? effect.bonusIfActorHpAtMost.amount
+            : 0;
+        const actorShieldBonus = effect.bonusIfActorHasShield && actor.shield > 0
+            ? effect.bonusIfActorHasShield
+            : 0;
         const dealt = damageUnit(
             state,
             actor,
             target,
-            skill,
-            effect.amount + counterBonus + actorStatusBonus + targetStatusBonus + actorStatusScaledAmount,
+            effect.ignoreDamageReduction !== undefined
+                ? { ...skill, ignoreDamageReduction: effect.ignoreDamageReduction }
+                : skill,
+            effect.amount + counterBonus + actorStatusBonus + targetStatusBonus + actorStatusScaledAmount +
+                stunnedTargetBonus + missingHpBonus + actorHpBonus + actorShieldBonus,
             effect.damageKind,
             effect.applyTypeAdjustment === false
                 ? false
@@ -1588,6 +1918,9 @@ function applyEffectToTarget(state, context, effect, target) {
             target.statuses = target.statuses.filter(
                 (status) => status.id !== effect.consumeTargetStatus
             );
+        }
+        if (effect.consumeActorStatus) {
+            actor.statuses = actor.statuses.filter((status) => status.id !== effect.consumeActorStatus);
         }
     } else if (effect.kind === 'heal') {
         const healed = healUnit(state, target, effect.amount, skill.name);
@@ -1627,6 +1960,20 @@ function applyEffectToTarget(state, context, effect, target) {
             skillId: skill.id,
             step,
             percent: percentages[step],
+            amount: healed,
+        });
+    } else if (effect.kind === 'flat-heal-sequence') {
+        if (!actor.skillSequenceSteps) actor.skillSequenceSteps = {};
+        const previousStep = Number(actor.skillSequenceSteps[skill.id]) || 0;
+        const step = context.previousSkillId === skill.id ? previousStep + 1 : 0;
+        actor.skillSequenceSteps[skill.id] = step;
+        const amount = Math.max(0, (Number(effect.amount) || 0) - step * (Number(effect.decrement) || 0));
+        const healed = healUnit(state, target, amount, skill.name);
+        log(state, 'heal-sequence', `${getForm(actor).name}'s ${skill.name} used its step ${step} amount.`, {
+            player: actor.player,
+            actorSlot: actor.slot,
+            skillId: skill.id,
+            step,
             amount: healed,
         });
     } else if (effect.kind === 'metronome') {
@@ -1697,7 +2044,9 @@ function applyEffectToTarget(state, context, effect, target) {
             state,
             actor,
             target,
-            skill,
+            effect.ignoreDamageReduction !== undefined
+                ? { ...skill, ignoreDamageReduction: effect.ignoreDamageReduction }
+                : skill,
             effect.amount + bonus,
             effect.damageKind,
             shouldApplyTypeAdjustment(context, target)
@@ -1711,6 +2060,15 @@ function applyEffectToTarget(state, context, effect, target) {
                 effect.actorCounterFromDamage.counter,
                 dealt,
                 effect.actorCounterFromDamage.maximum
+            );
+        }
+        if (dealt > 0 && effect.actorCounterOnDamage) {
+            incrementCounter(
+                state,
+                actor,
+                effect.actorCounterOnDamage.counter,
+                effect.actorCounterOnDamage.delta ?? 1,
+                effect.actorCounterOnDamage.maximum
             );
         }
         if (effect.consumeActorStatus) {
@@ -1727,7 +2085,7 @@ function applyEffectToTarget(state, context, effect, target) {
             )
             : 0;
         const lost = Math.min(effect.amount, Math.max(0, target.hp - selfSkillMinimumHp));
-        target.hp = clamp(target.hp - lost, 0, MAX_HP);
+        target.hp = clamp(target.hp - lost, 0, unitMaxHp(target));
         target.alive = target.hp > 0;
         recordDamageTaken(state, target, lost);
         log(state, 'health-loss', `${getSpecies(target).name} lost ${lost} HP from ${skill.name}.`, {
@@ -1785,7 +2143,18 @@ function applyEffectToTarget(state, context, effect, target) {
         if (effect.copyActorStatusNumeric) {
             copyActorStatusNumericToTemplate(actor, statusTemplate, effect.copyActorStatusNumeric);
         }
-        const appliedStatus = addStatus(state, target, {
+        if (effect.durationFromTargetStatusField) {
+            const { statusId, field, multiplier, minimum, maximum } = effect.durationFromTargetStatusField;
+            const sourceStatus = target.statuses.find((entry) => entry.id === statusId);
+            const raw = Math.max(0, Number(sourceStatus?.[field]) || 0) * (Number(multiplier) || 1);
+            statusTemplate.durationActions = Math.min(
+                Number.isFinite(maximum) ? maximum : Infinity,
+                Math.max(Number.isFinite(minimum) ? minimum : 0, raw)
+            );
+        }
+        const appliedStatus = statusTemplate.durationActions === 0
+            ? null
+            : addStatus(state, target, {
             player: action.player,
             slot: actor.slot,
             targetPlayer: target.player,
@@ -1822,10 +2191,34 @@ function applyEffectToTarget(state, context, effect, target) {
             const maximum = Number.isFinite(effect.maximum)
                 ? effect.maximum
                 : Number.POSITIVE_INFINITY;
+            const delta = (Number(effect.delta) || 0) + weatherStatusFieldBonus(state, actor, effect);
             status[effect.field] = Math.min(
                 maximum,
-                Math.max(0, current + (Number(effect.delta) || 0))
+                Math.max(0, current + delta)
             );
+        }
+    } else if (effect.kind === 'grant-random-energy-to-actor') {
+        grantRandomEnergy(state, actor.player, effect.amount ?? 1, effect.reason ?? skill.name);
+    } else if (effect.kind === 'grant-energy-to-actor') {
+        const amount = Math.max(0, Number(effect.amount) || 0);
+        state.energy[actor.player][effect.energyType] =
+            (state.energy[actor.player][effect.energyType] ?? 0) + amount;
+        if (amount > 0) {
+            log(state, 'energy', `${getSpecies(actor).name} gained ${amount} ${effect.energyType} energy.`, {
+                player: actor.player,
+                energy: effect.energyType,
+                amount,
+            });
+        }
+    } else if (effect.kind === 'set-weather') {
+        setWeather(state, {
+            ...effect.weather,
+            sourcePlayer: actor.player,
+            sourceSlot: actor.slot,
+        });
+    } else if (effect.kind === 'clear-weather') {
+        if (!effect.weatherKey || state.weather?.key === effect.weatherKey) {
+            clearWeather(state, 'consumed');
         }
     } else if (effect.kind === 'reset-actor-counter') {
         actor.counters[effect.counter] = 0;
@@ -1845,6 +2238,26 @@ function applyEffectToTarget(state, context, effect, target) {
         actor.statuses = actor.statuses.filter((status) => !removeIds.has(status.id));
     } else if (effect.kind === 'consume-actor-tracked-shield') {
         consumeTrackedShieldStatus(state, actor, effect.statusId);
+    } else if (effect.kind === 'destroy-barrier') {
+        const removed = target.barrier;
+        target.barrier = 0;
+        target.barrierCapacity = 0;
+        target.statuses = target.statuses.filter((status) => !status.trackedBarrierPoints);
+        if (removed > 0 && effect.actorStatusIfDestroyed) {
+            addStatus(state, actor, {
+                player: action.player,
+                slot: actor.slot,
+                targetPlayer: action.player,
+            }, {
+                ...effect.actorStatusIfDestroyed,
+                sourceSkillId: effect.actorStatusIfDestroyed.sourceSkillId ?? skill.id,
+            });
+        }
+        log(state, 'barrier-destroyed', `${getSpecies(actor).name} destroyed ${removed} barrier on ${getSpecies(target).name}.`, {
+            amount: removed,
+            targetPlayer: target.player,
+            targetSlot: target.slot,
+        });
     } else if (effect.kind === 'destroy-shield') {
         const removed = target.shield;
         target.shield = 0;
@@ -1876,7 +2289,10 @@ function applyEffectToTarget(state, context, effect, target) {
                 0
             )
             : 0;
-        const granted = grantShield(target, effect.amount + counterBonus + incomingBonus);
+        const shieldBonus = effect.bonusIfTargetHasShield && target.shield > 0
+            ? effect.bonusIfTargetHasShield
+            : 0;
+        const granted = grantShield(target, effect.amount + counterBonus + incomingBonus + shieldBonus);
         if (effect.trackedStatus) {
             const trackedStatus = clone(effect.trackedStatus);
             if (effect.copyActorStatusNumeric) {
@@ -1934,9 +2350,195 @@ function applyEffectToTarget(state, context, effect, target) {
             targetPlayer: target.player,
             targetSlot: target.slot,
         });
+    } else if (effect.kind === 'convert-shield-to-max-hp') {
+        const gained = Math.max(0, Number(target.shield) || 0);
+        if (gained > 0) {
+            target.shield = 0;
+            target.shieldCapacity = 0;
+            target.maxHp = unitMaxHp(target) + gained;
+            log(state, 'max-hp', `${getSpecies(target).name} converted ${gained} Shield into permanent maximum HP.`, {
+                amount: gained,
+                targetPlayer: target.player,
+                targetSlot: target.slot,
+            });
+        }
+        const healAmount = Math.floor(unitMaxHp(target) * (Number(effect.healPercent) || 0) / 100);
+        if (healAmount > 0) healUnit(state, target, healAmount, skill.name);
+    } else if (effect.kind === 'remove-source-control-statuses') {
+        const isControlStatus = (status) => Boolean(
+            status.cannotUseSkills || status.cannotUseHarmfulSkills || status.cannotUseHelpfulSkills ||
+            status.cannotUseNonMentalSkills || status.fullBlind || status.harmfulBlindToSourceTeam ||
+            status.paralyzeCooldowns || status.tauntSource ||
+            (Array.isArray(status.cannotUseSkillClasses) && status.cannotUseSkillClasses.length > 0) ||
+            status.ongoingClass === 'channeled'
+        );
+        players.forEach((player) => {
+            state.teams[player].forEach((unit) => {
+                unit.statuses = unit.statuses.filter((status) =>
+                    status.unremovable ||
+                    !isControlStatus(status) ||
+                    status.sourcePlayer !== target.player ||
+                    status.sourceSlot !== target.slot
+                );
+            });
+        });
+    } else if (effect.kind === 'cycling-class-damage-debuff') {
+        const source = actor.statuses.find((status) => statusActive(status) && status.cyclingClassAura);
+        const resolved = resolveActiveCyclingClass(state, source);
+        if (resolved) {
+            addStatus(state, target, {
+                player: actor.player, slot: actor.slot, targetPlayer: target.player,
+            }, {
+                id: effect.statusId,
+                name: effect.name ?? 'Sweet Scent Weakness',
+                hidden: false, harmful: true, durationActions: null,
+                damageBonusBySkillClass: { [resolved.activeClass]: -(Number(effect.amount) || 0) },
+                mergeMapFields: ['damageBonusBySkillClass'],
+                sourceSkillId: skill.id,
+            });
+        }
+    } else if (effect.kind === 'cycling-class-stun') {
+        const source = actor.statuses.find((status) => statusActive(status) && status.cyclingClassAura);
+        const resolved = resolveActiveCyclingClass(state, source);
+        if (resolved) {
+            addStatus(state, target, {
+                player: actor.player, slot: actor.slot, targetPlayer: target.player,
+            }, {
+                id: effect.statusId,
+                name: effect.name ?? 'Sweet Scent Stun',
+                hidden: false, harmful: true,
+                durationActions: effect.durationActions ?? 3, durationAnchor: 'target',
+                cannotUseSkillClasses: [resolved.activeClass],
+                sourceSkillId: skill.id,
+            });
+        }
+    } else if (effect.kind === 'consume-actor-counter-into-target-stun') {
+        const source = actor.statuses.find((status) => statusActive(status) && status.id === effect.statusId);
+        const count = Math.max(0, Number(source?.[effect.field]) || 0);
+        if (count > 0) {
+            addStatus(state, target, {
+                player: actor.player, slot: actor.slot, targetPlayer: target.player,
+            }, {
+                ...effect.status,
+                durationActions: count,
+            });
+        }
+        if (source) source[effect.field] = 0;
+    } else if (effect.kind === 'consume-actor-empowerment') {
+        const status = actor.statuses.find((entry) => statusActive(entry) && entry.id === effect.statusId);
+        if (status && (Number(status[effect.flagField]) || 0) > 0) {
+            status[effect.targetField] = (Number(status[effect.targetField]) || 0) + (Number(effect.delta) || 0);
+            status[effect.flagField] = 0;
+        }
+    } else if (effect.kind === 'stacking-mark') {
+        const existing = target.statuses.find((status) => status.id === effect.statusId);
+        const currentStacks = Math.max(0, Number(existing?.[effect.stackField]) || 0);
+        const nextStacks = Math.min(
+            Number.isFinite(effect.stackMax) ? effect.stackMax : Infinity,
+            currentStacks + 1
+        );
+        target.statuses = target.statuses.filter((status) => status.id !== effect.statusId);
+        addStatus(state, target, {
+            player: actor.player, slot: actor.slot, targetPlayer: target.player,
+        }, {
+            ...effect.status,
+            id: effect.statusId,
+            [effect.stackField]: nextStacks,
+            ...(effect.scaledField
+                ? { [effect.scaledField]: nextStacks * (Number(effect.perStack) || 0) }
+                : {}),
+        });
+    } else if (effect.kind === 'nincada-evolve') {
+        if (actor.hp >= 50) {
+            evolveUnit(state, actor, 'ninjask');
+            actor.statuses = actor.statuses.filter((status) => status.id !== 'nincada-evolution-tracker');
+        }
+        const faintedAlly = state.teams[actor.player].find(
+            (unit) => unit !== actor && !unit.alive && !unit.banished
+        );
+        if (faintedAlly) {
+            faintedAlly.alive = true;
+            faintedAlly.maxHp = 1;
+            faintedAlly.hp = 1;
+            faintedAlly.statuses = [];
+            faintedAlly.cooldowns = {};
+            faintedAlly.skillUses = {};
+            faintedAlly.effectiveSpeciesId = 'nincada';
+            faintedAlly.effectiveForm = 'shedinja';
+            const shedinjaForm = ROSTER.nincada?.forms?.shedinja;
+            (shedinjaForm?.addStatusesOnEnter ?? []).forEach((template) => {
+                addStatus(state, faintedAlly, {
+                    player: faintedAlly.player, slot: faintedAlly.slot, targetPlayer: faintedAlly.player,
+                }, template);
+            });
+            log(state, 'revive', `${getSpecies(faintedAlly).name} was revived as Shedinja with 1 maximum HP.`, {
+                targetPlayer: faintedAlly.player,
+                targetSlot: faintedAlly.slot,
+            });
+        }
+    } else if (effect.kind === 'random-tier-damage') {
+        const options = effect.options ?? [];
+        if (!options.length) return;
+        const picked = options[Math.floor(nextRandom(state) * options.length)];
+        log(state, 'random-tier', `${skill.name} rolled the ${picked.amount}-damage tier.`, {
+            player: actor.player, actorSlot: actor.slot, skillId: skill.id, amount: picked.amount,
+        });
+        const tierDealt = damageUnit(
+            state, actor, target, skill, picked.amount,
+            effect.damageKind ?? 'normal', shouldApplyTypeAdjustment(context, target)
+        );
+        if (tierDealt > 0 && effect.actorCounterFromDamage) {
+            incrementCounter(
+                state, actor, effect.actorCounterFromDamage.counter,
+                tierDealt, effect.actorCounterFromDamage.maximum
+            );
+        }
+        if (picked.selfStatus) {
+            addStatus(state, actor, {
+                player: actor.player, slot: actor.slot, targetPlayer: actor.player,
+            }, picked.selfStatus);
+        }
+    } else if (effect.kind === 'steal-helpful-status') {
+        const stolen = target.statuses.find((status) =>
+            statusActive(status) &&
+            !status.harmful &&
+            !status.unremovable &&
+            status.durationActions !== null
+        );
+        if (stolen) {
+            target.statuses = target.statuses.filter((status) => status !== stolen);
+            const duration = Math.min(
+                Math.max(1, Number(effect.maxDuration) || 2),
+                Number(stolen.durationActions) || 1
+            );
+            addStatus(state, actor, {
+                player: actor.player,
+                slot: actor.slot,
+                targetPlayer: actor.player,
+            }, {
+                ...stolen,
+                id: `${skill.id}-stolen-${stolen.id}`,
+                durationActions: duration,
+                harmful: false,
+                unremovable: false,
+                sourceSkillId: skill.id,
+            });
+            log(state, 'status-stolen', `${getSpecies(actor).name} stole ${stolen.name} from ${getSpecies(target).name}.`, {
+                player: actor.player,
+                actorSlot: actor.slot,
+                targetPlayer: target.player,
+                targetSlot: target.slot,
+                statusId: stolen.id,
+            });
+        }
     } else if (effect.kind === 'modify-cooldowns') {
-        Object.keys(target.cooldowns).forEach((skillId) => {
-            target.cooldowns[skillId] = Math.max(0, target.cooldowns[skillId] + effect.amount);
+        const skillIds = effect.allSkills
+            ? activeSkillIds(target).filter((skillId) =>
+                !effect.harmfulOnly || getSkill(target, skillId)?.harmful !== false
+            )
+            : Object.keys(target.cooldowns);
+        skillIds.forEach((skillId) => {
+            target.cooldowns[skillId] = Math.max(0, (target.cooldowns[skillId] ?? 0) + effect.amount);
             if (target.cooldowns[skillId] === 0) delete target.cooldowns[skillId];
         });
     } else if (effect.kind === 'extend-status-duration') {
@@ -1985,7 +2587,7 @@ function applyEffectToTarget(state, context, effect, target) {
         );
     } else if (effect.kind === 'revive') {
         if (!target.alive && !target.banished) {
-            target.hp = clamp(effect.amount, 1, MAX_HP);
+            target.hp = clamp(effect.amount, 1, unitMaxHp(target));
             target.alive = true;
             log(state, 'revive', `${getSpecies(target).name} returned with ${target.hp} HP.`, {
                 amount: target.hp,
@@ -2030,8 +2632,9 @@ function applyEffectToTarget(state, context, effect, target) {
             harmful: false,
             durationActions: null,
             unremovable: true,
+            ...effect.copyStatusFields,
         });
-        log(state, 'copy', `Pokemon Trainer copied ${getForm(actor).name}'s current form and skills.`, {
+        log(state, 'copy', `${getSpecies(actor).name} copied ${getForm(actor).name}'s current form and skills.`, {
             player: actor.player,
             actorSlot: actor.slot,
             effectiveSpeciesId: copiedSpeciesId,
@@ -2068,6 +2671,24 @@ function applyEffectToTarget(state, context, effect, target) {
         if (before !== target.statuses.length && effect.actorCounter) {
             incrementCounter(state, actor, effect.actorCounter, 1, 3);
         }
+    } else if (effect.kind === 'strip-helpful-statuses') {
+        const before = target.statuses.length;
+        target.statuses = target.statuses.filter((status) => status.harmful || status.unremovable);
+        const removed = before !== target.statuses.length;
+        if (removed) {
+            log(state, 'cleanse', `${getSpecies(actor).name} stripped ${getSpecies(target).name}'s helpful effects.`, {
+                targetPlayer: target.player,
+                targetSlot: target.slot,
+            });
+            if (effect.actorStatusIfRemoved) {
+                addStatus(state, actor, {
+                    player: action.player, slot: actor.slot, targetPlayer: action.player,
+                }, {
+                    ...effect.actorStatusIfRemoved,
+                    sourceSkillId: effect.actorStatusIfRemoved.sourceSkillId ?? skill.id,
+                });
+            }
+        }
     } else if (effect.kind === 'cleanse-enemy-statuses') {
         const before = target.statuses.length;
         target.statuses = target.statuses.filter(
@@ -2078,6 +2699,7 @@ function applyEffectToTarget(state, context, effect, target) {
                 targetPlayer: target.player,
                 targetSlot: target.slot,
             });
+            if (effect.actorCounter) incrementCounter(state, actor, effect.actorCounter, 1, 3);
         }
     } else if (effect.kind === 'cleanse-enemy-affliction') {
         const before = target.statuses.length;
@@ -2149,6 +2771,24 @@ function effectConditionMet(context, target, effect) {
     if (effect.unlessActorStatus && hasStatus(actor, (status) => status.id === effect.unlessActorStatus)) {
         return false;
     }
+    if (
+        effect.requiresActorStatusFieldAtMost &&
+        !actor.statuses.some((status) =>
+            statusActive(status) &&
+            status.id === effect.requiresActorStatusFieldAtMost.statusId &&
+            (Number(status[effect.requiresActorStatusFieldAtMost.field]) ?? Infinity) <=
+                effect.requiresActorStatusFieldAtMost.atMost
+        )
+    ) return false;
+    if (
+        effect.unlessActorStatusFieldAtMost &&
+        actor.statuses.some((status) =>
+            statusActive(status) &&
+            status.id === effect.unlessActorStatusFieldAtMost.statusId &&
+            (Number(status[effect.unlessActorStatusFieldAtMost.field]) ?? Infinity) <=
+                effect.unlessActorStatusFieldAtMost.atMost
+        )
+    ) return false;
     if (
         effect.requiresInitialActorStatus &&
         !initialActorStatuses.some(
@@ -2304,6 +2944,7 @@ function resolvePeriodicStatuses(state, player) {
                             name: status.name,
                             moveType: status.periodicMoveType ?? null,
                             classes: status.periodicSkillClasses ?? [],
+                            ignoreDamageReduction: status.ignoreDamageReduction,
                         },
                         amount,
                         status.periodicDamageKind,
@@ -2317,7 +2958,7 @@ function resolvePeriodicStatuses(state, player) {
                 const source = findUnit(state, status.sourcePlayer, status.sourceSlot);
                 const wasAlive = target.alive;
                 const amount = Math.min(status.periodicDrain, target.hp);
-                target.hp = clamp(target.hp - amount, 0, MAX_HP);
+                target.hp = clamp(target.hp - amount, 0, unitMaxHp(target));
                 target.alive = target.hp > 0;
                 recordDamageTaken(state, target, amount);
                 if (source?.alive) healUnit(state, source, amount, status.name);
@@ -2339,13 +2980,32 @@ function resolveSourceTurnStartStatuses(state, player) {
         state.teams[targetPlayer].forEach((target) => {
             if (!target.alive) return;
             for (const status of [...target.statuses]) {
-                if (!statusActive(status) || (!status.turnStartDamage && !status.turnStartHeal)) continue;
+                if (
+                    !statusActive(status) ||
+                    (!status.turnStartDamage && !status.turnStartHeal &&
+                        !status.turnStartHealPerField && !status.turnStartAdvanceAllEnemyPerish)
+                ) continue;
                 const triggerPlayer = status.turnStartAnchor === 'target'
                     ? target.player
                     : status.sourcePlayer;
                 if (triggerPlayer !== player) continue;
+                if (status.skipFirstTurnStartTick && !status.firstTurnStartTickSkipped) {
+                    status.firstTurnStartTickSkipped = true;
+                    continue;
+                }
                 if (status.turnStartHeal) {
                     healUnit(state, target, status.turnStartHeal, status.name);
+                }
+                if (status.turnStartHealPerField) {
+                    const count = Math.max(0, Number(status[status.turnStartHealPerField.field]) || 0);
+                    const healAmount = count * (Number(status.turnStartHealPerField.amount) || 0);
+                    if (healAmount > 0) healUnit(state, target, healAmount, status.name);
+                }
+                if (status.turnStartAdvanceAllEnemyPerish) {
+                    const perishSource = sourceUnitForStatus(state, status) ?? target;
+                    livingTargets(state, otherPlayer(target.player)).forEach((enemy) =>
+                        acceleratePerishSong(state, perishSource, enemy)
+                    );
                 }
                 const source = sourceUnitForStatus(state, status);
                 if (status.turnStartDamage && source && status.turnStartDamageKind) {
@@ -2358,6 +3018,7 @@ function resolveSourceTurnStartStatuses(state, player) {
                             name: status.name,
                             moveType: status.turnStartMoveType ?? null,
                             classes: status.turnStartSkillClasses ?? [],
+                            ignoreDamageReduction: status.ignoreDamageReduction,
                         },
                         status.turnStartDamage,
                         status.turnStartDamageKind,
@@ -2497,6 +3158,10 @@ function triggerOwnerUseSkillHooks(state, actor, skill, target) {
         const hook = status.onUseSkill;
         if (hook.harmfulOnly && !skillIsHarmfulToTarget(skill, actor, target)) continue;
         if (hook.requireFirstSkillUse && (actor.skillUses?.[skill.id] ?? 0) > 1) continue;
+        if (
+            Array.isArray(hook.classesAny) &&
+            !hook.classesAny.some((entry) => skill.classes?.includes(entry))
+        ) continue;
         if (hook.damageToOwner) {
             dealFixedStatusDamage(
                 state,
@@ -2535,6 +3200,13 @@ function triggerOwnerUseSkillHooks(state, actor, skill, target) {
                 statusTemplate
             );
         });
+        if (source?.alive) {
+            (hook.applyStatusesToSource ?? []).forEach((statusTemplate) => {
+                addStatus(state, source, {
+                    player: source.player, slot: source.slot, targetPlayer: source.player,
+                }, statusTemplate);
+            });
+        }
         if (hook.incrementOwnNumericField) {
             const field = hook.incrementOwnNumericField;
             status[field] = Math.max(0, Number(status[field]) || 0) +
@@ -2562,17 +3234,29 @@ function skillCooldownIncrease(actor, skill) {
 }
 
 function triggerCounteredDamagingSkill(state, actor, skill) {
+    if (skill.cannotBeCountered || skill.classes?.includes('Uncounterable')) return false;
     const status = actor.statuses.find((entry) =>
         statusActive(entry) &&
         entry.counterNextNewDamagingSkill &&
-        (actor.skillUses?.[skill.id] ?? 0) === 1
+        (actor.skillUses?.[skill.id] ?? 0) === 1 &&
+        (!entry.counterRequiresSkillClass || skill.classes?.includes(entry.counterRequiresSkillClass))
     );
     if (!status) return false;
-    const baseDamage = skill.effects.reduce((total, effect) =>
-        ['damage', 'drain', 'fixed-affliction-damage'].includes(effect.kind)
-            ? total + Math.max(0, Number(effect.amount) || 0)
-            : total,
-    0);
+    // Mirrors production's resolveEffectDamageAmount: the countered skill's damage is evaluated
+    // from the attacker's own buffed state (their outgoing bonuses/multipliers), not the raw
+    // listed amount, since the skill never actually resolves against the target to pick up any
+    // target-side reduction or type effectiveness.
+    const baseDamage = Number.isFinite(status.counterFixedDamage)
+        ? status.counterFixedDamage
+        : skill.effects.reduce((total, effect) => {
+            if (!['damage', 'drain', 'fixed-affliction-damage'].includes(effect.kind)) return total;
+            const rawAmount = Math.max(0, Number(effect.amount) || 0);
+            if (rawAmount <= 0) return total;
+            const bonus = outgoingSkillBonus(actor, skill) +
+                outgoingGeneralBonus(actor, skill, effect.damageKind) -
+                outgoingDebuff(actor);
+            return total + Math.max(0, (rawAmount + bonus) * outgoingClassMultiplier(actor, skill));
+        }, 0);
     if (baseDamage <= 0) return false;
     const source = sourceUnitForStatus(state, status);
     status.durationActions = 0;
@@ -2599,6 +3283,11 @@ function triggerCounteredDamagingSkill(state, actor, skill) {
     if (dealt > 0 && status.evolveSourceForm && source.alive) {
         evolveUnit(state, source, status.evolveSourceForm);
     }
+    if (dealt > 0 && status.counterApplyStatusToSource && source.alive) {
+        addStatus(state, source, {
+            player: source.player, slot: source.slot, targetPlayer: source.player,
+        }, status.counterApplyStatusToSource);
+    }
     return true;
 }
 
@@ -2620,7 +3309,7 @@ function skillFails(state, actor, skill) {
     if (roll >= status.skillFailChance) return false;
     const wasAlive = actor.alive;
     const lost = Math.min(status.skillFailDamage ?? 0, actor.hp);
-    actor.hp = clamp(actor.hp - lost, 0, MAX_HP);
+    actor.hp = clamp(actor.hp - lost, 0, unitMaxHp(actor));
     actor.alive = actor.hp > 0;
     recordDamageTaken(state, actor, lost);
     log(state, 'skill-failed', `${getSpecies(actor).name}'s ${skill.name} failed because of ${status.name}.`, {
@@ -2666,6 +3355,9 @@ function triggerTurnEndHooks(state, player) {
                 }
                 if (status.skipTurnEndOnAppliedTurn && status.appliedTurn === state.turnNumber) return;
                 if (status.turnEndHeal) healUnit(state, target, status.turnEndHeal, status.name);
+                const turnEndDamage = status.doubleTurnEndDamageIfTargetStunned && hasAnyStunLikeStatus(target)
+                    ? (Number(status.turnEndDamage) || 0) * 2
+                    : status.turnEndDamage;
                 if (status.turnEndDamageKind) {
                     const source = sourceUnitForStatus(state, status);
                     if (source) {
@@ -2678,8 +3370,9 @@ function triggerTurnEndHooks(state, player) {
                                 name: status.name,
                                 moveType: status.turnEndMoveType ?? null,
                                 classes: status.turnEndSkillClasses ?? [],
+                                ignoreDamageReduction: status.ignoreDamageReduction,
                             },
-                            status.turnEndDamage,
+                            turnEndDamage,
                             status.turnEndDamageKind,
                             false
                         );
@@ -2690,7 +3383,7 @@ function triggerTurnEndHooks(state, player) {
                         sourceUnitForStatus(state, status),
                         target,
                         status.name,
-                        status.turnEndDamage
+                        turnEndDamage
                     );
                 }
             });
@@ -2759,6 +3452,7 @@ function triggerStatusExpiration(state, target, status) {
                 name: status.name,
                 moveType: status.onExpireMoveType ?? null,
                 classes: status.onExpireSkillClasses ?? [],
+                ignoreDamageReduction: status.ignoreDamageReduction,
             },
             amount,
             status.onExpireDamageKind ?? 'fixed-piercing',
@@ -2778,6 +3472,50 @@ function triggerStatusExpiration(state, target, status) {
             sourceSkillId: status.onExpireStatus.sourceSkillId ?? status.sourceSkillId,
         });
     }
+    if (status.onExpireReplaySkillId && target.alive) {
+        replayDelayedSkill(state, target, status);
+    }
+}
+
+function replayDelayedSkill(state, actor, status) {
+    const replayTarget = findUnit(state, status.onExpireReplayTargetPlayer, status.onExpireReplayTargetSlot);
+    const replaySkill = getSkill(actor, status.onExpireReplaySkillId);
+    if (!replayTarget || !replaySkill) return;
+    log(state, 'skill', `${getSpecies(actor).name}'s delayed ${replaySkill.name} activates on ${getSpecies(replayTarget).name}.`, {
+        player: actor.player,
+        actorSlot: actor.slot,
+        targetPlayer: replayTarget.player,
+        targetSlot: replayTarget.slot,
+        skillId: replaySkill.id,
+    });
+    const affectsAllEnemies = replaySkill.effects.some(
+        (effect) => effect.scope === 'all-enemy' ||
+            effect.scope === 'other-enemies' ||
+            effect.scope === 'all-other-enemies'
+    );
+    const affectedTargets = replaySkill.target === 'all-enemy' || affectsAllEnemies
+        ? livingTargets(state, otherPlayer(actor.player))
+        : [replayTarget];
+    const replayContext = {
+        action: {
+            player: actor.player,
+            actorSlot: actor.slot,
+            skillId: replaySkill.id,
+            targetPlayer: replayTarget.player,
+            targetSlot: replayTarget.slot,
+        },
+        actor,
+        target: replayTarget,
+        skill: replaySkill,
+        blockedTargets: new Set(),
+        typeAdjustedTargets: new Set(),
+        initialTargetHp: replayTarget.hp,
+        initialTargetStatuses: clone(replayTarget.statuses),
+        initialActorStatuses: clone(actor.statuses),
+        previousSkillId: actor.lastSkillId ?? null,
+    };
+    affectedTargets.forEach((recipient) => prepareTargetForSkill(state, replayContext, recipient));
+    replaySkill.effects.forEach((effect) => resolveEffect(state, replayContext, effect));
 }
 
 function ageStatuses(state, actingPlayer) {
@@ -2838,6 +3576,104 @@ function grantRandomEnergy(state, player, count, reason) {
         });
     }
     return gained;
+}
+
+function resolveActiveCyclingClass(state, source) {
+    const config = source?.cyclingClassAura;
+    if (!config || !Array.isArray(config.classes) || config.classes.length === 0) return null;
+    const classIndex = Math.max(0, state.turnNumber - 2) % config.classes.length;
+    return { config, classIndex, activeClass: config.classes[classIndex] };
+}
+
+function processCyclingClassAuras(state) {
+    players.forEach((ownerPlayer) => {
+        state.teams[ownerPlayer].forEach((owner) => {
+            if (!owner.alive) return;
+            const source = owner.statuses.find((status) => statusActive(status) && status.cyclingClassAura);
+            const resolved = resolveActiveCyclingClass(state, source);
+            if (!resolved) return;
+            const { config, activeClass } = resolved;
+            livingTargets(state, otherPlayer(ownerPlayer)).forEach((enemy) => {
+                addStatus(state, enemy, {
+                    player: ownerPlayer,
+                    slot: owner.slot,
+                    targetPlayer: enemy.player,
+                }, {
+                    id: `${config.statusIdPrefix}-${ownerPlayer}-${owner.slot}`,
+                    name: config.name ?? 'Sweet Scent',
+                    hidden: false, harmful: true, replaceExisting: true,
+                    durationActions: config.refreshDurationActions ?? 2,
+                    damageBonusBySkillClass: { [activeClass]: -(Number(config.amount) || 0) },
+                    sourceSkillId: source.sourceSkillId,
+                });
+            });
+        });
+    });
+}
+
+function triggerTargetedByEnemyHooks(state, actor, skill, target) {
+    if (actor.player === target.player) return;
+    for (const status of [...target.statuses]) {
+        if (!statusActive(status) || !status.onTargetedByEnemySkill) continue;
+        const hook = status.onTargetedByEnemySkill;
+        if (hook.requireFirstUse && (actor.skillUses?.[skill.id] ?? 0) !== 1) continue;
+        if (hook.harmfulOnly && !skillIsHarmfulToTarget(skill, actor, target)) continue;
+        if (
+            Array.isArray(hook.excludeSkillClasses) &&
+            hook.excludeSkillClasses.some((entry) => skill.classes?.includes(entry))
+        ) continue;
+        if (hook.oncePerSource) {
+            const sourceKey = `${actor.player}:${actor.slot}`;
+            if (!Array.isArray(status.triggeredSources)) status.triggeredSources = [];
+            if (status.triggeredSources.includes(sourceKey)) continue;
+            status.triggeredSources.push(sourceKey);
+        }
+        if (hook.decrementOwnField) {
+            const current = Math.max(0, Number(status[hook.decrementOwnField]) || 0);
+            if (current > 0) status[hook.decrementOwnField] = current - 1;
+        }
+        if (hook.permanentNonAfflictionDebuffAmount) {
+            addStatus(state, actor, {
+                player: target.player,
+                slot: target.slot,
+                targetPlayer: actor.player,
+            }, {
+                id: hook.debuffStatusId ?? `${status.id}-debuff`,
+                name: hook.debuffName ?? status.name,
+                hidden: false, harmful: true, durationActions: null,
+                outgoingDamageDebuff: hook.permanentNonAfflictionDebuffAmount,
+                mergeNumericFields: ['outgoingDamageDebuff'],
+                sourceSkillId: status.sourceSkillId,
+            });
+        }
+        const source = sourceUnitForStatus(state, status);
+        if (!source?.alive) continue;
+        if (hook.permanentClassDebuffAmount) {
+            const sourceCycling = source.statuses.find((entry) => statusActive(entry) && entry.cyclingClassAura);
+            const resolved = resolveActiveCyclingClass(state, sourceCycling);
+            if (resolved) {
+                addStatus(state, actor, {
+                    player: source.player,
+                    slot: source.slot,
+                    targetPlayer: actor.player,
+                }, {
+                    id: hook.debuffStatusId ?? `${status.id}-debuff`,
+                    name: hook.debuffName ?? status.name,
+                    hidden: false, harmful: true, durationActions: null,
+                    damageBonusBySkillClass: { [resolved.activeClass]: -hook.permanentClassDebuffAmount },
+                    mergeMapFields: ['damageBonusBySkillClass'],
+                    sourceSkillId: status.sourceSkillId,
+                });
+            }
+        }
+        if (hook.incrementSourceStacksField) {
+            const tracker = source.statuses.find((entry) => statusActive(entry) && entry.cyclingClassAura);
+            if (tracker) {
+                tracker[hook.incrementSourceStacksField] =
+                    (Number(tracker[hook.incrementSourceStacksField]) || 0) + 1;
+            }
+        }
+    }
 }
 
 function processTurnStartEffects(state, player) {
@@ -2962,7 +3798,7 @@ function resolveActionWithoutAdvancingTurn(inputState, action) {
     const previousSkillId = actor.lastSkillId ?? null;
     state.energy[action.player] = buildSpendPlan(
         state.energy[action.player],
-        effectiveSkillCosts(actor, skill),
+        effectiveSkillCosts(state, actor, skill),
         action.randomEnergy
     );
     state.actions.push(clone(action));
@@ -2978,9 +3814,43 @@ function resolveActionWithoutAdvancingTurn(inputState, action) {
         skillId: skill.id,
     });
     triggerOwnerUseSkillHooks(state, actor, skill, target);
+    triggerTargetedByEnemyHooks(state, actor, skill, target);
     triggerHarmfulSkillHooks(state, actor, skill, target);
     const countered = triggerCounteredDamagingSkill(state, actor, skill);
     if (!actor.alive || countered || skillFails(state, actor, skill)) {
+        actor.lastSkillId = skill.id;
+        const cooldownIncrease = skillCooldownIncrease(actor, skill);
+        actor.cooldowns[cooldownSkillIdAfterAction(actor, skill.id)] =
+            skill.cooldown + 1 + cooldownIncrease;
+        updateWinner(state);
+        return { ok: true, state };
+    }
+    const delayMark = actor.statuses.find((status) =>
+        statusActive(status) && status.delayNextHarmfulSkillActivation
+    );
+    if (delayMark && skillIsHarmfulToTarget(skill, actor, target)) {
+        delayMark.durationActions = 0;
+        actor.statuses = actor.statuses.filter(statusActive);
+        log(state, 'delayed', `${getSpecies(actor).name}'s ${skill.name} was delayed by ${delayMark.name} and will activate in 1 turn.`, {
+            player: actor.player,
+            actorSlot: actor.slot,
+            skillId: skill.id,
+        });
+        addStatus(state, actor, {
+            player: actor.player,
+            slot: actor.slot,
+            targetPlayer: actor.player,
+        }, {
+            id: `${skill.id}-delayed-activation`,
+            name: skill.name,
+            hidden: true,
+            harmful: false,
+            durationActions: 1,
+            durationAnchor: 'source',
+            onExpireReplaySkillId: skill.id,
+            onExpireReplayTargetPlayer: target.player,
+            onExpireReplayTargetSlot: target.slot,
+        });
         actor.lastSkillId = skill.id;
         const cooldownIncrease = skillCooldownIncrease(actor, skill);
         actor.cooldowns[cooldownSkillIdAfterAction(actor, skill.id)] =
@@ -3045,6 +3915,7 @@ function finishTeamTurn(state, actingPlayer, actingSlots) {
         }
         ageStatuses(state, actingPlayer);
         state.turnNumber += 1;
+        advanceWeather(state);
         state.currentPlayer = otherPlayer(actingPlayer);
         decrementCooldowns(state, state.currentPlayer);
         resolveSourceTurnStartStatuses(state, state.currentPlayer);
@@ -3055,6 +3926,7 @@ function finishTeamTurn(state, actingPlayer, actingSlots) {
         }
         if (!state.winner) {
             processTurnStartEffects(state, state.currentPlayer);
+            processCyclingClassAuras(state);
             if (state.economyMode === 'arena') {
                 if (!state.energyStartGranted?.[state.currentPlayer]) {
                     grantRandomEnergy(
@@ -3144,6 +4016,7 @@ function censorUnit(unit, viewer) {
         effectiveForm: unit.effectiveForm ?? null,
         banished: Boolean(unit.banished),
         hp: unit.hp,
+        maxHp: unitMaxHp(unit),
         shield: unit.shield,
         shieldCapacity: unit.shieldCapacity ?? unit.shield,
         barrier: unit.barrier ?? 0,
@@ -3165,6 +4038,15 @@ export function viewerState(state, viewer) {
         turnNumber: state.turnNumber,
         currentPlayer: state.currentPlayer,
         winner: state.winner,
+        weather: state.weather ? {
+            key: state.weather.key,
+            name: state.weather.name,
+            description: state.weather.description,
+            sourcePlayer: state.weather.sourcePlayer,
+            sourceSlot: state.weather.sourceSlot,
+            roundsRemaining: state.weather.roundsRemaining,
+            totalRounds: state.weather.totalRounds,
+        } : null,
         viewer,
         teams: Object.fromEntries(
             players.map((player) => [

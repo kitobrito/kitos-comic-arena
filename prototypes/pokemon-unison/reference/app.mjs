@@ -13,6 +13,17 @@ function applicationLocation(search = '') {
 }
 
 const elements = {
+    accountBar: document.querySelector('#account-bar'),
+    accountForm: document.querySelector('#account-form'),
+    accountUsername: document.querySelector('#account-username'),
+    accountEmail: document.querySelector('#account-email'),
+    accountPassword: document.querySelector('#account-password'),
+    accountLoginButton: document.querySelector('#account-login-button'),
+    accountRegisterButton: document.querySelector('#account-register-button'),
+    accountError: document.querySelector('#account-error'),
+    accountSignedIn: document.querySelector('#account-signed-in'),
+    accountUsernameLabel: document.querySelector('#account-username-label'),
+    accountLogoutButton: document.querySelector('#account-logout-button'),
     actionError: document.querySelector('#action-error'),
     autoButton: document.querySelector('#auto-button'),
     commandHelp: document.querySelector('#command-help'),
@@ -81,9 +92,14 @@ const elements = {
     teamSelectB: document.querySelector('#team-select-b'),
     turnLabel: document.querySelector('#turn-label'),
     undoQueueButton: document.querySelector('#undo-queue-button'),
+    weatherBanner: document.querySelector('#weather-banner'),
+    weatherName: document.querySelector('#weather-name'),
+    weatherRounds: document.querySelector('#weather-rounds'),
     winnerLabel: document.querySelector('#winner-label'),
 };
 
+const PLAYER_TOKEN_STORAGE_KEY = 'pokemon-unison:player-token';
+let playerSession = null;
 let session = null;
 let snapshot = null;
 let selectedActorSlot = null;
@@ -291,6 +307,100 @@ function saveSession(next) {
     sessionStorage.setItem(tokenKey(next.matchId, next.player), next.token);
 }
 
+function loadStoredPlayerToken() {
+    return localStorage.getItem(PLAYER_TOKEN_STORAGE_KEY) ?? '';
+}
+
+function savePlayerToken(token) {
+    if (token) {
+        localStorage.setItem(PLAYER_TOKEN_STORAGE_KEY, token);
+    } else {
+        localStorage.removeItem(PLAYER_TOKEN_STORAGE_KEY);
+    }
+}
+
+function renderAccountBar() {
+    const signedIn = Boolean(playerSession);
+    elements.accountForm.hidden = signedIn;
+    elements.accountSignedIn.hidden = !signedIn;
+    if (signedIn) {
+        elements.accountUsernameLabel.textContent = playerSession.player.username;
+    }
+}
+
+async function restorePlayerSession() {
+    const token = loadStoredPlayerToken();
+    if (!token) return;
+    try {
+        const { player } = await api('/api/players/me', { token });
+        playerSession = { player, token };
+    } catch {
+        savePlayerToken('');
+        playerSession = null;
+    }
+    renderAccountBar();
+}
+
+async function registerPlayer() {
+    elements.accountError.textContent = '';
+    try {
+        const { player, token } = await api('/api/players/register', {
+            method: 'POST',
+            token: null,
+            body: {
+                username: elements.accountUsername.value,
+                email: elements.accountEmail.value,
+                password: elements.accountPassword.value,
+            },
+        });
+        playerSession = { player, token };
+        savePlayerToken(token);
+        elements.accountForm.reset();
+        renderAccountBar();
+    } catch (error) {
+        elements.accountError.textContent = error.message;
+    }
+}
+
+async function loginPlayer() {
+    elements.accountError.textContent = '';
+    try {
+        const { player, token } = await api('/api/players/login', {
+            method: 'POST',
+            token: null,
+            body: {
+                username: elements.accountUsername.value,
+                password: elements.accountPassword.value,
+            },
+        });
+        playerSession = { player, token };
+        savePlayerToken(token);
+        elements.accountForm.reset();
+        renderAccountBar();
+    } catch (error) {
+        elements.accountError.textContent = error.message;
+    }
+}
+
+async function logoutPlayer() {
+    if (!playerSession) return;
+    try {
+        await api('/api/players/logout', { method: 'POST', token: playerSession.token });
+    } catch {
+        // The token may already be revoked or expired; clear local state regardless.
+    }
+    playerSession = null;
+    savePlayerToken('');
+    renderAccountBar();
+}
+
+elements.accountForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    loginPlayer();
+});
+elements.accountRegisterButton.addEventListener('click', registerPlayer);
+elements.accountLogoutButton.addEventListener('click', logoutPlayer);
+
 function energyLabel(key) {
     return {
         taijutsu: 'GREEN',
@@ -304,6 +414,20 @@ function energyLabel(key) {
 
 function formatEnergyCosts(costs) {
     return costs.length > 0 ? costs.map(energyLabel).join(' + ') : 'Free';
+}
+
+const TYPE_COLORS = {
+    Normal: '#A8A878', Fire: '#F08030', Water: '#6890F0', Electric: '#F8D030',
+    Grass: '#78C850', Ice: '#98D8D8', Fighting: '#C03028', Poison: '#A040A0',
+    Ground: '#E0C068', Flying: '#A890F0', Psychic: '#F85888', Bug: '#A8B820',
+    Rock: '#B8A038', Ghost: '#705898', Dragon: '#7038F8', Dark: '#705848',
+    Steel: '#B8B8D0', Fairy: '#EE99AC',
+};
+
+function typeBadgeMarkup(moveType) {
+    if (!moveType) return '';
+    const color = TYPE_COLORS[moveType] ?? '#888';
+    return `<span class="type-badge" style="background:${color}">${escapeHtml(moveType)}</span>`;
 }
 
 function energyCostMarkup(costs, compact = false) {
@@ -383,7 +507,7 @@ function renderTargetingReadout(skill, energyCosts, { kicker = 'SELECTED SKILL',
     elements.targetingSkillImage.src = skill.image ?? '';
     elements.targetingSkillImage.alt = `${skill.name} skill`;
     elements.targetingSkillImage.hidden = !skill.image;
-    elements.targetingSkillName.textContent = skill.name;
+    elements.targetingSkillName.innerHTML = `${escapeHtml(skill.name)}${typeBadgeMarkup(skill.moveType)}`;
     elements.targetingSkillDescription.textContent = skill.description;
     elements.targetingSkillCost.innerHTML = energyCostMarkup(energyCosts ?? skill.energy);
     elements.targetingSkillCooldown.textContent = `CD ${skill.cooldown}`;
@@ -516,7 +640,7 @@ function renderSelectionSkillDetail(skill, index, alternate = false) {
     elements.selectionSkillDetailImage.src = skillArt(skill.id, index) || '';
     elements.selectionSkillDetailImage.alt = `${skill.name} skill icon`;
     elements.selectionSkillDetailKind.textContent = alternate ? 'Alternate / replacement skill' : `Current skill ${index + 1}`;
-    elements.selectionSkillDetailName.textContent = skill.name;
+    elements.selectionSkillDetailName.innerHTML = `${escapeHtml(skill.name)}${typeBadgeMarkup(skill.moveType)}`;
     elements.selectionSkillDetailDescription.textContent = skill.description || 'No description available.';
     elements.selectionSkillDetailMeta.innerHTML = `${energyCostMarkup(skill.energy)}<span>Cooldown ${skill.cooldown}</span><span>${escapeHtml(skill.target || 'No target')}</span>`;
     for (const card of elements.selectionPreviewSkills.querySelectorAll('.preview-skill')) {
@@ -536,7 +660,7 @@ function appendSelectionSkillCard(container, skill, index, alternate = false) {
     card.dataset.skillId = skill.id;
     card.innerHTML = `
         ${skillIconMarkup(skill, index, 'skill-number')}
-        <div><strong>${escapeHtml(skill.name)}</strong><small>${energyCostMarkup(skill.energy)}<span>CD ${skill.cooldown}</span></small></div>
+        <div><strong>${escapeHtml(skill.name)}${typeBadgeMarkup(skill.moveType)}</strong><small>${energyCostMarkup(skill.energy)}<span>CD ${skill.cooldown}</span></small></div>
     `;
     card.title = `Click to read ${skill.name}`;
     card.addEventListener('click', () => renderSelectionSkillDetail(skill, index, alternate));
@@ -946,7 +1070,7 @@ function renderCommands() {
         button.disabled = matching.length === 0;
         button.innerHTML = `
             ${skillIconMarkup(skill, index, 'skill-button-icon')}
-            <span class="skill-button-copy"><strong>${escapeHtml(skill.name)}</strong><small>${escapeHtml(skill.description)}</small><span class="skill-meta">${energyCostMarkup(matching[0]?.energyCosts ?? skill.energy)}<span>CD ${skill.cooldown}${cooldown ? ` · ${cooldown} LEFT` : ''}</span></span></span>
+            <span class="skill-button-copy"><strong>${escapeHtml(skill.name)}${typeBadgeMarkup(skill.moveType)}</strong><small>${escapeHtml(skill.description)}</small><span class="skill-meta">${energyCostMarkup(matching[0]?.energyCosts ?? skill.energy)}<span>CD ${skill.cooldown}${cooldown ? ` · ${cooldown} LEFT` : ''}</span></span></span>
         `;
         button.addEventListener('click', (event) => {
             event.stopPropagation();
@@ -1043,6 +1167,15 @@ function renderEvents(events) {
     });
 }
 
+function renderWeatherBanner(weather) {
+    elements.weatherBanner.hidden = !weather;
+    if (!weather) return;
+    elements.weatherName.textContent = weather.name;
+    const rounds = weather.roundsRemaining === 1 ? '1 turn left' : `${weather.roundsRemaining} turns left`;
+    elements.weatherRounds.textContent = rounds;
+    elements.weatherBanner.title = weather.description ?? '';
+}
+
 function render() {
     if (!snapshot || !session) return;
     const view = snapshot.state;
@@ -1071,6 +1204,7 @@ function render() {
     renderQueue();
     renderCommands();
     renderEvents(view.recentEvents);
+    renderWeatherBanner(view.weather);
     elements.autoButton.disabled =
         snapshot.waitingForOpponent || view.winner || view.currentPlayer !== session.player || view.legalActions.length === 0;
     const ownsTurn = !snapshot.waitingForOpponent && !view.winner && view.currentPlayer === session.player;
@@ -1151,7 +1285,7 @@ async function createMatch(opponent = 'human') {
         elements.lobbyStatus.textContent = opponent === 'bot' ? 'Creating a solo match…' : 'Creating a private match…';
         const created = await api('/api/matches', {
             method: 'POST',
-            body: { opponent, teams: selectedTeams() },
+            body: { opponent, teams: selectedTeams(), playerToken: playerSession?.token },
             token: null,
         });
         saveSession({ matchId: created.matchId, player: created.player, token: created.token });
@@ -1181,7 +1315,7 @@ async function joinMatch(matchId, inviteCode) {
     const joined = savedToken
         ? await api(`/api/matches/${encodeURIComponent(matchId)}/state`, { token: savedToken })
         : await api(`/api/matches/${encodeURIComponent(matchId)}/join`, {
-              method: 'POST', body: { inviteCode }, token: null,
+              method: 'POST', body: { inviteCode, playerToken: playerSession?.token }, token: null,
           });
     const token = savedToken || joined.token;
     saveSession({ matchId, player: 'B', token });
@@ -1295,6 +1429,8 @@ async function start() {
     const params = new URLSearchParams(window.location.search);
     const matchId = params.get('match');
     const inviteCode = params.get('invite');
+    renderAccountBar();
+    await restorePlayerSession();
     try {
         await loadRoster();
         if (matchId && inviteCode) {

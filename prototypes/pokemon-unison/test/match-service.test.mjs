@@ -214,6 +214,18 @@ test('custom teams are authoritative, unique, and limited to ported roster entri
         'zubat',
         'chansey',
         'pidgey',
+        'mew',
+        'mewtwo',
+        'dragonite',
+        'cyndaquil',
+        'chikorita',
+        'totodile',
+        'aegislash',
+        'scraggy',
+        'dragapult',
+        'primeape',
+        'ditto',
+        'nincada',
     ]);
 });
 
@@ -230,6 +242,77 @@ test('bot planning is stable for the same authoritative state', () => {
         secondService.replay(second.matchId, second.token)
     );
     assert.equal(planDeterministicBotTurn(first.state).every((action) => action.player === 'A'), true);
+});
+
+test('matches track linked player accounts and notify onMatchComplete exactly once when a winner is set', async () => {
+    const completions = [];
+    const service = createMatchService({
+        onMatchComplete: (summary) => {
+            completions.push(summary);
+        },
+    });
+    const created = service.create({ seed: 1, playerId: 'account-a' });
+    const joined = service.join(created.matchId, created.inviteCode, { playerId: 'account-b' });
+    assert.equal(completions.length, 0);
+
+    service.surrender(created.matchId, created.token);
+    await Promise.resolve();
+    await Promise.resolve();
+
+    assert.equal(completions.length, 1);
+    assert.deepEqual(completions[0].playerIds, { A: 'account-a', B: 'account-b' });
+    assert.equal(completions[0].winner, 'B');
+    assert.equal(completions[0].mode, 'private');
+    assert.equal(completions[0].teamSpeciesIds.A.length, 3);
+    assert.equal(completions[0].teamSpeciesIds.B.length, 3);
+
+    service.surrender(created.matchId, joined.token);
+    await Promise.resolve();
+    await Promise.resolve();
+    assert.equal(completions.length, 1);
+});
+
+test('anonymous matches (no linked account) still notify onMatchComplete with null playerIds', async () => {
+    const completions = [];
+    const service = createMatchService({
+        onMatchComplete: (summary) => {
+            completions.push(summary);
+        },
+    });
+    const created = service.create({ seed: 2, opponent: 'bot' });
+
+    service.surrender(created.matchId, created.token);
+    await Promise.resolve();
+    await Promise.resolve();
+
+    assert.equal(completions.length, 1);
+    assert.deepEqual(completions[0].playerIds, { A: null, B: null });
+    assert.equal(completions[0].mode, 'solo');
+});
+
+test('join() rejects a locked team B character when unlockedCharacterIds is provided, and skips the check when it is null', () => {
+    const service = createMatchService();
+    const created = service.create({
+        teams: { A: ['charmander', 'squirtle', 'bulbasaur'], B: ['dragapult', 'zubat', 'chansey'] },
+    });
+
+    assert.throws(
+        () => service.join(created.matchId, created.inviteCode, { unlockedCharacterIds: [] }),
+        (error) => error instanceof MatchServiceError && error.code === 'character_locked' && /dragapult/.test(error.message)
+    );
+
+    // The seat must still be open for a retry — a rejected join must not consume it.
+    const joined = service.join(created.matchId, created.inviteCode, { unlockedCharacterIds: ['dragapult'] });
+    assert.equal(joined.player, 'B');
+});
+
+test('join() with unlockedCharacterIds omitted (anonymous joiner) is never gated', () => {
+    const service = createMatchService();
+    const created = service.create({
+        teams: { A: ['charmander', 'squirtle', 'bulbasaur'], B: ['dragapult', 'zubat', 'chansey'] },
+    });
+    const joined = service.join(created.matchId, created.inviteCode);
+    assert.equal(joined.player, 'B');
 });
 
 test('team turn queues stay private, support undo, and resolve as one public revision', () => {

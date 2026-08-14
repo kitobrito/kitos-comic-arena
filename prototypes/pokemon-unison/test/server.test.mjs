@@ -2,7 +2,12 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
+import { createMatchService } from '../reference/match-service.mjs';
+import { createMissionService } from '../reference/mission-service.mjs';
+import { createPlayerService } from '../reference/player-service.mjs';
 import { createPokemonUnisonServer } from '../reference/server.mjs';
+import { createSkinService } from '../reference/skin-service.mjs';
+import { createStoreService } from '../reference/store-service.mjs';
 
 const root = new URL('../', import.meta.url);
 
@@ -122,7 +127,7 @@ test('standalone HTTP API can play a full human and bot round without an invite'
     const origin = `http://127.0.0.1:${port}`;
 
     const roster = await (await fetch(`${origin}/api/roster`)).json();
-    assert.equal(roster.characters.length, 34);
+    assert.equal(roster.characters.length, 46);
 
     const created = await (
         await fetch(`${origin}/api/matches`, {
@@ -188,6 +193,498 @@ test('standalone HTTP API records surrender', async (t) => {
     });
     assert.equal(response.status, 200);
     assert.equal((await response.json()).state.winner, 'B');
+});
+
+test('standalone HTTP API registers, logs in, verifies, and logs out a player', async (t) => {
+    const server = createPokemonUnisonServer();
+    await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+    t.after(() => new Promise((resolve) => server.close(resolve)));
+    const { port } = server.address();
+    const origin = `http://127.0.0.1:${port}`;
+
+    const registerResponse = await fetch(`${origin}/api/players/register`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ username: 'Serena', email: 'serena@example.com', password: 'poncho-fashion1' }),
+    });
+    assert.equal(registerResponse.status, 201);
+    const registered = await registerResponse.json();
+    assert.equal(registered.player.username, 'Serena');
+    assert.ok(registered.token);
+
+    const duplicateResponse = await fetch(`${origin}/api/players/register`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ username: 'serena', email: '', password: 'anotherpass1' }),
+    });
+    assert.equal(duplicateResponse.status, 409);
+
+    const meResponse = await fetch(`${origin}/api/players/me`, {
+        headers: { authorization: `Bearer ${registered.token}` },
+    });
+    assert.equal(meResponse.status, 200);
+    assert.equal((await meResponse.json()).player.id, registered.player.id);
+
+    const noTokenResponse = await fetch(`${origin}/api/players/me`);
+    assert.equal(noTokenResponse.status, 401);
+
+    const loginResponse = await fetch(`${origin}/api/players/login`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ username: 'Serena', password: 'poncho-fashion1' }),
+    });
+    assert.equal(loginResponse.status, 200);
+    const loggedIn = await loginResponse.json();
+    assert.equal(loggedIn.player.id, registered.player.id);
+
+    const badLoginResponse = await fetch(`${origin}/api/players/login`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ username: 'Serena', password: 'wrong-password' }),
+    });
+    assert.equal(badLoginResponse.status, 401);
+
+    const logoutResponse = await fetch(`${origin}/api/players/logout`, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${loggedIn.token}` },
+    });
+    assert.equal(logoutResponse.status, 200);
+
+    const afterLogoutResponse = await fetch(`${origin}/api/players/me`, {
+        headers: { authorization: `Bearer ${loggedIn.token}` },
+    });
+    assert.equal(afterLogoutResponse.status, 401);
+
+    const healthResponse = await (await fetch(`${origin}/api/health`)).json();
+    assert.equal(healthResponse.players, 1);
+});
+
+test('GET /api/missions exposes the catalog plus the signed-in player\'s own progress', async (t) => {
+    const server = createPokemonUnisonServer();
+    await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+    t.after(() => new Promise((resolve) => server.close(resolve)));
+    const { port } = server.address();
+    const origin = `http://127.0.0.1:${port}`;
+
+    const anonymous = await (await fetch(`${origin}/api/missions`)).json();
+    assert.ok(Array.isArray(anonymous.missions));
+    assert.ok(anonymous.missions.length > 0);
+    assert.ok(anonymous.missions.some((mission) => mission.missionId === 'scyther-trial'));
+    assert.deepEqual(anonymous.unlockedCharacterIds, []);
+    assert.equal(anonymous.unlockPoints, 0);
+
+    const registered = await (
+        await fetch(`${origin}/api/players/register`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ username: 'MissionRunner', email: '', password: 'longenough1' }),
+        })
+    ).json();
+    const authed = await (
+        await fetch(`${origin}/api/missions`, { headers: { authorization: `Bearer ${registered.token}` } })
+    ).json();
+    assert.deepEqual(authed.missionProgressByMissionId, {});
+    assert.deepEqual(authed.unlockedCharacterIds, []);
+});
+
+test('winning a linked-account match advances that account\'s mission progress and leaves an anonymous opponent unaffected', async (t) => {
+    const catalog = [
+        {
+            missionId: 'one-win-catch',
+            reward_character: 'onix',
+            reward_unlock_points: 50,
+            goals: [{ type: 'win_matches', wins: 1 }],
+        },
+    ];
+    const playerService = createPlayerService();
+    const missionService = createMissionService({ playerService, catalog });
+    const matchService = createMatchService({ onMatchComplete: missionService.onMatchComplete });
+    const server = createPokemonUnisonServer({ playerService, missionService, matchService });
+    await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+    t.after(() => new Promise((resolve) => server.close(resolve)));
+    const { port } = server.address();
+    const origin = `http://127.0.0.1:${port}`;
+
+    const registered = await (
+        await fetch(`${origin}/api/players/register`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ username: 'LinkedWinner', email: '', password: 'longenough1' }),
+        })
+    ).json();
+
+    const created = await (
+        await fetch(`${origin}/api/matches`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ opponent: 'bot', playerToken: registered.token }),
+        })
+    ).json();
+
+    const surrenderResponse = await fetch(`${origin}/api/matches/${created.matchId}/surrender`, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${created.token}` },
+    });
+    assert.equal(surrenderResponse.status, 200);
+    assert.equal((await surrenderResponse.json()).state.winner, 'B');
+
+    // A losing, linked account's mission progress must not advance.
+    const loserMissions = await (
+        await fetch(`${origin}/api/missions`, { headers: { authorization: `Bearer ${registered.token}` } })
+    ).json();
+    assert.deepEqual(loserMissions.unlockedCharacterIds, []);
+    assert.equal(loserMissions.unlockPoints, 0);
+
+    // Create a private match linked to the same account as Player A, then have the
+    // (anonymous) Player B surrender — surrender always hands the win to the other
+    // seat, so this deterministically makes the linked account (A) the winner.
+    const secondMatch = await (
+        await fetch(`${origin}/api/matches`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ playerToken: registered.token }),
+        })
+    ).json();
+    const joined = await (
+        await fetch(`${origin}/api/matches/${secondMatch.matchId}/join`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ inviteCode: secondMatch.inviteCode }),
+        })
+    ).json();
+    const secondSurrenderResponse = await fetch(`${origin}/api/matches/${secondMatch.matchId}/surrender`, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${joined.token}` },
+    });
+    assert.equal((await secondSurrenderResponse.json()).state.winner, 'A');
+
+    const finalMissions = await (
+        await fetch(`${origin}/api/missions`, { headers: { authorization: `Bearer ${registered.token}` } })
+    ).json();
+    assert.deepEqual(finalMissions.unlockedCharacterIds, ['onix']);
+    assert.equal(finalMissions.unlockPoints, 50);
+});
+
+test('GET /api/skins exposes the catalog plus the signed-in player\'s own unlocks', async (t) => {
+    const server = createPokemonUnisonServer();
+    await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+    t.after(() => new Promise((resolve) => server.close(resolve)));
+    const { port } = server.address();
+    const origin = `http://127.0.0.1:${port}`;
+
+    const anonymous = await (await fetch(`${origin}/api/skins`)).json();
+    assert.ok(Array.isArray(anonymous.skins));
+    assert.ok(anonymous.skins.some((skin) => skin.skinId === 'ditto-shiny'));
+    assert.deepEqual(anonymous.unlockedSkinIds, []);
+    assert.equal(anonymous.unlockPoints, 0);
+});
+
+test('unlocking and equipping a skin over HTTP spends points and updates the account, and rejects an unauthenticated caller', async (t) => {
+    const catalog = [
+        { skinId: 'ditto-shiny', characterId: 'ditto', unlockPointCost: 200 },
+        { skinId: 'pikachu-raichu', characterId: 'pikachu', unlockPointCost: 750 },
+    ];
+    const playerService = createPlayerService();
+    const skinService = createSkinService({ playerService, catalog });
+    const server = createPokemonUnisonServer({ playerService, skinService });
+    await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+    t.after(() => new Promise((resolve) => server.close(resolve)));
+    const { port } = server.address();
+    const origin = `http://127.0.0.1:${port}`;
+
+    const unauthedUnlock = await fetch(`${origin}/api/skins/unlock`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ skinId: 'ditto-shiny' }),
+    });
+    assert.equal(unauthedUnlock.status, 401);
+
+    const registered = await (
+        await fetch(`${origin}/api/players/register`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ username: 'SkinBuyer', email: '', password: 'longenough1' }),
+        })
+    ).json();
+
+    const insufficientResponse = await fetch(`${origin}/api/skins/unlock`, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${registered.token}`, 'content-type': 'application/json' },
+        body: JSON.stringify({ skinId: 'ditto-shiny' }),
+    });
+    assert.equal(insufficientResponse.status, 400);
+
+    // Grant points directly through the player service (there's no store yet in this test).
+    playerService.updateProfile(registered.player.id, (profile) => ({
+        ...profile,
+        missions: { ...profile.missions, unlockPoints: 200 },
+    }));
+
+    const unlockResponse = await fetch(`${origin}/api/skins/unlock`, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${registered.token}`, 'content-type': 'application/json' },
+        body: JSON.stringify({ skinId: 'ditto-shiny' }),
+    });
+    assert.equal(unlockResponse.status, 200);
+    const unlocked = await unlockResponse.json();
+    assert.deepEqual(unlocked.player.profile.skins.unlockedSkinIds, ['ditto-shiny']);
+    assert.equal(unlocked.player.profile.missions.unlockPoints, 0);
+
+    const equipResponse = await fetch(`${origin}/api/skins/equip`, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${registered.token}`, 'content-type': 'application/json' },
+        body: JSON.stringify({ characterId: 'ditto', skinId: 'ditto-shiny' }),
+    });
+    assert.equal(equipResponse.status, 200);
+    const equipped = await equipResponse.json();
+    assert.deepEqual(equipped.player.profile.skins.equippedSkinByCharacterId, { ditto: 'ditto-shiny' });
+
+    const meResponse = await (
+        await fetch(`${origin}/api/players/me`, { headers: { authorization: `Bearer ${registered.token}` } })
+    ).json();
+    assert.deepEqual(meResponse.player.profile.skins.equippedSkinByCharacterId, { ditto: 'ditto-shiny' });
+});
+
+test('GET /api/store exposes the pokemon-arena point packages and reports PayPal as unconfigured here', async (t) => {
+    const previous = { PAYPAL_CLIENT_ID: process.env.PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET: process.env.PAYPAL_CLIENT_SECRET };
+    delete process.env.PAYPAL_CLIENT_ID;
+    delete process.env.PAYPAL_CLIENT_SECRET;
+    t.after(() => {
+        Object.entries(previous).forEach(([key, value]) => {
+            if (value === undefined) delete process.env[key];
+            else process.env[key] = value;
+        });
+    });
+
+    const server = createPokemonUnisonServer();
+    await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+    t.after(() => new Promise((resolve) => server.close(resolve)));
+    const { port } = server.address();
+    const origin = `http://127.0.0.1:${port}`;
+
+    const store = await (await fetch(`${origin}/api/store`)).json();
+    assert.equal(store.paypalAvailable, false);
+    assert.equal(store.unlockPoints, 0);
+    assert.ok(store.packages.some((entry) => entry.packageId === 'pokemon-750-points'));
+});
+
+test('POST /api/store/paypal/create-order requires auth and returns 503 when PayPal is not configured', async (t) => {
+    const previous = { PAYPAL_CLIENT_ID: process.env.PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET: process.env.PAYPAL_CLIENT_SECRET };
+    delete process.env.PAYPAL_CLIENT_ID;
+    delete process.env.PAYPAL_CLIENT_SECRET;
+    t.after(() => {
+        Object.entries(previous).forEach(([key, value]) => {
+            if (value === undefined) delete process.env[key];
+            else process.env[key] = value;
+        });
+    });
+
+    const server = createPokemonUnisonServer();
+    await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+    t.after(() => new Promise((resolve) => server.close(resolve)));
+    const { port } = server.address();
+    const origin = `http://127.0.0.1:${port}`;
+
+    const unauthed = await fetch(`${origin}/api/store/paypal/create-order`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ packageId: 'pokemon-750-points' }),
+    });
+    assert.equal(unauthed.status, 401);
+
+    const registered = await (
+        await fetch(`${origin}/api/players/register`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ username: 'StoreShopper', email: '', password: 'longenough1' }),
+        })
+    ).json();
+    const unconfigured = await fetch(`${origin}/api/store/paypal/create-order`, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${registered.token}`, 'content-type': 'application/json' },
+        body: JSON.stringify({ packageId: 'pokemon-750-points' }),
+    });
+    assert.equal(unconfigured.status, 503);
+});
+
+test('POST /api/store/characters/:characterId/purchase spends points over HTTP and rejects an unauthenticated caller', async (t) => {
+    const missionCatalog = [
+        { missionId: 'catch-onix', reward_character: 'onix', level_requirement: 13, goals: [{ type: 'win_matches', wins: 10 }] },
+    ];
+    const playerService = createPlayerService();
+    const storeService = createStoreService({ playerService, missionCatalog });
+    const server = createPokemonUnisonServer({ playerService, storeService });
+    await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+    t.after(() => new Promise((resolve) => server.close(resolve)));
+    const { port } = server.address();
+    const origin = `http://127.0.0.1:${port}`;
+
+    const unauthed = await fetch(`${origin}/api/store/characters/onix/purchase`, { method: 'POST' });
+    assert.equal(unauthed.status, 401);
+
+    const registered = await (
+        await fetch(`${origin}/api/players/register`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ username: 'CharacterShopper', email: '', password: 'longenough1' }),
+        })
+    ).json();
+
+    const insufficientResponse = await fetch(`${origin}/api/store/characters/onix/purchase`, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${registered.token}` },
+    });
+    assert.equal(insufficientResponse.status, 400);
+
+    playerService.updateProfile(registered.player.id, (profile) => ({
+        ...profile,
+        missions: { ...profile.missions, unlockPoints: 1000 },
+    }));
+
+    const purchaseResponse = await fetch(`${origin}/api/store/characters/onix/purchase`, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${registered.token}` },
+    });
+    assert.equal(purchaseResponse.status, 200);
+    const purchased = await purchaseResponse.json();
+    assert.equal(purchased.cost, 350);
+    assert.deepEqual(purchased.player.profile.missions.unlockedCharacterIds, ['onix']);
+    assert.equal(purchased.player.profile.missions.unlockPoints, 650);
+});
+
+test('a linked account cannot create a match with a mission-gated character it has not unlocked, but can once unlocked, and anonymous play stays fully open', async (t) => {
+    const playerService = createPlayerService();
+    const server = createPokemonUnisonServer({ playerService });
+    await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+    t.after(() => new Promise((resolve) => server.close(resolve)));
+    const { port } = server.address();
+    const origin = `http://127.0.0.1:${port}`;
+
+    // Anonymous play remains fully unrestricted, including a gated character like dragapult.
+    const anonymousResponse = await fetch(`${origin}/api/matches`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+            opponent: 'bot',
+            teams: { A: ['dragapult', 'zubat', 'chansey'], B: ['pidgey', 'meowth', 'abra'] },
+        }),
+    });
+    assert.equal(anonymousResponse.status, 201);
+
+    const registered = await (
+        await fetch(`${origin}/api/players/register`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ username: 'GateChecker', email: '', password: 'longenough1' }),
+        })
+    ).json();
+
+    const lockedResponse = await fetch(`${origin}/api/matches`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+            opponent: 'bot',
+            playerToken: registered.token,
+            teams: { A: ['dragapult', 'zubat', 'chansey'], B: ['pidgey', 'meowth', 'abra'] },
+        }),
+    });
+    assert.equal(lockedResponse.status, 403);
+    assert.match((await lockedResponse.json()).message, /dragapult is locked/);
+
+    // Always-free characters remain selectable by a linked account with zero unlocks.
+    const freeResponse = await fetch(`${origin}/api/matches`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+            opponent: 'bot',
+            playerToken: registered.token,
+            teams: { A: ['charmander', 'zubat', 'chansey'], B: ['pidgey', 'meowth', 'abra'] },
+        }),
+    });
+    assert.equal(freeResponse.status, 201);
+
+    // Grant the unlock the same way a completed mission or store purchase would, then retry.
+    playerService.updateProfile(registered.player.id, (profile) => ({
+        ...profile,
+        missions: {
+            ...profile.missions,
+            unlockedCharacterIds: [...profile.missions.unlockedCharacterIds, 'dragapult'],
+        },
+    }));
+    const unlockedResponse = await fetch(`${origin}/api/matches`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+            opponent: 'bot',
+            playerToken: registered.token,
+            teams: { A: ['dragapult', 'zubat', 'chansey'], B: ['pidgey', 'meowth', 'abra'] },
+        }),
+    });
+    assert.equal(unlockedResponse.status, 201);
+});
+
+test('joining a private match with a locked team B character is rejected for a linked account, allowed once unlocked, and never gated for an anonymous joiner', async (t) => {
+    const playerService = createPlayerService();
+    const server = createPokemonUnisonServer({ playerService });
+    await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+    t.after(() => new Promise((resolve) => server.close(resolve)));
+    const { port } = server.address();
+    const origin = `http://127.0.0.1:${port}`;
+
+    const created = await (
+        await fetch(`${origin}/api/matches`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({
+                teams: { A: ['charmander', 'squirtle', 'bulbasaur'], B: ['dragapult', 'zubat', 'chansey'] },
+            }),
+        })
+    ).json();
+
+    const registered = await (
+        await fetch(`${origin}/api/players/register`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ username: 'Joiner', email: '', password: 'longenough1' }),
+        })
+    ).json();
+
+    const lockedJoinResponse = await fetch(`${origin}/api/matches/${created.matchId}/join`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ inviteCode: created.inviteCode, playerToken: registered.token }),
+    });
+    assert.equal(lockedJoinResponse.status, 403);
+    assert.match((await lockedJoinResponse.json()).message, /dragapult is locked/);
+
+    playerService.updateProfile(registered.player.id, (profile) => ({
+        ...profile,
+        missions: { ...profile.missions, unlockedCharacterIds: ['dragapult'] },
+    }));
+    const unlockedJoinResponse = await fetch(`${origin}/api/matches/${created.matchId}/join`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ inviteCode: created.inviteCode, playerToken: registered.token }),
+    });
+    assert.equal(unlockedJoinResponse.status, 200);
+    assert.equal((await unlockedJoinResponse.json()).player, 'B');
+
+    // A fresh match with the same locked composition, joined with no account at all.
+    const secondMatch = await (
+        await fetch(`${origin}/api/matches`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({
+                teams: { A: ['charmander', 'squirtle', 'bulbasaur'], B: ['dragapult', 'zubat', 'chansey'] },
+            }),
+        })
+    ).json();
+    const anonymousJoinResponse = await fetch(`${origin}/api/matches/${secondMatch.matchId}/join`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ inviteCode: secondMatch.inviteCode }),
+    });
+    assert.equal(anonymousJoinResponse.status, 200);
 });
 
 test('server confines requests to reference and game asset roots', async () => {

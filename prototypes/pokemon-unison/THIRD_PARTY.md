@@ -11,3 +11,16 @@ tree.
 
 Pokémon names and imagery referenced by the local runner are existing assets
 from this workspace. They are not copied into the prototype directory.
+
+## Password hashing and session tokens
+
+Production (`server.js`, `passwordHashing.js`) hashes passwords with the
+`bcryptjs` npm package and signs sessions with the `jsonwebtoken` npm package.
+This prototype has no npm registry access in its build environment, so
+`reference/password-hashing.mjs` hashes passwords with Node's built-in
+`crypto.scrypt` instead, and `reference/player-service.mjs` signs sessions as
+HS256 JWT-format tokens using Node's built-in `crypto.createHmac` directly —
+same algorithm family and security properties (salted, adaptive password
+hashing; HMAC-signed, tamper-evident session tokens), no third-party code. If
+`bcryptjs`/`jsonwebtoken` become installable later, those two files are the
+only places that would need to change.

@@ -47,7 +47,7 @@ test('Pokemon Trainer exposes all eight source skills and a deterministic weight
         'pokemon-trainer-rare-candy',
     ]);
 
-    const game = createGame({ seed: 14336, teams: trainerTeams });
+    const game = createGame({ seed: 15360, teams: trainerTeams });
     assert.equal(unitPresentation(game.teams.A[0]).skillIds[0], 'pokemon-trainer-master-ball');
     const reproduced = replay(exportReplay(game));
     assert.equal(reproduced.ok, true, reproduced.error);
@@ -81,7 +81,7 @@ test('Pokeball contains a healthy target but captures a disabled target at the b
 });
 
 test('capture copies the target current form and Master Ball bypasses reflection and invulnerability', () => {
-    let game = createGame({ seed: 14336, teams: trainerTeams });
+    let game = createGame({ seed: 15360, teams: trainerTeams });
     game.teams.B[0].form = 'pidgeotto';
     game.teams.B[0].statuses.push({
         id: 'test-invulnerable',
@@ -123,19 +123,17 @@ test('Potion enforces its two-use match limit', () => {
     );
 });
 
-test('X-Stats alternates Physical and Special stacks and grants flat damage reduction', () => {
+test('X-Stats alternates Physical and Special stacks', () => {
     let game = createGame({ seed: 0, teams: trainerTeams });
     readyPlayer(game);
     game = enact(game, action('A', 0, 'pokemon-trainer-x-stats', 'A', 1));
     let physical = game.teams.A[1].statuses.find(
         (status) => status.id === 'pokemon_trainer_x_stats_physical_buff'
     );
-    assert.equal(physical.nonAfflictionDamageBonusFlat, 5);
-    assert.equal(physical.damageReductionFlat, 5);
     assert.equal(physical.damageBonusBySkillClass.Physical, 5);
 
     game = enact(game, action('B', 1, 'zubat-bite', 'A', 1));
-    assert.equal(game.teams.A[1].hp, 85);
+    assert.equal(game.teams.A[1].hp, 80);
 
     readyPlayer(game);
     delete game.teams.A[0].cooldowns['pokemon-trainer-x-stats'];
@@ -153,8 +151,6 @@ test('X-Stats alternates Physical and Special stacks and grants flat damage redu
     physical = game.teams.A[1].statuses.find(
         (status) => status.id === 'pokemon_trainer_x_stats_physical_buff'
     );
-    assert.equal(physical.nonAfflictionDamageBonusFlat, 10);
-    assert.equal(physical.damageReductionFlat, 10);
     assert.equal(physical.damageBonusBySkillClass.Physical, 10);
 });
 

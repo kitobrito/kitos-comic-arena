@@ -562,6 +562,68 @@ button:focus-visible {
     letter-spacing: 0.06em;
 }
 
+.account-bar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    margin: 0 auto 10px;
+    padding: 8px 12px;
+    max-width: 1400px;
+    flex-wrap: wrap;
+}
+
+.account-form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.account-form[hidden] {
+    display: none;
+}
+
+.account-form input {
+    min-width: 0;
+    width: 150px;
+    padding: 0.5rem 0.6rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.5);
+    font-size: 0.8rem;
+}
+
+.account-form button,
+.account-signed-in button {
+    padding: 0.5rem 0.8rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.75rem;
+    cursor: pointer;
+}
+
+.account-error {
+    color: #ff6b80;
+    font-size: 0.72rem;
+}
+
+.account-signed-in {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.78rem;
+    color: var(--arena-muted);
+}
+
+.account-signed-in[hidden] {
+    display: none;
+}
+
 .invite-panel {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr) auto;
@@ -1151,6 +1213,20 @@ button:focus-visible {
     color: #ff7185;
     font-size: 0.48rem;
     text-transform: uppercase;
+}
+
+.type-badge {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 6px;
+    border-radius: 999px;
+    color: #1a1a1a;
+    font-size: 0.5rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    text-shadow: none;
+    vertical-align: middle;
 }
 
 .target-list {

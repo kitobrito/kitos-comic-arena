@@ -12,6 +12,7 @@ import {
     viewerState,
 } from './engine.mjs';
 import { createMemoryMatchStorage } from './match-storage.mjs';
+import { validateTeamOwnership } from './mission-catalog.mjs';
 import { DEFAULT_TEAMS, ROSTER_CATALOG, validateMatchTeams } from './roster.mjs';
 
 const clone = (value) => JSON.parse(JSON.stringify(value));
@@ -120,18 +121,43 @@ export function planDeterministicBotTurn(game) {
     return queuedActions;
 }
 
-export function createMatchService({ storage = createMemoryMatchStorage() } = {}) {
+export function createMatchService({ storage = createMemoryMatchStorage(), onMatchComplete } = {}) {
     const matches = new Map();
     storage.loadAll().filter(validStoredMatch).forEach((match) => {
         match.pendingActions = Array.isArray(match.pendingActions) ? match.pendingActions : [];
         match.queueRevision = Number.isInteger(match.queueRevision) ? match.queueRevision : 0;
         match.botPlayer = match.botPlayer === 'B' ? 'B' : null;
+        match.playerIds = {
+            A: typeof match.playerIds?.A === 'string' ? match.playerIds.A : null,
+            B: typeof match.playerIds?.B === 'string' ? match.playerIds.B : null,
+        };
+        match.completionNotified = Boolean(match.completionNotified);
         matches.set(match.id, match);
     });
 
     function persist(match) {
         match.updatedAt = new Date().toISOString();
         storage.save(match);
+    }
+
+    function checkCompletion(match) {
+        if (!match.game.winner || match.completionNotified) return;
+        match.completionNotified = true;
+        if (!onMatchComplete) return;
+        Promise.resolve()
+            .then(() =>
+                onMatchComplete({
+                    matchId: match.id,
+                    mode: match.botPlayer ? 'solo' : 'private',
+                    winner: match.game.winner,
+                    playerIds: { ...match.playerIds },
+                    teamSpeciesIds: {
+                        A: match.game.teams.A.map((unit) => unit.speciesId),
+                        B: match.game.teams.B.map((unit) => unit.speciesId),
+                    },
+                })
+            )
+            .catch((error) => console.error('onMatchComplete failed:', error));
     }
 
     function resolveBotTurn(match) {
@@ -145,7 +171,7 @@ export function createMatchService({ storage = createMemoryMatchStorage() } = {}
     }
 
     return {
-        create({ seed, teams, startingPlayer, opponent = 'human' } = {}) {
+        create({ seed, teams, startingPlayer, opponent = 'human', playerId = null } = {}) {
             if (!['human', 'bot'].includes(opponent)) {
                 throw new MatchServiceError(400, 'invalid_opponent', 'Opponent must be human or bot.');
             }
@@ -166,12 +192,15 @@ export function createMatchService({ storage = createMemoryMatchStorage() } = {}
                 inviteDigest: inviteCode ? digestSecret(inviteCode) : null,
                 joined: { A: true, B: Boolean(botPlayer) },
                 botPlayer,
+                playerIds: { A: playerId || null, B: null },
+                completionNotified: false,
                 tokenDigests: { A: digestSecret(token), B: null },
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
             };
             matches.set(id, match);
             resolveBotTurn(match);
+            checkCompletion(match);
             persist(match);
             return {
                 ...publicMatch(match, 'A'),
@@ -180,7 +209,7 @@ export function createMatchService({ storage = createMemoryMatchStorage() } = {}
             };
         },
 
-        join(matchId, inviteCode) {
+        join(matchId, inviteCode, { playerId = null, unlockedCharacterIds = null } = {}) {
             const match = requireMatch(matches, matchId);
             if (match.botPlayer) {
                 throw new MatchServiceError(409, 'bot_match', 'This solo match already has a server-controlled opponent.');
@@ -191,9 +220,20 @@ export function createMatchService({ storage = createMemoryMatchStorage() } = {}
             if (match.joined.B) {
                 throw new MatchServiceError(409, 'seat_taken', 'Player B has already joined this match.');
             }
+            if (unlockedCharacterIds !== null) {
+                const ownershipError = validateTeamOwnership(
+                    match.game.teams.B.map((unit) => unit.speciesId),
+                    unlockedCharacterIds
+                );
+                if (ownershipError) {
+                    throw new MatchServiceError(403, 'character_locked', ownershipError);
+                }
+            }
             const token = makeSecret();
             match.joined.B = true;
             match.tokenDigests.B = digestSecret(token);
+            match.playerIds.B = playerId || null;
+            checkCompletion(match);
             persist(match);
             return {
                 ...publicMatch(match, 'B'),
@@ -235,6 +275,7 @@ export function createMatchService({ storage = createMemoryMatchStorage() } = {}
             match.game = result.state;
             match.revision += 1;
             resolveBotTurn(match);
+            checkCompletion(match);
             persist(match);
             return publicMatch(match, player);
         },
@@ -297,6 +338,7 @@ export function createMatchService({ storage = createMemoryMatchStorage() } = {}
             match.queueRevision = 0;
             match.revision += 1;
             resolveBotTurn(match);
+            checkCompletion(match);
             persist(match);
             return publicMatch(match, player);
         },
@@ -317,6 +359,7 @@ export function createMatchService({ storage = createMemoryMatchStorage() } = {}
                 match.pendingActions = [];
                 match.queueRevision = 0;
                 match.revision += 1;
+                checkCompletion(match);
                 persist(match);
             }
             return publicMatch(match, player);

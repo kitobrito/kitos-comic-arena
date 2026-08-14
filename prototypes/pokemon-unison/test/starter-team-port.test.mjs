@@ -129,3 +129,37 @@ test('Razor Leaf resolves its selected and other-enemy scopes independently', ()
     assert.equal(game.teams.B[1].hp, 95);
     assert.equal(game.teams.B[2].hp, 90);
 });
+
+test('Rapid Spin only strips enemy-sourced harmful statuses and still tracks evolution', () => {
+    let game = createGame({ seed: 19 });
+    game.teams.A[0].statuses.push({
+        id: 'test-ally-debuff', name: 'Ally Debuff', harmful: true,
+        durationActions: 3, sourcePlayer: 'A', sourceSlot: 2,
+    });
+    game.teams.A[0].statuses.push({
+        id: 'test-enemy-debuff', name: 'Enemy Debuff', harmful: true,
+        durationActions: 3, sourcePlayer: 'B', sourceSlot: 0,
+    });
+    game = enact(game, action('A', 1, 'squirtle-rapid-spin', 'A', 0));
+
+    assert.equal(game.teams.A[0].statuses.some((status) => status.id === 'test-ally-debuff'), true);
+    assert.equal(game.teams.A[0].statuses.some((status) => status.id === 'test-enemy-debuff'), false);
+    assert.equal(game.teams.A[1].counters.evolution, 1);
+    assert.deepEqual(game.teams.B.map((unit) => unit.hp), [85, 85, 85]);
+});
+
+test('Leech Seed steals 20 HP immediately and grants Bulbasaur 1 Sun on the burst', () => {
+    let game = createGame({ seed: 21 });
+    game.teams.A[2].hp = 50;
+    game = enact(game, action('A', 2, 'bulbasaur-leech-seed', 'B', 2));
+
+    // The 20 HP immediate burst and the first of two periodic 5 HP ticks both land before
+    // the caster's next real action, since the target's turn starts immediately afterward.
+    assert.equal(game.teams.B[2].hp, 75);
+    assert.equal(game.teams.A[2].hp, 75);
+    assert.equal(game.teams.A[2].counters.sun, 2);
+    assert.equal(
+        game.teams.B[2].statuses.find((status) => status.id === 'bulbasaur-leech-seed')?.durationActions,
+        2
+    );
+});

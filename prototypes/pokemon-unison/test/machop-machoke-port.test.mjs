@@ -55,10 +55,10 @@ test('Machop and Machoke expose four current active slots with matching costs', 
         'machoke-brick-break', 'machoke-counter', 'machoke-bulk-up', 'machoke-taunt',
     ]);
     assert.deepEqual(machop.skills.find((skill) => skill.id === 'machop-brick-break').energy, [
-        Energy.NINJUTSU, Energy.RANDOM,
+        Energy.NINJUTSU,
     ]);
     assert.deepEqual(machop.skills.find((skill) => skill.id === 'machoke-brick-break').energy, [
-        Energy.NINJUTSU, Energy.RANDOM, Energy.RANDOM,
+        Energy.NINJUTSU, Energy.RANDOM,
     ]);
 });
 
@@ -71,7 +71,7 @@ test('the second Bulk Up evolves Machop while preserving stacked defense and dam
     assert.equal(
         game.teams.A[0].statuses.find((status) => status.id === 'machop-bulk-up-bonus')
             ?.machopBulkUpBonus,
-        5
+        10
     );
 
     ready(game, 'A');
@@ -83,14 +83,14 @@ test('the second Bulk Up evolves Machop while preserving stacked defense and dam
     assert.equal(
         game.teams.A[0].statuses.find((status) => status.id === 'machop-bulk-up-bonus')
             ?.machopBulkUpBonus,
-        10
+        20
     );
 });
 
 test('Brick Break gains its bonus only after destroying defense and consumes Bulk Up', () => {
     let plain = createGame({ seed: 983, teams });
     plain = enact(plain, action('A', 0, 'machop-brick-break', 'B', 0));
-    assert.equal(plain.teams.B[0].hp, 60);
+    assert.equal(plain.teams.B[0].hp, 75);
 
     let shielded = createGame({ seed: 991, teams });
     shielded.teams.B[0].shield = 20;
@@ -98,7 +98,7 @@ test('Brick Break gains its bonus only after destroying defense and consumes Bul
     ready(shielded, 'A');
     shielded = enact(shielded, action('A', 0, 'machop-brick-break', 'B', 0));
     assert.equal(shielded.teams.B[0].shield, 0);
-    assert.equal(shielded.teams.B[0].hp, 45);
+    assert.equal(shielded.teams.B[0].hp, 55);
     assert.equal(
         shielded.teams.A[0].statuses.some((status) => status.id === 'machop-bulk-up-bonus'),
         false
@@ -120,6 +120,24 @@ test('Counter cancels the first new damaging skill, reflects damage, and evolves
     );
 });
 
+test('Counter reflects the countered skill\'s damage after the attacker\'s own outgoing bonuses', () => {
+    let game = createGame({ seed: 997, teams });
+    game = enact(game, action('A', 0, 'machop-counter', 'B', 0));
+    ready(game, 'B');
+    // Chansey's Egg Bomb defaults to the 'Physical' skill class, so a status granting a flat
+    // Physical bonus should inflate what Counter reflects, matching production's
+    // resolveEffectDamageAmount (the countered skill is evaluated from the attacker's own
+    // buffed state, not the raw listed amount).
+    game.teams.B[0].statuses.push({
+        id: 'test-physical-buff', name: 'Test Physical Buff', hidden: false, harmful: false,
+        durationActions: null, damageBonusBySkillClass: { Physical: 20 },
+    });
+    game = enact(game, action('B', 0, 'chansey-eggbomb', 'A', 0));
+    // 20 base + 20 attacker buff + 5 Machop counterAliveBonus = 45, reflected back onto Chansey.
+    assert.equal(game.teams.B[0].hp, 55);
+    assert.equal(game.teams.A[0].hp, 100);
+});
+
 test('Counter stores and consumes Bulk Up even if the target lets the mark expire', () => {
     let game = createGame({ seed: 1009, teams });
     game = enact(game, action('A', 0, 'machop-bulk-up', 'A', 0));
@@ -128,10 +146,10 @@ test('Counter stores and consumes Bulk Up even if the target lets the mark expir
     assert.equal(game.teams.A[0].statuses.some((status) => status.id === 'machop-bulk-up-bonus'), false);
     assert.equal(
         game.teams.B[0].statuses.find((status) => status.id === 'machop-counter-mark')?.storedBulkUpBonus,
-        5
+        10
     );
     game = pass(game);
-    assert.equal(game.teams.B[0].hp, 90);
+    assert.equal(game.teams.B[0].hp, 85);
     assert.equal(game.teams.A[0].form, 'machoke');
 });
 
@@ -152,7 +170,7 @@ test('Taunt restricts targets and helpful skills while reducing Physical damage'
     assert.equal(game.teams.A[0].hp, 93);
 });
 
-test('Machoke Bulk Up empowers Brick Break and adds a non-Mental stun', () => {
+test('Machoke Bulk Up empowers Brick Break (production never actually gates its stun clause live, so it does not fire)', () => {
     let game = createGame({ seed: 1019, teams });
     game.teams.A[0].form = 'machoke';
     game.teams.B[0].shield = 20;
@@ -160,15 +178,12 @@ test('Machoke Bulk Up empowers Brick Break and adds a non-Mental stun', () => {
     assert.equal(game.teams.A[0].shield, 20);
     ready(game, 'A');
     game = enact(game, action('A', 0, 'machoke-brick-break', 'B', 0));
-    assert.equal(game.teams.B[0].hp, 30);
+    assert.equal(game.teams.B[0].hp, 35);
     assert.equal(
         game.teams.B[0].statuses.some((status) => status.id === 'machoke-brick-break-stun'),
-        true
+        false
     );
-    assert.match(
-        validateAction(game, action('B', 0, 'chansey-eggbomb', 'A', 0)),
-        /non-Mental/
-    );
+    assert.equal(validateAction(game, action('B', 0, 'chansey-eggbomb', 'A', 0)), null);
 });
 
 test('Machoke Counter doubles reflected damage and upgraded Taunt lasts three target turns', () => {

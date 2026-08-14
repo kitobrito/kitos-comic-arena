@@ -116,12 +116,12 @@ test('Whirlwind blocks incoming Physical and Special skills for the allied team'
 test('Pidgey evolves from effectiveness-adjusted damage dealt and activates all Pidgeotto skills', () => {
     let game = matchup();
     game.teams.A[1].hp = 50;
-    game.teams.A[1].counters.evolution = 80;
+    game.teams.A[1].counters.evolution = 30;
     game = enact(game, action('A', 1, 'pidgey-gust', 'B', 0));
 
     const pidgey = game.teams.A[1];
     assert.equal(pidgey.form, 'pidgeotto');
-    assert.equal(pidgey.counters.evolution, 100);
+    assert.equal(pidgey.counters.evolution, 50);
     assert.equal(pidgey.hp, 50);
     assert.deepEqual(unitPresentation(pidgey).skillIds, [
         'pidgeotto-gust',

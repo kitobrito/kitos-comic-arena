@@ -70,11 +70,11 @@ test('Jigglypuff and Wigglytuff expose both complete forms, source costs, cooldo
             { energy: [Energy.RANDOM, Energy.RANDOM, Energy.RANDOM], cooldown: 0 },
             { energy: [Energy.NINJUTSU, Energy.RANDOM], cooldown: 3 },
             { energy: [Energy.RANDOM], cooldown: 2 },
-            { energy: [Energy.RANDOM], cooldown: 2 },
+            { energy: [], cooldown: 2 },
             { energy: [Energy.RANDOM, Energy.RANDOM, Energy.RANDOM], cooldown: 0 },
             { energy: [Energy.NINJUTSU, Energy.NINJUTSU, Energy.RANDOM], cooldown: 3 },
             { energy: [Energy.RANDOM, Energy.RANDOM], cooldown: 2 },
-            { energy: [Energy.RANDOM], cooldown: 2 },
+            { energy: [], cooldown: 2 },
         ]
     );
     assert.equal(jigglypuff.forms.wigglytuff.healOnEnter, 10);
@@ -86,17 +86,17 @@ test('Perish Song keeps one source-bound mark, counts target turns, executes thr
     game.teams.A[0].hp = 40;
     game.teams.B[0].shield = 50;
     game = enact(game, action('A', 0, 'jigglypuff-perish-song', 'B', 0));
-    assert.equal(mark(game.teams.B[0])?.durationActions, 5);
+    assert.equal(mark(game.teams.B[0])?.durationActions, 4);
 
     game = pass(game);
-    assert.equal(mark(game.teams.B[0])?.durationActions, 4);
+    assert.equal(mark(game.teams.B[0])?.durationActions, 3);
     game = enact(game, action('A', 0, 'jigglypuff-perish-song', 'B', 1));
     assert.equal(mark(game.teams.B[0]), undefined);
-    assert.equal(mark(game.teams.B[1])?.durationActions, 5);
+    assert.equal(mark(game.teams.B[1])?.durationActions, 4);
 
-    for (let targetTurns = 0; targetTurns < 5; targetTurns += 1) {
+    for (let targetTurns = 0; targetTurns < 4; targetTurns += 1) {
         game = pass(game);
-        if (targetTurns < 4 && !game.winner) game = pass(game);
+        if (targetTurns < 3 && !game.winner) game = pass(game);
     }
     assert.equal(game.teams.B[1].alive, false);
     assert.equal(game.teams.B[1].hp, 0);
@@ -115,22 +115,28 @@ test('Perish Song is removed immediately when its source is defeated', () => {
     assert.equal(mark(game.teams.B[0]), undefined);
 });
 
-test('Sing stuns harmful skills and advances Perish Song only once in its source turn', () => {
+test('Sing channels for two turns, stuns only its single target, and advances every enemy Perish Song each turn', () => {
     let game = createGame({ seed: 1307, teams });
     game = enact(game, action('A', 0, 'jigglypuff-perish-song', 'B', 0));
     game = pass(game);
-    assert.equal(mark(game.teams.B[0])?.durationActions, 4);
+    assert.equal(mark(game.teams.B[0])?.durationActions, 3);
     game = enact(game, action('A', 0, 'jigglypuff-sing', 'B', 0));
+    // The channel only advances Perish Song at the start of Jigglypuff's own next turn, not immediately on cast.
     assert.equal(mark(game.teams.B[0])?.durationActions, 3);
     assert.deepEqual(
-        game.teams.B.map((unit) => unit.statuses.some((status) => status.id === 'jigglypuff-sing-lock')),
-        [true, true, true]
+        game.teams.B.map((unit) => unit.statuses.some((status) => status.id === 'jigglypuff-sing-stun')),
+        [true, false, false]
     );
     assert.match(
         validateAction(game, action('B', 0, 'chansey-eggbomb', 'A', 0)),
         /harmful skills/
     );
     assert.equal(validateAction(game, action('B', 0, 'chansey-softboil', 'B', 1)), null);
+
+    // One more full round: the mark's own natural decay plus the channel's own advance both fire.
+    game = pass(game);
+    game = pass(game);
+    assert.equal(mark(game.teams.B[0])?.durationActions, 1);
 });
 
 test('Wish heals on the allied turn and a marked enemy targeting it advances Perish Song before healing', () => {
@@ -143,11 +149,11 @@ test('Wish heals on the allied turn and a marked enemy targeting it advances Per
     ready(game, 'B');
     game = enact(game, action('B', 2, 'pidgey-gust', 'A', 1));
     assert.equal(game.events.some((event) =>
-        event.kind === 'status-accelerated' && event.remainingTurns === 3
+        event.kind === 'status-accelerated' && event.remainingTurns === 2
     ), true);
-    assert.equal(game.teams.A[1].hp, 60);
+    assert.equal(game.teams.A[1].hp, 55);
     assert.equal(game.teams.A[1].statuses.some((status) => status.id === 'jigglypuff-wish-heal'), false);
-    assert.equal(mark(game.teams.B[2])?.durationActions, 2);
+    assert.equal(mark(game.teams.B[2])?.durationActions, 1);
 });
 
 test('Humiliate requires a new harmful skill, grants one seeded color, and consumes after success', () => {
@@ -158,7 +164,7 @@ test('Humiliate requires a new harmful skill, grants one seeded color, and consu
     ready(game, 'B');
     const energyEventsBefore = game.events.length;
     game = enact(game, action('B', 0, 'chansey-softboil', 'B', 1));
-    assert.equal(mark(game.teams.B[0])?.durationActions, 3);
+    assert.equal(mark(game.teams.B[0])?.durationActions, 2);
     assert.equal(
         game.events.slice(energyEventsBefore).some((event) =>
             event.kind === 'energy' && /Humiliate/.test(event.message)
@@ -184,6 +190,22 @@ test('Humiliate requires a new harmful skill, grants one seeded color, and consu
     assert.ok([Energy.TAIJUTSU, Energy.NINJUTSU, Energy.BLOODLINE, Energy.GENJUTSU].includes(humiliateEnergy.energy));
 });
 
+test('Humiliate costs no energy and instantly grants energy if the target is already Sing-locked', () => {
+    let game = createGame({ seed: 1323, teams });
+    game = enact(game, action('A', 0, 'jigglypuff-sing', 'B', 0));
+    assert.ok(game.teams.B[0].statuses.some((status) => status.id === 'jigglypuff-sing-stun'));
+
+    ready(game, 'A');
+    const energyBefore = game.energy.A[Energy.TAIJUTSU] + game.energy.A[Energy.NINJUTSU] +
+        game.energy.A[Energy.BLOODLINE] + game.energy.A[Energy.GENJUTSU];
+    const eventsBefore = game.events.length;
+    game = enact(game, action('A', 0, 'jigglypuff-humiliate', 'B', 0));
+    const energyAfter = game.energy.A[Energy.TAIJUTSU] + game.energy.A[Energy.NINJUTSU] +
+        game.energy.A[Energy.BLOODLINE] + game.energy.A[Energy.GENJUTSU];
+    assert.equal(energyAfter, energyBefore + 1, 'the Sing-lock check grants energy immediately on cast');
+    assert.ok(game.events.slice(eventsBefore).some((event) => event.kind === 'energy'));
+});
+
 test('Wigglytuff Wish heals the team and an all-target skill advances the one shared countdown once', () => {
     let game = createGame({ seed: 1327, teams });
     game.teams.A[0].form = 'wigglytuff';
@@ -197,8 +219,11 @@ test('Wigglytuff Wish heals the team and an all-target skill advances the one sh
         event.kind === 'status-accelerated' && event.skillId !== 'ignored'
     );
     assert.equal(accelerations.length, 1);
-    assert.deepEqual(game.teams.A.map((unit) => unit.hp), [60, 60, 60]);
-    assert.equal(mark(game.teams.B[1])?.durationActions, 1);
+    assert.deepEqual(game.teams.A.map((unit) => unit.hp), [55, 55, 55]);
+    // B[1]'s own turn completing this same action also naturally decays its (target-anchored) mark,
+    // so the Wish-triggered acceleration on top of that empties the 3-turn evolved mark entirely.
+    assert.equal(mark(game.teams.B[1]), undefined);
+    assert.equal(game.teams.B[1].alive, false);
 });
 
 test('Rare Candy evolves Jigglypuff and Perish Song sequences replay deterministically', () => {

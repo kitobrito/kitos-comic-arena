@@ -124,16 +124,80 @@ are not runtime dependencies.
 37. Replaced abbreviated standalone skill summaries with the exact full current
     Comic Arena descriptions for all 216 ported skill definitions and added a
     parity gate against `characters.js`.
+38. Ported the remaining 12 characters (Mew, Mewtwo, Dragonite, Cyndaquil,
+    Chikorita, Totodile, Aegislash, Ditto, Scraggy, Dragapult, Nincada, and
+    Primeape), completing the full 46-character checked roster
+    (`migration/roster-manifest.json`: 46/46 `ported-full`, 0 `not-started`).
+39. Added standalone player accounts: registration, login, HS256-signed
+    persistent sessions, and scrypt password hashing, backed by atomic
+    per-player JSON storage (`reference/player-service.mjs`,
+    `reference/player-storage.mjs`, `reference/password-hashing.mjs`). The
+    account/profile schema mirrors production's field names for the
+    mission/skin/currency data it doesn't populate yet, so those phases can
+    attach without renaming anything.
+40. Linked matches to accounts (`matchService.create()`/`join()` accept an
+    optional `playerId`; matches call an injected `onMatchComplete` hook
+    exactly once, the first time `game.winner` is set) and ported the
+    goal-based mission system on top: 26 production Pokemon-arena missions
+    (`reference/mission-catalog.mjs`), a pure evaluation engine matching
+    production's post-match evaluation loop, a `GET /api/missions` endpoint,
+    and a `reference/mission-service.mjs` bridge that updates
+    `profile.missions`/`profile.skins` when a linked account wins. See
+    [MISSION_PORT.md](./MISSION_PORT.md) for exactly what was ported, adapted,
+    or deliberately deferred (starter/evolution-choice missions, the
+    real-time-windowed Primeape event, and — notably — team-selection gate
+    enforcement, which is tracked but not yet blocked on unlock state).
+41. Ported the character-skin system: all 23 production Pokemon-arena skins
+    (`reference/skin-catalog.mjs`), unlock/equip logic matching production's
+    endpoints exactly (`reference/skin-service.mjs`,
+    `GET /api/skins`/`POST /api/skins/unlock`/`POST /api/skins/equip`), and
+    the six battle-affecting type-override skins captured as data
+    (`SKIN_TYPE_OVERRIDES`) though not yet wired into the battle engine. See
+    [SKIN_PORT.md](./SKIN_PORT.md).
+42. Ported the unlock-points store: the 3 Pokemon-arena point packages
+    (`reference/store-catalog.mjs`), a real PayPal REST v2 client
+    (`reference/paypal-client.mjs` — OAuth, order create, order capture),
+    idempotent purchase records (`reference/purchase-storage.mjs`), and a
+    points-based direct character purchase mirroring production's
+    unlock-points character-buy endpoint (`reference/store-service.mjs`,
+    `GET /api/store`, `POST /api/store/paypal/create-order`,
+    `POST /api/store/paypal/capture`,
+    `POST /api/store/characters/:characterId/purchase`). Dormant (503) until
+    real `PAYPAL_CLIENT_ID`/`PAYPAL_CLIENT_SECRET` are supplied — no real
+    transaction has been executed. See [STORE_PORT.md](./STORE_PORT.md).
+43. Enforced mission-based character unlocks in team selection:
+    `validateTeamOwnership()` (`reference/mission-catalog.mjs`) checks a
+    team against `ALWAYS_UNLOCKED_CHARACTER_IDS` (the 12 confirmed-free
+    characters plus 8 temporarily free pending an unbuilt unlock mechanic)
+    plus the account's own `unlockedCharacterIds`, wired into
+    `POST /api/matches` for the match creator's own team, when a valid
+    `playerToken` is present — anonymous play stays fully open. A
+    completeness test confirms the free-list plus every mission's reward
+    character together cover all 46 `ROSTER` entries with no silent gaps.
+44. Extended gate enforcement to `POST /api/matches/:id/join`:
+    `matchService.join()` now optionally checks the already-fixed team B
+    composition against the joining player's own `unlockedCharacterIds`
+    (`null` skips the check entirely for an anonymous joiner, distinct from
+    an empty array for a linked account with zero unlocks) and rejects the
+    join without consuming the invite. See
+    [MISSION_PORT.md](./MISSION_PORT.md)'s "Gate enforcement" section for
+    both halves of this.
 
 ## Next milestones
 
 1. Move the executable engine boundary from the JavaScript oracle to Haskell.
 2. Compile the Elm battle client against protocol v2.
-3. Add standalone accounts, teams, and progression.
+3. ~~Add standalone accounts, teams, and progression.~~ Accounts, match
+   linking, mission progression, and gate enforcement are done
+   (#39, #40, #43, #44).
 4. Add matchmaking, reconnect windows, and turn timers.
-5. Port the remaining roster in reviewed content batches; current coverage is
-   thirty-four full, zero partial, and 12 not started.
-6. Add standalone selection, missions, unlocks, skins, admin tools, and hosting.
+5. ~~Port the remaining roster in reviewed content batches.~~ Done — 46/46
+   characters fully ported (#38).
+6. ~~Add skins, then a real store (PayPal), then enforce unlocks on both
+   sides of a match.~~ Done (#41, #42, #43, #44). Remaining: wire the six
+   skin type-overrides into the battle engine at match setup, add a client
+   UI for missions/skins/the store, verify a real PayPal sandbox purchase
+   end-to-end once credentials exist, then admin tools.
 
 ## Rules for future porting
 

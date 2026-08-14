@@ -64,7 +64,7 @@ test('Clefairy and Clefable expose both complete forms, production costs, cooldo
     assert.deepEqual(
         clefairy.skills.map(({ energy, cooldown }) => ({ energy, cooldown })),
         [
-            { energy: [Energy.RANDOM], cooldown: 2 },
+            { energy: [Energy.RANDOM, Energy.RANDOM], cooldown: 2 },
             { energy: [Energy.RANDOM], cooldown: 2 },
             { energy: [Energy.RANDOM, Energy.RANDOM], cooldown: 2 },
             { energy: [Energy.BLOODLINE], cooldown: 0 },

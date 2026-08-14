@@ -5,6 +5,16 @@ import { fileURLToPath } from 'node:url';
 
 import { createMatchService, MatchServiceError } from './match-service.mjs';
 import { createJsonMatchStorage } from './match-storage.mjs';
+import { createDefaultMissionState, validateTeamOwnership } from './mission-catalog.mjs';
+import { createMissionService } from './mission-service.mjs';
+import { isPayPalConfigured } from './paypal-client.mjs';
+import { createPlayerService, PlayerServiceError } from './player-service.mjs';
+import { createJsonPlayerStorage } from './player-storage.mjs';
+import { createJsonPurchaseStorage } from './purchase-storage.mjs';
+import { DEFAULT_TEAMS } from './roster.mjs';
+import { createDefaultSkinState } from './skin-catalog.mjs';
+import { createSkinService, SkinServiceError } from './skin-service.mjs';
+import { createStoreService, StoreServiceError } from './store-service.mjs';
 
 const referenceRoot = resolve(fileURLToPath(new URL('.', import.meta.url)));
 const repositoryRoot = resolve(referenceRoot, '..', '..', '..');
@@ -66,23 +76,190 @@ function normalizePublicBasePath(value = '/') {
     return normalized === '/' ? '/' : `${normalized}/`;
 }
 
-async function handleApi(request, response, url, matchService, publicBasePath) {
+function resolvePublicAppUrl(request) {
+    if (process.env.POKEMON_UNISON_PUBLIC_URL) return process.env.POKEMON_UNISON_PUBLIC_URL.replace(/\/+$/, '');
+    const host = request.headers.host;
+    if (!host) return '';
+    const protocol = request.headers['x-forwarded-proto'] ?? 'http';
+    return `${protocol}://${host}`;
+}
+
+function requireAuthenticatedPlayer(request, playerService) {
+    const player = playerService.verifySession(bearerToken(request));
+    if (!player) {
+        throw new PlayerServiceError(401, 'invalid_session', 'Sign in first.');
+    }
+    return player;
+}
+
+async function handlePlayersApi(request, response, url, playerService) {
+    const parts = routeParts(url.pathname);
+    if (parts[0] !== 'api' || parts[1] !== 'players') return false;
+
+    if (request.method === 'POST' && parts[2] === 'register' && parts.length === 3) {
+        const body = await readJson(request);
+        const result = await playerService.register({
+            username: body.username,
+            email: body.email,
+            password: body.password,
+        });
+        sendJson(response, 201, result);
+        return true;
+    }
+    if (request.method === 'POST' && parts[2] === 'login' && parts.length === 3) {
+        const body = await readJson(request);
+        const result = await playerService.login({ username: body.username, password: body.password });
+        sendJson(response, 200, result);
+        return true;
+    }
+    if (request.method === 'POST' && parts[2] === 'logout' && parts.length === 3) {
+        playerService.logout(bearerToken(request));
+        sendJson(response, 200, { ok: true });
+        return true;
+    }
+    if (request.method === 'GET' && parts[2] === 'me' && parts.length === 3) {
+        const player = playerService.verifySession(bearerToken(request));
+        if (!player) {
+            throw new PlayerServiceError(401, 'invalid_session', 'Sign in to view this player.');
+        }
+        sendJson(response, 200, { player });
+        return true;
+    }
+    return false;
+}
+
+async function handleMissionsApi(request, response, url, missionService, playerService) {
+    if (request.method !== 'GET' || url.pathname !== '/api/missions') return false;
+    const player = playerService.verifySession(bearerToken(request));
+    const missionsState = player?.profile?.missions ?? createDefaultMissionState();
+    sendJson(response, 200, {
+        missions: missionService.catalog(),
+        missionProgressByMissionId: missionsState.progressByMissionId,
+        unlockedCharacterIds: missionsState.unlockedCharacterIds,
+        unlockPoints: missionsState.unlockPoints,
+        purchasedUnlocks: missionsState.purchasedUnlocks,
+    });
+    return true;
+}
+
+async function handleSkinsApi(request, response, url, skinService, playerService) {
+    const parts = routeParts(url.pathname);
+    if (parts[0] !== 'api' || parts[1] !== 'skins') return false;
+
+    if (request.method === 'GET' && parts.length === 2) {
+        const player = playerService.verifySession(bearerToken(request));
+        const skinsState = player?.profile?.skins ?? createDefaultSkinState();
+        sendJson(response, 200, {
+            skins: skinService.catalog(),
+            unlockedSkinIds: skinsState.unlockedSkinIds,
+            equippedSkinByCharacterId: skinsState.equippedSkinByCharacterId,
+            unlockPoints: player?.profile?.missions?.unlockPoints ?? 0,
+        });
+        return true;
+    }
+    if (request.method === 'POST' && parts[2] === 'unlock' && parts.length === 3) {
+        const player = requireAuthenticatedPlayer(request, playerService);
+        const body = await readJson(request);
+        const updated = skinService.unlock(player.id, body.skinId);
+        sendJson(response, 200, { player: updated });
+        return true;
+    }
+    if (request.method === 'POST' && parts[2] === 'equip' && parts.length === 3) {
+        const player = requireAuthenticatedPlayer(request, playerService);
+        const body = await readJson(request);
+        const updated = skinService.equip(player.id, body.characterId, body.skinId);
+        sendJson(response, 200, { player: updated });
+        return true;
+    }
+    return false;
+}
+
+async function handleStoreApi(request, response, url, storeService, playerService) {
+    const parts = routeParts(url.pathname);
+    if (parts[0] !== 'api' || parts[1] !== 'store') return false;
+
+    if (request.method === 'GET' && parts.length === 2) {
+        const player = playerService.verifySession(bearerToken(request));
+        sendJson(response, 200, storeService.storefront(player?.id ?? null));
+        return true;
+    }
+    if (request.method === 'POST' && parts[2] === 'paypal' && parts[3] === 'create-order' && parts.length === 4) {
+        const player = requireAuthenticatedPlayer(request, playerService);
+        const body = await readJson(request);
+        const baseUrl = resolvePublicAppUrl(request);
+        const result = await storeService.createOrder(player.id, body.packageId, {
+            returnUrl: `${baseUrl}/?unlockPointsPayment=paypal`,
+            cancelUrl: `${baseUrl}/?unlockPointsPayment=paypal-cancelled`,
+        });
+        sendJson(response, 200, { ok: true, ...result });
+        return true;
+    }
+    if (request.method === 'POST' && parts[2] === 'paypal' && parts[3] === 'capture' && parts.length === 4) {
+        const player = requireAuthenticatedPlayer(request, playerService);
+        const body = await readJson(request);
+        const result = await storeService.captureOrder(player.id, body.orderId);
+        sendJson(response, 200, { ok: true, ...result });
+        return true;
+    }
+    if (request.method === 'POST' && parts[2] === 'characters' && parts[4] === 'purchase' && parts.length === 5) {
+        const player = requireAuthenticatedPlayer(request, playerService);
+        const result = storeService.purchaseCharacterWithPoints(player.id, parts[3]);
+        sendJson(response, 200, { ok: true, ...result });
+        return true;
+    }
+    return false;
+}
+
+async function handleApi(
+    request,
+    response,
+    url,
+    matchService,
+    playerService,
+    missionService,
+    skinService,
+    storeService,
+    publicBasePath
+) {
     const parts = routeParts(url.pathname);
     if (request.method === 'GET' && url.pathname === '/api/health') {
-        sendJson(response, 200, { ok: true, matches: matchService.size() });
+        sendJson(response, 200, { ok: true, matches: matchService.size(), players: playerService.size() });
         return true;
     }
     if (request.method === 'GET' && url.pathname === '/api/roster') {
         sendJson(response, 200, matchService.roster());
         return true;
     }
+    if (await handlePlayersApi(request, response, url, playerService)) {
+        return true;
+    }
+    if (await handleMissionsApi(request, response, url, missionService, playerService)) {
+        return true;
+    }
+    if (await handleSkinsApi(request, response, url, skinService, playerService)) {
+        return true;
+    }
+    if (await handleStoreApi(request, response, url, storeService, playerService)) {
+        return true;
+    }
     if (request.method === 'POST' && url.pathname === '/api/matches') {
         const body = await readJson(request);
+        const authedPlayer = playerService.verifySession(body.playerToken);
+        if (authedPlayer) {
+            const ownershipError = validateTeamOwnership(
+                body.teams?.A ?? DEFAULT_TEAMS.A,
+                authedPlayer.profile.missions?.unlockedCharacterIds ?? []
+            );
+            if (ownershipError) {
+                throw new MatchServiceError(403, 'character_locked', ownershipError);
+            }
+        }
         const created = matchService.create({
             seed: body.seed,
             teams: body.teams,
             startingPlayer: body.startingPlayer,
             opponent: body.opponent,
+            playerId: authedPlayer?.id ?? null,
         });
         sendJson(response, 201, {
             ...created,
@@ -97,7 +274,11 @@ async function handleApi(request, response, url, matchService, publicBasePath) {
     const matchId = parts[2];
     if (request.method === 'POST' && parts[3] === 'join' && parts.length === 4) {
         const body = await readJson(request);
-        sendJson(response, 200, matchService.join(matchId, body.inviteCode));
+        const joiningPlayer = playerService.verifySession(body.playerToken);
+        sendJson(response, 200, matchService.join(matchId, body.inviteCode, {
+            playerId: joiningPlayer?.id ?? null,
+            unlockedCharacterIds: joiningPlayer ? joiningPlayer.profile.missions?.unlockedCharacterIds ?? [] : null,
+        }));
         return true;
     }
     if (request.method === 'GET' && parts[3] === 'state' && parts.length === 4) {
@@ -154,13 +335,32 @@ function serveStatic(response, url) {
     return true;
 }
 
-export function createPokemonUnisonHandler({ matchService = createMatchService(), publicBasePath = '/' } = {}) {
+export function createPokemonUnisonHandler({
+    playerService = createPlayerService(),
+    missionService = createMissionService({ playerService }),
+    skinService = createSkinService({ playerService }),
+    storeService = createStoreService({ playerService }),
+    matchService = createMatchService({ onMatchComplete: missionService.onMatchComplete }),
+    publicBasePath = '/',
+} = {}) {
     const normalizedBasePath = normalizePublicBasePath(publicBasePath);
     return async (request, response) => {
         const url = new URL(request.url ?? '/', 'http://localhost');
         try {
             if (url.pathname.startsWith('/api/')) {
-                if (!(await handleApi(request, response, url, matchService, normalizedBasePath))) {
+                if (
+                    !(await handleApi(
+                        request,
+                        response,
+                        url,
+                        matchService,
+                        playerService,
+                        missionService,
+                        skinService,
+                        storeService,
+                        normalizedBasePath
+                    ))
+                ) {
                     sendJson(response, 404, { error: 'api_not_found', message: 'API route not found.' });
                 }
                 return;
@@ -170,7 +370,12 @@ export function createPokemonUnisonHandler({ matchService = createMatchService()
                 response.end('Not found');
             }
         } catch (error) {
-            if (error instanceof MatchServiceError) {
+            if (
+                error instanceof MatchServiceError ||
+                error instanceof PlayerServiceError ||
+                error instanceof SkinServiceError ||
+                error instanceof StoreServiceError
+            ) {
                 sendJson(response, error.status, { error: error.code, message: error.message });
                 return;
             }
@@ -188,14 +393,27 @@ const launchedDirectly = typeof process !== 'undefined' && process.argv[1] &&
     resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (launchedDirectly) {
     const port = Number.parseInt(process.env.PORT ?? '4173', 10);
-    const storage = createJsonMatchStorage(
-        process.env.POKEMON_UNISON_DATA_DIR ?? resolve(referenceRoot, '..', 'runtime-data', 'matches')
-    );
-    const matchService = createMatchService({ storage });
-    const server = createPokemonUnisonServer({ matchService });
+    const dataDir = process.env.POKEMON_UNISON_DATA_DIR ?? resolve(referenceRoot, '..', 'runtime-data');
+    const storage = createJsonMatchStorage(resolve(dataDir, 'matches'));
+    const playerStorage = createJsonPlayerStorage(resolve(dataDir, 'players'));
+    const purchaseStorage = createJsonPurchaseStorage(resolve(dataDir, 'purchases'));
+    const playerService = createPlayerService({ storage: playerStorage });
+    const missionService = createMissionService({ playerService });
+    const skinService = createSkinService({ playerService });
+    const storeService = createStoreService({ playerService, purchaseStorage });
+    const matchService = createMatchService({ storage, onMatchComplete: missionService.onMatchComplete });
+    const server = createPokemonUnisonServer({
+        matchService,
+        playerService,
+        missionService,
+        skinService,
+        storeService,
+    });
     server.listen(port, '127.0.0.1', () => {
         console.log(`Pokemon Unison standalone: http://127.0.0.1:${port}`);
         console.log('This server is isolated from the current Comic/Pokemon Arena application.');
         console.log(`Persistent match data: ${storage.directory}`);
+        console.log(`Persistent player data: ${playerStorage.directory}`);
+        console.log(`PayPal payments: ${isPayPalConfigured() ? 'configured' : 'not configured (PAYPAL_CLIENT_ID/PAYPAL_CLIENT_SECRET unset)'}`);
     });
 }
