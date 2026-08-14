@@ -122,14 +122,27 @@ standalone storage root (it now holds `matches/`, `players/`, and
 ### PayPal
 
 The store is fully wired to PayPal's real REST v2 API, but dormant by
-default. Set `PAYPAL_CLIENT_ID` and `PAYPAL_CLIENT_SECRET` (from a PayPal
-developer app) to enable it; `PAYPAL_ENV=live` switches from the sandbox API
-to the live one (sandbox is the default). Until those are set,
-`GET /api/store` reports `paypalAvailable: false` and the order
-create/capture endpoints return `503`, matching production's own
-`isPayPalConfigured()` gate exactly. `POKEMON_UNISON_PUBLIC_URL` overrides
-the return/cancel URLs PayPal redirects back to after checkout (defaults to
-the request's own `Host` header).
+default, and requires **two** separate things to be set before it activates:
+
+1. `PAYPAL_CLIENT_ID` and `PAYPAL_CLIENT_SECRET` (from a PayPal developer
+   app); `PAYPAL_ENV=live` switches from the sandbox API to the live one
+   (sandbox is the default).
+2. `POKEMON_UNISON_ENABLE_PAYPAL=true` — a prototype-specific opt-in,
+   deliberately separate from step 1. This prototype can run inside the same
+   process as the production app (see `server.js`'s
+   `POKEMON_UNISON_PREVIEW_PATH` mount), which already provisions its own
+   real, live PayPal credentials as process-level env vars. Without this
+   second flag, this prototype's store would silently inherit those and go
+   live with real payment processing the moment it's deployed alongside
+   production — a real customer could complete a real charge against the
+   live merchant account and receive nothing usable, since this prototype's
+   currency is entirely disconnected from the real app's accounts. Set both
+   independently and deliberately; never assume one implies the other.
+
+Until both are set, `GET /api/store` reports `paypalAvailable: false` and
+the order create/capture endpoints return `503`. `POKEMON_UNISON_PUBLIC_URL`
+overrides the return/cancel URLs PayPal redirects back to after checkout
+(defaults to the request's own `Host` header).
 
 ### Dependencies
 

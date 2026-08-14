@@ -17,9 +17,11 @@ function withPayPalEnv(t, { clientId = 'sandbox-client-id', clientSecret = 'sand
         PAYPAL_CLIENT_ID: process.env.PAYPAL_CLIENT_ID,
         PAYPAL_CLIENT_SECRET: process.env.PAYPAL_CLIENT_SECRET,
         PAYPAL_ENV: process.env.PAYPAL_ENV,
+        POKEMON_UNISON_ENABLE_PAYPAL: process.env.POKEMON_UNISON_ENABLE_PAYPAL,
     };
     process.env.PAYPAL_CLIENT_ID = clientId;
     process.env.PAYPAL_CLIENT_SECRET = clientSecret;
+    process.env.POKEMON_UNISON_ENABLE_PAYPAL = 'true';
     if (env) process.env.PAYPAL_ENV = env;
     t.after(() => {
         Object.entries(previous).forEach(([key, value]) => {
@@ -42,11 +44,24 @@ function jsonResponse(status, body) {
     return { ok: status >= 200 && status < 300, status, json: async () => body };
 }
 
-test('isPayPalConfigured is false without credentials and true once both env vars are set', (t) => {
+test('isPayPalConfigured is false without credentials and true once credentials plus the explicit opt-in are set', (t) => {
     delete process.env.PAYPAL_CLIENT_ID;
     delete process.env.PAYPAL_CLIENT_SECRET;
+    delete process.env.POKEMON_UNISON_ENABLE_PAYPAL;
     assert.equal(isPayPalConfigured(), false);
     withPayPalEnv(t);
+    assert.equal(isPayPalConfigured(), true);
+});
+
+test('isPayPalConfigured stays false with real credentials if POKEMON_UNISON_ENABLE_PAYPAL is not set — this is the deliberate guard against a shared production PayPal config going live by accident', (t) => {
+    withPayPalEnv(t);
+    delete process.env.POKEMON_UNISON_ENABLE_PAYPAL;
+    assert.equal(isPayPalConfigured(), false);
+
+    process.env.POKEMON_UNISON_ENABLE_PAYPAL = 'false';
+    assert.equal(isPayPalConfigured(), false);
+
+    process.env.POKEMON_UNISON_ENABLE_PAYPAL = 'true';
     assert.equal(isPayPalConfigured(), true);
 });
 

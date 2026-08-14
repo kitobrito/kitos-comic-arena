@@ -14,14 +14,23 @@ and the points-based character-purchase endpoint) maps to here.
   PayPal REST v2 OAuth client-credentials flow, order creation, and order
   capture — same endpoints, same request shape (`custom_id` encoding
   `{playerId, packageId}`, `experience_context` for the approval redirect) as
-  production. Gated by `PAYPAL_CLIENT_ID`/`PAYPAL_CLIENT_SECRET` env vars
-  exactly like production's `isPayPalConfigured()` — `GET /api/store` reports
-  `paypalAvailable: false` and the create-order/capture endpoints return 503
-  until both are set. No credentials are available in this environment, so
-  this has been verified against a mocked PayPal response (see
-  `test/paypal-client.test.mjs`, `test/store-service.test.mjs`), not a real
-  sandbox transaction — that verification is on whoever adds real
-  credentials.
+  production. Gated by `PAYPAL_CLIENT_ID`/`PAYPAL_CLIENT_SECRET` — but,
+  unlike production, also by a prototype-specific
+  `POKEMON_UNISON_ENABLE_PAYPAL=true` opt-in that must be set independently.
+  This prototype can run inside the same process as the production app
+  (`server.js`'s `POKEMON_UNISON_PREVIEW_PATH` mount), which already
+  provisions real, live PayPal credentials as process-level env vars — the
+  same variables this client reads. Without the extra opt-in, deploying this
+  prototype anywhere production's real credentials are already configured
+  would silently arm real payment processing, letting a real customer
+  complete a real charge against the live merchant account for a currency
+  that only exists in this prototype's own disconnected player profiles.
+  `GET /api/store` reports `paypalAvailable: false` and the create-order/
+  capture endpoints return 503 until *both* gates are satisfied. No
+  credentials are available in this environment, so this has been verified
+  against a mocked PayPal response (see `test/paypal-client.test.mjs`,
+  `test/store-service.test.mjs`), not a real sandbox transaction — that
+  verification is on whoever adds real credentials.
 - **Idempotent capture**: a purchase record is persisted at `status:
   'created'` when an order is created and flipped to `status: 'granted'`
   only once capture succeeds (`reference/purchase-storage.mjs`, keyed by

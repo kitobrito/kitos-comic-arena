@@ -18,9 +18,14 @@ const TEST_MISSION_CATALOG = [
 ];
 
 function withPayPalEnv(t) {
-    const previous = { PAYPAL_CLIENT_ID: process.env.PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET: process.env.PAYPAL_CLIENT_SECRET };
+    const previous = {
+        PAYPAL_CLIENT_ID: process.env.PAYPAL_CLIENT_ID,
+        PAYPAL_CLIENT_SECRET: process.env.PAYPAL_CLIENT_SECRET,
+        POKEMON_UNISON_ENABLE_PAYPAL: process.env.POKEMON_UNISON_ENABLE_PAYPAL,
+    };
     process.env.PAYPAL_CLIENT_ID = 'sandbox-client-id';
     process.env.PAYPAL_CLIENT_SECRET = 'sandbox-secret';
+    process.env.POKEMON_UNISON_ENABLE_PAYPAL = 'true';
     t.after(() => {
         Object.entries(previous).forEach(([key, value]) => {
             if (value === undefined) delete process.env[key];

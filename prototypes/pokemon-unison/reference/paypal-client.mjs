@@ -2,6 +2,20 @@
 // in server.js. Gated by PAYPAL_CLIENT_ID/PAYPAL_CLIENT_SECRET env vars —
 // isPayPalConfigured() returns false without them, and every call here
 // throws rather than silently no-opping, so callers must check first.
+//
+// Deliberate extra safety gate: this prototype can be deployed inside the
+// SAME process as the production app (see server.js's
+// POKEMON_UNISON_PREVIEW_PATH mount), which already provisions real, LIVE
+// PayPal credentials for its own storefront (render.yaml sets
+// PAYPAL_ENV: live). Those are process-level env vars, so this client would
+// see them as "configured" too and go live with real payment processing the
+// instant it's deployed — a real customer could complete a real charge
+// against the live merchant account and receive nothing usable in return,
+// since this prototype's currency is entirely disconnected from the real
+// app's accounts. isPayPalConfigured() therefore ALSO requires an explicit,
+// prototype-specific opt-in (POKEMON_UNISON_ENABLE_PAYPAL=true) that is not
+// shared with — and must be set independently of — the main app's PayPal
+// config, so deploying this alongside production stays safe by default.
 const API_BASE_URLS = {
     sandbox: 'https://api-m.sandbox.paypal.com',
     live: 'https://api-m.paypal.com',
@@ -16,7 +30,11 @@ export function paypalApiBaseUrl() {
 }
 
 export function isPayPalConfigured() {
-    return Boolean(process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_CLIENT_SECRET);
+    return Boolean(
+        process.env.PAYPAL_CLIENT_ID &&
+        process.env.PAYPAL_CLIENT_SECRET &&
+        process.env.POKEMON_UNISON_ENABLE_PAYPAL === 'true'
+    );
 }
 
 export function createPayPalCustomId({ playerId, packageId }) {
