@@ -71,40 +71,48 @@
 
             <div class="selection-layout">
                 <aside class="selection-preview glass-panel" aria-label="Selected character preview">
-                    <div class="preview-art-stage">
-                        <span class="preview-kicker">CHARACTER SHOWCASE</span>
-                        <img id="selection-preview-shadow" src="" alt="" class="selection-preview-shadow" aria-hidden="true">
-                        <img id="selection-preview-image" src="" alt="Selected Pokemon" class="selection-preview-image">
-                        <div class="preview-floor" aria-hidden="true"></div>
-                        <div id="selection-form-controls" class="selection-form-controls" aria-label="Character form" hidden>
-                            <button id="selection-base-form" class="selection-form-button active" type="button" data-selection-form="base">Base</button>
-                            <button id="selection-evolution-form" class="selection-form-button" type="button" data-selection-form="evolution">Evolution</button>
+                    <div class="preview-top">
+                        <div class="preview-identity-box">
+                            <h2 id="selection-preview-name">Select a Pokemon</h2>
+                            <p id="selection-preview-types">Type</p>
+                        </div>
+                        <div class="preview-art-stage">
+                            <span class="preview-kicker">CHARACTER SHOWCASE</span>
+                            <img id="selection-preview-shadow" src="" alt="" class="selection-preview-shadow" aria-hidden="true">
+                            <img id="selection-preview-image" src="" alt="Selected Pokemon" class="selection-preview-image">
+                            <div class="preview-floor" aria-hidden="true"></div>
+                            <div id="selection-form-controls" class="selection-form-controls" aria-label="Character form" hidden>
+                                <button id="selection-base-form" class="selection-form-button active" type="button" data-selection-form="base">Base</button>
+                                <button id="selection-evolution-form" class="selection-form-button" type="button" data-selection-form="evolution">Evolution</button>
+                            </div>
+                        </div>
+                        <div class="preview-skills-panel">
+                            <div class="preview-title-row">
+                                <p class="preview-section-label">Skills</p>
+                                <span id="selection-preview-count" class="preview-count">4 SKILLS</span>
+                            </div>
+                            <div id="selection-preview-skills" class="preview-skills"></div>
+                            <section id="selection-alternate-section" class="selection-alternate-section" hidden>
+                                <p class="preview-section-label">Alternate / replacement skills</p>
+                                <div id="selection-preview-alternates" class="preview-skills preview-alternate-skills"></div>
+                            </section>
                         </div>
                     </div>
-                    <div class="preview-copy">
-                        <div class="preview-title-row">
-                            <div>
-                                <h2 id="selection-preview-name">Select a Pokemon</h2>
-                                <p id="selection-preview-types">Type</p>
-                            </div>
-                            <span id="selection-preview-count" class="preview-count">4 SKILLS</span>
+                    <article id="selection-skill-detail" class="selection-skill-detail" aria-live="polite">
+                        <div class="selection-skill-detail-header">
+                            <span id="selection-skill-detail-kind">Current skill</span>
+                            <h3 id="selection-skill-detail-name">Choose a skill</h3>
+                            <span id="selection-skill-detail-cost" class="selection-skill-detail-cost"></span>
                         </div>
+                        <p id="selection-skill-detail-description">Its complete description will appear here.</p>
+                        <div class="selection-skill-detail-footer">
+                            <span id="selection-skill-detail-classes" class="selection-skill-detail-classes"></span>
+                            <span id="selection-skill-detail-cooldown"></span>
+                        </div>
+                    </article>
+                    <div class="preview-overview">
+                        <p class="preview-section-label">Character overview</p>
                         <p id="selection-preview-passive" class="preview-passive">Choose a portrait to review its standalone kit.</p>
-                        <p class="preview-section-label">Current skills</p>
-                        <div id="selection-preview-skills" class="preview-skills"></div>
-                        <section id="selection-alternate-section" class="selection-alternate-section" hidden>
-                            <p class="preview-section-label">Alternate / replacement skills</p>
-                            <div id="selection-preview-alternates" class="preview-skills preview-alternate-skills"></div>
-                        </section>
-                        <article id="selection-skill-detail" class="selection-skill-detail" aria-live="polite">
-                            <img id="selection-skill-detail-image" src="" alt="">
-                            <div class="selection-skill-detail-copy">
-                                <span id="selection-skill-detail-kind">Current skill</span>
-                                <h3 id="selection-skill-detail-name">Choose a skill</h3>
-                                <p id="selection-skill-detail-description">Its complete description will appear here.</p>
-                                <small id="selection-skill-detail-meta"></small>
-                            </div>
-                        </article>
                     </div>
                 </aside>
 
@@ -161,6 +169,7 @@
                     <div class="turn-card">
                         <span id="turn-label">Waiting</span>
                         <strong id="current-player">No match</strong>
+                        <span id="turn-timer" class="turn-timer" hidden></span>
                         <span id="winner-label"></span>
                         <button id="resolve-turn-top-button" class="top-end-turn" type="button">End Turn</button>
                     </div>
@@ -200,6 +209,7 @@
                                 <div class="targeting-skill-footer">
                                     <span id="targeting-skill-cost"></span>
                                     <span id="targeting-skill-cooldown"></span>
+                                    <span id="targeting-skill-classes"></span>
                                 </div>
                                 <small id="targeting-target-name">Hover a glowing target</small>
                             </div>

@@ -25,14 +25,26 @@ function collectBattleFormSkillDescriptions(character, result = new Map()) {
     return result;
 }
 
-// These three skills carry a requested balance update (weather effects) that is
-// intentionally ahead of the live Comic Arena game and has not shipped there yet.
-// zapdos-thunderstorm also has no production counterpart because it was renamed
-// from zapdos-thunderbolt as part of that same change.
+// These skills carry a requested balance update (weather effects, or Cyndaquil's
+// mission-driven evolution rework) that is intentionally ahead of the live Comic
+// Arena game and has not shipped there yet. zapdos-thunderstorm also has no
+// production counterpart because it was renamed from zapdos-thunderbolt as part
+// of that same change. cyndaquil-quilava-flame-wheel, cyndaquil-typhlosion-flame-wheel,
+// totodile-croconaw-bite, totodile-feraligatr-dragon-claw, chikorita-bayleaf-magical-leaf,
+// and chikorita-meganium-magical-leaf have no production counterpart at all -
+// production's Johto starters never evolve in battle (their evolution missions
+// grant a cosmetic skin there, not a skill change).
 const AHEAD_OF_PRODUCTION_SKILL_IDS = new Set([
     'moltres-sunny-day',
     'zapdos-thunderstorm',
     'articuno-blizzard',
+    'cyndaquil-aerial-flamethrower',
+    'cyndaquil-quilava-flame-wheel',
+    'cyndaquil-typhlosion-flame-wheel',
+    'totodile-croconaw-bite',
+    'totodile-feraligatr-dragon-claw',
+    'chikorita-bayleaf-magical-leaf',
+    'chikorita-meganium-magical-leaf',
 ]);
 
 test('every standalone skill displays the complete current Comic Arena description', () => {
@@ -62,5 +74,5 @@ test('every standalone skill displays the complete current Comic Arena descripti
         }
     }
 
-    assert.equal(checked, 276);
+    assert.equal(checked, 282);
 });

@@ -445,6 +445,63 @@ test('unlocking and equipping a skin over HTTP spends points and updates the acc
     assert.deepEqual(meResponse.player.profile.skins.equippedSkinByCharacterId, { ditto: 'ditto-shiny' });
 });
 
+test('equipping a Johto-starter evolution skin actually swaps the battle skillset, not just the name', async (t) => {
+    const playerService = createPlayerService();
+    const server = createPokemonUnisonServer({ playerService });
+    await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+    t.after(() => new Promise((resolve) => server.close(resolve)));
+    const { port } = server.address();
+    const origin = `http://127.0.0.1:${port}`;
+
+    const registered = await (
+        await fetch(`${origin}/api/players/register`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ username: 'StarterTrainer', email: '', password: 'longenough1' }),
+        })
+    ).json();
+
+    // Grant the skin the same way completing the evolution mission would (it's
+    // missionRewardOnly, so /api/skins/unlock refuses to sell it for points).
+    playerService.updateProfile(registered.player.id, (profile) => ({
+        ...profile,
+        skins: { ...profile.skins, unlockedSkinIds: ['cyndaquil-quilava-evolution'] },
+    }));
+
+    const equipResponse = await fetch(`${origin}/api/skins/equip`, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${registered.token}`, 'content-type': 'application/json' },
+        body: JSON.stringify({ characterId: 'cyndaquil', skinId: 'cyndaquil-quilava-evolution' }),
+    });
+    assert.equal(equipResponse.status, 200);
+
+    const created = await (
+        await fetch(`${origin}/api/matches`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({
+                opponent: 'bot',
+                playerToken: registered.token,
+                teams: { A: ['cyndaquil', 'charmander', 'squirtle'], B: ['pidgey', 'zubat', 'chansey'] },
+            }),
+        })
+    ).json();
+
+    assert.equal(created.state.teams.A[0].form, 'quilava');
+    assert.equal(created.state.teams.A[0].speciesId, 'cyndaquil');
+    // Aerial Tackle is free (Random energy, 0 cooldown) so it's affordable turn one on
+    // both forms - it stays castable, confirming Quilava's kit isn't just the base kit
+    // renamed. Aerial Flamethrower (base-only) and Quilava Flame Wheel (Bloodline-cost)
+    // both cost energy this fresh match doesn't have yet, so neither shows up regardless
+    // of form; that's an economy/affordability concern, not what this test is checking.
+    assert.ok(created.state.legalActions.some((entry) => entry.skillId === 'cyndaquil-aerial-tackle'));
+    assert.ok(!created.state.legalActions.some((entry) => entry.skillId === 'cyndaquil-aerial-flamethrower'));
+
+    // Charmander and Squirtle have no equipped evolution skin, so they stay base-form.
+    assert.equal(created.state.teams.A[1].form, 'base');
+    assert.equal(created.state.teams.A[2].form, 'base');
+});
+
 test('GET /api/store exposes the pokemon-arena point packages and reports PayPal as unconfigured here', async (t) => {
     const previous = { PAYPAL_CLIENT_ID: process.env.PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET: process.env.PAYPAL_CLIENT_SECRET };
     delete process.env.PAYPAL_CLIENT_ID;

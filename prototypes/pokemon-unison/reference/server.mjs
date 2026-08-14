@@ -12,7 +12,7 @@ import { createPlayerService, PlayerServiceError } from './player-service.mjs';
 import { createJsonPlayerStorage } from './player-storage.mjs';
 import { createJsonPurchaseStorage } from './purchase-storage.mjs';
 import { DEFAULT_TEAMS } from './roster.mjs';
-import { createDefaultSkinState } from './skin-catalog.mjs';
+import { createDefaultSkinState, resolveSkinFormOverride } from './skin-catalog.mjs';
 import { createSkinService, SkinServiceError } from './skin-service.mjs';
 import { createStoreService, StoreServiceError } from './store-service.mjs';
 
@@ -47,6 +47,22 @@ function sendJson(response, status, payload) {
 function bearerToken(request) {
     const authorization = request.headers.authorization ?? '';
     return authorization.startsWith('Bearer ') ? authorization.slice(7) : '';
+}
+
+// Resolves each team slot's mission-reward evolution form (e.g. Quilava,
+// Feraligatr) from the creating player's own equipped skins, so a match
+// actually starts with the upgraded skillset — not just a cosmetic skin.
+// Both teams.A and teams.B are built by the creator at match-creation time
+// (the invited Player B hasn't joined yet), so this intentionally applies the
+// creator's own evolution progress to either slot a matching species appears in.
+function resolveFormOverridesForTeams(teams, equippedSkinByCharacterId) {
+    if (!equippedSkinByCharacterId) return undefined;
+    const resolveTeam = (speciesIds) =>
+        (speciesIds ?? []).map((speciesId) => {
+            const skinId = equippedSkinByCharacterId[speciesId];
+            return skinId ? resolveSkinFormOverride(skinId) : null;
+        });
+    return { A: resolveTeam(teams?.A), B: resolveTeam(teams?.B) };
 }
 
 async function readJson(request) {
@@ -260,6 +276,10 @@ async function handleApi(
             startingPlayer: body.startingPlayer,
             opponent: body.opponent,
             playerId: authedPlayer?.id ?? null,
+            formOverrides: resolveFormOverridesForTeams(
+                body.teams,
+                authedPlayer?.profile.skins?.equippedSkinByCharacterId
+            ),
         });
         sendJson(response, 201, {
             ...created,

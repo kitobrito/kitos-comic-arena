@@ -1,6 +1,6 @@
 import { ALWAYS_UNLOCKED_CHARACTER_IDS, resolveMissionUnlockPointCost } from './mission-catalog.mjs';
 import { ROSTER, unitPresentation } from './roster.mjs';
-import { selectionRenderForms } from './selection-art.mjs';
+import { selectionFormRenderUrl, selectionRenderForms } from './selection-art.mjs';
 import { skillArt } from './skill-art.mjs';
 
 const applicationBaseUrl = new URL('.', import.meta.url);
@@ -78,11 +78,12 @@ const elements = {
     selectionPreviewAlternates: document.querySelector('#selection-preview-alternates'),
     selectionAlternateSection: document.querySelector('#selection-alternate-section'),
     selectionSkillDetail: document.querySelector('#selection-skill-detail'),
-    selectionSkillDetailImage: document.querySelector('#selection-skill-detail-image'),
     selectionSkillDetailKind: document.querySelector('#selection-skill-detail-kind'),
     selectionSkillDetailName: document.querySelector('#selection-skill-detail-name'),
     selectionSkillDetailDescription: document.querySelector('#selection-skill-detail-description'),
-    selectionSkillDetailMeta: document.querySelector('#selection-skill-detail-meta'),
+    selectionSkillDetailCost: document.querySelector('#selection-skill-detail-cost'),
+    selectionSkillDetailClasses: document.querySelector('#selection-skill-detail-classes'),
+    selectionSkillDetailCooldown: document.querySelector('#selection-skill-detail-cooldown'),
     selectionPreviewTypes: document.querySelector('#selection-preview-types'),
     selectionBaseForm: document.querySelector('#selection-base-form'),
     selectionEvolutionForm: document.querySelector('#selection-evolution-form'),
@@ -96,6 +97,7 @@ const elements = {
     targetingReadout: document.querySelector('#targeting-readout'),
     targetingSkillCooldown: document.querySelector('#targeting-skill-cooldown'),
     targetingSkillCost: document.querySelector('#targeting-skill-cost'),
+    targetingSkillClasses: document.querySelector('#targeting-skill-classes'),
     targetingSkillDescription: document.querySelector('#targeting-skill-description'),
     targetingSkillImage: document.querySelector('#targeting-skill-image'),
     targetingSkillName: document.querySelector('#targeting-skill-name'),
@@ -112,6 +114,7 @@ const elements = {
     weatherName: document.querySelector('#weather-name'),
     weatherRounds: document.querySelector('#weather-rounds'),
     winnerLabel: document.querySelector('#winner-label'),
+    turnTimer: document.querySelector('#turn-timer'),
 };
 
 const PLAYER_TOKEN_STORAGE_KEY = 'pokemon-unison:player-token';
@@ -139,8 +142,8 @@ let previewSelectionForm = 'base';
 let previewSkillId = null;
 let hoveredTargetCard = null;
 const teamDraft = {
-    A: ['charmander', 'squirtle', 'bulbasaur'],
-    B: ['pikachu', 'zubat', 'chansey'],
+    A: [null, null, null],
+    B: [null, null, null],
 };
 
 function escapeHtml(value) {
@@ -367,6 +370,34 @@ function missionUnlockCost(characterId) {
     return mission ? resolveMissionUnlockPointCost(mission) : null;
 }
 
+// Mirrors match-service.mjs's formOverrides resolution client-side, so the
+// pre-match roster/team UI shows the same evolved Pokemon and kit that will
+// actually be used once the match is created — not just the base form.
+function equippedFormFor(speciesId) {
+    const skinId = equippedSkinByCharacterId[speciesId];
+    if (!skinId) return null;
+    const skin = skinCatalog.find((entry) => entry.skinId === skinId);
+    const formId = skin?.patch?.form;
+    return typeof formId === 'string' && formId ? formId : null;
+}
+
+// A display-only variant of catalogSpecies() that swaps in the equipped
+// evolution form's name/portrait/types when one applies. Never used for
+// identity/lock/assignment checks, which still key off the base speciesId.
+function displaySpecies(speciesId) {
+    const base = catalogSpecies(speciesId);
+    if (!base) return base;
+    const formId = equippedFormFor(speciesId);
+    const form = formId ? ROSTER[speciesId]?.forms?.[formId] : null;
+    if (!form) return base;
+    return {
+        ...base,
+        name: form.name || base.name,
+        facePicture: form.facePicture || base.facePicture,
+        types: form.types || base.types,
+    };
+}
+
 async function loadAccountProgress() {
     if (!playerSession) {
         unlockedCharacterIds = null;
@@ -401,7 +432,7 @@ async function loadAccountProgress() {
     }
     renderAccountBar();
     renderProgressPanel();
-    renderRosterGrid();
+    renderTeamSelectors();
 }
 
 function missionGoalMarkup(goal, progress) {
@@ -732,6 +763,51 @@ function typeBadgeMarkup(moveType) {
     return `<span class="type-badge" style="background:${color}">${escapeHtml(moveType)}</span>`;
 }
 
+const CLASS_DISPLAY_RANK = {
+    Weather: 0, Passive: 0,
+    Physical: 1, Special: 1, Strategic: 1,
+    Instant: 2, Action: 2, Control: 2, Channeled: 2,
+    Affliction: 4,
+};
+
+const TARGET_LABELS = {
+    'all-enemy': 'All Enemies',
+    'all-allies': 'All Allies',
+    self: 'Self',
+    passive: 'Passive',
+    'random-enemy': 'Random Enemy',
+    'dead-ally': 'Defeated Ally',
+    'single-enemy': 'Single Enemy',
+    'single-ally': 'Single Ally',
+    'single-character': 'Any Character',
+    'self-or-single-ally': 'Self or Ally',
+    'single-ally-or-dead-ally': 'Ally (Living or Defeated)',
+    'single-enemy-or-ally': 'Any Single Target',
+};
+
+function skillHasTeamHarmfulSkillTrap(skill) {
+    return Array.isArray(skill?.effects) &&
+        skill.effects.some((effect) => effect?.status?.teamHarmfulSkillTrap);
+}
+
+function skillTargetLabel(skill) {
+    if (!skill) return 'No target';
+    if (skill.target === 'self' && skillHasTeamHarmfulSkillTrap(skill)) return 'Team';
+    return TARGET_LABELS[skill.target] ?? skill.target ?? 'No target';
+}
+
+function classesMarkup(skill) {
+    const classes = Array.isArray(skill?.classes) ? skill.classes : [];
+    const displayClasses = classes
+        .filter((entry) => entry !== skill.moveType)
+        .slice()
+        .sort((a, b) => (CLASS_DISPLAY_RANK[a] ?? 3) - (CLASS_DISPLAY_RANK[b] ?? 3));
+    if (!displayClasses.length) return '';
+    return `<span class="skill-classes">${displayClasses
+        .map((entry) => `<span class="skill-class-badge">${escapeHtml(entry)}</span>`)
+        .join('')}</span>`;
+}
+
 function energyCostMarkup(costs, compact = false) {
     if (!costs.length) return `<span class="skill-cost-free">FREE</span>`;
     return `<span class="skill-cost ${compact ? 'compact' : ''}" role="img" aria-label="Costs ${escapeHtml(formatEnergyCosts(costs))}">
@@ -813,6 +889,7 @@ function renderTargetingReadout(skill, energyCosts, { kicker = 'SELECTED SKILL',
     elements.targetingSkillDescription.textContent = skill.description;
     elements.targetingSkillCost.innerHTML = energyCostMarkup(energyCosts ?? skill.energy);
     elements.targetingSkillCooldown.textContent = `CD ${skill.cooldown}`;
+    elements.targetingSkillClasses.innerHTML = classesMarkup(skill);
     elements.targetingTargetName.textContent = prompt;
     if (selectedPaymentAction) {
         const lockedUnit = snapshot?.state.teams[selectedPaymentAction.targetPlayer]?.[selectedPaymentAction.targetSlot];
@@ -939,12 +1016,12 @@ function catalogSpecies(speciesId) {
 function renderSelectionSkillDetail(skill, index, alternate = false) {
     if (!skill) return;
     previewSkillId = skill.id;
-    elements.selectionSkillDetailImage.src = skillArt(skill.id, index) || '';
-    elements.selectionSkillDetailImage.alt = `${skill.name} skill icon`;
     elements.selectionSkillDetailKind.textContent = alternate ? 'Alternate / replacement skill' : `Current skill ${index + 1}`;
-    elements.selectionSkillDetailName.innerHTML = `${escapeHtml(skill.name)}${typeBadgeMarkup(skill.moveType)}`;
+    elements.selectionSkillDetailName.textContent = skill.name;
     elements.selectionSkillDetailDescription.textContent = skill.description || 'No description available.';
-    elements.selectionSkillDetailMeta.innerHTML = `${energyCostMarkup(skill.energy)}<span>Cooldown ${skill.cooldown}</span><span>${escapeHtml(skill.target || 'No target')}</span>`;
+    elements.selectionSkillDetailCost.innerHTML = `<span class="selection-skill-detail-label">Energy:</span>${energyCostMarkup(skill.energy)}`;
+    elements.selectionSkillDetailClasses.innerHTML = `<span class="selection-skill-detail-label">Classes:</span>${typeBadgeMarkup(skill.moveType)}${classesMarkup(skill)}`;
+    elements.selectionSkillDetailCooldown.innerHTML = `<span class="selection-skill-detail-label">Cooldown:</span> ${skill.cooldown}`;
     for (const card of elements.selectionPreviewSkills.querySelectorAll('.preview-skill')) {
         card.classList.toggle('selected', card.dataset.skillId === skill.id);
         card.setAttribute('aria-pressed', String(card.dataset.skillId === skill.id));
@@ -960,11 +1037,9 @@ function appendSelectionSkillCard(container, skill, index, alternate = false) {
     card.type = 'button';
     card.className = `preview-skill${alternate ? ' alternate' : ''}`;
     card.dataset.skillId = skill.id;
-    card.innerHTML = `
-        ${skillIconMarkup(skill, index, 'skill-number')}
-        <div><strong>${escapeHtml(skill.name)}${typeBadgeMarkup(skill.moveType)}</strong><small>${energyCostMarkup(skill.energy)}<span>CD ${skill.cooldown}</span></small></div>
-    `;
-    card.title = `Click to read ${skill.name}`;
+    card.innerHTML = skillIconMarkup(skill, index, 'skill-number');
+    card.title = skill.name;
+    card.setAttribute('aria-label', `View ${skill.name}`);
     card.addEventListener('click', () => renderSelectionSkillDetail(skill, index, alternate));
     container.append(card);
 }
@@ -981,7 +1056,14 @@ function renderSelectionPreview() {
     const alternateRender = renderForms.find((entry) => entry.id !== activeRender.id) ?? null;
     previewSelectionForm = activeRender.id;
     const evolvedFormId = Object.keys(species?.forms ?? {}).find((formId) => formId !== 'base');
-    const formId = activeRender.id === 'evolution' && evolvedFormId ? evolvedFormId : 'base';
+    // A mission-equipped evolution (Quilava, Feraligatr, ...) is a separate,
+    // permanent account-level swap from the Base/Evolution toggle above (which
+    // previews an in-battle transformation like Charmander -> Charmeleon). The
+    // toggle wins when it applies; otherwise default to whatever's equipped.
+    const equippedFormId = equippedFormFor(catalogEntry.id);
+    const formId = activeRender.id === 'evolution' && evolvedFormId
+        ? evolvedFormId
+        : equippedFormId && species?.forms?.[equippedFormId] ? equippedFormId : 'base';
     const form = species?.forms?.[formId] ?? species?.forms?.base;
     const skillIds = form?.skillIds ?? species?.skills?.slice(0, 4).map((skill) => skill.id) ?? [];
     const skills = skillIds
@@ -990,14 +1072,29 @@ function renderSelectionPreview() {
     const formSkillIds = Object.values(species?.forms ?? {}).flatMap((entry) => entry.skillIds ?? []);
     const primarySkillIds = new Set(formSkillIds.length ? formSkillIds : skillIds);
     const alternateSkills = (species?.skills ?? []).filter((skill) => !primarySkillIds.has(skill.id));
-    elements.selectionPreviewImage.src = activeRender.url || catalogEntry.facePicture;
-    elements.selectionPreviewImage.alt = `${activeRender.name || catalogEntry.name} render`;
+    const displayName = activeRender.id === 'evolution' ? (activeRender.name || catalogEntry.name) : (form?.name || catalogEntry.name);
+    // When an equipped evolution applies, showing base Cyndaquil's big fan-art (the
+    // only "featured render" this species has under the base/evolution toggle above)
+    // would misrepresent who's actually on the team. Prefer that evolved form's own
+    // featured render (SELECTION_FORM_RENDER_BY_ID) when one exists, then fall back
+    // to its plain face picture rather than the mismatched base render.
+    const equippedFormRenderUrl = activeRender.id !== 'evolution' && equippedFormId
+        ? selectionFormRenderUrl(catalogEntry.id, equippedFormId)
+        : '';
+    const equippedFormArt = equippedFormRenderUrl || (activeRender.id !== 'evolution' && equippedFormId ? form?.facePicture : null);
+    elements.selectionPreviewImage.src = equippedFormArt || activeRender.url || form?.facePicture || catalogEntry.facePicture;
+    elements.selectionPreviewImage.alt = `${displayName} render`;
     elements.selectionPreviewImage.dataset.speciesId = catalogEntry.id;
     elements.selectionPreviewImage.dataset.selectionForm = activeRender.id;
-    elements.selectionPreviewImage.classList.toggle('uses-featured-render', Boolean(activeRender.url));
+    if (equippedFormRenderUrl) {
+        elements.selectionPreviewImage.dataset.equippedForm = equippedFormId;
+    } else {
+        delete elements.selectionPreviewImage.dataset.equippedForm;
+    }
+    elements.selectionPreviewImage.classList.toggle('uses-featured-render', Boolean(equippedFormRenderUrl || (!equippedFormArt && activeRender.url)));
     elements.selectionPreviewShadow.src = alternateRender?.url || '';
     elements.selectionPreviewShadow.classList.toggle('visible', Boolean(alternateRender?.url));
-    elements.selectionPreviewName.textContent = activeRender.name || catalogEntry.name;
+    elements.selectionPreviewName.textContent = displayName;
     elements.selectionPreviewTypes.textContent = (form?.types ?? catalogEntry.types).join(' / ');
     elements.selectionPreviewFormControls.hidden = renderForms.length < 2;
     elements.selectionBaseForm.classList.toggle('active', activeRender.id === 'base');
@@ -1035,22 +1132,29 @@ function renderDraftSlots(player) {
     const container = player === 'A' ? elements.teamSelectA : elements.teamSelectB;
     container.replaceChildren();
     teamDraft[player].forEach((speciesId, slot) => {
-        const species = catalogSpecies(speciesId);
+        const species = displaySpecies(speciesId);
         const button = document.createElement('button');
         button.type = 'button';
-        button.className = 'team-slot';
-        button.setAttribute('aria-label', `Player ${player} slot ${slot + 1}`);
+        button.className = `team-slot${species ? '' : ' empty'}`;
+        button.setAttribute('aria-label', `Player ${player} slot ${slot + 1}${species ? ` (double-click to clear ${species.name})` : ''}`);
         if (activeDraftPlayer === player && activeDraftSlot === slot) button.classList.add('active');
         button.innerHTML = `
             <span class="team-slot-number">${slot + 1}</span>
-            <img src="${escapeHtml(species?.facePicture || '')}" alt="${escapeHtml(species?.name || 'Empty slot')}">
+            ${species ? `<img src="${escapeHtml(species.facePicture || '')}" alt="${escapeHtml(species.name)}">` : '<span class="team-slot-placeholder" aria-hidden="true">+</span>'}
             <span class="team-slot-name">${escapeHtml(species?.name || 'Choose')}</span>
         `;
         button.addEventListener('click', () => {
             activeDraftPlayer = player;
             activeDraftSlot = slot;
-            if (previewSpeciesId !== speciesId) previewSelectionForm = 'base';
-            previewSpeciesId = speciesId;
+            if (speciesId && previewSpeciesId !== speciesId) previewSelectionForm = 'base';
+            if (speciesId) previewSpeciesId = speciesId;
+            renderTeamSelectors();
+        });
+        button.addEventListener('dblclick', () => {
+            if (!speciesId) return;
+            teamDraft[player][slot] = null;
+            activeDraftPlayer = player;
+            activeDraftSlot = slot;
             renderTeamSelectors();
         });
         container.append(button);
@@ -1096,14 +1200,15 @@ function renderRosterGrid() {
         const lockCost = locked ? missionUnlockCost(species.id) : null;
         const canBuyNow = locked && lockCost !== null && unlockPoints >= lockCost;
         if (locked) button.classList.add('locked');
-        button.setAttribute('aria-label', `Inspect ${species.name} skills`);
+        const display = displaySpecies(species.id) ?? species;
+        button.setAttribute('aria-label', `Inspect ${display.name} skills`);
         // The buy action is a <span role="button"> rather than a nested <button>,
         // since a real <button> can't validly contain another <button> — a browser
         // would otherwise silently hoist it out of this card and break the layout.
         button.innerHTML = `
-            <img src="${escapeHtml(species.facePicture)}" alt="${escapeHtml(species.name)}">
-            <span class="roster-card-name">${escapeHtml(species.name)}</span>
-            <span class="roster-card-type">${escapeHtml(species.types.join(' / '))}</span>
+            <img src="${escapeHtml(display.facePicture)}" alt="${escapeHtml(display.name)}">
+            <span class="roster-card-name">${escapeHtml(display.name)}</span>
+            <span class="roster-card-type">${escapeHtml(display.types.join(' / '))}</span>
             ${assignments.length ? `<span class="draft-mark">${assignments.join(' · ')}</span>` : ''}
             ${locked ? `<span class="roster-card-lock-badge">${lockCost !== null ? `LOCKED · ${lockCost} PTS` : 'LOCKED'}</span>` : ''}
             ${canBuyNow ? '<span class="roster-card-buy-badge" role="button" tabindex="0">Buy now</span>' : ''}
@@ -1132,11 +1237,17 @@ elements.selectionEvolutionForm.addEventListener('click', () => {
     renderSelectionPreview();
 });
 
+function teamsComplete() {
+    return teamDraft.A.every(Boolean) && teamDraft.B.every(Boolean);
+}
+
 function renderTeamSelectors() {
     renderDraftSlots('A');
     renderDraftSlots('B');
     renderRosterGrid();
     renderSelectionPreview();
+    elements.newMatchButton.disabled = !teamsComplete();
+    elements.soloMatchButton.disabled = !teamsComplete();
 }
 
 function selectedTeams() {
@@ -1150,8 +1261,6 @@ async function loadRoster() {
     elements.rosterCount.textContent = `${rosterCatalog.length} PLAYABLE POKEMON`;
     elements.selectionBadgeCount.textContent = `${rosterCatalog.length} PLAYABLE`;
     renderTeamSelectors();
-    elements.newMatchButton.disabled = false;
-    elements.soloMatchButton.disabled = false;
 }
 
 function renderTeam(container, units, player, view) {
@@ -1209,12 +1318,12 @@ function renderTeam(container, units, player, view) {
             </button>
             <div class="unit-body">
                 <div class="unit-name"><strong>${escapeHtml(presentation.name)}</strong><span>${escapeHtml(presentation.types.join(' / '))}</span></div>
-                <div class="unit-skills">${skillPips}</div>
-                <div class="unit-stats"><span>${Object.keys(unit.cooldowns).length} COOLDOWNS</span></div>
                 <div class="status-list">
                     ${unit.statuses.map(statusIconMarkup).join('')}
                     ${Object.entries(unit.counters).filter(([key, value]) => value > 0 && !(unit.speciesId === 'bulbasaur' && key === 'sun')).map(([key, value]) => `<span class="status">${escapeHtml(key)} ${value}</span>`).join('')}
                 </div>
+                <div class="unit-skills">${skillPips}</div>
+                <div class="unit-stats"><span>${Object.keys(unit.cooldowns).length} COOLDOWNS</span></div>
             </div>
         `;
         const selectedSkill = selectedActor() && selectedSkillId
@@ -1447,10 +1556,12 @@ function describeQueuedAction(action, view) {
     const actor = view.teams[action.player]?.[action.actorSlot];
     const target = view.teams[action.targetPlayer]?.[action.targetSlot];
     const actorName = actor ? unitPresentation(actor).name : `slot ${action.actorSlot + 1}`;
-    const targetName = target ? unitPresentation(target).name : `slot ${action.targetSlot + 1}`;
     const skill = actor
         ? ROSTER[actor.effectiveSpeciesId ?? actor.speciesId]?.skills.find((candidate) => candidate.id === action.skillId)
         : null;
+    const targetName = isAutomaticAreaTarget(skill)
+        ? (skill.target === 'all-enemy' ? 'All Enemies' : 'All Allies')
+        : target ? unitPresentation(target).name : `slot ${action.targetSlot + 1}`;
     const payment = Array.isArray(action.randomEnergy) && action.randomEnergy.length > 0
         ? ` · ${action.randomEnergy.map(energyLabel).join(' + ')}`
         : '';
@@ -1500,6 +1611,22 @@ function renderWeatherBanner(weather) {
     elements.weatherBanner.title = weather.description ?? '';
 }
 
+function renderTurnTimer() {
+    if (!snapshot?.state || !session) {
+        elements.turnTimer.hidden = true;
+        return;
+    }
+    if (typeof snapshot.turnSecondsRemaining === 'number') {
+        const minutes = Math.floor(snapshot.turnSecondsRemaining / 60);
+        const seconds = String(snapshot.turnSecondsRemaining % 60).padStart(2, '0');
+        elements.turnTimer.hidden = false;
+        elements.turnTimer.textContent = `${snapshot.state.currentPlayer === session.player ? 'YOUR' : "OPPONENT'S"} TURN · ${minutes}:${seconds}`;
+        elements.turnTimer.classList.toggle('turn-timer-low', snapshot.turnSecondsRemaining <= 10);
+    } else {
+        elements.turnTimer.hidden = true;
+    }
+}
+
 function render() {
     if (!snapshot || !session) return;
     const view = snapshot.state;
@@ -1510,6 +1637,7 @@ function render() {
     elements.turnLabel.textContent = `Turn ${view.turnNumber + 1}`;
     elements.currentPlayer.textContent = `Player ${view.currentPlayer}`;
     elements.winnerLabel.textContent = view.winner ? (view.winner === 'draw' ? 'Draw' : `Player ${view.winner} won`) : '';
+    renderTurnTimer();
     elements.seatLabel.textContent = snapshot.mode === 'solo'
         ? `Player ${session.player} · vs ${snapshot.opponent.name}`
         : `Player ${session.player}`;
@@ -1629,8 +1757,8 @@ async function createMatch(opponent = 'human') {
     } catch (error) {
         elements.lobbyStatus.textContent = error.message;
     } finally {
-        elements.newMatchButton.disabled = false;
-        elements.soloMatchButton.disabled = false;
+        elements.newMatchButton.disabled = !teamsComplete();
+        elements.soloMatchButton.disabled = !teamsComplete();
     }
 }
 
@@ -1680,6 +1808,10 @@ async function refresh() {
             : next.mode === 'solo'
               ? `Solo · revision ${next.revision}`
               : `Revision ${next.revision}`;
+        if (snapshot) {
+            snapshot.turnSecondsRemaining = next.turnSecondsRemaining;
+            snapshot.turnTimeoutSeconds = next.turnTimeoutSeconds;
+        }
         if (
             !snapshot ||
             next.revision !== snapshot.revision ||
@@ -1692,6 +1824,10 @@ async function refresh() {
             selectedPaymentAction = null;
             selectedRandomEnergy = [];
             render();
+        } else {
+            // The turn clock ticks between full re-renders without disturbing
+            // the player's in-progress skill/target selection.
+            renderTurnTimer();
         }
     } catch (error) {
         elements.connectionLabel.textContent = 'Disconnected';

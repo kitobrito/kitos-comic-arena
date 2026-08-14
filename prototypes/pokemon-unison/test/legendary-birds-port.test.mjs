@@ -107,7 +107,7 @@ test('the legendary birds expose every production skill, cost, cooldown, type, p
         .forEach((skill) => assert.match(skill.image, /PokemonArena\/(articuno|moltres|zapdos)/i));
 });
 
-test('Blizzard delays a harmful skill by 1 turn, summons Hail, and Ice Beam can stun only Special skills', () => {
+test('Blizzard delays a harmful skill by 1 turn, summons a Snowstorm, and Ice Beam can stun only Special skills', () => {
     const controlTeams = {
         A: birdTeams.A,
         B: ['zapdos', 'pidgey', 'eevee'],
@@ -118,7 +118,7 @@ test('Blizzard delays a harmful skill by 1 turn, summons Hail, and Ice Beam can 
     // 10 base damage; zapdos and pidgey are part-Flying, which Ice hits super-effectively (+5).
     assert.deepEqual(game.teams.B.map((unit) => unit.hp), [85, 85, 90]);
     assert.deepEqual(game.teams.B.map((unit) => Boolean(status(unit, 'articuno-blizzard-delay'))), [true, true, true]);
-    assert.equal(game.weather?.key, 'hail');
+    assert.equal(game.weather?.key, 'snowstorm');
     assert.equal(game.weather?.roundsRemaining, 4);
 
     // A harmful skill used while marked does not activate immediately...
@@ -134,9 +134,10 @@ test('Blizzard delays a harmful skill by 1 turn, summons Hail, and Ice Beam can 
 
     ready(game, 'A', { clearCooldowns: true });
     game = enact(game, action('A', 0, 'articuno-ice-beam', 'B', 0));
-    // 15 base + 5 from Hail's Ice bonus (Ice Beam is not excluded), then +5 more for Flying-type effectiveness,
-    // on top of two extra Hail ticks absorbed while waiting for the Zap Cannon delay to activate.
+    // 15 base + 5 from the Snowstorm's Ice bonus (Ice Beam is not excluded), then +5 more for Flying-type effectiveness,
+    // on top of two extra Snowstorm ticks absorbed while waiting for the Zap Cannon delay to activate.
     assert.equal(game.teams.B[0].hp, 54);
+    // Guaranteed while the Snowstorm is active, not just a 50% roll.
     assert.ok(status(game.teams.B[0], 'articuno-ice-beam-stun'));
     assert.match(
         validateAction(game, action('B', 0, 'zapdos-thunderstorm', 'B', 0)),
@@ -145,26 +146,26 @@ test('Blizzard delays a harmful skill by 1 turn, summons Hail, and Ice Beam can 
     assert.equal(validateAction(game, action('B', 0, 'zapdos-flight', 'B', 0)), null);
 });
 
-test('Sheer Cold hits the full team, repeats Blizzard and Ice Beam control, summons Hail, and gains 5 permanent damage', () => {
+test('Sheer Cold hits the full team, repeats Blizzard and Ice Beam control, summons a Snowstorm, and gains 5 permanent damage', () => {
     let game = createGame({ seed: 3, teams: neutralTeams });
     game = enact(game, action('A', 0, 'articuno-sheer-cold', 'B', 0));
     assert.deepEqual(game.teams.B.map((unit) => unit.hp), [70, 70, 70]);
     assert.equal(status(game.teams.A[0], 'articuno-sheer-cold-tracker')?.bonusDamage, 5);
     assert.deepEqual(game.teams.B.map((unit) => Boolean(status(unit, 'articuno-blizzard-delay'))), [true, true, true]);
-    assert.equal(game.weather?.key, 'hail');
+    assert.equal(game.weather?.key, 'snowstorm');
 
     game = pass(game);
-    // Hail ticked once during the pass: 3 damage to the non-Ice team.
+    // The Snowstorm ticked once during the pass: 3 damage to the non-Ice team.
     assert.deepEqual(game.teams.B.map((unit) => unit.hp), [67, 67, 67]);
-    assert.equal(game.weather?.roundsRemaining, 3, 'Hail is now on its second of four rounds');
+    assert.equal(game.weather?.roundsRemaining, 3, 'the Snowstorm is now on its second of four rounds');
 
     ready(game, 'A', { clearCooldowns: true });
     game = enact(game, action('A', 0, 'articuno-sheer-cold', 'B', 0));
-    // 30 base + 5 permanent tracker bonus + 5 from Hail's own Ice bonus (Sheer Cold is not excluded from it).
+    // 30 base + 5 permanent tracker bonus + 5 from the Snowstorm's own Ice bonus (Sheer Cold is not excluded from it).
     assert.deepEqual(game.teams.B.map((unit) => unit.hp), [27, 27, 27]);
     assert.equal(status(game.teams.A[0], 'articuno-sheer-cold-tracker')?.bonusDamage, 10);
-    assert.equal(game.weather?.key, 'hail', 'Hail does not refresh, but the still-active weather remains Hail');
-    assert.equal(game.weather?.roundsRemaining, 3, 'recasting Blizzard-adjacent Hail while active does not reset its duration');
+    assert.equal(game.weather?.key, 'snowstorm', 'the Snowstorm does not refresh, but the still-active weather remains a Snowstorm');
+    assert.equal(game.weather?.roundsRemaining, 3, 'recasting Blizzard-adjacent Snowstorm while active does not reset its duration');
 });
 
 test('Sunny Day summons weather that boosts Fire damage, and Heat Wave gains capped Heat', () => {

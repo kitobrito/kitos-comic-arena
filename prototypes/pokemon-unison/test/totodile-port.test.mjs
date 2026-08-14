@@ -33,12 +33,44 @@ function matchup({ seed = 1 } = {}) {
     });
 }
 
-test('Totodile exposes exactly four active skills and its passive is not a castable skill', () => {
-    assert.equal(ROSTER.totodile.skills.length, 4);
+test('Totodile exposes exactly four active skills per form (six total across base/Croconaw/Feraligatr) and its passive is not a castable skill', () => {
+    assert.equal(ROSTER.totodile.skills.length, 6);
     assert.deepEqual(ROSTER.totodile.forms.base.skillIds, [
         'totodile-aerial-water-gun', 'totodile-scary-face',
         'totodile-aqua-tail', 'totodile-superpower',
     ]);
+    assert.deepEqual(ROSTER.totodile.forms.croconaw.skillIds, [
+        'totodile-aerial-water-gun', 'totodile-croconaw-bite',
+        'totodile-aqua-tail', 'totodile-superpower',
+    ]);
+    assert.deepEqual(ROSTER.totodile.forms.feraligatr.skillIds, [
+        'totodile-aerial-water-gun', 'totodile-feraligatr-dragon-claw',
+        'totodile-aqua-tail', 'totodile-superpower',
+    ]);
+});
+
+test('Croconaw Bite deals 20 damage and stacks a 15 Physical/Special incoming-damage debuff', () => {
+    let game = matchup({ seed: 8 });
+    game.teams.A[0].form = 'croconaw';
+    game.teams.B[0].hp = 100;
+    game = step(game, action('A', 0, 'totodile-croconaw-bite', 'B', 0));
+
+    assert.equal(game.teams.B[0].hp, 80);
+    const debuff = game.teams.B[0].statuses.find((status) => status.id === 'totodile-scary-face-active');
+    assert.ok(debuff, 'the debuff should land on the enemy, reusing Scary Face\'s synergy id');
+    assert.deepEqual(debuff.incomingDamageBonusBySkillClass, { Physical: 15, Special: 15 });
+});
+
+test('Feraligatr Dragon Claw deals 30 piercing damage and stacks a 20 Physical/Special incoming-damage debuff', () => {
+    let game = matchup({ seed: 9 });
+    game.teams.A[0].form = 'feraligatr';
+    game.teams.B[0].hp = 100;
+    game = step(game, action('A', 0, 'totodile-feraligatr-dragon-claw', 'B', 0));
+
+    assert.equal(game.teams.B[0].hp, 70);
+    const debuff = game.teams.B[0].statuses.find((status) => status.id === 'totodile-scary-face-active');
+    assert.ok(debuff, 'the debuff should land on the enemy, reusing Scary Face\'s synergy id');
+    assert.deepEqual(debuff.incomingDamageBonusBySkillClass, { Physical: 20, Special: 20 });
 });
 
 test('Aerial Water Gun deals 15 to all enemies, gains a Water Ring, and delays every enemy’s harmful skills by one of their turns', () => {

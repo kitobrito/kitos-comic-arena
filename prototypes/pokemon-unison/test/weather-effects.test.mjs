@@ -50,7 +50,7 @@ test('casting a different weather effect replaces the current one immediately', 
 
     ready(game, 'A', { clearCooldowns: true });
     game = enact(game, action('A', 1, 'articuno-blizzard', 'B', 0));
-    assert.equal(game.weather?.key, 'hail');
+    assert.equal(game.weather?.key, 'snowstorm');
     assert.equal(game.weather?.roundsRemaining, 4, 'the new weather starts at its own full duration');
 });
 
@@ -71,10 +71,10 @@ test('Sunny Day reduces Grass energy costs and increases Electric energy costs b
     assert.deepEqual(shockAfter?.energyCosts, [Energy.GENJUTSU, Energy.RANDOM], 'Electric skills cost 1 more Random energy');
 });
 
-test('Hail makes Ice skills impossible to evade, even against certain evasion', () => {
+test('Snowstorm makes Ice skills impossible to evade, even against certain evasion', () => {
     let game = createGame({ seed: 9, teams: { A: ['articuno', 'moltres', 'zapdos'], B: ['pidgey', 'eevee', 'chansey'] } });
     game = enact(game, action('A', 0, 'articuno-blizzard', 'B', 0));
-    assert.equal(game.weather?.key, 'hail');
+    assert.equal(game.weather?.key, 'snowstorm');
 
     game = pass(game);
     ready(game, 'B', { clearCooldowns: true });
@@ -95,7 +95,7 @@ test('weather is public and identical in both viewers\' state', () => {
     const viewA = viewerState(game, 'A');
     const viewB = viewerState(game, 'B');
     assert.deepEqual(viewA.weather, viewB.weather);
-    assert.equal(viewA.weather.key, 'hail');
+    assert.equal(viewA.weather.key, 'snowstorm');
     assert.equal(viewA.weather.roundsRemaining, 4);
     assert.equal(viewA.weather.totalRounds, 4);
 });

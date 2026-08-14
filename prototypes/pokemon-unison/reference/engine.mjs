@@ -253,14 +253,15 @@ function weatherStatusFieldBonus(state, actor, effect) {
     return Number(config.amount) || 0;
 }
 
-function makeUnit(speciesId, slot, player) {
+function makeUnit(speciesId, slot, player, startingForm = 'base') {
     const species = ROSTER[speciesId];
     if (!species) throw new Error(`Unknown species: ${speciesId}`);
+    const form = species.forms?.[startingForm] ? startingForm : 'base';
     return {
         slot,
         player,
         speciesId,
-        form: 'base',
+        form,
         effectiveSpeciesId: null,
         effectiveForm: null,
         banished: false,
@@ -332,8 +333,8 @@ function consumeTrackedShieldStatus(state, target, statusId) {
     return removed;
 }
 
-function makeTeam(speciesIds, player) {
-    return speciesIds.map((speciesId, slot) => makeUnit(speciesId, slot, player));
+function makeTeam(speciesIds, player, formOverrides = []) {
+    return speciesIds.map((speciesId, slot) => makeUnit(speciesId, slot, player, formOverrides[slot]));
 }
 
 export function createGame({
@@ -341,6 +342,7 @@ export function createGame({
     teams = DEFAULT_TEAMS,
     startingPlayer = 'A',
     economyMode = 'sandbox',
+    formOverrides = {},
 } = {}) {
     if (!players.includes(startingPlayer)) throw new Error('startingPlayer must be A or B.');
     if (!['arena', 'sandbox'].includes(economyMode)) throw new Error('economyMode must be arena or sandbox.');
@@ -361,8 +363,8 @@ export function createGame({
         winner: null,
         weather: null,
         teams: {
-            A: makeTeam(teams.A, 'A'),
-            B: makeTeam(teams.B, 'B'),
+            A: makeTeam(teams.A, 'A', formOverrides.A ?? []),
+            B: makeTeam(teams.B, 'B', formOverrides.B ?? []),
         },
         energy: {
             A: economyMode === 'arena' ? emptyEnergy() : sandboxEnergy(),
@@ -1727,7 +1729,7 @@ function effectTargets(state, context, scope = 'target') {
     return [target];
 }
 
-function chanceThreshold(actor, effect, target, context) {
+function chanceThreshold(state, actor, effect, target, context) {
     const base = effect.chance ?? effect.percent ?? 100;
     const counterBonus = effect.chanceCounter
         ? (actor.counters[effect.chanceCounter.counter] ?? 0) * effect.chanceCounter.multiplier
@@ -1755,9 +1757,14 @@ function chanceThreshold(actor, effect, target, context) {
     const stunCertainty = effect.chanceCertainIfTargetStunned && target && hasAnyStunLikeStatus(target)
         ? 100
         : 0;
+    const weatherCertainty = effect.chanceCertainDuringWeatherKey &&
+        state?.weather?.key === effect.chanceCertainDuringWeatherKey
+        ? 100
+        : 0;
     return Math.max(
         base + counterBonus + missingHpBonus + targetHpBonus + actorStatusBonus + actorStatusFieldBonus,
-        stunCertainty
+        stunCertainty,
+        weatherCertainty
     );
 }
 
@@ -1773,7 +1780,7 @@ function hasAnyStunLikeStatus(unit) {
 }
 
 function rollEffectChance(state, actor, skill, effect, target, context) {
-    const threshold = chanceThreshold(actor, effect, target, context);
+    const threshold = chanceThreshold(state, actor, effect, target, context);
     if (threshold >= 100) return true;
     const roll = nextRandom(state) * 100;
     log(state, 'roll', `${skill.name} rolled ${roll.toFixed(2)} against ${threshold}%.`, {
@@ -3046,6 +3053,7 @@ function triggerTeamHarmfulSkillTraps(state, actor, skill, target) {
         for (const status of [...owner.statuses]) {
             if (!statusActive(status) || !status.teamHarmfulSkillTrap) continue;
             const trap = status.teamHarmfulSkillTrap;
+            if (trap.selfOnly && owner !== target) continue;
             const source = sourceUnitForStatus(state, status) ?? owner;
             if (!source?.alive) continue;
             const overrideStatus = trap.damageOverrideFromOwnerStatus

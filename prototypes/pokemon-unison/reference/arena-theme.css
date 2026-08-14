@@ -186,15 +186,23 @@ button:focus-visible {
 }
 
 .selection-preview {
+    display: flex;
+    flex-direction: column;
+}
+
+.preview-top {
     display: grid;
-    grid-template-rows: minmax(330px, 1fr) auto;
+    /* Three zones like production's showcase card: a fixed-width identity box,
+       a capped-width square-ish portrait stage, and a flexible skills grid. */
+    grid-template-columns: 150px minmax(220px, 300px) minmax(200px, 1fr);
+    height: 300px;
 }
 
 .preview-art-stage {
     position: relative;
     display: grid;
     place-items: center;
-    min-height: 330px;
+    height: 100%;
     overflow: hidden;
     background:
         radial-gradient(circle at 50% 46%, rgba(239, 64, 93, 0.26), transparent 34%),
@@ -227,7 +235,7 @@ button:focus-visible {
     width: min(86%, 360px);
     height: 305px;
     object-fit: contain;
-    object-position: center bottom;
+    object-position: center;
     filter: drop-shadow(0 18px 15px rgba(0, 0, 0, 0.76));
     transition: opacity 160ms ease, transform 220ms ease, filter 220ms ease;
 }
@@ -239,8 +247,14 @@ button:focus-visible {
 
 .selection-preview-image[data-species-id="krabby"][data-selection-form="base"],
 .selection-preview-image[data-species-id="pikachu"] {
-    object-position: center center;
     transform: scale(0.92);
+}
+
+/* The Johto starter evolution renders (SELECTION_FORM_RENDER_BY_ID) are framed
+   with much more canvas padding than the rest of the featured-render set, so
+   they read small at the same object-fit:contain size — scale them up to match. */
+.selection-preview-image[data-equipped-form] {
+    transform: scale(1.35);
 }
 
 .selection-preview-shadow {
@@ -280,6 +294,20 @@ button:focus-visible {
     display: none;
 }
 
+.preview-identity-box {
+    min-width: 0;
+    height: 100%;
+    padding: 12px;
+    border-right: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.preview-identity-box h2 {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.2;
+    text-transform: uppercase;
+}
+
 .selection-form-button {
     min-height: 25px;
     padding: 4px 8px;
@@ -317,8 +345,18 @@ button:focus-visible {
     background: radial-gradient(ellipse, rgba(255, 255, 255, 0.16), rgba(181, 31, 57, 0.18) 38%, transparent 72%);
 }
 
-.preview-copy {
+.preview-skills-panel {
+    min-width: 0;
+    height: 100%;
     padding: 14px;
+    overflow-y: auto;
+    border-left: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.preview-overview {
+    height: 96px;
+    padding: 12px 14px;
+    overflow-y: auto;
     border-top: 1px solid rgba(255, 255, 255, 0.16);
 }
 
@@ -361,9 +399,29 @@ button:focus-visible {
     font-weight: 900;
 }
 
+.skill-classes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    width: 100%;
+    margin-top: 6px;
+}
+
+.skill-class-badge {
+    padding: 2px 6px;
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    border-radius: 999px;
+    color: var(--arena-muted);
+    background: rgba(255, 255, 255, 0.06);
+    font-size: 0.5rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
 .preview-passive {
-    min-height: 38px;
-    margin: 10px 0;
+    margin: 0;
     color: var(--arena-muted);
     font-size: 0.72rem;
     line-height: 1.35;
@@ -385,18 +443,30 @@ button:focus-visible {
 }
 
 .preview-skill {
-    display: grid;
-    grid-template-columns: 30px minmax(0, 1fr);
-    gap: 7px;
-    align-items: center;
+    position: relative;
+    aspect-ratio: 1;
     min-width: 0;
-    padding: 7px;
+    padding: 0;
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 5px;
     background: rgba(255, 255, 255, 0.035);
     color: inherit;
-    text-align: left;
     cursor: pointer;
+    overflow: hidden;
+}
+
+.preview-skill .skill-number {
+    /* Absolute + inset:0 fills the button reliably. A percentage width/height
+       here would resolve against .preview-skill's own grid track instead
+       (an indefinite implicit track, since .preview-skill has no explicit
+       grid-template-columns/rows), which CSS Grid treats as 'auto' and falls
+       back to the base 30px .skill-number size no matter how it's overridden. */
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    border-radius: 0;
 }
 
 .preview-skill:hover,
@@ -443,25 +513,16 @@ button:focus-visible {
 }
 
 .selection-skill-detail {
-    display: grid;
-    grid-template-columns: 48px minmax(0, 1fr);
-    gap: 10px;
-    margin-top: 10px;
-    padding: 10px;
+    height: 118px;
+    margin: 10px 14px 0;
+    padding: 10px 12px;
+    overflow-y: auto;
     border: 1px solid rgba(255, 113, 133, 0.45);
     border-radius: 6px;
     background: rgba(3, 9, 12, 0.72);
 }
 
-.selection-skill-detail > img {
-    width: 48px;
-    height: 48px;
-    border: 1px solid rgba(255, 255, 255, 0.55);
-    border-radius: 5px;
-    object-fit: cover;
-}
-
-.selection-skill-detail-copy > span {
+#selection-skill-detail-kind {
     color: #ff8090;
     font-size: 0.52rem;
     font-weight: 900;
@@ -469,27 +530,67 @@ button:focus-visible {
     text-transform: uppercase;
 }
 
-.selection-skill-detail h3 {
+.selection-skill-detail-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px 14px;
+}
+
+.selection-skill-detail-header h3 {
+    flex: 1 1 auto;
+    min-width: 0;
     margin: 2px 0 4px;
-    font-size: 0.78rem;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+}
+
+.selection-skill-detail-cost {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
 }
 
 .selection-skill-detail p {
-    margin: 0;
+    margin: 6px 0 0;
     color: #d9e0e3;
     font-size: 0.65rem;
     line-height: 1.45;
 }
 
-.selection-skill-detail small {
+.selection-skill-detail-footer {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
     align-items: center;
-    margin-top: 7px;
-    color: var(--arena-muted);
+    justify-content: space-between;
+    gap: 8px 14px;
+    margin-top: 8px;
+}
+
+.selection-skill-detail-classes {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 6px;
+}
+
+.selection-skill-detail-label {
+    color: #ff8090;
     font-size: 0.54rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
+    white-space: nowrap;
+}
+
+#selection-skill-detail-cooldown {
+    color: var(--arena-muted);
+    font-size: 0.6rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    white-space: nowrap;
 }
 
 .skill-number,
@@ -536,28 +637,6 @@ img.skill-art {
 .unit-skill.inspect-only:focus-visible {
     opacity: 1;
     transform: translateY(-1px);
-}
-
-.preview-skill strong,
-.preview-skill small {
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.preview-skill strong {
-    font-size: 0.7rem;
-}
-
-.preview-skill small {
-    display: flex;
-    gap: 6px;
-    align-items: center;
-    margin-top: 2px;
-    color: var(--arena-muted);
-    font-size: 0.56rem;
-    text-transform: uppercase;
 }
 
 .roster-console {
@@ -721,6 +800,23 @@ img.skill-art {
     height: 46px;
     object-fit: cover;
     border-radius: 3px;
+}
+
+.team-slot.empty {
+    border-style: dashed;
+    opacity: 0.7;
+}
+
+.team-slot-placeholder {
+    display: grid;
+    place-items: center;
+    width: 43px;
+    height: 46px;
+    border: 1px dashed rgba(255, 255, 255, 0.24);
+    border-radius: 3px;
+    color: var(--arena-muted);
+    font-size: 1.1rem;
+    font-weight: 900;
 }
 
 .team-slot-number {
@@ -897,6 +993,22 @@ img.skill-art {
     font-size: 1.15rem;
     text-transform: uppercase;
     text-shadow: 1px 2px #000;
+}
+
+.turn-timer {
+    margin-top: 2px;
+    color: #ff8090 !important;
+    font-weight: 900;
+}
+
+.turn-timer.turn-timer-low {
+    color: #ff4b5c !important;
+    animation: turn-timer-pulse 1s ease-in-out infinite;
+}
+
+@keyframes turn-timer-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.45; }
 }
 
 .hud-energy {
@@ -2162,22 +2274,12 @@ img.skill-art {
         grid-template-columns: 1fr;
     }
 
-    .selection-preview {
-        grid-template-columns: minmax(240px, 0.7fr) minmax(320px, 1fr);
-        grid-template-rows: auto;
-    }
-
-    .preview-art-stage {
-        min-height: 300px;
+    .preview-top {
+        height: 260px;
     }
 
     .selection-preview-image {
-        height: 275px;
-    }
-
-    .preview-copy {
-        border-top: 0;
-        border-left: 1px solid rgba(255, 255, 255, 0.16);
+        height: 220px;
     }
 
     .team-console {
@@ -2240,18 +2342,25 @@ img.skill-art {
         display: none;
     }
 
-    .selection-preview {
+    .preview-top {
         grid-template-columns: 1fr;
-        grid-template-rows: 230px auto;
+        height: auto;
+    }
+
+    .preview-identity-box {
+        height: auto;
+        padding: 10px 12px;
+        border-right: 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.16);
     }
 
     .preview-art-stage {
-        min-height: 230px;
+        height: 220px;
     }
 
     .selection-preview-image {
         width: min(74%, 270px);
-        height: 205px;
+        height: 195px;
     }
 
     .selection-preview-shadow {
@@ -2264,9 +2373,17 @@ img.skill-art {
         bottom: 7px;
     }
 
-    .preview-copy {
+    .preview-skills-panel {
+        height: 190px;
         border-top: 1px solid rgba(255, 255, 255, 0.16);
         border-left: 0;
+    }
+
+    /* At full card width, a 2-column grid makes each square icon (aspect-ratio:1
+       sized off its own column width) huge - 4 columns keeps every icon compact
+       and the 4 current skills on one row, so the panel fits without scrolling. */
+    .preview-skills {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
     }
 
     .roster-grid {

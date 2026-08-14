@@ -189,43 +189,54 @@ test('custom teams are authoritative, unique, and limited to ported roster entri
         () => service.create({ teams: { A: ['pikachu', 'zubat', 'missingno'], B: teams.B } }),
         (error) => error instanceof MatchServiceError && error.code === 'invalid_teams'
     );
+    // Roster grid order is by National Pokedex number, with Pokemon Trainer pinned first.
     assert.deepEqual(service.roster().characters.map((character) => character.id), [
         'pokemon-trainer',
+        'bulbasaur',
         'charmander',
         'squirtle',
-        'bulbasaur',
-        'pikachu',
         'butterfree',
-        'koffing',
-        'gastly',
+        'beedrill',
+        'pidgey',
+        'ekans',
+        'pikachu',
+        'clefairy',
+        'jigglypuff',
+        'zubat',
+        'meowth',
+        'primeape',
         'abra',
+        'machop',
+        'magnemite',
+        'gastly',
+        'onix',
         'krabby',
+        'hitmonlee',
+        'hitmonchan',
+        'koffing',
+        'chansey',
+        'mr-mime',
         'scyther',
+        'magikarp',
+        'ditto',
         'eevee',
+        'vaporeon',
         'jolteon',
         'flareon',
-        'vaporeon',
-        'ekans',
-        'machop',
-        'magikarp', 'mr-mime', 'hitmonchan', 'hitmonlee', 'aerodactyl', 'magnemite', 'onix', 'meowth', 'clefairy', 'jigglypuff', 'beedrill',
+        'aerodactyl',
         'articuno',
-        'moltres',
         'zapdos',
-        'zubat',
-        'chansey',
-        'pidgey',
-        'mew',
-        'mewtwo',
+        'moltres',
         'dragonite',
-        'cyndaquil',
+        'mewtwo',
+        'mew',
         'chikorita',
+        'cyndaquil',
         'totodile',
-        'aegislash',
-        'scraggy',
-        'dragapult',
-        'primeape',
-        'ditto',
         'nincada',
+        'scraggy',
+        'aegislash',
+        'dragapult',
     ]);
 });
 
@@ -416,4 +427,39 @@ test('file-backed solo matches retain bot ownership and resume automatic turns',
     const resolved = restarted.resolveTurn(created.matchId, created.token);
     assert.equal(resolved.revision, 2);
     assert.equal(resolved.state.currentPlayer, 'A');
+});
+
+test('a stalled team turn auto-resolves once the 60-second clock expires', () => {
+    let clock = 1_000_000;
+    const service = createMatchService({ now: () => clock });
+    const created = service.create({ seed: 9, opponent: 'bot' });
+    assert.equal(created.turnSecondsRemaining, 60);
+    assert.equal(created.turnTimeoutSeconds, 60);
+
+    clock += 30_000;
+    const midway = service.view(created.matchId, created.token);
+    assert.equal(midway.turnSecondsRemaining, 30);
+    assert.equal(midway.revision, created.revision, 'still well within budget, nothing auto-resolves');
+
+    clock += 30_000; // a full 60s elapsed with nothing queued
+    const timedOut = service.view(created.matchId, created.token);
+    assert.ok(timedOut.revision > created.revision, 'the stalled turn (and the bot reply after it) auto-resolved');
+    assert.equal(timedOut.pendingTurn.actions.length, 0);
+    assert.equal(timedOut.turnSecondsRemaining, 60, 'the clock restarts for the next team turn');
+});
+
+test('queueing actions does not reset the turn clock, but a queued action still resolves on timeout', () => {
+    let clock = 2_000_000;
+    const service = createMatchService({ now: () => clock });
+    const created = service.create({ seed: 11 });
+    const joined = service.join(created.matchId, created.inviteCode);
+    const legal = service.view(created.matchId, created.token).state.legalActions[0];
+
+    clock += 40_000;
+    const queued = service.queue(created.matchId, created.token, withSuggestedPayment(legal));
+    assert.equal(queued.turnSecondsRemaining, 20, 'queueing does not restart the 60s budget');
+
+    clock += 20_000; // a full 60s elapsed since the turn began
+    const timedOut = service.view(created.matchId, joined.token);
+    assert.equal(timedOut.state.currentPlayer, 'B', 'the queued action was submitted and the turn advanced');
 });

@@ -187,9 +187,11 @@ export const SKIN_CATALOG = [
         patch: { name: 'Charizard', pokemonTypes: ['Fire', 'Flying'] },
     },
     // Gen2 evolution skins: all missionRewardOnly (never directly purchasable),
-    // granted only by the starter-evolution missions this prototype hasn't
-    // built yet (see MISSION_PORT.md). Kept in the catalog for forward
-    // compatibility — they're presently unreachable, not broken.
+    // granted by the starter-evolution missions in mission-catalog.mjs
+    // (cyndaquil-evolve-quilava, etc). patch.form selects the matching entry
+    // in the character's ROSTER forms{} map (see roster.mjs), which swaps in
+    // a real replacement skill (not just cosmetic renaming) — applied at
+    // match-creation time via match-service.mjs's formOverrides plumbing.
     {
         skinId: 'cyndaquil-quilava-evolution',
         characterId: 'cyndaquil',
@@ -197,7 +199,7 @@ export const SKIN_CATALOG = [
         description: 'Cyndaquil permanently evolves into Quilava after 16 ranked wins.',
         unlockPointCost: 0,
         missionRewardOnly: true,
-        patch: { name: 'Quilava' },
+        patch: { name: 'Quilava', form: 'quilava' },
     },
     {
         skinId: 'cyndaquil-typhlosion-evolution',
@@ -206,7 +208,7 @@ export const SKIN_CATALOG = [
         description: 'Quilava permanently evolves into Typhlosion after 36 more ranked wins.',
         unlockPointCost: 0,
         missionRewardOnly: true,
-        patch: { name: 'Typhlosion' },
+        patch: { name: 'Typhlosion', form: 'typhlosion' },
     },
     {
         skinId: 'chikorita-bayleaf-evolution',
@@ -215,7 +217,7 @@ export const SKIN_CATALOG = [
         description: 'Chikorita permanently evolves into Bayleaf after 16 ranked wins.',
         unlockPointCost: 0,
         missionRewardOnly: true,
-        patch: { name: 'Bayleaf' },
+        patch: { name: 'Bayleaf', form: 'bayleaf' },
     },
     {
         skinId: 'chikorita-meganium-evolution',
@@ -224,7 +226,7 @@ export const SKIN_CATALOG = [
         description: 'Bayleaf permanently evolves into Meganium after 36 more ranked wins.',
         unlockPointCost: 0,
         missionRewardOnly: true,
-        patch: { name: 'Meganium' },
+        patch: { name: 'Meganium', form: 'meganium' },
     },
     {
         skinId: 'totodile-croconaw-evolution',
@@ -233,7 +235,7 @@ export const SKIN_CATALOG = [
         description: 'Totodile permanently evolves into Croconaw after 16 ranked wins.',
         unlockPointCost: 0,
         missionRewardOnly: true,
-        patch: { name: 'Croconaw' },
+        patch: { name: 'Croconaw', form: 'croconaw' },
     },
     {
         skinId: 'totodile-feraligatr-evolution',
@@ -242,7 +244,7 @@ export const SKIN_CATALOG = [
         description: 'Croconaw permanently evolves into Feraligatr after 36 more ranked wins.',
         unlockPointCost: 0,
         missionRewardOnly: true,
-        patch: { name: 'Feraligatr' },
+        patch: { name: 'Feraligatr', form: 'feraligatr' },
     },
     // Production gates direct purchase behind a live release-event window
     // (purchaseAvailableAt); no event-window mechanic exists here yet, so this
@@ -322,4 +324,15 @@ export function normalizeSkinState(state, catalog = SKIN_CATALOG) {
 export function resolveSkinTypeOverride(skinId) {
     const override = SKIN_TYPE_OVERRIDES[normalizeSkinId(skinId)];
     return Array.isArray(override) ? [...override] : null;
+}
+
+// Unlike SKIN_TYPE_OVERRIDES (still inert data, not yet wired into the battle
+// engine), form overrides ARE wired in: match-service.mjs's create() resolves
+// each equipped skin's patch.form and passes it to engine.mjs's createGame as
+// formOverrides, which selects that entry in the character's ROSTER forms{}
+// map — swapping in a real replacement skill, not just a cosmetic rename.
+export function resolveSkinFormOverride(skinId) {
+    const entry = getSkinCatalogById().get(normalizeSkinId(skinId));
+    const form = entry?.patch?.form;
+    return typeof form === 'string' && form ? form : null;
 }

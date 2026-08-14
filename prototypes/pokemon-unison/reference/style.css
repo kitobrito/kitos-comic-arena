@@ -201,15 +201,21 @@ button:focus-visible {
 }
 
 .selection-preview {
+    display: flex;
+    flex-direction: column;
+}
+
+.preview-top {
     display: grid;
-    grid-template-rows: minmax(250px, 0.9fr) auto;
+    grid-template-columns: minmax(200px, 260px) minmax(200px, 1fr);
+    height: 260px;
 }
 
 .preview-art-stage {
     position: relative;
     display: grid;
     place-items: center;
-    min-height: 250px;
+    height: 100%;
     overflow: hidden;
     background:
         radial-gradient(circle at 50% 46%, rgba(239, 64, 93, 0.26), transparent 34%),
@@ -256,9 +262,45 @@ button:focus-visible {
     background: radial-gradient(ellipse, rgba(255, 255, 255, 0.16), rgba(181, 31, 57, 0.18) 38%, transparent 72%);
 }
 
-.preview-copy {
+.preview-identity {
+    position: absolute;
+    z-index: 4;
+    left: 12px;
+    bottom: 10px;
+    max-width: 62%;
+    padding: 6px 9px;
+    border-radius: 5px;
+    background: rgba(3, 9, 12, 0.6);
+}
+
+.preview-identity h2 {
+    margin: 0;
+    font-size: 1rem;
+    text-transform: uppercase;
+}
+
+.preview-skills-panel {
+    min-width: 0;
+    height: 100%;
     padding: 14px;
+    overflow-y: auto;
+    border-left: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.preview-overview {
+    height: 90px;
+    padding: 12px 14px;
+    overflow-y: auto;
     border-top: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.selection-skill-detail {
+    height: 110px;
+    margin: 10px 14px 0;
+    padding: 10px;
+    overflow-y: auto;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 6px;
 }
 
 .preview-title-row,
@@ -300,9 +342,29 @@ button:focus-visible {
     font-weight: 900;
 }
 
+.skill-classes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    width: 100%;
+    margin-top: 6px;
+}
+
+.skill-class-badge {
+    padding: 2px 6px;
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    border-radius: 999px;
+    color: var(--arena-muted);
+    background: rgba(255, 255, 255, 0.06);
+    font-size: 0.5rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
 .preview-passive {
-    min-height: 38px;
-    margin: 10px 0;
+    margin: 0;
     color: var(--arena-muted);
     font-size: 0.72rem;
     line-height: 1.35;
@@ -520,6 +582,23 @@ button:focus-visible {
     height: 46px;
     object-fit: cover;
     border-radius: 3px;
+}
+
+.team-slot.empty {
+    border-style: dashed;
+    opacity: 0.7;
+}
+
+.team-slot-placeholder {
+    display: grid;
+    place-items: center;
+    width: 43px;
+    height: 46px;
+    border: 1px dashed rgba(255, 255, 255, 0.24);
+    border-radius: 3px;
+    color: var(--arena-muted);
+    font-size: 1.1rem;
+    font-weight: 900;
 }
 
 .team-slot-number {
@@ -964,6 +1043,22 @@ button:focus-visible {
     font-size: 1.15rem;
     text-transform: uppercase;
     text-shadow: 1px 2px #000;
+}
+
+.turn-timer {
+    margin-top: 2px;
+    color: #ff8090 !important;
+    font-weight: 900;
+}
+
+.turn-timer.turn-timer-low {
+    color: #ff4b5c !important;
+    animation: turn-timer-pulse 1s ease-in-out infinite;
+}
+
+@keyframes turn-timer-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.45; }
 }
 
 .hud-energy {
@@ -1535,14 +1630,12 @@ button:focus-visible {
         grid-template-columns: 1fr;
     }
 
-    .selection-preview {
-        grid-template-columns: minmax(240px, 0.7fr) minmax(320px, 1fr);
-        grid-template-rows: auto;
+    .preview-top {
+        height: 230px;
     }
 
-    .preview-copy {
-        border-top: 0;
-        border-left: 1px solid rgba(255, 255, 255, 0.16);
+    .selection-preview-image {
+        height: 190px;
     }
 
     .team-console {
@@ -1610,20 +1703,21 @@ button:focus-visible {
         display: none;
     }
 
-    .selection-preview {
+    .preview-top {
         grid-template-columns: 1fr;
-        grid-template-rows: 190px auto;
+        height: auto;
     }
 
     .preview-art-stage {
-        min-height: 190px;
+        height: 190px;
     }
 
     .selection-preview-image {
         height: 165px;
     }
 
-    .preview-copy {
+    .preview-skills-panel {
+        height: 170px;
         border-top: 1px solid rgba(255, 255, 255, 0.16);
         border-left: 0;
     }

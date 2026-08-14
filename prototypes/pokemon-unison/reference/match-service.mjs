@@ -17,6 +17,12 @@ import { DEFAULT_TEAMS, ROSTER_CATALOG, validateMatchTeams } from './roster.mjs'
 
 const clone = (value) => JSON.parse(JSON.stringify(value));
 
+// Server-authoritative per-team-turn clock. Applies once both seats are
+// filled (real opponent or bot) and resets whenever a team turn actually
+// resolves - queueing/undoing individual actions does not reset it, since
+// the budget is for submitting the whole team's turn, not each action.
+export const TURN_TIMEOUT_MS = 60_000;
+
 export class MatchServiceError extends Error {
     constructor(status, code, message) {
         super(message);
@@ -65,7 +71,7 @@ function authenticate(match, token) {
     return player;
 }
 
-function publicMatch(match, player) {
+function publicMatch(match, player, now) {
     const state = viewerState(match.game, player);
     const ownsPendingTurn = player === match.game.currentPlayer;
     state.legalActions = match.joined.B && ownsPendingTurn
@@ -73,6 +79,9 @@ function publicMatch(match, player) {
         : [];
     state.availableEnergy = ownsPendingTurn
         ? remainingQueuedEnergy(match.game, match.pendingActions) ?? clone(state.energy[player])
+        : null;
+    const turnSecondsRemaining = match.joined.B && !match.game.winner && Number.isFinite(match.turnStartedAt)
+        ? Math.max(0, Math.ceil((TURN_TIMEOUT_MS - (now() - match.turnStartedAt)) / 1000))
         : null;
     return {
         matchId: match.id,
@@ -82,6 +91,8 @@ function publicMatch(match, player) {
         mode: match.botPlayer ? 'solo' : 'private',
         opponent: match.botPlayer ? { type: 'bot', player: match.botPlayer, name: 'Training Bot' } : { type: 'human' },
         waitingForOpponent: !match.joined.B,
+        turnSecondsRemaining,
+        turnTimeoutSeconds: TURN_TIMEOUT_MS / 1000,
         pendingTurn: {
             actions: ownsPendingTurn ? clone(match.pendingActions) : [],
             hidden: !ownsPendingTurn,
@@ -121,7 +132,7 @@ export function planDeterministicBotTurn(game) {
     return queuedActions;
 }
 
-export function createMatchService({ storage = createMemoryMatchStorage(), onMatchComplete } = {}) {
+export function createMatchService({ storage = createMemoryMatchStorage(), onMatchComplete, now = () => Date.now() } = {}) {
     const matches = new Map();
     storage.loadAll().filter(validStoredMatch).forEach((match) => {
         match.pendingActions = Array.isArray(match.pendingActions) ? match.pendingActions : [];
@@ -170,8 +181,39 @@ export function createMatchService({ storage = createMemoryMatchStorage(), onMat
         match.revision += 1;
     }
 
+    function requireLiveMatch(matchId) {
+        const match = requireMatch(matches, matchId);
+        enforceTurnTimeout(match);
+        return match;
+    }
+
+    // Lazily enforced on every match access (there is no background timer):
+    // if the current team's 60-second turn budget has elapsed, whatever they
+    // already queued is submitted automatically - unqueued Pokemon simply do
+    // nothing that turn - so a slow or absent player can never stall the match.
+    function enforceTurnTimeout(match) {
+        if (match.game.winner || !match.joined.B || !Number.isFinite(match.turnStartedAt)) return;
+        if (now() - match.turnStartedAt < TURN_TIMEOUT_MS) return;
+        let result = resolveQueuedTurn(match.game, match.pendingActions);
+        if (!result.ok) {
+            // The queued plan went stale (e.g. a target died to a status
+            // tick) - fall back to an empty turn so the clock can never
+            // get the match stuck.
+            result = resolveQueuedTurn(match.game, []);
+            if (!result.ok) return;
+        }
+        match.game = result.state;
+        match.pendingActions = [];
+        match.queueRevision = 0;
+        match.revision += 1;
+        resolveBotTurn(match);
+        match.turnStartedAt = now();
+        checkCompletion(match);
+        persist(match);
+    }
+
     return {
-        create({ seed, teams, startingPlayer, opponent = 'human', playerId = null } = {}) {
+        create({ seed, teams, startingPlayer, opponent = 'human', playerId = null, formOverrides } = {}) {
             if (!['human', 'bot'].includes(opponent)) {
                 throw new MatchServiceError(400, 'invalid_opponent', 'Opponent must be human or bot.');
             }
@@ -182,7 +224,7 @@ export function createMatchService({ storage = createMemoryMatchStorage(), onMat
             const id = randomUUID();
             const token = makeSecret();
             const inviteCode = botPlayer ? null : makeSecret(12);
-            const game = createGame({ seed, teams: selectedTeams, startingPlayer, economyMode: 'arena' });
+            const game = createGame({ seed, teams: selectedTeams, startingPlayer, economyMode: 'arena', formOverrides });
             const match = {
                 id,
                 revision: 0,
@@ -200,10 +242,11 @@ export function createMatchService({ storage = createMemoryMatchStorage(), onMat
             };
             matches.set(id, match);
             resolveBotTurn(match);
+            match.turnStartedAt = now();
             checkCompletion(match);
             persist(match);
             return {
-                ...publicMatch(match, 'A'),
+                ...publicMatch(match, 'A', now),
                 token,
                 ...(inviteCode ? { inviteCode } : {}),
             };
@@ -233,22 +276,25 @@ export function createMatchService({ storage = createMemoryMatchStorage(), onMat
             match.joined.B = true;
             match.tokenDigests.B = digestSecret(token);
             match.playerIds.B = playerId || null;
+            // The turn clock only matters once both seats are filled, so it
+            // starts fresh the moment the match actually becomes playable.
+            match.turnStartedAt = now();
             checkCompletion(match);
             persist(match);
             return {
-                ...publicMatch(match, 'B'),
+                ...publicMatch(match, 'B', now),
                 token,
             };
         },
 
         view(matchId, token) {
-            const match = requireMatch(matches, matchId);
+            const match = requireLiveMatch(matchId);
             const player = authenticate(match, token);
-            return publicMatch(match, player);
+            return publicMatch(match, player, now);
         },
 
         act(matchId, token, input) {
-            const match = requireMatch(matches, matchId);
+            const match = requireLiveMatch(matchId);
             const player = authenticate(match, token);
             if (!match.joined.B) {
                 throw new MatchServiceError(409, 'waiting_for_opponent', 'The opponent has not joined yet.');
@@ -275,13 +321,14 @@ export function createMatchService({ storage = createMemoryMatchStorage(), onMat
             match.game = result.state;
             match.revision += 1;
             resolveBotTurn(match);
+            match.turnStartedAt = now();
             checkCompletion(match);
             persist(match);
-            return publicMatch(match, player);
+            return publicMatch(match, player, now);
         },
 
         queue(matchId, token, input) {
-            const match = requireMatch(matches, matchId);
+            const match = requireLiveMatch(matchId);
             const player = authenticate(match, token);
             if (!match.joined.B) {
                 throw new MatchServiceError(409, 'waiting_for_opponent', 'The opponent has not joined yet.');
@@ -302,11 +349,11 @@ export function createMatchService({ storage = createMemoryMatchStorage(), onMat
             match.pendingActions.push(action);
             match.queueRevision += 1;
             persist(match);
-            return publicMatch(match, player);
+            return publicMatch(match, player, now);
         },
 
         undoQueued(matchId, token) {
-            const match = requireMatch(matches, matchId);
+            const match = requireLiveMatch(matchId);
             const player = authenticate(match, token);
             if (player !== match.game.currentPlayer) {
                 throw new MatchServiceError(409, 'not_your_turn', `It is ${match.game.currentPlayer}'s turn.`);
@@ -317,11 +364,11 @@ export function createMatchService({ storage = createMemoryMatchStorage(), onMat
             match.pendingActions.pop();
             match.queueRevision += 1;
             persist(match);
-            return publicMatch(match, player);
+            return publicMatch(match, player, now);
         },
 
         resolveTurn(matchId, token) {
-            const match = requireMatch(matches, matchId);
+            const match = requireLiveMatch(matchId);
             const player = authenticate(match, token);
             if (!match.joined.B) {
                 throw new MatchServiceError(409, 'waiting_for_opponent', 'The opponent has not joined yet.');
@@ -338,13 +385,14 @@ export function createMatchService({ storage = createMemoryMatchStorage(), onMat
             match.queueRevision = 0;
             match.revision += 1;
             resolveBotTurn(match);
+            match.turnStartedAt = now();
             checkCompletion(match);
             persist(match);
-            return publicMatch(match, player);
+            return publicMatch(match, player, now);
         },
 
         surrender(matchId, token) {
-            const match = requireMatch(matches, matchId);
+            const match = requireLiveMatch(matchId);
             const player = authenticate(match, token);
             if (!match.game.winner) {
                 const winner = player === 'A' ? 'B' : 'A';
@@ -362,7 +410,7 @@ export function createMatchService({ storage = createMemoryMatchStorage(), onMat
                 checkCompletion(match);
                 persist(match);
             }
-            return publicMatch(match, player);
+            return publicMatch(match, player, now);
         },
 
         replay(matchId, token) {

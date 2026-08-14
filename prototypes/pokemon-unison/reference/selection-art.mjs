@@ -71,8 +71,33 @@ export const SELECTION_EVOLUTION_RENDER_BY_ID = Object.freeze({
     scraggy: { name: 'Scrafty', filename: 'scrafty.png.webp' },
 });
 
+// Johto starters have TWO mission-evolved forms each (not the single
+// base/evolution toggle above), so their featured renders are keyed by the
+// exact ROSTER forms{} id rather than a fixed 'evolution' slot. Which form is
+// active is resolved elsewhere (app.mjs's equippedFormFor, from the player's
+// equipped mission-reward skin), not by a manual toggle.
+export const SELECTION_FORM_RENDER_BY_ID = Object.freeze({
+    cyndaquil: {
+        quilava: 'quilava.png.webp',
+        typhlosion: 'typhlosion.png.webp',
+    },
+    totodile: {
+        croconaw: 'croconaw.webp.webp',
+        feraligatr: 'ferliagatr.png.webp',
+    },
+    chikorita: {
+        bayleaf: 'bayleaf.png.webp',
+        meganium: 'meganium.png.webp',
+    },
+});
+
 export function selectionRenderUrl(filename = '') {
     return filename ? encodeURI(`${renderRoot}${filename}`) : '';
+}
+
+export function selectionFormRenderUrl(speciesId, formId) {
+    const filename = SELECTION_FORM_RENDER_BY_ID[speciesId]?.[formId];
+    return filename ? selectionRenderUrl(filename) : '';
 }
 
 export function selectionRenderForms(speciesId, baseName = '') {

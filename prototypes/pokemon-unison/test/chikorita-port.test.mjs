@@ -33,12 +33,49 @@ function matchup({ seed = 1 } = {}) {
     });
 }
 
-test('Chikorita exposes exactly four active skills and its passive is not a castable skill', () => {
-    assert.equal(ROSTER.chikorita.skills.length, 4);
+test('Chikorita exposes exactly four active skills per form (six total across base/Bayleaf/Meganium) and its passive is not a castable skill', () => {
+    assert.equal(ROSTER.chikorita.skills.length, 6);
     assert.deepEqual(ROSTER.chikorita.forms.base.skillIds, [
         'chikorita-aerial-razor-leaf', 'chikorita-light-screen',
         'chikorita-chikorita-solar-beam', 'chikorita-vine-defense',
     ]);
+    assert.deepEqual(ROSTER.chikorita.forms.bayleaf.skillIds, [
+        'chikorita-bayleaf-magical-leaf', 'chikorita-light-screen',
+        'chikorita-chikorita-solar-beam', 'chikorita-vine-defense',
+    ]);
+    assert.deepEqual(ROSTER.chikorita.forms.meganium.skillIds, [
+        'chikorita-meganium-magical-leaf', 'chikorita-light-screen',
+        'chikorita-chikorita-solar-beam', 'chikorita-vine-defense',
+    ]);
+});
+
+test('Bayleaf Magical Leaf splits its damage and stacks a temporary outgoing-damage debuff', () => {
+    let game = matchup({ seed: 6 });
+    game.teams.A[0].form = 'bayleaf';
+    game.teams.B.forEach((unit) => { unit.hp = 100; });
+    game = step(game, action('A', 0, 'chikorita-bayleaf-magical-leaf', 'B', 0));
+
+    // Pidgey and Zubat are both part-Flying, which resists Grass (a flat reduction,
+    // not a multiplier, per the production type table), so they take less than the
+    // raw 30/15; Chansey (pure Normal) takes the full, unreduced 15 splash.
+    assert.deepEqual(game.teams.B.map((unit) => unit.hp), [75, 95, 85]);
+    const mainDebuff = game.teams.B[0].statuses.find((status) => status.id === 'chikorita-magical-leaf-debuff');
+    const splashDebuff = game.teams.B[1].statuses.find((status) => status.id === 'chikorita-magical-leaf-debuff');
+    assert.equal(mainDebuff?.outgoingDamageDebuff, 15);
+    assert.equal(splashDebuff?.outgoingDamageDebuff, 10);
+});
+
+test('Meganium Magical Leaf splits its damage and stacks a larger temporary outgoing-damage debuff', () => {
+    let game = matchup({ seed: 6 });
+    game.teams.A[0].form = 'meganium';
+    game.teams.B.forEach((unit) => { unit.hp = 100; });
+    game = step(game, action('A', 0, 'chikorita-meganium-magical-leaf', 'B', 0));
+
+    assert.deepEqual(game.teams.B.map((unit) => unit.hp), [70, 85, 75]);
+    const mainDebuff = game.teams.B[0].statuses.find((status) => status.id === 'chikorita-magical-leaf-debuff');
+    const splashDebuff = game.teams.B[1].statuses.find((status) => status.id === 'chikorita-magical-leaf-debuff');
+    assert.equal(mainDebuff?.outgoingDamageDebuff, 20);
+    assert.equal(splashDebuff?.outgoingDamageDebuff, 15);
 });
 
 test('Sweet Scent applies a -5 aura to every enemy at game start and cycles Physical/Special/Affliction each turn', () => {

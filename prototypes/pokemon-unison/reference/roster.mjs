@@ -3378,9 +3378,9 @@ const articunoSkills = [
     skill({
         id: 'articuno-blizzard', name: 'Blizzard',
         description: 'Deals 15 damage to all enemies and paralyzes their cooldowns for 1 turn.',
-        forceDescription: "Deals 10 damage to all enemies. The next harmful skill each of them uses is delayed 1 turn before it activates. Summons Hail for 4 turns: Ice and Water Pokemon take no damage, everyone else takes 3 each turn. Ice skills besides Blizzard deal +5 damage and cannot be evaded, Fire skills deal -5 damage, Grass and Bug skills cost 1 more Random energy. Hail cannot be refreshed while already active.",
+        forceDescription: "Deals 10 damage to all enemies. The next harmful skill each of them uses is delayed 1 turn before it activates. Summons a Snowstorm for 4 turns: Ice and Water Pokemon take no damage, everyone else takes 3 each turn. Water skills become Ice-typed and deal piercing damage. Ice skills besides Blizzard deal +5 damage and cannot be evaded, Fire skills deal -5 damage, Grass and Bug skills cost 1 more Random energy. Snowstorm cannot be refreshed while already active.",
         target: 'all-enemy', energy: [Energy.NINJUTSU], cooldown: 2,
-        moveType: Type.ICE, classes: ['Ice', 'Special', 'Instant'],
+        moveType: Type.ICE, classes: ['Weather', 'Ice', 'Special', 'Instant'],
         effects: [
             { kind: 'damage', scope: 'all-enemy', amount: 10, damageKind: 'normal' },
             { kind: 'status', scope: 'all-enemy', status: {
@@ -3390,7 +3390,7 @@ const articunoSkills = [
                 delayNextHarmfulSkillActivation: true,
             } },
             { kind: 'set-weather', scope: 'self', weather: {
-                key: 'hail', name: 'Hail',
+                key: 'snowstorm', name: 'Snowstorm',
                 description: 'Ice and Water Pokemon take no damage; everyone else takes 3 each turn. Water skills become Ice-typed and deal piercing damage. Ice skills deal +5 damage (Blizzard excluded) and cannot be evaded. Fire skills deal -5 damage. Grass and Bug skills cost 1 more Random energy.',
                 rounds: 4,
                 blockRefreshIfActive: true,
@@ -3405,12 +3405,12 @@ const articunoSkills = [
     }),
     skill({
         id: 'articuno-ice-beam', name: 'Ice Beam',
-        description: 'Deals 15 affliction damage and has a 50% chance to stun Special skills for 1 turn.',
+        description: 'Deals 15 affliction damage and has a 50% chance to stun Special skills for 1 turn. Always stuns during a Snowstorm.',
         target: 'single-enemy', energy: [Energy.NINJUTSU], cooldown: 0,
         moveType: Type.ICE, classes: ['Ice', 'Special', 'Affliction', 'Instant'],
         effects: [
             { kind: 'damage', amount: 15, damageKind: 'affliction' },
-            { kind: 'status', chance: 50, status: {
+            { kind: 'status', chance: 50, chanceCertainDuringWeatherKey: 'snowstorm', status: {
                 id: 'articuno-ice-beam-stun', name: 'Ice Beam',
                 description: 'Special skills are stunned for 1 turn.',
                 hidden: false, harmful: true, durationActions: 1, durationAnchor: 'target',
@@ -3422,7 +3422,7 @@ const articunoSkills = [
         id: 'articuno-sheer-cold', name: 'Sheer Cold',
         description: 'Casts Blizzard then Ice Beam on the enemy team and permanently gains 5 damage each use.',
         target: 'all-enemy', energy: [Energy.NINJUTSU, Energy.NINJUTSU, Energy.RANDOM], cooldown: 2,
-        moveType: Type.ICE, classes: ['Ice', 'Special', 'Affliction', 'Instant'],
+        moveType: Type.ICE, classes: ['Weather', 'Ice', 'Special', 'Affliction', 'Instant'],
         effects: [
             {
                 kind: 'damage', scope: 'all-enemy', amount: 30, damageKind: 'affliction',
@@ -3437,14 +3437,14 @@ const articunoSkills = [
                 hidden: false, harmful: true, durationActions: 1, durationAnchor: 'target',
                 delayNextHarmfulSkillActivation: true,
             } },
-            { kind: 'status', scope: 'all-enemy', chance: 50, status: {
+            { kind: 'status', scope: 'all-enemy', chance: 50, chanceCertainDuringWeatherKey: 'snowstorm', status: {
                 id: 'articuno-ice-beam-stun', name: 'Ice Beam',
                 description: 'Special skills are stunned for 1 turn.',
                 hidden: false, harmful: true, durationActions: 1, durationAnchor: 'target',
                 cannotUseSkillClasses: ['Special'],
             } },
             { kind: 'set-weather', scope: 'self', weather: {
-                key: 'hail', name: 'Hail',
+                key: 'snowstorm', name: 'Snowstorm',
                 description: 'Ice and Water Pokemon take no damage; everyone else takes 3 each turn. Water skills become Ice-typed and deal piercing damage. Ice skills deal +5 damage (Blizzard excluded) and cannot be evaded. Fire skills deal -5 damage. Grass and Bug skills cost 1 more Random energy.',
                 rounds: 4,
                 blockRefreshIfActive: true,
@@ -3508,7 +3508,7 @@ const moltresSkills = [
         description: 'For 2 turns, enemies take 3 additional affliction damage. Moltres gains 1 Heat.',
         forceDescription: 'Summons Sunny Day for 4 turns: Fire skills +5 damage, Water skills -5 damage, Grass skills cost 1 less Random energy, Electric skills cost 1 more Random energy. While it lasts, Moltres gains 1 additional Heat from her skills. Gains 1 Heat.',
         target: 'self', energy: [Energy.BLOODLINE], cooldown: 4,
-        moveType: Type.FIRE, classes: ['Fire', 'Special', 'Instant'], harmful: false,
+        moveType: Type.FIRE, classes: ['Weather', 'Fire', 'Special', 'Instant'], harmful: false,
         effects: [
             { kind: 'set-weather', scope: 'self', weather: {
                 key: 'sunny-day', name: 'Sunny Day',
@@ -3580,7 +3580,7 @@ const moltresSkills = [
         id: 'moltres-heat', name: 'Passive: Heat',
         description: 'Moltres stores up to 3 Heat from its skills. Overheat consumes every stored Heat.',
         target: 'passive', energy: [], cooldown: 0,
-        moveType: Type.FIRE, classes: ['Fire', 'Passive', 'Instant'], harmful: false,
+        moveType: Type.FIRE, classes: ['Passive', 'Fire', 'Instant'], harmful: false,
         effects: [],
     }),
 ];
@@ -3610,7 +3610,7 @@ const zapdosSkills = [
         description: "Summons Thunderstorm for 4 turns: harmful enemy skills targeting Zapdos' team trigger 5 piercing damage and +1 cooldown, Electric skills besides Thunderstorm itself deal +5 damage, and each turn a random non-Electric, non-Ground Pokemon from either team takes 10 piercing damage and has its cooldowns paralyzed for 1 turn. Recast detonates for 15 piercing team damage, paralyzes cooldowns, and ends the weather.",
         image: skillArt('zapdos-thunderbolt'),
         target: 'self', energy: [Energy.GENJUTSU], cooldown: 0,
-        moveType: Type.ELECTRIC, classes: ['Electric', 'Special', 'Instant', 'Bypassing'], harmful: false,
+        moveType: Type.ELECTRIC, classes: ['Weather', 'Electric', 'Special', 'Instant', 'Bypassing'], harmful: false,
         effects: [
             { kind: 'source-status', unlessInitialActorStatus: 'zapdos-thunderstorm-active', status: {
                 id: 'zapdos-thunderstorm-active', name: 'Thunderstorm',
@@ -5110,18 +5110,25 @@ export const ROSTER = Object.freeze({
     cyndaquil: {
         id: 'cyndaquil', name: 'Cyndaquil', types: [Type.FIRE],
         facePicture: '/game-assets/images/PokemonArena/Cyndaquil/FP.webp',
-        passiveDescription: 'Each new skill Cyndaquil uses permanently adds 5 damage to Aerial Flamethrower and Warming Up.',
+        passiveDescription: 'Each new skill Cyndaquil uses permanently adds 5 damage an enemy takes when it attacks Cyndaquil (Warming Up).',
         startStatuses: [{
             id: 'cyndaquil-warming-up-passive', name: 'Warming Up',
-            description: 'Using a skill permanently adds 5 damage to Aerial Flamethrower and Warming Up.',
+            description: 'Using a skill permanently adds 5 damage an attacking enemy takes when it hits Cyndaquil.',
             hidden: true, harmful: false, durationActions: null, unremovable: true,
             sourceSkillId: 'cyndaquil-warming-up',
-            skillDamageBonuses: { 'cyndaquil-aerial-flamethrower': 0, 'cyndaquil-warming-up': 0 },
+            warmingUpStacks: 0,
+            teamHarmfulSkillTrap: {
+                selfOnly: true,
+                damageKind: 'piercing',
+                moveType: Type.FIRE,
+                skillClasses: ['Fire'],
+                damageOverrideFromOwnerStatus: { statusId: 'cyndaquil-warming-up-passive', field: 'warmingUpStacks' },
+            },
             onUseSkill: {
                 applyStatusesToOwner: [{
                     id: 'cyndaquil-warming-up-passive', durationActions: null,
-                    skillDamageBonuses: { 'cyndaquil-aerial-flamethrower': 5, 'cyndaquil-warming-up': 5 },
-                    mergeMapFields: ['skillDamageBonuses'],
+                    warmingUpStacks: 5,
+                    mergeNumericFields: ['warmingUpStacks'],
                 }],
             },
         }],
@@ -5131,6 +5138,22 @@ export const ROSTER = Object.freeze({
                 facePicture: '/game-assets/images/PokemonArena/Cyndaquil/FP.webp',
                 skillIds: [
                     'cyndaquil-aerial-tackle', 'cyndaquil-aerial-flamethrower',
+                    'cyndaquil-cynda-smokescreen', 'cyndaquil-skyward-leap',
+                ],
+            },
+            quilava: {
+                id: 'quilava', name: 'Quilava', types: [Type.FIRE],
+                facePicture: '/game-assets/images/PokemonArena/Cyndaquil/quilavafp.png',
+                skillIds: [
+                    'cyndaquil-aerial-tackle', 'cyndaquil-quilava-flame-wheel',
+                    'cyndaquil-cynda-smokescreen', 'cyndaquil-skyward-leap',
+                ],
+            },
+            typhlosion: {
+                id: 'typhlosion', name: 'Typhlosion', types: [Type.FIRE],
+                facePicture: '/game-assets/images/PokemonArena/Cyndaquil/typlosionfp.png',
+                skillIds: [
+                    'cyndaquil-aerial-tackle', 'cyndaquil-typhlosion-flame-wheel',
                     'cyndaquil-cynda-smokescreen', 'cyndaquil-skyward-leap',
                 ],
             },
@@ -5148,17 +5171,63 @@ export const ROSTER = Object.freeze({
             }),
             skill({
                 id: 'cyndaquil-aerial-flamethrower', name: 'Aerial Flamethrower',
-                description: 'Deals 5 affliction damage to all enemies. Enemies affected by Cynda-Smokescreen take 5 additional affliction damage next turn.',
+                description: 'Deals 10 affliction damage to all enemies. Enemies affected by Cynda-Smokescreen take 5 additional affliction damage next turn.',
                 target: 'all-enemy', energy: [Energy.BLOODLINE], cooldown: 1,
                 moveType: Type.FIRE, classes: ['Fire', 'Special', 'Affliction', 'Instant'],
                 effects: [
-                    { kind: 'damage', scope: 'all-enemy', amount: 5, damageKind: 'affliction' },
+                    { kind: 'damage', scope: 'all-enemy', amount: 10, damageKind: 'affliction' },
                     { kind: 'status', scope: 'all-enemy', requiresTargetStatus: 'cyndaquil-smokescreen-active', status: {
                         id: 'cyndaquil-flamethrower-afterburn', name: 'Flamethrower Afterburn', hidden: false, harmful: true,
                         durationActions: 1, durationAnchor: 'target',
                         turnStartAnchor: 'target', turnStartDamage: 5, turnStartDamageKind: 'affliction',
                         turnStartSkillClasses: ['Fire', 'Special', 'Affliction', 'Instant'],
                         sourceSkillId: 'cyndaquil-aerial-flamethrower',
+                    } },
+                ],
+            }),
+            skill({
+                id: 'cyndaquil-quilava-flame-wheel', name: 'Quilava Flame Wheel',
+                description: 'Deals 20 affliction damage to one enemy and 5 affliction damage to the other enemies. For 1 turn, Quilava gains 10 unpierceable damage reduction and ignores enemy stun effects. Enemies affected by Cynda-Smokescreen take 5 additional damage next turn.',
+                target: 'single-enemy', energy: [Energy.BLOODLINE], cooldown: 1,
+                moveType: Type.FIRE, classes: ['Fire', 'Special', 'Affliction', 'Instant'],
+                effects: [
+                    { kind: 'damage', amount: 20, damageKind: 'affliction' },
+                    { kind: 'damage', scope: 'other-enemies', amount: 5, damageKind: 'affliction' },
+                    { kind: 'status', scope: 'self', status: {
+                        id: 'cyndaquil-flame-wheel-active', name: 'Flame Wheel', hidden: false, harmful: false,
+                        durationActions: 1,
+                        unpierceableDamageReductionFlat: 10,
+                        ignoreEnemyStuns: true,
+                    } },
+                    { kind: 'status', scope: 'all-enemy', requiresTargetStatus: 'cyndaquil-smokescreen-active', status: {
+                        id: 'cyndaquil-flamethrower-afterburn', name: 'Flamethrower Afterburn', hidden: false, harmful: true,
+                        durationActions: 1, durationAnchor: 'target',
+                        turnStartAnchor: 'target', turnStartDamage: 5, turnStartDamageKind: 'affliction',
+                        turnStartSkillClasses: ['Fire', 'Special', 'Affliction', 'Instant'],
+                        sourceSkillId: 'cyndaquil-quilava-flame-wheel',
+                    } },
+                ],
+            }),
+            skill({
+                id: 'cyndaquil-typhlosion-flame-wheel', name: 'Typhlosion Flame Wheel',
+                description: 'Deals 25 affliction damage to one enemy and 15 affliction damage to the other enemies. For 1 turn, Typhlosion gains 15 unpierceable damage reduction and ignores enemy stun effects. Enemies affected by Cynda-Smokescreen take 5 additional damage next turn.',
+                target: 'single-enemy', energy: [Energy.BLOODLINE, Energy.RANDOM], cooldown: 1,
+                moveType: Type.FIRE, classes: ['Fire', 'Special', 'Affliction', 'Instant'],
+                effects: [
+                    { kind: 'damage', amount: 25, damageKind: 'affliction' },
+                    { kind: 'damage', scope: 'other-enemies', amount: 15, damageKind: 'affliction' },
+                    { kind: 'status', scope: 'self', status: {
+                        id: 'cyndaquil-flame-wheel-active', name: 'Flame Wheel', hidden: false, harmful: false,
+                        durationActions: 1,
+                        unpierceableDamageReductionFlat: 15,
+                        ignoreEnemyStuns: true,
+                    } },
+                    { kind: 'status', scope: 'all-enemy', requiresTargetStatus: 'cyndaquil-smokescreen-active', status: {
+                        id: 'cyndaquil-flamethrower-afterburn', name: 'Flamethrower Afterburn', hidden: false, harmful: true,
+                        durationActions: 1, durationAnchor: 'target',
+                        turnStartAnchor: 'target', turnStartDamage: 5, turnStartDamageKind: 'affliction',
+                        turnStartSkillClasses: ['Fire', 'Special', 'Affliction', 'Instant'],
+                        sourceSkillId: 'cyndaquil-typhlosion-flame-wheel',
                     } },
                 ],
             }),
@@ -5187,7 +5256,12 @@ export const ROSTER = Object.freeze({
                         onEvadeApplyStatus: {
                             id: 'cyndaquil-skyward-bonus', name: 'Skyward Bonus', hidden: false, harmful: false,
                             durationActions: 1, durationAnchor: 'source',
-                            skillDamageBonuses: { 'cyndaquil-aerial-tackle': 10, 'cyndaquil-aerial-flamethrower': 10 },
+                            skillDamageBonuses: {
+                                'cyndaquil-aerial-tackle': 10,
+                                'cyndaquil-aerial-flamethrower': 10,
+                                'cyndaquil-quilava-flame-wheel': 10,
+                                'cyndaquil-typhlosion-flame-wheel': 10,
+                            },
                         },
                     } },
                 ],
@@ -5220,6 +5294,22 @@ export const ROSTER = Object.freeze({
                     'chikorita-chikorita-solar-beam', 'chikorita-vine-defense',
                 ],
             },
+            bayleaf: {
+                id: 'bayleaf', name: 'Bayleaf', types: [Type.GRASS],
+                facePicture: '/game-assets/images/PokemonArena/Cyndaquil/Chikorita/bayleaffp.png',
+                skillIds: [
+                    'chikorita-bayleaf-magical-leaf', 'chikorita-light-screen',
+                    'chikorita-chikorita-solar-beam', 'chikorita-vine-defense',
+                ],
+            },
+            meganium: {
+                id: 'meganium', name: 'Meganium', types: [Type.GRASS],
+                facePicture: '/game-assets/images/PokemonArena/Cyndaquil/Chikorita/meganiumfp.png',
+                skillIds: [
+                    'chikorita-meganium-magical-leaf', 'chikorita-light-screen',
+                    'chikorita-chikorita-solar-beam', 'chikorita-vine-defense',
+                ],
+            },
         },
         skills: [
             skill({
@@ -5232,6 +5322,46 @@ export const ROSTER = Object.freeze({
                     { kind: 'damage', scope: 'other-enemies', amount: 15, damageKind: 'normal' },
                     { kind: 'cycling-class-damage-debuff', amount: 10, statusId: 'chikorita-razor-leaf-debuff' },
                     { kind: 'cycling-class-damage-debuff', scope: 'other-enemies', amount: 5, statusId: 'chikorita-razor-leaf-debuff' },
+                ],
+            }),
+            skill({
+                id: 'chikorita-bayleaf-magical-leaf', name: 'Magical Leaf',
+                description: 'Deals 30 piercing damage to one enemy and 15 to the others, lowering the main target\'s damage by 15 and the others\' by 10 for 1 turn.',
+                target: 'single-enemy', energy: [Energy.TAIJUTSU, Energy.RANDOM], cooldown: 1,
+                moveType: Type.GRASS, classes: ['Grass', 'Physical', 'Instant'],
+                effects: [
+                    { kind: 'damage', amount: 30, damageKind: 'piercing' },
+                    { kind: 'damage', scope: 'other-enemies', amount: 15, damageKind: 'normal' },
+                    { kind: 'status', status: {
+                        id: 'chikorita-magical-leaf-debuff', name: 'Magical Leaf', hidden: false, harmful: true,
+                        durationActions: 1, durationAnchor: 'target',
+                        outgoingDamageDebuff: 15,
+                    } },
+                    { kind: 'status', scope: 'other-enemies', status: {
+                        id: 'chikorita-magical-leaf-debuff', name: 'Magical Leaf', hidden: false, harmful: true,
+                        durationActions: 1, durationAnchor: 'target',
+                        outgoingDamageDebuff: 10,
+                    } },
+                ],
+            }),
+            skill({
+                id: 'chikorita-meganium-magical-leaf', name: 'Magical Leaf',
+                description: 'Deals 35 piercing damage to one enemy and 25 to the others, lowering the main target\'s damage by 20 and the others\' by 15 for 1 turn.',
+                target: 'single-enemy', energy: [Energy.TAIJUTSU, Energy.RANDOM, Energy.RANDOM], cooldown: 1,
+                moveType: Type.GRASS, classes: ['Grass', 'Physical', 'Instant'],
+                effects: [
+                    { kind: 'damage', amount: 35, damageKind: 'piercing' },
+                    { kind: 'damage', scope: 'other-enemies', amount: 25, damageKind: 'normal' },
+                    { kind: 'status', status: {
+                        id: 'chikorita-magical-leaf-debuff', name: 'Magical Leaf', hidden: false, harmful: true,
+                        durationActions: 1, durationAnchor: 'target',
+                        outgoingDamageDebuff: 20,
+                    } },
+                    { kind: 'status', scope: 'other-enemies', status: {
+                        id: 'chikorita-magical-leaf-debuff', name: 'Magical Leaf', hidden: false, harmful: true,
+                        durationActions: 1, durationAnchor: 'target',
+                        outgoingDamageDebuff: 15,
+                    } },
                 ],
             }),
             skill({
@@ -5311,6 +5441,22 @@ export const ROSTER = Object.freeze({
                     'totodile-aqua-tail', 'totodile-superpower',
                 ],
             },
+            croconaw: {
+                id: 'croconaw', name: 'Croconaw', types: [Type.WATER],
+                facePicture: '/game-assets/images/PokemonArena/Cyndaquil/Totodile/croconawfp.png',
+                skillIds: [
+                    'totodile-aerial-water-gun', 'totodile-croconaw-bite',
+                    'totodile-aqua-tail', 'totodile-superpower',
+                ],
+            },
+            feraligatr: {
+                id: 'feraligatr', name: 'Feraligatr', types: [Type.WATER],
+                facePicture: '/game-assets/images/PokemonArena/Cyndaquil/Totodile/feraligatrfp.png',
+                skillIds: [
+                    'totodile-aerial-water-gun', 'totodile-feraligatr-dragon-claw',
+                    'totodile-aqua-tail', 'totodile-superpower',
+                ],
+            },
         },
         skills: [
             skill({
@@ -5338,6 +5484,34 @@ export const ROSTER = Object.freeze({
                         id: 'totodile-scary-face-active', name: 'Scary Face', hidden: false, harmful: true,
                         durationActions: 2, durationAnchor: 'target', guardBroken: true,
                         incomingDamageBonusBySkillClass: { Physical: 10, Special: 10 },
+                    } },
+                ],
+            }),
+            skill({
+                id: 'totodile-croconaw-bite', name: 'Croconaw Bite',
+                description: 'Deals 20 damage to one enemy and causes them to take 15 additional damage from Physical and Special skills for 2 turns.',
+                target: 'single-enemy', energy: [Energy.RANDOM, Energy.RANDOM], cooldown: 1,
+                moveType: Type.WATER, classes: ['Water', 'Physical', 'Instant'],
+                effects: [
+                    { kind: 'damage', amount: 20, damageKind: 'normal' },
+                    { kind: 'status', status: {
+                        id: 'totodile-scary-face-active', name: 'Croconaw Bite', hidden: false, harmful: true,
+                        durationActions: 2, durationAnchor: 'target',
+                        incomingDamageBonusBySkillClass: { Physical: 15, Special: 15 },
+                    } },
+                ],
+            }),
+            skill({
+                id: 'totodile-feraligatr-dragon-claw', name: 'Dragon Claw',
+                description: 'Deals 30 piercing damage to one enemy and causes them to take 20 additional damage from Physical and Special skills for 2 turns.',
+                target: 'single-enemy', energy: [Energy.RANDOM, Energy.RANDOM, Energy.RANDOM], cooldown: 1,
+                moveType: Type.DRAGON, classes: ['Dragon', 'Physical', 'Instant'],
+                effects: [
+                    { kind: 'damage', amount: 30, damageKind: 'piercing' },
+                    { kind: 'status', status: {
+                        id: 'totodile-scary-face-active', name: 'Dragon Claw', hidden: false, harmful: true,
+                        durationActions: 2, durationAnchor: 'target',
+                        incomingDamageBonusBySkillClass: { Physical: 20, Special: 20 },
                     } },
                 ],
             }),
@@ -6071,15 +6245,69 @@ export const DEFAULT_TEAMS = Object.freeze({
     B: ['pikachu', 'zubat', 'chansey'],
 });
 
+// National Pokedex numbers, used only to order the roster grid. Pokemon Trainer
+// is not a real Pokemon, so it is pinned to the front with a sentinel of 0.
+const POKEDEX_NUMBERS = {
+    'pokemon-trainer': 0,
+    bulbasaur: 1,
+    charmander: 4,
+    squirtle: 7,
+    butterfree: 12,
+    beedrill: 15,
+    pidgey: 16,
+    ekans: 23,
+    pikachu: 25,
+    clefairy: 35,
+    jigglypuff: 39,
+    zubat: 41,
+    meowth: 52,
+    primeape: 57,
+    abra: 63,
+    machop: 66,
+    magnemite: 81,
+    gastly: 92,
+    onix: 95,
+    krabby: 98,
+    hitmonlee: 106,
+    hitmonchan: 107,
+    koffing: 109,
+    chansey: 113,
+    'mr-mime': 122,
+    scyther: 123,
+    magikarp: 129,
+    ditto: 132,
+    eevee: 133,
+    vaporeon: 134,
+    jolteon: 135,
+    flareon: 136,
+    aerodactyl: 142,
+    articuno: 144,
+    zapdos: 145,
+    moltres: 146,
+    dragonite: 149,
+    mewtwo: 150,
+    mew: 151,
+    chikorita: 152,
+    cyndaquil: 155,
+    totodile: 158,
+    nincada: 290,
+    scraggy: 559,
+    aegislash: 681,
+    dragapult: 887,
+};
+
 export const ROSTER_CATALOG = Object.freeze(
-    Object.values(ROSTER).map((species) => Object.freeze({
-        id: species.id,
-        name: species.name,
-        types: [...species.types],
-        facePicture: species.facePicture,
-        passiveDescription: species.passiveDescription ?? '',
-        skillCount: species.skills.length,
-    }))
+    Object.values(ROSTER)
+        .map((species) => Object.freeze({
+            id: species.id,
+            name: species.name,
+            types: [...species.types],
+            facePicture: species.facePicture,
+            passiveDescription: species.passiveDescription ?? '',
+            skillCount: species.skills.length,
+            pokedexNumber: POKEDEX_NUMBERS[species.id] ?? Number.MAX_SAFE_INTEGER,
+        }))
+        .sort((a, b) => a.pokedexNumber - b.pokedexNumber)
 );
 
 export function validateTeamSelection(speciesIds) {
