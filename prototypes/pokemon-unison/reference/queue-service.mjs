@@ -1,6 +1,7 @@
 import { createHash, randomBytes } from 'node:crypto';
 
-import { validateTeamSelection } from './roster.mjs';
+import { BOT_ACCOUNTS } from './bot-catalog.mjs';
+import { ROSTER, validateTeamSelection } from './roster.mjs';
 
 export class QueueServiceError extends Error {
     constructor(status, code, message) {
@@ -12,6 +13,13 @@ export class QueueServiceError extends Error {
 }
 
 const QUEUE_MODES = ['quick', 'ladder'];
+
+// If no real opponent is found within this long, fall back to a bot -
+// checked lazily (the next time the still-waiting player polls status()),
+// not via a background timer, matching the rest of this server's design.
+const BOT_FALLBACK_DELAY_MS = 15_000;
+const BOT_TURN_DELAY_MIN_MS = 20_000;
+const BOT_TURN_DELAY_MAX_MS = 35_000;
 
 function makeSecret(bytes = 24) {
     return randomBytes(bytes).toString('base64url');
@@ -32,15 +40,41 @@ function requireMode(mode) {
 // meaningless after a restart (the player's client would just re-enqueue),
 // so there's nothing worth writing to disk here - mirrors
 // createMemoryMatchStorage's approach for the same reason.
-export function createQueueService({ matchService }) {
+export function createQueueService({ matchService, playerService, now = () => Date.now() }) {
     const pools = new Map(QUEUE_MODES.map((mode) => [mode, new Map()]));
     const resultsByDigest = new Map();
+
+    // Bots are seeded once, here at construction time, so the leaderboard
+    // already looks populated before any real player has queued - not
+    // lazily on first fallback use.
+    const botPlayerIdByUsername = new Map(
+        BOT_ACCOUNTS.map((account) => [
+            account.username,
+            playerService.ensureBotPlayer({ username: account.username, ladder: account.ladder }).id,
+        ])
+    );
 
     function findPool(digest) {
         for (const pool of pools.values()) {
             if (pool.has(digest)) return pool;
         }
         return null;
+    }
+
+    function fallBackToBot(mode, entry) {
+        const account = BOT_ACCOUNTS[Math.floor(Math.random() * BOT_ACCOUNTS.length)];
+        const botPlayerId = botPlayerIdByUsername.get(account.username);
+        const avatarSpecies = ROSTER[account.avatarSpeciesId];
+        const created = matchService.create({
+            opponent: mode,
+            teams: { A: entry.teams, B: account.team },
+            playerIds: { A: entry.playerId, B: botPlayerId },
+            formOverrides: { A: entry.formOverrides },
+            botSeat: 'B',
+            botTurnWindow: { minMs: BOT_TURN_DELAY_MIN_MS, maxMs: BOT_TURN_DELAY_MAX_MS },
+            opponentDisplay: { name: account.username, avatarUrl: avatarSpecies?.facePicture ?? null },
+        });
+        return { status: 'matched', matchId: created.matchId, token: created.token };
     }
 
     return {
@@ -69,7 +103,7 @@ export function createQueueService({ matchService }) {
                 return { status: 'matched', matchId: created.matchId, token: created.tokenB, queueToken: secret };
             }
 
-            pool.set(digest, { digest, playerId, teams, formOverrides, joinedAt: Date.now() });
+            pool.set(digest, { digest, playerId, teams, formOverrides, joinedAt: now() });
             return { status: 'waiting', queueToken: secret };
         },
 
@@ -80,7 +114,13 @@ export function createQueueService({ matchService }) {
                 resultsByDigest.delete(digest);
                 return { status: 'matched', ...result };
             }
-            if (findPool(digest)) return { status: 'waiting' };
+            for (const [mode, pool] of pools) {
+                const entry = pool.get(digest);
+                if (!entry) continue;
+                if (now() - entry.joinedAt < BOT_FALLBACK_DELAY_MS) return { status: 'waiting' };
+                pool.delete(digest);
+                return fallBackToBot(mode, entry);
+            }
             throw new QueueServiceError(404, 'queue_entry_not_found', 'That search has already ended.');
         },
 

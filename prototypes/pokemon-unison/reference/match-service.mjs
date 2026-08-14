@@ -89,7 +89,14 @@ function publicMatch(match, player, now) {
         queueRevision: ownsPendingTurn ? match.queueRevision : 0,
         player,
         mode: match.mode,
-        opponent: match.botPlayer ? { type: 'bot', player: match.botPlayer, name: 'Training Bot' } : { type: 'human' },
+        // A bot-filled queue match reports as a human opponent on purpose -
+        // see queue-service.mjs's fallback - so it's indistinguishable from
+        // a real matched player client-side.
+        opponent: match.opponentDisplay
+            ? { type: 'human', name: match.opponentDisplay.name, avatarUrl: match.opponentDisplay.avatarUrl }
+            : match.botPlayer
+              ? { type: 'bot', player: match.botPlayer, name: 'Training Bot' }
+              : { type: 'human' },
         waitingForOpponent: !match.joined.B,
         turnSecondsRemaining,
         turnTimeoutSeconds: TURN_TIMEOUT_MS / 1000,
@@ -144,6 +151,11 @@ export function createMatchService({ storage = createMemoryMatchStorage(), onMat
         match.queueRevision = Number.isInteger(match.queueRevision) ? match.queueRevision : 0;
         match.botPlayer = match.botPlayer === 'B' ? 'B' : null;
         match.mode = typeof match.mode === 'string' ? match.mode : deriveLegacyMode(match);
+        match.botTurnWindow = match.botTurnWindow && Number.isFinite(match.botTurnWindow.minMs) && Number.isFinite(match.botTurnWindow.maxMs)
+            ? match.botTurnWindow
+            : null;
+        match.botActsAt = Number.isFinite(match.botActsAt) ? match.botActsAt : null;
+        match.opponentDisplay = match.opponentDisplay?.name ? match.opponentDisplay : null;
         match.playerIds = {
             A: typeof match.playerIds?.A === 'string' ? match.playerIds.A : null,
             B: typeof match.playerIds?.B === 'string' ? match.playerIds.B : null,
@@ -179,6 +191,16 @@ export function createMatchService({ storage = createMemoryMatchStorage(), onMat
 
     function resolveBotTurn(match) {
         if (!match.botPlayer || match.game.winner || match.game.currentPlayer !== match.botPlayer) return;
+        if (match.botTurnWindow) {
+            // Delayed "thinking" bot (queue fallback): don't act yet - just
+            // pick when it will, once, and let enforceBotTurnDelay resolve
+            // it lazily on a later request, the same way turn timeouts work.
+            if (!Number.isFinite(match.botActsAt)) {
+                const { minMs, maxMs } = match.botTurnWindow;
+                match.botActsAt = now() + minMs + Math.random() * (maxMs - minMs);
+            }
+            return;
+        }
         const result = resolveQueuedTurn(match.game, planDeterministicBotTurn(match.game));
         if (!result.ok) throw new Error(`Deterministic bot turn failed: ${result.error}`);
         match.game = result.state;
@@ -187,9 +209,31 @@ export function createMatchService({ storage = createMemoryMatchStorage(), onMat
         match.revision += 1;
     }
 
+    // Lazily enforced on every match access, mirroring enforceTurnTimeout:
+    // once a bot-filled queue match's random "thinking" deadline has
+    // passed, resolve its turn on whichever request happens to touch the
+    // match next (the client's own 800ms poll makes this feel live without
+    // any background timer on the server).
+    function enforceBotTurnDelay(match) {
+        if (!match.botTurnWindow || match.game.winner || match.game.currentPlayer !== match.botPlayer) return;
+        if (!Number.isFinite(match.botActsAt) || now() < match.botActsAt) return;
+        const result = resolveQueuedTurn(match.game, planDeterministicBotTurn(match.game));
+        if (!result.ok) return; // Stale plan (e.g. a target died); the next access retries.
+        match.game = result.state;
+        match.pendingActions = [];
+        match.queueRevision = 0;
+        match.revision += 1;
+        match.botActsAt = null;
+        resolveBotTurn(match); // Schedules the next delay if it's the bot's turn again.
+        match.turnStartedAt = now();
+        checkCompletion(match);
+        persist(match);
+    }
+
     function requireLiveMatch(matchId) {
         const match = requireMatch(matches, matchId);
         enforceTurnTimeout(match);
+        enforceBotTurnDelay(match);
         return match;
     }
 
@@ -219,15 +263,28 @@ export function createMatchService({ storage = createMemoryMatchStorage(), onMat
     }
 
     return {
-        create({ seed, teams, startingPlayer, opponent = 'human', playerId = null, playerIds, formOverrides } = {}) {
+        create({
+            seed,
+            teams,
+            startingPlayer,
+            opponent = 'human',
+            playerId = null,
+            playerIds,
+            formOverrides,
+            botSeat = null,
+            botTurnWindow = null,
+            opponentDisplay = null,
+        } = {}) {
             if (!['human', 'bot', 'quick', 'ladder'].includes(opponent)) {
                 throw new MatchServiceError(400, 'invalid_opponent', 'Opponent must be human, bot, quick, or ladder.');
             }
             // Quick/ladder matches come from the matchmaking queue with both
             // players already known - there's no invite-link waiting room,
-            // the match is live for both seats immediately.
+            // the match is live for both seats immediately. botSeat marks
+            // one of those known players as bot-controlled (queue-fallback
+            // matches), distinct from the classic opponent:'bot' solo path.
             const isQueueMatch = opponent === 'quick' || opponent === 'ladder';
-            const botPlayer = opponent === 'bot' ? 'B' : null;
+            const botPlayer = botSeat || (opponent === 'bot' ? 'B' : null);
             const selectedTeams = teams ?? DEFAULT_TEAMS;
             const teamError = validateMatchTeams(selectedTeams);
             if (teamError) throw new MatchServiceError(400, 'invalid_teams', teamError);
@@ -250,6 +307,9 @@ export function createMatchService({ storage = createMemoryMatchStorage(), onMat
                 inviteDigest: inviteCode ? digestSecret(inviteCode) : null,
                 joined: { A: true, B: Boolean(botPlayer) || isQueueMatch },
                 botPlayer,
+                botTurnWindow,
+                botActsAt: null,
+                opponentDisplay,
                 playerIds: { A: playerId || playerIds?.A || null, B: isQueueMatch ? playerIds.B : null },
                 completionNotified: false,
                 tokenDigests: { A: digestSecret(token), B: tokenB ? digestSecret(tokenB) : null },

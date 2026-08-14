@@ -1090,6 +1090,11 @@ img.skill-art {
 .hud-player-a { grid-area: player-a; }
 .hud-player-b { grid-area: player-b; justify-content: flex-end; text-align: right; }
 
+.hud-avatar-image {
+    object-fit: cover;
+    object-position: center top;
+}
+
 .hud-avatar {
     display: grid;
     place-items: center;

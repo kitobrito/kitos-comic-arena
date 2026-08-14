@@ -128,3 +128,21 @@ test('the session secret persists across restarts so old tokens keep verifying',
     const verified = restarted.verifySession(token);
     assert.equal(verified.username, 'Agatha');
 });
+
+test('ensureBotPlayer creates an unauthenticatable player once, then no-ops on repeat calls', () => {
+    const service = createPlayerService();
+    const ladder = { level: 3, rank: 'Sparkstrike', experiencePoints: 500, wins: 8, losses: 6, streak: 2, highestStreak: 2, highestLevel: 3, ladderRank: null, isTopRank: false };
+
+    const first = service.ensureBotPlayer({ username: 'TestBot', ladder });
+    assert.equal(first.isBot, true);
+    assert.deepEqual(first.profile.ladder, ladder);
+    assert.equal(service.size(), 1);
+
+    // A second call with the same username is a no-op, not a duplicate.
+    const second = service.ensureBotPlayer({ username: 'TestBot', ladder: { ...ladder, wins: 999 } });
+    assert.equal(second.id, first.id);
+    assert.equal(second.profile.ladder.wins, 8, 'the original seeded stats are untouched by a repeat call');
+    assert.equal(service.size(), 1);
+
+    assert.equal(service.listAll().find((player) => player.username === 'TestBot')?.isBot, true);
+});

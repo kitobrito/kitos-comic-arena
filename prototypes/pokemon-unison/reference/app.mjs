@@ -108,7 +108,9 @@ const elements = {
     selectionBaseForm: document.querySelector('#selection-base-form'),
     selectionEvolutionForm: document.querySelector('#selection-evolution-form'),
     selectionBadgeCount: document.querySelector('#selection-badge-count'),
-    soloMatchButton: document.querySelector('#solo-match-button'),
+    opponentLabel: document.querySelector('#opponent-label'),
+    opponentAvatarLetter: document.querySelector('#opponent-avatar-letter'),
+    opponentAvatarImage: document.querySelector('#opponent-avatar-image'),
     skillList: document.querySelector('#skill-list'),
     targetList: document.querySelector('#target-list'),
     targetingArrow: document.querySelector('#targeting-arrow'),
@@ -1369,7 +1371,6 @@ function renderTeamSelectors() {
 
 function setLobbyButtonsDisabled(disabled) {
     elements.newMatchButton.disabled = disabled;
-    elements.soloMatchButton.disabled = disabled;
     elements.rankedMatchButton.disabled = disabled || !playerSession;
     elements.quickMatchButton.disabled = disabled || !playerSession;
 }
@@ -1766,9 +1767,16 @@ function render() {
         loadAccountProgress();
     }
     renderTurnTimer();
-    elements.seatLabel.textContent = snapshot.mode === 'solo'
-        ? `Player ${session.player} · vs ${snapshot.opponent.name}`
-        : `Player ${session.player}`;
+    elements.seatLabel.textContent = `Player ${session.player}`;
+    const opponentName = snapshot.opponent?.name;
+    elements.opponentLabel.textContent = opponentName ?? 'Player B';
+    const opponentAvatarUrl = snapshot.opponent?.avatarUrl;
+    elements.opponentAvatarImage.hidden = !opponentAvatarUrl;
+    elements.opponentAvatarLetter.hidden = Boolean(opponentAvatarUrl);
+    if (opponentAvatarUrl) {
+        elements.opponentAvatarImage.src = opponentAvatarUrl;
+        elements.opponentAvatarImage.alt = opponentName ?? 'Opponent';
+    }
     elements.connectionLabel.textContent = snapshot.waitingForOpponent
         ? 'Waiting for opponent'
         : snapshot.mode === 'solo'
@@ -2063,7 +2071,6 @@ window.addEventListener('resize', () => {
 });
 
 elements.newMatchButton.addEventListener('click', () => createMatch('human'));
-elements.soloMatchButton.addEventListener('click', () => createMatch('bot'));
 elements.rankedMatchButton.addEventListener('click', () => enterQueue('ladder'));
 elements.quickMatchButton.addEventListener('click', () => enterQueue('quick'));
 elements.cancelQueueButton.addEventListener('click', () => cancelQueue());

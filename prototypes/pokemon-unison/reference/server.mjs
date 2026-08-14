@@ -415,7 +415,7 @@ export function createPokemonUnisonHandler({
             await ladderService.onMatchComplete(payload);
         },
     }),
-    queueService = createQueueService({ matchService }),
+    queueService = createQueueService({ matchService, playerService }),
     publicBasePath = '/',
 } = {}) {
     const normalizedBasePath = normalizePublicBasePath(publicBasePath);
@@ -490,7 +490,7 @@ export function createFileBackedPokemonUnisonServices({ dataDir }) {
             await ladderService.onMatchComplete(payload);
         },
     });
-    const queueService = createQueueService({ matchService });
+    const queueService = createQueueService({ matchService, playerService });
     return { matchService, playerService, missionService, skinService, storeService, ladderService, queueService };
 }
 

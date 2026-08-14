@@ -171,6 +171,43 @@ test('solo matches use a deterministic server-owned opponent through the normal 
     assert.equal(new Set(transcript.turns[1].map((action) => action.actorSlot)).size, transcript.turns[1].length);
 });
 
+test('a queue-fallback bot-filled match delays its turn instead of acting instantly', () => {
+    let clock = 5_000_000;
+    const service = createMatchService({ now: () => clock });
+    const created = service.create({
+        seed: 7,
+        opponent: 'ladder',
+        playerIds: { A: 'alice', B: 'bot-1' },
+        botSeat: 'B',
+        botTurnWindow: { minMs: 20_000, maxMs: 35_000 },
+        opponentDisplay: { name: 'TestBot', avatarUrl: '/game-assets/testbot.png' },
+    });
+    assert.equal(created.mode, 'ladder');
+    // Deliberately reported as human so the bot feels like a real opponent.
+    assert.deepEqual(created.opponent, { type: 'human', name: 'TestBot', avatarUrl: '/game-assets/testbot.png' });
+    assert.equal(created.waitingForOpponent, false);
+
+    const humanAction = created.state.legalActions[0];
+    service.queue(created.matchId, created.token, humanAction);
+    const afterHumanTurn = service.resolveTurn(created.matchId, created.token);
+    assert.equal(afterHumanTurn.state.currentPlayer, 'B', 'it is now the bot\'s turn');
+
+    const stillThinking = service.view(created.matchId, created.token);
+    assert.equal(stillThinking.revision, afterHumanTurn.revision, 'the bot has not acted yet');
+
+    clock += 19_999; // just under the 20s minimum
+    assert.equal(
+        service.view(created.matchId, created.token).revision,
+        afterHumanTurn.revision,
+        'still "thinking" - under even the minimum delay'
+    );
+
+    clock += 15_001; // now past the 35s maximum
+    const botMoved = service.view(created.matchId, created.token);
+    assert.ok(botMoved.revision > afterHumanTurn.revision, 'the bot finally acted');
+    assert.equal(botMoved.state.currentPlayer, 'A', 'turn advanced back to the human');
+});
+
 test('custom teams are authoritative, unique, and limited to ported roster entries', () => {
     const service = createMatchService();
     const teams = {

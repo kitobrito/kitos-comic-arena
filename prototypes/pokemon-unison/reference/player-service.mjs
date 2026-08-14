@@ -93,6 +93,7 @@ function publicPlayer(player) {
         username: player.username,
         email: player.email,
         createdAt: player.createdAt,
+        isBot: Boolean(player.isBot),
         profile: clone(player.profile),
     };
 }
@@ -202,6 +203,36 @@ export function createPlayerService({ storage = createMemoryPlayerStorage(), ses
 
         listAll() {
             return [...players.values()].map(publicPlayer);
+        },
+
+        // Idempotent: bots are seeded once at startup (see
+        // queue-service.mjs) and never authenticate, so there's no
+        // password/session concept for them - just a real player row with
+        // pre-set stats so they show up on the leaderboard like anyone else.
+        ensureBotPlayer({ username, ladder }) {
+            const usernameLower = normalizeUsername(username).toLowerCase();
+            const existingId = idByUsernameLower.get(usernameLower);
+            if (existingId) return publicPlayer(players.get(existingId));
+            const now = new Date().toISOString();
+            const player = {
+                id: randomUUID(),
+                username: normalizeUsername(username),
+                usernameLower,
+                email: '',
+                passwordHash: null,
+                isBot: true,
+                createdAt: now,
+                updatedAt: now,
+                profile: {
+                    missions: createDefaultMissionState(),
+                    skins: createDefaultSkinState(),
+                    ladder: clone(ladder),
+                },
+            };
+            players.set(player.id, player);
+            idByUsernameLower.set(usernameLower, player.id);
+            persist(player);
+            return publicPlayer(player);
         },
 
         updateProfile(id, updater) {

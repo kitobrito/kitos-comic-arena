@@ -182,7 +182,6 @@
                             <button id="quick-match-button" class="primary-action" type="button" disabled>Quick Match</button>
                             <button id="new-match-button" class="primary-action" type="button" disabled>Private Match</button>
                         </div>
-                        <button id="solo-match-button" class="secondary-action" type="button" disabled>Play Solo vs Bot</button>
                     </div>
                     <div id="queue-search-panel" class="queue-search-panel" hidden>
                         <p id="queue-search-status">Searching for an opponent…</p>
@@ -213,8 +212,9 @@
                         <button id="resolve-turn-top-button" class="top-end-turn" type="button">End Turn</button>
                     </div>
                     <div class="hud-player hud-player-b">
-                        <div><strong>Player B</strong><small>Opponent</small></div>
-                        <span class="hud-avatar">B</span>
+                        <div><strong id="opponent-label">Player B</strong><small>Opponent</small></div>
+                        <span id="opponent-avatar-letter" class="hud-avatar">B</span>
+                        <img id="opponent-avatar-image" class="hud-avatar hud-avatar-image" alt="" hidden>
                     </div>
                     <div class="hud-energy hud-energy-a"><span>PLAYER A ENERGY</span><div id="energy-a" class="energy-row"></div></div>
                     <div class="hud-energy hud-energy-b"><span>PLAYER B ENERGY</span><div id="energy-b" class="energy-row"></div></div>

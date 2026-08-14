@@ -107,3 +107,22 @@ test('leaderboard sorts by level, then EXP, then wins, assigns ladderRank, and m
     const refreshedAlice = playerService.getById(alice.id).profile.ladder;
     assert.equal(refreshedAlice.ladderRank, 1);
 });
+
+test('a ranked result against a bot updates the bot\'s own ladder stats too', async () => {
+    const playerService = createPlayerService();
+    const ladderService = createLadderService({ playerService });
+    const alice = await registerPlayer(playerService, 'Alice');
+    const bot = playerService.ensureBotPlayer({
+        username: 'TestBot',
+        ladder: { level: 5, rank: 'Sparkstrike', experiencePoints: 900, wins: 10, losses: 5, streak: 1, highestStreak: 3, highestLevel: 5, ladderRank: null, isTopRank: false },
+    });
+
+    ladderService.onMatchComplete({ playerIds: { A: alice.id, B: bot.id }, winner: 'A', mode: 'ladder' });
+
+    const botLadder = playerService.getById(bot.id).profile.ladder;
+    assert.equal(botLadder.losses, 6, 'the bot\'s pre-seeded losses incremented from the real loss');
+    assert.equal(botLadder.streak, -1);
+
+    const board = ladderService.leaderboard();
+    assert.ok(board.some((entry) => entry.username === 'TestBot'), 'the bot appears on the real leaderboard');
+});
