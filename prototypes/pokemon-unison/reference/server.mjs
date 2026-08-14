@@ -467,11 +467,14 @@ export function createPokemonUnisonServer(options = {}) {
     return http.createServer(createPokemonUnisonHandler(options));
 }
 
-const launchedDirectly = typeof process !== 'undefined' && process.argv[1] &&
-    resolve(process.argv[1]) === fileURLToPath(import.meta.url);
-if (launchedDirectly) {
-    const port = Number.parseInt(process.env.PORT ?? '4173', 10);
-    const dataDir = process.env.POKEMON_UNISON_DATA_DIR ?? resolve(referenceRoot, '..', 'runtime-data');
+// Builds every pokemon-unison service backed by JSON-file storage under
+// `dataDir` instead of the in-memory defaults `createPokemonUnisonHandler`
+// falls back to when no services are passed in. Used both by the standalone
+// launcher below and by anything embedding this handler in a host process
+// (e.g. the main Comic Arena server mounting it at an unlisted path) that
+// wants player accounts, matches, and ladder stats to actually survive a
+// restart instead of living only in that process's memory.
+export function createFileBackedPokemonUnisonServices({ dataDir }) {
     const storage = createJsonMatchStorage(resolve(dataDir, 'matches'));
     const playerStorage = createJsonPlayerStorage(resolve(dataDir, 'players'));
     const purchaseStorage = createJsonPurchaseStorage(resolve(dataDir, 'purchases'));
@@ -488,20 +491,20 @@ if (launchedDirectly) {
         },
     });
     const queueService = createQueueService({ matchService });
-    const server = createPokemonUnisonServer({
-        matchService,
-        playerService,
-        missionService,
-        skinService,
-        storeService,
-        ladderService,
-        queueService,
-    });
+    return { matchService, playerService, missionService, skinService, storeService, ladderService, queueService };
+}
+
+const launchedDirectly = typeof process !== 'undefined' && process.argv[1] &&
+    resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (launchedDirectly) {
+    const port = Number.parseInt(process.env.PORT ?? '4173', 10);
+    const dataDir = process.env.POKEMON_UNISON_DATA_DIR ?? resolve(referenceRoot, '..', 'runtime-data');
+    const services = createFileBackedPokemonUnisonServices({ dataDir });
+    const server = createPokemonUnisonServer(services);
     server.listen(port, '127.0.0.1', () => {
         console.log(`Pokemon Unison standalone: http://127.0.0.1:${port}`);
         console.log('This server is isolated from the current Comic/Pokemon Arena application.');
-        console.log(`Persistent match data: ${storage.directory}`);
-        console.log(`Persistent player data: ${playerStorage.directory}`);
+        console.log(`Persistent data directory: ${dataDir}`);
         console.log(`PayPal payments: ${isPayPalConfigured() ? 'configured' : 'not configured (PAYPAL_CLIENT_ID/PAYPAL_CLIENT_SECRET unset)'}`);
     });
 }

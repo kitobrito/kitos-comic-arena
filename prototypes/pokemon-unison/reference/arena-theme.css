@@ -246,6 +246,26 @@ button:focus-visible {
     background: rgba(0, 0, 0, 0.3);
 }
 
+.profile-toggle-button.active {
+    color: #fff;
+    background: linear-gradient(180deg, var(--arena-red-bright), #98172f);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.header-progress-links {
+    display: flex;
+    gap: 6px;
+}
+
+.header-progress-links button {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--arena-muted);
+    background: rgba(0, 0, 0, 0.3);
+}
+
 .selection-layout {
     display: grid;
     grid-template-columns: minmax(330px, 0.8fr) minmax(540px, 1.45fr);

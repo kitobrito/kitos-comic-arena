@@ -9,6 +9,9 @@
     <link rel="stylesheet" href="./arena-theme.css">
 </head>
 <body class="selection-mode">
+    <audio id="background-music" loop preload="none">
+        <source src="/game-assets/images/PokemonArena/music/Trainer%20Battle%20(Kanto)%20-%20Pok%C3%A9mon%20GoldSilverCrystal%20Soundtrack.mp3" type="audio/mpeg">
+    </audio>
     <main class="arena-app">
         <div id="account-bar" class="account-bar glass-panel" aria-label="Player account">
             <form id="account-form" class="account-form" autocomplete="on">
@@ -67,6 +70,11 @@
                     <strong id="selection-badge-count">Loading roster...</strong>
                     <small>Separate from live Comic Arena</small>
                 </div>
+                <div class="header-progress-links">
+                    <button id="header-store-button" type="button">Store</button>
+                    <button id="header-missions-button" type="button">Missions</button>
+                    <button id="header-skins-button" type="button">Skins</button>
+                </div>
             </header>
 
             <aside id="profile-card" class="profile-card glass-panel" aria-label="Player profile" hidden>
@@ -83,8 +91,8 @@
                     </dl>
                 </div>
                 <div class="profile-card-toggles">
-                    <button type="button" class="profile-toggle-button" disabled>Music Off</button>
-                    <button type="button" class="profile-toggle-button" disabled>SFX Off</button>
+                    <button id="music-toggle-button" type="button" class="profile-toggle-button">Music Off</button>
+                    <button id="sfx-toggle-button" type="button" class="profile-toggle-button">SFX Off</button>
                 </div>
             </aside>
 

@@ -27,6 +27,12 @@ const elements = {
     accountPointsLabel: document.querySelector('#account-points-label'),
     accountLogoutButton: document.querySelector('#account-logout-button'),
     progressToggleButton: document.querySelector('#progress-toggle-button'),
+    headerStoreButton: document.querySelector('#header-store-button'),
+    headerMissionsButton: document.querySelector('#header-missions-button'),
+    headerSkinsButton: document.querySelector('#header-skins-button'),
+    musicToggleButton: document.querySelector('#music-toggle-button'),
+    sfxToggleButton: document.querySelector('#sfx-toggle-button'),
+    backgroundMusic: document.querySelector('#background-music'),
     progressPanel: document.querySelector('#progress-panel'),
     progressCloseButton: document.querySelector('#progress-close-button'),
     progressTabMissions: document.querySelector('#progress-tab-missions'),
@@ -690,6 +696,61 @@ elements.progressCloseButton.addEventListener('click', () => {
 elements.progressToggleButton.addEventListener('click', () => {
     elements.progressPanel.hidden = !elements.progressPanel.hidden;
     if (!elements.progressPanel.hidden) renderProgressPanel();
+});
+
+function openProgressTab(tab) {
+    setProgressTab(tab);
+    elements.progressPanel.hidden = false;
+    renderProgressPanel();
+}
+elements.headerStoreButton.addEventListener('click', () => openProgressTab('store'));
+elements.headerMissionsButton.addEventListener('click', () => openProgressTab('missions'));
+elements.headerSkinsButton.addEventListener('click', () => openProgressTab('skins'));
+
+// Background music: a single looping track reused across the lobby and
+// battle screens (production picks a random track per match; this prototype
+// keeps it simple with one). Browsers block audio until a user gesture, so
+// the preference is just remembered and (re)applied on the next interaction
+// rather than attempted eagerly on page load.
+const MUSIC_PREFERENCE_KEY = 'pokemon-unison:music-on';
+const SFX_PREFERENCE_KEY = 'pokemon-unison:sfx-on';
+let musicOn = localStorage.getItem(MUSIC_PREFERENCE_KEY) === 'true';
+let sfxOn = localStorage.getItem(SFX_PREFERENCE_KEY) === 'true';
+
+function renderAudioToggles() {
+    elements.musicToggleButton.textContent = musicOn ? 'Music On' : 'Music Off';
+    elements.musicToggleButton.classList.toggle('active', musicOn);
+    elements.sfxToggleButton.textContent = sfxOn ? 'SFX On' : 'SFX Off';
+    elements.sfxToggleButton.classList.toggle('active', sfxOn);
+}
+
+function applyMusicPreference() {
+    if (musicOn) {
+        elements.backgroundMusic.volume = 0.4;
+        elements.backgroundMusic.play().catch(() => {
+            // Autoplay was blocked; it will retry on the next toggle/gesture.
+        });
+    } else {
+        elements.backgroundMusic.pause();
+    }
+}
+
+renderAudioToggles();
+applyMusicPreference();
+
+elements.musicToggleButton.addEventListener('click', () => {
+    musicOn = !musicOn;
+    localStorage.setItem(MUSIC_PREFERENCE_KEY, String(musicOn));
+    renderAudioToggles();
+    applyMusicPreference();
+});
+
+// SFX has no sound effects wired up yet (production's are spread across many
+// individual interactions) - this preference is remembered for when they are.
+elements.sfxToggleButton.addEventListener('click', () => {
+    sfxOn = !sfxOn;
+    localStorage.setItem(SFX_PREFERENCE_KEY, String(sfxOn));
+    renderAudioToggles();
 });
 
 async function restorePlayerSession() {

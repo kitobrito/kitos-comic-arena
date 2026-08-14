@@ -72,12 +72,22 @@ app.set('trust proxy', 1);
 app.use(compression());
 
 const POKEMON_UNISON_PREVIEW_PATH = '/pokemon-unison-20c771d870f2d5d1a13d37c9';
+// Without an explicit data directory, every service inside falls back to
+// createPokemonUnisonHandler's in-memory defaults - fine for local dev, but
+// on the deployed service that means every player account, match, and
+// ladder ranking is lost on any restart, not just a deploy. Pointing this at
+// a mounted disk path (via POKEMON_UNISON_DATA_DIR) makes it durable.
+const POKEMON_UNISON_DATA_DIR = process.env.POKEMON_UNISON_DATA_DIR ||
+    path.join(__dirname, 'prototypes', 'pokemon-unison', 'runtime-data');
 let pokemonUnisonHandlerPromise = null;
 const getPokemonUnisonHandler = () => {
     if (!pokemonUnisonHandlerPromise) {
         pokemonUnisonHandlerPromise = import('./prototypes/pokemon-unison/reference/server.mjs').then(
-            ({ createPokemonUnisonHandler }) =>
-                createPokemonUnisonHandler({ publicBasePath: `${POKEMON_UNISON_PREVIEW_PATH}/` })
+            ({ createPokemonUnisonHandler, createFileBackedPokemonUnisonServices }) =>
+                createPokemonUnisonHandler({
+                    ...createFileBackedPokemonUnisonServices({ dataDir: POKEMON_UNISON_DATA_DIR }),
+                    publicBasePath: `${POKEMON_UNISON_PREVIEW_PATH}/`,
+                })
         );
     }
     return pokemonUnisonHandlerPromise;
