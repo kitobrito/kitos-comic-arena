@@ -206,9 +206,9 @@ button:focus-visible {
 }
 
 .profile-card-stats {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 2px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
     margin: 0;
 }
 
@@ -305,22 +305,29 @@ button:focus-visible {
     height: 336px;
 }
 
+/* Roster spans the FULL width, split into two 5x3 banks flanking a middle
+   gap; team-console floats centered on top of that gap (z-index) rather
+   than sitting beside roster-console as a separate column - matching the
+   real reference screenshot, where both roster banks are visible at once
+   with Ranked/Quick/Private and "Your Team" sitting between them. */
 .roster-console {
     position: absolute;
     left: 0;
+    right: 0;
     top: 350px;
     bottom: 0;
-    width: calc(44% - 7px);
     display: flex;
     flex-direction: column;
 }
 
 .team-console {
     position: absolute;
-    right: 0;
+    left: 50%;
+    transform: translateX(-50%);
     top: 350px;
     bottom: 0;
-    width: calc(56% - 7px);
+    width: min(460px, 32%);
+    z-index: 4;
     overflow-y: auto;
 }
 
@@ -784,30 +791,41 @@ img.skill-art {
 
 .roster-pager {
     display: flex;
-    align-items: center;
+    align-items: stretch;
     gap: 8px;
     flex: 1 1 auto;
     min-height: 0;
 }
 
-/* The 5-column x 3-row skewed grid, matching production's per-bank
-   .slot-list treatment (styles/selection-experimental.css:643-736) - one
-   bank rather than production's two, since pokemon-unison already paginates
-   the roster with prev/next arrows instead of showing two banks at once,
-   and ROSTER_PAGE_SIZE (app.mjs) is already exactly 5x3=15 to match. */
+/* [prev-arrow] [left bank] [spacer - team-console floats over this] [right
+   bank] [next-arrow] - both 5x3 banks visible at once, matching the real
+   reference screenshot exactly (no skew anywhere - that was a mistake from
+   misread production CSS in an earlier pass). */
+.roster-banks {
+    display: flex;
+    align-items: stretch;
+    gap: 12px;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.roster-grid-spacer {
+    flex: 1 1 auto;
+}
+
 .roster-grid {
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
     grid-template-rows: repeat(3, 1fr);
     gap: clamp(5px, 0.9vw, 11px);
-    flex: 1 1 auto;
+    flex: 0 0 38%;
     min-width: 0;
-    height: 100%;
     padding: 4px 0;
 }
 
 .roster-page-arrow {
     flex: 0 0 auto;
+    align-self: center;
     min-width: 0;
     width: 34px;
     height: 34px;
@@ -826,21 +844,18 @@ img.skill-art {
     min-width: 0;
     min-height: 0;
     padding: 0;
-    overflow: visible;
+    overflow: hidden;
     text-align: left;
-    background: none;
+    background: #10191d;
     border: 2px solid rgba(103, 117, 112, 0.92);
-    transform: skew(-8deg);
 }
 
 .roster-card img {
     display: block;
-    width: 112%;
+    width: 100%;
     height: 100%;
-    max-width: none;
     object-fit: cover;
     filter: saturate(0.92) contrast(1.04);
-    transform: scale(1.12) skew(8deg);
 }
 
 .roster-card::after {
@@ -849,18 +864,17 @@ img.skill-art {
     inset: 0;
     pointer-events: none;
     background: linear-gradient(180deg, transparent 44%, rgba(2, 7, 10, 0.94) 77%);
-    overflow: hidden;
 }
 
 .roster-card:hover:not(.locked) {
     z-index: 3;
-    transform: translateY(-4px) skew(-8deg) scale(1.04);
+    transform: translateY(-3px);
 }
 
 .roster-card.previewed,
 .roster-card.drafted {
-    border-color: #fff;
-    box-shadow: 0 0 0 2px rgba(239, 64, 93, 0.45), 0 0 18px rgba(239, 64, 93, 0.3);
+    border-color: #ffe432;
+    box-shadow: 0 0 0 2px rgba(255, 228, 50, 0.55), 0 0 18px rgba(255, 228, 50, 0.3);
 }
 
 .roster-card-name,
@@ -873,12 +887,6 @@ img.skill-art {
     padding: 0 7px;
     text-overflow: ellipsis;
     white-space: nowrap;
-    transform: skew(8deg);
-}
-
-.roster-card-lock-badge,
-.roster-card-buy-badge {
-    transform: skew(8deg);
 }
 
 .roster-card-name {
@@ -2533,12 +2541,37 @@ img.skill-art {
     .roster-console,
     .team-console {
         position: static;
+        left: auto;
+        transform: none;
         width: auto;
         margin-top: 14px;
     }
 
     .roster-console {
-        min-height: 420px;
+        min-height: 0;
+    }
+
+    .roster-pager {
+        flex-direction: column;
+    }
+
+    .roster-banks {
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .roster-grid-spacer {
+        display: none;
+    }
+
+    .roster-grid {
+        flex: 0 0 auto;
+        width: 100%;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .roster-page-arrow {
+        align-self: center;
     }
 
     .preview-top {

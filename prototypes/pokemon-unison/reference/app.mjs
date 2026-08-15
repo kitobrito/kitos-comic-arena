@@ -85,6 +85,7 @@ const elements = {
     resolveTurnTopButton: document.querySelector('#resolve-turn-top-button'),
     rosterCount: document.querySelector('#roster-count'),
     rosterGrid: document.querySelector('#roster-grid'),
+    rosterGridRight: document.querySelector('#roster-grid-right'),
     seatLabel: document.querySelector('#seat-label'),
     seedLabel: document.querySelector('#seed-label'),
     surrenderButton: document.querySelector('#surrender-button'),
@@ -1293,7 +1294,52 @@ function assignDraftSpecies(speciesId) {
     renderTeamSelectors();
 }
 
-const ROSTER_PAGE_SIZE = 15;
+// Two banks of 15 (5 cols x 3 rows each) flanking the team console, matching
+// production's actual layout - a page is 30 characters, split evenly left/right.
+const ROSTER_BANK_SIZE = 15;
+const ROSTER_PAGE_SIZE = ROSTER_BANK_SIZE * 2;
+
+function buildRosterCard(species) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'roster-card';
+    if (species.id === previewSpeciesId) button.classList.add('previewed');
+    const assignments = [];
+    for (const player of ['A', 'B']) {
+        teamDraft[player].forEach((speciesId, slot) => {
+            if (speciesId === species.id) assignments.push(`${player}${slot + 1}`);
+        });
+    }
+    if (assignments.length) button.classList.add('drafted');
+    const locked = isCharacterLocked(species.id);
+    const lockCost = locked ? missionUnlockCost(species.id) : null;
+    const canBuyNow = locked && lockCost !== null && unlockPoints >= lockCost;
+    if (locked) button.classList.add('locked');
+    const display = displaySpecies(species.id) ?? species;
+    button.setAttribute('aria-label', `Inspect ${display.name} skills`);
+    // The buy action is a <span role="button"> rather than a nested <button>,
+    // since a real <button> can't validly contain another <button> — a browser
+    // would otherwise silently hoist it out of this card and break the layout.
+    button.innerHTML = `
+        <img src="${escapeHtml(display.facePicture)}" alt="${escapeHtml(display.name)}">
+        <span class="roster-card-name">${escapeHtml(display.name)}</span>
+        <span class="roster-card-type">${escapeHtml(display.types.join(' / '))}</span>
+        ${assignments.length ? `<span class="draft-mark">${assignments.join(' · ')}</span>` : ''}
+        ${locked ? `<span class="roster-card-lock-badge">${lockCost !== null ? `LOCKED · ${lockCost} PTS` : 'LOCKED'}</span>` : ''}
+        ${canBuyNow ? '<span class="roster-card-buy-badge" role="button" tabindex="0">Buy now</span>' : ''}
+    `;
+    button.addEventListener('click', (event) => {
+        if (canBuyNow && event.target.closest('.roster-card-buy-badge')) {
+            event.stopPropagation();
+            purchaseCharacterWithPoints(species.id);
+            return;
+        }
+        if (previewSpeciesId !== species.id) previewSelectionForm = 'base';
+        if (previewSpeciesId !== species.id) previewSkillId = null;
+        assignDraftSpecies(species.id);
+    });
+    return button;
+}
 
 function renderRosterGrid() {
     const pageCount = Math.max(1, Math.ceil(rosterCatalog.length / ROSTER_PAGE_SIZE));
@@ -1302,46 +1348,12 @@ function renderRosterGrid() {
     elements.rosterPageNext.disabled = rosterPage >= pageCount - 1;
     const pageItems = rosterCatalog.slice(rosterPage * ROSTER_PAGE_SIZE, (rosterPage + 1) * ROSTER_PAGE_SIZE);
     elements.rosterGrid.replaceChildren();
-    pageItems.forEach((species) => {
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.className = 'roster-card';
-        if (species.id === previewSpeciesId) button.classList.add('previewed');
-        const assignments = [];
-        for (const player of ['A', 'B']) {
-            teamDraft[player].forEach((speciesId, slot) => {
-                if (speciesId === species.id) assignments.push(`${player}${slot + 1}`);
-            });
-        }
-        if (assignments.length) button.classList.add('drafted');
-        const locked = isCharacterLocked(species.id);
-        const lockCost = locked ? missionUnlockCost(species.id) : null;
-        const canBuyNow = locked && lockCost !== null && unlockPoints >= lockCost;
-        if (locked) button.classList.add('locked');
-        const display = displaySpecies(species.id) ?? species;
-        button.setAttribute('aria-label', `Inspect ${display.name} skills`);
-        // The buy action is a <span role="button"> rather than a nested <button>,
-        // since a real <button> can't validly contain another <button> — a browser
-        // would otherwise silently hoist it out of this card and break the layout.
-        button.innerHTML = `
-            <img src="${escapeHtml(display.facePicture)}" alt="${escapeHtml(display.name)}">
-            <span class="roster-card-name">${escapeHtml(display.name)}</span>
-            <span class="roster-card-type">${escapeHtml(display.types.join(' / '))}</span>
-            ${assignments.length ? `<span class="draft-mark">${assignments.join(' · ')}</span>` : ''}
-            ${locked ? `<span class="roster-card-lock-badge">${lockCost !== null ? `LOCKED · ${lockCost} PTS` : 'LOCKED'}</span>` : ''}
-            ${canBuyNow ? '<span class="roster-card-buy-badge" role="button" tabindex="0">Buy now</span>' : ''}
-        `;
-        button.addEventListener('click', (event) => {
-            if (canBuyNow && event.target.closest('.roster-card-buy-badge')) {
-                event.stopPropagation();
-                purchaseCharacterWithPoints(species.id);
-                return;
-            }
-            if (previewSpeciesId !== species.id) previewSelectionForm = 'base';
-            if (previewSpeciesId !== species.id) previewSkillId = null;
-            assignDraftSpecies(species.id);
-        });
-        elements.rosterGrid.append(button);
+    elements.rosterGridRight.replaceChildren();
+    pageItems.slice(0, ROSTER_BANK_SIZE).forEach((species) => {
+        elements.rosterGrid.append(buildRosterCard(species));
+    });
+    pageItems.slice(ROSTER_BANK_SIZE).forEach((species) => {
+        elements.rosterGridRight.append(buildRosterCard(species));
     });
 }
 
