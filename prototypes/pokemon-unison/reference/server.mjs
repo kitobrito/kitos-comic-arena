@@ -24,6 +24,7 @@ const repositoryRoot = resolve(referenceRoot, '..', '..', '..');
 const gameAssetsRoot = resolve(repositoryRoot, 'assets');
 
 const mimeTypes = {
+    '.avif': 'image/avif',
     '.css': 'text/css; charset=utf-8',
     '.html': 'text/html; charset=utf-8',
     '.jpeg': 'image/jpeg',
@@ -174,7 +175,11 @@ async function handleSessionApi(request, response, url, playerService, matchServ
         sendJson(response, 200, { token: null });
         return true;
     }
-    const result = playerService.ensureLinkedPlayer({ accountId: linked.accountId, username: linked.username });
+    const result = playerService.ensureLinkedPlayer({
+        accountId: linked.accountId,
+        username: linked.username,
+        importProgress: linked.pokemonProgress ?? null,
+    });
     sendJson(response, 200, { ...result, activeMatch: matchService.resumeActiveMatchForPlayer(result.player.id) });
     return true;
 }

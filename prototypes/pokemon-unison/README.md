@@ -1,9 +1,21 @@
 # Pokemon Unison standalone
 
 This is a separate game built from the isolated Haskell/Elm-inspired vertical
-slice. It does not replace, connect to, import into, or modify the production game.
-The current `characters.js`, `battleLogic.js`, account data, assets, and local
-overrides remain authoritative and untouched.
+slice. It does not replace, connect to, or modify the production game, and it
+never writes back to it. The current `characters.js`, `battleLogic.js`,
+account data, assets, and local overrides remain authoritative and untouched.
+
+One narrow, one-time exception: when a player's browser already carries a
+valid comic-arena.net session, pokemon-unison auto-links a local player
+record to that real account (see `server.js`'s `resolveLinkedArenaAccount`
+and `reference/account-import.mjs`). At the moment that link is first
+created, a read-only snapshot of the real account's old Pokemon Arena
+progress (`profile.arenas.pokemon` - unlocked characters, unlock points,
+skins, ladder standing) is copied in as that local player's starting state,
+so a returning player doesn't start from zero. This is a one-shot import,
+not a live connection: nothing is ever read back from or written to the
+real account afterward, and pokemon-unison's own progress evolves
+completely independently from that point on.
 
 ## What is implemented
 

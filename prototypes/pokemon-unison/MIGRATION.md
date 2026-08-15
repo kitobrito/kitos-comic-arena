@@ -17,6 +17,16 @@ Existing artwork may be served read-only during local development. Production
 server modules, MongoDB data, matches, accounts, and stored character overrides
 are not runtime dependencies.
 
+The one exception: `server.js`'s `resolveLinkedArenaAccount` does a narrow,
+read-only Mongo lookup of the *currently signed-in* real account (never
+pokemon-unison's own code, never write access) to auto-link a local player
+record and, only at that link's creation, one-time-import a specific
+picklist of that account's old Pokemon Arena progress via
+`reference/account-import.mjs`. See `README.md` for the exact scope. This
+does not make MongoDB a pokemon-unison runtime dependency - the prototype
+itself never touches Mongo; it only receives a plain snapshot object server.js
+already computed.
+
 ## Completed foundation
 
 1. Deterministic seeded combat transitions.

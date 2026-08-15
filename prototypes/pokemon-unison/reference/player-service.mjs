@@ -1,5 +1,6 @@
 import { createHmac, randomBytes, randomUUID, timingSafeEqual } from 'node:crypto';
 
+import { translateLinkedAccountProgress } from './account-import.mjs';
 import { createDefaultLadderState } from './ladder-catalog.mjs';
 import { createDefaultMissionState } from './mission-catalog.mjs';
 import { comparePassword, hashPassword } from './password-hashing.mjs';
@@ -245,12 +246,15 @@ export function createPlayerService({ storage = createMemoryPlayerStorage(), ses
         // session token (unlike ensureBotPlayer) so a linked player can
         // actually play - passwordHash stays null since they never
         // authenticate here directly, only via the real site's own login.
-        ensureLinkedPlayer({ accountId, username }) {
+        ensureLinkedPlayer({ accountId, username, importProgress = null }) {
             if (typeof accountId !== 'string' || !accountId) {
                 throw new PlayerServiceError(400, 'invalid_account', 'A linked account id is required.');
             }
             const existingId = idByLinkedAccountId.get(accountId);
             if (existingId) {
+                // Re-linking never re-imports: whatever the player has since
+                // earned inside pokemon-unison itself takes priority over a
+                // stale snapshot of their real-site progress from link time.
                 const player = players.get(existingId);
                 return { player: publicPlayer(player), token: issueSession(player) };
             }
@@ -274,7 +278,7 @@ export function createPlayerService({ storage = createMemoryPlayerStorage(), ses
                 linkedUsername: normalizeUsername(username) || null,
                 createdAt: now,
                 updatedAt: now,
-                profile: createDefaultProfile(),
+                profile: importProgress ? translateLinkedAccountProgress(importProgress) : createDefaultProfile(),
             };
             players.set(player.id, player);
             idByUsernameLower.set(candidateLower, player.id);

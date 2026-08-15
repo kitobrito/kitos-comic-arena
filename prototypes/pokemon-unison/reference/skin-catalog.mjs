@@ -24,6 +24,7 @@ export const SKIN_CATALOG = [
         name: 'Shiny Ditto',
         description: 'Ditto begins battle in its blue shiny appearance and still copies the exact skin of any Pokemon it transforms into.',
         unlockPointCost: 500,
+        previewFacePicture: '/game-assets/images/PokemonArena/Ditto/Done/shinyFP.jpg',
     },
     {
         skinId: 'ditto-flubber',
@@ -31,6 +32,7 @@ export const SKIN_CATALOG = [
         name: 'Flubber Ditto',
         description: 'A green Flubber-inspired Ditto skin. After transforming, Ditto still uses the copied Pokemon’s exact equipped appearance.',
         unlockPointCost: 500,
+        previewFacePicture: '/game-assets/images/PokemonArena/Ditto/Done/dittoflubberskin.png',
     },
     {
         skinId: 'pikachu-raichu',
@@ -38,6 +40,7 @@ export const SKIN_CATALOG = [
         name: 'Raichu',
         description: 'A Raichu-inspired skin for Pikachu with custom portrait and skill art.',
         unlockPointCost: 750,
+        previewFacePicture: '/game-assets/images/PokemonArena/Pikachu/skins/raichu/fp.webp',
     },
     {
         skinId: 'butterfree-pink',
@@ -45,6 +48,7 @@ export const SKIN_CATALOG = [
         name: 'Pink Butterfree',
         description: 'A rosy Pink Butterfree skin with custom portrait and full skill art.',
         unlockPointCost: 750,
+        previewFacePicture: '/game-assets/images/PokemonArena/butterfree/skins/Pink/PinkFP.png',
     },
     {
         skinId: 'onix-crystal',
@@ -52,6 +56,7 @@ export const SKIN_CATALOG = [
         name: 'Crystal Onix',
         description: 'A crystal-blue Onix skin with custom portrait and full skill art.',
         unlockPointCost: 750,
+        previewFacePicture: '/game-assets/images/PokemonArena/onix/skins/crystal/crystalfp.webp',
     },
     {
         skinId: 'onix-bismuth',
@@ -59,6 +64,7 @@ export const SKIN_CATALOG = [
         name: 'Bismuth Onix',
         description: 'A prismatic Bismuth Onix skin with custom portrait and full skill art.',
         unlockPointCost: 750,
+        previewFacePicture: '/game-assets/images/PokemonArena/onix/skins/Bismuth/BismuthFP.png',
     },
     {
         skinId: 'onix-golden',
@@ -66,6 +72,7 @@ export const SKIN_CATALOG = [
         name: 'Golden Onix',
         description: 'A gleaming Golden Onix skin with custom portrait and full skill art.',
         unlockPointCost: 750,
+        previewFacePicture: '/game-assets/images/PokemonArena/onix/skins/Golden/GoldFP.png',
     },
     {
         skinId: 'onix-magma',
@@ -73,6 +80,7 @@ export const SKIN_CATALOG = [
         name: 'Magma Onix',
         description: 'A molten Magma Onix skin with custom portrait and full skill art.',
         unlockPointCost: 750,
+        previewFacePicture: '/game-assets/images/PokemonArena/onix/skins/Magma/MagmaFP.png',
     },
     {
         skinId: 'onix-cosmic',
@@ -80,6 +88,7 @@ export const SKIN_CATALOG = [
         name: 'Cosmic Onix',
         description: 'A celestial Cosmic Onix skin with custom portrait and full skill art.',
         unlockPointCost: 1000,
+        previewFacePicture: '/game-assets/images/PokemonArena/onix/skins/Cosmic/CosmicFP.png',
     },
     {
         skinId: 'magikarp-golden-gyarados-red',
@@ -87,6 +96,7 @@ export const SKIN_CATALOG = [
         name: 'Golden Magikarp',
         description: 'A golden Magikarp skin that evolves into a red Gyarados with custom portrait and skill art.',
         unlockPointCost: 1000,
+        previewFacePicture: '/game-assets/images/PokemonArena/magikarp/skins/gold/goldenfp.jpeg',
     },
     {
         skinId: 'charmander-charizard-legendary',
@@ -94,6 +104,7 @@ export const SKIN_CATALOG = [
         name: 'Charizard',
         description: 'A legendary Charizard skin for Charmander that branches into Mega Charizard X if Seismic Toss activates the evolution or Mega Charizard Y if Flamethrower or Fire Blast activates the evolution.',
         unlockPointCost: 1350,
+        previewFacePicture: '/game-assets/images/PokemonArena/Charmander/skins/charizard/charizardfp.jpg',
         patch: { name: 'Charizard', pokemonTypes: ['Fire', 'Flying'] },
         // Skill name/description renames only (no art) — production's literal
         // skillOverridesBySkillId text for this skin, verbatim.
@@ -153,6 +164,7 @@ export const SKIN_CATALOG = [
         description: 'Begins battle as Venusaur and becomes Mega Venusaur when its five-Sun evolution activates.',
         unlockPointCost: 750,
         patch: { name: 'Venusaur', pokemonTypes: ['Grass', 'Poison'] },
+        previewFacePicture: '/game-assets/images/PokemonArena/Bulbasaur/skins/mega/megafp.png',
     },
     {
         skinId: 'bulbasaur-gigantamax-venusaur',
@@ -161,6 +173,7 @@ export const SKIN_CATALOG = [
         description: 'Begins battle as Venusaur and becomes Gigantamax Venusaur when its five-Sun evolution activates.',
         unlockPointCost: 750,
         patch: { name: 'Venusaur', pokemonTypes: ['Grass', 'Poison'] },
+        previewFacePicture: '/game-assets/images/PokemonArena/Bulbasaur/skins/gigantamax/fp.png',
     },
     {
         skinId: 'squirtle-mega-blastoise',
@@ -169,6 +182,7 @@ export const SKIN_CATALOG = [
         description: 'Begins battle as Blastoise and becomes Mega Blastoise when its three-stack evolution activates.',
         unlockPointCost: 750,
         patch: { name: 'Blastoise', pokemonTypes: ['Water'] },
+        previewFacePicture: '/game-assets/images/PokemonArena/squirtle/skins/mega/megafp.png',
     },
     {
         skinId: 'squirtle-gigantamax-blastoise',
@@ -177,6 +191,7 @@ export const SKIN_CATALOG = [
         description: 'Begins battle as Blastoise and becomes Gigantamax Blastoise when its three-stack evolution activates.',
         unlockPointCost: 750,
         patch: { name: 'Blastoise', pokemonTypes: ['Water'] },
+        previewFacePicture: '/game-assets/images/PokemonArena/squirtle/skins/gigantamax/fp.png',
     },
     {
         skinId: 'charmander-gigantamax-charizard',
@@ -185,6 +200,7 @@ export const SKIN_CATALOG = [
         description: 'Begins battle as Charizard and becomes Gigantamax Charizard after critically striking or burning an enemy twice.',
         unlockPointCost: 750,
         patch: { name: 'Charizard', pokemonTypes: ['Fire', 'Flying'] },
+        previewFacePicture: '/game-assets/images/PokemonArena/Charmander/skins/gigantamax/fp.png',
     },
     // Gen2 evolution skins: all missionRewardOnly (never directly purchasable),
     // granted by the starter-evolution missions in mission-catalog.mjs
@@ -200,6 +216,7 @@ export const SKIN_CATALOG = [
         unlockPointCost: 0,
         missionRewardOnly: true,
         patch: { name: 'Quilava', form: 'quilava' },
+        previewFacePicture: '/game-assets/images/PokemonArena/Cyndaquil/quilavafp.png',
     },
     {
         skinId: 'cyndaquil-typhlosion-evolution',
@@ -209,6 +226,7 @@ export const SKIN_CATALOG = [
         unlockPointCost: 0,
         missionRewardOnly: true,
         patch: { name: 'Typhlosion', form: 'typhlosion' },
+        previewFacePicture: '/game-assets/images/PokemonArena/Cyndaquil/typlosionfp.png',
     },
     {
         skinId: 'chikorita-bayleaf-evolution',
@@ -218,6 +236,7 @@ export const SKIN_CATALOG = [
         unlockPointCost: 0,
         missionRewardOnly: true,
         patch: { name: 'Bayleaf', form: 'bayleaf' },
+        previewFacePicture: '/game-assets/images/PokemonArena/Cyndaquil/Chikorita/bayleaffp.png',
     },
     {
         skinId: 'chikorita-meganium-evolution',
@@ -227,6 +246,7 @@ export const SKIN_CATALOG = [
         unlockPointCost: 0,
         missionRewardOnly: true,
         patch: { name: 'Meganium', form: 'meganium' },
+        previewFacePicture: '/game-assets/images/PokemonArena/Cyndaquil/Chikorita/meganiumfp.png',
     },
     {
         skinId: 'totodile-croconaw-evolution',
@@ -236,6 +256,7 @@ export const SKIN_CATALOG = [
         unlockPointCost: 0,
         missionRewardOnly: true,
         patch: { name: 'Croconaw', form: 'croconaw' },
+        previewFacePicture: '/game-assets/images/PokemonArena/Cyndaquil/Totodile/croconawfp.png',
     },
     {
         skinId: 'totodile-feraligatr-evolution',
@@ -245,6 +266,7 @@ export const SKIN_CATALOG = [
         unlockPointCost: 0,
         missionRewardOnly: true,
         patch: { name: 'Feraligatr', form: 'feraligatr' },
+        previewFacePicture: '/game-assets/images/PokemonArena/Cyndaquil/Totodile/feraligatrfp.png',
     },
     // Production gates direct purchase behind a live release-event window
     // (purchaseAvailableAt); no event-window mechanic exists here yet, so this
@@ -256,6 +278,7 @@ export const SKIN_CATALOG = [
         description: 'Primeape evolves into Annihilape with a custom portrait, complete skill art, and new-UI render.',
         unlockPointCost: 750,
         patch: { name: 'Annihilape' },
+        previewFacePicture: '/game-assets/images/PokemonArena/Primeape/skins/annihilape/Annihilape-FP.jpg',
     },
 ];
 

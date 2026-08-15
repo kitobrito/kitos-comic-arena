@@ -266,17 +266,18 @@ button:focus-visible {
     background: rgba(0, 0, 0, 0.3);
 }
 
+/* Mirrors production's real .selectionpage/.player-card/.slot-list/
+   .selected-character-slot-list absolute-positioning system
+   (styles/selection-experimental.css) rather than approximating it within
+   a CSS Grid - profile card floats top-left, the showcase panel takes the
+   remaining top width, roster and team panels split the space below. The
+   background art itself (newcharacterselectpics/1783126094113.png) is
+   already applied on body.selection-mode, echoing production's
+   .background layer. */
 .selection-layout {
-    display: grid;
-    grid-template-columns: minmax(330px, 0.8fr) minmax(540px, 1.45fr);
-    /* Preview/showcase spans the full top row (echoing production's
-       prominent top showcase strip), roster and team selection share the
-       row below it - approximated within this grid rather than production's
-       absolute-positioned layout. */
-    grid-template-areas:
-        "preview preview"
-        "roster  team";
-    gap: 14px;
+    --profile-card-width: clamp(220px, 19vw, 280px);
+    position: relative;
+    min-height: 760px;
     margin-top: 14px;
 }
 
@@ -287,16 +288,40 @@ button:focus-visible {
     overflow: hidden;
 }
 
+#profile-card.profile-card {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--profile-card-width);
+    margin-top: 0;
+    z-index: 3;
+}
+
 .selection-preview {
-    grid-area: preview;
+    position: absolute;
+    left: calc(var(--profile-card-width) + 14px);
+    right: 0;
+    top: 0;
+    height: 336px;
 }
 
 .roster-console {
-    grid-area: roster;
+    position: absolute;
+    left: 0;
+    top: 350px;
+    bottom: 0;
+    width: calc(44% - 7px);
+    display: flex;
+    flex-direction: column;
 }
 
 .team-console {
-    grid-area: team;
+    position: absolute;
+    right: 0;
+    top: 350px;
+    bottom: 0;
+    width: calc(56% - 7px);
+    overflow-y: auto;
 }
 
 .selection-preview {
@@ -757,19 +782,28 @@ img.skill-art {
     padding: 14px;
 }
 
-.roster-grid {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 8px;
-    flex: 1 1 auto;
-    min-width: 0;
-}
-
 .roster-pager {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-top: 12px;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+/* The 5-column x 3-row skewed grid, matching production's per-bank
+   .slot-list treatment (styles/selection-experimental.css:643-736) - one
+   bank rather than production's two, since pokemon-unison already paginates
+   the roster with prev/next arrows instead of showing two banks at once,
+   and ROSTER_PAGE_SIZE (app.mjs) is already exactly 5x3=15 to match. */
+.roster-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-rows: repeat(3, 1fr);
+    gap: clamp(5px, 0.9vw, 11px);
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 100%;
+    padding: 4px 0;
 }
 
 .roster-page-arrow {
@@ -790,20 +824,23 @@ img.skill-art {
 .roster-card {
     position: relative;
     min-width: 0;
-    min-height: 112px;
+    min-height: 0;
     padding: 0;
-    overflow: hidden;
+    overflow: visible;
     text-align: left;
-    background: #10191d;
+    background: none;
+    border: 2px solid rgba(103, 117, 112, 0.92);
+    transform: skew(-8deg);
 }
 
 .roster-card img {
     display: block;
-    width: 100%;
-    height: 72px;
+    width: 112%;
+    height: 100%;
+    max-width: none;
     object-fit: cover;
-    object-position: center top;
     filter: saturate(0.92) contrast(1.04);
+    transform: scale(1.12) skew(8deg);
 }
 
 .roster-card::after {
@@ -812,6 +849,12 @@ img.skill-art {
     inset: 0;
     pointer-events: none;
     background: linear-gradient(180deg, transparent 44%, rgba(2, 7, 10, 0.94) 77%);
+    overflow: hidden;
+}
+
+.roster-card:hover:not(.locked) {
+    z-index: 3;
+    transform: translateY(-4px) skew(-8deg) scale(1.04);
 }
 
 .roster-card.previewed,
@@ -830,6 +873,12 @@ img.skill-art {
     padding: 0 7px;
     text-overflow: ellipsis;
     white-space: nowrap;
+    transform: skew(8deg);
+}
+
+.roster-card-lock-badge,
+.roster-card-buy-badge {
+    transform: skew(8deg);
 }
 
 .roster-card-name {
@@ -919,12 +968,22 @@ img.skill-art {
     height: 54px;
     padding: 3px 7px 3px 3px;
     text-align: left;
+    /* Echoes production's gold-bordered "Your Team" slot styling
+       (selection-experimental.css:801-811) - kept as a row layout rather
+       than a fully skewed vertical portrait card, since a filled slot here
+       still needs to show the Pokemon's name alongside its picture. */
+    border-color: rgba(255, 228, 50, 0.6);
 }
 
 .team-slot.active {
     border-color: #fff;
     background: linear-gradient(180deg, rgba(239, 64, 93, 0.86), rgba(103, 15, 31, 0.94));
     box-shadow: 0 0 16px rgba(239, 64, 93, 0.34);
+}
+
+.team-slot:not(.empty):not(.active) {
+    border-color: #ffe432;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 .team-slot img {
@@ -979,19 +1038,25 @@ img.skill-art {
 .lobby-actions {
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
+    align-items: stretch;
     gap: 8px;
     margin-top: 12px;
 }
 
+/* Matches production's .button-container: Ranked + Quick share a row,
+   Private spans the full width below (selection-experimental.css:830-874). */
 .lobby-actions-primary {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+}
+
+#new-match-button {
+    grid-column: 1 / -1;
 }
 
 .lobby-actions button {
-    min-width: 170px;
+    min-width: 0;
     text-transform: uppercase;
     font-size: 0.7rem;
     font-weight: 900;
@@ -2444,12 +2509,36 @@ img.skill-art {
 }
 
 @media (max-width: 1050px) {
+    /* Below this width the absolute-positioned canvas (sized for the
+       proportions of a desktop showcase + side-by-side roster/team panels)
+       has no room to work with, so it falls back to a normal stacked
+       single column - the same "narrow viewport" escape hatch production
+       itself takes at its own max-width:700px breakpoint. */
     .selection-layout {
-        grid-template-columns: 1fr;
-        grid-template-areas:
-            "preview"
-            "roster"
-            "team";
+        position: static;
+        min-height: 0;
+    }
+
+    #profile-card.profile-card {
+        position: static;
+        width: auto;
+    }
+
+    .selection-preview {
+        position: static;
+        height: auto;
+        margin-top: 14px;
+    }
+
+    .roster-console,
+    .team-console {
+        position: static;
+        width: auto;
+        margin-top: 14px;
+    }
+
+    .roster-console {
+        min-height: 420px;
     }
 
     .preview-top {
@@ -2562,7 +2651,13 @@ img.skill-art {
 
     .roster-grid {
         grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-rows: none;
+        height: auto;
         max-height: none;
+    }
+
+    .roster-console {
+        height: auto;
     }
 
     .team-builder {

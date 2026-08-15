@@ -528,11 +528,14 @@ function renderMissionsTab() {
                 .join('');
             return `
                 <article class="mission-card ${completed ? 'completed' : ''}">
-                    <div class="mission-card-heading">
-                        <span>${escapeHtml(mission.title ?? mission.missionId)}</span>
-                        ${completed ? '<span class="mission-card-status">Complete</span>' : ''}
+                    ${mission.image ? `<img class="mission-card-image" src="${escapeHtml(mission.image)}" alt="" loading="lazy">` : ''}
+                    <div class="mission-card-body">
+                        <div class="mission-card-heading">
+                            <span>${escapeHtml(mission.title ?? mission.missionId)}</span>
+                            ${completed ? '<span class="mission-card-status">Complete</span>' : ''}
+                        </div>
+                        <ul class="mission-goal-list">${goalsHtml}</ul>
                     </div>
-                    <ul class="mission-goal-list">${goalsHtml}</ul>
                 </article>
             `;
         })
@@ -583,11 +586,14 @@ function renderSkinsTab() {
             const card = document.createElement('article');
             card.className = 'skin-card';
             card.innerHTML = `
-                <div class="skin-card-heading">
-                    <span>${escapeHtml(skin.name)} <small>(${escapeHtml(speciesName)})</small></span>
-                    ${skin.missionRewardOnly ? '<small>Mission reward</small>' : `<small>${skin.unlockPointCost} pts</small>`}
+                ${skin.previewFacePicture ? `<img class="skin-card-image" src="${escapeHtml(skin.previewFacePicture)}" alt="" loading="lazy">` : ''}
+                <div class="skin-card-body">
+                    <div class="skin-card-heading">
+                        <span>${escapeHtml(skin.name)} <small>(${escapeHtml(speciesName)})</small></span>
+                        ${skin.missionRewardOnly ? '<small>Mission reward</small>' : `<small>${skin.unlockPointCost} pts</small>`}
+                    </div>
+                    <p class="progress-empty-note">${escapeHtml(skin.description ?? '')}</p>
                 </div>
-                <p class="progress-empty-note">${escapeHtml(skin.description ?? '')}</p>
             `;
             const actions = document.createElement('div');
             actions.className = 'skin-card-actions';
@@ -612,7 +618,7 @@ function renderSkinsTab() {
                 equipButton.addEventListener('click', () => equipSkin(skin.characterId, equipped ? '' : skin.skinId));
                 actions.append(equipButton);
             }
-            card.append(actions);
+            card.querySelector('.skin-card-body').append(actions);
             elements.progressSkinsList.append(card);
         });
 }

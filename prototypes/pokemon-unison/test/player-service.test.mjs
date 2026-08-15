@@ -178,3 +178,31 @@ test('a different account id linking with no username falls back to a stable gen
     const linked = service.ensureLinkedPlayer({ accountId: 'real-account-3', username: '' });
     assert.ok(linked.player.username.startsWith('Trainer'));
 });
+
+test('importProgress seeds the profile only on first link, never on a repeat link', () => {
+    const service = createPlayerService();
+    const first = service.ensureLinkedPlayer({
+        accountId: 'real-account-4',
+        username: 'Misty',
+        importProgress: { unlockedCharacterIds: ['charmander'], unlockPoints: 300 },
+    });
+    assert.deepEqual(first.player.profile.missions.unlockedCharacterIds, ['charmander']);
+    assert.equal(first.player.profile.missions.unlockPoints, 300);
+
+    // The player earns more progress inside pokemon-unison itself...
+    service.updateProfile(first.player.id, (profile) => ({
+        ...profile,
+        missions: { ...profile.missions, unlockPoints: 9999 },
+    }));
+
+    // ...and a second link (e.g. a later browser session) must not clobber it
+    // with a re-import of the stale real-account snapshot.
+    const second = service.ensureLinkedPlayer({
+        accountId: 'real-account-4',
+        username: 'Misty',
+        importProgress: { unlockedCharacterIds: ['pikachu'], unlockPoints: 1 },
+    });
+    assert.equal(second.player.id, first.player.id);
+    assert.equal(second.player.profile.missions.unlockPoints, 9999);
+    assert.deepEqual(second.player.profile.missions.unlockedCharacterIds, ['charmander']);
+});

@@ -82,6 +82,7 @@ export function resolveMissionUnlockPointCost(mission = {}) {
 export const MISSION_CATALOG = [
     {
         missionId: 'scyther-trial',
+        image: '/game-assets/images/PokemonArena/scyther/scythermissionpic.jpeg',
         title: 'The Scyther Trial',
         level_requirement: 6,
         rank: '6',
@@ -103,6 +104,7 @@ export const MISSION_CATALOG = [
     },
     {
         missionId: 'gastly-haunted-tower',
+        image: '/game-assets/images/PokemonArena/gastley/gastleymissionpic.jpeg',
         title: 'The Haunted Tower',
         level_requirement: 6,
         rank: '6',
@@ -123,6 +125,7 @@ export const MISSION_CATALOG = [
     },
     {
         missionId: 'krabby-tide-trial',
+        image: '/game-assets/images/PokemonArena/missionpics/krabby.webp',
         title: 'Krabby Tide Trial',
         level_requirement: 7,
         rank: '7',
@@ -143,6 +146,7 @@ export const MISSION_CATALOG = [
     },
     {
         missionId: 'ekans-venom-trial',
+        image: '/game-assets/images/PokemonArena/missionpics/ekans.jpeg',
         title: 'Ekans Venom Trial',
         level_requirement: 8,
         rank: '8',
@@ -163,6 +167,7 @@ export const MISSION_CATALOG = [
     },
     {
         missionId: 'machop-power-run',
+        image: '/game-assets/images/PokemonArena/missionpics/machop.jpeg',
         title: 'Machop Power Run',
         level_requirement: 8,
         rank: '8',
@@ -183,6 +188,7 @@ export const MISSION_CATALOG = [
     },
     {
         missionId: 'magikarp-long-climb',
+        image: '/game-assets/images/PokemonArena/missionpics/magikarp.webp',
         title: 'Magikarp Long Climb',
         level_requirement: 9,
         rank: '9',
@@ -203,6 +209,7 @@ export const MISSION_CATALOG = [
     },
     {
         missionId: 'mr-mime-stage-trial',
+        image: '/game-assets/images/PokemonArena/missionpics/mr.mime.avif',
         title: 'Mr. Mime Stage Trial',
         level_requirement: 10,
         rank: '10',
@@ -223,6 +230,7 @@ export const MISSION_CATALOG = [
     },
     {
         missionId: 'hitmonchan-power-grid',
+        image: '/game-assets/images/PokemonArena/missionpics/hitmonchan.jpeg',
         title: 'Hitmonchan Power Grid',
         level_requirement: 11,
         rank: '11',
@@ -243,6 +251,7 @@ export const MISSION_CATALOG = [
     },
     {
         missionId: 'hitmonlee-kick-circuit',
+        image: '/game-assets/images/PokemonArena/missionpics/hitmonlee.jpeg',
         title: 'Hitmonlee Kick Circuit',
         level_requirement: 12,
         rank: '12',
@@ -263,6 +272,7 @@ export const MISSION_CATALOG = [
     },
     {
         missionId: 'magnemite-magnet-rise',
+        image: '/game-assets/images/PokemonArena/missionpics/magnemite.jpg',
         title: 'Magnemite Magnet Rise',
         level_requirement: 12,
         rank: '12',
@@ -283,6 +293,7 @@ export const MISSION_CATALOG = [
     },
     {
         missionId: 'aerodactyl-fossil-flight',
+        image: '/game-assets/images/PokemonArena/missionpics/aerodactyl.avif',
         title: 'Aerodactyl Fossil Flight',
         level_requirement: 13,
         rank: '13',
@@ -303,6 +314,7 @@ export const MISSION_CATALOG = [
     },
     {
         missionId: 'onix-stonewall-trial',
+        image: '/game-assets/images/PokemonArena/missionpics/onix.jpeg',
         title: 'Onix Stonewall Trial',
         level_requirement: 13,
         rank: '13',
@@ -323,6 +335,7 @@ export const MISSION_CATALOG = [
     },
     {
         missionId: 'aegislash-kings-shield-trial',
+        image: '/game-assets/images/PokemonArena/missionpics/aegislash.webp',
         title: "Aegislash King's Shield Trial",
         level_requirement: 13,
         rank: '13',
@@ -345,6 +358,7 @@ export const MISSION_CATALOG = [
     },
     {
         missionId: 'ditto-perfect-copy-trial',
+        image: '/game-assets/images/PokemonArena/missionpics/ditto.avif',
         title: 'Ditto Perfect Copy Trial',
         level_requirement: 13,
         rank: '13',
@@ -367,6 +381,7 @@ export const MISSION_CATALOG = [
     },
     {
         missionId: 'scraggy-focus-energy-trial',
+        image: '/game-assets/images/PokemonArena/missionpics/scraggy.jpg',
         title: 'Scraggy Focus Energy Trial',
         level_requirement: 13,
         rank: '13',
@@ -389,6 +404,7 @@ export const MISSION_CATALOG = [
     },
     {
         missionId: 'dragapult-dragon-darts-trial',
+        image: '/game-assets/images/PokemonArena/missionpics/dragapult.jpg',
         title: 'Dragapult Dragon Darts Trial',
         level_requirement: 14,
         rank: '14',
@@ -411,6 +427,7 @@ export const MISSION_CATALOG = [
     },
     {
         missionId: 'pikachu-starter-path',
+        image: '/game-assets/images/PokemonArena/missionpics/pikachu.jpeg',
         title: 'Pikachu Starter Path',
         level_requirement: 1,
         rank: '1',
@@ -424,6 +441,7 @@ export const MISSION_CATALOG = [
     },
     {
         missionId: 'pokemon-wave-2-clefairy',
+        image: '/game-assets/images/PokemonArena/missionpics/clefairy.jpg',
         title: 'Moon Stone Melody',
         level_requirement: 3,
         rank: '3',
@@ -447,6 +465,7 @@ export const MISSION_CATALOG = [
     },
     {
         missionId: 'pokemon-wave-2-jigglypuff',
+        image: '/game-assets/images/PokemonArena/missionpics/jigglypuff.jpg',
         title: 'The Encore That Never Ends',
         level_requirement: 4,
         rank: '4',
@@ -468,6 +487,7 @@ export const MISSION_CATALOG = [
     },
     {
         missionId: 'pokemon-wave-2-beedrill',
+        image: '/game-assets/images/PokemonArena/missionpics/beedrill.jpg',
         title: 'Trial of the Hive',
         level_requirement: 5,
         rank: '5',
@@ -489,6 +509,7 @@ export const MISSION_CATALOG = [
     },
     {
         missionId: 'pokemon-wave-2-articuno',
+        image: '/game-assets/images/PokemonArena/missionpics/articuno.jpg',
         title: 'Frozen Legendary Trial',
         level_requirement: 20,
         rank: '20',
@@ -511,6 +532,7 @@ export const MISSION_CATALOG = [
     },
     {
         missionId: 'pokemon-wave-2-moltres',
+        image: '/game-assets/images/PokemonArena/missionpics/moltres.webp',
         title: 'Blazing Legendary Trial',
         level_requirement: 21,
         rank: '21',
@@ -533,6 +555,7 @@ export const MISSION_CATALOG = [
     },
     {
         missionId: 'pokemon-wave-2-zapdos',
+        image: '/game-assets/images/PokemonArena/missionpics/zapdos.jpg',
         title: 'Storm Legendary Trial',
         level_requirement: 22,
         rank: '22',
@@ -555,6 +578,7 @@ export const MISSION_CATALOG = [
     },
     {
         missionId: 'pokemon-wave-2-mew',
+        image: '/game-assets/images/PokemonArena/missionpics/mew.jpg',
         title: 'A Mythical Discovery',
         level_requirement: 23,
         rank: '23',
@@ -577,6 +601,7 @@ export const MISSION_CATALOG = [
     },
     {
         missionId: 'pokemon-wave-2-mewtwo',
+        image: '/game-assets/images/PokemonArena/missionpics/mewtwo.avif',
         title: 'Genetic Power Unbound',
         level_requirement: 25,
         rank: '25',
@@ -599,6 +624,7 @@ export const MISSION_CATALOG = [
     },
     {
         missionId: 'pokemon-wave-2-dragonite',
+        image: '/game-assets/images/PokemonArena/missionpics/dragonite.webp',
         title: 'Dragon Mastery',
         level_requirement: 18,
         rank: '18',
@@ -621,6 +647,7 @@ export const MISSION_CATALOG = [
     },
     {
         missionId: 'pokemon-ladder-first-25-wins',
+        image: '/game-assets/images/PokemonArena/found-pokeball.png',
         title: 'Road to Champion: 25 Ladder Wins',
         level_requirement: 1,
         rank: '1',
@@ -649,6 +676,7 @@ export const MISSION_CATALOG = [
     // only starts accumulating once the first mission is already complete.
     {
         missionId: 'cyndaquil-evolve-quilava',
+        image: '/game-assets/images/PokemonArena/Cyndaquil/quilavafp.png',
         title: 'Cyndaquil Evolution: Quilava',
         level_requirement: 1,
         rank: '1',
@@ -663,6 +691,7 @@ export const MISSION_CATALOG = [
     },
     {
         missionId: 'cyndaquil-evolve-typhlosion',
+        image: '/game-assets/images/PokemonArena/Cyndaquil/typlosionfp.png',
         title: 'Cyndaquil Evolution: Typhlosion',
         level_requirement: 1,
         rank: '1',
@@ -678,6 +707,7 @@ export const MISSION_CATALOG = [
     },
     {
         missionId: 'chikorita-evolve-bayleaf',
+        image: '/game-assets/images/PokemonArena/Cyndaquil/Chikorita/bayleaffp.png',
         title: 'Chikorita Evolution: Bayleaf',
         level_requirement: 1,
         rank: '1',
@@ -692,6 +722,7 @@ export const MISSION_CATALOG = [
     },
     {
         missionId: 'chikorita-evolve-meganium',
+        image: '/game-assets/images/PokemonArena/Cyndaquil/Chikorita/meganiumfp.png',
         title: 'Chikorita Evolution: Meganium',
         level_requirement: 1,
         rank: '1',
@@ -707,6 +738,7 @@ export const MISSION_CATALOG = [
     },
     {
         missionId: 'totodile-evolve-croconaw',
+        image: '/game-assets/images/PokemonArena/Cyndaquil/Totodile/croconawfp.png',
         title: 'Totodile Evolution: Croconaw',
         level_requirement: 1,
         rank: '1',
@@ -721,6 +753,7 @@ export const MISSION_CATALOG = [
     },
     {
         missionId: 'totodile-evolve-feraligatr',
+        image: '/game-assets/images/PokemonArena/Cyndaquil/Totodile/feraligatrfp.png',
         title: 'Totodile Evolution: Feraligatr',
         level_requirement: 1,
         rank: '1',

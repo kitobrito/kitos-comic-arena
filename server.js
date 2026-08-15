@@ -9935,11 +9935,21 @@ const getSessionUserFromToken = async (token) => {
 
 // Bridges a real, already-verified comic-arena.net login into the isolated
 // pokemon-unison prototype without ever handing that prototype JWT_SECRET or
-// Mongo access directly - only this plain {accountId, username} result
-// crosses the boundary, as an in-process request property (see the
-// POKEMON_UNISON_PREVIEW_PATH mount above), never a header or a new cookie.
-// Uses the raw Cookie header (not req.cookies) because this mount is
-// registered before app.use(cookieParser()) in the middleware chain.
+// Mongo access directly - only this plain {accountId, username,
+// pokemonProgress} result crosses the boundary, as an in-process request
+// property (see the POKEMON_UNISON_PREVIEW_PATH mount above), never a
+// header or a new cookie. Uses the raw Cookie header (not req.cookies)
+// because this mount is registered before app.use(cookieParser()) in the
+// middleware chain.
+//
+// pokemonProgress is a narrow, explicit picklist from the real account's
+// OLD in-server Pokemon Arena progress (profile.arenas.pokemon) - used once,
+// by pokemon-unison's own player-service, to seed a freshly-linked player's
+// starting profile so a real player's unlocked characters/points/ladder
+// rank aren't lost when they first link. Deliberately NOT the full profile
+// blob (no recent-game history, no Comic-arena fields) and NOT reused via
+// getProfileArenaState/normalizeArenaProgressState, which are module-private
+// here and carry Comic-arena-specific normalization this doesn't need.
 const resolveLinkedArenaAccount = async (req) => {
     try {
         const cookies = parseCookieHeader(req.headers.cookie || '');
@@ -9948,7 +9958,21 @@ const resolveLinkedArenaAccount = async (req) => {
         const decoded = jwt.verify(token, JWT_SECRET);
         const user = await usersCollection.findOne({ username: decoded.username });
         if (!user) return null;
-        return { accountId: user._id.toString(), username: user.username };
+        const pokemon = user.profile?.arenas?.pokemon;
+        return {
+            accountId: user._id.toString(),
+            username: user.username,
+            pokemonProgress: pokemon
+                ? {
+                      unlockedCharacterIds: pokemon.missions?.unlockedCharacterIds,
+                      unlockPoints: pokemon.missions?.unlockPoints,
+                      purchasedUnlocks: pokemon.missions?.purchasedUnlocks,
+                      unlockedSkinIds: pokemon.skins?.unlockedSkinIds,
+                      equippedSkinByCharacterId: pokemon.skins?.equippedSkinByCharacterId,
+                      ladder: pokemon.ladder,
+                  }
+                : null,
+        };
     } catch (error) {
         return null;
     }
