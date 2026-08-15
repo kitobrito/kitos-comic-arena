@@ -11,6 +11,13 @@ const TRACKABLE_GOAL_TYPES = new Set([
     'win_matches_same_team',
 ]);
 
+// The three Johto starters - exactly one is unlocked per player, via a
+// one-time first-login choice (see mission-service.mjs's chooseStarter and
+// player-service.mjs's profile.missions.starterCharacterId), mirroring
+// production's real starterCharacterId/gen2StarterCharacterId mechanic
+// instead of leaving all three freely selectable.
+export const JOHTO_STARTER_CHARACTER_IDS = ['cyndaquil', 'chikorita', 'totodile'];
+
 // Characters selectable without any account/unlock check. Two groups:
 //
 // 1. Confirmed free in production — these 12 never appear as a
@@ -19,22 +26,24 @@ const TRACKABLE_GOAL_TYPES = new Set([
 //    bulbasaur, butterfree, koffing, zubat, chansey, pidgey, abra, meowth,
 //    nincada.
 // 2. Temporarily free here, pending an unbuilt unlock path — production
-//    gates these 8 through mechanics this prototype hasn't built yet
-//    (the direct-pick starter/evolution-choice endpoints, or an unresearched
-//    release mission): eevee, jolteon, flareon, vaporeon (Eevee's evolution
-//    choice), cyndaquil, chikorita, totodile (the Johto starter choice), and
-//    primeape (the only mission found for it grants a cosmetic skin, not the
-//    character itself — its real unlock path wasn't found in research).
-//    Leaving these locked with no way to ever unlock them would be a worse
-//    regression than leaving them free; when their real unlock mechanic is
-//    ported, move them out of this list.
+//    gates these 5 through mechanics this prototype hasn't built yet
+//    (the direct-pick evolution-choice endpoint, or an unresearched release
+//    mission): eevee, jolteon, flareon, vaporeon (Eevee's evolution choice),
+//    and primeape (the only mission found for it grants a cosmetic skin,
+//    not the character itself — its real unlock path wasn't found in
+//    research). Leaving these locked with no way to ever unlock them would
+//    be a worse regression than leaving them free; when their real unlock
+//    mechanic is ported, move them out of this list.
 //
-// Every other ROSTER character (34 total) is gated: 26 by a real, working
-// mission in MISSION_CATALOG below, and the remaining 8 above by nothing yet.
+// The three Johto starters are NOT in this list - each player unlocks
+// exactly one via the first-login starter choice (JOHTO_STARTER_CHARACTER_IDS
+// above), not for free. Every other ROSTER character (34 total) is gated:
+// 26 by a real, working mission in MISSION_CATALOG below, and the remaining
+// 5 above by nothing yet.
 export const ALWAYS_UNLOCKED_CHARACTER_IDS = [
     'pokemon-trainer', 'charmander', 'squirtle', 'bulbasaur', 'butterfree', 'koffing',
     'zubat', 'chansey', 'pidgey', 'abra', 'meowth', 'nincada',
-    'eevee', 'jolteon', 'flareon', 'vaporeon', 'cyndaquil', 'chikorita', 'totodile', 'primeape',
+    'eevee', 'jolteon', 'flareon', 'vaporeon', 'primeape',
 ];
 
 // Rank-tier unlock-point pricing, ported verbatim from getMissionUnlockPointCostForRank
@@ -815,6 +824,7 @@ export function createDefaultMissionState() {
         unlockedCharacterIds: [],
         unlockPoints: 0,
         purchasedUnlocks: [],
+        starterCharacterId: null,
     };
 }
 
@@ -848,6 +858,7 @@ export function evaluateMissionsForPlayer({ catalog, missionsState, didWin, team
         unlockedCharacterIds: [...(missionsState?.unlockedCharacterIds ?? [])],
         unlockPoints: Math.max(0, Number(missionsState?.unlockPoints) || 0),
         purchasedUnlocks: [...(missionsState?.purchasedUnlocks ?? [])],
+        starterCharacterId: missionsState?.starterCharacterId ?? null,
     };
     const unlockedIds = new Set(state.unlockedCharacterIds.map(normalizeCharacterId));
     const completedMissionIdsAtStart = new Set(

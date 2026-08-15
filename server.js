@@ -9970,6 +9970,7 @@ const resolveLinkedArenaAccount = async (req) => {
                       unlockedSkinIds: pokemon.skins?.unlockedSkinIds,
                       equippedSkinByCharacterId: pokemon.skins?.equippedSkinByCharacterId,
                       ladder: pokemon.ladder,
+                      starterCharacterId: pokemon.missions?.gen2StarterCharacterId,
                   }
                 : null,
         };

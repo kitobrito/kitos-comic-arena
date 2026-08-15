@@ -22,6 +22,9 @@ const elements = {
     accountLoginButton: document.querySelector('#account-login-button'),
     accountRegisterButton: document.querySelector('#account-register-button'),
     accountError: document.querySelector('#account-error'),
+    starterChoiceBackdrop: document.querySelector('#starter-choice-backdrop'),
+    starterChoiceOptions: document.querySelector('#starter-choice-options'),
+    starterChoiceError: document.querySelector('#starter-choice-error'),
     accountSignedIn: document.querySelector('#account-signed-in'),
     accountUsernameLabel: document.querySelector('#account-username-label'),
     accountPointsLabel: document.querySelector('#account-points-label'),
@@ -146,6 +149,8 @@ let unlockedCharacterIds = null;
 let missionCatalog = [];
 let missionProgressByMissionId = {};
 let unlockPoints = 0;
+let starterCharacterId = null;
+const JOHTO_STARTER_CHARACTER_IDS = ['cyndaquil', 'chikorita', 'totodile'];
 let skinCatalog = [];
 let unlockedSkinIds = [];
 let equippedSkinByCharacterId = {};
@@ -455,6 +460,7 @@ async function loadAccountProgress() {
         missionCatalog = [];
         missionProgressByMissionId = {};
         unlockPoints = 0;
+        starterCharacterId = null;
         skinCatalog = [];
         unlockedSkinIds = [];
         equippedSkinByCharacterId = {};
@@ -476,6 +482,7 @@ async function loadAccountProgress() {
         missionProgressByMissionId = missions.missionProgressByMissionId ?? {};
         unlockedCharacterIds = missions.unlockedCharacterIds ?? [];
         unlockPoints = missions.unlockPoints ?? 0;
+        starterCharacterId = missions.starterCharacterId ?? null;
         skinCatalog = skins.skins ?? [];
         unlockedSkinIds = skins.unlockedSkinIds ?? [];
         equippedSkinByCharacterId = skins.equippedSkinByCharacterId ?? {};
@@ -486,6 +493,45 @@ async function loadAccountProgress() {
     renderAccountBar();
     renderProgressPanel();
     renderTeamSelectors();
+    renderStarterChoiceModal();
+}
+
+function renderStarterChoiceModal() {
+    const shouldShow = Boolean(playerSession) && !starterCharacterId;
+    elements.starterChoiceBackdrop.hidden = !shouldShow;
+    if (!shouldShow) return;
+    elements.starterChoiceError.textContent = '';
+    elements.starterChoiceOptions.replaceChildren();
+    JOHTO_STARTER_CHARACTER_IDS.forEach((characterId) => {
+        const species = ROSTER[characterId];
+        if (!species) return;
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'starter-choice-option';
+        button.innerHTML = `
+            <img src="${escapeHtml(species.facePicture || '')}" alt="${escapeHtml(species.name)}">
+            <strong>${escapeHtml(species.name)}</strong>
+        `;
+        button.addEventListener('click', () => chooseStarter(characterId, button));
+        elements.starterChoiceOptions.append(button);
+    });
+}
+
+async function chooseStarter(characterId, button) {
+    elements.starterChoiceError.textContent = '';
+    const buttons = elements.starterChoiceOptions.querySelectorAll('button');
+    buttons.forEach((el) => { el.disabled = true; });
+    try {
+        await api('/api/missions/choose-starter', {
+            method: 'POST',
+            token: playerSession.token,
+            body: { characterId },
+        });
+        await loadAccountProgress();
+    } catch (error) {
+        elements.starterChoiceError.textContent = error.message;
+        buttons.forEach((el) => { el.disabled = false; });
+    }
 }
 
 function missionGoalMarkup(goal, progress) {

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { createMissionService } from '../reference/mission-service.mjs';
+import { createMissionService, MissionServiceError } from '../reference/mission-service.mjs';
 import { createPlayerService } from '../reference/player-service.mjs';
 
 const TEST_CATALOG = [
@@ -61,4 +61,58 @@ test('catalog() returns a deep clone that cannot mutate the service’s own cata
     const catalog = missionService.catalog();
     catalog[0].reward_character = 'tampered';
     assert.equal(missionService.catalog()[0].reward_character, 'onix');
+});
+
+test('chooseStarter unlocks exactly the chosen Johto starter', async () => {
+    const playerService = createPlayerService();
+    const missionService = createMissionService({ playerService });
+    const alice = await registerPlayer(playerService, 'Alice');
+    assert.equal(alice.profile.missions.starterCharacterId, null);
+
+    const updated = missionService.chooseStarter(alice.id, 'cyndaquil');
+    assert.equal(updated.profile.missions.starterCharacterId, 'cyndaquil');
+    assert.ok(updated.profile.missions.unlockedCharacterIds.includes('cyndaquil'));
+    assert.equal(updated.profile.missions.unlockedCharacterIds.includes('chikorita'), false);
+    assert.equal(updated.profile.missions.unlockedCharacterIds.includes('totodile'), false);
+});
+
+test('chooseStarter rejects anything that is not a Johto starter', async () => {
+    const playerService = createPlayerService();
+    const missionService = createMissionService({ playerService });
+    const alice = await registerPlayer(playerService, 'Alice');
+    assert.throws(
+        () => missionService.chooseStarter(alice.id, 'charmander'),
+        (error) => error instanceof MissionServiceError && error.code === 'invalid_starter'
+    );
+    assert.throws(
+        () => missionService.chooseStarter(alice.id, ''),
+        (error) => error instanceof MissionServiceError && error.code === 'invalid_starter'
+    );
+});
+
+test('chooseStarter is a one-time choice - a repeat call is a no-op, not an overwrite', async () => {
+    const playerService = createPlayerService();
+    const missionService = createMissionService({ playerService });
+    const alice = await registerPlayer(playerService, 'Alice');
+
+    missionService.chooseStarter(alice.id, 'chikorita');
+    const second = missionService.chooseStarter(alice.id, 'totodile');
+
+    assert.equal(second.profile.missions.starterCharacterId, 'chikorita');
+    assert.ok(second.profile.missions.unlockedCharacterIds.includes('chikorita'));
+    assert.equal(second.profile.missions.unlockedCharacterIds.includes('totodile'), false);
+});
+
+test('chooseStarter is case-insensitive and rejects an unknown player', async () => {
+    const playerService = createPlayerService();
+    const missionService = createMissionService({ playerService });
+    const alice = await registerPlayer(playerService, 'Alice');
+
+    const updated = missionService.chooseStarter(alice.id, 'TOTODILE');
+    assert.equal(updated.profile.missions.starterCharacterId, 'totodile');
+
+    assert.throws(
+        () => missionService.chooseStarter('not-a-real-player-id', 'cyndaquil'),
+        (error) => error instanceof MissionServiceError && error.code === 'player_not_found'
+    );
 });

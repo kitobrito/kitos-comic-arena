@@ -1,5 +1,5 @@
 import { createDefaultLadderState, getRankInfoForLevel, LADDER_MAX_LEVEL } from './ladder-catalog.mjs';
-import { createDefaultMissionState, normalizeCharacterId } from './mission-catalog.mjs';
+import { createDefaultMissionState, JOHTO_STARTER_CHARACTER_IDS, normalizeCharacterId } from './mission-catalog.mjs';
 import { ROSTER } from './roster.mjs';
 import { createDefaultSkinState, normalizeSkinState } from './skin-catalog.mjs';
 
@@ -28,11 +28,25 @@ function translateMissions(rawProgress) {
     const unlockedCharacterIds = filterKnownCharacterIds(rawProgress.unlockedCharacterIds);
     const purchasedUnlocks = filterKnownCharacterIds(rawProgress.purchasedUnlocks);
     const unlockPoints = Math.max(0, Math.floor(Number(rawProgress.unlockPoints) || 0));
+    // If the real account already chose a Johto starter in production
+    // (gen2StarterCharacterId), carry that choice over so a returning
+    // linked player isn't asked to choose again - and make sure it's
+    // actually unlocked here too, since the two systems track "unlocked"
+    // and "chosen starter" as separate fields.
+    const starterCharacterId = JOHTO_STARTER_CHARACTER_IDS.includes(
+        normalizeCharacterId(rawProgress.starterCharacterId)
+    )
+        ? normalizeCharacterId(rawProgress.starterCharacterId)
+        : null;
+    if (starterCharacterId && !unlockedCharacterIds.includes(starterCharacterId)) {
+        unlockedCharacterIds.push(starterCharacterId);
+    }
     return {
         progressByMissionId: {},
         unlockedCharacterIds,
         unlockPoints,
         purchasedUnlocks,
+        starterCharacterId,
     };
 }
 

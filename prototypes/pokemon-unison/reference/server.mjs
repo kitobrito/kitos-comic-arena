@@ -7,7 +7,7 @@ import { createLadderService } from './ladder-service.mjs';
 import { createMatchService, MatchServiceError } from './match-service.mjs';
 import { createJsonMatchStorage } from './match-storage.mjs';
 import { createDefaultMissionState, validateTeamOwnership } from './mission-catalog.mjs';
-import { createMissionService } from './mission-service.mjs';
+import { createMissionService, MissionServiceError } from './mission-service.mjs';
 import { isPayPalConfigured } from './paypal-client.mjs';
 import { createPlayerService, PlayerServiceError } from './player-service.mjs';
 import { createJsonPlayerStorage } from './player-storage.mjs';
@@ -185,17 +185,30 @@ async function handleSessionApi(request, response, url, playerService, matchServ
 }
 
 async function handleMissionsApi(request, response, url, missionService, playerService) {
-    if (request.method !== 'GET' || url.pathname !== '/api/missions') return false;
-    const player = playerService.verifySession(bearerToken(request));
-    const missionsState = player?.profile?.missions ?? createDefaultMissionState();
-    sendJson(response, 200, {
-        missions: missionService.catalog(),
-        missionProgressByMissionId: missionsState.progressByMissionId,
-        unlockedCharacterIds: missionsState.unlockedCharacterIds,
-        unlockPoints: missionsState.unlockPoints,
-        purchasedUnlocks: missionsState.purchasedUnlocks,
-    });
-    return true;
+    const parts = routeParts(url.pathname);
+    if (parts[0] !== 'api' || parts[1] !== 'missions') return false;
+
+    if (request.method === 'GET' && parts.length === 2) {
+        const player = playerService.verifySession(bearerToken(request));
+        const missionsState = player?.profile?.missions ?? createDefaultMissionState();
+        sendJson(response, 200, {
+            missions: missionService.catalog(),
+            missionProgressByMissionId: missionsState.progressByMissionId,
+            unlockedCharacterIds: missionsState.unlockedCharacterIds,
+            unlockPoints: missionsState.unlockPoints,
+            purchasedUnlocks: missionsState.purchasedUnlocks,
+            starterCharacterId: missionsState.starterCharacterId ?? null,
+        });
+        return true;
+    }
+    if (request.method === 'POST' && parts[2] === 'choose-starter' && parts.length === 3) {
+        const player = requireAuthenticatedPlayer(request, playerService);
+        const body = await readJson(request);
+        const updated = missionService.chooseStarter(player.id, body.characterId);
+        sendJson(response, 200, { player: updated });
+        return true;
+    }
+    return false;
 }
 
 async function handleSkinsApi(request, response, url, skinService, playerService) {
@@ -503,7 +516,8 @@ export function createPokemonUnisonHandler({
                 error instanceof SkinServiceError ||
                 error instanceof StoreServiceError ||
                 error instanceof QueueServiceError ||
-                error instanceof RateLimitError
+                error instanceof RateLimitError ||
+                error instanceof MissionServiceError
             ) {
                 sendJson(response, error.status, { error: error.code, message: error.message });
                 return;
