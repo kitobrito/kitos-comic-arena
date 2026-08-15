@@ -326,7 +326,7 @@ button:focus-visible {
     transform: translateX(-50%);
     top: 350px;
     bottom: 0;
-    width: min(460px, 32%);
+    width: min(420px, 30%);
     z-index: 4;
     overflow-y: auto;
 }
@@ -818,7 +818,7 @@ img.skill-art {
     grid-template-columns: repeat(5, minmax(0, 1fr));
     grid-template-rows: repeat(3, 1fr);
     gap: clamp(5px, 0.9vw, 11px);
-    flex: 0 0 38%;
+    flex: 0 0 34%;
     min-width: 0;
     padding: 4px 0;
 }
