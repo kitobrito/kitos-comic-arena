@@ -1,5 +1,5 @@
 import { ALWAYS_UNLOCKED_CHARACTER_IDS, resolveMissionUnlockPointCost } from './mission-catalog.mjs';
-import { ROSTER, unitPresentation } from './roster.mjs';
+import { DEFAULT_TEAMS, ROSTER, unitPresentation } from './roster.mjs';
 import { selectionFormRenderUrl, selectionRenderForms } from './selection-art.mjs';
 import { skillArt } from './skill-art.mjs';
 
@@ -130,7 +130,6 @@ const elements = {
     teamB: document.querySelector('#team-b'),
     teamBNames: document.querySelector('#team-b-names'),
     teamSelectA: document.querySelector('#team-select-a'),
-    teamSelectB: document.querySelector('#team-select-b'),
     turnLabel: document.querySelector('#turn-label'),
     undoQueueButton: document.querySelector('#undo-queue-button'),
     weatherBanner: document.querySelector('#weather-banner'),
@@ -173,9 +172,14 @@ let progressRefreshedForMatchId = null;
 let previewSelectionForm = 'base';
 let previewSkillId = null;
 let hoveredTargetCard = null;
+// There is only one player-editable team now (matching production's real
+// selection screen, which never lets the creator pick their opponent's
+// team) - Player B's team is a fixed default, used only for Private Match
+// creation (Ranked/Quick already send just this client's own team; the
+// matched opponent's team comes from the queue/bot, not this draft).
 const teamDraft = {
     A: [null, null, null],
-    B: [null, null, null],
+    B: [...DEFAULT_TEAMS.B],
 };
 
 function escapeHtml(value) {
@@ -1305,11 +1309,9 @@ function buildRosterCard(species) {
     button.className = 'roster-card';
     if (species.id === previewSpeciesId) button.classList.add('previewed');
     const assignments = [];
-    for (const player of ['A', 'B']) {
-        teamDraft[player].forEach((speciesId, slot) => {
-            if (speciesId === species.id) assignments.push(`${player}${slot + 1}`);
-        });
-    }
+    teamDraft.A.forEach((speciesId, slot) => {
+        if (speciesId === species.id) assignments.push(`${slot + 1}`);
+    });
     if (assignments.length) button.classList.add('drafted');
     const locked = isCharacterLocked(species.id);
     const lockCost = locked ? missionUnlockCost(species.id) : null;
@@ -1378,12 +1380,13 @@ elements.selectionEvolutionForm.addEventListener('click', () => {
 });
 
 function teamsComplete() {
-    return teamDraft.A.every(Boolean) && teamDraft.B.every(Boolean);
+    // Player B's team is a fixed default (see teamDraft's declaration) -
+    // only Player A's own team needs to be filled in by the player.
+    return teamDraft.A.every(Boolean);
 }
 
 function renderTeamSelectors() {
     renderDraftSlots('A');
-    renderDraftSlots('B');
     renderRosterGrid();
     renderSelectionPreview();
     setLobbyButtonsDisabled(!teamsComplete());

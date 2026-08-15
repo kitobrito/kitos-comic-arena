@@ -584,7 +584,12 @@ button:focus-visible {
 
 .preview-skills {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    /* Fixed-range columns, not 1fr - the showcase panel got much wider once
+       it started spanning the top row full-width, and 1fr columns were
+       stretching each square (aspect-ratio:1) skill icon to ~286px. Capping
+       the column size keeps icons a sane size regardless of panel width;
+       extra width just fits more columns instead of bigger icons. */
+    grid-template-columns: repeat(auto-fill, minmax(90px, 130px));
     gap: 6px;
 }
 
@@ -924,41 +929,22 @@ img.skill-art {
     font-size: 0.64rem;
 }
 
+/* Only one player-editable team now (see teamDraft in app.mjs) - no more
+   second column/label reserved for a "Player B" draft. */
 .team-builder {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
+    grid-template-columns: 1fr;
     margin-top: 12px;
     padding: 0;
     border: 0;
 }
 
 .team-draft {
-    display: grid;
-    grid-template-columns: 96px minmax(0, 1fr);
-    gap: 10px;
-    align-items: center;
     padding: 9px;
     border: 1px solid rgba(255, 255, 255, 0.14);
     border-left: 3px solid var(--arena-red);
     border-radius: 6px;
     background: rgba(255, 255, 255, 0.025);
-}
-
-.team-draft-label strong,
-.team-draft-label small {
-    display: block;
-}
-
-.team-draft-label strong {
-    font-size: 0.72rem;
-    letter-spacing: 0.1em;
-}
-
-.team-draft-label small {
-    margin-top: 4px;
-    color: var(--arena-muted);
-    font-size: 0.58rem;
 }
 
 .team-slots {
@@ -2691,14 +2677,6 @@ img.skill-art {
 
     .roster-console {
         height: auto;
-    }
-
-    .team-builder {
-        grid-template-columns: 1fr;
-    }
-
-    .team-draft {
-        grid-template-columns: 68px minmax(0, 1fr);
     }
 
     .team-slot {
