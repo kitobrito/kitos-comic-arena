@@ -13,6 +13,7 @@ import { createPlayerService, PlayerServiceError } from './player-service.mjs';
 import { createJsonPlayerStorage } from './player-storage.mjs';
 import { createJsonPurchaseStorage } from './purchase-storage.mjs';
 import { createQueueService, QueueServiceError } from './queue-service.mjs';
+import { clientIp, createRateLimiter, RateLimitError } from './rate-limiter.mjs';
 import { DEFAULT_TEAMS } from './roster.mjs';
 import { createDefaultSkinState, resolveSkinFormOverride } from './skin-catalog.mjs';
 import { createSkinService, SkinServiceError } from './skin-service.mjs';
@@ -116,24 +117,30 @@ function requireAuthenticatedPlayer(request, playerService) {
     return player;
 }
 
-async function handlePlayersApi(request, response, url, playerService) {
+async function handlePlayersApi(request, response, url, playerService, matchService, registerLimiter, loginLimiter) {
     const parts = routeParts(url.pathname);
     if (parts[0] !== 'api' || parts[1] !== 'players') return false;
 
     if (request.method === 'POST' && parts[2] === 'register' && parts.length === 3) {
+        if (!registerLimiter.check(clientIp(request))) {
+            throw new RateLimitError('Too many registration attempts. Please try again in a few minutes.');
+        }
         const body = await readJson(request);
         const result = await playerService.register({
             username: body.username,
             email: body.email,
             password: body.password,
         });
-        sendJson(response, 201, result);
+        sendJson(response, 201, { ...result, activeMatch: matchService.resumeActiveMatchForPlayer(result.player.id) });
         return true;
     }
     if (request.method === 'POST' && parts[2] === 'login' && parts.length === 3) {
+        if (!loginLimiter.check(clientIp(request))) {
+            throw new RateLimitError('Too many login attempts. Please try again in a few minutes.');
+        }
         const body = await readJson(request);
         const result = await playerService.login({ username: body.username, password: body.password });
-        sendJson(response, 200, result);
+        sendJson(response, 200, { ...result, activeMatch: matchService.resumeActiveMatchForPlayer(result.player.id) });
         return true;
     }
     if (request.method === 'POST' && parts[2] === 'logout' && parts.length === 3) {
@@ -150,6 +157,26 @@ async function handlePlayersApi(request, response, url, playerService) {
         return true;
     }
     return false;
+}
+
+// Auto-signs-in a player whose browser already carries a valid real
+// comic-arena.net session cookie - server.js's pokemon-unison mount
+// resolves that cookie server-side (never exposing the real site's
+// JWT_SECRET/Mongo access to this module) and attaches the verified result
+// as request.__linkedArenaAccount before this handler ever runs. Absent a
+// linked account (logged-out visitor, or the standalone local launcher,
+// which never sets this at all), responds with a null token so the client
+// falls back to its existing manual register/login forms.
+async function handleSessionApi(request, response, url, playerService, matchService) {
+    if (request.method !== 'GET' || url.pathname !== '/api/session/bootstrap') return false;
+    const linked = request.__linkedArenaAccount;
+    if (!linked?.accountId) {
+        sendJson(response, 200, { token: null });
+        return true;
+    }
+    const result = playerService.ensureLinkedPlayer({ accountId: linked.accountId, username: linked.username });
+    sendJson(response, 200, { ...result, activeMatch: matchService.resumeActiveMatchForPlayer(result.player.id) });
+    return true;
 }
 
 async function handleMissionsApi(request, response, url, missionService, playerService) {
@@ -245,7 +272,10 @@ async function handleApi(
     storeService,
     ladderService,
     queueService,
-    publicBasePath
+    publicBasePath,
+    registerLimiter,
+    loginLimiter,
+    queueLimiter
 ) {
     const parts = routeParts(url.pathname);
     if (request.method === 'GET' && url.pathname === '/api/health') {
@@ -260,7 +290,10 @@ async function handleApi(
         sendJson(response, 200, { players: ladderService.leaderboard() });
         return true;
     }
-    if (await handlePlayersApi(request, response, url, playerService)) {
+    if (await handleSessionApi(request, response, url, playerService, matchService)) {
+        return true;
+    }
+    if (await handlePlayersApi(request, response, url, playerService, matchService, registerLimiter, loginLimiter)) {
         return true;
     }
     if (await handleMissionsApi(request, response, url, missionService, playerService)) {
@@ -304,6 +337,9 @@ async function handleApi(
         return true;
     }
     if (request.method === 'POST' && url.pathname === '/api/queue') {
+        if (!queueLimiter.check(clientIp(request))) {
+            throw new RateLimitError('Too many queue attempts. Please try again in a minute.');
+        }
         const body = await readJson(request);
         const authedPlayer = playerService.verifySession(body.playerToken);
         if (!authedPlayer) {
@@ -417,6 +453,12 @@ export function createPokemonUnisonHandler({
     }),
     queueService = createQueueService({ matchService, playerService }),
     publicBasePath = '/',
+    // Reference values mirror the real comic-arena.net site's own
+    // loginLimiter/registerLimiter (server.js), scaled to a dependency-free
+    // sliding-window implementation since this server isn't Express.
+    registerLimiter = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 10 }),
+    loginLimiter = createRateLimiter({ windowMs: 5 * 60 * 1000, max: 20 }),
+    queueLimiter = createRateLimiter({ windowMs: 60 * 1000, max: 10 }),
 } = {}) {
     const normalizedBasePath = normalizePublicBasePath(publicBasePath);
     return async (request, response) => {
@@ -435,7 +477,10 @@ export function createPokemonUnisonHandler({
                         storeService,
                         ladderService,
                         queueService,
-                        normalizedBasePath
+                        normalizedBasePath,
+                        registerLimiter,
+                        loginLimiter,
+                        queueLimiter
                     ))
                 ) {
                     sendJson(response, 404, { error: 'api_not_found', message: 'API route not found.' });
@@ -452,7 +497,8 @@ export function createPokemonUnisonHandler({
                 error instanceof PlayerServiceError ||
                 error instanceof SkinServiceError ||
                 error instanceof StoreServiceError ||
-                error instanceof QueueServiceError
+                error instanceof QueueServiceError ||
+                error instanceof RateLimitError
             ) {
                 sendJson(response, error.status, { error: error.code, message: error.message });
                 return;

@@ -778,7 +778,7 @@ async function restorePlayerSession() {
 async function registerPlayer() {
     elements.accountError.textContent = '';
     try {
-        const { player, token } = await api('/api/players/register', {
+        const { player, token, activeMatch } = await api('/api/players/register', {
             method: 'POST',
             token: null,
             body: {
@@ -792,6 +792,7 @@ async function registerPlayer() {
         elements.accountForm.reset();
         renderAccountBar();
         await loadAccountProgress();
+        if (activeMatch) await enterActiveMatch(activeMatch);
     } catch (error) {
         elements.accountError.textContent = error.message;
     }
@@ -800,7 +801,7 @@ async function registerPlayer() {
 async function loginPlayer() {
     elements.accountError.textContent = '';
     try {
-        const { player, token } = await api('/api/players/login', {
+        const { player, token, activeMatch } = await api('/api/players/login', {
             method: 'POST',
             token: null,
             body: {
@@ -813,6 +814,7 @@ async function loginPlayer() {
         elements.accountForm.reset();
         renderAccountBar();
         await loadAccountProgress();
+        if (activeMatch) await enterActiveMatch(activeMatch);
     } catch (error) {
         elements.accountError.textContent = error.message;
     }
@@ -1985,6 +1987,43 @@ async function joinMatch(matchId, inviteCode) {
     render();
 }
 
+// Enters a match using a token the server already handed us directly
+// (from /api/session/bootstrap or a register/login response's activeMatch),
+// rather than one found in this tab's own sessionStorage - this is what
+// makes "reconnect by account" work without a ?match= URL or a per-tab token.
+async function enterActiveMatch({ matchId, token, player }) {
+    try {
+        const resumed = await api(`/api/matches/${encodeURIComponent(matchId)}/state`, { token });
+        saveSession({ matchId, player, token });
+        snapshot = resumed;
+        history.replaceState(null, '', applicationLocation(`?match=${encodeURIComponent(matchId)}`));
+        render();
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+// Auto-signs-in a player whose browser already carries a valid real
+// comic-arena.net session cookie (resolved server-side by server.js, see
+// req.__linkedArenaAccount) - returns the linked session's activeMatch (or
+// null) so start() knows whether to auto-resume, or null entirely if this
+// browser has no linked real-site login, so start() falls back to the
+// existing manual localStorage-token restore.
+async function bootstrapSession() {
+    try {
+        const result = await api('/api/session/bootstrap', { token: null });
+        if (!result?.token) return null;
+        playerSession = { player: result.player, token: result.token };
+        savePlayerToken(result.token);
+        renderAccountBar();
+        await loadAccountProgress();
+        return { activeMatch: result.activeMatch ?? null };
+    } catch {
+        return null;
+    }
+}
+
 async function resumeMatch(matchId) {
     for (const player of ['A', 'B']) {
         const token = sessionStorage.getItem(tokenKey(matchId, player));
@@ -2104,13 +2143,22 @@ async function start() {
     const matchId = params.get('match');
     const inviteCode = params.get('invite');
     renderAccountBar();
-    await restorePlayerSession();
+    // A linked real comic-arena.net account takes priority over any
+    // manually-registered pokemon-unison-only login stored in this browser.
+    const linked = await bootstrapSession();
+    if (!linked) {
+        await restorePlayerSession();
+    }
     try {
         await loadRoster();
         if (matchId && inviteCode) {
             await joinMatch(matchId, inviteCode);
-        } else if (matchId && !(await resumeMatch(matchId))) {
-            elements.lobbyStatus.textContent = 'This tab has no player token for that match. Build a new team or use its invite link.';
+        } else if (matchId) {
+            if (!(await resumeMatch(matchId))) {
+                elements.lobbyStatus.textContent = 'This tab has no player token for that match. Build a new team or use its invite link.';
+            }
+        } else if (linked?.activeMatch) {
+            await enterActiveMatch(linked.activeMatch);
         }
     } catch (error) {
         elements.lobbyStatus.textContent = `Could not start: ${error.message}`;

@@ -101,9 +101,13 @@ function publicPlayer(player) {
 export function createPlayerService({ storage = createMemoryPlayerStorage(), sessionSecret } = {}) {
     const players = new Map();
     const idByUsernameLower = new Map();
+    const idByLinkedAccountId = new Map();
     storage.loadAll().forEach((player) => {
         players.set(player.id, player);
         idByUsernameLower.set(player.usernameLower, player.id);
+        if (player.linkedAccountId) {
+            idByLinkedAccountId.set(player.linkedAccountId, player.id);
+        }
     });
 
     const secret = sessionSecret ?? storage.loadOrCreateSessionSecret();
@@ -233,6 +237,50 @@ export function createPlayerService({ storage = createMemoryPlayerStorage(), ses
             idByUsernameLower.set(usernameLower, player.id);
             persist(player);
             return publicPlayer(player);
+        },
+
+        // Bridges a verified real comic-arena.net account (see server.js's
+        // req.__linkedArenaAccount) to an isolated pokemon-unison player
+        // record. Idempotent per accountId, and issues a real usable
+        // session token (unlike ensureBotPlayer) so a linked player can
+        // actually play - passwordHash stays null since they never
+        // authenticate here directly, only via the real site's own login.
+        ensureLinkedPlayer({ accountId, username }) {
+            if (typeof accountId !== 'string' || !accountId) {
+                throw new PlayerServiceError(400, 'invalid_account', 'A linked account id is required.');
+            }
+            const existingId = idByLinkedAccountId.get(accountId);
+            if (existingId) {
+                const player = players.get(existingId);
+                return { player: publicPlayer(player), token: issueSession(player) };
+            }
+            const baseUsername = normalizeUsername(username) || `Trainer${accountId.slice(-6)}`;
+            let candidateUsername = baseUsername;
+            let candidateLower = candidateUsername.toLowerCase();
+            let suffix = 1;
+            while (idByUsernameLower.has(candidateLower)) {
+                suffix += 1;
+                candidateUsername = `${baseUsername}${suffix}`;
+                candidateLower = candidateUsername.toLowerCase();
+            }
+            const now = new Date().toISOString();
+            const player = {
+                id: randomUUID(),
+                username: candidateUsername,
+                usernameLower: candidateLower,
+                email: '',
+                passwordHash: null,
+                linkedAccountId: accountId,
+                linkedUsername: normalizeUsername(username) || null,
+                createdAt: now,
+                updatedAt: now,
+                profile: createDefaultProfile(),
+            };
+            players.set(player.id, player);
+            idByUsernameLower.set(candidateLower, player.id);
+            idByLinkedAccountId.set(accountId, player.id);
+            persist(player);
+            return { player: publicPlayer(player), token: issueSession(player) };
         },
 
         updateProfile(id, updater) {

@@ -496,6 +496,34 @@ export function createMatchService({ storage = createMemoryMatchStorage(), onMat
             return clone(exportReplay(match.game));
         },
 
+        // For reconnect-by-account: match tokens are only ever stored as
+        // one-way digests (see digestSecret/secretsEqual above), so there is
+        // no stored token to hand back. Instead this mints and stores a
+        // fresh token for the player's seat - the caller has already proven
+        // ownership of playerId via their player-service session, so this is
+        // just a server-side "reissue my seat's token" operation, the same
+        // trust level join() already uses when Player B's token is minted.
+        // This intentionally invalidates any other tab still holding the old
+        // token for that seat.
+        resumeActiveMatchForPlayer(playerId) {
+            if (!playerId) return null;
+            let best = null;
+            for (const match of matches.values()) {
+                if (match.game.winner) continue;
+                const seat = match.playerIds.A === playerId ? 'A' : match.playerIds.B === playerId ? 'B' : null;
+                if (!seat) continue;
+                if (!best || match.updatedAt > best.match.updatedAt) {
+                    best = { match, seat };
+                }
+            }
+            if (!best) return null;
+            const { match, seat } = best;
+            const token = makeSecret();
+            match.tokenDigests[seat] = digestSecret(token);
+            persist(match);
+            return { matchId: match.id, token, player: seat };
+        },
+
         size() {
             return matches.size;
         },

@@ -146,3 +146,35 @@ test('ensureBotPlayer creates an unauthenticatable player once, then no-ops on r
 
     assert.equal(service.listAll().find((player) => player.username === 'TestBot')?.isBot, true);
 });
+
+test('ensureLinkedPlayer creates a passwordless player once, then reuses it on repeat calls with a fresh token', () => {
+    const service = createPlayerService();
+
+    const first = service.ensureLinkedPlayer({ accountId: 'real-account-1', username: 'AshKetchum' });
+    assert.equal(first.player.username, 'AshKetchum');
+    assert.ok(first.token);
+    assert.equal(service.size(), 1);
+
+    const second = service.ensureLinkedPlayer({ accountId: 'real-account-1', username: 'AshKetchum' });
+    assert.equal(second.player.id, first.player.id);
+    assert.notEqual(second.token, first.token, 'a fresh session token is issued on every bootstrap');
+    assert.equal(service.size(), 1, 'the same real account never creates a second player');
+
+    const verified = service.verifySession(second.token);
+    assert.equal(verified.id, first.player.id);
+});
+
+test('ensureLinkedPlayer disambiguates a username already taken by a manually-registered player', async () => {
+    const service = createPlayerService();
+    await service.register({ username: 'Misty', email: '', password: 'longenough1' });
+
+    const linked = service.ensureLinkedPlayer({ accountId: 'real-account-2', username: 'Misty' });
+    assert.notEqual(linked.player.username, 'Misty');
+    assert.match(linked.player.username, /^Misty\d+$/);
+});
+
+test('a different account id linking with no username falls back to a stable generated name', () => {
+    const service = createPlayerService();
+    const linked = service.ensureLinkedPlayer({ accountId: 'real-account-3', username: '' });
+    assert.ok(linked.player.username.startsWith('Trainer'));
+});

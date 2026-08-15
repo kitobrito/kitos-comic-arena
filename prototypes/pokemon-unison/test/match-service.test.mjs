@@ -338,6 +338,43 @@ test('anonymous matches (no linked account) still notify onMatchComplete with nu
     assert.equal(completions[0].mode, 'solo');
 });
 
+test('resumeActiveMatchForPlayer mints a fresh working token for a player\'s live match', () => {
+    const service = createMatchService();
+    const created = service.create({ seed: 3, playerId: 'account-a' });
+    const joined = service.join(created.matchId, created.inviteCode, { playerId: 'account-b' });
+
+    const resumedA = service.resumeActiveMatchForPlayer('account-a');
+    assert.equal(resumedA.matchId, created.matchId);
+    assert.equal(resumedA.player, 'A');
+    assert.notEqual(resumedA.token, created.token, 'a fresh token is minted, not the original one');
+    // The old token stops working once a new one is minted for that seat...
+    assert.throws(
+        () => service.view(created.matchId, created.token),
+        (error) => error instanceof MatchServiceError && error.code === 'invalid_token'
+    );
+    // ...but the freshly minted one authenticates seat A correctly.
+    assert.equal(service.view(resumedA.matchId, resumedA.token).player, 'A');
+
+    const resumedB = service.resumeActiveMatchForPlayer('account-b');
+    assert.equal(resumedB.player, 'B');
+    assert.notEqual(resumedB.token, joined.token);
+});
+
+test('resumeActiveMatchForPlayer returns null for an unknown player or a finished match', () => {
+    const service = createMatchService();
+    assert.equal(service.resumeActiveMatchForPlayer('nobody'), null);
+    assert.equal(service.resumeActiveMatchForPlayer(null), null);
+
+    const created = service.create({ seed: 4, playerId: 'account-a' });
+    service.join(created.matchId, created.inviteCode, { playerId: 'account-b' });
+    service.surrender(created.matchId, created.token);
+    assert.equal(
+        service.resumeActiveMatchForPlayer('account-a'),
+        null,
+        'a finished match is no longer resumable'
+    );
+});
+
 test('join() rejects a locked team B character when unlockedCharacterIds is provided, and skips the check when it is null', () => {
     const service = createMatchService();
     const created = service.create({

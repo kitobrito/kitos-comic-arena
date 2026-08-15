@@ -269,6 +269,13 @@ button:focus-visible {
 .selection-layout {
     display: grid;
     grid-template-columns: minmax(330px, 0.8fr) minmax(540px, 1.45fr);
+    /* Preview/showcase spans the full top row (echoing production's
+       prominent top showcase strip), roster and team selection share the
+       row below it - approximated within this grid rather than production's
+       absolute-positioned layout. */
+    grid-template-areas:
+        "preview preview"
+        "roster  team";
     gap: 14px;
     margin-top: 14px;
 }
@@ -278,6 +285,18 @@ button:focus-visible {
 .team-console {
     min-width: 0;
     overflow: hidden;
+}
+
+.selection-preview {
+    grid-area: preview;
+}
+
+.roster-console {
+    grid-area: roster;
+}
+
+.team-console {
+    grid-area: team;
 }
 
 .selection-preview {
@@ -840,7 +859,6 @@ img.skill-art {
 }
 
 .team-console {
-    grid-column: 1 / -1;
     padding: 14px;
 }
 
@@ -2428,6 +2446,10 @@ img.skill-art {
 @media (max-width: 1050px) {
     .selection-layout {
         grid-template-columns: 1fr;
+        grid-template-areas:
+            "preview"
+            "roster"
+            "team";
     }
 
     .preview-top {
@@ -2436,10 +2458,6 @@ img.skill-art {
 
     .selection-preview-image {
         height: 220px;
-    }
-
-    .team-console {
-        grid-column: auto;
     }
 
     .battle-stage {

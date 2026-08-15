@@ -9562,6 +9562,7 @@ app.get(POKEMON_UNISON_PREVIEW_PATH, (req, res, next) => {
 app.use(POKEMON_UNISON_PREVIEW_PATH, async (req, res, next) => {
     res.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
     try {
+        req.__linkedArenaAccount = await resolveLinkedArenaAccount(req);
         const handler = await getPokemonUnisonHandler();
         return handler(req, res);
     } catch (error) {
@@ -9930,6 +9931,27 @@ const getSessionUserFromToken = async (token) => {
     return {
         ...serializeUserForClient(user),
     };
+};
+
+// Bridges a real, already-verified comic-arena.net login into the isolated
+// pokemon-unison prototype without ever handing that prototype JWT_SECRET or
+// Mongo access directly - only this plain {accountId, username} result
+// crosses the boundary, as an in-process request property (see the
+// POKEMON_UNISON_PREVIEW_PATH mount above), never a header or a new cookie.
+// Uses the raw Cookie header (not req.cookies) because this mount is
+// registered before app.use(cookieParser()) in the middleware chain.
+const resolveLinkedArenaAccount = async (req) => {
+    try {
+        const cookies = parseCookieHeader(req.headers.cookie || '');
+        const token = cookies[SESSION_COOKIE_NAME];
+        if (!token) return null;
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const user = await usersCollection.findOne({ username: decoded.username });
+        if (!user) return null;
+        return { accountId: user._id.toString(), username: user.username };
+    } catch (error) {
+        return null;
+    }
 };
 
 const getMatchRoom = (matchId) => {
