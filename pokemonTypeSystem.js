@@ -54,6 +54,7 @@ const POKEMON_CHARACTER_TYPES = Object.freeze({
     ninjask: ['Bug', 'Flying'],
     shedinja: ['Bug', 'Ghost'],
     primeape: ['Fighting'],
+    drowzee: ['Psychic'],
 });
 
 const skillsByType = {
@@ -82,6 +83,7 @@ const skillsByType = {
         'jigglypuff-humiliate', 'jigglypuff-evolution-wigglytuff', 'mewtwo-recover',
         'dragonite-hyper-beam', 'cyndaquil-aerial-tackle', 'cyndaquil-cynda-smokescreen',
         'chikorita-sweet-scent', 'totodile-scary-face', 'clefable-metronome',
+        'drowzee-disable', 'hypno-disable',
         'clefable-double-slap', 'wigglytuff-perish-song', 'wigglytuff-sing',
         'wigglytuff-wish', 'wigglytuff-humiliate',
         'aegislash-slash', 'aegislash-swords-dance', 'aegislash-stance-change',
@@ -99,7 +101,7 @@ const skillsByType = {
         'hitmonchan-fire-punch', 'flareon-heating-up', 'flareon-fire-spin', 'flareon-fire-blast',
         'moltres-fire-spin', 'moltres-sunny-day', 'moltres-heat-wave', 'moltres-overheat',
         'moltres-heat', 'cyndaquil-aerial-flamethrower', 'cyndaquil-skyward-leap',
-        'cyndaquil-warming-up',
+        'cyndaquil-warming-up', 'cyndaquil-quilava-flame-wheel', 'cyndaquil-typhlosion-flame-wheel',
     ],
     Water: [
         'squirtle-water-gun', 'squirtle-withdraw', 'squirtle-bubble',
@@ -108,6 +110,7 @@ const skillsByType = {
         'krabby-passive-evolution-kingler', 'kingler-leer', 'kingler-crabhammer',
         'magikarp-passive-evolution-gyarados', 'gyarados-hydro-pump', 'vaporeon-hydro-pump',
         'mew-life-dew', 'totodile-aerial-water-gun', 'totodile-aqua-tail', 'totodile-water-rings',
+        'totodile-croconaw-bite',
     ],
     Electric: [
         'pikachu-thundershock', 'pikachu-volt-tackle', 'pikachu-thunder', 'pikachu-passive-static',
@@ -123,6 +126,7 @@ const skillsByType = {
         'ivysaur-vine-whip', 'ivysaur-razor-leaf', 'ivysaur-solar-beam',
         'butterfree-stun-spore', 'butterfree-sleep-powder', 'chikorita-aerial-razor-leaf',
         'chikorita-chikorita-solar-beam', 'chikorita-vine-defense', 'shedinja-solar-beam',
+        'chikorita-bayleaf-magical-leaf', 'chikorita-meganium-magical-leaf',
     ],
     Ice: [
         'koffing-haze', 'koffing-weezing-haze', 'vaporeon-aurora-beam', 'gyarados-ice-fang',
@@ -160,6 +164,8 @@ const skillsByType = {
         'mr-mime-forcefield', 'mr-mime-light-screen', 'articuno-fast-agility',
         'mew-psychic-barrier', 'mew-psychic', 'mew-pink-bubble', 'mewtwo-psychic',
         'chikorita-light-screen',
+        'drowzee-hypnosis', 'drowzee-dream-eater', 'drowzee-evolution',
+        'hypno-hypnosis', 'hypno-dream-eater',
     ],
     Bug: [
         'zubat-leech-life', 'golbat-leech-life', 'scyther-fury-cutter', 'scyther-x-cutter',
@@ -176,12 +182,14 @@ const skillsByType = {
         'gastly-lick', 'gastly-curse', 'gastly-spite', 'gastly-passive-evolution-haunter',
         'haunter-lick', 'haunter-curse', 'haunter-spite', 'mewtwo-shadow-ball',
         'ninjask-shadow-ball', 'shedinja-hex', 'primeape-rage-fist',
+        'drowzee-nightmare', 'hypno-nightmare',
     ],
     Dragon: [
         'charmander-dragon-claw', 'charmander-charizard-x-dragon-claw',
         'charmander-charizard-y-dragon-claw', 'gyarados-dragon-rage', 'dragonite-dragon-claw',
         'dragonite-draco-meteor', 'dragonite-dragon-boost', 'dragonite-pressure',
         'dragapult-dragon-darts', 'dragapult-dragon-tail', 'dragapult-dragon-rush',
+        'totodile-feraligatr-dragon-claw',
     ],
     Dark: [
         'zubat-bite', 'zubat-draining-fangs', 'golbat-bite', 'golbat-draining-fangs',
@@ -249,9 +257,11 @@ const POKEMON_STATUS_TOOLTIPS = Object.freeze({
     chikorita_sweet_scent_tracker: { tooltipTextTemplate: 'Sweet Scent cycles the weakened class between Physical, Special, and Affliction each turn. Solar Beam currently has {solarBeamStacks} bonus stack(s).' },
     chikorita_light_screen: { tooltipTextTemplate: 'This character has {destructibleDefensePoints} destructible defense. A new enemy skill used on them weakens Sweet Scent\'s current class and adds 1 Solar Beam stack.' },
     chikorita_vine_defense: { tooltipText: 'Chikorita is invulnerable to enemy skills.' },
+    chikorita_magical_leaf_debuff: { tooltipTextTemplate: 'This character deals {DamageDebuff} less damage from Magical Leaf.' },
     totodile_water_rings_tracker: { tooltipTextTemplate: 'Totodile has {waterRings} Water Ring(s) and heals 5 HP per ring each turn. Aqua Tail has {aquaTailPermanentPenalty} permanent damage penalty.' },
     totodile_superpower_invulnerable: { tooltipText: 'Totodile is invulnerable to enemy skills. Its next Aqua Tail gains 10 damage, then permanently loses 5 damage.' },
     ditto_transformation: { tooltipText: 'This character has transformed. Its copied skills deal 5 less damage and cost only Random energy.' },
+    drowzee_evolution_tracker: { tooltipText: 'Drowzee evolves into Hypno after using both Nightmare and Dream Eater in this match.' },
 });
 
 const applyPokemonStatusTooltips = (value, sourceSkillId = '', errors = []) => {
@@ -328,6 +338,41 @@ const getPokemonSkinTypeOverride = (skinId = '') =>
     normalizePokemonTypes(
         POKEMON_SKIN_TYPE_OVERRIDES[String(skinId || '').trim().toLowerCase()]
     );
+
+// Johto starters evolve permanently via equipped skin (ranked-win rewards), not an
+// in-battle trigger like Charmander/Nincada/etc. Each entry marks the actor with
+// markerStatusId (satisfying the evolved skill's actorCondition) and swaps the base
+// skill into its evolved form via skillReplacements, both consumed by
+// buildInitialBoard/resolveEffectiveSkill in battleLogic.js.
+const JOHTO_STARTER_EVOLUTION_SKILL_REPLACEMENTS = Object.freeze({
+    'cyndaquil-quilava-evolution': {
+        markerStatusId: 'cyndaquil_quilava_evolution',
+        skillReplacements: { 'cyndaquil-aerial-flamethrower': 'cyndaquil-quilava-flame-wheel' },
+    },
+    'cyndaquil-typhlosion-evolution': {
+        markerStatusId: 'cyndaquil_typhlosion_evolution',
+        skillReplacements: { 'cyndaquil-aerial-flamethrower': 'cyndaquil-typhlosion-flame-wheel' },
+    },
+    'chikorita-bayleaf-evolution': {
+        markerStatusId: 'chikorita_bayleaf_evolution',
+        skillReplacements: { 'chikorita-aerial-razor-leaf': 'chikorita-bayleaf-magical-leaf' },
+    },
+    'chikorita-meganium-evolution': {
+        markerStatusId: 'chikorita_meganium_evolution',
+        skillReplacements: { 'chikorita-aerial-razor-leaf': 'chikorita-meganium-magical-leaf' },
+    },
+    'totodile-croconaw-evolution': {
+        markerStatusId: 'totodile_croconaw_evolution',
+        skillReplacements: { 'totodile-scary-face': 'totodile-croconaw-bite' },
+    },
+    'totodile-feraligatr-evolution': {
+        markerStatusId: 'totodile_feraligatr_evolution',
+        skillReplacements: { 'totodile-scary-face': 'totodile-feraligatr-dragon-claw' },
+    },
+});
+
+const getJohtoStarterEvolutionReplacement = (skinId = '') =>
+    JOHTO_STARTER_EVOLUTION_SKILL_REPLACEMENTS[String(skinId || '').trim().toLowerCase()] || null;
 
 const normalizePokemonType = (value) => {
     const normalized = typeof value === 'string' ? value.trim().toLowerCase() : '';
@@ -466,9 +511,11 @@ module.exports = {
     POKEMON_SKILL_TYPES,
     POKEMON_STATUS_TOOLTIPS,
     POKEMON_SKIN_TYPE_OVERRIDES,
+    JOHTO_STARTER_EVOLUTION_SKILL_REPLACEMENTS,
     TYPE_EFFECTIVENESS,
     applyPokemonTypeSystem,
     getActivePokemonTypes,
+    getJohtoStarterEvolutionReplacement,
     getPokemonMoveType,
     getPokemonSkinTypeOverride,
     getPokemonTypeEffectiveness,

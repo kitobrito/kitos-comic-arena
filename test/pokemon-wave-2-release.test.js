@@ -381,7 +381,7 @@ test('Pokemon roster presentation is Trainer first and then National Pokedex ord
     const expected = [
         'pokemon-trainer','bulbasaur','charmander','squirtle','butterfree','beedrill','pidgey','ekans',
         'pikachu','clefairy','jigglypuff','zubat','meowth','abra','machop','primeape','magnemite','gastly','onix',
-        'krabby','hitmonlee','hitmonchan','koffing','chansey','mr-mime','scyther','magikarp','ditto',
+        'drowzee','krabby','hitmonlee','hitmonchan','koffing','chansey','mr-mime','scyther','magikarp','ditto',
         'eevee','vaporeon','jolteon','flareon','aerodactyl','articuno','zapdos','moltres','dragonite',
         'mewtwo','mew','chikorita','cyndaquil','totodile','nincada','scraggy','aegislash','dragapult',
     ];

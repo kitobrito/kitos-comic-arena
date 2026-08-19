@@ -5794,6 +5794,53 @@ const POKEMON_LADDER_MILESTONE_MISSION_ENTRY = {
     sortOrder: 1,
 };
 
+const POKEMON_DROWZEE_MISSION_ENTRY = {
+    missionId: 'drowzee-hypnotic-mastery',
+    title: 'Hypnotic Mastery',
+    level_requirement: 1,
+    rank: '1',
+    reward_character: '',
+    reward_character_name: '',
+    reward: 'Earn 300 Pokemon Arena points.',
+    reward_unlock_points: 300,
+    arena: 'pokemon',
+    mode_restriction: {
+        allowed_modes: ['quick', 'ladder'],
+    },
+    win_streak: {
+        character_id: '',
+        character_name: '',
+        wins: 0,
+    },
+    image: 'assets/images/PokemonArena/missionpics/drowzee.webp',
+    imageAlt: 'Drowzee mission artwork',
+    characterName: 'Drowzee',
+    portrait: 'assets/images/PokemonArena/Drowzee/FP.webp',
+    portraitAlt: 'Drowzee portrait',
+    requirements: [
+        'Drowzee is free to use right away - no unlock required.',
+        'Win 10 matches with Drowzee on your team to earn 300 Pokemon Arena points.',
+    ],
+    goals: [
+        {
+            type: 'win_matches',
+            character_id: 'drowzee',
+            character_name: 'Drowzee',
+            wins: 10,
+        },
+    ],
+    special_pve: {
+        enabled: false,
+        buttonLabel: 'Start Fight',
+        botName: 'Mission Bot',
+        botTeamCharacterId: '',
+        botTeamSize: 3,
+        backgroundImage: '',
+        playerTeamCharacterIds: [],
+    },
+    sortOrder: 26,
+};
+
 const POKEMON_WAVE_2_MISSION_CONFIGS = [
     ['clefairy','Clefairy','Moon Stone Melody','clefairy.jpg',['chansey','mr-mime'],5,3],
     ['jigglypuff','Jigglypuff','The Encore That Never Ends','jigglypuff.jpg',['gastly','clefairy'],5,4],
@@ -5950,6 +5997,10 @@ const ensureRequiredMissionCatalogEntries = (missions = []) => {
     upsertRequiredMission(
         POKEMON_LADDER_MILESTONE_MISSION_ENTRY,
         (mission) => mission?.missionId === POKEMON_LADDER_MILESTONE_MISSION_ENTRY.missionId
+    );
+    upsertRequiredMission(
+        POKEMON_DROWZEE_MISSION_ENTRY,
+        (mission) => mission?.missionId === POKEMON_DROWZEE_MISSION_ENTRY.missionId
     );
     return normalizeMissionCatalog(catalog)
         .map((mission) => normalizeOpenTeamPveMission(mission))

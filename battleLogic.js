@@ -1,6 +1,7 @@
 const {
     applyPokemonTypeSystem,
     getActivePokemonTypes,
+    getJohtoStarterEvolutionReplacement,
     getPokemonMoveType,
     getPokemonSkinTypeOverride,
     getPokemonTypeEffectiveness,
@@ -358,6 +359,23 @@ const buildInitialBoard = (players = [], characters = defaultCharacters) => {
                         pokemonTypeOverride: skinTypeOverride,
                         forcePokemonTypeOverride:
                             equippedSkinId === 'charmander-gigantamax-charizard',
+                        hideTooltip: true,
+                    },
+                    fresh: false,
+                });
+            }
+            const johtoEvolution = getJohtoStarterEvolutionReplacement(equippedSkinId);
+            if (johtoEvolution) {
+                statuses.push({
+                    id: johtoEvolution.markerStatusId,
+                    remainingTurns: 999,
+                    sourceSkillId: null,
+                    sourceUsername: player.username,
+                    sourceSlot: slot,
+                    metadata: {
+                        infiniteDuration: true,
+                        unremovable: true,
+                        skillReplacements: johtoEvolution.skillReplacements,
                         hideTooltip: true,
                     },
                     fresh: false,
@@ -6518,6 +6536,17 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
         ) {
             continue;
         }
+        const blockedSkillIds = new Set(
+            (Array.isArray(actorState?.statuses) ? actorState.statuses : []).flatMap((status) => {
+                const remaining = Number(status?.remainingTurns) || 0;
+                if (remaining <= 0) return [];
+                const blocked = status?.metadata?.cannotUseSkillIds;
+                return Array.isArray(blocked) ? blocked.filter((entry) => typeof entry === 'string' && entry) : [];
+            })
+        );
+        if (blockedSkillIds.size > 0 && skill?.id && blockedSkillIds.has(skill.id)) {
+            continue;
+        }
         const skillFailChancePercent = Math.max(
             0,
             Math.min(100, Number(getStatusMetadataSum(actorState, 'skillFailChancePercent')) || 0)
@@ -7003,6 +7032,10 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
         const actingCharacterId = normalizeBattleCharacterId(actorCharacter) || null;
         actorState.snapshots = actorState.snapshots || {};
         actorState.snapshots._lastUsedSkillIdThisTurn = skill.id || '';
+        // Persists across turns (unlike the ThisTurn field above, never reset) so
+        // Drowzee/Hypno's Disable can target whatever skill an enemy most recently
+        // used, from any prior turn.
+        if (skill.id) actorState.snapshots._lastUsedSkillIdPersistent = skill.id;
         const castStartStatuses = (Array.isArray(actorState.statuses) ? actorState.statuses : [])
             .filter((status) => (status?.remainingTurns || 0) > 0)
             .map((status) => ({
@@ -8132,6 +8165,174 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                             fresh: false,
                         });
                     }
+                });
+                return;
+            }
+            if (effectType === 'cyndaquil_quilava_flame_wheel' || effectType === 'cyndaquil_typhlosion_flame_wheel') {
+                const isTyphlosion = effectType === 'cyndaquil_typhlosion_flame_wheel';
+                const primaryDamage = isTyphlosion ? 25 : 20;
+                const splashDamage = isTyphlosion ? 15 : 5;
+                const shieldAmount = isTyphlosion ? 15 : 10;
+                const selected = resolveRecipients(effect);
+                const selectedKeys = new Set(selected.map((entry) => `${entry.username}:${entry.slot}`));
+                const recipients = [...selected, ...getAliveEnemyRecipients({ match, username: actingUsername }).filter(
+                    (entry) => !selectedKeys.has(`${entry.username}:${entry.slot}`)
+                )];
+                recipients.forEach((recipient) => {
+                    if (!recipient?.unit || recipient.unit.alive === false) return;
+                    const isPrimary = selectedKeys.has(`${recipient.username}:${recipient.slot}`);
+                    const targetState = ensureUnitStateShape(recipient.unit);
+                    queueDamage(recipient, isPrimary ? primaryDamage : splashDamage, {
+                        ...effect,
+                        metadata: { ...(effect?.metadata || {}), afflictionDamage: true },
+                    });
+                    if (targetState.statuses.some((status) => status?.id === 'cyndaquil_smokescreen' && (Number(status?.remainingTurns) || 0) > 0)) {
+                        applyStatus({
+                            targetState,
+                            targetUnit: recipient.unit,
+                            statusId: 'cyndaquil_flamethrower_afterburn',
+                            duration: 1,
+                            sourceSkillId: skill.id,
+                            sourceUsername: actingUsername,
+                            sourceSlot: actorSlot,
+                            metadata: { harmful: true, afflictionDamage: true, turnStartDamage: 5 },
+                            fresh: false,
+                        });
+                    }
+                });
+                applyStatus({
+                    targetState: actorState,
+                    targetUnit: actorUnit,
+                    statusId: 'cyndaquil_flame_wheel_active',
+                    duration: 1,
+                    sourceSkillId: skill.id,
+                    sourceUsername: actingUsername,
+                    sourceSlot: actorSlot,
+                    metadata: {
+                        harmful: false,
+                        unremovable: true,
+                        unpierceableDamageReductionFlat: shieldAmount,
+                        cannotBeStunned: true,
+                        allowDuplicateStatusInstances: true,
+                        tooltipText: `This character has ${shieldAmount} unpierceable damage reduction and ignores stun effects.`,
+                    },
+                    fresh: false,
+                });
+                return;
+            }
+            const markDrowzeeEvolutionFlag = (flagKey) => {
+                const tracker = actorState.statuses.find((status) => status?.id === 'drowzee_evolution_tracker');
+                if (!tracker) return;
+                tracker.metadata = tracker.metadata || {};
+                tracker.metadata[flagKey] = true;
+                const alreadyEvolved = actorState.statuses.some(
+                    (status) => status?.id === 'hypno_evolution' && (Number(status?.remainingTurns) || 0) > 0
+                );
+                if (alreadyEvolved || !tracker.metadata.usedNightmare || !tracker.metadata.usedDreamEater) return;
+                applyStatus({
+                    targetState: actorState,
+                    targetUnit: actorUnit,
+                    statusId: 'hypno_evolution',
+                    duration: 999,
+                    sourceSkillId: skill.id,
+                    sourceUsername: actingUsername,
+                    sourceSlot: actorSlot,
+                    metadata: {
+                        infiniteDuration: true,
+                        unremovable: true,
+                        facePictureOverride: 'assets/images/PokemonArena/Drowzee/hypnofp.webp',
+                        skillReplacements: {
+                            'drowzee-hypnosis': 'hypno-hypnosis',
+                            'drowzee-nightmare': 'hypno-nightmare',
+                            'drowzee-dream-eater': 'hypno-dream-eater',
+                            'drowzee-disable': 'hypno-disable',
+                        },
+                        tooltipText: 'Drowzee has evolved into Hypno from using Nightmare and Dream Eater. Its skills are improved.',
+                        healOnApplyFlat: 10,
+                    },
+                    fresh: false,
+                });
+            };
+            if (effectType === 'drowzee_nightmare' || effectType === 'hypno_nightmare') {
+                markDrowzeeEvolutionFlag('usedNightmare');
+                resolveRecipients(effect).forEach((recipient) => {
+                    if (!recipient?.unit || recipient.unit.alive === false) return;
+                    const targetState = ensureUnitStateShape(recipient.unit);
+                    const hypnosisStatus = targetState.statuses.find(
+                        (status) => status?.id === 'drowzee_hypnosis_active' && (Number(status?.remainingTurns) || 0) > 0
+                    );
+                    if (!hypnosisStatus) return;
+                    const currentHp = Math.max(0, Number(recipient.unit.hp) || 0);
+                    if (currentHp <= 20) {
+                        recipient.unit.hp = 0;
+                        recipient.unit.alive = false;
+                        triggerTeamMemberDeathHooks({ match, deadUsername: recipient.username, deadSlot: recipient.slot });
+                    } else {
+                        recipient.unit.hp = 20;
+                        hypnosisStatus.remainingTurns = Math.max(0, Number(hypnosisStatus.remainingTurns) || 0) + 1;
+                    }
+                });
+                return;
+            }
+            if (effectType === 'drowzee_dream_eater' || effectType === 'hypno_dream_eater') {
+                markDrowzeeEvolutionFlag('usedDreamEater');
+                const isHypno = effectType === 'hypno_dream_eater';
+                const damageAmount = isHypno ? 30 : 20;
+                const healAmount = isHypno ? 30 : 20;
+                resolveRecipients(effect).forEach((recipient) => {
+                    if (!recipient?.unit || recipient.unit.alive === false) return;
+                    const targetState = ensureUnitStateShape(recipient.unit);
+                    const hypnosisStatus = targetState.statuses.find(
+                        (status) => status?.id === 'drowzee_hypnosis_active' && (Number(status?.remainingTurns) || 0) > 0
+                    );
+                    if (!hypnosisStatus) return;
+                    const hpBeforeDamage = Math.max(0, Number(recipient.unit.hp) || 0);
+                    queueDamage(recipient, damageAmount, effect);
+                    applyHealToUnit(actorUnit, healAmount, {
+                        sourceSkillId: skill.id || null,
+                        sourceUsername: actingUsername,
+                        sourceSlot: actorSlot,
+                    });
+                    // Approximates "if this kills" against pre-resolution HP, since queueDamage
+                    // defers the actual reduction - Dream Eater deals plain, unreduced damage so
+                    // this matches the real outcome in the overwhelming majority of cases.
+                    if (hpBeforeDamage > 0 && hpBeforeDamage <= damageAmount) {
+                        applyChakraGainToMatch({
+                            match,
+                            username: actingUsername,
+                            chakraType: chakraTypes[Math.floor(battleRandom() * chakraTypes.length)],
+                            amount: 1,
+                        });
+                    }
+                });
+                return;
+            }
+            if (effectType === 'drowzee_disable' || effectType === 'hypno_disable') {
+                const isHypno = effectType === 'hypno_disable';
+                resolveRecipients(effect).forEach((recipient) => {
+                    if (!recipient?.unit || recipient.unit.alive === false) return;
+                    const targetState = ensureUnitStateShape(recipient.unit);
+                    queueDamage(recipient, 10, {
+                        ...effect,
+                        metadata: { ...(effect?.metadata || {}), afflictionDamage: true },
+                    });
+                    const disabledSkillId = targetState.snapshots?._lastUsedSkillIdPersistent || '';
+                    if (!disabledSkillId) return;
+                    applyStatus({
+                        targetState,
+                        targetUnit: recipient.unit,
+                        statusId: 'drowzee_disable_active',
+                        duration: isHypno ? 3 : 2,
+                        sourceSkillId: skill.id,
+                        sourceUsername: actingUsername,
+                        sourceSlot: actorSlot,
+                        metadata: {
+                            harmful: true,
+                            cannotUseSkillIds: [disabledSkillId],
+                            tooltipText: 'This character\'s most recently used skill is disabled by Disable.',
+                        },
+                        fresh: false,
+                    });
                 });
                 return;
             }

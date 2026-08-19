@@ -48,7 +48,10 @@ test('all Gen 2 starters are playable with five supplied local images', () => {
         const character = characters.find((entry) => entry.id === id);
         assert.ok(character, `Missing ${id}`);
         assert.equal(character.arena, 'pokemon');
-        assert.equal(character.skills.length, 5);
+        // 5 base skills + 2 evolved variants (Bayleaf/Meganium, Quilava/Typhlosion,
+        // Croconaw/Feraligatr) swapped in via skillReplacements at battle start
+        // based on the player's equipped evolution skin - see buildInitialBoard.
+        assert.equal(character.skills.length, 7);
         [character.facePicture, ...character.skills.map((skill) => skill.skillimage)].forEach((asset) => {
             assert.ok(asset && fs.existsSync(path.join(root, asset)), `Missing ${asset}`);
         });

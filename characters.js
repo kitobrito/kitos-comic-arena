@@ -20906,6 +20906,54 @@ const characters = [
                     },
                     {
                         "type": "apply_status",
+                        "statusId": "hypno_evolution",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally",
+                            "characterId": "drowzee",
+                            "missingStatusId": "hypno_evolution"
+                        },
+                        "metadata": {
+                            "hidden": true,
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "facePictureOverride": "assets/images/PokemonArena/Drowzee/hypnofp.webp",
+                            "skillReplacements": {
+                                "drowzee-hypnosis": "hypno-hypnosis",
+                                "drowzee-nightmare": "hypno-nightmare",
+                                "drowzee-dream-eater": "hypno-dream-eater",
+                                "drowzee-disable": "hypno-disable"
+                            },
+                            "tooltipText": "Drowzee has evolved into Hypno from Rare Candy.",
+                            "healOnApplyFlat": 10
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "drowzee_hypno_rare_candy_defense",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally",
+                            "characterId": "drowzee",
+                            "missingStatusId": "drowzee_hypno_rare_candy_defense"
+                        },
+                        "metadata": {
+                            "hidden": true,
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "destructibleDefensePoints": 25,
+                            "mergeNumericAddKeys": [
+                                "destructibleDefensePoints"
+                            ],
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense from Rare Candy."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
                         "statusId": "krabby_kingler_evolution",
                         "duration": 999,
                         "scope": "target",
@@ -32575,6 +32623,36 @@ const characters = [
                 "damage": 0,
                 "classes": ["Passive", "Affliction", "Instant"],
                 "effects": []
+            },
+            {
+                "id": "cyndaquil-quilava-flame-wheel",
+                "name": "Quilava Flame Wheel",
+                "actorCondition": { "statusId": "cyndaquil_quilava_evolution" },
+                "hiddenFromSelectionViewer": true,
+                "skillimage": "assets/images/PokemonArena/Cyndaquil/quilavas3.png",
+                "skilldescription": "Deals 20 affliction damage to one enemy and 5 affliction damage to the other enemies. For 1 turn, Quilava gains 10 unpierceable damage reduction and ignores enemy stun effects. Enemies affected by Cynda-Smokescreen take 5 additional damage next turn.",
+                "description": "Deals 20 affliction damage to one enemy and 5 affliction damage to the other enemies. For 1 turn, Quilava gains 10 unpierceable damage reduction and ignores enemy stun effects. Enemies affected by Cynda-Smokescreen take 5 additional damage next turn.",
+                "energy": ["Bloodline"],
+                "cooldown": 1,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": ["Affliction", "Ranged", "Instant"],
+                "effects": [{ "type": "cyndaquil_quilava_flame_wheel", "scope": "target" }]
+            },
+            {
+                "id": "cyndaquil-typhlosion-flame-wheel",
+                "name": "Typhlosion Flame Wheel",
+                "actorCondition": { "statusId": "cyndaquil_typhlosion_evolution" },
+                "hiddenFromSelectionViewer": true,
+                "skillimage": "assets/images/PokemonArena/Cyndaquil/typhlosions3.png",
+                "skilldescription": "Deals 25 affliction damage to one enemy and 15 affliction damage to the other enemies. For 1 turn, Typhlosion gains 15 unpierceable damage reduction and ignores enemy stun effects. Enemies affected by Cynda-Smokescreen take 5 additional damage next turn.",
+                "description": "Deals 25 affliction damage to one enemy and 15 affliction damage to the other enemies. For 1 turn, Typhlosion gains 15 unpierceable damage reduction and ignores enemy stun effects. Enemies affected by Cynda-Smokescreen take 5 additional damage next turn.",
+                "energy": ["Bloodline"],
+                "cooldown": 1,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": ["Affliction", "Ranged", "Instant"],
+                "effects": [{ "type": "cyndaquil_typhlosion_flame_wheel", "scope": "target" }]
             }
         ],
         "startStatuses": [{ "statusId": "cyndaquil_warming_up", "sourceSkillId": "cyndaquil-warming-up", "duration": 999, "metadata": { "infiniteDuration": true, "unremovable": true, "cyndaquilWarmingUp": true, "onOwnerUseSkillTrigger": true, "persistOnOwnerUseSkillTrigger": true, "skillDamageBonuses": { "cyndaquil-aerial-flamethrower": 0, "cyndaquil-warming-up": 0 } } }]
@@ -32655,6 +32733,46 @@ const characters = [
                 "damage": 0,
                 "classes": ["Passive", "Strategic", "Instant"],
                 "effects": []
+            },
+            {
+                "id": "chikorita-bayleaf-magical-leaf",
+                "name": "Magical Leaf",
+                "actorCondition": { "statusId": "chikorita_bayleaf_evolution" },
+                "hiddenFromSelectionViewer": true,
+                "skillimage": "assets/images/PokemonArena/Cyndaquil/Chikorita/bayleafs1.png",
+                "skilldescription": "Deals 30 piercing damage to one enemy and 15 to the others, lowering the main target's damage by 15 and the others' by 10 for 1 turn.",
+                "description": "Deals 30 piercing damage to one enemy and 15 to the others, lowering the main target's damage by 15 and the others' by 10 for 1 turn.",
+                "energy": ["Taijutsu"],
+                "cooldown": 1,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": ["Physical", "Ranged", "Instant"],
+                "effects": [
+                    { "type": "damage", "amount": 30, "scope": "target", "metadata": { "ignoreDamageReduction": true } },
+                    { "type": "damage", "amount": 15, "scope": "other-enemies" },
+                    { "type": "apply_status", "statusId": "chikorita_magical_leaf_debuff", "duration": 1, "scope": "target", "metadata": { "harmful": true, "DamageDebuff": 15 } },
+                    { "type": "apply_status", "statusId": "chikorita_magical_leaf_debuff", "duration": 1, "scope": "other-enemies", "metadata": { "harmful": true, "DamageDebuff": 10 } }
+                ]
+            },
+            {
+                "id": "chikorita-meganium-magical-leaf",
+                "name": "Magical Leaf",
+                "actorCondition": { "statusId": "chikorita_meganium_evolution" },
+                "hiddenFromSelectionViewer": true,
+                "skillimage": "assets/images/PokemonArena/Cyndaquil/Chikorita/meganiums1.png",
+                "skilldescription": "Deals 35 piercing damage to one enemy and 25 to the others, lowering the main target's damage by 20 and the others' by 15 for 1 turn.",
+                "description": "Deals 35 piercing damage to one enemy and 25 to the others, lowering the main target's damage by 20 and the others' by 15 for 1 turn.",
+                "energy": ["Taijutsu"],
+                "cooldown": 1,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": ["Physical", "Ranged", "Instant"],
+                "effects": [
+                    { "type": "damage", "amount": 35, "scope": "target", "metadata": { "ignoreDamageReduction": true } },
+                    { "type": "damage", "amount": 25, "scope": "other-enemies" },
+                    { "type": "apply_status", "statusId": "chikorita_magical_leaf_debuff", "duration": 1, "scope": "target", "metadata": { "harmful": true, "DamageDebuff": 20 } },
+                    { "type": "apply_status", "statusId": "chikorita_magical_leaf_debuff", "duration": 1, "scope": "other-enemies", "metadata": { "harmful": true, "DamageDebuff": 15 } }
+                ]
             }
         ],
         "startStatuses": [{ "statusId": "chikorita_sweet_scent_tracker", "sourceSkillId": "chikorita-sweet-scent", "duration": 999, "metadata": { "infiniteDuration": true, "unremovable": true, "sweetScentClassIndex": 0, "solarBeamStacks": 0 } }]
@@ -32738,9 +32856,189 @@ const characters = [
                 "damage": 0,
                 "classes": ["Passive", "Strategic", "Instant"],
                 "effects": []
+            },
+            {
+                "id": "totodile-croconaw-bite",
+                "name": "Croconaw Bite",
+                "actorCondition": { "statusId": "totodile_croconaw_evolution" },
+                "hiddenFromSelectionViewer": true,
+                "skillimage": "assets/images/PokemonArena/Cyndaquil/Totodile/croconaws2.png",
+                "skilldescription": "Deals 20 damage to one enemy and causes them to take 15 additional damage from Physical and Special skills for 2 turns.",
+                "description": "Deals 20 damage to one enemy and causes them to take 15 additional damage from Physical and Special skills for 2 turns.",
+                "energy": ["Random"],
+                "cooldown": 2,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": ["Physical", "Ranged", "Instant"],
+                "effects": [
+                    { "type": "damage", "amount": 20, "scope": "target" },
+                    { "type": "apply_status", "statusId": "totodile_croconaw_bite_debuff", "duration": 2, "scope": "target", "metadata": { "harmful": true, "cannotReduceDamage": true, "tooltipText": "This character takes 15 additional damage from Physical and Special skills.", "additionalDamageTakenBySkillClass": { "physical": 15, "special": 15 } } }
+                ]
+            },
+            {
+                "id": "totodile-feraligatr-dragon-claw",
+                "name": "Dragon Claw",
+                "actorCondition": { "statusId": "totodile_feraligatr_evolution" },
+                "hiddenFromSelectionViewer": true,
+                "skillimage": "assets/images/PokemonArena/Cyndaquil/Totodile/feraligatrs2.png",
+                "skilldescription": "Deals 30 piercing damage to one enemy and causes them to take 20 additional damage from Physical and Special skills for 2 turns.",
+                "description": "Deals 30 piercing damage to one enemy and causes them to take 20 additional damage from Physical and Special skills for 2 turns.",
+                "energy": ["Random"],
+                "cooldown": 2,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": ["Physical", "Ranged", "Instant"],
+                "effects": [
+                    { "type": "damage", "amount": 30, "scope": "target", "metadata": { "ignoreDamageReduction": true } },
+                    { "type": "apply_status", "statusId": "totodile_feraligatr_dragon_claw_debuff", "duration": 2, "scope": "target", "metadata": { "harmful": true, "cannotReduceDamage": true, "tooltipText": "This character takes 20 additional damage from Physical and Special skills.", "additionalDamageTakenBySkillClass": { "physical": 20, "special": 20 } } }
+                ]
             }
         ],
         "startStatuses": [{ "statusId": "totodile_water_rings_tracker", "sourceSkillId": "totodile-water-rings", "duration": 999, "metadata": { "infiniteDuration": true, "unremovable": true, "waterRings": 0, "aquaTailPermanentPenalty": 0, "aquaTailEmpowered": false, "onOwnerTargetedBySkillTrigger": true, "onOwnerTargetedByRequireNewSkill": true } }]
+    },
+    {
+        "id": "drowzee",
+        "characterId": "drowzee",
+        "name": "Drowzee",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Specialist",
+        "roleCategory": "specialist",
+        "facePicture": "assets/images/PokemonArena/Drowzee/FP.webp",
+        "description": "Drowzee traps an enemy in Hypnosis, then finishes them off with Nightmare and Dream Eater, evolving into Hypno once it has used both.",
+        "characterdeescription": "Drowzee traps an enemy in Hypnosis, then finishes them off with Nightmare and Dream Eater, evolving into Hypno once it has used both.",
+        "skills": [
+            {
+                "id": "drowzee-hypnosis",
+                "name": "Hypnosis",
+                "skillimage": "assets/images/PokemonArena/Drowzee/S1.webp",
+                "skilldescription": "Drowzee fully stuns one enemy for 1 turn.",
+                "description": "Drowzee fully stuns one enemy for 1 turn.",
+                "energy": ["Random"],
+                "cooldown": 2,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": ["Psychic", "Special", "Instant"],
+                "effects": [
+                    { "type": "apply_status", "statusId": "drowzee_hypnosis_active", "duration": 1, "scope": "target", "metadata": { "harmful": true, "cannotUseSkills": true, "tooltipText": "This character is fully stunned by Hypnosis." } }
+                ]
+            },
+            {
+                "id": "drowzee-nightmare",
+                "name": "Nightmare",
+                "skillimage": "assets/images/PokemonArena/Drowzee/S2.webp",
+                "skilldescription": "May only be used on an enemy affected by Hypnosis. If they are at 20HP or below, they die. If they are at any other health, their health is set to 20HP and Hypnosis is extended by 1 turn.",
+                "description": "May only be used on an enemy affected by Hypnosis. If they are at 20HP or below, they die. If they are at any other health, their health is set to 20HP and Hypnosis is extended by 1 turn.",
+                "energy": ["Bloodline", "Bloodline", "Random"],
+                "cooldown": 4,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": ["Ghost", "Special", "Instant"],
+                "effects": [{ "type": "drowzee_nightmare", "scope": "target" }]
+            },
+            {
+                "id": "drowzee-dream-eater",
+                "name": "Dream Eater",
+                "skillimage": "assets/images/PokemonArena/Drowzee/S3.webp",
+                "skilldescription": "Drowzee deals 20 damage to one enemy affected by Hypnosis. Drowzee heals 20HP when used, and gains 1 random energy if this kills the enemy.",
+                "description": "Drowzee deals 20 damage to one enemy affected by Hypnosis. Drowzee heals 20HP when used, and gains 1 random energy if this kills the enemy.",
+                "energy": ["Ninjutsu"],
+                "cooldown": 0,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": ["Psychic", "Special", "Instant"],
+                "effects": [{ "type": "drowzee_dream_eater", "scope": "target" }]
+            },
+            {
+                "id": "drowzee-disable",
+                "name": "Disable",
+                "skillimage": "assets/images/PokemonArena/Drowzee/S4.webp",
+                "skilldescription": "Drowzee stuns one enemy's last used skill for 2 turns and deals 10 affliction damage to them.",
+                "description": "Drowzee stuns one enemy's last used skill for 2 turns and deals 10 affliction damage to them.",
+                "energy": ["Random"],
+                "cooldown": 3,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": ["Normal", "Strategic", "Instant", "Affliction"],
+                "effects": [{ "type": "drowzee_disable", "scope": "target" }]
+            },
+            {
+                "id": "drowzee-evolution",
+                "name": "Passive: Evolution",
+                "skillimage": "assets/images/PokemonArena/Drowzee/S5.webp",
+                "skilldescription": "If Drowzee uses Nightmare and Dream Eater in a match, it evolves into Hypno and heals 10HP. Hypno's skills are improved.",
+                "description": "If Drowzee uses Nightmare and Dream Eater in a match, it evolves into Hypno and heals 10HP. Hypno's skills are improved.",
+                "energy": [],
+                "cooldown": 0,
+                "target": "",
+                "damage": 0,
+                "classes": ["Passive", "Psychic", "Instant"],
+                "effects": []
+            },
+            {
+                "id": "hypno-hypnosis",
+                "name": "Hypnosis",
+                "actorCondition": { "statusId": "hypno_evolution" },
+                "hiddenFromSelectionViewer": true,
+                "skillimage": "assets/images/PokemonArena/Drowzee/hypnos1.webp",
+                "skilldescription": "Hypno fully stuns one enemy for 2 turns.",
+                "description": "Hypno fully stuns one enemy for 2 turns.",
+                "energy": ["Random"],
+                "cooldown": 2,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": ["Psychic", "Special", "Instant"],
+                "effects": [
+                    { "type": "apply_status", "statusId": "drowzee_hypnosis_active", "duration": 2, "scope": "target", "metadata": { "harmful": true, "cannotUseSkills": true, "tooltipText": "This character is fully stunned by Hypnosis." } }
+                ]
+            },
+            {
+                "id": "hypno-nightmare",
+                "name": "Nightmare",
+                "actorCondition": { "statusId": "hypno_evolution" },
+                "hiddenFromSelectionViewer": true,
+                "skillimage": "assets/images/PokemonArena/Drowzee/hypnos2.webp",
+                "skilldescription": "May only be used on an enemy affected by Hypnosis. If they are at 20HP or below, they die. If they are at any other health, their health is set to 20HP and Hypnosis is extended by 1 turn.",
+                "description": "May only be used on an enemy affected by Hypnosis. If they are at 20HP or below, they die. If they are at any other health, their health is set to 20HP and Hypnosis is extended by 1 turn.",
+                "energy": ["Bloodline", "Bloodline"],
+                "cooldown": 4,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": ["Ghost", "Special", "Instant"],
+                "effects": [{ "type": "hypno_nightmare", "scope": "target" }]
+            },
+            {
+                "id": "hypno-dream-eater",
+                "name": "Dream Eater",
+                "actorCondition": { "statusId": "hypno_evolution" },
+                "hiddenFromSelectionViewer": true,
+                "skillimage": "assets/images/PokemonArena/Drowzee/hypnos3.webp",
+                "skilldescription": "Hypno deals 30 damage to one enemy affected by Hypnosis. Hypno heals 30HP when used, and gains 1 random energy if this kills the enemy.",
+                "description": "Hypno deals 30 damage to one enemy affected by Hypnosis. Hypno heals 30HP when used, and gains 1 random energy if this kills the enemy.",
+                "energy": ["Ninjutsu"],
+                "cooldown": 0,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": ["Psychic", "Special", "Instant"],
+                "effects": [{ "type": "hypno_dream_eater", "scope": "target" }]
+            },
+            {
+                "id": "hypno-disable",
+                "name": "Disable",
+                "actorCondition": { "statusId": "hypno_evolution" },
+                "hiddenFromSelectionViewer": true,
+                "skillimage": "assets/images/PokemonArena/Drowzee/hypnos4.webp",
+                "skilldescription": "Hypno stuns one enemy's last used skill for 3 turns and deals 10 affliction damage to them.",
+                "description": "Hypno stuns one enemy's last used skill for 3 turns and deals 10 affliction damage to them.",
+                "energy": ["Random"],
+                "cooldown": 3,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": ["Normal", "Strategic", "Instant", "Affliction"],
+                "effects": [{ "type": "hypno_disable", "scope": "target" }]
+            }
+        ],
+        "startStatuses": [{ "statusId": "drowzee_evolution_tracker", "sourceSkillId": "drowzee-evolution", "duration": 999, "metadata": { "infiniteDuration": true, "unremovable": true, "usedNightmare": false, "usedDreamEater": false } }]
     },
     {
         "id": "aegislash",

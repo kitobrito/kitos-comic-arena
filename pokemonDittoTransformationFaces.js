@@ -52,6 +52,7 @@ const DITTO_TRANSFORMATION_FACE_BY_CHARACTER_ID = Object.freeze({
     nincada: toDittoTransformationFacePath('nincada.webp'),
     ninjask: toDittoTransformationFacePath('ninjask.webp'),
     shedinja: toDittoTransformationFacePath('shedinja.webp'),
+    drowzee: toDittoTransformationFacePath('drowzee.webp'),
 });
 
 const DITTO_TRANSFORMATION_FACE_BY_STATUS_ID = Object.freeze({
@@ -78,6 +79,7 @@ const DITTO_TRANSFORMATION_FACE_BY_STATUS_ID = Object.freeze({
     aegislash_shield_stance: toDittoTransformationFacePath('aegislashshield.webp'),
     nincada_ninjask_evolution: toDittoTransformationFacePath('ninjask.webp'),
     nincada_shedinja_evolution: toDittoTransformationFacePath('shedinja.webp'),
+    hypno_evolution: toDittoTransformationFacePath('hypno.webp'),
 });
 
 const DITTO_TRANSFORMATION_FACE_BY_SKIN_ID = Object.freeze({

@@ -1289,6 +1289,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         ditto: 'ditto.webp',
         dragapult: 'dragapult.jpg.webp',
         nincada: 'nincada.png.webp',
+        drowzee: 'drowzee.png.webp',
         abra: 'ABRA.png.webp',
         aerodactyl: 'AERODACTYL.png.webp',
         articuno: 'ARTICUNO.png.webp',
@@ -1339,7 +1340,10 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         bulbasaur: { name: 'Ivysaur', filename: 'ivysaur.png.webp' },
         chansey: { name: 'Blissey', filename: 'blissey.png.webp' },
         charmander: { name: 'Charmeleon', filename: 'charmeleon.png.webp' },
+        chikorita: { name: 'Meganium', filename: 'meganium.png.webp' },
         clefairy: { name: 'Clefable', filename: 'clefable.png.webp' },
+        cyndaquil: { name: 'Typhlosion', filename: 'typhlosion.png.webp' },
+        drowzee: { name: 'Hypno', filename: 'hypno.png.webp' },
         ekans: { name: 'Arbok', filename: 'Arbok_Pokemon.webp.webp' },
         gastly: { name: 'Haunter', filename: 'haunter.png.webp' },
         jigglypuff: { name: 'Wigglytuff', filename: 'wigglytuff.webp.webp' },
@@ -1352,7 +1356,21 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         pidgey: { name: 'Pidgeotto', filename: 'pidgeotto.png.webp' },
         scraggy: { name: 'Scrafty', filename: 'scrafty.png.webp' },
         squirtle: { name: 'Wartortle', filename: 'Wartortle.webp.webp' },
+        totodile: { name: 'Feraligatr', filename: 'ferliagatr.png.webp' },
         zubat: { name: 'Golbat', filename: 'Golbat_Render_01.webp.webp' },
+    });
+    // Johto starters swap exactly one skill slot per evolution stage (see
+    // buildInitialBoard/skillReplacements in battleLogic.js). The Evolution
+    // preview here always shows the final stage's version of that slot.
+    const JOHTO_STARTER_FINAL_EVOLUTION_SKILL_BY_ID = Object.freeze({
+        'cyndaquil-aerial-flamethrower': 'cyndaquil-typhlosion-flame-wheel',
+        'chikorita-aerial-razor-leaf': 'chikorita-meganium-magical-leaf',
+        'totodile-scary-face': 'totodile-feraligatr-dragon-claw',
+    });
+    const JOHTO_STARTER_EVOLUTION_REQUIREMENT_BY_ID = Object.freeze({
+        cyndaquil: 'Win 16 ranked matches to evolve into Quilava, then 36 more to reach Typhlosion.',
+        chikorita: 'Win 16 ranked matches to evolve into Bayleaf, then 36 more to reach Meganium.',
+        totodile: 'Win 16 ranked matches to evolve into Croconaw, then 36 more to reach Feraligatr.',
     });
     const POKEMON_SELECTION_BATTLE_FORM_RENDERS_BY_ID = Object.freeze({
         nincada: [
@@ -17669,6 +17687,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         'magnemite',
         'gastly',
         'onix',
+        'drowzee',
         'krabby',
         'hitmonlee',
         'hitmonchan',
@@ -17867,7 +17886,18 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 (skill) => skill && !Boolean(skill.hiddenFromSelectionViewer)
             );
         }
-        return getSelectionVisibleSkills(character);
+        const baseSkills = getSelectionVisibleSkills(character);
+        if (String(form || '').trim().toLowerCase() === 'evolution') {
+            const skillsById = new Map(
+                (Array.isArray(character?.skills) ? character.skills : []).map((skill) => [skill?.id, skill])
+            );
+            const replaced = baseSkills.map((skill) => {
+                const replacementId = JOHTO_STARTER_FINAL_EVOLUTION_SKILL_BY_ID[skill?.id];
+                return replacementId ? skillsById.get(replacementId) || skill : skill;
+            });
+            if (replaced.some((skill, idx) => skill !== baseSkills[idx])) return replaced;
+        }
+        return baseSkills;
     };
 
     const preloadCharacterPreview = (character) => {
@@ -18158,14 +18188,25 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         return 'low';
     };
 
-    const renderCharacterOverview = (character) => {
+    const renderCharacterOverview = (character, requirementText = '') => {
         if (skillNameEl) {
             const usesExperimentalLayout = document.documentElement.classList.contains('selection-experimental');
             skillNameEl.textContent = usesExperimentalLayout ? 'Character Overview' : '';
             skillNameEl.style.visibility = usesExperimentalLayout ? 'visible' : 'hidden';
         }
         if (skillDescEl) {
-            skillDescEl.textContent = getCharacterDescriptionText(character);
+            const descriptionText = getCharacterDescriptionText(character);
+            if (requirementText) {
+                const escapeForHtml = (value) =>
+                    String(value ?? '')
+                        .replaceAll('&', '&amp;')
+                        .replaceAll('<', '&lt;')
+                        .replaceAll('>', '&gt;');
+                skillDescEl.innerHTML =
+                    `${escapeForHtml(descriptionText)}<br><strong>${escapeForHtml(requirementText)}</strong>`;
+            } else {
+                skillDescEl.textContent = descriptionText;
+            }
         }
         if (energyBarEl) {
             energyBarEl.style.display = 'none';
@@ -18189,14 +18230,21 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         const presentation = battleForm || character;
         const visibleSkills = getSelectionVisibleSkillsForForm(character, form);
         if (showOverview) {
-            renderCharacterOverview({
-                ...character,
-                ...presentation,
-                description:
-                    presentation?.description ||
-                    presentation?.descriptionHtml ||
-                    character?.description,
-            });
+            const requirementText =
+                String(form || '').trim().toLowerCase() === 'evolution'
+                    ? JOHTO_STARTER_EVOLUTION_REQUIREMENT_BY_ID[getSelectionCharacterId(character)] || ''
+                    : '';
+            renderCharacterOverview(
+                {
+                    ...character,
+                    ...presentation,
+                    description:
+                        presentation?.description ||
+                        presentation?.descriptionHtml ||
+                        character?.description,
+                },
+                requirementText
+            );
         }
         ensureSkillImageSlots(visibleSkills.length);
         if (skillImagesContainer) {

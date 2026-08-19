@@ -16,7 +16,10 @@ const starterCharacters = starterIds
     .filter(Boolean);
 
 const changes = starterCharacters.flatMap((character) =>
-    (character.skills || []).map((skill) => ({
+    // actorCondition-gated skills are evolved-form variants swapped in later via
+    // skillReplacements (see buildInitialBoard) - they weren't part of this
+    // original starter-launch changelog, so they're excluded here.
+    (character.skills || []).filter((skill) => !skill.actorCondition).map((skill) => ({
         groupKey: `pokemon-gen2-starter:${character.id}`,
         groupName: character.name,
         collapsible: true,

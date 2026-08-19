@@ -45,9 +45,9 @@ test('every current Pokemon has an optimized featured selection render', () => {
 
 test('every supplied Pokemon evolution render is mapped and optimized', () => {
     const expectedEvolutionIds = [
-        'abra', 'aegislash', 'beedrill', 'bulbasaur', 'chansey', 'charmander', 'clefairy',
-        'ekans', 'gastly', 'jigglypuff', 'koffing', 'krabby', 'machop',
-        'magikarp', 'magnemite', 'meowth', 'pidgey', 'scraggy', 'squirtle', 'zubat',
+        'abra', 'aegislash', 'beedrill', 'bulbasaur', 'chansey', 'charmander', 'chikorita', 'clefairy',
+        'cyndaquil', 'drowzee', 'ekans', 'gastly', 'jigglypuff', 'koffing', 'krabby', 'machop',
+        'magikarp', 'magnemite', 'meowth', 'pidgey', 'scraggy', 'squirtle', 'totodile', 'zubat',
     ].sort();
     const selectionSource = fs.readFileSync(path.join(root, 'scripts', 'script.js'), 'utf8');
     const mapBody = selectionSource.match(
