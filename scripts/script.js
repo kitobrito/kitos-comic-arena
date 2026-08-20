@@ -1154,6 +1154,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.setTimeout(() => el.remove(), 2900);
     };
 
+    // One-time arena-wide flash the instant weather starts (or replaces another), separate
+    // from the persistent ambient loop (snow/fire/lightning) below — that describes ongoing
+    // conditions, this marks the moment they changed. Fires for every weather key, not just
+    // the three with an ambient loop, since it needs no matching engine mechanic to work.
+    const playWeatherStartBurst = (weatherKey, weatherName) => {
+        const layer = document.getElementById('weather-fx-start-burst');
+        const label = document.getElementById('weather-fx-start-burst-label');
+        if (!layer || !weatherKey) return;
+        if (label) label.textContent = weatherName || weatherKey;
+        layer.className = `weather-fx-layer weather-fx-start-burst ${weatherKey}`;
+        void layer.offsetWidth;
+        layer.classList.add('weather-fx-start-burst-active');
+        window.setTimeout(() => layer.classList.remove('weather-fx-start-burst-active'), 900);
+    };
+
     const trackWeatherChangeForAlert = (weather) => {
         if (!weather) {
             lastKnownWeatherKey = null;
@@ -1163,6 +1178,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const nextRounds = Number(weather.roundsRemaining) || 0;
         if (weather.key !== lastKnownWeatherKey) {
             showWeatherChangeAlert({ name: weather.name || weather.key, newRounds: nextRounds });
+            playWeatherStartBurst(weather.key, weather.name);
         } else if (Number.isFinite(lastKnownWeatherRounds) && nextRounds < lastKnownWeatherRounds) {
             showWeatherChangeAlert({
                 name: weather.name || weather.key,
@@ -5284,6 +5300,11 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                         badge.classList.add('cooldown-tick-pop');
                     }
                 } else {
+                    if (options.animateTicks && previousCooldown !== undefined && previousCooldown > 0) {
+                        meta.imgEl.classList.remove('skill-ready-glow');
+                        void meta.imgEl.offsetWidth;
+                        meta.imgEl.classList.add('skill-ready-glow');
+                    }
                     badge.textContent = '';
                     badge.style.display = 'none';
                 }
