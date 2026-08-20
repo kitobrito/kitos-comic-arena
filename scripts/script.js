@@ -18262,10 +18262,11 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         const presentation = battleForm || character;
         const visibleSkills = getSelectionVisibleSkillsForForm(character, form);
         if (showOverview) {
+            const normalizedFormForRequirement = String(form || '').trim().toLowerCase();
             const requirementText =
-                String(form || '').trim().toLowerCase() === 'evolution'
-                    ? JOHTO_STARTER_EVOLUTION_REQUIREMENT_BY_ID[getSelectionCharacterId(character)] || ''
-                    : '';
+                JOHTO_STARTER_EVOLUTION_REQUIREMENT_BY_FORM_ID[
+                    `${getSelectionCharacterId(character)}:${normalizedFormForRequirement}`
+                ] || '';
             renderCharacterOverview(
                 {
                     ...character,
