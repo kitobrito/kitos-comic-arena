@@ -31702,8 +31702,8 @@ const characters = [
                 "id": "articuno-blizzard",
                 "name": "Blizzard",
                 "skillimage": "assets/images/PokemonArena/articuno/blizzard.png",
-                "skilldescription": "Deals 10 damage to all enemies and paralyzes their cooldowns for 1 turn. Summons a Snowstorm for 4 turns.",
-                "description": "Deals 10 damage to all enemies and paralyzes their cooldowns for 1 turn. Summons a Snowstorm for 4 turns: Ice and Water Pokemon take no damage, everyone else takes 3 each turn. Water skills become Ice-typed and deal piercing damage. Ice skills besides Blizzard deal +5 damage and cannot be evaded, Fire skills deal -5 damage, Grass and Bug skills cost 1 more Random energy. Snowstorm cannot be refreshed while already active.",
+                "skilldescription": "Deals 15 damage to all enemies and delays their harmful skills by 1 turn.",
+                "description": "Deals 15 damage to all enemies and delays their harmful skills by 1 turn.",
                 "energy": [
                     "Ninjutsu"
                 ],
@@ -31717,37 +31717,8 @@ const characters = [
                 ],
                 "effects": [
                     {
-                        "type": "damage",
-                        "amount": 10,
-                        "scope": "all-enemy",
-                        "metadata": {}
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "articuno_blizzard",
-                        "duration": 1,
-                        "scope": "all-enemy",
-                        "metadata": {
-                            "harmful": true,
-                            "paralyzeCooldowns": true
-                        }
-                    },
-                    {
-                        "type": "set_weather",
-                        "scope": "self",
-                        "weather": {
-                            "key": "snowstorm",
-                            "name": "Snowstorm",
-                            "description": "Ice and Water Pokemon take no damage; everyone else takes 3 each turn. Water skills become Ice-typed and deal piercing damage. Ice skills deal +5 damage (Blizzard excluded) and cannot be evaded. Fire skills deal -5 damage. Grass and Bug skills cost 1 more Random energy.",
-                            "rounds": 4,
-                            "blockRefreshIfActive": true,
-                            "excludeSkillId": "articuno-blizzard",
-                            "damageTypeModifiers": { "Ice": 5, "Fire": -5 },
-                            "costTypeModifiers": { "Grass": 1, "Bug": 1 },
-                            "evasionImmuneTypes": ["Ice"],
-                            "periodicNonTypeDamage": { "immuneTypes": ["Ice", "Water"], "amount": 3 },
-                            "transformMoveType": { "Water": "Ice" }
-                        }
+                        "type": "articuno_blizzard",
+                        "scope": "all-enemy"
                     }
                 ]
             },
@@ -31820,30 +31791,37 @@ const characters = [
                 ]
             },
             {
-                "id": "articuno-fast-agility",
-                "name": "Fast Agility",
-                "skillimage": "assets/images/PokemonArena/articuno/agility.png",
-                "skilldescription": "Articuno becomes invulnerable for 1 turn.",
-                "description": "Articuno becomes invulnerable for 1 turn.",
+                "id": "articuno-snowstorm",
+                "name": "Snowstorm",
+                "skillimage": "assets/images/PokemonArena/articuno/Snowstorm.png",
+                "skilldescription": "Summons a Snowstorm for 4 turns.",
+                "description": "Summons a Snowstorm for 4 turns: Ice and Water Pokemon take no damage, everyone else takes 3 each turn. Water skills become Ice-typed and deal piercing damage. Ice skills deal +5 damage and cannot be evaded. Fire skills deal -5 damage. Grass and Bug skills cost 1 more Random energy. Snowstorm cannot be refreshed while already active.",
                 "energy": [
-                    "Random"
+                    "Ninjutsu"
                 ],
                 "cooldown": 4,
                 "target": "self",
                 "damage": 0,
                 "classes": [
-                    "Psychic",
-                    "Physical",
+                    "Ice",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
                     {
-                        "type": "apply_status",
-                        "statusId": "articuno_fast_agility",
-                        "duration": 1,
+                        "type": "set_weather",
                         "scope": "self",
-                        "metadata": {
-                            "invulnerable": true
+                        "weather": {
+                            "key": "snowstorm",
+                            "name": "Snowstorm",
+                            "description": "Ice and Water Pokemon take no damage; everyone else takes 3 each turn. Water skills become Ice-typed and deal piercing damage. Ice skills deal +5 damage and cannot be evaded. Fire skills deal -5 damage. Grass and Bug skills cost 1 more Random energy.",
+                            "rounds": 4,
+                            "blockRefreshIfActive": true,
+                            "damageTypeModifiers": { "Ice": 5, "Fire": -5 },
+                            "costTypeModifiers": { "Grass": 1, "Bug": 1 },
+                            "evasionImmuneTypes": ["Ice"],
+                            "periodicNonTypeDamage": { "immuneTypes": ["Ice", "Water"], "amount": 3 },
+                            "transformMoveType": { "Water": "Ice" }
                         }
                     }
                 ]
@@ -31919,8 +31897,8 @@ const characters = [
                 "id": "moltres-sunny-day",
                 "name": "Wildfire",
                 "skillimage": "assets/images/PokemonArena/moltres/sunnyday.png",
-                "skilldescription": "Summons Wildfire for 4 turns: Fire skills +5 damage, Water skills -5 damage, Grass skills cost 1 less Random energy, Electric skills cost 1 more Random energy. While it lasts, Moltres gains 1 additional Heat from her skills. Gains 1 Heat.",
-                "description": "Summons Wildfire for 4 turns: Fire skills +5 damage, Water skills -5 damage, Grass skills cost 1 less Random energy, Electric skills cost 1 more Random energy. While it lasts, Moltres gains 1 additional Heat from her skills. Gains 1 Heat.",
+                "skilldescription": "Summons Wildfire for 4 turns: Fire skills +5 damage, Water skills -5 damage. While it lasts, Moltres gains 1 additional Heat from her skills. Gains 1 Heat.",
+                "description": "Summons Wildfire for 4 turns: Fire skills +5 damage, Water skills -5 damage. While it lasts, Moltres gains 1 additional Heat from her skills. Gains 1 Heat.",
                 "energy": [
                     "Bloodline"
                 ],
@@ -31940,10 +31918,9 @@ const characters = [
                         "weather": {
                             "key": "wildfire",
                             "name": "Wildfire",
-                            "description": "Fire skills +5 damage, Water skills -5 damage. Grass skills cost 1 less Random energy, Electric skills cost 1 more Random energy.",
+                            "description": "Fire skills +5 damage, Water skills -5 damage.",
                             "rounds": 4,
-                            "damageTypeModifiers": { "Fire": 5, "Water": -5 },
-                            "costTypeModifiers": { "Grass": -1, "Electric": 1 }
+                            "damageTypeModifiers": { "Fire": 5, "Water": -5 }
                         }
                     },
                     {

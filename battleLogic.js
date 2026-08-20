@@ -8821,6 +8821,21 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 clearWeather(match);
                 return;
             }
+            if (effectType === 'articuno_blizzard') {
+                resolveRecipients(effect).forEach((recipient) => {
+                    if (!recipient?.unit || recipient.unit.alive === false) return;
+                    queueDamage(recipient, 15, effect);
+                    const targetState = ensureUnitStateShape(recipient.unit);
+                    const character = Number.isInteger(recipient.unit.rosterIndex)
+                        ? characters?.[recipient.unit.rosterIndex]
+                        : null;
+                    (Array.isArray(character?.skills) ? character.skills : []).forEach((targetSkill) => {
+                        if (!targetSkill?.id || !skillHasHarmfulEffects(targetSkill)) return;
+                        targetState.cooldowns[targetSkill.id] = Math.max(0, Number(targetState.cooldowns[targetSkill.id]) || 0) + 1;
+                    });
+                });
+                return;
+            }
             if (effectType === 'articuno_sheer_cold') {
                 const tracker = actorState.statuses.find((entry) => entry?.id === 'articuno_sheer_cold_tracker');
                 const bonus = Math.max(0, Number(tracker?.metadata?.bonusDamage) || 0);

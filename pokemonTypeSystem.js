@@ -131,6 +131,7 @@ const skillsByType = {
     Ice: [
         'koffing-haze', 'koffing-weezing-haze', 'vaporeon-aurora-beam', 'gyarados-ice-fang',
         'hitmonchan-ice-punch', 'articuno-blizzard', 'articuno-ice-beam', 'articuno-sheer-cold',
+        'articuno-snowstorm',
     ],
     Fighting: [
         'machop-brick-break', 'machop-counter', 'machop-bulk-up',
@@ -161,7 +162,7 @@ const skillsByType = {
         'pikachu-agility', 'butterfree-confusion', 'butterfree-psybeam', 'abra-future-sight',
         'abra-psychic', 'abra-calm-mind', 'abra-teleport', 'abra-passive-evolution-kadabra',
         'kadabra-future-sight', 'kadabra-psychic', 'kadabra-calm-mind', 'kadabra-teleport',
-        'mr-mime-forcefield', 'mr-mime-light-screen', 'articuno-fast-agility',
+        'mr-mime-forcefield', 'mr-mime-light-screen',
         'mew-psychic-barrier', 'mew-psychic', 'mew-pink-bubble', 'mewtwo-psychic',
         'chikorita-light-screen',
         'drowzee-hypnosis', 'drowzee-dream-eater', 'drowzee-evolution',
@@ -237,7 +238,6 @@ const POKEMON_STATUS_TOOLTIPS = Object.freeze({
     articuno_sheer_cold_tracker: { tooltipTextTemplate: 'Sheer Cold has {bonusDamage} permanent bonus damage.' },
     articuno_blizzard: { tooltipText: 'This character\'s skill cooldowns are paralyzed and cannot decrease.' },
     articuno_ice_beam_stun: { tooltipText: 'This character cannot use Special skills.' },
-    articuno_fast_agility: { tooltipText: 'Articuno is invulnerable to enemy skills.' },
     moltres_fire_spin: { tooltipTextTemplate: 'Using a new harmful skill on Moltres\' team deals {teamTrapEnemyHarmfulDamage} affliction damage to this character.' },
     moltres_sunny_day_enemy: { tooltipTextTemplate: 'This character takes {additionalAfflictionDamageTaken} additional affliction damage from all sources.' },
     moltres_heat: { tooltipTextTemplate: 'Moltres has {heat}/3 Heat. Overheat has been used {overheatUses} time(s), reducing each Heat stack by {overheatPenalty} damage.' },

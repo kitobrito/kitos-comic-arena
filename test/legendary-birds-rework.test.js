@@ -41,7 +41,7 @@ const makeMatch = ({ casterUnit, enemyUnits = [makeUnit(dummyEnemyIndex)], skill
 const findSkillIndex = (characterIndex, skillId) =>
     characters[characterIndex].skills.findIndex((skill) => skill?.id === skillId);
 
-test('Articuno Blizzard deals 10 damage, paralyzes cooldowns, and summons Snowstorm', () => {
+test('Articuno Blizzard deals 15 damage to all enemies and delays their harmful skills by 1 turn', () => {
     const casterUnit = makeUnit(articunoIndex);
     const enemyUnit = makeUnit(dummyEnemyIndex);
     const skillIndex = findSkillIndex(articunoIndex, 'articuno-blizzard');
@@ -49,13 +49,33 @@ test('Articuno Blizzard deals 10 damage, paralyzes cooldowns, and summons Snowst
 
     resolvePendingTurnSkills({ match, actingUsername: 'ash', characters });
 
-    assert.equal(enemyUnit.hp, 90);
-    assert.ok(enemyUnit.state.statuses.some((status) => status.id === 'articuno_blizzard'));
+    assert.equal(enemyUnit.hp, 85);
+    assert.equal(match.weather, null, 'Blizzard no longer summons weather on its own');
+    assert.equal(
+        enemyUnit.state.cooldowns['iron-man-repulsor-blast'],
+        1,
+        'a harmful enemy skill should be delayed by 1 turn'
+    );
+    assert.equal(
+        enemyUnit.state.cooldowns['iron-man-overcharge'],
+        undefined,
+        'a non-harmful (self/ally-targeted) enemy skill should not be delayed'
+    );
+});
+
+test('Articuno Snowstorm summons the weather by itself, dealing no direct damage', () => {
+    const casterUnit = makeUnit(articunoIndex);
+    const enemyUnit = makeUnit(dummyEnemyIndex);
+    const skillIndex = findSkillIndex(articunoIndex, 'articuno-snowstorm');
+    const match = makeMatch({ casterUnit, enemyUnits: [enemyUnit], skillIndex, targetSelection: [] });
+
+    resolvePendingTurnSkills({ match, actingUsername: 'ash', characters });
+
+    assert.equal(enemyUnit.hp, 100, 'Snowstorm deals no direct damage');
     assert.ok(match.weather);
     assert.equal(match.weather.key, 'snowstorm');
     assert.equal(match.weather.roundsRemaining, 4);
     assert.equal(match.weather.blockRefreshIfActive, true);
-    assert.equal(match.weather.excludeSkillId, 'articuno-blizzard');
     assert.equal(match.weather.damageTypeModifiers.Ice, 5);
     assert.equal(match.weather.damageTypeModifiers.Fire, -5);
     assert.deepEqual(match.weather.transformMoveType, { Water: 'Ice' });
@@ -177,8 +197,7 @@ test('Moltres Wildfire summons weather and grants bonus Heat from its own cast',
     assert.equal(match.weather.key, 'wildfire');
     assert.equal(match.weather.damageTypeModifiers.Fire, 5);
     assert.equal(match.weather.damageTypeModifiers.Water, -5);
-    assert.equal(match.weather.costTypeModifiers.Grass, -1);
-    assert.equal(match.weather.costTypeModifiers.Electric, 1);
+    assert.deepEqual(match.weather.costTypeModifiers, {}, 'Wildfire no longer modifies Grass/Electric costs');
     const heat = casterUnit.state.statuses.find((status) => status.id === 'moltres_heat');
     assert.equal(heat.metadata.heat, 2, '1 base Heat + 1 weather-synergy bonus from casting Wildfire itself');
 });
