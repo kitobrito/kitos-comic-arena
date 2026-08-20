@@ -1169,8 +1169,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.setTimeout(() => layer.classList.remove('weather-fx-start-burst-active'), 900);
     };
 
+    // Each legendary bird's weather has its own looping theme (a single-track playlist loops
+    // automatically per soundManager.startMusic), swapping out the normal battle playlist while
+    // active and resuming it the moment the weather ends — only when a weather track was
+    // actually playing, so this never fights the intro-duck/battle-music flow on turns where no
+    // weather is active.
+    const WEATHER_MUSIC_TRACKS = {
+        snowstorm: 'assets/images/PokemonArena/music/weather/Snowstorm Weather.mp3',
+        wildfire: 'assets/images/PokemonArena/music/weather/Wildfire Weather.mp3',
+        thunderstorm: 'assets/images/PokemonArena/music/weather/Thunderstorm Weather.mp3',
+    };
+
     const trackWeatherChangeForAlert = (weather) => {
         if (!weather) {
+            if (lastKnownWeatherKey && WEATHER_MUSIC_TRACKS[lastKnownWeatherKey]) {
+                soundManager.ensureIngameBattleMusic(currentMatchArena);
+            }
             lastKnownWeatherKey = null;
             lastKnownWeatherRounds = null;
             return;
@@ -1179,6 +1193,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (weather.key !== lastKnownWeatherKey) {
             showWeatherChangeAlert({ name: weather.name || weather.key, newRounds: nextRounds });
             playWeatherStartBurst(weather.key, weather.name);
+            const weatherTrack = WEATHER_MUSIC_TRACKS[weather.key];
+            if (weatherTrack) {
+                soundManager.startMusic([weatherTrack]);
+            } else if (lastKnownWeatherKey && WEATHER_MUSIC_TRACKS[lastKnownWeatherKey]) {
+                soundManager.ensureIngameBattleMusic(currentMatchArena);
+            }
         } else if (Number.isFinite(lastKnownWeatherRounds) && nextRounds < lastKnownWeatherRounds) {
             showWeatherChangeAlert({
                 name: weather.name || weather.key,
