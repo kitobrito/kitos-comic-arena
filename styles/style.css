@@ -4220,6 +4220,25 @@ body.ui-disable-death-animations .special-kill-overlay {
     50% { opacity: 0.95; }
 }
 
+.health-text.health-text-preview-blink {
+    animation: health-text-preview-blink-pulse 0.5s ease-in-out infinite;
+}
+
+@keyframes health-text-preview-blink-pulse {
+    0%, 100% { color: #000000; }
+    50% { color: #c40000; }
+}
+
+.health-bar-damage-flash.health-bar-damage-flash-uncertain-only {
+    background: transparent;
+    box-shadow: none;
+    animation: none;
+}
+
+.health-bar-damage-flash-uncertain-only .health-bar-damage-flash-label {
+    animation: health-bar-damage-flash-pulse 0.5s ease-in-out infinite;
+}
+
 .health-bar-damage-flash-label {
     position: absolute;
     left: 0;

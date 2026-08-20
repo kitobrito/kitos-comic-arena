@@ -7,23 +7,38 @@ const root = path.join(__dirname, '..');
 const script = fs.readFileSync(path.join(root, 'scripts', 'script.js'), 'utf8');
 const styles = fs.readFileSync(path.join(root, 'styles', 'style.css'), 'utf8');
 
-test('hovering a card while a skill is selected computes and shows the lost-HP slice using the same width math as renderUnitHealth', () => {
-    assert.match(script, /const showHealthDamageFlash = \(card, unit, damageAmount\) => \{/);
-    assert.match(script, /const currentWidth = Math\.max\(0, Math\.round\(HEALTH_BAR_MAX_WIDTH \* \(hp \/ displayMaxHp\)\)\);/);
-    assert.match(script, /const predictedHp = Math\.max\(0, hp - Number\(damageAmount\)\);/);
-    assert.match(script, /const predictedWidth = Math\.max\(0, Math\.round\(HEALTH_BAR_MAX_WIDTH \* \(predictedHp \/ displayMaxHp\)\)\);/);
-    assert.match(script, /const flashWidth = currentWidth - predictedWidth;/);
-    assert.match(script, /flash\.style\.left = `\$\{predictedWidth\}px`;/);
-    assert.match(script, /flash\.style\.width = `\$\{flashWidth\}px`;/);
+test('hp/hpCap/displayMaxHp and the "X/Y" text/pixel-width math are shared between renderUnitHealth and the hover flash', () => {
+    assert.match(script, /const computeUnitHealthMetrics = \(unit\) => \{/);
+    assert.match(script, /const formatHealthText = \(hp, hpCap, displayMaxHp\) =>/);
+    assert.match(script, /const healthPxWidth = \(hp, displayMaxHp\) =>/);
+    assert.match(script, /const \{ hp, hpCap, displayMaxHp \} = computeUnitHealthMetrics\(unit\);/);
 });
 
-test('the flash only shows for valid targets with an available, positive damage preview', () => {
-    assert.match(script, /const handleCardTargetHover = \(event\) => \{/);
-    assert.match(script, /if \(!activeCastingSkill\) return;/);
+test('showHealthDamageFlash flashes the known slice, and blinks the health text to the resulting value, only when the amount is known', () => {
+    assert.match(script, /const showHealthDamageFlash = \(card, unit, damageAmount, \{ uncertain = false \} = \{\}\) => \{/);
+    assert.match(script, /const predictedHp = known \? Math\.max\(0, hp - Number\(damageAmount\)\) : hp;/);
+    assert.match(script, /const flashWidth = currentWidth - predictedWidth;/);
+    assert.match(script, /healthText\.textContent = formatHealthText\(predictedHp, hpCap, displayMaxHp\);/);
+    assert.match(script, /healthText\.classList\.add\('health-text-preview-blink'\);/);
+});
+
+test('hideHealthDamageFlash restores the real HP text by recomputing from latestBoardState, not a cached string', () => {
+    assert.match(script, /const hideHealthDamageFlash = \(card\) => \{/);
+    assert.match(script, /healthText\.classList\.remove\('health-text-preview-blink'\);/);
+    assert.match(script, /const unit = Number\.isInteger\(slot\) \? latestBoardState\?\.\[username\]\?\.\[slot\] : null;/);
+    assert.match(script, /healthText\.textContent = formatHealthText\(hp, hpCap, displayMaxHp\);/);
+});
+
+test('a variable preview flashes only the certain portion and appends "+???"; a fully-uncertain preview shows a standalone "+???" marker', () => {
     assert.match(
         script,
-        /if \(!target \|\| target\.valid === false \|\| !preview\?\.available \|\| !\(Number\(preview\.totalDamage\) > 0\)\) \{/
+        /if \(preview\.available && Number\(preview\.totalDamage\) > 0 && !preview\.variable\) \{\s*showHealthDamageFlash\(card, unit, preview\.totalDamage\);\s*\} else if \(preview\.variable\) \{\s*showHealthDamageFlash\(card, unit, Number\(preview\.certainDamage\) \|\| 0, \{ uncertain: true \}\);/
     );
+    assert.match(
+        script,
+        /label\.textContent = known\s*\?\s*`-\$\{Math\.round\(Number\(damageAmount\)\)\}\$\{uncertain \? ' \+\?\?\?' : ''\}`\s*:\s*'\+\?\?\?';/
+    );
+    assert.match(script, /marker\.className = 'health-bar-damage-flash health-bar-damage-flash-uncertain-only';/);
 });
 
 test('pointerenter/pointerleave are wired on every card alongside the existing pointerdown targeting handler', () => {
@@ -39,17 +54,18 @@ test('clearing target highlights (cancelling a cast) also removes any lingering 
     );
 });
 
-test('style.css positions the flash absolutely inside the health bar container, above the fill, with a pulsing animation', () => {
+test('style.css positions the flash and its label, blinks the HP text, and mutes the box/animation for the uncertain-only marker', () => {
     assert.match(styles, /\.health-bar-damage-flash\s*\{/);
     assert.match(styles, /@keyframes health-bar-damage-flash-pulse/);
-});
-
-test('the flash carries an exact "-N" number label, centered via layout so the enemy-side mirror only needs a plain scaleX(-1)', () => {
-    assert.match(script, /label\.textContent = `-\$\{Math\.round\(Number\(damageAmount\)\)\}`;/);
-    assert.match(script, /flash\.appendChild\(label\);/);
     assert.match(styles, /\.health-bar-damage-flash-label\s*\{[^}]*width: fit-content;[^}]*margin: 0 auto;/s);
     assert.match(
         styles,
         /\.enemy-characters \.health-bar-damage-flash-label\s*\{\s*transform: scaleX\(-1\);\s*\}/
+    );
+    assert.match(styles, /\.health-text\.health-text-preview-blink\s*\{/);
+    assert.match(styles, /@keyframes health-text-preview-blink-pulse/);
+    assert.match(
+        styles,
+        /\.health-bar-damage-flash\.health-bar-damage-flash-uncertain-only\s*\{\s*background: transparent;\s*box-shadow: none;\s*animation: none;\s*\}/
     );
 });

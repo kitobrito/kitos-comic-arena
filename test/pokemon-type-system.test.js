@@ -161,6 +161,60 @@ test('target damage previews match multi-packet type bonuses and resistance floo
     assert.equal(previews[1].effectivenessModifier, -10);
 });
 
+test('a chance-gated bonus packet on top of a guaranteed base marks the preview variable and reports the guaranteed portion separately', () => {
+    const attack = {
+        id: 'test-mixed-certainty-preview',
+        target: 'single-enemy',
+        energy: [],
+        cooldown: 0,
+        classes: ['Normal', 'Physical', 'Instant'],
+        effects: [
+            { type: 'damage', amount: 10, scope: 'target', metadata: { fixedDamage: true } },
+            { type: 'damage', amount: 15, scope: 'target', metadata: { fixedDamage: true }, chance: 50 },
+        ],
+    };
+    const roster = [makePokemon('attacker', ['Normal'], [attack]), makePokemon('target', ['Normal'])];
+    const match = makeMatch(roster, { Ash: [0], Gary: [1] });
+    const [preview] = computeTargetDamagePreviews({
+        match,
+        actingUsername: 'Ash',
+        actorSlot: 0,
+        skillIndex: 0,
+        characters: roster,
+        targets: [{ username: 'Gary', slot: 0 }],
+    });
+
+    assert.equal(preview.variable, true);
+    assert.equal(preview.totalDamage, 25, 'total still includes the chance-gated packet');
+    assert.equal(preview.certainDamage, 10, 'certainDamage excludes the 50%-chance bonus packet');
+});
+
+test('a skill with no resolvable damage packets is fully uncertain with no certainDamage', () => {
+    const attack = {
+        id: 'test-fully-uncertain-preview',
+        target: 'single-enemy',
+        energy: [],
+        cooldown: 0,
+        classes: ['Normal', 'Physical', 'Instant'],
+        skilldescription: 'Deals damage based on a custom effect this preview cannot resolve.',
+        effects: [{ type: 'some_bespoke_custom_effect', scope: 'target' }],
+    };
+    const roster = [makePokemon('attacker', ['Normal'], [attack]), makePokemon('target', ['Normal'])];
+    const match = makeMatch(roster, { Ash: [0], Gary: [1] });
+    const [preview] = computeTargetDamagePreviews({
+        match,
+        actingUsername: 'Ash',
+        actorSlot: 0,
+        skillIndex: 0,
+        characters: roster,
+        targets: [{ username: 'Gary', slot: 0 }],
+    });
+
+    assert.equal(preview.available, false);
+    assert.equal(preview.variable, true);
+    assert.equal(preview.certainDamage, null);
+});
+
 test('fixed damage previews do not apply Pokemon type effectiveness', () => {
     const attack = {
         id: 'test-fixed-preview',

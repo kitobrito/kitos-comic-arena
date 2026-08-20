@@ -3133,30 +3133,44 @@ const computeTargetDamagePreviews = ({
                 ? getActivePokemonTypes({ character: targetCharacter, unit: targetUnit })
                 : [];
         const effectiveness = getPokemonTypeEffectiveness(moveType, defendingTypes);
-        let totalDamage = packets.reduce((sum, packet) => sum + packet.amount, 0);
-        const typeEligiblePacket = packets.find((packet) => !packet.fixedDamage);
-        const appliedModifier =
-            typeEligiblePacket || (descriptionMentionsDamage && packets.length === 0)
-                ? effectiveness.modifier
-                : 0;
-        if (typeEligiblePacket && appliedModifier !== 0) {
-            totalDamage =
-                appliedModifier < 0
-                    ? totalDamage - typeEligiblePacket.amount + Math.max(5, typeEligiblePacket.amount + appliedModifier)
-                    : totalDamage + appliedModifier;
-        }
-        if (packets.length > 0) {
-            // Mirrors the weather bonus applied inside applyDamageToUnit so this preview doesn't
-            // lie to players when weather is active — keep these two in sync.
-            const weatherBonus =
-                weatherDamageTypeBonus(match, { moveType, sourceSkillId: skill.id || null }) +
-                (hasSkillClass(skill.classes || [], 'affliction')
-                    ? weatherAfflictionBonus(match, { damageKind: 'affliction', sourceSkillId: skill.id || null })
-                    : 0);
-            if (weatherBonus !== 0) {
-                totalDamage += weatherBonus;
+        // Applies the same effectiveness + weather-bonus adjustment used for the full total to
+        // whatever packet subset is passed in — used once for every packet (totalDamage) and
+        // once for only the guaranteed ones (certainDamage), so a chance-gated bonus on top of
+        // a guaranteed base doesn't get counted as if it were guaranteed too.
+        const sumPacketsForPreview = (packetSubset) => {
+            let sum = packetSubset.reduce((total, packet) => total + packet.amount, 0);
+            const typeEligiblePacket = packetSubset.find((packet) => !packet.fixedDamage);
+            const modifier =
+                typeEligiblePacket || (descriptionMentionsDamage && packetSubset.length === 0)
+                    ? effectiveness.modifier
+                    : 0;
+            if (typeEligiblePacket && modifier !== 0) {
+                sum =
+                    modifier < 0
+                        ? sum - typeEligiblePacket.amount + Math.max(5, typeEligiblePacket.amount + modifier)
+                        : sum + modifier;
             }
-        }
+            if (packetSubset.length > 0) {
+                // Mirrors the weather bonus applied inside applyDamageToUnit so this preview
+                // doesn't lie to players when weather is active — keep these two in sync.
+                const weatherBonus =
+                    weatherDamageTypeBonus(match, { moveType, sourceSkillId: skill.id || null }) +
+                    (hasSkillClass(skill.classes || [], 'affliction')
+                        ? weatherAfflictionBonus(match, { damageKind: 'affliction', sourceSkillId: skill.id || null })
+                        : 0);
+                if (weatherBonus !== 0) sum += weatherBonus;
+            }
+            return { sum, modifier };
+        };
+
+        const certainPackets = packets.filter((packet) => packet.chance === null || packet.chance >= 100);
+        const isVariable =
+            packets.some((packet) => packet.chance !== null && packet.chance < 100) ||
+            (descriptionMentionsDamage && packets.length === 0);
+        const { sum: totalDamage, modifier: appliedModifier } = sumPacketsForPreview(packets);
+        const { sum: certainDamage } = isVariable && certainPackets.length > 0
+            ? sumPacketsForPreview(certainPackets)
+            : { sum: 0 };
 
         return {
             username: targetUsername,
@@ -3164,13 +3178,12 @@ const computeTargetDamagePreviews = ({
             available: packets.length > 0,
             baseDamage: roundCombatAmountUp(packets.reduce((sum, packet) => sum + packet.amount, 0)),
             totalDamage: roundCombatAmountUp(totalDamage),
+            certainDamage: isVariable && certainPackets.length > 0 ? roundCombatAmountUp(certainDamage) : null,
             moveType: moveType || '',
             defendingTypes,
             effectivenessLabel: appliedModifier === 0 ? '' : effectiveness.label,
             effectivenessModifier: appliedModifier,
-            variable:
-                packets.some((packet) => packet.chance !== null && packet.chance < 100) ||
-                (descriptionMentionsDamage && packets.length === 0),
+            variable: isVariable,
         };
     });
 };

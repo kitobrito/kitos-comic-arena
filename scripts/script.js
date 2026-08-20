@@ -11070,6 +11070,22 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             renderAquamanSeaSharkFx(card, getAquamanSeaSharkStacks(unit), 0);
         };
 
+        // Shared by renderUnitHealth and the hover damage-preview flash so both always agree
+        // on hp/hpCap/displayMaxHp and the resulting pixel width / "X/Y" text.
+        const computeUnitHealthMetrics = (unit) => {
+            const rawHp = isUnitBanished(unit) ? 0 : Number(unit?.hp);
+            const unitMaxHp = Number.isFinite(Number(unit?.maxHp)) ? Math.max(1, Math.ceil(Number(unit.maxHp))) : MAX_HP;
+            const hpCapRaw = Number.isFinite(Number(unit?.hpCap)) ? Math.ceil(Number(unit.hpCap)) : unitMaxHp;
+            const displayMaxHp = Math.max(1, unitMaxHp, hpCapRaw);
+            const hp = Math.max(0, Math.min(displayMaxHp, Number.isFinite(rawHp) ? Math.ceil(rawHp) : displayMaxHp));
+            const hpCap = Math.max(0, Math.min(displayMaxHp, hpCapRaw));
+            return { hp, hpCap, displayMaxHp };
+        };
+        const formatHealthText = (hp, hpCap, displayMaxHp) =>
+            hpCap < displayMaxHp ? `${hp}/${hpCap}` : `${hp}/${displayMaxHp}`;
+        const healthPxWidth = (hp, displayMaxHp) =>
+            Math.max(0, Math.round(HEALTH_BAR_MAX_WIDTH * (hp / displayMaxHp)));
+
         const renderUnitHealth = (card, unit) => {
             if (!card) return;
             clearTransientDeathFx(card);
@@ -11081,26 +11097,20 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             renderRickRevolverCylinder(card, unit);
             renderEvadePercentBadge(card, unit);
             syncCharacterSpecificFx(card, unit);
-            const rawHp = isUnitBanished(unit) ? 0 : Number(unit?.hp);
-            const unitMaxHp = Number.isFinite(Number(unit?.maxHp)) ? Math.max(1, Math.ceil(Number(unit.maxHp))) : MAX_HP;
-            const hpCapRaw = Number.isFinite(Number(unit?.hpCap)) ? Math.ceil(Number(unit.hpCap)) : unitMaxHp;
-            const displayMaxHp = Math.max(1, unitMaxHp, hpCapRaw);
-            const hp = Math.max(0, Math.min(displayMaxHp, Number.isFinite(rawHp) ? Math.ceil(rawHp) : displayMaxHp));
-            const hpCap = Math.max(0, Math.min(displayMaxHp, hpCapRaw));
+            const { hp, hpCap, displayMaxHp } = computeUnitHealthMetrics(unit);
             const cachedHp = Number(card.dataset.renderedHp);
             const cachedHpCap = Number(card.dataset.renderedHpCap);
             const cachedDisplayMaxHp = Number(card.dataset.renderedDisplayMaxHp);
             const cachedDead = card.dataset.renderedDead === 'true';
             const cachedFaceSrc = card.dataset.renderedFaceSrc || '';
-            const ratio = hp / displayMaxHp;
-            const width = Math.max(0, Math.round(HEALTH_BAR_MAX_WIDTH * ratio));
+            const width = healthPxWidth(hp, displayMaxHp);
             if (cachedHp !== hp || cachedHpCap !== hpCap || cachedDisplayMaxHp !== displayMaxHp) {
                 healthBar.style.width = `${width}px`;
                 card.dataset.renderedHp = String(hp);
                 card.dataset.renderedHpCap = String(hpCap);
                 card.dataset.renderedDisplayMaxHp = String(displayMaxHp);
             }
-            const nextHealthText = hpCap < displayMaxHp ? `${hp}/${hpCap}` : `${hp}/${displayMaxHp}`;
+            const nextHealthText = formatHealthText(hp, hpCap, displayMaxHp);
             if (healthText.textContent !== nextHealthText) {
                 healthText.textContent = nextHealthText;
             }
@@ -15107,35 +15117,69 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         // Hovering a valid target while a damage-dealing skill is selected flashes the
         // slice of their health bar that skill would remove, using the same
         // hp/maxHp -> pixel-width math as renderUnitHealth so the flash lines up exactly
-        // with the bar as currently rendered.
+        // with the bar as currently rendered. The bar's own "X/Y" text also blinks to the
+        // resulting HP for the duration of the hover, then renderUnitHealth's normal cache
+        // (dataset.renderedHp etc.) is untouched, so restoring here just recomputes from the
+        // same live unit rather than needing to remember what the text said before.
         const hideHealthDamageFlash = (card) => {
             card?.querySelector('.health-bar-damage-flash')?.remove();
+            const healthText = card?.querySelector('.health-text');
+            if (!healthText || !healthText.classList.contains('health-text-preview-blink')) return;
+            healthText.classList.remove('health-text-preview-blink');
+            const username = card?.dataset?.username || '';
+            const slot = Number.parseInt(card?.dataset?.slot, 10);
+            const unit = Number.isInteger(slot) ? latestBoardState?.[username]?.[slot] : null;
+            if (!unit) return;
+            const { hp, hpCap, displayMaxHp } = computeUnitHealthMetrics(unit);
+            healthText.textContent = formatHealthText(hp, hpCap, displayMaxHp);
         };
 
-        const showHealthDamageFlash = (card, unit, damageAmount) => {
+        // damageAmount is the KNOWN/guaranteed portion only — for a skill with a chance-gated
+        // bonus on top of a guaranteed base (or no guaranteed amount at all), pass `uncertain:
+        // true` to append a "+???" to the label, and to skip the flash rectangle entirely when
+        // there's no known width to draw (damageAmount <= 0).
+        const showHealthDamageFlash = (card, unit, damageAmount, { uncertain = false } = {}) => {
             hideHealthDamageFlash(card);
             const container = card?.querySelector('.health-bar-container');
-            if (!container || !unit || !(Number(damageAmount) > 0)) return;
-            const unitMaxHp = Number.isFinite(Number(unit?.maxHp)) ? Math.max(1, Math.ceil(Number(unit.maxHp))) : MAX_HP;
-            const hpCapRaw = Number.isFinite(Number(unit?.hpCap)) ? Math.ceil(Number(unit.hpCap)) : unitMaxHp;
-            const displayMaxHp = Math.max(1, unitMaxHp, hpCapRaw);
-            const rawHp = isUnitBanished(unit) ? 0 : Number(unit?.hp);
-            const hp = Math.max(0, Math.min(displayMaxHp, Number.isFinite(rawHp) ? Math.ceil(rawHp) : displayMaxHp));
+            const healthText = card?.querySelector('.health-text');
+            if (!container || !unit) return;
+            const known = Number(damageAmount) > 0;
+            if (!known && !uncertain) return;
+            const { hp, hpCap, displayMaxHp } = computeUnitHealthMetrics(unit);
             if (hp <= 0) return;
-            const currentWidth = Math.max(0, Math.round(HEALTH_BAR_MAX_WIDTH * (hp / displayMaxHp)));
-            const predictedHp = Math.max(0, hp - Number(damageAmount));
-            const predictedWidth = Math.max(0, Math.round(HEALTH_BAR_MAX_WIDTH * (predictedHp / displayMaxHp)));
+            const currentWidth = healthPxWidth(hp, displayMaxHp);
+            const predictedHp = known ? Math.max(0, hp - Number(damageAmount)) : hp;
+            const predictedWidth = healthPxWidth(predictedHp, displayMaxHp);
             const flashWidth = currentWidth - predictedWidth;
-            if (flashWidth <= 0) return;
-            const flash = document.createElement('div');
-            flash.className = 'health-bar-damage-flash';
-            flash.style.left = `${predictedWidth}px`;
-            flash.style.width = `${flashWidth}px`;
+
             const label = document.createElement('span');
             label.className = 'health-bar-damage-flash-label';
-            label.textContent = `-${Math.round(Number(damageAmount))}`;
-            flash.appendChild(label);
-            container.appendChild(flash);
+            label.textContent = known
+                ? `-${Math.round(Number(damageAmount))}${uncertain ? ' +???' : ''}`
+                : '+???';
+
+            if (known && flashWidth > 0) {
+                const flash = document.createElement('div');
+                flash.className = 'health-bar-damage-flash';
+                flash.style.left = `${predictedWidth}px`;
+                flash.style.width = `${flashWidth}px`;
+                flash.appendChild(label);
+                container.appendChild(flash);
+            } else {
+                // Nothing known to flash a segment for — still surface the standalone "+???"
+                // marker, centered above the bar like the flash label normally is.
+                const marker = document.createElement('div');
+                marker.className = 'health-bar-damage-flash health-bar-damage-flash-uncertain-only';
+                marker.style.left = '0';
+                marker.style.width = `${HEALTH_BAR_MAX_WIDTH}px`;
+                marker.appendChild(label);
+                container.appendChild(marker);
+            }
+
+            if (known && healthText) {
+                healthText.textContent = formatHealthText(predictedHp, hpCap, displayMaxHp);
+                healthText.classList.add('health-text-preview-blink');
+            }
         };
 
         const handleCardTargetHover = (event) => {
@@ -15143,11 +15187,13 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             if (!activeCastingSkill) return;
             const target = getTargetForCardFromOptions(card);
             const preview = target?.damagePreview;
-            if (!target || target.valid === false || !preview?.available || !(Number(preview.totalDamage) > 0)) {
-                return;
-            }
+            if (!target || target.valid === false || !preview) return;
             const unit = latestBoardState?.[target.username]?.[target.slot];
-            showHealthDamageFlash(card, unit, preview.totalDamage);
+            if (preview.available && Number(preview.totalDamage) > 0 && !preview.variable) {
+                showHealthDamageFlash(card, unit, preview.totalDamage);
+            } else if (preview.variable) {
+                showHealthDamageFlash(card, unit, Number(preview.certainDamage) || 0, { uncertain: true });
+            }
         };
 
         const handleCardTargetHoverEnd = (event) => {
