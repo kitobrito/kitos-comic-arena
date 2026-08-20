@@ -5889,7 +5889,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             clearQueuedSkillTapReorderState();
             document
                 .querySelectorAll(
-                    '.target-overlay, .target-lock-marker, .blind-potential-skill-icon, .target-damage-preview'
+                    '.target-overlay, .target-lock-marker, .blind-potential-skill-icon, .target-damage-preview, .health-bar-damage-flash'
                 )
                 .forEach((el) => el.remove());
             [...playerCards, ...enemyCards].forEach((card) => {
@@ -15104,6 +15104,52 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             clearActiveSkillTargeting();
         });
 
+        // Hovering a valid target while a damage-dealing skill is selected flashes the
+        // slice of their health bar that skill would remove, using the same
+        // hp/maxHp -> pixel-width math as renderUnitHealth so the flash lines up exactly
+        // with the bar as currently rendered.
+        const hideHealthDamageFlash = (card) => {
+            card?.querySelector('.health-bar-damage-flash')?.remove();
+        };
+
+        const showHealthDamageFlash = (card, unit, damageAmount) => {
+            hideHealthDamageFlash(card);
+            const container = card?.querySelector('.health-bar-container');
+            if (!container || !unit || !(Number(damageAmount) > 0)) return;
+            const unitMaxHp = Number.isFinite(Number(unit?.maxHp)) ? Math.max(1, Math.ceil(Number(unit.maxHp))) : MAX_HP;
+            const hpCapRaw = Number.isFinite(Number(unit?.hpCap)) ? Math.ceil(Number(unit.hpCap)) : unitMaxHp;
+            const displayMaxHp = Math.max(1, unitMaxHp, hpCapRaw);
+            const rawHp = isUnitBanished(unit) ? 0 : Number(unit?.hp);
+            const hp = Math.max(0, Math.min(displayMaxHp, Number.isFinite(rawHp) ? Math.ceil(rawHp) : displayMaxHp));
+            if (hp <= 0) return;
+            const currentWidth = Math.max(0, Math.round(HEALTH_BAR_MAX_WIDTH * (hp / displayMaxHp)));
+            const predictedHp = Math.max(0, hp - Number(damageAmount));
+            const predictedWidth = Math.max(0, Math.round(HEALTH_BAR_MAX_WIDTH * (predictedHp / displayMaxHp)));
+            const flashWidth = currentWidth - predictedWidth;
+            if (flashWidth <= 0) return;
+            const flash = document.createElement('div');
+            flash.className = 'health-bar-damage-flash';
+            flash.style.left = `${predictedWidth}px`;
+            flash.style.width = `${flashWidth}px`;
+            container.appendChild(flash);
+        };
+
+        const handleCardTargetHover = (event) => {
+            const card = event.currentTarget;
+            if (!activeCastingSkill) return;
+            const target = getTargetForCardFromOptions(card);
+            const preview = target?.damagePreview;
+            if (!target || target.valid === false || !preview?.available || !(Number(preview.totalDamage) > 0)) {
+                return;
+            }
+            const unit = latestBoardState?.[target.username]?.[target.slot];
+            showHealthDamageFlash(card, unit, preview.totalDamage);
+        };
+
+        const handleCardTargetHoverEnd = (event) => {
+            hideHealthDamageFlash(event.currentTarget);
+        };
+
         const attachCardTargetHandlers = (cards, username) => {
             cards.forEach((card, slot) => {
                 if (!card) return;
@@ -15111,6 +15157,10 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 card.dataset.slot = slot;
                 card.removeEventListener('pointerdown', handleCardTargetClick);
                 card.addEventListener('pointerdown', handleCardTargetClick);
+                card.removeEventListener('pointerenter', handleCardTargetHover);
+                card.addEventListener('pointerenter', handleCardTargetHover);
+                card.removeEventListener('pointerleave', handleCardTargetHoverEnd);
+                card.addEventListener('pointerleave', handleCardTargetHoverEnd);
             });
         };
 
