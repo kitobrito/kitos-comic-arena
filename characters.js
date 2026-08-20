@@ -32647,7 +32647,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/Cyndaquil/typhlosionflamewheel.png",
                 "skilldescription": "Deals 25 affliction damage to one enemy and 15 affliction damage to the other enemies. For 1 turn, Typhlosion gains 15 unpierceable damage reduction and ignores enemy stun effects. Enemies affected by Cynda-Smokescreen take 5 additional damage next turn.",
                 "description": "Deals 25 affliction damage to one enemy and 15 affliction damage to the other enemies. For 1 turn, Typhlosion gains 15 unpierceable damage reduction and ignores enemy stun effects. Enemies affected by Cynda-Smokescreen take 5 additional damage next turn.",
-                "energy": ["Bloodline"],
+                "energy": ["Bloodline", "Random"],
                 "cooldown": 1,
                 "target": "single-enemy",
                 "damage": 0,
@@ -33941,7 +33941,6 @@ const characters = [
                                     },
                                     "metadata": {
                                         "ignoreDamageReduction": true,
-                                        "ignoreDestructibleDefense": true,
                                         "currentStatusMetadataBonus": {
                                             "metadataKey": "dragapultDragonDartsStacks",
                                             "multiplier": 5
@@ -33958,7 +33957,6 @@ const characters = [
                                     },
                                     "metadata": {
                                         "ignoreDamageReduction": true,
-                                        "ignoreDestructibleDefense": true,
                                         "currentStatusMetadataBonus": {
                                             "metadataKey": "dragapultDragonDartsStacks",
                                             "multiplier": 10
@@ -33990,8 +33988,7 @@ const characters = [
                         "amount": 15,
                         "scope": "target",
                         "metadata": {
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true
+                            "ignoreDamageReduction": true
                         }
                     },
                     {

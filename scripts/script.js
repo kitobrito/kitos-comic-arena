@@ -18018,6 +18018,12 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         if (forms.some((form) => form.id === 'mega-y') && skillId.includes('charizard-y-')) {
             return 'mega-y';
         }
+        if (
+            forms.some((form) => form.id === 'evolution-2') &&
+            Object.values(JOHTO_STARTER_MIDDLE_EVOLUTION_SKILL_BY_ID).includes(skill?.id)
+        ) {
+            return 'evolution-2';
+        }
         if (forms.some((form) => form.id === 'evolution') && isSelectionEvolutionSkill(skill)) {
             return 'evolution';
         }
