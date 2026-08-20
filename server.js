@@ -5841,6 +5841,53 @@ const POKEMON_DROWZEE_MISSION_ENTRY = {
     sortOrder: 26,
 };
 
+const POKEMON_NINCADA_MISSION_ENTRY = {
+    missionId: 'nincada-evolution-specialist',
+    title: 'Evolution Specialist',
+    level_requirement: 1,
+    rank: '1',
+    reward_character: '',
+    reward_character_name: '',
+    reward: 'Earn 300 Pokemon Arena points.',
+    reward_unlock_points: 300,
+    arena: 'pokemon',
+    mode_restriction: {
+        allowed_modes: ['quick', 'ladder'],
+    },
+    win_streak: {
+        character_id: '',
+        character_name: '',
+        wins: 0,
+    },
+    image: 'assets/images/PokemonArena/Nincada/Nincada-FP.jpg',
+    imageAlt: 'Nincada mission artwork',
+    characterName: 'Nincada',
+    portrait: 'assets/images/PokemonArena/Nincada/Nincada-FP.jpg',
+    portraitAlt: 'Nincada portrait',
+    requirements: [
+        'Nincada is free to use right away - no unlock required.',
+        'Win 10 matches with Nincada on your team to earn 300 Pokemon Arena points.',
+    ],
+    goals: [
+        {
+            type: 'win_matches',
+            character_id: 'nincada',
+            character_name: 'Nincada',
+            wins: 10,
+        },
+    ],
+    special_pve: {
+        enabled: false,
+        buttonLabel: 'Start Fight',
+        botName: 'Mission Bot',
+        botTeamCharacterId: '',
+        botTeamSize: 3,
+        backgroundImage: '',
+        playerTeamCharacterIds: [],
+    },
+    sortOrder: 27,
+};
+
 const POKEMON_WAVE_2_MISSION_CONFIGS = [
     ['clefairy','Clefairy','Moon Stone Melody','clefairy.jpg',['chansey','mr-mime'],5,3],
     ['jigglypuff','Jigglypuff','The Encore That Never Ends','jigglypuff.jpg',['gastly','clefairy'],5,4],
@@ -6001,6 +6048,10 @@ const ensureRequiredMissionCatalogEntries = (missions = []) => {
     upsertRequiredMission(
         POKEMON_DROWZEE_MISSION_ENTRY,
         (mission) => mission?.missionId === POKEMON_DROWZEE_MISSION_ENTRY.missionId
+    );
+    upsertRequiredMission(
+        POKEMON_NINCADA_MISSION_ENTRY,
+        (mission) => mission?.missionId === POKEMON_NINCADA_MISSION_ENTRY.missionId
     );
     return normalizeMissionCatalog(catalog)
         .map((mission) => normalizeOpenTeamPveMission(mission))

@@ -32920,7 +32920,7 @@ const characters = [
                 "damage": 0,
                 "classes": ["Psychic", "Special", "Instant"],
                 "effects": [
-                    { "type": "apply_status", "statusId": "drowzee_hypnosis_active", "duration": 1, "scope": "target", "metadata": { "harmful": true, "cannotUseSkills": true, "tooltipText": "This character is fully stunned by Hypnosis." } }
+                    { "type": "apply_status", "statusId": "drowzee_hypnosis_active", "duration": 1, "scope": "target", "metadata": { "harmful": true, "cannotUseSkills": true, "turnDurationAnchor": "source_turn", "tooltipText": "This character is fully stunned by Hypnosis, through Drowzee's next turn." } }
                 ]
             },
             {
@@ -32940,8 +32940,8 @@ const characters = [
                 "id": "drowzee-dream-eater",
                 "name": "Dream Eater",
                 "skillimage": "assets/images/PokemonArena/Drowzee/S3.webp",
-                "skilldescription": "Drowzee deals 20 damage to one enemy affected by Hypnosis. Drowzee heals 20HP when used, and gains 1 random energy if this kills the enemy.",
-                "description": "Drowzee deals 20 damage to one enemy affected by Hypnosis. Drowzee heals 20HP when used, and gains 1 random energy if this kills the enemy.",
+                "skilldescription": "Drowzee deals 20 affliction damage to one enemy affected by Hypnosis. Drowzee heals 20HP when used, and gains 1 random energy if this kills the enemy.",
+                "description": "Drowzee deals 20 affliction damage to one enemy affected by Hypnosis. Drowzee heals 20HP when used, and gains 1 random energy if this kills the enemy.",
                 "energy": ["Ninjutsu"],
                 "cooldown": 0,
                 "target": "single-enemy",
@@ -32989,7 +32989,7 @@ const characters = [
                 "damage": 0,
                 "classes": ["Psychic", "Special", "Instant"],
                 "effects": [
-                    { "type": "apply_status", "statusId": "drowzee_hypnosis_active", "duration": 2, "scope": "target", "metadata": { "harmful": true, "cannotUseSkills": true, "tooltipText": "This character is fully stunned by Hypnosis." } }
+                    { "type": "apply_status", "statusId": "drowzee_hypnosis_active", "duration": 2, "scope": "target", "metadata": { "harmful": true, "cannotUseSkills": true, "turnDurationAnchor": "source_turn", "tooltipText": "This character is fully stunned by Hypnosis, through Drowzee's next turn." } }
                 ]
             },
             {
@@ -33013,8 +33013,8 @@ const characters = [
                 "actorCondition": { "statusId": "hypno_evolution" },
                 "hiddenFromSelectionViewer": true,
                 "skillimage": "assets/images/PokemonArena/Drowzee/hypnos3.webp",
-                "skilldescription": "Hypno deals 30 damage to one enemy affected by Hypnosis. Hypno heals 30HP when used, and gains 1 random energy if this kills the enemy.",
-                "description": "Hypno deals 30 damage to one enemy affected by Hypnosis. Hypno heals 30HP when used, and gains 1 random energy if this kills the enemy.",
+                "skilldescription": "Hypno deals 30 affliction damage to one enemy affected by Hypnosis. Hypno heals 30HP when used, and gains 1 random energy if this kills the enemy.",
+                "description": "Hypno deals 30 affliction damage to one enemy affected by Hypnosis. Hypno heals 30HP when used, and gains 1 random energy if this kills the enemy.",
                 "energy": ["Ninjutsu"],
                 "cooldown": 0,
                 "target": "single-enemy",

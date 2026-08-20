@@ -8287,7 +8287,10 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     );
                     if (!hypnosisStatus) return;
                     const hpBeforeDamage = Math.max(0, Number(recipient.unit.hp) || 0);
-                    queueDamage(recipient, damageAmount, effect);
+                    queueDamage(recipient, damageAmount, {
+                        ...effect,
+                        metadata: { ...(effect?.metadata || {}), afflictionDamage: true },
+                    });
                     applyHealToUnit(actorUnit, healAmount, {
                         sourceSkillId: skill.id || null,
                         sourceUsername: actingUsername,

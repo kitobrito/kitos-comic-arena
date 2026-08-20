@@ -1360,22 +1360,47 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         zubat: { name: 'Golbat', filename: 'Golbat_Render_01.webp.webp' },
     });
     // Johto starters swap exactly one skill slot per evolution stage (see
-    // buildInitialBoard/skillReplacements in battleLogic.js). The Evolution
-    // preview here always shows the final stage's version of that slot.
+    // buildInitialBoard/skillReplacements in battleLogic.js). "evolution-2" is
+    // the middle stage (Quilava/Bayleaf/Croconaw); "evolution" is the final
+    // stage (Typhlosion/Meganium/Feraligatr).
+    const JOHTO_STARTER_MIDDLE_EVOLUTION_SKILL_BY_ID = Object.freeze({
+        'cyndaquil-aerial-flamethrower': 'cyndaquil-quilava-flame-wheel',
+        'chikorita-aerial-razor-leaf': 'chikorita-bayleaf-magical-leaf',
+        'totodile-scary-face': 'totodile-croconaw-bite',
+    });
+    // Also covers Drowzee, whose evolved form (Hypno) swaps all four skills at
+    // once rather than just one slot - see the hypno_evolution skillReplacements
+    // in characters.js.
     const JOHTO_STARTER_FINAL_EVOLUTION_SKILL_BY_ID = Object.freeze({
         'cyndaquil-aerial-flamethrower': 'cyndaquil-typhlosion-flame-wheel',
         'chikorita-aerial-razor-leaf': 'chikorita-meganium-magical-leaf',
         'totodile-scary-face': 'totodile-feraligatr-dragon-claw',
+        'drowzee-hypnosis': 'hypno-hypnosis',
+        'drowzee-nightmare': 'hypno-nightmare',
+        'drowzee-dream-eater': 'hypno-dream-eater',
+        'drowzee-disable': 'hypno-disable',
     });
-    const JOHTO_STARTER_EVOLUTION_REQUIREMENT_BY_ID = Object.freeze({
-        cyndaquil: 'Win 16 ranked matches to evolve into Quilava, then 36 more to reach Typhlosion.',
-        chikorita: 'Win 16 ranked matches to evolve into Bayleaf, then 36 more to reach Meganium.',
-        totodile: 'Win 16 ranked matches to evolve into Croconaw, then 36 more to reach Feraligatr.',
+    const JOHTO_STARTER_EVOLUTION_REQUIREMENT_BY_FORM_ID = Object.freeze({
+        'cyndaquil:evolution-2': 'Win 16 ranked matches to evolve into Quilava.',
+        'cyndaquil:evolution': 'Win 16 ranked matches to evolve into Quilava, then 36 more to reach Typhlosion.',
+        'chikorita:evolution-2': 'Win 16 ranked matches to evolve into Bayleaf.',
+        'chikorita:evolution': 'Win 16 ranked matches to evolve into Bayleaf, then 36 more to reach Meganium.',
+        'totodile:evolution-2': 'Win 16 ranked matches to evolve into Croconaw.',
+        'totodile:evolution': 'Win 16 ranked matches to evolve into Croconaw, then 36 more to reach Feraligatr.',
     });
     const POKEMON_SELECTION_BATTLE_FORM_RENDERS_BY_ID = Object.freeze({
         nincada: [
             { id: 'ninjask', label: 'Ninjask', name: 'Ninjask', filename: 'ninjask.png.webp' },
             { id: 'shedinja', label: 'Shedinja', name: 'Shedinja', filename: 'shedinja.png.webp' },
+        ],
+        cyndaquil: [
+            { id: 'evolution-2', label: 'Quilava', name: 'Quilava', filename: 'quilava.png.webp' },
+        ],
+        chikorita: [
+            { id: 'evolution-2', label: 'Bayleaf', name: 'Bayleaf', filename: 'bayleaf.png.webp' },
+        ],
+        totodile: [
+            { id: 'evolution-2', label: 'Croconaw', name: 'Croconaw', filename: 'croconaw.webp.webp' },
         ],
     });
     const POKEMON_SELECTION_SKIN_RENDER_FORMS_BY_ID = Object.freeze({
@@ -17887,12 +17912,19 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             );
         }
         const baseSkills = getSelectionVisibleSkills(character);
-        if (String(form || '').trim().toLowerCase() === 'evolution') {
+        const normalizedForm = String(form || '').trim().toLowerCase();
+        const johtoReplacementMap =
+            normalizedForm === 'evolution-2'
+                ? JOHTO_STARTER_MIDDLE_EVOLUTION_SKILL_BY_ID
+                : normalizedForm === 'evolution'
+                ? JOHTO_STARTER_FINAL_EVOLUTION_SKILL_BY_ID
+                : null;
+        if (johtoReplacementMap) {
             const skillsById = new Map(
                 (Array.isArray(character?.skills) ? character.skills : []).map((skill) => [skill?.id, skill])
             );
             const replaced = baseSkills.map((skill) => {
-                const replacementId = JOHTO_STARTER_FINAL_EVOLUTION_SKILL_BY_ID[skill?.id];
+                const replacementId = johtoReplacementMap[skill?.id];
                 return replacementId ? skillsById.get(replacementId) || skill : skill;
             });
             if (replaced.some((skill, idx) => skill !== baseSkills[idx])) return replaced;

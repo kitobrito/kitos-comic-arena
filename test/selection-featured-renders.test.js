@@ -154,3 +154,33 @@ test('every supplied equipped-skin showcase render is mapped and optimized', () 
         assert.ok(fs.existsSync(renderPath), `skin showcase render should exist: ${filename}`);
     });
 });
+
+test('Johto starters have a selectable middle-evolution preview alongside their final evolution', () => {
+    const selectionHtml = fs.readFileSync(path.join(root, 'selection.html'), 'utf8');
+    const selectionSource = fs.readFileSync(path.join(root, 'scripts', 'script.js'), 'utf8');
+
+    assert.match(selectionHtml, /data-character-form="evolution-2"[^>]*hidden/);
+
+    const mapBody = selectionSource.match(
+        /POKEMON_SELECTION_BATTLE_FORM_RENDERS_BY_ID = Object\.freeze\(\{([\s\S]*?)\n {4}\}\);/
+    )?.[1];
+    assert.ok(mapBody, 'battle-form render map should exist in the selection client');
+
+    const expected = {
+        cyndaquil: 'Quilava',
+        chikorita: 'Bayleaf',
+        totodile: 'Croconaw',
+    };
+    Object.entries(expected).forEach(([characterId, label]) => {
+        const entryMatch = mapBody.match(new RegExp(`${characterId}:\\s*\\[([\\s\\S]*?)\\]`));
+        assert.ok(entryMatch, `${characterId} should have a battle-form render entry`);
+        assert.match(entryMatch[1], new RegExp(`id:\\s*'evolution-2'`));
+        assert.match(entryMatch[1], new RegExp(`label:\\s*'${label}'`));
+        const filenameMatch = entryMatch[1].match(/filename:\s*'([^']+)'/);
+        assert.ok(filenameMatch, `${characterId} evolution-2 entry should have a filename`);
+        const renderPath = path.join(
+            root, 'assets', 'images', 'selection-featured', 'PokemonArena', 'BIB', filenameMatch[1]
+        );
+        assert.ok(fs.existsSync(renderPath), `${characterId} middle-evolution render should exist: ${filenameMatch[1]}`);
+    });
+});
