@@ -43,3 +43,13 @@ test('style.css positions the flash absolutely inside the health bar container, 
     assert.match(styles, /\.health-bar-damage-flash\s*\{/);
     assert.match(styles, /@keyframes health-bar-damage-flash-pulse/);
 });
+
+test('the flash carries an exact "-N" number label, centered via layout so the enemy-side mirror only needs a plain scaleX(-1)', () => {
+    assert.match(script, /label\.textContent = `-\$\{Math\.round\(Number\(damageAmount\)\)\}`;/);
+    assert.match(script, /flash\.appendChild\(label\);/);
+    assert.match(styles, /\.health-bar-damage-flash-label\s*\{[^}]*width: fit-content;[^}]*margin: 0 auto;/s);
+    assert.match(
+        styles,
+        /\.enemy-characters \.health-bar-damage-flash-label\s*\{\s*transform: scaleX\(-1\);\s*\}/
+    );
+});

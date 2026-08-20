@@ -15131,6 +15131,10 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             flash.className = 'health-bar-damage-flash';
             flash.style.left = `${predictedWidth}px`;
             flash.style.width = `${flashWidth}px`;
+            const label = document.createElement('span');
+            label.className = 'health-bar-damage-flash-label';
+            label.textContent = `-${Math.round(Number(damageAmount))}`;
+            flash.appendChild(label);
             container.appendChild(flash);
         };
 

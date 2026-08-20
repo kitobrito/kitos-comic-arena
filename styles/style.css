@@ -4220,6 +4220,28 @@ body.ui-disable-death-animations .special-kill-overlay {
     50% { opacity: 0.95; }
 }
 
+.health-bar-damage-flash-label {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -16px;
+    width: fit-content;
+    margin: 0 auto;
+    z-index: 6;
+    padding: 1px 4px;
+    border-radius: 3px;
+    background: rgba(10, 14, 19, 0.92);
+    border: 1px solid #ff5757;
+    color: #ff8c8c;
+    font-family: 'Libre Franklin', Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1.3;
+    white-space: nowrap;
+    pointer-events: none;
+    animation: none;
+}
+
 .player-characters {
     gap: 34px;
     display: flex;
@@ -7552,6 +7574,10 @@ body.weather-fx-lightning-active #weather-fx-lightning-static {
 
 
 .enemy-characters .health-text {
+    transform: scaleX(-1);
+}
+
+.enemy-characters .health-bar-damage-flash-label {
     transform: scaleX(-1);
 }
 
