@@ -160,7 +160,7 @@ async function syncPokemonArenaV332News() {
         throw new Error('MONGODB_URI is required.');
     }
 
-    const client = new MongoClient(uri);
+    const client = new MongoClient(uri, { family: 4 });
     await client.connect();
     try {
         const db = client.db(dbName);
