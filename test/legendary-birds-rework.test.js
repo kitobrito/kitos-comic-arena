@@ -225,8 +225,8 @@ test('Moltres Wildfire summons weather and grants bonus Heat from its own cast',
     assert.equal(match.weather.damageTypeModifiers.Water, -5);
     assert.deepEqual(
         match.weather.costTypeModifiers,
-        { Fire: -1 },
-        'Wildfire discounts Fire skill costs, no longer touches Grass/Electric'
+        { Fire: -1, Grass: 1, Bug: 1 },
+        'Wildfire discounts Fire costs and taxes Grass/Bug costs, no longer touches Electric'
     );
     const heat = casterUnit.state.statuses.find((status) => status.id === 'moltres_heat');
     assert.equal(heat.metadata.heat, 2, '1 base Heat + 1 weather-synergy bonus from casting Wildfire itself');

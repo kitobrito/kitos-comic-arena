@@ -31898,8 +31898,8 @@ const characters = [
                 "id": "moltres-sunny-day",
                 "name": "Wildfire",
                 "skillimage": "assets/images/PokemonArena/moltres/sunnyday.png",
-                "skilldescription": "Summons Wildfire for 4 turns: Fire skills +5 damage and cost 1 less Random energy, Water skills -5 damage. While it lasts, Moltres gains 1 additional Heat from her skills. Gains 1 Heat.",
-                "description": "Summons Wildfire for 4 turns: Fire skills +5 damage and cost 1 less Random energy, Water skills -5 damage. While it lasts, Moltres gains 1 additional Heat from her skills. Gains 1 Heat.",
+                "skilldescription": "Summons Wildfire for 4 turns: Fire skills +5 damage and cost 1 less Random energy, Water skills -5 damage, Grass and Bug skills cost 1 more Random energy. While it lasts, Moltres gains 1 additional Heat from her skills. Gains 1 Heat.",
+                "description": "Summons Wildfire for 4 turns: Fire skills +5 damage and cost 1 less Random energy, Water skills -5 damage, Grass and Bug skills cost 1 more Random energy. While it lasts, Moltres gains 1 additional Heat from her skills. Gains 1 Heat.",
                 "energy": [
                     "Bloodline"
                 ],
@@ -31919,10 +31919,10 @@ const characters = [
                         "weather": {
                             "key": "wildfire",
                             "name": "Wildfire",
-                            "description": "Fire skills +5 damage and cost 1 less Random energy, Water skills -5 damage.",
+                            "description": "Fire skills +5 damage and cost 1 less Random energy, Water skills -5 damage, Grass and Bug skills cost 1 more Random energy.",
                             "rounds": 4,
                             "damageTypeModifiers": { "Fire": 5, "Water": -5 },
-                            "costTypeModifiers": { "Fire": -1 }
+                            "costTypeModifiers": { "Fire": -1, "Grass": 1, "Bug": 1 }
                         }
                     },
                     {
@@ -32048,9 +32048,9 @@ const characters = [
         "role": "Controller",
         "roleCategory": "controller",
         "facePicture": "assets/images/PokemonArena/zapdos/fp.png",
-        "characterdeescription": "A legendary electric controller that punishes harmful skills and detonates Thunderbolt into Zap Cannon.",
-        "description": "A legendary electric controller that punishes harmful skills and detonates Thunderbolt into Zap Cannon.",
-        "descriptionHtml": "A legendary electric controller that punishes harmful skills and detonates Thunderbolt into Zap Cannon.",
+        "characterdeescription": "A legendary electric controller that punishes harmful skills and detonates Thunderstorm into Zap Cannon.",
+        "description": "A legendary electric controller that punishes harmful skills and detonates Thunderstorm into Zap Cannon.",
+        "descriptionHtml": "A legendary electric controller that punishes harmful skills and detonates Thunderstorm into Zap Cannon.",
         "skills": [
             {
                 "id": "zapdos-charge",
@@ -32113,8 +32113,8 @@ const characters = [
                 "id": "zapdos-zap-cannon",
                 "name": "Zap Cannon",
                 "skillimage": "assets/images/PokemonArena/zapdos/zapcanon.png",
-                "skilldescription": "Marks an enemy for 3 turns. Thunderbolt triggers shorten it and add 10 damage. On expiry, deals 30 plus bonus piercing damage and stuns for 1 turn. Resolves instantly if Charge has been active for 2 turns.",
-                "description": "Marks an enemy for 3 turns. Thunderbolt triggers shorten it and add 10 damage. On expiry, deals 30 plus bonus piercing damage and stuns for 1 turn. Resolves instantly if Charge has been active for 2 turns.",
+                "skilldescription": "Marks an enemy for 3 turns. Thunderstorm triggers shorten it and add 10 damage. On expiry, deals 30 plus bonus piercing damage and stuns for 1 turn. Resolves instantly if Charge has been active for 2 turns.",
+                "description": "Marks an enemy for 3 turns. Thunderstorm triggers shorten it and add 10 damage. On expiry, deals 30 plus bonus piercing damage and stuns for 1 turn. Resolves instantly if Charge has been active for 2 turns.",
                 "energy": [
                     "Genjutsu",
                     "Genjutsu",
@@ -32141,8 +32141,8 @@ const characters = [
                 "id": "zapdos-flight",
                 "name": "Flight",
                 "skillimage": "assets/images/PokemonArena/zapdos/flight.webp",
-                "skilldescription": "For 2 turns, Zapdos is invulnerable to non-affliction enemy skills and Thunderbolt triggers deal 7 instead of 5.",
-                "description": "For 2 turns, Zapdos is invulnerable to non-affliction enemy skills and Thunderbolt triggers deal 7 instead of 5.",
+                "skilldescription": "For 2 turns, Zapdos is invulnerable to non-affliction enemy skills and Thunderstorm triggers deal 10 instead of 5.",
+                "description": "For 2 turns, Zapdos is invulnerable to non-affliction enemy skills and Thunderstorm triggers deal 10 instead of 5.",
                 "energy": [
                     "Random"
                 ],
@@ -32162,7 +32162,7 @@ const characters = [
                         "scope": "self",
                         "metadata": {
                             "invulnerableToNonAffliction": true,
-                            "zapdosThunderboltDamage": 7
+                            "zapdosThunderboltDamage": 10
                         }
                     }
                 ]

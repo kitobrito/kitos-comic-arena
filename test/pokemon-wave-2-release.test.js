@@ -161,7 +161,7 @@ test('follow-up balance values and replacement artwork are applied', () => {
     assert.equal(beedrill.skills.find((skill) => skill.id === 'beedrill-hive-sting').skillimage.endsWith('/hivesting.webp'), true);
     assert.equal(byId.get('articuno').skills.find((skill) => skill.id === 'articuno-ice-beam').effects[0].amount, 15);
     assert.equal(byId.get('moltres').skills.find((skill) => skill.id === 'moltres-fire-spin').effects[0].metadata.teamTrapEnemyHarmfulDamage, 10);
-    assert.equal(byId.get('zapdos').skills.find((skill) => skill.id === 'zapdos-flight').effects[0].metadata.zapdosThunderboltDamage, 7);
+    assert.equal(byId.get('zapdos').skills.find((skill) => skill.id === 'zapdos-flight').effects[0].metadata.zapdosThunderboltDamage, 10);
     const mewtwo = byId.get('mewtwo');
     assert.equal(mewtwo.skills.find((skill) => skill.id === 'mewtwo-psychic').cooldown, 1);
     assert.equal(mewtwo.skills.find((skill) => skill.id === 'mewtwo-recover').effects[0].type, 'mewtwo_recover');
