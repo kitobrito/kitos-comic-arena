@@ -92,7 +92,8 @@ html.selection-experimental .experimental-toolbar-label {
 html.selection-experimental .experimental-store-toggle,
 html.selection-experimental .experimental-missions-toggle,
 html.selection-experimental .experimental-controls-toggle,
-html.selection-experimental .experimental-classic-link {
+html.selection-experimental .experimental-classic-link,
+html.selection-experimental .experimental-news-toggle {
     min-height: 28px;
     box-sizing: border-box;
     padding: 6px 9px;
@@ -113,6 +114,7 @@ html.selection-experimental .experimental-missions-toggle:hover,
 html.selection-experimental .experimental-missions-toggle.active,
 html.selection-experimental .experimental-controls-toggle:hover,
 html.selection-experimental .experimental-classic-link:hover,
+html.selection-experimental .experimental-news-toggle:hover,
 html.selection-experimental body.experimental-controls-open .experimental-controls-toggle {
     color: #fff4a5;
     border-color: #ffe143;
@@ -1782,7 +1784,8 @@ html.selection-experimental body.matchmaking-active .sound-controller {
     html.selection-experimental .experimental-store-toggle,
     html.selection-experimental .experimental-missions-toggle,
     html.selection-experimental .experimental-controls-toggle,
-    html.selection-experimental .experimental-classic-link {
+    html.selection-experimental .experimental-classic-link,
+    html.selection-experimental .experimental-news-toggle {
         min-width: 0;
         min-height: 42px;
         display: grid;
@@ -2266,7 +2269,8 @@ html.selection-experimental body.matchmaking-active .sound-controller {
     html.selection-experimental .experimental-store-toggle,
     html.selection-experimental .experimental-missions-toggle,
     html.selection-experimental .experimental-controls-toggle,
-    html.selection-experimental .experimental-classic-link {
+    html.selection-experimental .experimental-classic-link,
+    html.selection-experimental .experimental-news-toggle {
         min-height: 28px;
         padding: 3px 2px;
         display: grid;

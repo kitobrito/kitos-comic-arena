@@ -35,6 +35,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
 <div class="backgroundingame">
+    <div id="weather-ambient-fx" class="weather-ambient-fx" aria-hidden="true">
+        <div id="weather-fx-snow" class="weather-fx-layer weather-fx-snow"></div>
+        <div id="weather-fx-lightning-static" class="weather-fx-layer weather-fx-lightning-static"></div>
+        <div id="weather-fx-lightning-flash" class="weather-fx-layer weather-fx-lightning-flash"></div>
+    </div>
     <div class="ingame-stage">
     <div class="battle-intro-overlay" aria-hidden="true">
         <img class="pokemon-arena-battle-intro-logo" src="assets/images/PokemonArena/pokemonarenalogo.png" alt="Pokemon Arena">
@@ -65,6 +70,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <div class="battle-intro-name battle-intro-name-bottom">Player</div>
             </div>
         </div>
+    </div>
+    <div id="weather-banner" class="weather-banner" hidden role="status" aria-live="polite">
+        <span id="weather-banner-name" class="weather-banner-name"></span>
+        <span id="weather-banner-rounds" class="weather-banner-rounds"></span>
     </div>
     <div class="ingame-sound-controller" aria-label="Sound controller">
         <button type="button" class="ingame-mute-button music-mute-button" aria-label="Mute music" title="Mute music"></button>

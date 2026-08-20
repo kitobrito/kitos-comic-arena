@@ -10502,6 +10502,7 @@ const buildMatchPayloadForUser = (match, username) => {
             match.pveBattle && typeof match.pveBattle === 'object'
                 ? cloneSerializable(match.pveBattle)
                 : null,
+        weather: battleLogic.getWeatherViewerPayload(match.weather),
     };
 };
 
@@ -10534,6 +10535,7 @@ const buildMatchActionStatePayload = (match, username, extra = {}) => {
         ladderResult: safePayload.ladderResult || null,
         backgroundOverride: safePayload.backgroundOverride || '',
         pveBattle: safePayload.pveBattle || null,
+        weather: safePayload.weather || null,
         ...extra,
     };
 };
@@ -12229,6 +12231,7 @@ const botCanAffordSkill = ({ match, username, skill, actorState }) => {
     const { reservedSpecific, requiredRandom } = battleLogic.computeEffectiveEnergyCost({
         skill,
         actorState,
+        match,
     });
     for (const type of chakraTypes) {
         if ((Number(pool[type]) || 0) < (Number(reservedSpecific[type]) || 0)) {
@@ -13231,6 +13234,7 @@ const queueSkillForActorSlot = ({
     const { reservedSpecific, requiredRandom } = battleLogic.computeEffectiveEnergyCost({
         skill,
         actorState,
+        match,
     });
     chakraTypes.forEach((type) => {
         if ((pool[type] || 0) < reservedSpecific[type]) {
@@ -13566,6 +13570,10 @@ const finalizeTurn = async (match, username, options = {}) => {
         match,
         endingUsername: username,
         pendingTurn: pendingTurnBeforeResolve,
+    });
+    battleLogic.tickWeatherForTurnEnd({
+        match,
+        characters: charactersData,
     });
     if (match._manualSkillActorSlotsByUsername) {
         delete match._manualSkillActorSlotsByUsername;

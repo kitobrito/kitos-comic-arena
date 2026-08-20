@@ -34,10 +34,27 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
 <div class="background">
     <button type="button" class="classic-new-ui-button" title="Switch to the new selection interface">New UI</button>
+    <button type="button" id="ingame-news-toggle" class="ingame-news-toggle" aria-expanded="false" aria-controls="ingame-news-backdrop" title="Patch notes and announcements">News</button>
     <div class="sound-controller" aria-label="Sound controller">
         <button type="button" class="mute-button music-mute-button" aria-label="Mute music" title="Mute music"></button>
         <button type="button" class="effects-mute-button" aria-label="Mute game sounds" title="Mute game sounds"></button>
         <input id="sound-volume" class="sound-volume" type="range" min="0" max="100" step="1" value="70" aria-label="Sound volume">
+    </div>
+
+    <div id="ingame-news-backdrop" class="ingame-news-backdrop" hidden>
+        <div id="ingame-news-panel" class="ingame-news-panel" role="dialog" aria-label="Game news">
+            <div class="ingame-news-header">
+                <h2>News</h2>
+                <button type="button" id="ingame-news-close" class="ingame-news-close" aria-label="Close news">&times;</button>
+            </div>
+            <p id="ingame-news-status" class="ingame-news-status" role="status"></p>
+            <div id="ingame-news-content" class="ingame-news-content"></div>
+            <div class="ingame-news-nav">
+                <button type="button" id="ingame-news-prev" class="ingame-news-nav-button">&lsaquo; Prev</button>
+                <span id="ingame-news-counter" class="ingame-news-counter">0 / 0</span>
+                <button type="button" id="ingame-news-next" class="ingame-news-nav-button">Next &rsaquo;</button>
+            </div>
+        </div>
     </div>
     <img class="selectionscroll" src="assets/images/selectionscroll.png" alt="selectionscroll">
     <div class="selectionpage">
@@ -48,6 +65,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <button type="button" class="experimental-missions-toggle" aria-expanded="false" aria-controls="selection-store">Missions</button>
             <button type="button" class="experimental-controls-toggle" aria-expanded="false" aria-controls="selection-roster-filters">Filters &amp; Options</button>
             <a class="experimental-classic-link" href="selection.html?layout=classic">Classic UI</a>
+            <button type="button" class="experimental-news-toggle" aria-expanded="false" aria-controls="ingame-news-backdrop">News</button>
         </div>
 
         <div class="searching-backdrop hidden">

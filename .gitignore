@@ -2,3 +2,11 @@ node_modules
 .env
 .env.new
 npm-debug.log*
+
+# Raw battle-animation asset packs (~62,000 files / 274MB) — kept locally so
+# scripts/build-animation-manifest.js can run, but never committed. Only the small
+# curated subset it copies into animations-used/ ships with the game.
+assets/images/PokemonArena/animations/Super Pixel Effects Gigapack/
+assets/images/PokemonArena/animations/Super Pixel Fantasy FX Pack 3/
+assets/images/PokemonArena/animations/Super Pixel Monsters Pack 2/
+assets/images/PokemonArena/animations/New in Gigapack v2.8.0/

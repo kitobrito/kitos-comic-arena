@@ -31702,12 +31702,12 @@ const characters = [
                 "id": "articuno-blizzard",
                 "name": "Blizzard",
                 "skillimage": "assets/images/PokemonArena/articuno/blizzard.png",
-                "skilldescription": "Deals 15 damage to all enemies and paralyzes their cooldowns for 1 turn.",
-                "description": "Deals 15 damage to all enemies and paralyzes their cooldowns for 1 turn.",
+                "skilldescription": "Deals 10 damage to all enemies and paralyzes their cooldowns for 1 turn. Summons a Snowstorm for 4 turns.",
+                "description": "Deals 10 damage to all enemies and paralyzes their cooldowns for 1 turn. Summons a Snowstorm for 4 turns: Ice and Water Pokemon take no damage, everyone else takes 3 each turn. Water skills become Ice-typed and deal piercing damage. Ice skills besides Blizzard deal +5 damage and cannot be evaded, Fire skills deal -5 damage, Grass and Bug skills cost 1 more Random energy. Snowstorm cannot be refreshed while already active.",
                 "energy": [
                     "Ninjutsu"
                 ],
-                "cooldown": 1,
+                "cooldown": 2,
                 "target": "all-enemy",
                 "damage": 0,
                 "classes": [
@@ -31718,7 +31718,7 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 15,
+                        "amount": 10,
                         "scope": "all-enemy",
                         "metadata": {}
                     },
@@ -31731,6 +31731,23 @@ const characters = [
                             "harmful": true,
                             "paralyzeCooldowns": true
                         }
+                    },
+                    {
+                        "type": "set_weather",
+                        "scope": "self",
+                        "weather": {
+                            "key": "snowstorm",
+                            "name": "Snowstorm",
+                            "description": "Ice and Water Pokemon take no damage; everyone else takes 3 each turn. Water skills become Ice-typed and deal piercing damage. Ice skills deal +5 damage (Blizzard excluded) and cannot be evaded. Fire skills deal -5 damage. Grass and Bug skills cost 1 more Random energy.",
+                            "rounds": 4,
+                            "blockRefreshIfActive": true,
+                            "excludeSkillId": "articuno-blizzard",
+                            "damageTypeModifiers": { "Ice": 5, "Fire": -5 },
+                            "costTypeModifiers": { "Grass": 1, "Bug": 1 },
+                            "evasionImmuneTypes": ["Ice"],
+                            "periodicNonTypeDamage": { "immuneTypes": ["Ice", "Water"], "amount": 3 },
+                            "transformMoveType": { "Water": "Ice" }
+                        }
                     }
                 ]
             },
@@ -31738,8 +31755,8 @@ const characters = [
                 "id": "articuno-ice-beam",
                 "name": "Ice Beam",
                 "skillimage": "assets/images/PokemonArena/articuno/icebeam.png",
-                "skilldescription": "Deals 15 affliction damage and has a 50% chance to stun Special skills for 1 turn.",
-                "description": "Deals 15 affliction damage and has a 50% chance to stun Special skills for 1 turn.",
+                "skilldescription": "Deals 15 affliction damage and has a 50% chance to stun Special skills for 1 turn. Always stuns during a Snowstorm.",
+                "description": "Deals 15 affliction damage and has a 50% chance to stun Special skills for 1 turn. Always stuns during a Snowstorm.",
                 "energy": [
                     "Ninjutsu"
                 ],
@@ -31770,7 +31787,8 @@ const characters = [
                             "harmful": true,
                             "cannotUseSkillClasses": ["Special"]
                         },
-                        "chance": 50
+                        "chance": 50,
+                        "chanceCertainDuringWeatherKey": "snowstorm"
                     }
                 ]
             },
@@ -31778,8 +31796,8 @@ const characters = [
                 "id": "articuno-sheer-cold",
                 "name": "Sheer Cold",
                 "skillimage": "assets/images/PokemonArena/articuno/sheercold.png",
-                "skilldescription": "Casts Blizzard then Ice Beam on the enemy team and permanently gains 5 damage each use.",
-                "description": "Casts Blizzard then Ice Beam on the enemy team and permanently gains 5 damage each use.",
+                "skilldescription": "Casts Blizzard then Ice Beam on the enemy team, summons a Snowstorm, and permanently gains 5 damage each use.",
+                "description": "Casts Blizzard then Ice Beam on the enemy team, summons a Snowstorm, and permanently gains 5 damage each use.",
                 "energy": [
                     "Ninjutsu",
                     "Ninjutsu",
@@ -31892,21 +31910,22 @@ const characters = [
                     },
                     {
                         "type": "gain_heat",
-                        "amount": 1
+                        "amount": 1,
+                        "bonusFromWeather": { "weatherKey": "wildfire", "sourceMustMatch": true, "amount": 1 }
                     }
                 ]
             },
             {
                 "id": "moltres-sunny-day",
-                "name": "Sunny Day",
+                "name": "Wildfire",
                 "skillimage": "assets/images/PokemonArena/moltres/sunnyday.png",
-                "skilldescription": "For 2 turns, enemies take 3 additional affliction damage. Moltres gains 1 Heat.",
-                "description": "For 2 turns, enemies take 3 additional affliction damage. Moltres gains 1 Heat.",
+                "skilldescription": "Summons Wildfire for 4 turns: Fire skills +5 damage, Water skills -5 damage, Grass skills cost 1 less Random energy, Electric skills cost 1 more Random energy. While it lasts, Moltres gains 1 additional Heat from her skills. Gains 1 Heat.",
+                "description": "Summons Wildfire for 4 turns: Fire skills +5 damage, Water skills -5 damage, Grass skills cost 1 less Random energy, Electric skills cost 1 more Random energy. While it lasts, Moltres gains 1 additional Heat from her skills. Gains 1 Heat.",
                 "energy": [
                     "Bloodline"
                 ],
                 "cooldown": 4,
-                "target": "all-enemy",
+                "target": "self",
                 "damage": 0,
                 "classes": [
                     "Fire",
@@ -31916,18 +31935,21 @@ const characters = [
                 ],
                 "effects": [
                     {
-                        "type": "apply_status",
-                        "statusId": "moltres_sunny_day_enemy",
-                        "duration": 2,
-                        "scope": "all-enemy",
-                        "metadata": {
-                            "harmful": true,
-                            "additionalAfflictionDamageTaken": 3
+                        "type": "set_weather",
+                        "scope": "self",
+                        "weather": {
+                            "key": "wildfire",
+                            "name": "Wildfire",
+                            "description": "Fire skills +5 damage, Water skills -5 damage. Grass skills cost 1 less Random energy, Electric skills cost 1 more Random energy.",
+                            "rounds": 4,
+                            "damageTypeModifiers": { "Fire": 5, "Water": -5 },
+                            "costTypeModifiers": { "Grass": -1, "Electric": 1 }
                         }
                     },
                     {
                         "type": "gain_heat",
-                        "amount": 1
+                        "amount": 1,
+                        "bonusFromWeather": { "weatherKey": "wildfire", "sourceMustMatch": true, "amount": 1 }
                     }
                 ]
             },
@@ -31969,7 +31991,8 @@ const characters = [
                     },
                     {
                         "type": "gain_heat",
-                        "amount": 1
+                        "amount": 1,
+                        "bonusFromWeather": { "weatherKey": "wildfire", "sourceMustMatch": true, "amount": 1 }
                     }
                 ]
             },
@@ -32054,8 +32077,8 @@ const characters = [
                 "id": "zapdos-charge",
                 "name": "Charge",
                 "skillimage": "assets/images/PokemonArena/zapdos/charge.webp",
-                "skilldescription": "Channels for 2 turns. Zapdos skills cost 1 less Yellow energy each turn; using another skill ends Charge.",
-                "description": "Channels for 2 turns. Zapdos skills cost 1 less Yellow energy each turn; using another skill ends Charge.",
+                "skilldescription": "Channels for 2 turns. Zapdos skills cost 1 less Yellow energy each turn; using another skill ends Charge. Zap Cannon resolves instantly once this has been active for 2 turns.",
+                "description": "Channels for 2 turns. Zapdos skills cost 1 less Yellow energy each turn; using another skill ends Charge. Zap Cannon resolves instantly once this has been active for 2 turns.",
                 "energy": [],
                 "cooldown": 1,
                 "target": "self",
@@ -32085,10 +32108,10 @@ const characters = [
             },
             {
                 "id": "zapdos-thunderbolt",
-                "name": "Thunderbolt",
+                "name": "Thunderstorm",
                 "skillimage": "assets/images/PokemonArena/zapdos/thunderbolt.webp",
-                "skilldescription": "For 3 turns, harmful enemy skills trigger 5 piercing damage and +1 cooldown for 1 turn. Recast detonates for 15 piercing team damage and paralyzes cooldowns for 1 turn.",
-                "description": "For 3 turns, harmful enemy skills trigger 5 piercing damage and +1 cooldown for 1 turn. Recast detonates for 15 piercing team damage and paralyzes cooldowns for 1 turn.",
+                "skilldescription": "Summons Thunderstorm for 4 turns: harmful enemy skills targeting Zapdos' team trigger 5 piercing damage and +1 cooldown, Electric skills besides Thunderstorm deal +5 damage, and each turn a random non-Electric, non-Ground Pokemon from either team takes 10 piercing damage and has its cooldowns paralyzed for 1 turn. Recast detonates for 15 piercing team damage, paralyzes cooldowns, and ends the weather.",
+                "description": "Summons Thunderstorm for 4 turns: harmful enemy skills targeting Zapdos' team trigger 5 piercing damage and +1 cooldown, Electric skills besides Thunderstorm deal +5 damage, and each turn a random non-Electric, non-Ground Pokemon from either team takes 10 piercing damage and has its cooldowns paralyzed for 1 turn. Recast detonates for 15 piercing team damage, paralyzes cooldowns, and ends the weather.",
                 "energy": [
                     "Genjutsu"
                 ],
@@ -32111,8 +32134,8 @@ const characters = [
                 "id": "zapdos-zap-cannon",
                 "name": "Zap Cannon",
                 "skillimage": "assets/images/PokemonArena/zapdos/zapcanon.png",
-                "skilldescription": "Marks an enemy for 3 turns. Thunderbolt triggers shorten it and add 10 damage. On expiry, deals 30 plus bonus piercing damage and stuns for 1 turn.",
-                "description": "Marks an enemy for 3 turns. Thunderbolt triggers shorten it and add 10 damage. On expiry, deals 30 plus bonus piercing damage and stuns for 1 turn.",
+                "skilldescription": "Marks an enemy for 3 turns. Thunderbolt triggers shorten it and add 10 damage. On expiry, deals 30 plus bonus piercing damage and stuns for 1 turn. Resolves instantly if Charge has been active for 2 turns.",
+                "description": "Marks an enemy for 3 turns. Thunderbolt triggers shorten it and add 10 damage. On expiry, deals 30 plus bonus piercing damage and stuns for 1 turn. Resolves instantly if Charge has been active for 2 turns.",
                 "energy": [
                     "Genjutsu",
                     "Genjutsu",
@@ -32130,18 +32153,8 @@ const characters = [
                 ],
                 "effects": [
                     {
-                        "type": "apply_status",
-                        "statusId": "zapdos_zap_cannon",
-                        "duration": 3,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "zapCannonBonus": 0,
-                            "onExpireDamage": 30,
-                            "onExpirePiercing": true,
-                            "onExpireStun": 1,
-                            "endIfSourceDies": true
-                        }
+                        "type": "zapdos_zap_cannon_cast",
+                        "scope": "target"
                     }
                 ]
             },

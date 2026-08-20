@@ -1084,7 +1084,162 @@ document.addEventListener('DOMContentLoaded', async () => {
             Math.floor(Math.random() * POKEMON_SELECTION_BACKGROUND_URLS.length)
         ] || 'assets/images/PokemonArena/characterselectbgpokemonarena.png';
     const COMIC_INGAME_BACKGROUND_URL = 'assets/images/newingamebgCA.png';
-    const POKEMON_INGAME_BACKGROUND_URL = 'assets/images/PokemonArena/newbattlepic/1783150082785.png';
+    const POKEMON_INGAME_BACKGROUND_URL =
+        'assets/images/PokemonArena/backgrounds%20and%20weather/Default%20Background.jpg';
+    // Lets players without skill-cast animations enabled still see weather visually, by swapping
+    // the arena background to match whatever weather is currently active.
+    const POKEMON_WEATHER_BACKGROUND_URLS = {
+        snowstorm: 'assets/images/PokemonArena/backgrounds%20and%20weather/Snowstorm.jpg',
+        wildfire: 'assets/images/PokemonArena/backgrounds%20and%20weather/Wildfire.jpg',
+        thunderstorm: 'assets/images/PokemonArena/backgrounds%20and%20weather/Lightning%20Storm.jpg',
+    };
+    const getPokemonWeatherBackgroundUrl = (weatherKey = '') =>
+        POKEMON_WEATHER_BACKGROUND_URLS[typeof weatherKey === 'string' ? weatherKey.trim() : ''] || '';
+
+    const renderWeatherBanner = (weather) => {
+        const banner = document.getElementById('weather-banner');
+        if (!banner) return;
+        banner.hidden = !weather;
+        if (!weather) return;
+        const nameEl = document.getElementById('weather-banner-name');
+        const roundsEl = document.getElementById('weather-banner-rounds');
+        if (nameEl) nameEl.textContent = weather.name || '';
+        if (roundsEl) {
+            const remaining = Number(weather.roundsRemaining) || 0;
+            roundsEl.textContent = remaining === 1 ? '1 turn left' : `${remaining} turns left`;
+        }
+        banner.title = weather.description || '';
+    };
+
+    // Big, temporary center-screen callout: fires when weather first begins (a fresh
+    // countdown appears) and again every time its round countdown actually ticks down
+    // (the old number visibly shifts into the new one), so a turn-ending player always
+    // gets an obvious, unmissable cue that the weather clock just moved.
+    const showWeatherChangeAlert = ({ name, oldRounds = null, newRounds }) => {
+        document.getElementById('weather-change-alert')?.remove();
+        const el = document.createElement('div');
+        el.id = 'weather-change-alert';
+        el.className = 'weather-change-alert';
+
+        const nameEl = document.createElement('div');
+        nameEl.className = 'weather-change-alert-name';
+        nameEl.textContent = Number.isFinite(oldRounds) ? name : `${name} BEGINS`;
+        el.appendChild(nameEl);
+
+        const countdownEl = document.createElement('div');
+        countdownEl.className = 'weather-change-alert-countdown';
+        if (Number.isFinite(oldRounds)) {
+            const oldEl = document.createElement('span');
+            oldEl.className = 'weather-change-alert-countdown-old';
+            oldEl.textContent = String(oldRounds);
+            countdownEl.appendChild(oldEl);
+            const arrowEl = document.createElement('span');
+            arrowEl.className = 'weather-change-alert-countdown-arrow';
+            arrowEl.textContent = '→';
+            countdownEl.appendChild(arrowEl);
+        }
+        const newEl = document.createElement('span');
+        newEl.className = 'weather-change-alert-countdown-new';
+        newEl.textContent = String(newRounds);
+        countdownEl.appendChild(newEl);
+        el.appendChild(countdownEl);
+
+        const subEl = document.createElement('div');
+        subEl.className = 'weather-change-alert-sub';
+        subEl.textContent = newRounds === 1 ? 'TURN LEFT' : 'TURNS LEFT';
+        el.appendChild(subEl);
+
+        document.body.appendChild(el);
+        window.setTimeout(() => el.classList.add('weather-change-alert-exit'), 2400);
+        window.setTimeout(() => el.remove(), 2900);
+    };
+
+    const trackWeatherChangeForAlert = (weather) => {
+        if (!weather) {
+            lastKnownWeatherKey = null;
+            lastKnownWeatherRounds = null;
+            return;
+        }
+        const nextRounds = Number(weather.roundsRemaining) || 0;
+        if (weather.key !== lastKnownWeatherKey) {
+            showWeatherChangeAlert({ name: weather.name || weather.key, newRounds: nextRounds });
+        } else if (Number.isFinite(lastKnownWeatherRounds) && nextRounds < lastKnownWeatherRounds) {
+            showWeatherChangeAlert({
+                name: weather.name || weather.key,
+                oldRounds: lastKnownWeatherRounds,
+                newRounds: nextRounds,
+            });
+        }
+        lastKnownWeatherKey = weather.key;
+        lastKnownWeatherRounds = nextRounds;
+    };
+
+    // Full-arena ambient weather effects (snowfall, character/UI fire, lightning +
+    // static), independent of any skill-cast/death animation toggle — these describe the
+    // battlefield's current condition, so every player always sees them while active.
+    const WEATHER_FX_SNOWFLAKE_COUNT = 40;
+    let weatherFxSnowInitialized = false;
+    const initWeatherFxSnow = () => {
+        if (weatherFxSnowInitialized) return;
+        const layer = document.getElementById('weather-fx-snow');
+        if (!layer) return;
+        weatherFxSnowInitialized = true;
+        for (let i = 0; i < WEATHER_FX_SNOWFLAKE_COUNT; i += 1) {
+            const flake = document.createElement('span');
+            flake.className = 'weather-fx-snowflake';
+            const startPercent = Math.random() * 100;
+            const driftPx = Math.round((Math.random() - 0.5) * 90);
+            const durationS = 4 + Math.random() * 4;
+            const delayS = Math.random() * 8;
+            const sizePx = 8 + Math.round(Math.random() * 10);
+            flake.style.left = `${startPercent}%`;
+            flake.style.width = `${sizePx}px`;
+            flake.style.height = `${sizePx}px`;
+            flake.style.opacity = String(0.5 + Math.random() * 0.5);
+            flake.style.setProperty('--weather-fx-snow-drift', `${driftPx}px`);
+            flake.style.animationDuration = `${durationS}s`;
+            flake.style.animationDelay = `-${delayS}s`;
+            layer.appendChild(flake);
+        }
+    };
+
+    let lightningFlashTimeoutId = null;
+    const stopWeatherFxLightning = () => {
+        if (lightningFlashTimeoutId) {
+            window.clearTimeout(lightningFlashTimeoutId);
+            lightningFlashTimeoutId = null;
+        }
+    };
+    const scheduleNextLightningFlash = () => {
+        const flashLayer = document.getElementById('weather-fx-lightning-flash');
+        const delayMs = 2200 + Math.random() * 5000;
+        lightningFlashTimeoutId = window.setTimeout(() => {
+            if (!document.body.classList.contains('weather-fx-lightning-active')) return;
+            flashLayer?.classList.remove('weather-fx-lightning-flash-active');
+            void flashLayer?.offsetWidth;
+            flashLayer?.classList.add('weather-fx-lightning-flash-active');
+            playGeneratedIngameSound?.('lightning');
+            scheduleNextLightningFlash();
+        }, delayMs);
+    };
+
+    let activeWeatherFxKey = null;
+    const setAmbientWeatherFx = (weatherKey) => {
+        const normalizedKey = typeof weatherKey === 'string' ? weatherKey : null;
+        if (normalizedKey === activeWeatherFxKey) return;
+        activeWeatherFxKey = normalizedKey;
+
+        document.body.classList.toggle('weather-fx-snow-active', normalizedKey === 'snowstorm');
+        if (normalizedKey === 'snowstorm') initWeatherFxSnow();
+
+        document.body.classList.toggle('weather-fx-wildfire-active', normalizedKey === 'wildfire');
+
+        const lightningActive = normalizedKey === 'thunderstorm';
+        document.body.classList.toggle('weather-fx-lightning-active', lightningActive);
+        stopWeatherFxLightning();
+        if (lightningActive) scheduleNextLightningFlash();
+    };
+
     const COMIC_SELECTION_SCROLL_URL = 'assets/images/selectionscroll.png';
     const POKEMON_SELECTION_SCROLL_URL = 'assets/images/PokemonArena/selectionscroll-pokeball.png';
     const COMIC_INGAME_SCROLL_BEHIND_URL = 'assets/images/ingamescrollbehind.png';
@@ -1250,6 +1405,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     const experimentalControlsToggle = document.querySelector('.experimental-controls-toggle');
     const experimentalClassicLink = document.querySelector('.experimental-classic-link');
     const classicNewUiButton = document.querySelector('.classic-new-ui-button');
+    const ingameNewsToggle = document.getElementById('ingame-news-toggle');
+    const ingameNewsToggleExperimental = document.querySelector('.experimental-news-toggle');
+    const ingameNewsBackdrop = document.getElementById('ingame-news-backdrop');
+    const ingameNewsClose = document.getElementById('ingame-news-close');
+    const ingameNewsStatus = document.getElementById('ingame-news-status');
+    const ingameNewsContent = document.getElementById('ingame-news-content');
+    const ingameNewsPrevButton = document.getElementById('ingame-news-prev');
+    const ingameNewsNextButton = document.getElementById('ingame-news-next');
+    const ingameNewsCounter = document.getElementById('ingame-news-counter');
     const nameEl = document.getElementById('character-name');
     const roleEl = document.getElementById('character-role');
     const portraitEl = document.getElementById('character-portrait');
@@ -1555,6 +1719,157 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         window.location.assign(nextUrl.toString());
     });
 
+    // Same /api/news source and post data the public site's homepage news feed reads from,
+    // filtered to whichever arena is currently selected, so in-game players see the same
+    // announcements as visitors on the front page without needing to leave the character
+    // select screen.
+    let ingameNewsPosts = [];
+    let ingameNewsIndex = 0;
+    let ingameNewsLoadedForArena = null;
+
+    const setIngameNewsStatus = (message) => {
+        if (!ingameNewsStatus) return;
+        ingameNewsStatus.textContent = message || '';
+        ingameNewsStatus.hidden = !message;
+    };
+
+    const renderIngameNewsPost = (post) => {
+        if (!ingameNewsContent) return;
+        ingameNewsContent.textContent = '';
+        if (!post) return;
+
+        const title = document.createElement('h3');
+        title.className = 'ingame-news-post-title';
+        title.textContent = post.title || 'Untitled Post';
+        ingameNewsContent.appendChild(title);
+
+        const meta = document.createElement('p');
+        meta.className = 'ingame-news-post-meta';
+        const dateValue = post.updatedAt || post.createdAt;
+        const dateText = dateValue ? new Date(dateValue).toLocaleDateString(undefined, {
+            year: 'numeric', month: 'short', day: 'numeric',
+        }) : '';
+        meta.textContent = [dateText, post.author ? `by ${post.author}` : ''].filter(Boolean).join(' · ');
+        ingameNewsContent.appendChild(meta);
+
+        const blocks = Array.isArray(post.blocks) && post.blocks.length
+            ? post.blocks
+            : (Array.isArray(post.paragraphs) ? post.paragraphs.map((text) => ({ type: 'paragraph', text })) : []);
+        blocks.forEach((block) => {
+            if (block?.type === 'divider') {
+                ingameNewsContent.appendChild(document.createElement('hr'));
+                return;
+            }
+            if (block?.text) {
+                const paragraph = document.createElement('p');
+                paragraph.className = 'ingame-news-post-paragraph';
+                paragraph.textContent = String(block.text);
+                ingameNewsContent.appendChild(paragraph);
+            }
+        });
+
+        const changes = Array.isArray(post.changes) ? post.changes : [];
+        if (changes.length) {
+            const changesTitle = document.createElement('h4');
+            changesTitle.className = 'ingame-news-post-changes-title';
+            changesTitle.textContent = 'Character and Skill Changes';
+            ingameNewsContent.appendChild(changesTitle);
+
+            const changesList = document.createElement('ul');
+            changesList.className = 'ingame-news-post-changes-list';
+            changes.forEach((entry) => {
+                const item = document.createElement('li');
+                const label = entry?.characterName || entry?.skillName;
+                if (label) {
+                    const strong = document.createElement('strong');
+                    strong.textContent = `${label}: `;
+                    item.appendChild(strong);
+                }
+                item.appendChild(document.createTextNode(entry?.text ? String(entry.text) : String(entry || '')));
+                changesList.appendChild(item);
+            });
+            ingameNewsContent.appendChild(changesList);
+        }
+    };
+
+    const renderIngameNewsFeed = () => {
+        const list = ingameNewsPosts;
+        if (!list.length) {
+            renderIngameNewsPost(null);
+            if (ingameNewsCounter) ingameNewsCounter.textContent = '0 / 0';
+            if (ingameNewsPrevButton) ingameNewsPrevButton.disabled = true;
+            if (ingameNewsNextButton) ingameNewsNextButton.disabled = true;
+            setIngameNewsStatus('No news posts available yet.');
+            return;
+        }
+        ingameNewsIndex = Math.max(0, Math.min(ingameNewsIndex, list.length - 1));
+        renderIngameNewsPost(list[ingameNewsIndex]);
+        if (ingameNewsCounter) ingameNewsCounter.textContent = `${ingameNewsIndex + 1} / ${list.length}`;
+        if (ingameNewsPrevButton) ingameNewsPrevButton.disabled = ingameNewsIndex <= 0;
+        if (ingameNewsNextButton) ingameNewsNextButton.disabled = ingameNewsIndex >= list.length - 1;
+        setIngameNewsStatus('');
+    };
+
+    const loadIngameNews = async ({ force = false } = {}) => {
+        const arena = document.body.classList.contains('arena-mode-pokemon') ? 'pokemon' : 'comic';
+        if (!force && ingameNewsLoadedForArena === arena) {
+            renderIngameNewsFeed();
+            return;
+        }
+        setIngameNewsStatus('Loading news...');
+        try {
+            const response = await fetch(`/api/news?arena=${encodeURIComponent(arena)}`, {
+                credentials: 'same-origin',
+            });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                setIngameNewsStatus(data?.error || 'Unable to load news posts.');
+                return;
+            }
+            ingameNewsPosts = Array.isArray(data?.posts) ? data.posts : [];
+            ingameNewsIndex = 0;
+            ingameNewsLoadedForArena = arena;
+            renderIngameNewsFeed();
+        } catch (error) {
+            setIngameNewsStatus('Unable to reach the server.');
+        }
+    };
+
+    const setIngameNewsPanelOpen = (open) => {
+        if (!ingameNewsBackdrop) return;
+        ingameNewsBackdrop.classList.toggle('visible', open);
+        ingameNewsBackdrop.hidden = !open;
+        ingameNewsToggle?.setAttribute('aria-expanded', String(open));
+        ingameNewsToggleExperimental?.setAttribute('aria-expanded', String(open));
+        if (open) loadIngameNews();
+    };
+
+    [ingameNewsToggle, ingameNewsToggleExperimental].forEach((toggleButton) => {
+        toggleButton?.addEventListener('click', () => {
+            const willOpen = !ingameNewsBackdrop?.classList.contains('visible');
+            setIngameNewsPanelOpen(willOpen);
+        });
+    });
+    ingameNewsClose?.addEventListener('click', () => setIngameNewsPanelOpen(false));
+    ingameNewsBackdrop?.addEventListener('click', (event) => {
+        if (event.target === ingameNewsBackdrop) setIngameNewsPanelOpen(false);
+    });
+    ingameNewsPrevButton?.addEventListener('click', () => {
+        if (ingameNewsIndex <= 0) return;
+        ingameNewsIndex -= 1;
+        renderIngameNewsFeed();
+    });
+    ingameNewsNextButton?.addEventListener('click', () => {
+        if (ingameNewsIndex >= ingameNewsPosts.length - 1) return;
+        ingameNewsIndex += 1;
+        renderIngameNewsFeed();
+    });
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && ingameNewsBackdrop?.classList.contains('visible')) {
+            setIngameNewsPanelOpen(false);
+        }
+    });
+
     document.addEventListener(
         'click',
         (event) => {
@@ -1814,6 +2129,106 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             badge.textContent = type;
             container.appendChild(badge);
         });
+    };
+
+    // Battle animation system: plays a short sprite-frame burst (from the licensed unTied
+    // Games FX packs, see credits on the manual page) over a skill's target(s) on cast, and
+    // over a character's card when it faints — keyed by Pokemon move type, independent of
+    // the character-specific FX elsewhere in this file. See assets/data/animation-manifest.json
+    // (generated by scripts/build-animation-manifest.js) for the underlying frame data.
+    const ANIMATION_MANIFEST_URL = 'assets/data/animation-manifest.json';
+    let animationManifestPromise = null;
+    const loadAnimationManifest = () => {
+        if (!animationManifestPromise) {
+            animationManifestPromise = fetch(ANIMATION_MANIFEST_URL)
+                .then((response) => (response.ok ? response.json() : {}))
+                .catch(() => ({}));
+        }
+        return animationManifestPromise;
+    };
+    loadAnimationManifest();
+
+    const getPokemonMoveTypeFromClasses = (classes = []) =>
+        (Array.isArray(classes) ? classes : []).find((entry) => {
+            const normalized = typeof entry === 'string' ? entry.trim().toLowerCase() : '';
+            return normalized && pokemonTypeNames.has(normalized);
+        })?.toLowerCase() || '';
+
+    const getAnimationKeyForSkill = (skill) =>
+        getPokemonMoveTypeFromClasses(skill?.classes) || 'genericHit';
+
+    const resolveAnimationEntry = async (key) => {
+        const manifest = await loadAnimationManifest();
+        const entry = manifest?.[key];
+        const frames = Array.isArray(entry?.frames) ? entry.frames : [];
+        if (!entry || !frames.length) return null;
+        return { entry, frames, fps: Math.max(1, Number(entry.fps) || 15) };
+    };
+
+    // Cycles an already-positioned sprite element through its frame list. When `loop` is
+    // true the cycle repeats until `stop()` is called (for a projectile mid-flight, whose
+    // travel time may not line up with the clip length); otherwise it plays once and the
+    // element removes itself when the frames run out (a one-shot impact/faint burst).
+    const cycleSpriteFrames = (el, { entry, frames, fps }, { loop = false } = {}) => {
+        const frameDurationMs = 1000 / fps;
+        let frameIndex = 0;
+        const intervalId = window.setInterval(() => {
+            frameIndex = loop ? (frameIndex + 1) % frames.length : frameIndex + 1;
+            if (!loop && frameIndex >= frames.length) {
+                window.clearInterval(intervalId);
+                el.remove();
+                return;
+            }
+            el.style.backgroundImage = `url('${entry.framesDir}/${frames[frameIndex]}')`;
+        }, frameDurationMs);
+        if (!loop) {
+            window.setTimeout(() => {
+                window.clearInterval(intervalId);
+                el.remove();
+            }, frameDurationMs * frames.length + 250);
+        }
+        return () => window.clearInterval(intervalId);
+    };
+
+    const playPokemonSpriteBurst = async ({ x, y, key }) => {
+        if (!Number.isFinite(x) || !Number.isFinite(y) || !key) return;
+        const resolved = await resolveAnimationEntry(key);
+        if (!resolved) return;
+        const el = document.createElement('div');
+        el.className = 'pokemon-sprite-burst';
+        el.style.left = `${x}px`;
+        el.style.top = `${y}px`;
+        el.style.backgroundImage = `url('${resolved.entry.framesDir}/${resolved.frames[0]}')`;
+        document.body.appendChild(el);
+        cycleSpriteFrames(el, resolved);
+    };
+
+    // Flies an elemental sprite from the caster to the target — the frame cycle loops for
+    // the whole flight so the clip's length doesn't have to match travel time — then hands
+    // off to playPokemonSpriteBurst for the impact the moment it arrives.
+    const playPokemonSpriteProjectile = async ({ fromX, fromY, toX, toY, key, flightMs = 520 }) => {
+        if (![fromX, fromY, toX, toY].every(Number.isFinite) || !key) return;
+        const resolved = await resolveAnimationEntry(key);
+        if (!resolved) {
+            playPokemonSpriteBurst({ x: toX, y: toY, key });
+            return;
+        }
+        const el = document.createElement('div');
+        el.className = 'pokemon-sprite-projectile';
+        el.style.left = `${fromX}px`;
+        el.style.top = `${fromY}px`;
+        el.style.backgroundImage = `url('${resolved.entry.framesDir}/${resolved.frames[0]}')`;
+        document.body.appendChild(el);
+        const stopCycling = cycleSpriteFrames(el, resolved, { loop: true });
+        void el.offsetWidth; // force layout so the position transition below actually animates
+        el.style.transition = `left ${flightMs}ms linear, top ${flightMs}ms linear`;
+        el.style.left = `${toX}px`;
+        el.style.top = `${toY}px`;
+        window.setTimeout(() => {
+            stopCycling();
+            el.remove();
+            playPokemonSpriteBurst({ x: toX, y: toY, key });
+        }, flightMs);
     };
 
     const renderPokemonSkillClasses = (
@@ -2915,6 +3330,8 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         };
         let currentMatchMode = 'quick';
         let currentMatchBackgroundUrl = '';
+        let lastKnownWeatherKey = null;
+        let lastKnownWeatherRounds = null;
         currentMatchArena =
             normalizeArenaModeValue(arenaModeFromUrl) ||
             readCachedMatchArena(matchIdFromUrl) ||
@@ -5958,6 +6375,22 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                     window.setTimeout(
                         () => projectile.remove(),
                         (isCaptainShieldThrow ? 2300 : isCaptainShieldBash ? 980 : 1450) + animationDelay
+                    );
+                });
+            }
+            if (uiSettings.skillCastAnimations && currentMatchArena === 'pokemon') {
+                const animationKey = getAnimationKeyForSkill(effectiveSkill);
+                targets.forEach((targetPoint, index) => {
+                    window.setTimeout(
+                        () =>
+                            playPokemonSpriteProjectile({
+                                fromX: initialSourceX,
+                                fromY: initialSourceY,
+                                toX: targetPoint.x,
+                                toY: targetPoint.y,
+                                key: animationKey,
+                            }),
+                        Math.min(index, 3) * 120
                     );
                 });
             }
@@ -9420,6 +9853,14 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 `</div>` +
                 `<div class="death-kill-label">${label}</div>`;
             card.appendChild(overlay);
+            if (currentMatchArena === 'pokemon') {
+                const faceRect = (face || card).getBoundingClientRect();
+                playPokemonSpriteBurst({
+                    x: faceRect.left + faceRect.width / 2,
+                    y: faceRect.top + faceRect.height / 2,
+                    key: 'faint',
+                });
+            }
             if (options?.playSound !== false) {
                 playGeneratedIngameSound('death');
             }
@@ -12469,13 +12910,20 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             }
             const backgroundEl = document.querySelector('.backgroundingame');
             if (backgroundEl) {
+                const weatherBackgroundUrl =
+                    currentMatchArena === 'pokemon' ? getPokemonWeatherBackgroundUrl(data?.weather?.key) : '';
                 const fallbackUrl =
+                    weatherBackgroundUrl ||
                     currentMatchBackgroundUrl ||
                     (currentMatchArena === 'pokemon'
                         ? POKEMON_INGAME_BACKGROUND_URL
                         : COMIC_INGAME_BACKGROUND_URL);
                 setBackgroundImage(backgroundEl, fallbackUrl, currentMatchArena === 'pokemon');
             }
+            const activePokemonWeather = currentMatchArena === 'pokemon' ? data?.weather : null;
+            renderWeatherBanner(activePokemonWeather);
+            trackWeatherChangeForAlert(activePokemonWeather);
+            setAmbientWeatherFx(activePokemonWeather?.key || null);
             if (typeof data.mode === 'string' && data.mode.trim()) {
                 currentMatchMode = data.mode.trim().toLowerCase();
             }

@@ -24,6 +24,125 @@ const configureBattleRuntime = ({ random = defaultBattleRandom, now = defaultBat
 };
 const resetBattleRuntime = () => configureBattleRuntime();
 
+// Weather: a single match-wide field effect (see characters.js `set_weather`/`clear_weather`
+// skill effects). Unlike team-wide statuses, weather is not duplicated per-unit — there is at
+// most one active weather regardless of which player summoned it.
+const WEATHER_TURNS_PER_ROUND = 2;
+
+const getWeatherViewerPayload = (weather) => {
+    if (!weather || typeof weather !== 'object') return null;
+    return {
+        key: weather.key,
+        name: weather.name || weather.key,
+        description: weather.description || '',
+        sourcePlayer: weather.sourcePlayer || null,
+        sourceSlot: Number.isInteger(weather.sourceSlot) ? weather.sourceSlot : null,
+        roundsRemaining: Math.max(0, Number(weather.roundsRemaining) || 0),
+        totalRounds: Math.max(0, Number(weather.totalRounds) || 0),
+    };
+};
+
+const setWeather = (match, weatherConfig = {}) => {
+    if (!match || !weatherConfig || !weatherConfig.key) return match?.weather || null;
+    const current = match.weather || null;
+    if (current && current.key === weatherConfig.key && current.blockRefreshIfActive) {
+        return current;
+    }
+    const rounds = Math.max(1, Number(weatherConfig.rounds) || 1);
+    const currentTurnNumber = Math.max(0, Number(match.turnNumber) || 0) + 1;
+    const next = {
+        key: weatherConfig.key,
+        name: weatherConfig.name || weatherConfig.key,
+        description: weatherConfig.description || '',
+        sourcePlayer: weatherConfig.sourcePlayer || null,
+        sourceSlot: Number.isInteger(weatherConfig.sourceSlot) ? weatherConfig.sourceSlot : null,
+        sourceSkillId: weatherConfig.sourceSkillId || null,
+        excludeSkillId: weatherConfig.excludeSkillId || weatherConfig.sourceSkillId || null,
+        roundsRemaining: rounds,
+        totalRounds: rounds,
+        lastDecrementTurnNumber: currentTurnNumber,
+        blockRefreshIfActive: Boolean(weatherConfig.blockRefreshIfActive),
+        damageTypeModifiers: { ...(weatherConfig.damageTypeModifiers || {}) },
+        afflictionDamageBonusFlat: Number(weatherConfig.afflictionDamageBonusFlat) || 0,
+        costTypeModifiers: { ...(weatherConfig.costTypeModifiers || {}) },
+        evasionImmuneTypes: Array.isArray(weatherConfig.evasionImmuneTypes)
+            ? [...weatherConfig.evasionImmuneTypes]
+            : [],
+        periodicNonTypeDamage: weatherConfig.periodicNonTypeDamage
+            ? { ...weatherConfig.periodicNonTypeDamage }
+            : null,
+        transformMoveType: weatherConfig.transformMoveType ? { ...weatherConfig.transformMoveType } : null,
+        periodicRandomTargetDamage: weatherConfig.periodicRandomTargetDamage
+            ? { ...weatherConfig.periodicRandomTargetDamage }
+            : null,
+    };
+    match.weather = next;
+    return next;
+};
+
+const clearWeather = (match) => {
+    if (!match) return null;
+    match.weather = null;
+    return null;
+};
+
+const weatherDamageTypeBonus = (match, { moveType, sourceSkillId } = {}) => {
+    const weather = match?.weather;
+    if (!weather || !moveType) return 0;
+    if (weather.excludeSkillId && sourceSkillId && weather.excludeSkillId === sourceSkillId) return 0;
+    return Number(weather.damageTypeModifiers?.[moveType]) || 0;
+};
+
+const weatherAfflictionBonus = (match, { damageKind } = {}) => {
+    const weather = match?.weather;
+    if (!weather || damageKind !== 'affliction') return 0;
+    return Number(weather.afflictionDamageBonusFlat) || 0;
+};
+
+const weatherEvasionImmune = (match, { moveType } = {}) => {
+    const weather = match?.weather;
+    if (!weather || !moveType) return false;
+    return Array.isArray(weather.evasionImmuneTypes) && weather.evasionImmuneTypes.includes(moveType);
+};
+
+const weatherCostModifierFor = (match, { moveType } = {}) => {
+    const weather = match?.weather;
+    if (!weather || !moveType) return 0;
+    return Number(weather.costTypeModifiers?.[moveType]) || 0;
+};
+
+// Lets a weather config read `transformMoveType: {FromType: ToType}` so e.g. Water skills become
+// Ice-typed piercing damage during Snowstorm. Returns the input unchanged when no transform applies.
+const weatherEffectiveMoveType = (match, moveType) => {
+    const transform = match?.weather?.transformMoveType;
+    if (!transform || !moveType) return moveType;
+    return transform[moveType] || moveType;
+};
+
+// Lets a skill effect read `bonusFromWeather: {weatherKey, sourceMustMatch, amount}` to grant a
+// conditional bonus only while a matching weather (optionally the actor's own) is active.
+const weatherStatusFieldBonus = (match, { effect, sourceUsername, sourceSlot } = {}) => {
+    const bonus = effect?.bonusFromWeather;
+    if (!bonus || !bonus.weatherKey) return 0;
+    const weather = match?.weather;
+    if (!weather || weather.key !== bonus.weatherKey) return 0;
+    if (
+        bonus.sourceMustMatch &&
+        (weather.sourcePlayer !== sourceUsername || weather.sourceSlot !== sourceSlot)
+    ) {
+        return 0;
+    }
+    return Number(bonus.amount) || 0;
+};
+
+// Lets a skill effect read `chanceCertainDuringWeatherKey` to become a guaranteed (100%) chance
+// while a matching weather is active.
+const isChanceCertainDuringWeather = (match, effect) => {
+    const key = effect?.chanceCertainDuringWeatherKey;
+    if (!key) return false;
+    return Boolean(match?.weather && match.weather.key === key);
+};
+
 const DEFAULT_HP = 100;
 const chakraTypes = ['taijutsu', 'ninjutsu', 'bloodline', 'genjutsu'];
 const PARASITE_ASSET_BASE = 'assets/images/';
@@ -1415,7 +1534,7 @@ const getOverrideAllSkillsToAllRandomConfig = (actorState, skillId) => {
     return resolvedConfig;
 };
 
-const computeEffectiveEnergyCost = ({ skill, actorState }) => {
+const computeEffectiveEnergyCost = ({ skill, actorState, match = null }) => {
     const base = normalizeEnergyCost(skill?.energy || []);
     const skillOverride = getSkillCostOverrideForSkill(actorState, skill?.id || null);
     if (skillOverride) {
@@ -1481,9 +1600,12 @@ const computeEffectiveEnergyCost = ({ skill, actorState }) => {
         }, 0);
         randomIncrease += nonMentalIncrease;
     }
+    const weatherCostAdjustment = weatherCostModifierFor(match, {
+        moveType: weatherEffectiveMoveType(match, getPokemonMoveType(skill?.classes || [])),
+    });
     return {
         reservedSpecific,
-        requiredRandom: Math.max(0, base.requiredRandom + randomIncrease - randomReduction),
+        requiredRandom: Math.max(0, base.requiredRandom + randomIncrease - randomReduction + weatherCostAdjustment),
     };
 };
 
@@ -2853,9 +2975,11 @@ const resolveEffectChancePercent = ({
     actorUnit = null,
     targetState = null,
     targetUnit = null,
+    match = null,
 }) => {
     let chance = Number(effect?.chance);
     if (!Number.isFinite(chance)) return chance;
+    if (isChanceCertainDuringWeather(match, effect)) return 100;
     const stackBonus = effect?.metadata?.chancePerStatusMetadata;
     if (stackBonus && typeof stackBonus === 'object') {
         const statusId = typeof stackBonus.statusId === 'string' ? stackBonus.statusId : '';
@@ -2932,7 +3056,7 @@ const computeTargetDamagePreviews = ({
         const type = typeof effect?.type === 'string' ? effect.type.trim().toLowerCase() : '';
         return type === 'damage' || type === 'health_steal_damage';
     });
-    const moveType = getPokemonMoveType(skill.classes || []);
+    const moveType = weatherEffectiveMoveType(match, getPokemonMoveType(skill.classes || []));
     const actorArena = String(actorCharacter?.arena || actorCharacter?.universe || '').trim().toLowerCase();
     const descriptionMentionsDamage = /\b(?:deal|deals|take|takes|inflict|inflicts)\b[^.]{0,80}\bdamage\b/i.test(
         `${skill.skilldescription || ''} ${skill.description || ''}`
@@ -3020,6 +3144,18 @@ const computeTargetDamagePreviews = ({
                 appliedModifier < 0
                     ? totalDamage - typeEligiblePacket.amount + Math.max(5, typeEligiblePacket.amount + appliedModifier)
                     : totalDamage + appliedModifier;
+        }
+        if (packets.length > 0) {
+            // Mirrors the weather bonus applied inside applyDamageToUnit so this preview doesn't
+            // lie to players when weather is active — keep these two in sync.
+            const weatherBonus =
+                weatherDamageTypeBonus(match, { moveType, sourceSkillId: skill.id || null }) +
+                (hasSkillClass(skill.classes || [], 'affliction')
+                    ? weatherAfflictionBonus(match, { damageKind: 'affliction', sourceSkillId: skill.id || null })
+                    : 0);
+            if (weatherBonus !== 0) {
+                totalDamage += weatherBonus;
+            }
         }
 
         return {
@@ -4110,6 +4246,9 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
     const isPhysical = skillClasses.some(
         (entry) => typeof entry === 'string' && entry.trim().toLowerCase() === 'physical'
     );
+    const rawMoveType = getPokemonMoveType(skillClasses);
+    const weatherMoveType = weatherEffectiveMoveType(context?.match || null, rawMoveType);
+    const isWeatherTypeTransformed = Boolean(rawMoveType) && weatherMoveType !== rawMoveType;
     const ignoreDamageImmunity = Boolean(context?.ignoreDamageImmunity);
     const ignoreEnemyDamage =
         !ignoreDamageImmunity &&
@@ -4149,7 +4288,13 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
                 0
             );
         }, 0);
-    incoming += additionalDamageTakenBySkillClass;
+    const weatherDamageBonusAmount = fixedDamage
+        ? 0
+        : weatherDamageTypeBonus(context?.match || null, {
+              moveType: weatherMoveType,
+              sourceSkillId: context?.sourceSkillId || null,
+          });
+    incoming += additionalDamageTakenBySkillClass + weatherDamageBonusAmount;
     if (ignoreEnemyPhysicalDamage) {
         incoming = 0;
     }
@@ -4165,7 +4310,13 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
         Boolean(context?.afflictionDamage) ||
         skillClasses.some((entry) => typeof entry === 'string' && entry.trim().toLowerCase() === 'affliction');
     if (afflictionDamage && !fixedDamage) {
-        incoming += Math.max(0, Number(getStatusMetadataSum(targetState, 'additionalAfflictionDamageTaken')) || 0);
+        const weatherAfflictionBonusAmount = weatherAfflictionBonus(context?.match || null, {
+            damageKind: 'affliction',
+            sourceSkillId: context?.sourceSkillId || null,
+        });
+        incoming +=
+            Math.max(0, Number(getStatusMetadataSum(targetState, 'additionalAfflictionDamageTaken')) || 0) +
+            weatherAfflictionBonusAmount;
     }
     if (
         afflictionDamage &&
@@ -4302,7 +4453,7 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
 
     const totals = getStatusMetadataTotals(targetState, unit);
     const contextualMinimumHp = getContextualMinimumHp(targetState, unit, context);
-    const ignoreDamageReduction = Boolean(context?.ignoreDamageReduction);
+    const ignoreDamageReduction = isWeatherTypeTransformed || Boolean(context?.ignoreDamageReduction);
     const damageTakenBonusFlat = fixedDamage
         ? 0
         : Math.max(0, Number(totals.damageTakenBonusFlat) || 0);
@@ -4806,6 +4957,115 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
         );
     }
     return dealt;
+};
+
+const getAllLivingUnits = (match) => {
+    const board = match?.board && typeof match.board === 'object' ? match.board : {};
+    const result = [];
+    Object.keys(board).forEach((username) => {
+        const units = Array.isArray(board[username]) ? board[username] : [];
+        units.forEach((unit, slot) => {
+            if (!unit || unit.alive === false || isUnitBanished(unit)) return;
+            result.push({ username, slot, unit });
+        });
+    });
+    return result;
+};
+
+const resolveWeatherPeriodicDamage = (match, { characters } = {}) => {
+    const weather = match?.weather;
+    const config = weather?.periodicNonTypeDamage;
+    if (!weather || !config) return;
+    const amount = Math.max(0, Number(config.amount) || 0);
+    if (amount <= 0) return;
+    const immuneTypes = Array.isArray(config.immuneTypes) ? config.immuneTypes : [];
+    getAllLivingUnits(match).forEach(({ username, slot, unit }) => {
+        if (immuneTypes.length) {
+            const character = resolveEffectiveCharacter({
+                characters,
+                rosterIndex: unit.rosterIndex,
+                actorState: ensureUnitStateShape(unit),
+            });
+            const activeTypes = getActivePokemonTypes({ character, unit });
+            if (activeTypes.some((type) => immuneTypes.includes(type))) return;
+        }
+        applyDamageToUnit(unit, amount, {
+            match,
+            sourceUsername: weather.sourcePlayer || username,
+            targetUsername: username,
+            sourceSlot: Number.isInteger(weather.sourceSlot) ? weather.sourceSlot : slot,
+            afflictionDamage: true,
+            damageDebugLabel: weather.name || weather.key,
+            damageDebugReason: 'weather-tick',
+        });
+    });
+};
+
+const resolveWeatherRandomTargetDamage = (match, { characters } = {}) => {
+    const weather = match?.weather;
+    const config = weather?.periodicRandomTargetDamage;
+    if (!weather || !config) return;
+    const amount = Math.max(0, Number(config.amount) || 0);
+    if (amount <= 0) return;
+    const immuneTypes = Array.isArray(config.immuneTypes) ? config.immuneTypes : [];
+    const candidates = getAllLivingUnits(match).filter(({ unit }) => {
+        if (!immuneTypes.length) return true;
+        const character = resolveEffectiveCharacter({
+            characters,
+            rosterIndex: unit.rosterIndex,
+            actorState: ensureUnitStateShape(unit),
+        });
+        const activeTypes = getActivePokemonTypes({ character, unit });
+        return !activeTypes.some((type) => immuneTypes.includes(type));
+    });
+    if (!candidates.length) return;
+    const picked = pickRandomEntry(candidates);
+    if (!picked) return;
+    applyDamageToUnit(picked.unit, amount, {
+        match,
+        sourceUsername: weather.sourcePlayer || picked.username,
+        targetUsername: picked.username,
+        sourceSlot: Number.isInteger(weather.sourceSlot) ? weather.sourceSlot : picked.slot,
+        ignoreDestructibleDefense: Boolean(config.piercing),
+        damageDebugLabel: weather.name || weather.key,
+        damageDebugReason: 'weather-random-target',
+    });
+    if (config.paralyzeCooldowns && picked.unit.alive !== false) {
+        const targetState = ensureUnitStateShape(picked.unit);
+        applyStatus({
+            targetState,
+            targetUnit: picked.unit,
+            statusId: `${weather.key}_cooldown_freeze`,
+            duration: 1,
+            sourceSkillId: weather.sourceSkillId || null,
+            sourceUsername: weather.sourcePlayer || picked.username,
+            sourceSlot: Number.isInteger(weather.sourceSlot) ? weather.sourceSlot : null,
+            metadata: {
+                harmful: true,
+                freezeCooldowns: true,
+                tooltipText: `${weather.name || 'Weather'} paralyzed this character's cooldowns.`,
+            },
+            fresh: false,
+        });
+    }
+};
+
+// Mirrors the prototype's advanceWeather: periodic/random-target damage only resolves once per
+// full round (every WEATHER_TURNS_PER_ROUND player turns), together with the round decrement —
+// not on every single turn end.
+const tickWeatherForTurnEnd = ({ match, characters } = {}) => {
+    if (!match || !match.weather) return;
+    const weather = match.weather;
+    const currentTurnNumber = Math.max(0, Number(match.turnNumber) || 0) + 1;
+    const turnsSinceDecrement = currentTurnNumber - (Number(weather.lastDecrementTurnNumber) || 0);
+    if (turnsSinceDecrement < WEATHER_TURNS_PER_ROUND) return;
+    weather.lastDecrementTurnNumber = currentTurnNumber;
+    weather.roundsRemaining = Math.max(0, (Number(weather.roundsRemaining) || 0) - 1);
+    resolveWeatherPeriodicDamage(match, { characters });
+    resolveWeatherRandomTargetDamage(match, { characters });
+    if (match.weather && match.weather.roundsRemaining <= 0) {
+        match.weather = null;
+    }
 };
 
 const applyHealToUnit = (unit, rawAmount, context = {}) => {
@@ -6494,6 +6754,15 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
         const actorState = ensureUnitStateShape(actorUnit);
         if (getStatusMetadataTotals(actorState).cannotUseSkills) continue;
 
+        // Snapshotted before the generic onOwnerUseSkillTrigger cleanup below removes
+        // zapdos_charge on any skill cast (including Zap Cannon itself).
+        const zapdosChargeStatusForThisCast = actorState.statuses.find(
+            (entry) => entry?.id === 'zapdos_charge' && (Number(entry?.remainingTurns) || 0) > 0
+        );
+        const zapdosChargeReadyForInstantZapCannon =
+            Boolean(zapdosChargeStatusForThisCast) &&
+            (Number(zapdosChargeStatusForThisCast.remainingTurns) || 0) <= 1;
+
         const actorCharacter = resolveEffectiveCharacter({
             characters,
             rosterIndex: actorUnit.rosterIndex,
@@ -7788,7 +8057,10 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 skillClasses: skill.classes || [],
                 isEnemySkill,
             });
-            if (!rollPercentSuccess(evadeChance)) {
+            const evasionBlockedByWeather = weatherEvasionImmune(match, {
+                moveType: weatherEffectiveMoveType(match, getPokemonMoveType(skill.classes || [])),
+            });
+            if (evasionBlockedByWeather || !rollPercentSuccess(evadeChance)) {
                 evadeDecisionByRecipient.set(recipientKey, false);
                 return false;
             }
@@ -7914,7 +8186,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 effectType !== 'health_steal_damage'
             ) return;
             const rollPerRecipient = Boolean(effect?.rollPerRecipient);
-            const chance = resolveEffectChancePercent({ effect, actorState, actorUnit });
+            const chance = resolveEffectChancePercent({ effect, actorState, actorUnit, match });
             if (!rollPerRecipient && Number.isFinite(chance) && chance >= 0 && chance < 100) {
                 if (!rollPercentSuccess(chance)) return;
             }
@@ -8490,9 +8762,19 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
             if (effectType === 'gain_heat') {
                 const heatStatus = actorState.statuses.find((entry) => entry?.id === 'moltres_heat');
                 if (heatStatus?.metadata) {
+                    const weatherBonus = Math.max(
+                        0,
+                        weatherStatusFieldBonus(match, {
+                            effect,
+                            sourceUsername: actingUsername,
+                            sourceSlot: actorSlot,
+                        })
+                    );
                     heatStatus.metadata.heat = Math.min(
                         3,
-                        Math.max(0, Number(heatStatus.metadata.heat) || 0) + Math.max(0, Number(effect?.amount) || 0)
+                        Math.max(0, Number(heatStatus.metadata.heat) || 0) +
+                            Math.max(0, Number(effect?.amount) || 0) +
+                            weatherBonus
                     );
                 }
                 return;
@@ -8522,9 +8804,29 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 }
                 return;
             }
+            if (effectType === 'set_weather') {
+                const weatherConfig = effect?.weather && typeof effect.weather === 'object' ? effect.weather : null;
+                if (weatherConfig && weatherConfig.key) {
+                    setWeather(match, {
+                        ...weatherConfig,
+                        sourcePlayer: actingUsername,
+                        sourceSlot: actorSlot,
+                        sourceSkillId: skill.id,
+                        excludeSkillId: weatherConfig.excludeSkillId || skill.id,
+                    });
+                }
+                return;
+            }
+            if (effectType === 'clear_weather') {
+                clearWeather(match);
+                return;
+            }
             if (effectType === 'articuno_sheer_cold') {
                 const tracker = actorState.statuses.find((entry) => entry?.id === 'articuno_sheer_cold_tracker');
                 const bonus = Math.max(0, Number(tracker?.metadata?.bonusDamage) || 0);
+                const stunIsCertain = isChanceCertainDuringWeather(match, {
+                    chanceCertainDuringWeatherKey: 'snowstorm',
+                });
                 resolveRecipients(effect).forEach((recipient) => {
                     if (!recipient?.unit || recipient.unit.alive === false) return;
                     queueDamage(recipient, 30 + bonus, {
@@ -8542,7 +8844,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         metadata: { harmful: true, paralyzeCooldowns: true },
                         fresh: false,
                     });
-                    if (rollPercentSuccess(50)) {
+                    if (stunIsCertain || rollPercentSuccess(50)) {
                         applyStatus({
                             targetState,
                             statusId: 'articuno_ice_beam_stun',
@@ -8556,6 +8858,22 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     }
                 });
                 if (tracker?.metadata) tracker.metadata.bonusDamage = bonus + 5;
+                setWeather(match, {
+                    key: 'snowstorm',
+                    name: 'Snowstorm',
+                    description: 'Ice and Water Pokemon take no damage; everyone else takes 3 each turn. Water skills become Ice-typed and deal piercing damage. Ice skills deal +5 damage (Blizzard excluded) and cannot be evaded. Fire skills deal -5 damage. Grass and Bug skills cost 1 more Random energy.',
+                    rounds: 4,
+                    blockRefreshIfActive: true,
+                    sourcePlayer: actingUsername,
+                    sourceSlot: actorSlot,
+                    sourceSkillId: skill.id,
+                    excludeSkillId: 'articuno-blizzard',
+                    damageTypeModifiers: { Ice: 5, Fire: -5 },
+                    costTypeModifiers: { Grass: 1, Bug: 1 },
+                    evasionImmuneTypes: ['Ice'],
+                    periodicNonTypeDamage: { immuneTypes: ['Ice', 'Water'], amount: 3 },
+                    transformMoveType: { Water: 'Ice' },
+                });
                 return;
             }
             if (effectType === 'zapdos_thunderbolt') {
@@ -8580,6 +8898,13 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                             fresh: false,
                         });
                     });
+                    if (
+                        match.weather &&
+                        match.weather.key === 'thunderstorm' &&
+                        match.weather.sourcePlayer === actingUsername
+                    ) {
+                        clearWeather(match);
+                    }
                 } else {
                     applyStatus({
                         targetState: actorState,
@@ -8591,7 +8916,68 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         metadata: { teamTrapEnemyHarmfulDamage: 5, thunderboltTrigger: true },
                         fresh: false,
                     });
+                    setWeather(match, {
+                        key: 'thunderstorm',
+                        name: 'Thunderstorm',
+                        description: "Electric skills deal +5 damage (Thunderstorm's own damage excluded). Each turn, 10 piercing damage strikes one random non-Electric, non-Ground Pokemon from either team and paralyzes its cooldowns for 1 turn.",
+                        rounds: 4,
+                        sourcePlayer: actingUsername,
+                        sourceSlot: actorSlot,
+                        sourceSkillId: skill.id,
+                        excludeSkillId: skill.id,
+                        damageTypeModifiers: { Electric: 5 },
+                        periodicRandomTargetDamage: {
+                            amount: 10,
+                            immuneTypes: ['Electric', 'Ground'],
+                            piercing: true,
+                            paralyzeCooldowns: true,
+                        },
+                    });
                 }
+                return;
+            }
+            if (effectType === 'zapdos_zap_cannon_cast') {
+                const chargeReady = zapdosChargeReadyForInstantZapCannon;
+                resolveRecipients(effect).forEach((recipient) => {
+                    if (!recipient?.unit || recipient.unit.alive === false) return;
+                    const targetState = ensureUnitStateShape(recipient.unit);
+                    if (chargeReady) {
+                        queueDamage(recipient, 30, {
+                            ...effect,
+                            metadata: { ignoreDamageReduction: true, ignoreDestructibleDefense: true },
+                        });
+                        if (recipient.unit.alive !== false) {
+                            applyStatus({
+                                targetState,
+                                statusId: 'zapdos_zap_cannon_expire_stun',
+                                duration: 1,
+                                sourceSkillId: skill.id,
+                                sourceUsername: actingUsername,
+                                sourceSlot: actorSlot,
+                                metadata: { harmful: true, cannotUseSkills: true },
+                                fresh: false,
+                            });
+                        }
+                    } else {
+                        applyStatus({
+                            targetState,
+                            statusId: 'zapdos_zap_cannon',
+                            duration: 3,
+                            sourceSkillId: skill.id,
+                            sourceUsername: actingUsername,
+                            sourceSlot: actorSlot,
+                            metadata: {
+                                harmful: true,
+                                zapCannonBonus: 0,
+                                onExpireDamage: 30,
+                                onExpirePiercing: true,
+                                onExpireStun: 1,
+                                endIfSourceDies: true,
+                            },
+                            fresh: false,
+                        });
+                    }
+                });
                 return;
             }
             if (effectType === 'primeape_rock_smash') {
@@ -8915,6 +9301,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         actorUnit,
                         targetState,
                         targetUnit: recipient.unit,
+                        match,
                     });
                     if (rollPerRecipient && Number.isFinite(recipientChance) && recipientChance >= 0 && recipientChance < 100) {
                         if (!rollPercentSuccess(recipientChance)) return;
@@ -11299,7 +11686,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 !entry.fixedDamage &&
                 !pokemonTypeEffectivenessAppliedRecipients.has(recipientKey)
             ) {
-                const moveType = getPokemonMoveType(skill?.classes || []);
+                const moveType = weatherEffectiveMoveType(match, getPokemonMoveType(skill?.classes || []));
                 const defendingTypes = getActivePokemonTypes({
                     character: targetCharacter,
                     unit: entry.recipient.unit,
@@ -13900,6 +14287,10 @@ module.exports = {
     tickStatusesForTurnEnd,
     tickCooldownsForTurnEnd,
     reduceHulkRageForInactiveTurn,
+    setWeather,
+    clearWeather,
+    tickWeatherForTurnEnd,
+    getWeatherViewerPayload,
     getSkillCooldownRemaining,
     isSkillIndexBlockedForActor,
     isActorUnableToUseSkills,

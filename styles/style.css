@@ -320,6 +320,178 @@ html.selection-experimental .classic-new-ui-button {
     display: none;
 }
 
+html.selection-experimental .ingame-news-toggle {
+    display: none;
+}
+
+.ingame-news-toggle {
+    position: fixed;
+    top: 44px;
+    right: 8px;
+    z-index: 7100;
+    min-width: 82px;
+    min-height: 30px;
+    padding: 5px 10px;
+    border: 2px solid #1b120b;
+    border-radius: 3px;
+    background: #9bc6f1;
+    color: #1b120b;
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.72);
+    font: 700 11px 'Franklin', Arial, sans-serif;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.ingame-news-toggle:hover,
+.ingame-news-toggle:focus-visible {
+    background: #1b120b;
+    color: #cfe4ff;
+    outline: 2px solid #cfe4ff;
+    outline-offset: 1px;
+}
+
+.ingame-news-backdrop {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.78);
+    z-index: 7500;
+}
+
+.ingame-news-backdrop.visible {
+    display: flex;
+}
+
+.ingame-news-panel {
+    width: min(620px, calc(100vw - 28px));
+    max-height: min(720px, calc(100vh - 28px));
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: #e8e4d7;
+    border: 2px solid #000;
+    box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.55);
+    padding: 14px;
+    font-family: 'Libre Franklin', Arial, sans-serif;
+    color: #1b120b;
+    text-transform: none;
+}
+
+.ingame-news-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px solid #1b120b;
+    padding-bottom: 8px;
+}
+
+.ingame-news-header h2 {
+    margin: 0;
+    font: 800 16px 'Petra', serif;
+    text-transform: uppercase;
+}
+
+.ingame-news-close {
+    border: 2px solid #1b120b;
+    background: #f1d79b;
+    color: #1b120b;
+    width: 26px;
+    height: 26px;
+    line-height: 1;
+    border-radius: 3px;
+    cursor: pointer;
+    font-weight: 800;
+}
+
+.ingame-news-status {
+    margin: 0;
+    font-size: 12px;
+    color: #55483a;
+}
+
+.ingame-news-status:empty {
+    display: none;
+}
+
+.ingame-news-content {
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.ingame-news-post-title {
+    margin: 0 0 2px;
+    font: 800 15px 'Petra', serif;
+}
+
+.ingame-news-post-meta {
+    margin: 0 0 8px;
+    font-size: 11px;
+    color: #6b5c48;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.ingame-news-post-paragraph {
+    margin: 0 0 10px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.ingame-news-content hr {
+    border: none;
+    border-top: 1px solid rgba(27, 18, 11, 0.25);
+    margin: 12px 0;
+}
+
+.ingame-news-post-changes-title {
+    margin: 4px 0 6px;
+    font: 800 12px 'Libre Franklin', Arial, sans-serif;
+    text-transform: uppercase;
+}
+
+.ingame-news-post-changes-list {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.ingame-news-post-changes-list li {
+    margin-bottom: 6px;
+}
+
+.ingame-news-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 2px solid #1b120b;
+    padding-top: 8px;
+}
+
+.ingame-news-nav-button {
+    border: 2px solid #1b120b;
+    background: #f1d79b;
+    color: #1b120b;
+    padding: 5px 12px;
+    border-radius: 3px;
+    cursor: pointer;
+    font: 700 11px 'Franklin', Arial, sans-serif;
+    text-transform: uppercase;
+}
+
+.ingame-news-nav-button:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.ingame-news-counter {
+    font-size: 11px;
+    font-weight: 700;
+    color: #55483a;
+}
+
 .mute-button, .ingame-mute-button, .effects-mute-button, .ingame-effects-mute-button, .skill-effects-toggle, .ingame-skill-effects-toggle {
     background: rgba(20, 98, 58, 0.92);
     border: 1px solid rgba(145, 255, 188, 0.9);
@@ -406,6 +578,8 @@ html.selection-experimental .classic-new-ui-button {
 }
 
 body.skill-effects-muted .skill-cast-projectile,
+body.skill-effects-muted .pokemon-sprite-burst,
+body.skill-effects-muted .pokemon-sprite-projectile,
 body.skill-effects-muted .status-apply-burst,
 body.skill-effects-muted .combat-energy-beam,
 body.skill-effects-muted .damage-impact,
@@ -3613,6 +3787,8 @@ body.ui-disable-queued-target-markers .skilltooltipimage.dynamic-queued-target-i
 body.ui-disable-skill-cast-animations .skill-cast-pulse,
 body.ui-disable-skill-cast-animations .skill-queue-trail,
 body.ui-disable-skill-cast-animations .skill-cast-projectile,
+body.ui-disable-skill-cast-animations .pokemon-sprite-burst,
+body.ui-disable-skill-cast-animations .pokemon-sprite-projectile,
 body.ui-disable-skill-cast-animations .status-apply-burst,
 body.ui-disable-skill-cast-animations .combat-energy-beam,
 body.ui-disable-skill-cast-animations .superman-solar-flare-screen-fx,
@@ -4188,6 +4364,263 @@ body.arena-mode-pokemon .skillimage {
     border: 1px solid #000;
     box-shadow: 0 0 12px rgba(255, 236, 89, 0.92), 0 0 22px rgba(255, 75, 35, 0.62);
     animation: skill-cast-projectile-flight 1300ms cubic-bezier(0.2, 0.82, 0.18, 1) both;
+}
+
+.weather-change-alert {
+    position: fixed;
+    top: 28%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 900;
+    pointer-events: none;
+    text-align: center;
+    padding: 18px 40px;
+    border-radius: 18px;
+    background: rgba(8, 10, 16, 0.82);
+    border: 2px solid rgba(255, 215, 106, 0.55);
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.55), 0 0 60px rgba(255, 173, 51, 0.28);
+    animation: weather-change-alert-enter 320ms cubic-bezier(0.2, 0.9, 0.25, 1) both;
+}
+
+.weather-change-alert.weather-change-alert-exit {
+    animation: weather-change-alert-fade-out 480ms ease-in both;
+}
+
+@keyframes weather-change-alert-enter {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.72); }
+    60% { opacity: 1; transform: translate(-50%, -50%) scale(1.06); }
+    100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes weather-change-alert-fade-out {
+    0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(0.92); }
+}
+
+.weather-change-alert-name {
+    font-size: 1.6rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #ffd76a;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+    margin-bottom: 6px;
+    white-space: nowrap;
+}
+
+.weather-change-alert-countdown {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+}
+
+.weather-change-alert-countdown-old {
+    font-size: 2.6rem;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.38);
+    text-decoration: line-through;
+    text-decoration-color: rgba(255, 90, 90, 0.75);
+    text-decoration-thickness: 4px;
+}
+
+.weather-change-alert-countdown-arrow {
+    font-size: 2rem;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.55);
+}
+
+.weather-change-alert-countdown-new {
+    display: inline-block;
+    font-size: 3.4rem;
+    font-weight: 900;
+    color: #ffffff;
+    text-shadow: 0 0 18px rgba(255, 200, 90, 0.85), 0 2px 6px rgba(0, 0, 0, 0.6);
+    animation: weather-change-alert-number-pop 520ms cubic-bezier(0.16, 1.2, 0.3, 1) both;
+}
+
+@keyframes weather-change-alert-number-pop {
+    0% { transform: scale(0.3) translateY(14px); opacity: 0; }
+    55% { transform: scale(1.35); opacity: 1; }
+    100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.weather-change-alert-sub {
+    margin-top: 4px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: rgba(255, 255, 255, 0.62);
+}
+
+/* Full-arena ambient weather effects, keyed off the active match.weather.key so every
+   player sees them regardless of the skill-cast/death animation toggles — these describe
+   the battlefield's current condition, not a one-off skill flourish. */
+.weather-ambient-fx {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.weather-fx-layer {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 400ms ease;
+}
+
+/* --- Snowstorm: falling snow --- */
+body.weather-fx-snow-active #weather-fx-snow {
+    opacity: 1;
+}
+
+.weather-fx-snowflake {
+    position: absolute;
+    top: -20px;
+    width: 14px;
+    height: 14px;
+    background-image: url('../assets/images/PokemonArena/animations/weather/snowflake.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    animation-name: weather-fx-snow-fall;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    will-change: transform;
+}
+
+@keyframes weather-fx-snow-fall {
+    0% { transform: translate(0, -20px) rotate(0deg); }
+    100% { transform: translate(var(--weather-fx-snow-drift, 20px), 580px) rotate(180deg); }
+}
+
+/* --- Wildfire: character portraits and skill icons visibly on fire --- */
+body.weather-fx-wildfire-active .character-face {
+    animation: weather-fx-fire-flicker 900ms ease-in-out infinite alternate;
+}
+
+body.weather-fx-wildfire-active .character-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(ellipse at 50% 100%, rgba(255, 140, 20, 0.55) 0%, rgba(255, 60, 0, 0.28) 40%, transparent 70%);
+    mix-blend-mode: screen;
+    animation: weather-fx-fire-glow 1100ms ease-in-out infinite alternate;
+}
+
+body.weather-fx-wildfire-active .skillholder {
+    animation: weather-fx-fire-flicker 900ms ease-in-out infinite alternate;
+}
+
+@keyframes weather-fx-fire-flicker {
+    0% { filter: brightness(1) saturate(1) drop-shadow(0 0 4px rgba(255, 120, 20, 0.5)); }
+    100% { filter: brightness(1.12) saturate(1.25) drop-shadow(0 0 10px rgba(255, 90, 10, 0.85)); }
+}
+
+@keyframes weather-fx-fire-glow {
+    0% { opacity: 0.55; }
+    100% { opacity: 0.95; }
+}
+
+/* --- Lightning Storm: screen-wide static plus random full flashes --- */
+.weather-fx-lightning-static {
+    background-image: repeating-linear-gradient(
+        0deg,
+        rgba(255, 255, 255, 0.05) 0px,
+        rgba(255, 255, 255, 0.05) 1px,
+        transparent 1px,
+        transparent 3px
+    );
+    mix-blend-mode: overlay;
+    animation: weather-fx-static-jitter 120ms steps(2) infinite;
+}
+
+body.weather-fx-lightning-active #weather-fx-lightning-static {
+    opacity: 0.5;
+}
+
+@keyframes weather-fx-static-jitter {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(3px); }
+}
+
+.weather-fx-lightning-flash {
+    background: #ffffff;
+    opacity: 0;
+}
+
+.weather-fx-lightning-flash.weather-fx-lightning-flash-active {
+    animation: weather-fx-lightning-flash-pulse 260ms ease-out;
+}
+
+@keyframes weather-fx-lightning-flash-pulse {
+    0% { opacity: 0; }
+    12% { opacity: 0.9; }
+    30% { opacity: 0.15; }
+    45% { opacity: 0.7; }
+    100% { opacity: 0; }
+}
+
+.weather-banner {
+    position: relative;
+    z-index: 5;
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 8px;
+    width: fit-content;
+    margin: 6px auto;
+    padding: 4px 16px;
+    border-radius: 999px;
+    background: rgba(10, 12, 20, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+
+.weather-banner-name {
+    font-size: 0.78rem;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #ffd76a;
+}
+
+.weather-banner-rounds {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.72);
+    white-space: nowrap;
+}
+
+.pokemon-sprite-burst {
+    position: fixed;
+    width: 140px;
+    height: 140px;
+    margin-left: -70px;
+    margin-top: -70px;
+    z-index: 410;
+    pointer-events: none;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    image-rendering: pixelated;
+}
+
+.pokemon-sprite-projectile {
+    position: fixed;
+    width: 72px;
+    height: 72px;
+    margin-left: -36px;
+    margin-top: -36px;
+    z-index: 405;
+    pointer-events: none;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    image-rendering: pixelated;
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.35));
 }
 
 .combat-energy-beam {
