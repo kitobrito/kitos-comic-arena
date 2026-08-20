@@ -5859,7 +5859,7 @@ const POKEMON_NINCADA_MISSION_ENTRY = {
         character_name: '',
         wins: 0,
     },
-    image: 'assets/images/PokemonArena/Nincada/Nincada-FP.jpg',
+    image: 'assets/images/PokemonArena/missionpics/nincada.webp',
     imageAlt: 'Nincada mission artwork',
     characterName: 'Nincada',
     portrait: 'assets/images/PokemonArena/Nincada/Nincada-FP.jpg',

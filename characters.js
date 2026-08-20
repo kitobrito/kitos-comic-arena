@@ -21324,7 +21324,7 @@ const characters = [
                         "metadata": {
                             "infiniteDuration": true,
                             "unremovable": true,
-                            "facePictureOverride": "assets/images/PokemonArena/Meowth/persianfp.png",
+                            "facePictureOverride": "assets/images/PokemonArena/Meowth/persiannewfacepicture.png",
                             "removeStatusIdsOnApply": [
                                 "meowth_persian_evolution_tracker"
                             ],
@@ -29884,7 +29884,7 @@ const characters = [
         "id": "meowth",
         "characterId": "meowth",
         "name": "Meowth",
-        "facePicture": "assets/images/PokemonArena/Meowth/FP.png",
+        "facePicture": "assets/images/PokemonArena/Meowth/meowthnewfacepicture.png",
         "startStatuses": [
             {
                 "statusId": "meowth_persian_evolution_tracker",
@@ -29905,7 +29905,7 @@ const characters = [
                         "metadata": {
                             "hidden": true,
                             "infiniteDuration": true,
-                            "facePictureOverride": "assets/images/PokemonArena/Meowth/persianfp.png",
+                            "facePictureOverride": "assets/images/PokemonArena/Meowth/persiannewfacepicture.png",
                             "skillReplacements": {
                                 "meowth-pay-day": "persian-pay-day",
                                 "meowth-fury-swipes": "persian-fury-swipes",
@@ -29987,7 +29987,7 @@ const characters = [
                                     "metadata": {
                                         "hidden": true,
                                         "infiniteDuration": true,
-                                        "facePictureOverride": "assets/images/PokemonArena/Meowth/persianfp.png",
+                                        "facePictureOverride": "assets/images/PokemonArena/Meowth/persiannewfacepicture.png",
                                         "skillReplacements": {
                                             "meowth-pay-day": "persian-pay-day",
                                             "meowth-fury-swipes": "persian-fury-swipes",
@@ -30134,7 +30134,7 @@ const characters = [
                                     "metadata": {
                                         "hidden": true,
                                         "infiniteDuration": true,
-                                        "facePictureOverride": "assets/images/PokemonArena/Meowth/persianfp.png",
+                                        "facePictureOverride": "assets/images/PokemonArena/Meowth/persiannewfacepicture.png",
                                         "skillReplacements": {
                                             "meowth-pay-day": "persian-pay-day",
                                             "meowth-fury-swipes": "persian-fury-swipes",
@@ -30218,7 +30218,7 @@ const characters = [
                                     "metadata": {
                                         "hidden": true,
                                         "infiniteDuration": true,
-                                        "facePictureOverride": "assets/images/PokemonArena/Meowth/persianfp.png",
+                                        "facePictureOverride": "assets/images/PokemonArena/Meowth/persiannewfacepicture.png",
                                         "skillReplacements": {
                                             "meowth-pay-day": "persian-pay-day",
                                             "meowth-fury-swipes": "persian-fury-swipes",
@@ -32552,7 +32552,7 @@ const characters = [
         "universe": "pokemon",
         "role": "Specialist",
         "roleCategory": "specialist",
-        "facePicture": "assets/images/PokemonArena/Cyndaquil/FP.webp",
+        "facePicture": "assets/images/PokemonArena/Cyndaquil/cyndaquilmaybefacepicture.png",
         "description": "Cyndaquil protects itself by flaring up the flames on its back, building momentum whenever it uses a new skill.",
         "characterdeescription": "Cyndaquil protects itself by flaring up the flames on its back, building momentum whenever it uses a new skill.",
         "skills": [
@@ -32665,7 +32665,7 @@ const characters = [
         "universe": "pokemon",
         "role": "Support",
         "roleCategory": "support",
-        "facePicture": "assets/images/PokemonArena/Cyndaquil/Chikorita/FP.webp",
+        "facePicture": "assets/images/PokemonArena/Cyndaquil/Chikorita/chikoritanewfacepicture.png",
         "description": "Chikorita protects allies and cycles Sweet Scent through separate Physical, Special, and Affliction suppression.",
         "characterdeescription": "Chikorita protects allies and cycles Sweet Scent through separate Physical, Special, and Affliction suppression.",
         "skills": [
@@ -32785,7 +32785,7 @@ const characters = [
         "universe": "pokemon",
         "role": "Specialist",
         "roleCategory": "specialist",
-        "facePicture": "assets/images/PokemonArena/Cyndaquil/Totodile/FP.webp",
+        "facePicture": "assets/images/PokemonArena/Cyndaquil/Totodile/totodilenewfacepicture.png",
         "description": "Totodile delays enemy skills, builds Water Rings, and converts them into a devastating Aqua Tail stun.",
         "characterdeescription": "Totodile delays enemy skills, builds Water Rings, and converts them into a devastating Aqua Tail stun.",
         "skills": [
