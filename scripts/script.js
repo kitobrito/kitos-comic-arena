@@ -9693,6 +9693,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 queuePokemonEvolutionCinematic(card, previousUnit, nextUnit, evolutionStatus);
             }
             changedStatuses.forEach((status) => {
+                let handled = false;
                 const sourceSkillId = status?.sourceSkillId || '';
                 if (
                     sourceSkillId.startsWith('ditto-transform-') ||
@@ -9707,6 +9708,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                         '<span class="transform-wave wave-a"></span><span class="transform-wave wave-b"></span><span class="transform-sheen"></span>',
                         1100
                     );
+                    handled = true;
                 }
                 if (status?.id === 'aegislash_blade_stance' || status?.id === 'aegislash_shield_stance') {
                     const stance = status.id === 'aegislash_blade_stance' ? 'blade' : 'shield';
@@ -9716,6 +9718,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                         '<span class="stance-flash"></span><span class="stance-line line-a"></span><span class="stance-line line-b"></span>',
                         900
                     );
+                    handled = true;
                 }
                 if (status?.id === 'aegislash_swords_dance') {
                     showTemporaryCardFx(
@@ -9724,6 +9727,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                         '<span class="dance-blade blade-a"></span><span class="dance-blade blade-b"></span><span class="dance-spark spark-a"></span><span class="dance-spark spark-b"></span>',
                         1000
                     );
+                    handled = true;
                 }
                 if (status?.id === 'scraggy_focus_energy_tracker') {
                     const stacks = Math.max(0, Number(status?.metadata?.scraggyFocusEnergyStacks) || 0);
@@ -9735,6 +9739,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                             850
                         );
                     }
+                    handled = true;
                 }
                 if (sourceSkillId === 'scraggy-leer' || sourceSkillId === 'scrafty-leer') {
                     showTemporaryCardFx(
@@ -9743,6 +9748,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                         '<span class="leer-ring ring-a"></span><span class="leer-ring ring-b"></span><span class="leer-mark">!</span>',
                         900
                     );
+                    handled = true;
                 }
                 if (sourceSkillId === 'scraggy-focus-blast' || sourceSkillId === 'scrafty-focus-blast') {
                     showTemporaryCardFx(
@@ -9751,6 +9757,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                         '<span class="focus-mark-ring ring-a"></span><span class="focus-mark-ring ring-b"></span><span class="focus-mark-core"></span>',
                         1000
                     );
+                    handled = true;
                 }
                 if (statusGrantsInvulnerability(status)) {
                     showTemporaryCardFx(
@@ -9759,6 +9766,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                         '<span class="status-shell"></span><span class="status-ring ring-a"></span><span class="status-ring ring-b"></span>',
                         1000
                     );
+                    handled = true;
                 }
                 if (statusAppliesStun(status)) {
                     showTemporaryCardFx(
@@ -9767,6 +9775,25 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                         '<span class="status-star star-a"></span><span class="status-star star-b"></span><span class="status-star star-c"></span><span class="status-ring"></span>',
                         950
                     );
+                    handled = true;
+                }
+                // Generic fallback for every other real (finite-duration, non-evolution) status
+                // change: a quick buff/debuff sprite burst from the same manifest used for skill
+                // casts and faints, so the ~40-Pokemon roster's many un-bespoke buffs/debuffs
+                // still get some visual feedback instead of landing silently.
+                if (
+                    !handled &&
+                    currentMatchArena === 'pokemon' &&
+                    !status?.metadata?.infiniteDuration &&
+                    !isPokemonEvolutionStatus(status)
+                ) {
+                    const face = card.querySelector('.character-face');
+                    const faceRect = (face || card).getBoundingClientRect();
+                    playPokemonSpriteBurst({
+                        x: faceRect.left + faceRect.width / 2,
+                        y: faceRect.top + faceRect.height / 2,
+                        key: status?.metadata?.harmful ? 'debuffApply' : 'buffApply',
+                    });
                 }
             });
         };
