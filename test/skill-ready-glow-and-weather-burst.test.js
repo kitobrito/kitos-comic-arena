@@ -29,11 +29,13 @@ test('ingame.html has the weather-start-burst layer with its name label inside t
     );
 });
 
-test('the fly-in label is colored via the same per-weather custom property as the burst and outlined in black', () => {
+test('the fly-in label uses a pixel-font gradient fill keyed to the burst color, glowing instead of black-outlined', () => {
+    assert.match(styles, /@font-face \{\s*font-family: 'LowresPixel';\s*src: url\('\.\.\/assets\/fonts\/LowresPixel-Regular\.otf'\) format\('opentype'\);\s*\}/);
     assert.match(
         styles,
-        /\.weather-fx-start-burst-label\s*\{[^}]*color: var\(--weather-fx-start-burst-color, #ffffff\);[^}]*-webkit-text-stroke: 2px #000;[^}]*text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000/s
+        /\.weather-fx-start-burst-label\s*\{[^}]*font-family: 'LowresPixel', 'Libre Franklin', Arial, sans-serif;[^}]*background: linear-gradient\(180deg, #ffffff 0%, #ffffff 38%, var\(--weather-fx-start-burst-color, #ffffff\) 100%\);[^}]*background-clip: text;[^}]*-webkit-text-fill-color: transparent;[^}]*filter:\s*drop-shadow/s
     );
+    assert.doesNotMatch(styles.slice(styles.indexOf('.weather-fx-start-burst-label {'), styles.indexOf('.weather-fx-start-burst-label {') + 700), /text-stroke|2px 2px 0 #000/);
     assert.match(styles, /@keyframes weather-fx-start-burst-label-fly-in/);
     assert.match(
         script,
