@@ -18569,7 +18569,10 @@ const characters = [
         "arena": "pokemon",
         "roleCategory": "dot-dps",
         "description": "A fiery and determined Pokémon whose burning tail reflects its fighting spirit. Though small and inexperienced, Charmander grows stronger as battle progresses, eventually evolving into the fierce Charmeleon.",
-        "descriptionHtml": "A fiery and determined Pokémon whose burning tail reflects its fighting spirit. Though small and inexperienced, Charmander grows stronger as battle progresses, eventually evolving into the fierce Charmeleon."
+        "descriptionHtml": "A fiery and determined Pokémon whose burning tail reflects its fighting spirit. Though small and inexperienced, Charmander grows stronger as battle progresses, eventually evolving into the fierce Charmeleon.",
+        "pokemonTypes": [
+            "Fire"
+        ]
     },
     {
         "id": "squirtle",
@@ -19048,7 +19051,10 @@ const characters = [
         "arena": "pokemon",
         "roleCategory": "tank",
         "description": "A cautious Water-type Pokémon that turns defense into momentum. Squirtle grows stronger by shielding allies, breaking enemy guards, and cleansing harmful effects, eventually evolving into the sturdier Wartortle.",
-        "descriptionHtml": "A cautious Water-type Pokémon that turns defense into momentum. Squirtle grows stronger by shielding allies, breaking enemy guards, and cleansing harmful effects, eventually evolving into the sturdier Wartortle."
+        "descriptionHtml": "A cautious Water-type Pokémon that turns defense into momentum. Squirtle grows stronger by shielding allies, breaking enemy guards, and cleansing harmful effects, eventually evolving into the sturdier Wartortle.",
+        "pokemonTypes": [
+            "Water"
+        ]
     },
     {
         "id": "bulbasaur",
@@ -19647,7 +19653,11 @@ const characters = [
         "arena": "pokemon",
         "roleCategory": "Hybrid",
         "description": "A patient and resilient Grass-type Pokémon that draws strength from sunlight. Bulbasaur grows more powerful as the sun shines overhead, eventually evolving into Ivysaur and unleashing devastating solar attacks.",
-        "descriptionHtml": "A patient and resilient Grass-type Pokémon that draws strength from sunlight. Bulbasaur grows more powerful as the sun shines overhead, eventually evolving into Ivysaur and unleashing devastating solar attacks."
+        "descriptionHtml": "A patient and resilient Grass-type Pokémon that draws strength from sunlight. Bulbasaur grows more powerful as the sun shines overhead, eventually evolving into Ivysaur and unleashing devastating solar attacks.",
+        "pokemonTypes": [
+            "Grass",
+            "Poison"
+        ]
     },
     {
         "id": "pikachu",
@@ -19953,7 +19963,10 @@ const characters = [
         "arena": "pokemon",
         "roleCategory": "spike-dps",
         "description": "When several of these Pokémon gather, their electricity could build up and cause lightning storms. Forest dwellers, they are few in number and exceptionally rare. The pouches in their cheeks discharge electricity at their opponents. The Pikachu are believed to be highly intelligent.",
-        "descriptionHtml": "When several of these Pokémon gather, their electricity could build up and cause lightning storms. Forest dwellers, they are few in number and exceptionally rare. The pouches in their cheeks discharge electricity at their opponents. The Pikachu are believed to be highly intelligent."
+        "descriptionHtml": "When several of these Pokémon gather, their electricity could build up and cause lightning storms. Forest dwellers, they are few in number and exceptionally rare. The pouches in their cheeks discharge electricity at their opponents. The Pikachu are believed to be highly intelligent.",
+        "pokemonTypes": [
+            "Electric"
+        ]
     },
     {
         "id": "butterfree",
@@ -20226,7 +20239,11 @@ const characters = [
         "roleCategory": "controller",
         "description": "A graceful butterfly Pokemon that turns powder, psionic force, and careful positioning into battlefield control. Butterfree disorients enemies, disrupts their cooldowns, and puts threats to sleep while its wings keep allies safe from ranged attacks.",
         "descriptionHtml": "A graceful butterfly Pokemon that turns powder, psionic force, and careful positioning into battlefield control. Butterfree disorients enemies, disrupts their cooldowns, and puts threats to sleep while its wings keep allies safe from ranged attacks.",
-        "startStatuses": []
+        "startStatuses": [],
+        "pokemonTypes": [
+            "Bug",
+            "Flying"
+        ]
     },
     {
         "id": "pokemon-trainer",
@@ -21817,7 +21834,10 @@ const characters = [
                     }
                 }
             }
-        ]
+        ],
+                                "pokemonTypes": [
+                                    "Normal"
+                                ]
     },
     {
         "id": "chansey",
@@ -22360,7 +22380,10 @@ const characters = [
         "arena": "pokemon",
         "roleCategory": "heal-support",
         "description": "A support Pokemon that keeps the squad alive with healing, protection, and a late-game evolution into Blissey. Chansey builds momentum by restoring HP, then turns that healing into a sturdier second form.",
-        "descriptionHtml": "A support Pokemon that keeps the squad alive with healing, protection, and a late-game evolution into Blissey. Chansey builds momentum by restoring HP, then turns that healing into a sturdier second form."
+        "descriptionHtml": "A support Pokemon that keeps the squad alive with healing, protection, and a late-game evolution into Blissey. Chansey builds momentum by restoring HP, then turns that healing into a sturdier second form.",
+        "pokemonTypes": [
+            "Normal"
+        ]
     },
     {
         "id": "pidgey",
@@ -22854,7 +22877,11 @@ const characters = [
         "arena": "pokemon",
         "roleCategory": "aoe-dps",
         "description": "A fast Flying-type swarmer that strikes one target and scatters damage across the rest of the enemy team. Pidgey pressures formations with immediate splash damage, then evolves into a stronger Pidgeotto once she has dealt enough damage.",
-        "descriptionHtml": "A fast Flying-type swarmer that strikes one target and scatters damage across the rest of the enemy team. Pidgey pressures formations with immediate splash damage, then evolves into a stronger Pidgeotto once she has dealt enough damage."
+        "descriptionHtml": "A fast Flying-type swarmer that strikes one target and scatters damage across the rest of the enemy team. Pidgey pressures formations with immediate splash damage, then evolves into a stronger Pidgeotto once she has dealt enough damage.",
+        "pokemonTypes": [
+            "Normal",
+            "Flying"
+        ]
     },
     {
         "id": "koffing",
@@ -23522,7 +23549,10 @@ const characters = [
         "arena": "pokemon",
         "roleCategory": "disruptor",
         "description": "A poisonous Gas-type Pokemon that clouds the battlefield, disrupts enemy setups, and evolves into a more volatile Weezing after fully using its tricks.",
-        "descriptionHtml": "A poisonous Gas-type Pokemon that clouds the battlefield, disrupts enemy setups, and evolves into a more volatile Weezing after fully using its tricks."
+        "descriptionHtml": "A poisonous Gas-type Pokemon that clouds the battlefield, disrupts enemy setups, and evolves into a more volatile Weezing after fully using its tricks.",
+        "pokemonTypes": [
+            "Poison"
+        ]
     },
     {
         "id": "zubat",
@@ -24115,7 +24145,11 @@ const characters = [
         "roleCategory": "fast-dps",
         "description": "A cave-dwelling bat Pokemon that hunts marked enemies with Supersonic disruption, life drain, cooldown pressure, and energy theft. Zubat builds toward Golbat by steadily stealing HP during battle.",
         "descriptionHtml": "A cave-dwelling bat Pokemon that hunts marked enemies with Supersonic disruption, life drain, cooldown pressure, and energy theft. Zubat builds toward Golbat by steadily stealing HP during battle.",
-        "characterdeescription": null
+        "characterdeescription": null,
+        "pokemonTypes": [
+            "Poison",
+            "Flying"
+        ]
     },
     {
         "id": "gastly",
@@ -24582,7 +24616,11 @@ const characters = [
         "roleCategory": "Disruptor",
         "description": "A mischievous Ghost-type Pokemon that turns missing health into pressure, punishes skill usage, and evolves into the far nastier Haunter.",
         "descriptionHtml": "A mischievous Ghost-type Pokemon that turns missing health into pressure, punishes skill usage, and evolves into the far nastier Haunter.",
-        "characterdeescription": null
+        "characterdeescription": null,
+        "pokemonTypes": [
+            "Ghost",
+            "Poison"
+        ]
     },
     {
         "id": "abra",
@@ -25030,7 +25068,10 @@ const characters = [
         "roleCategory": "controller",
         "description": "A reserved Psychic-type Pokemon that turns setup into inevitability, then evolves into Kadabra after building Calm Mind three times.",
         "descriptionHtml": "A reserved Psychic-type Pokemon that turns setup into inevitability, then evolves into Kadabra after building Calm Mind three times.",
-        "characterdeescription": null
+        "characterdeescription": null,
+        "pokemonTypes": [
+            "Psychic"
+        ]
     },
     {
         "id": "krabby",
@@ -25487,7 +25528,10 @@ const characters = [
         "arena": "pokemon",
         "roleCategory": "bruiser",
         "description": "A rugged Water-type Pokemon that stacks permanent armor, softens enemies for physical follow-up, and grows into Kingler after enough time behind Harden.",
-        "descriptionHtml": "A rugged Water-type Pokemon that stacks permanent armor, softens enemies for physical follow-up, and grows into Kingler after enough time behind Harden."
+        "descriptionHtml": "A rugged Water-type Pokemon that stacks permanent armor, softens enemies for physical follow-up, and grows into Kingler after enough time behind Harden.",
+        "pokemonTypes": [
+            "Water"
+        ]
     },
     {
         "id": "scyther",
@@ -25710,7 +25754,11 @@ const characters = [
         "description": "A fast mantis Pokemon that stacks pressure through repeated slashes, evasion, and heavy burst windows after Swords Dance.",
         "descriptionHtml": "A fast mantis Pokemon that stacks pressure through repeated slashes, evasion, and heavy burst windows after Swords Dance.",
         "startStatuses": [],
-        "characterdeescription": null
+        "characterdeescription": null,
+        "pokemonTypes": [
+            "Bug",
+            "Flying"
+        ]
     },
     {
         "id": "eevee",
@@ -25864,7 +25912,10 @@ const characters = [
         "roleCategory": "AOE-dps",
         "description": "A plain, all-random Normal-type Pokemon that leans on basic survival, simple chip damage, and straightforward utility before its evolution mission eventually replaces it.",
         "descriptionHtml": "A plain, all-random Normal-type Pokemon that leans on basic survival, simple chip damage, and straightforward utility before its evolution mission eventually replaces it.",
-        "startStatuses": []
+        "startStatuses": [],
+        "pokemonTypes": [
+            "Normal"
+        ]
     },
     {
         "id": "jolteon",
@@ -26072,7 +26123,10 @@ const characters = [
         "roleCategory": "fast-dps",
         "description": "A fast Electric-type Pokemon that uses piercing attacks, cooldown paralysis, and Charge to punish enemies who keep acting into its lightning.",
         "descriptionHtml": "A fast Electric-type Pokemon that uses piercing attacks, cooldown paralysis, and Charge to punish enemies who keep acting into its lightning.",
-        "startStatuses": []
+        "startStatuses": [],
+        "pokemonTypes": [
+            "Electric"
+        ]
     },
     {
         "id": "flareon",
@@ -26263,7 +26317,10 @@ const characters = [
         "roleCategory": "dot-dps",
         "description": "A fiery Pokemon that builds permanent defense with heat, spreads flames, and converts burns into reliable damage over time.",
         "descriptionHtml": "A fiery Pokemon that builds permanent defense with heat, spreads flames, and converts burns into reliable damage over time.",
-        "startStatuses": []
+        "startStatuses": [],
+        "pokemonTypes": [
+            "Fire"
+        ]
     },
     {
         "id": "vaporeon",
@@ -26468,7 +26525,10 @@ const characters = [
         "roleCategory": "heal-support",
         "description": "A resilient Water-type Pokemon that weakens attackers, redirects pressure, heals the team, and ignores enemy skills with Acid Armor.",
         "descriptionHtml": "A resilient Water-type Pokemon that weakens attackers, redirects pressure, heals the team, and ignores enemy skills with Acid Armor.",
-        "startStatuses": []
+        "startStatuses": [],
+        "pokemonTypes": [
+            "Water"
+        ]
     },
     {
         "id": "ekans",
@@ -26969,7 +27029,10 @@ const characters = [
         "roleCategory": "Assassin",
         "description": "A venom-focused Pokemon that ramps poison pressure, punishes enemies for acting, and evolves into Arbok after landing a Crunch execution.",
         "descriptionHtml": "A venom-focused Pokemon that ramps poison pressure, punishes enemies for acting, and evolves into Arbok after landing a Crunch execution.",
-        "startStatuses": []
+        "startStatuses": [],
+        "pokemonTypes": [
+            "Poison"
+        ]
     },
     {
         "id": "machop",
@@ -27554,7 +27617,10 @@ const characters = [
         "roleCategory": "bruiser",
         "description": "A Fighting-type bruiser that breaks armor, redirects enemy attacks, and evolves into Machoke after using Bulk Up twice.",
         "descriptionHtml": "A Fighting-type bruiser that breaks armor, redirects enemy attacks, and evolves into Machoke after using Bulk Up twice.",
-        "startStatuses": []
+        "startStatuses": [],
+        "pokemonTypes": [
+            "Fighting"
+        ]
     },
     {
         "id": "magikarp",
@@ -27992,7 +28058,10 @@ const characters = [
         "arena": "pokemon",
         "roleCategory": "Hybrid",
         "description": "A famously weak Water-type Pokemon whose plan is surviving long enough to become Gyarados, then cashing in with overwhelming ranged pressure.",
-        "descriptionHtml": "A famously weak Water-type Pokemon whose plan is surviving long enough to become Gyarados, then cashing in with overwhelming ranged pressure."
+        "descriptionHtml": "A famously weak Water-type Pokemon whose plan is surviving long enough to become Gyarados, then cashing in with overwhelming ranged pressure.",
+        "pokemonTypes": [
+            "Water"
+        ]
     },
     {
         "id": "mr-mime",
@@ -28276,7 +28345,11 @@ const characters = [
         "roleCategory": "shield-support",
         "description": "A trickster support Pokemon that manipulates protection timing, softens teams with Dazzling Gleam, and keeps allies stable with Light Screen and Safeguard.",
         "descriptionHtml": "A trickster support Pokemon that manipulates protection timing, softens teams with Dazzling Gleam, and keeps allies stable with Light Screen and Safeguard.",
-        "startStatuses": []
+        "startStatuses": [],
+        "pokemonTypes": [
+            "Psychic",
+            "Fairy"
+        ]
     },
     {
         "id": "hitmonchan",
@@ -28521,7 +28594,10 @@ const characters = [
         "roleCategory": "fast-dps",
         "description": "A disciplined boxer Pokemon that builds momentum through elemental punches, then cashes everything in with a massive finishing blow.",
         "descriptionHtml": "A disciplined boxer Pokemon that builds momentum through elemental punches, then cashes everything in with a massive finishing blow.",
-        "startStatuses": []
+        "startStatuses": [],
+        "pokemonTypes": [
+            "Fighting"
+        ]
     },
     {
         "id": "hitmonlee",
@@ -28881,7 +28957,10 @@ const characters = [
         "roleCategory": "Spike-DPS",
         "description": "A precision kicking Pokemon that alternates tempo with stance changes, then cashes in Focus Energy through brutal finishers.",
         "descriptionHtml": "A precision kicking Pokemon that alternates tempo with stance changes, then cashes in Focus Energy through brutal finishers.",
-        "startStatuses": []
+        "startStatuses": [],
+        "pokemonTypes": [
+            "Fighting"
+        ]
     },
     {
         "id": "aerodactyl",
@@ -29107,7 +29186,11 @@ const characters = [
         "arena": "pokemon",
         "roleCategory": "bruiser",
         "description": "A prehistoric flying striker that converts its own recoil into destructible defense, then cashes that defense out through Rock Slide pressure and Stone Edge finishers.",
-        "descriptionHtml": "A prehistoric flying striker that converts its own recoil into destructible defense, then cashes that defense out through Rock Slide pressure and Stone Edge finishers."
+        "descriptionHtml": "A prehistoric flying striker that converts its own recoil into destructible defense, then cashes that defense out through Rock Slide pressure and Stone Edge finishers.",
+        "pokemonTypes": [
+            "Rock",
+            "Flying"
+        ]
     },
     {
         "id": "magnemite",
@@ -29648,7 +29731,11 @@ const characters = [
         "roleCategory": "aoe-dps",
         "description": "An electric steel Pokemon that builds toward Magneton by pairing Spark and Thunder Wave during Magnet Rise, then overwhelms teams with repeated piercing bursts.",
         "descriptionHtml": "An electric steel Pokemon that builds toward Magneton by pairing Spark and Thunder Wave during Magnet Rise, then overwhelms teams with repeated piercing bursts.",
-        "startStatuses": []
+        "startStatuses": [],
+        "pokemonTypes": [
+            "Electric",
+            "Steel"
+        ]
     },
     {
         "id": "onix",
@@ -29951,7 +30038,11 @@ const characters = [
         "arena": "pokemon",
         "roleCategory": "tank",
         "description": "A towering Rock and Ground-type tank that stacks permanent damage reduction, punishes reckless skill use, and refuses to fall the first time it is broken.",
-        "descriptionHtml": "A towering Rock and Ground-type tank that stacks permanent damage reduction, punishes reckless skill use, and refuses to fall the first time it is broken."
+        "descriptionHtml": "A towering Rock and Ground-type tank that stacks permanent damage reduction, punishes reckless skill use, and refuses to fall the first time it is broken.",
+        "pokemonTypes": [
+            "Rock",
+            "Ground"
+        ]
     },
     {
         "id": "meowth",
@@ -30573,7 +30664,10 @@ const characters = [
         "arena": "pokemon",
         "roleCategory": "specialist",
         "description": "A tempo specialist that steals energy and extends Fury Swipes before evolving into the faster, more lethal Persian.",
-        "descriptionHtml": "A tempo specialist that steals energy and extends Fury Swipes before evolving into the faster, more lethal Persian."
+        "descriptionHtml": "A tempo specialist that steals energy and extends Fury Swipes before evolving into the faster, more lethal Persian.",
+        "pokemonTypes": [
+            "Normal"
+        ]
     },
     {
         "id": "clefairy",
@@ -30862,7 +30956,10 @@ const characters = [
                     "evolvedFacePicture": "assets/images/PokemonArena/clefairy/clefablefp.webp"
                 }
             }
-        ]
+        ],
+                    "pokemonTypes": [
+                        "Fairy"
+                    ]
     },
     {
         "id": "jigglypuff",
@@ -31217,7 +31314,11 @@ const characters = [
                     "evolvedFacePicture": "assets/images/PokemonArena/jigglypuff/wigglytufffp.webp"
                 }
             }
-        ]
+        ],
+                    "pokemonTypes": [
+                        "Normal",
+                        "Fairy"
+                    ]
     },
     {
         "id": "beedrill",
@@ -31578,7 +31679,11 @@ const characters = [
                     "evolvedFacePicture": "assets/images/PokemonArena/beedrill/megafp.webp"
                 }
             }
-        ]
+        ],
+                    "pokemonTypes": [
+                        "Bug",
+                        "Poison"
+                    ]
     },
     {
         "id": "articuno",
@@ -31737,7 +31842,11 @@ const characters = [
                     "bonusDamage": 0
                 }
             }
-        ]
+        ],
+                    "pokemonTypes": [
+                        "Ice",
+                        "Flying"
+                    ]
     },
     {
         "id": "moltres",
@@ -31922,7 +32031,11 @@ const characters = [
                     "overheatUses": 0
                 }
             }
-        ]
+        ],
+                    "pokemonTypes": [
+                        "Fire",
+                        "Flying"
+                    ]
     },
     {
         "id": "zapdos",
@@ -32063,7 +32176,11 @@ const characters = [
                 ]
             }
         ],
-        "startStatuses": []
+        "startStatuses": [],
+        "pokemonTypes": [
+            "Electric",
+            "Flying"
+        ]
     },
     {
         "id": "mew",
@@ -32200,7 +32317,10 @@ const characters = [
                 ]
             }
         ],
-        "startStatuses": []
+        "startStatuses": [],
+        "pokemonTypes": [
+            "Psychic"
+        ]
     },
     {
         "id": "mewtwo",
@@ -32424,7 +32544,10 @@ const characters = [
                 ]
             }
         ],
-        "startStatuses": []
+        "startStatuses": [],
+        "pokemonTypes": [
+            "Psychic"
+        ]
     },
     {
         "id": "dragonite",
@@ -32643,7 +32766,11 @@ const characters = [
                     }
                 }
             }
-        ]
+        ],
+                            "pokemonTypes": [
+                                "Dragon",
+                                "Flying"
+                            ]
     },
     {
         "id": "cyndaquil",
@@ -32756,7 +32883,10 @@ const characters = [
                 "effects": [{ "type": "cyndaquil_typhlosion_flame_wheel", "scope": "target" }]
             }
         ],
-        "startStatuses": [{ "statusId": "cyndaquil_warming_up", "sourceSkillId": "cyndaquil-warming-up", "duration": 999, "metadata": { "infiniteDuration": true, "unremovable": true, "cyndaquilWarmingUp": true, "onOwnerUseSkillTrigger": true, "persistOnOwnerUseSkillTrigger": true, "skillDamageBonuses": { "cyndaquil-warming-up": 0 } } }]
+        "startStatuses": [{ "statusId": "cyndaquil_warming_up", "sourceSkillId": "cyndaquil-warming-up", "duration": 999, "metadata": { "infiniteDuration": true, "unremovable": true, "cyndaquilWarmingUp": true, "onOwnerUseSkillTrigger": true, "persistOnOwnerUseSkillTrigger": true, "skillDamageBonuses": { "cyndaquil-warming-up": 0 } } }],
+        "pokemonTypes": [
+            "Fire"
+        ]
     },
     {
         "id": "chikorita",
@@ -32876,7 +33006,10 @@ const characters = [
                 ]
             }
         ],
-        "startStatuses": [{ "statusId": "chikorita_sweet_scent_tracker", "sourceSkillId": "chikorita-sweet-scent", "duration": 999, "metadata": { "infiniteDuration": true, "unremovable": true, "sweetScentClassIndex": 0, "solarBeamStacks": 0 } }]
+        "startStatuses": [{ "statusId": "chikorita_sweet_scent_tracker", "sourceSkillId": "chikorita-sweet-scent", "duration": 999, "metadata": { "infiniteDuration": true, "unremovable": true, "sweetScentClassIndex": 0, "solarBeamStacks": 0 } }],
+        "pokemonTypes": [
+            "Grass"
+        ]
     },
     {
         "id": "totodile",
@@ -32995,7 +33128,10 @@ const characters = [
                 ]
             }
         ],
-        "startStatuses": [{ "statusId": "totodile_water_rings_tracker", "sourceSkillId": "totodile-water-rings", "duration": 999, "metadata": { "infiniteDuration": true, "unremovable": true, "waterRings": 0, "aquaTailPermanentPenalty": 0, "aquaTailEmpowered": false, "onOwnerTargetedBySkillTrigger": true, "onOwnerTargetedByRequireNewSkill": true } }]
+        "startStatuses": [{ "statusId": "totodile_water_rings_tracker", "sourceSkillId": "totodile-water-rings", "duration": 999, "metadata": { "infiniteDuration": true, "unremovable": true, "waterRings": 0, "aquaTailPermanentPenalty": 0, "aquaTailEmpowered": false, "onOwnerTargetedBySkillTrigger": true, "onOwnerTargetedByRequireNewSkill": true } }],
+        "pokemonTypes": [
+            "Water"
+        ]
     },
     {
         "id": "drowzee",
@@ -33139,7 +33275,10 @@ const characters = [
                 "effects": [{ "type": "hypno_disable", "scope": "target" }]
             }
         ],
-        "startStatuses": [{ "statusId": "drowzee_evolution_tracker", "sourceSkillId": "drowzee-evolution", "duration": 999, "metadata": { "infiniteDuration": true, "unremovable": true, "usedNightmare": false, "usedDreamEater": false } }]
+        "startStatuses": [{ "statusId": "drowzee_evolution_tracker", "sourceSkillId": "drowzee-evolution", "duration": 999, "metadata": { "infiniteDuration": true, "unremovable": true, "usedNightmare": false, "usedDreamEater": false } }],
+        "pokemonTypes": [
+            "Psychic"
+        ]
     },
     {
         "id": "aegislash",
@@ -33373,7 +33512,11 @@ const characters = [
                     "tooltipText": "Aegislash is in Shield Stance with 10 destructible defense and 5 unpierceable damage reduction."
                 }
             }
-        ]
+        ],
+                    "pokemonTypes": [
+                        "Steel",
+                        "Ghost"
+                    ]
     },
     {
         "id": "ditto",
@@ -33514,7 +33657,10 @@ const characters = [
                 "effects": []
             }
         ],
-        "startStatuses": []
+        "startStatuses": [],
+        "pokemonTypes": [
+            "Normal"
+        ]
     },
     {
         "id": "scraggy",
@@ -33987,7 +34133,11 @@ const characters = [
                     "tooltipTextTemplate": "Scraggy has {scraggyFocusEnergyStacks}/3 Focus Energy stacks."
                 }
             }
-        ]
+        ],
+                    "pokemonTypes": [
+                        "Dark",
+                        "Fighting"
+                    ]
     },
     {
         "id": "dragapult",
@@ -34190,7 +34340,11 @@ const characters = [
                     }
                 ]
             }
-        ]
+        ],
+                            "pokemonTypes": [
+                                "Dragon",
+                                "Ghost"
+                            ]
     },
     {
         "id": "nincada",
