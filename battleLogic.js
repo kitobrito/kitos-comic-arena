@@ -6661,8 +6661,6 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     : {};
                 status.metadata.skillDamageBonuses = {
                     ...bonuses,
-                    'cyndaquil-aerial-flamethrower':
-                        Math.max(0, Number(bonuses['cyndaquil-aerial-flamethrower']) || 0) + 5,
                     'cyndaquil-warming-up': Math.max(0, Number(bonuses['cyndaquil-warming-up']) || 0) + 5,
                 };
             }
@@ -8148,7 +8146,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 resolveRecipients(effect).forEach((recipient) => {
                     if (!recipient?.unit || recipient.unit.alive === false) return;
                     const targetState = ensureUnitStateShape(recipient.unit);
-                    queueDamage(recipient, 5, {
+                    queueDamage(recipient, 10, {
                         ...effect,
                         metadata: { ...(effect?.metadata || {}), afflictionDamage: true },
                     });

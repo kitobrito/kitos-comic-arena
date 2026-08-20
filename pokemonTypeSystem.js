@@ -253,7 +253,7 @@ const POKEMON_STATUS_TOOLTIPS = Object.freeze({
     cyndaquil_warming_up: { tooltipText: 'Each new skill Cyndaquil uses permanently adds 5 damage to Aerial Flamethrower and Warming Up.' },
     cyndaquil_smokescreen: { tooltipText: 'This character is fully blinded; all of its skills miss.' },
     cyndaquil_skyward_leap: { tooltipText: 'The next enemy skill used on Cyndaquil misses. Taking damage ends this effect.' },
-    cyndaquil_skyward_bonus: { tooltipText: 'Aerial Tackle and Aerial Flamethrower deal 10 additional damage.' },
+    cyndaquil_skyward_bonus: { tooltipText: 'This character deals 10 additional damage.' },
     chikorita_sweet_scent_tracker: { tooltipTextTemplate: 'Sweet Scent cycles the weakened class between Physical, Special, and Affliction each turn. Solar Beam currently has {solarBeamStacks} bonus stack(s).' },
     chikorita_light_screen: { tooltipTextTemplate: 'This character has {destructibleDefensePoints} destructible defense. A new enemy skill used on them weakens Sweet Scent\'s current class and adds 1 Solar Beam stack.' },
     chikorita_vine_defense: { tooltipText: 'Chikorita is invulnerable to enemy skills.' },

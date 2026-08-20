@@ -17546,10 +17546,10 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
-                    "Energy",
-                    "Ranged",
-                    "Instant",
-                    "Affliction"
+                    "Fire",
+                    "Special",
+                    "Affliction",
+                    "Instant"
                 ],
                 "effects": [
                     {
@@ -17642,8 +17642,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 1,
                 "classes": [
+                    "Normal",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -17720,10 +17720,10 @@ const characters = [
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
-                    "Energy",
-                    "Ranged",
-                    "Instant",
-                    "Affliction"
+                    "Fire",
+                    "Special",
+                    "Affliction",
+                    "Instant"
                 ],
                 "effects": [
                     {
@@ -17817,6 +17817,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
+                    "Normal",
                     "Physical",
                     "Instant",
                     "Invisible"
@@ -17861,6 +17862,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Fire",
                     "Passive",
                     "Instant"
                 ]
@@ -17881,10 +17883,10 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Fire",
                     "Physical",
-                    "Melee",
-                    "Instant",
-                    "Affliction"
+                    "Affliction",
+                    "Instant"
                 ],
                 "effects": [
                     {
@@ -17952,8 +17954,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 1,
                 "classes": [
+                    "Dragon",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -17998,10 +18000,10 @@ const characters = [
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
-                    "Energy",
-                    "Ranged",
-                    "Instant",
-                    "Affliction"
+                    "Fire",
+                    "Special",
+                    "Affliction",
+                    "Instant"
                 ],
                 "effects": [
                     {
@@ -18062,6 +18064,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
+                    "Normal",
                     "Physical",
                     "Instant",
                     "Invisible"
@@ -18112,10 +18115,10 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Fire",
                     "Physical",
-                    "Melee",
-                    "Instant",
-                    "Affliction"
+                    "Affliction",
+                    "Instant"
                 ],
                 "effects": [
                     {
@@ -18183,8 +18186,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 1,
                 "classes": [
+                    "Dragon",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -18229,10 +18232,10 @@ const characters = [
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
-                    "Energy",
-                    "Ranged",
-                    "Instant",
-                    "Affliction"
+                    "Fire",
+                    "Special",
+                    "Affliction",
+                    "Instant"
                 ],
                 "effects": [
                     {
@@ -18293,6 +18296,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
+                    "Normal",
                     "Physical",
                     "Instant",
                     "Invisible"
@@ -18343,10 +18347,10 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Fire",
                     "Physical",
-                    "Melee",
-                    "Instant",
-                    "Affliction"
+                    "Affliction",
+                    "Instant"
                 ],
                 "effects": [
                     {
@@ -18414,8 +18418,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 1,
                 "classes": [
+                    "Dragon",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -18460,10 +18464,10 @@ const characters = [
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
-                    "Energy",
-                    "Ranged",
-                    "Instant",
-                    "Affliction"
+                    "Fire",
+                    "Special",
+                    "Affliction",
+                    "Instant"
                 ],
                 "effects": [
                     {
@@ -18524,6 +18528,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
+                    "Normal",
                     "Physical",
                     "Instant",
                     "Invisible"
@@ -18623,8 +18628,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
-                    "Energy",
-                    "Ranged",
+                    "Water",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -18688,6 +18693,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
+                    "Water",
                     "Strategic",
                     "Instant",
                     "Invisible"
@@ -18734,8 +18740,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
-                    "Energy",
-                    "Ranged",
+                    "Water",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -18778,8 +18784,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 4,
                 "classes": [
+                    "Normal",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -18823,6 +18829,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Water",
                     "Passive",
                     "Instant"
                 ]
@@ -18843,6 +18850,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
+                    "Water",
                     "Strategic",
                     "Instant",
                     "Invisible"
@@ -18890,8 +18898,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
-                    "Energy",
-                    "Ranged",
+                    "Water",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -18959,8 +18967,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
-                    "Energy",
-                    "Ranged",
+                    "Water",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -19000,8 +19008,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 4,
                 "classes": [
+                    "Water",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -19116,8 +19124,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 1,
                 "classes": [
+                    "Grass",
                     "Physical",
-                    "Ranged",
                     "Control"
                 ],
                 "effects": [
@@ -19225,8 +19233,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 1,
                 "classes": [
+                    "Grass",
                     "Physical",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -19279,8 +19287,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
+                    "Grass",
                     "Physical",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -19330,8 +19338,8 @@ const characters = [
                 "cooldown": 3,
                 "cannotBeCountered": true,
                 "classes": [
-                    "Energy",
-                    "Ranged",
+                    "Grass",
+                    "Special",
                     "Instant",
                     "Uncounterable"
                 ],
@@ -19364,6 +19372,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Grass",
                     "Passive",
                     "Instant"
                 ]
@@ -19384,8 +19393,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 1,
                 "classes": [
+                    "Grass",
                     "Physical",
-                    "Ranged",
                     "Control"
                 ],
                 "effects": [
@@ -19496,8 +19505,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 1,
                 "classes": [
+                    "Grass",
                     "Physical",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -19554,8 +19563,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
+                    "Grass",
                     "Physical",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -19608,8 +19617,8 @@ const characters = [
                 "cooldown": 3,
                 "cannotBeCountered": true,
                 "classes": [
-                    "Energy",
-                    "Ranged",
+                    "Grass",
+                    "Special",
                     "Instant",
                     "Uncounterable"
                 ],
@@ -19687,8 +19696,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
-                    "Energy",
-                    "Ranged",
+                    "Electric",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -19769,8 +19778,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
-                    "Energy",
-                    "Melee",
+                    "Electric",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -19834,8 +19843,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 1,
                 "classes": [
-                    "Energy",
-                    "Ranged",
+                    "Electric",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -19906,6 +19915,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 4,
                 "classes": [
+                    "Psychic",
                     "Strategic",
                     "Instant"
                 ],
@@ -19932,6 +19942,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Electric",
                     "Passive",
                     "Instant"
                 ]
@@ -19964,8 +19975,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 1,
                 "classes": [
-                    "Mental",
-                    "Ranged",
+                    "Psychic",
+                    "Special",
                     "Instant",
                     "Invisible"
                 ],
@@ -20027,8 +20038,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 1,
                 "classes": [
-                    "Energy",
-                    "Ranged",
+                    "Psychic",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -20085,10 +20096,10 @@ const characters = [
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
+                    "Grass",
                     "Physical",
-                    "Ranged",
-                    "Instant",
-                    "Affliction"
+                    "Affliction",
+                    "Instant"
                 ],
                 "effects": [
                     {
@@ -20138,6 +20149,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 4,
                 "classes": [
+                    "Normal",
                     "Physical",
                     "Instant"
                 ],
@@ -20168,8 +20180,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
+                    "Grass",
                     "Physical",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -20235,8 +20247,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Normal",
                     "Physical",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -20360,6 +20372,7 @@ const characters = [
                 "cooldown": 1,
                 "maxUses": 2,
                 "classes": [
+                    "Normal",
                     "Physical",
                     "Instant"
                 ],
@@ -20383,6 +20396,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
+                    "Normal",
                     "Physical",
                     "Instant"
                 ],
@@ -20456,6 +20470,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Normal",
                     "Physical",
                     "Instant"
                 ],
@@ -21432,8 +21447,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Normal",
                     "Physical",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -21557,8 +21572,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Normal",
                     "Physical",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -21687,8 +21702,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Normal",
                     "Physical",
-                    "Ranged",
                     "Instant",
                     "Bypassing",
                     "Uncounterable",
@@ -21740,6 +21755,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 4,
                 "classes": [
+                    "Normal",
                     "Physical",
                     "Instant"
                 ],
@@ -21860,8 +21876,9 @@ const characters = [
                 "damage": 0,
                 "cooldown": 1,
                 "classes": [
+                    "Normal",
+                    "Special",
                     "Affliction",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -21899,6 +21916,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
+                    "Normal",
                     "Physical",
                     "Instant"
                 ],
@@ -21970,6 +21988,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 1,
                 "classes": [
+                    "Normal",
                     "Physical",
                     "Instant"
                 ],
@@ -22038,6 +22057,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 4,
                 "classes": [
+                    "Normal",
                     "Physical",
                     "Instant"
                 ],
@@ -22103,6 +22123,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Normal",
                     "Passive",
                     "Instant"
                 ]
@@ -22123,8 +22144,9 @@ const characters = [
                 "damage": 0,
                 "cooldown": 1,
                 "classes": [
+                    "Normal",
+                    "Special",
                     "Affliction",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -22166,6 +22188,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
+                    "Normal",
                     "Physical",
                     "Instant"
                 ],
@@ -22226,6 +22249,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 1,
                 "classes": [
+                    "Normal",
                     "Physical",
                     "Instant"
                 ],
@@ -22293,6 +22317,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 5,
                 "classes": [
+                    "Normal",
                     "Physical",
                     "Instant"
                 ],
@@ -22394,8 +22419,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Flying",
                     "Physical",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -22471,6 +22496,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
+                    "Normal",
                     "Physical",
                     "Instant"
                 ],
@@ -22501,8 +22527,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Flying",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -22568,8 +22594,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 5,
                 "classes": [
+                    "Ground",
                     "Physical",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -22597,6 +22623,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Normal",
                     "Passive",
                     "Instant"
                 ]
@@ -22616,8 +22643,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Flying",
                     "Physical",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -22697,6 +22724,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
+                    "Normal",
                     "Physical",
                     "Instant"
                 ],
@@ -22730,8 +22758,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Flying",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -22801,8 +22829,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 6,
                 "classes": [
+                    "Ground",
                     "Physical",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -23015,8 +23043,9 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Poison",
+                    "Special",
                     "Affliction",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -23075,6 +23104,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
+                    "Ice",
                     "Physical",
                     "Instant"
                 ],
@@ -23133,6 +23163,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 4,
                 "classes": [
+                    "Normal",
+                    "Special",
                     "Affliction",
                     "Instant"
                 ],
@@ -23213,6 +23245,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 4,
                 "classes": [
+                    "Normal",
                     "Physical",
                     "Instant"
                 ],
@@ -23262,6 +23295,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Poison",
                     "Passive",
                     "Instant"
                 ]
@@ -23276,6 +23310,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Poison",
                     "Passive",
                     "Instant"
                 ]
@@ -23293,6 +23328,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Poison",
                     "Passive",
                     "Instant"
                 ]
@@ -23313,8 +23349,9 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Poison",
+                    "Special",
                     "Affliction",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -23355,6 +23392,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
+                    "Ice",
                     "Physical",
                     "Instant"
                 ],
@@ -23396,6 +23434,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 4,
                 "classes": [
+                    "Normal",
+                    "Special",
                     "Affliction",
                     "Instant"
                 ],
@@ -23458,6 +23498,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 4,
                 "classes": [
+                    "Normal",
                     "Physical",
                     "Instant"
                 ],
@@ -23537,8 +23578,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 1,
                 "classes": [
+                    "Bug",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -23667,8 +23708,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
-                    "Mental",
-                    "Ranged",
+                    "Normal",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -23701,8 +23742,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Dark",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -23761,6 +23802,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
+                    "Dark",
                     "Physical",
                     "Instant"
                 ],
@@ -23789,6 +23831,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Poison",
                     "Passive",
                     "Instant"
                 ]
@@ -23809,8 +23852,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 1,
                 "classes": [
+                    "Bug",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -23943,8 +23986,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
-                    "Mental",
-                    "Ranged",
+                    "Normal",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -23981,8 +24024,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Dark",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -24046,6 +24089,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
+                    "Dark",
                     "Physical",
                     "Instant"
                 ],
@@ -24128,8 +24172,9 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Ghost",
+                    "Special",
                     "Affliction",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -24187,8 +24232,9 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Ghost",
+                    "Special",
                     "Affliction",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -24259,8 +24305,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
+                    "Ghost",
                     "Strategic",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -24291,8 +24337,9 @@ const characters = [
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
+                    "Normal",
+                    "Special",
                     "Affliction",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -24324,6 +24371,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Ghost",
                     "Passive",
                     "Instant"
                 ]
@@ -24343,8 +24391,9 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Ghost",
+                    "Special",
                     "Affliction",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -24391,8 +24440,9 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Ghost",
+                    "Special",
                     "Affliction",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -24466,8 +24516,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
+                    "Ghost",
                     "Strategic",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -24501,8 +24551,9 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
+                    "Normal",
+                    "Special",
                     "Affliction",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -24607,8 +24658,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
-                    "Mental",
-                    "Ranged",
+                    "Psychic",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -24650,8 +24701,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
-                    "Mental",
-                    "Ranged",
+                    "Psychic",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -24689,7 +24740,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
-                    "Mental",
+                    "Psychic",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -24721,7 +24773,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 4,
                 "classes": [
-                    "Mental",
+                    "Psychic",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -24761,6 +24814,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Psychic",
                     "Passive",
                     "Instant"
                 ]
@@ -24780,8 +24834,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 1,
                 "classes": [
-                    "Mental",
-                    "Ranged",
+                    "Psychic",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -24826,8 +24880,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
-                    "Mental",
-                    "Ranged",
+                    "Psychic",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -24884,7 +24938,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
-                    "Mental",
+                    "Psychic",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -24919,7 +24974,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 4,
                 "classes": [
-                    "Mental",
+                    "Psychic",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -25010,8 +25066,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Steel",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -25053,8 +25109,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
+                    "Water",
                     "Strategic",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -25101,8 +25157,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
+                    "Water",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -25143,6 +25199,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 4,
                 "classes": [
+                    "Normal",
                     "Strategic",
                     "Instant"
                 ],
@@ -25221,6 +25278,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Water",
                     "Passive",
                     "Instant"
                 ]
@@ -25241,8 +25299,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Steel",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -25287,8 +25345,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
+                    "Water",
                     "Strategic",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -25343,8 +25401,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
+                    "Water",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -25389,6 +25447,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 4,
                 "classes": [
+                    "Normal",
                     "Strategic",
                     "Instant"
                 ],
@@ -25448,8 +25507,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Bug",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -25530,6 +25589,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 4,
                 "classes": [
+                    "Normal",
                     "Physical",
                     "Instant"
                 ],
@@ -25561,8 +25621,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
+                    "Bug",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -25612,6 +25672,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 5,
                 "classes": [
+                    "Normal",
                     "Physical",
                     "Instant"
                 ],
@@ -25671,8 +25732,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
+                    "Ground",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -25708,8 +25769,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 1,
                 "classes": [
-                    "Energy",
-                    "Ranged",
+                    "Normal",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -25734,8 +25795,9 @@ const characters = [
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
+                    "Normal",
+                    "Special",
                     "Affliction",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -25776,7 +25838,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
-                    "Energy",
+                    "Normal",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -25822,8 +25885,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 1,
                 "classes": [
+                    "Bug",
                     "Physical",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -25876,8 +25939,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 1,
                 "classes": [
-                    "Energy",
-                    "Ranged",
+                    "Electric",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -25922,8 +25985,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
-                    "Energy",
-                    "Melee",
+                    "Electric",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -25973,6 +26036,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
+                    "Electric",
                     "Strategic",
                     "Channeled"
                 ],
@@ -26029,8 +26093,9 @@ const characters = [
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
+                    "Fire",
+                    "Special",
                     "Affliction",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -26075,9 +26140,10 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Fire",
+                    "Special",
                     "Affliction",
-                    "Action",
-                    "Ranged"
+                    "Action"
                 ],
                 "effects": [
                     {
@@ -26113,8 +26179,9 @@ const characters = [
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
+                    "Fire",
+                    "Special",
                     "Affliction",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -26170,6 +26237,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 4,
                 "classes": [
+                    "Normal",
                     "Strategic",
                     "Instant"
                 ],
@@ -26216,8 +26284,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
-                    "Energy",
-                    "Ranged",
+                    "Ice",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -26288,8 +26356,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
+                    "Ground",
                     "Physical",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -26336,8 +26404,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
+                    "Water",
                     "Physical",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -26365,7 +26433,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
-                    "Energy",
+                    "Poison",
+                    "Special",
                     "Instant",
                     "Invisible"
                 ],
@@ -26421,9 +26490,9 @@ const characters = [
                 "damage": 0,
                 "cooldown": 1,
                 "classes": [
+                    "Poison",
                     "Physical",
                     "Affliction",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -26480,8 +26549,9 @@ const characters = [
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
+                    "Poison",
+                    "Special",
                     "Affliction",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -26540,6 +26610,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
+                    "Poison",
                     "Physical",
                     "Action"
                 ],
@@ -26576,8 +26647,9 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
+                    "Dark",
+                    "Special",
                     "Affliction",
-                    "Melee",
                     "Instant",
                     "Bypassing"
                 ],
@@ -26636,6 +26708,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Poison",
                     "Passive",
                     "Instant"
                 ]
@@ -26657,9 +26730,9 @@ const characters = [
                 "damage": 0,
                 "cooldown": 1,
                 "classes": [
+                    "Poison",
                     "Physical",
                     "Affliction",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -26719,8 +26792,9 @@ const characters = [
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
+                    "Poison",
+                    "Special",
                     "Affliction",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -26813,6 +26887,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
+                    "Poison",
                     "Physical",
                     "Action"
                 ],
@@ -26852,8 +26927,9 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
+                    "Dark",
+                    "Special",
                     "Affliction",
-                    "Melee",
                     "Instant",
                     "Bypassing"
                 ],
@@ -26914,8 +26990,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 1,
                 "classes": [
+                    "Fighting",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -26973,8 +27049,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
+                    "Fighting",
                     "Physical",
-                    "Melee",
                     "Instant",
                     "Invisible"
                 ],
@@ -27120,6 +27196,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 1,
                 "classes": [
+                    "Fighting",
                     "Physical",
                     "Instant"
                 ],
@@ -27192,8 +27269,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
-                    "Mental",
-                    "Ranged",
+                    "Dark",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -27223,6 +27300,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Fighting",
                     "Passive",
                     "Instant"
                 ]
@@ -27243,8 +27321,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 1,
                 "classes": [
+                    "Fighting",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -27320,8 +27398,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
+                    "Fighting",
                     "Physical",
-                    "Melee",
                     "Instant",
                     "Invisible"
                 ],
@@ -27422,6 +27500,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
+                    "Fighting",
                     "Physical",
                     "Instant"
                 ],
@@ -27462,8 +27541,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
-                    "Mental",
-                    "Ranged",
+                    "Dark",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -27562,8 +27641,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
+                    "Normal",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -27584,6 +27663,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
+                    "Normal",
                     "Physical",
                     "Instant"
                 ],
@@ -27639,8 +27719,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
+                    "Normal",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -27666,8 +27746,8 @@ const characters = [
                     "allOtherSkillsOnCooldown": true
                 },
                 "classes": [
+                    "Normal",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -27693,6 +27773,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Water",
                     "Passive",
                     "Instant"
                 ]
@@ -27716,8 +27797,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
-                    "Energy",
-                    "Ranged",
+                    "Normal",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -27762,8 +27843,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
-                    "Energy",
-                    "Ranged",
+                    "Normal",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -27807,8 +27888,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
-                    "Energy",
-                    "Ranged",
+                    "Dragon",
+                    "Special",
                     "Action"
                 ],
                 "effects": [
@@ -27859,8 +27940,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 1,
                 "classes": [
+                    "Ice",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -27903,8 +27984,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
+                    "Water",
                     "Physical",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -27948,8 +28029,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
-                    "Energy",
-                    "Ranged",
+                    "Fairy",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -28001,8 +28082,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
-                    "Mental",
-                    "Ranged",
+                    "Psychic",
+                    "Special",
                     "Instant",
                     "Invisible"
                 ],
@@ -28089,8 +28170,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
-                    "Mental",
-                    "Ranged",
+                    "Psychic",
+                    "Special",
                     "Instant",
                     "Invisible"
                 ],
@@ -28177,7 +28258,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 5,
                 "classes": [
-                    "Mental",
+                    "Normal",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -28230,8 +28312,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
+                    "Electric",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -28292,8 +28374,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
+                    "Fire",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -28348,8 +28430,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
+                    "Ice",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -28411,8 +28493,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Normal",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -28475,8 +28557,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Fighting",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -28572,6 +28654,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
+                    "Normal",
                     "Physical",
                     "Instant"
                 ],
@@ -28602,8 +28685,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
+                    "Normal",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -28653,8 +28736,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
+                    "Fighting",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -28740,8 +28823,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Fighting",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -28849,8 +28932,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Normal",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -28878,8 +28961,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
+                    "Rock",
                     "Physical",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -28930,8 +29013,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
+                    "Normal",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -28960,8 +29043,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
+                    "Rock",
                     "Physical",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -29028,6 +29111,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Rock",
                     "Passive",
                     "Instant"
                 ]
@@ -29058,8 +29142,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
-                    "Energy",
-                    "Ranged",
+                    "Electric",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -29152,8 +29236,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
-                    "Mental",
-                    "Ranged",
+                    "Electric",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -29244,8 +29328,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 1,
                 "classes": [
-                    "Energy",
-                    "Ranged",
+                    "Normal",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -29284,6 +29368,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 6,
                 "classes": [
+                    "Electric",
                     "Strategic",
                     "Instant"
                 ],
@@ -29320,6 +29405,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Electric",
                     "Passive",
                     "Instant"
                 ]
@@ -29340,8 +29426,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
-                    "Energy",
-                    "Ranged",
+                    "Electric",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -29437,8 +29523,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
-                    "Mental",
-                    "Ranged",
+                    "Electric",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -29487,8 +29573,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 1,
                 "classes": [
-                    "Energy",
-                    "Ranged",
+                    "Steel",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -29543,6 +29629,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 6,
                 "classes": [
+                    "Electric",
                     "Strategic",
                     "Instant"
                 ],
@@ -29612,8 +29699,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 1,
                 "classes": [
+                    "Rock",
                     "Physical",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -29648,8 +29735,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 1,
                 "classes": [
+                    "Steel",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -29732,8 +29819,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 6,
                 "classes": [
+                    "Rock",
                     "Physical",
-                    "Ranged",
                     "Instant",
                     "Invisible"
                 ],
@@ -29813,9 +29900,9 @@ const characters = [
                 "damage": 0,
                 "cooldown": 4,
                 "classes": [
+                    "Normal",
                     "Physical",
-                    "Instant",
-                    "Ranged"
+                    "Instant"
                 ],
                 "effects": [
                     {
@@ -29868,6 +29955,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Rock",
                     "Passive",
                     "Instant"
                 ]
@@ -29935,8 +30023,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
+                    "Normal",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -30019,10 +30107,10 @@ const characters = [
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
+                    "Normal",
                     "Physical",
-                    "Melee",
-                    "Action",
-                    "Affliction"
+                    "Affliction",
+                    "Action"
                 ],
                 "effects": [
                     {
@@ -30072,8 +30160,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
+                    "Normal",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -30165,8 +30253,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 1,
                 "classes": [
+                    "Dark",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -30247,6 +30335,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
+                    "Normal",
                     "Passive",
                     "Instant"
                 ]
@@ -30268,8 +30357,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
+                    "Normal",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -30333,10 +30422,10 @@ const characters = [
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
+                    "Normal",
                     "Physical",
-                    "Melee",
-                    "Action",
-                    "Affliction"
+                    "Affliction",
+                    "Action"
                 ],
                 "effects": [
                     {
@@ -30391,8 +30480,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 1,
                 "classes": [
+                    "Normal",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -30455,8 +30544,8 @@ const characters = [
                 "damage": 0,
                 "cooldown": 1,
                 "classes": [
+                    "Dark",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -30528,8 +30617,8 @@ const characters = [
                 "target": "single-character",
                 "damage": 0,
                 "classes": [
-                    "Mental",
-                    "Ranged",
+                    "Normal",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -30551,8 +30640,8 @@ const characters = [
                     "target": "single-character",
                     "damage": 0,
                     "classes": [
-                        "Mental",
-                        "Ranged",
+                        "Normal",
+                        "Special",
                         "Instant"
                     ],
                     "effects": [
@@ -30576,8 +30665,8 @@ const characters = [
                 "target": "single-enemy",
                 "damage": 0,
                 "classes": [
+                    "Normal",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -30613,8 +30702,8 @@ const characters = [
                     "target": "single-enemy",
                     "damage": 0,
                     "classes": [
+                        "Normal",
                         "Physical",
-                        "Melee",
                         "Instant"
                     ],
                     "effects": [
@@ -30652,8 +30741,8 @@ const characters = [
                 "target": "all-enemy",
                 "damage": 0,
                 "classes": [
+                    "Fairy",
                     "Physical",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -30682,8 +30771,8 @@ const characters = [
                     "target": "all-enemy",
                     "damage": 0,
                     "classes": [
+                        "Fairy",
                         "Physical",
-                        "Ranged",
                         "Instant"
                     ],
                     "effects": [
@@ -30722,8 +30811,8 @@ const characters = [
                 "target": "self-or-single-ally",
                 "damage": 0,
                 "classes": [
-                    "Mental",
-                    "Ranged",
+                    "Fairy",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -30744,8 +30833,8 @@ const characters = [
                     "target": "self-or-single-ally",
                     "damage": 0,
                     "classes": [
-                        "Mental",
-                        "Ranged",
+                        "Fairy",
+                        "Special",
                         "Instant"
                     ],
                     "effects": [
@@ -30766,6 +30855,7 @@ const characters = [
                 "target": "",
                 "damage": 0,
                 "classes": [
+                    "Fairy",
                     "Passive",
                     "Strategic",
                     "Instant"
@@ -30817,8 +30907,8 @@ const characters = [
                 "target": "single-enemy",
                 "damage": 0,
                 "classes": [
-                    "Mental",
-                    "Ranged",
+                    "Normal",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -30851,8 +30941,8 @@ const characters = [
                     "target": "single-enemy",
                     "damage": 0,
                     "classes": [
-                        "Mental",
-                        "Ranged",
+                        "Normal",
+                        "Special",
                         "Instant"
                     ],
                     "effects": [
@@ -30886,8 +30976,8 @@ const characters = [
                 "target": "single-enemy",
                 "damage": 0,
                 "classes": [
-                    "Mental",
-                    "Ranged",
+                    "Normal",
+                    "Special",
                     "Channeled"
                 ],
                 "effects": [
@@ -30928,8 +31018,8 @@ const characters = [
                     "target": "all-enemy",
                     "damage": 0,
                     "classes": [
-                        "Mental",
-                        "Ranged",
+                        "Normal",
+                        "Special",
                         "Channeled"
                     ],
                     "effects": [
@@ -30970,7 +31060,8 @@ const characters = [
                 "target": "self-or-single-ally",
                 "damage": 0,
                 "classes": [
-                    "Mental",
+                    "Normal",
+                    "Special",
                     "Instant",
                     "Invisible"
                 ],
@@ -31003,7 +31094,8 @@ const characters = [
                     "target": "all-allies",
                     "damage": 0,
                     "classes": [
-                        "Mental",
+                        "Normal",
+                        "Special",
                         "Instant",
                         "Invisible"
                     ],
@@ -31035,8 +31127,8 @@ const characters = [
                 "target": "single-enemy",
                 "damage": 0,
                 "classes": [
+                    "Normal",
                     "Physical",
-                    "Melee",
                     "Instant",
                     "Invisible"
                 ],
@@ -31077,8 +31169,8 @@ const characters = [
                     "target": "single-enemy",
                     "damage": 0,
                     "classes": [
+                        "Normal",
                         "Physical",
-                        "Melee",
                         "Instant",
                         "Invisible"
                     ],
@@ -31120,6 +31212,7 @@ const characters = [
                 "target": "",
                 "damage": 0,
                 "classes": [
+                    "Normal",
                     "Passive",
                     "Strategic",
                     "Instant"
@@ -31167,8 +31260,9 @@ const characters = [
                 "target": "single-enemy",
                 "damage": 0,
                 "classes": [
+                    "Poison",
+                    "Special",
                     "Affliction",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -31204,8 +31298,9 @@ const characters = [
                     "target": "single-enemy",
                     "damage": 0,
                     "classes": [
+                        "Poison",
+                        "Special",
                         "Affliction",
-                        "Melee",
                         "Instant"
                     ],
                     "effects": [
@@ -31252,8 +31347,8 @@ const characters = [
                 "target": "single-enemy",
                 "damage": 0,
                 "classes": [
+                    "Bug",
                     "Physical",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -31295,8 +31390,9 @@ const characters = [
                 "target": "all-enemy",
                 "damage": 0,
                 "classes": [
+                    "Poison",
+                    "Special",
                     "Affliction",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -31334,8 +31430,9 @@ const characters = [
                     "target": "single-enemy",
                     "damage": 0,
                     "classes": [
+                        "Bug",
+                        "Special",
                         "Affliction",
-                        "Melee",
                         "Instant"
                     ],
                     "effects": [
@@ -31372,6 +31469,7 @@ const characters = [
                 "target": "self",
                 "damage": 0,
                 "classes": [
+                    "Bug",
                     "Strategic",
                     "Instant"
                 ],
@@ -31403,6 +31501,7 @@ const characters = [
                     "target": "self",
                     "damage": 0,
                     "classes": [
+                        "Bug",
                         "Strategic",
                         "Instant"
                     ],
@@ -31437,8 +31536,9 @@ const characters = [
                 "target": "all-enemy",
                 "damage": 0,
                 "classes": [
+                    "Bug",
+                    "Special",
                     "Affliction",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -31473,6 +31573,7 @@ const characters = [
                 "target": "",
                 "damage": 0,
                 "classes": [
+                    "Bug",
                     "Passive",
                     "Instant"
                 ],
@@ -31520,8 +31621,8 @@ const characters = [
                 "target": "all-enemy",
                 "damage": 0,
                 "classes": [
-                    "Energy",
-                    "Ranged",
+                    "Ice",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -31556,8 +31657,9 @@ const characters = [
                 "target": "single-enemy",
                 "damage": 0,
                 "classes": [
+                    "Ice",
+                    "Special",
                     "Affliction",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -31597,9 +31699,9 @@ const characters = [
                 "target": "all-enemy",
                 "damage": 0,
                 "classes": [
-                    "Energy",
+                    "Ice",
+                    "Special",
                     "Affliction",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -31622,6 +31724,7 @@ const characters = [
                 "target": "self",
                 "damage": 0,
                 "classes": [
+                    "Psychic",
                     "Physical",
                     "Instant"
                 ],
@@ -31677,6 +31780,8 @@ const characters = [
                 "target": "self",
                 "damage": 0,
                 "classes": [
+                    "Fire",
+                    "Special",
                     "Affliction",
                     "Instant"
                 ],
@@ -31710,8 +31815,8 @@ const characters = [
                 "target": "all-enemy",
                 "damage": 0,
                 "classes": [
-                    "Energy",
-                    "Ranged",
+                    "Fire",
+                    "Special",
                     "Instant",
                     "Bypassing"
                 ],
@@ -31746,8 +31851,9 @@ const characters = [
                 "target": "single-enemy",
                 "damage": 0,
                 "classes": [
+                    "Fire",
+                    "Special",
                     "Affliction",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -31788,8 +31894,9 @@ const characters = [
                 "target": "all-enemy",
                 "damage": 0,
                 "classes": [
+                    "Fire",
+                    "Special",
                     "Affliction",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -31810,6 +31917,7 @@ const characters = [
                 "target": "",
                 "damage": 0,
                 "classes": [
+                    "Fire",
                     "Passive",
                     "Instant"
                 ],
@@ -31855,7 +31963,8 @@ const characters = [
                 "target": "self",
                 "damage": 0,
                 "classes": [
-                    "Energy",
+                    "Electric",
+                    "Special",
                     "Channeled"
                 ],
                 "effects": [
@@ -31889,8 +31998,8 @@ const characters = [
                 "target": "self",
                 "damage": 0,
                 "classes": [
-                    "Energy",
-                    "Ranged",
+                    "Electric",
+                    "Special",
                     "Instant",
                     "Bypassing"
                 ],
@@ -31915,8 +32024,8 @@ const characters = [
                 "target": "single-enemy",
                 "damage": 0,
                 "classes": [
-                    "Energy",
-                    "Ranged",
+                    "Electric",
+                    "Special",
                     "Instant",
                     "Uncounterable",
                     "Unreflectable"
@@ -31951,6 +32060,7 @@ const characters = [
                 "target": "self",
                 "damage": 0,
                 "classes": [
+                    "Flying",
                     "Physical",
                     "Instant"
                 ],
@@ -31996,8 +32106,8 @@ const characters = [
                 "target": "single-enemy",
                 "damage": 0,
                 "classes": [
-                    "Mental",
-                    "Ranged",
+                    "Psychic",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -32024,8 +32134,8 @@ const characters = [
                 "target": "single-enemy",
                 "damage": 0,
                 "classes": [
-                    "Mental",
-                    "Ranged",
+                    "Psychic",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -32064,7 +32174,8 @@ const characters = [
                 "target": "self-or-single-ally",
                 "damage": 0,
                 "classes": [
-                    "Mental",
+                    "Psychic",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -32091,7 +32202,8 @@ const characters = [
                 "target": "self-or-single-ally",
                 "damage": 0,
                 "classes": [
-                    "Mental",
+                    "Water",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -32131,8 +32243,8 @@ const characters = [
                 "target": "single-enemy",
                 "damage": 0,
                 "classes": [
-                    "Mental",
-                    "Ranged",
+                    "Psychic",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -32195,8 +32307,8 @@ const characters = [
                 "target": "single-enemy",
                 "damage": 0,
                 "classes": [
-                    "Energy",
-                    "Ranged",
+                    "Ghost",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -32257,8 +32369,8 @@ const characters = [
                 "target": "single-enemy",
                 "damage": 0,
                 "classes": [
+                    "Fighting",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -32315,7 +32427,8 @@ const characters = [
                 "target": "self",
                 "damage": 0,
                 "classes": [
-                    "Energy",
+                    "Normal",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -32355,8 +32468,8 @@ const characters = [
                 "target": "single-enemy",
                 "damage": 0,
                 "classes": [
+                    "Dragon",
                     "Physical",
-                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -32401,8 +32514,9 @@ const characters = [
                 "target": "single-enemy",
                 "damage": 0,
                 "classes": [
+                    "Normal",
+                    "Special",
                     "Affliction",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -32452,8 +32566,8 @@ const characters = [
                 "target": "all-enemy",
                 "damage": 0,
                 "classes": [
+                    "Dragon",
                     "Physical",
-                    "Ranged",
                     "Action"
                 ],
                 "effects": [
@@ -32493,7 +32607,8 @@ const characters = [
                 "target": "self",
                 "damage": 0,
                 "classes": [
-                    "Energy",
+                    "Dragon",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
@@ -32516,6 +32631,7 @@ const characters = [
                 "target": "",
                 "damage": 0,
                 "classes": [
+                    "Dragon",
                     "Passive",
                     "Instant"
                 ],
@@ -32566,7 +32682,7 @@ const characters = [
                 "cooldown": 0,
                 "target": "single-enemy",
                 "damage": 0,
-                "classes": ["Physical", "Melee", "Instant"],
+                "classes": ["Normal", "Physical", "Instant"],
                 "effects": [
                     { "type": "damage", "amount": 20, "scope": "target", "metadata": { "harmful": true } },
                     { "type": "remove_source_control_statuses", "scope": "target" }
@@ -32576,13 +32692,13 @@ const characters = [
                 "id": "cyndaquil-aerial-flamethrower",
                 "name": "Aerial Flamethrower",
                 "skillimage": "assets/images/PokemonArena/Cyndaquil/S2.webp",
-                "skilldescription": "Deals 5 affliction damage to all enemies. Enemies affected by Cynda-Smokescreen take 5 additional affliction damage next turn.",
-                "description": "Deals 5 affliction damage to all enemies. Enemies affected by Cynda-Smokescreen take 5 additional affliction damage next turn.",
+                "skilldescription": "Deals 10 affliction damage to all enemies. Enemies affected by Cynda-Smokescreen take 5 additional affliction damage next turn.",
+                "description": "Deals 10 affliction damage to all enemies. Enemies affected by Cynda-Smokescreen take 5 additional affliction damage next turn.",
                 "energy": ["Bloodline"],
-                "cooldown": 1,
+                "cooldown": 0,
                 "target": "all-enemy",
                 "damage": 0,
-                "classes": ["Affliction", "Ranged", "Instant"],
+                "classes": ["Fire", "Special", "Affliction", "Instant"],
                 "effects": [{ "type": "cyndaquil_flamethrower", "scope": "all-enemy" }]
             },
             {
@@ -32595,33 +32711,33 @@ const characters = [
                 "cooldown": 3,
                 "target": "all-enemy",
                 "damage": 0,
-                "classes": ["Strategic", "Ranged", "Instant"],
+                "classes": ["Normal", "Strategic", "Instant"],
                 "effects": [{ "type": "apply_status", "statusId": "cyndaquil_smokescreen", "duration": 1, "scope": "all-enemy", "metadata": { "harmful": true, "fullyBlind": true } }]
             },
             {
                 "id": "cyndaquil-skyward-leap",
                 "name": "Skyward Leap",
                 "skillimage": "assets/images/PokemonArena/Cyndaquil/S4.webp",
-                "skilldescription": "The next enemy skill used on Cyndaquil misses. After it misses, Aerial Tackle and Aerial Flamethrower deal 10 additional damage for 1 turn. Taking damage ends this effect.",
-                "description": "The next enemy skill used on Cyndaquil misses. After it misses, Aerial Tackle and Aerial Flamethrower deal 10 additional damage for 1 turn. Taking damage ends this effect.",
+                "skilldescription": "The next enemy skill used on Cyndaquil misses. After it misses, Cyndaquil deals 10 additional damage for 1 turn. Taking damage ends this effect.",
+                "description": "The next enemy skill used on Cyndaquil misses. After it misses, Cyndaquil deals 10 additional damage for 1 turn. Taking damage ends this effect.",
                 "energy": [],
                 "cooldown": 2,
                 "target": "self",
                 "damage": 0,
-                "classes": ["Strategic", "Instant"],
-                "effects": [{ "type": "apply_status", "statusId": "cyndaquil_skyward_leap", "duration": 2, "scope": "self", "metadata": { "evadeChancePercent": 100, "consumeOnEvade": true, "onEvadeApplyStatus": { "statusId": "cyndaquil_skyward_bonus", "duration": 1, "metadata": { "skillDamageBonuses": { "cyndaquil-aerial-tackle": 10, "cyndaquil-aerial-flamethrower": 10 } } } } }]
+                "classes": ["Fire", "Strategic", "Instant"],
+                "effects": [{ "type": "apply_status", "statusId": "cyndaquil_skyward_leap", "duration": 2, "scope": "self", "metadata": { "evadeChancePercent": 100, "consumeOnEvade": true, "onEvadeApplyStatus": { "statusId": "cyndaquil_skyward_bonus", "duration": 1, "metadata": { "damageBonusFlat": 10 } } } }]
             },
             {
                 "id": "cyndaquil-warming-up",
                 "name": "Passive: Warming-Up",
                 "skillimage": "assets/images/PokemonArena/Cyndaquil/S5.webp",
-                "skilldescription": "Whenever an enemy attacks Cyndaquil with a new skill, this passive deals 0 affliction damage to them. Whenever Cyndaquil uses a new skill, this passive and Aerial Flamethrower permanently gain 5 damage (stacks).",
-                "description": "Whenever an enemy attacks Cyndaquil with a new skill, this passive deals 0 affliction damage to them. Whenever Cyndaquil uses a new skill, this passive and Aerial Flamethrower permanently gain 5 damage (stacks).",
+                "skilldescription": "Whenever an enemy attacks Cyndaquil with a new skill, this passive deals 0 affliction damage to them. Whenever Cyndaquil uses a new skill, this passive permanently gains 5 damage (stacks).",
+                "description": "Whenever an enemy attacks Cyndaquil with a new skill, this passive deals 0 affliction damage to them. Whenever Cyndaquil uses a new skill, this passive permanently gains 5 damage (stacks).",
                 "energy": [],
                 "cooldown": 0,
                 "target": "",
                 "damage": 0,
-                "classes": ["Passive", "Affliction", "Instant"],
+                "classes": ["Fire", "Special", "Affliction", "Passive", "Instant"],
                 "effects": []
             },
             {
@@ -32636,7 +32752,7 @@ const characters = [
                 "cooldown": 1,
                 "target": "single-enemy",
                 "damage": 0,
-                "classes": ["Affliction", "Ranged", "Instant"],
+                "classes": ["Fire", "Physical", "Affliction", "Instant"],
                 "effects": [{ "type": "cyndaquil_quilava_flame_wheel", "scope": "target" }]
             },
             {
@@ -32651,11 +32767,11 @@ const characters = [
                 "cooldown": 1,
                 "target": "single-enemy",
                 "damage": 0,
-                "classes": ["Affliction", "Ranged", "Instant"],
+                "classes": ["Fire", "Physical", "Affliction", "Instant"],
                 "effects": [{ "type": "cyndaquil_typhlosion_flame_wheel", "scope": "target" }]
             }
         ],
-        "startStatuses": [{ "statusId": "cyndaquil_warming_up", "sourceSkillId": "cyndaquil-warming-up", "duration": 999, "metadata": { "infiniteDuration": true, "unremovable": true, "cyndaquilWarmingUp": true, "onOwnerUseSkillTrigger": true, "persistOnOwnerUseSkillTrigger": true, "skillDamageBonuses": { "cyndaquil-aerial-flamethrower": 0, "cyndaquil-warming-up": 0 } } }]
+        "startStatuses": [{ "statusId": "cyndaquil_warming_up", "sourceSkillId": "cyndaquil-warming-up", "duration": 999, "metadata": { "infiniteDuration": true, "unremovable": true, "cyndaquilWarmingUp": true, "onOwnerUseSkillTrigger": true, "persistOnOwnerUseSkillTrigger": true, "skillDamageBonuses": { "cyndaquil-warming-up": 0 } } }]
     },
     {
         "id": "chikorita",
@@ -32679,7 +32795,7 @@ const characters = [
                 "cooldown": 1,
                 "target": "single-enemy",
                 "damage": 0,
-                "classes": ["Physical", "Ranged", "Instant"],
+                "classes": ["Grass", "Physical", "Instant"],
                 "effects": [{ "type": "chikorita_razor_leaf", "scope": "target" }]
             },
             {
@@ -32692,7 +32808,7 @@ const characters = [
                 "cooldown": 2,
                 "target": "self-or-single-ally",
                 "damage": 0,
-                "classes": ["Strategic", "Instant", "Invisible"],
+                "classes": ["Psychic", "Strategic", "Instant", "Invisible"],
                 "effects": [{ "type": "apply_status", "statusId": "chikorita_light_screen", "duration": 1, "scope": "target", "metadata": { "destructibleDefensePoints": 25, "chikoritaLightScreen": true, "onOwnerTargetedBySkillTrigger": true, "onOwnerTargetedByEnemyOnly": true, "onOwnerTargetedByRequireNewSkill": true } }]
             },
             {
@@ -32705,7 +32821,7 @@ const characters = [
                 "cooldown": 3,
                 "target": "single-enemy",
                 "damage": 0,
-                "classes": ["Energy", "Ranged", "Instant"],
+                "classes": ["Grass", "Special", "Instant"],
                 "effects": [{ "type": "chikorita_solar_beam", "scope": "target" }]
             },
             {
@@ -32718,7 +32834,7 @@ const characters = [
                 "cooldown": 4,
                 "target": "self",
                 "damage": 0,
-                "classes": ["Strategic", "Instant"],
+                "classes": ["Grass", "Strategic", "Instant"],
                 "effects": [{ "type": "apply_status", "statusId": "chikorita_vine_defense", "duration": 1, "scope": "self", "metadata": { "invulnerable": true } }]
             },
             {
@@ -32731,7 +32847,7 @@ const characters = [
                 "cooldown": 0,
                 "target": "",
                 "damage": 0,
-                "classes": ["Passive", "Strategic", "Instant"],
+                "classes": ["Normal", "Passive", "Strategic", "Instant"],
                 "effects": []
             },
             {
@@ -32746,7 +32862,7 @@ const characters = [
                 "cooldown": 1,
                 "target": "single-enemy",
                 "damage": 0,
-                "classes": ["Physical", "Ranged", "Instant"],
+                "classes": ["Grass", "Physical", "Instant"],
                 "effects": [
                     { "type": "damage", "amount": 30, "scope": "target", "metadata": { "ignoreDamageReduction": true } },
                     { "type": "damage", "amount": 15, "scope": "other-enemies" },
@@ -32766,7 +32882,7 @@ const characters = [
                 "cooldown": 1,
                 "target": "single-enemy",
                 "damage": 0,
-                "classes": ["Physical", "Ranged", "Instant"],
+                "classes": ["Grass", "Physical", "Instant"],
                 "effects": [
                     { "type": "damage", "amount": 35, "scope": "target", "metadata": { "ignoreDamageReduction": true } },
                     { "type": "damage", "amount": 25, "scope": "other-enemies" },
@@ -32799,7 +32915,7 @@ const characters = [
                 "cooldown": 1,
                 "target": "all-enemy",
                 "damage": 0,
-                "classes": ["Energy", "Ranged", "Instant"],
+                "classes": ["Water", "Special", "Instant"],
                 "effects": [{ "type": "totodile_water_gun", "scope": "all-enemy" }]
             },
             {
@@ -32812,7 +32928,7 @@ const characters = [
                 "cooldown": 2,
                 "target": "single-enemy",
                 "damage": 0,
-                "classes": ["Strategic", "Ranged", "Instant"],
+                "classes": ["Normal", "Strategic", "Instant"],
                 "effects": [{ "type": "apply_status", "statusId": "totodile_scary_face", "duration": 2, "scope": "target", "metadata": { "harmful": true, "cannotReduceDamage": true, "tooltipText": "This character is Guard Broken and takes 10 additional damage from Physical and Special skills.", "additionalDamageTakenBySkillClass": { "physical": 10, "special": 10 } } }]
             },
             {
@@ -32825,7 +32941,7 @@ const characters = [
                 "cooldown": 1,
                 "target": "single-enemy",
                 "damage": 0,
-                "classes": ["Physical", "Melee", "Instant"],
+                "classes": ["Water", "Physical", "Instant"],
                 "effects": [{ "type": "totodile_aqua_tail", "scope": "target" }]
             },
             {
@@ -32838,7 +32954,7 @@ const characters = [
                 "cooldown": 4,
                 "target": "self",
                 "damage": 0,
-                "classes": ["Strategic", "Instant"],
+                "classes": ["Fighting", "Strategic", "Instant"],
                 "effects": [
                     { "type": "apply_status", "statusId": "totodile_superpower_invulnerable", "duration": 1, "scope": "self", "metadata": { "invulnerable": true } },
                     { "type": "totodile_superpower", "scope": "self" }
@@ -32854,7 +32970,7 @@ const characters = [
                 "cooldown": 0,
                 "target": "",
                 "damage": 0,
-                "classes": ["Passive", "Strategic", "Instant"],
+                "classes": ["Water", "Passive", "Strategic", "Instant"],
                 "effects": []
             },
             {
@@ -32869,7 +32985,7 @@ const characters = [
                 "cooldown": 2,
                 "target": "single-enemy",
                 "damage": 0,
-                "classes": ["Physical", "Ranged", "Instant"],
+                "classes": ["Water", "Physical", "Instant"],
                 "effects": [
                     { "type": "damage", "amount": 20, "scope": "target" },
                     { "type": "apply_status", "statusId": "totodile_croconaw_bite_debuff", "duration": 2, "scope": "target", "metadata": { "harmful": true, "cannotReduceDamage": true, "tooltipText": "This character takes 15 additional damage from Physical and Special skills.", "additionalDamageTakenBySkillClass": { "physical": 15, "special": 15 } } }
@@ -32887,7 +33003,7 @@ const characters = [
                 "cooldown": 2,
                 "target": "single-enemy",
                 "damage": 0,
-                "classes": ["Physical", "Ranged", "Instant"],
+                "classes": ["Dragon", "Physical", "Instant"],
                 "effects": [
                     { "type": "damage", "amount": 30, "scope": "target", "metadata": { "ignoreDamageReduction": true } },
                     { "type": "apply_status", "statusId": "totodile_feraligatr_dragon_claw_debuff", "duration": 2, "scope": "target", "metadata": { "harmful": true, "cannotReduceDamage": true, "tooltipText": "This character takes 20 additional damage from Physical and Special skills.", "additionalDamageTakenBySkillClass": { "physical": 20, "special": 20 } } }
@@ -33438,7 +33554,7 @@ const characters = [
                 "cooldown": 0,
                 "target": "single-enemy",
                 "damage": 0,
-                "classes": ["Normal", "Physical", "Melee", "Instant"],
+                "classes": ["Normal", "Physical", "Instant"],
                 "effects": [
                     {
                         "type": "damage",
@@ -33459,7 +33575,7 @@ const characters = [
                     "cooldown": 0,
                     "target": "single-enemy",
                     "damage": 0,
-                    "classes": ["Normal", "Physical", "Melee", "Instant"],
+                    "classes": ["Normal", "Physical", "Instant"],
                     "effects": [
                         {
                             "type": "damage",
@@ -33482,7 +33598,7 @@ const characters = [
                 "cooldown": 2,
                 "target": "single-enemy",
                 "damage": 0,
-                "classes": ["Normal", "Physical", "Melee", "Instant"],
+                "classes": ["Normal", "Physical", "Instant"],
                 "effects": [
                     {
                         "type": "apply_status",
@@ -33534,7 +33650,7 @@ const characters = [
                     "cooldown": 2,
                     "target": "single-enemy",
                     "damage": 0,
-                    "classes": ["Normal", "Physical", "Melee", "Instant"],
+                    "classes": ["Normal", "Physical", "Instant"],
                     "effects": [
                         {
                             "type": "apply_status",
@@ -33573,7 +33689,7 @@ const characters = [
                 "cooldown": 1,
                 "target": "single-enemy",
                 "damage": 0,
-                "classes": ["Fighting", "Physical", "Melee", "Instant"],
+                "classes": ["Fighting", "Physical", "Instant"],
                 "effects": [
                     {
                         "type": "apply_status",
@@ -33673,7 +33789,7 @@ const characters = [
                     "cooldown": 1,
                     "target": "single-enemy",
                     "damage": 0,
-                    "classes": ["Fighting", "Physical", "Melee", "Instant"],
+                    "classes": ["Fighting", "Physical", "Instant"],
                     "effects": [
                         {
                             "type": "apply_status",
@@ -33767,7 +33883,7 @@ const characters = [
                         "value": 1
                     }
                 },
-                "classes": ["Fighting", "Special", "Ranged", "Control", "Instant"],
+                "classes": ["Fighting", "Special", "Control", "Instant"],
                 "effects": [
                     {
                         "type": "apply_status",
@@ -33795,7 +33911,7 @@ const characters = [
                     "cooldown": 2,
                     "target": "single-enemy",
                     "damage": 0,
-                    "classes": ["Fighting", "Special", "Ranged", "Control", "Instant"],
+                    "classes": ["Fighting", "Special", "Control", "Instant"],
                     "effects": [
                         {
                             "type": "apply_status",
@@ -35026,7 +35142,7 @@ const characters = [
                 "target": "self",
                 "damage": 0,
                 "cooldown": 0,
-                "classes": ["Passive", "Instant"],
+                "classes": ["Fighting", "Passive", "Instant"],
                 "effects": []
             }
         ],
