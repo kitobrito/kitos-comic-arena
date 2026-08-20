@@ -31861,8 +31861,8 @@ const characters = [
                 "id": "moltres-fire-spin",
                 "name": "Fire Spin",
                 "skillimage": "assets/images/PokemonArena/moltres/firespin.png",
-                "skilldescription": "For 2 turns, enemies using a new harmful skill on Moltres' team take 10 affliction damage. Gains 1 Heat.",
-                "description": "For 2 turns, enemies using a new harmful skill on Moltres' team take 10 affliction damage. Gains 1 Heat.",
+                "skilldescription": "For 2 turns, the enemy team takes 5 affliction damage each turn, and enemies using a new harmful skill on Moltres' team take 10 affliction damage. Gains 1 Heat.",
+                "description": "For 2 turns, the enemy team takes 5 affliction damage each turn, and enemies using a new harmful skill on Moltres' team take 10 affliction damage. Gains 1 Heat.",
                 "energy": [
                     "Bloodline"
                 ],
@@ -31883,6 +31883,7 @@ const characters = [
                         "scope": "self",
                         "metadata": {
                             "teamTrapEnemyHarmfulDamage": 10,
+                            "enemyTeamTurnDamage": 5,
                             "afflictionDamage": true
                         }
                     },
@@ -31897,8 +31898,8 @@ const characters = [
                 "id": "moltres-sunny-day",
                 "name": "Wildfire",
                 "skillimage": "assets/images/PokemonArena/moltres/sunnyday.png",
-                "skilldescription": "Summons Wildfire for 4 turns: Fire skills +5 damage, Water skills -5 damage. While it lasts, Moltres gains 1 additional Heat from her skills. Gains 1 Heat.",
-                "description": "Summons Wildfire for 4 turns: Fire skills +5 damage, Water skills -5 damage. While it lasts, Moltres gains 1 additional Heat from her skills. Gains 1 Heat.",
+                "skilldescription": "Summons Wildfire for 4 turns: Fire skills +5 damage and cost 1 less Random energy, Water skills -5 damage. While it lasts, Moltres gains 1 additional Heat from her skills. Gains 1 Heat.",
+                "description": "Summons Wildfire for 4 turns: Fire skills +5 damage and cost 1 less Random energy, Water skills -5 damage. While it lasts, Moltres gains 1 additional Heat from her skills. Gains 1 Heat.",
                 "energy": [
                     "Bloodline"
                 ],
@@ -31918,9 +31919,10 @@ const characters = [
                         "weather": {
                             "key": "wildfire",
                             "name": "Wildfire",
-                            "description": "Fire skills +5 damage, Water skills -5 damage.",
+                            "description": "Fire skills +5 damage and cost 1 less Random energy, Water skills -5 damage.",
                             "rounds": 4,
-                            "damageTypeModifiers": { "Fire": 5, "Water": -5 }
+                            "damageTypeModifiers": { "Fire": 5, "Water": -5 },
+                            "costTypeModifiers": { "Fire": -1 }
                         }
                     },
                     {

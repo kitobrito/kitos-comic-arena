@@ -5068,6 +5068,41 @@ const tickWeatherForTurnEnd = ({ match, characters } = {}) => {
     }
 };
 
+// Fire Spin sits on Moltres herself (scope: self) but its periodic damage hits her
+// opponent's team, so it can't reuse the generic turnStartDamage/turnEndDamage tick
+// (which always damages the status holder). Runs every finalizeTurn, matching the
+// status's own per-individual-turn duration countdown.
+const resolveMoltresFireSpinTeamDamage = (match) => {
+    if (!match) return;
+    getAllLivingUnits(match).forEach(({ username, unit }) => {
+        const state = ensureUnitStateShape(unit);
+        const fireSpin = (state.statuses || []).find(
+            (status) => status?.id === 'moltres_fire_spin' && isStatusActiveForMetadata(status, unit)
+        );
+        if (!fireSpin) return;
+        const amount = Math.max(0, Number(fireSpin?.metadata?.enemyTeamTurnDamage) || 0);
+        if (amount <= 0) return;
+        (match.players || [])
+            .filter((player) => player?.username && player.username !== username)
+            .forEach((player) => {
+                (match.board?.[player.username] || []).forEach((enemyUnit, enemySlot) => {
+                    if (!enemyUnit || enemyUnit.alive === false || isUnitBanished(enemyUnit)) return;
+                    applyDamageToUnit(enemyUnit, amount, {
+                        match,
+                        sourceSkillId: fireSpin?.sourceSkillId || null,
+                        sourceUsername: username,
+                        sourceSlot: Number.isInteger(fireSpin?.sourceSlot) ? fireSpin.sourceSlot : null,
+                        targetUsername: player.username,
+                        targetSlot: enemySlot,
+                        afflictionDamage: true,
+                        damageDebugLabel: 'Fire Spin',
+                        damageDebugReason: 'moltres-fire-spin-tick',
+                    });
+                });
+            });
+    });
+};
+
 const applyHealToUnit = (unit, rawAmount, context = {}) => {
     if (!unit || unit.alive === false || isUnitBanished(unit)) return 0;
     const targetState = ensureUnitStateShape(unit);
@@ -14305,6 +14340,7 @@ module.exports = {
     setWeather,
     clearWeather,
     tickWeatherForTurnEnd,
+    resolveMoltresFireSpinTeamDamage,
     getWeatherViewerPayload,
     getSkillCooldownRemaining,
     isSkillIndexBlockedForActor,

@@ -1,7 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
-const { resolvePendingTurnSkills } = require('../battleLogic.js');
+const { resolvePendingTurnSkills, resolveMoltresFireSpinTeamDamage } = require('../battleLogic.js');
 const characters = require('../characters.js');
 
 const articunoIndex = characters.findIndex((character) => character?.id === 'articuno');
@@ -171,6 +171,32 @@ test('Articuno Sheer Cold escalates and keeps its Ice Beam stun weather-certain 
     assert.equal(match.weather.key, 'snowstorm');
 });
 
+test('Moltres Fire Spin deals 5 affliction damage to the enemy team each turn it is active', () => {
+    const casterUnit = makeUnit(moltresIndex);
+    const enemyUnit = makeUnit(dummyEnemyIndex);
+    const skillIndex = findSkillIndex(moltresIndex, 'moltres-fire-spin');
+    const match = makeMatch({ casterUnit, enemyUnits: [enemyUnit], skillIndex, targetSelection: [] });
+
+    resolvePendingTurnSkills({ match, actingUsername: 'ash', characters });
+    assert.equal(enemyUnit.hp, 100, 'casting Fire Spin deals no immediate damage');
+
+    resolveMoltresFireSpinTeamDamage(match);
+    assert.equal(enemyUnit.hp, 95, 'first tick deals 5 affliction damage');
+
+    resolveMoltresFireSpinTeamDamage(match);
+    assert.equal(enemyUnit.hp, 90, 'second tick deals another 5 while the status is still active');
+});
+
+test('resolveMoltresFireSpinTeamDamage is a no-op when Fire Spin is not active', () => {
+    const casterUnit = makeUnit(moltresIndex);
+    const enemyUnit = makeUnit(dummyEnemyIndex);
+    const match = makeMatch({ casterUnit, enemyUnits: [enemyUnit], skillIndex: 0, targetSelection: [] });
+    match.board.ash = [casterUnit];
+
+    resolveMoltresFireSpinTeamDamage(match);
+    assert.equal(enemyUnit.hp, 100);
+});
+
 test('Moltres Wildfire summons weather and grants bonus Heat from its own cast', () => {
     const casterUnit = makeUnit(moltresIndex, {
         state: {
@@ -197,7 +223,11 @@ test('Moltres Wildfire summons weather and grants bonus Heat from its own cast',
     assert.equal(match.weather.key, 'wildfire');
     assert.equal(match.weather.damageTypeModifiers.Fire, 5);
     assert.equal(match.weather.damageTypeModifiers.Water, -5);
-    assert.deepEqual(match.weather.costTypeModifiers, {}, 'Wildfire no longer modifies Grass/Electric costs');
+    assert.deepEqual(
+        match.weather.costTypeModifiers,
+        { Fire: -1 },
+        'Wildfire discounts Fire skill costs, no longer touches Grass/Electric'
+    );
     const heat = casterUnit.state.statuses.find((status) => status.id === 'moltres_heat');
     assert.equal(heat.metadata.heat, 2, '1 base Heat + 1 weather-synergy bonus from casting Wildfire itself');
 });

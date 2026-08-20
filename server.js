@@ -13575,6 +13575,7 @@ const finalizeTurn = async (match, username, options = {}) => {
         match,
         characters: charactersData,
     });
+    battleLogic.resolveMoltresFireSpinTeamDamage(match);
     if (match._manualSkillActorSlotsByUsername) {
         delete match._manualSkillActorSlotsByUsername;
     }
