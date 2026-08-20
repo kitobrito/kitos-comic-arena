@@ -27355,21 +27355,6 @@ const characters = [
                     },
                     {
                         "type": "apply_status",
-                        "statusId": "machoke_brick_break_stun_disabled",
-                        "duration": 1,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "machoke_brick_break_stun_never"
-                        },
-                        "metadata": {
-                            "harmful": true,
-                            "cannotUseSkillClasses": ["Physical"],
-                            "tooltipText": "This character's Physical skills are stunned."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
                         "statusId": "machop_bulk_up_spent",
                         "duration": 0,
                         "scope": "self",

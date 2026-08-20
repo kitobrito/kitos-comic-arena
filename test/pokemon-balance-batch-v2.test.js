@@ -272,6 +272,44 @@ test('Machop evolves on the second Bulk Up and Machoke has reworked skills', () 
     assert.deepEqual(bulk.energy, ['Random']);
     assert.equal(bulk.cooldown, 2);
     assert.equal(bulk.effects[0].metadata.destructibleDefensePoints, 15);
+    assert.equal(
+        brick.effects.some((effect) => effect.type === 'apply_status' && effect.statusId.includes('stun')),
+        false,
+        'Machoke Brick Break should not carry a dead/unreachable stun effect'
+    );
+});
+
+test('Machoke Brick Break does not stun its target even with Bulk Up active', () => {
+    const machop = byId('machop');
+    const match = createMatch({
+        leftTeam: [characters.indexOf(machop)],
+        rightTeam: [characters.indexOf(byId('hitmonchan'))],
+    });
+    const bulkIndex = machop.skills.findIndex((entry) => entry.id === 'machop-bulk-up');
+    queueSkill({ match, username: 'Left', actorSlot: 0, skillIndex: bulkIndex });
+    match.board.Left[0].state.cooldowns = {};
+    match.chakraPools.Left = { taijutsu: 10, ninjutsu: 10, genjutsu: 10, bloodline: 10 };
+    match.economy.turnCounts.Left += 1;
+    queueSkill({ match, username: 'Left', actorSlot: 0, skillIndex: bulkIndex });
+    assert.ok(match.board.Left[0].state.statuses.some(
+        (status) => status.id === 'machop_machoke_evolution'
+    ));
+
+    match.board.Left[0].state.cooldowns = {};
+    match.chakraPools.Left = { taijutsu: 10, ninjutsu: 10, genjutsu: 10, bloodline: 10 };
+    match.economy.turnCounts.Left += 1;
+    const brickIndex = machop.skills.findIndex((entry) => entry.id === 'machop-brick-break');
+    queueSkill({
+        match, username: 'Left', actorSlot: 0, skillIndex: brickIndex,
+        targetSelection: [{ username: 'Right', slot: 0 }],
+    });
+
+    assert.equal(
+        match.board.Right[0].state.statuses.some((status) => Boolean(status?.metadata?.cannotUseSkillClasses)),
+        false,
+        'Brick Break should not apply a stun status to its target'
+    );
+    assert.equal(match.board.Right[0].hp, 100 - 35 - 20);
 });
 
 test('Brick Break gets its break bonus and Counter cancels damaging skills', () => {
