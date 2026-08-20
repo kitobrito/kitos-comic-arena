@@ -36,7 +36,7 @@ test('a variable preview flashes only the certain portion and appends "+???"; a 
     );
     assert.match(
         script,
-        /label\.textContent = known\s*\?\s*`-\$\{Math\.round\(Number\(damageAmount\)\)\}\$\{uncertain \? ' \+\?\?\?' : ''\}`\s*:\s*'\+\?\?\?';/
+        /label\.textContent = known\s*\?\s*`-\$\{Math\.round\(Number\(damageAmount\)\)\}\$\{uncertain \? ' \+ \?\?\?' : ''\}`\s*:\s*'\+ \?\?\?';/
     );
     assert.match(script, /marker\.className = 'health-bar-damage-flash health-bar-damage-flash-uncertain-only';/);
 });

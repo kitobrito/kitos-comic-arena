@@ -15155,8 +15155,8 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             const label = document.createElement('span');
             label.className = 'health-bar-damage-flash-label';
             label.textContent = known
-                ? `-${Math.round(Number(damageAmount))}${uncertain ? ' +???' : ''}`
-                : '+???';
+                ? `-${Math.round(Number(damageAmount))}${uncertain ? ' + ???' : ''}`
+                : '+ ???';
 
             if (known && flashWidth > 0) {
                 const flash = document.createElement('div');
