@@ -4571,6 +4571,26 @@ body.arena-mode-pokemon .skillimage {
     transition: opacity 400ms ease;
 }
 
+/* --- Ambient full-screen sprite-sheet backdrop, layered underneath the effects below
+   (falling snow, fire glow, lightning) for extra atmosphere. Each weather key points at a
+   different 60-frame strip; the percentage-based background-position trick lets one frame
+   fill the layer at any screen size. --- */
+.weather-fx-vfx-sheet {
+    background-repeat: no-repeat;
+    background-size: 6000% 100%;
+    image-rendering: pixelated;
+    animation: weather-fx-vfx-sheet-play 3.4s steps(60) infinite;
+}
+
+.weather-fx-vfx-sheet.weather-fx-vfx-active {
+    opacity: 0.82;
+}
+
+@keyframes weather-fx-vfx-sheet-play {
+    from { background-position-x: 0%; }
+    to { background-position-x: 100%; }
+}
+
 /* --- Snowstorm: falling snow --- */
 body.weather-fx-snow-active #weather-fx-snow {
     opacity: 1;

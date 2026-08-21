@@ -1259,6 +1259,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, delayMs);
     };
 
+    const WEATHER_VFX_SHEETS = {
+        snowstorm: 'assets/images/PokemonArena/weather-vfx/Snowstorm Sheet.png',
+        wildfire: 'assets/images/PokemonArena/weather-vfx/Wildfire Sheet.png',
+        thunderstorm: 'assets/images/PokemonArena/weather-vfx/Thunderstorm Sheet.png',
+    };
+
     let activeWeatherFxKey = null;
     const setAmbientWeatherFx = (weatherKey) => {
         const normalizedKey = typeof weatherKey === 'string' ? weatherKey : null;
@@ -1274,6 +1280,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.body.classList.toggle('weather-fx-lightning-active', lightningActive);
         stopWeatherFxLightning();
         if (lightningActive) scheduleNextLightningFlash();
+
+        const vfxSheetLayer = document.getElementById('weather-fx-vfx-sheet');
+        if (vfxSheetLayer) {
+            const sheetUrl = normalizedKey ? WEATHER_VFX_SHEETS[normalizedKey] : null;
+            vfxSheetLayer.classList.toggle('weather-fx-vfx-active', Boolean(sheetUrl));
+            setBackgroundImage(vfxSheetLayer, sheetUrl || '');
+        }
     };
 
     const COMIC_SELECTION_SCROLL_URL = 'assets/images/selectionscroll.png';
