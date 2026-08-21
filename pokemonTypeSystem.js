@@ -68,8 +68,8 @@ const skillsByType = {
         'chansey-emergency-life-support', 'chansey-passive-evolution-blissey', 'blissey-eggbomb',
         'blissey-pokemon-center-healing', 'blissey-softboil', 'blissey-emergency-life-support',
         'pidgey-whirlwind', 'pidgey-passive-evolution-pidgeotto', 'pidgeotto-whirlwind',
-        'koffing-self-destruct', 'koffing-smokescreen', 'koffing-weezing-self-destruct',
-        'koffing-weezing-smokescreen', 'zubat-supersonic', 'golbat-supersonic', 'gastly-glare',
+        'koffing-self-destruct', 'koffing-weezing-self-destruct',
+        'zubat-supersonic', 'golbat-supersonic', 'gastly-glare',
         'haunter-glare', 'krabby-harden', 'kingler-harden', 'scyther-swords-dance',
         'scyther-double-team', 'eevee-swift', 'eevee-hidden-power', 'eevee-protect',
         'flareon-double-team', 'magikarp-tackle', 'magikarp-splash', 'magikarp-flail',
@@ -146,6 +146,7 @@ const skillsByType = {
     Poison: [
         'koffing-smog', 'koffing-passive-poison-gas', 'koffing-passive-evolution-weezing',
         'koffing-weezing-passive-poison-gas', 'koffing-weezing-smog',
+        'koffing-smokescreen', 'koffing-weezing-smokescreen',
         'zubat-passive-evolution-golbat', 'ekans-poison-fang', 'ekans-toxic', 'ekans-shed-skin',
         'ekans-passive-evolution-arbok', 'arbok-poison-fang', 'arbok-toxic', 'arbok-shed-skin',
         'vaporeon-acid-armor', 'beedrill-poison-sting', 'beedrill-envenom',
