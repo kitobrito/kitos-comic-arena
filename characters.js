@@ -25813,7 +25813,6 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/eevee/eevee/swift.png",
                 "skilldescription": "Deals 15 damage to all enemies.",
                 "energy": [
-                    "Random",
                     "Random"
                 ],
                 "target": "all-enemy",
@@ -25881,11 +25880,11 @@ const characters = [
                 "id": "eevee-protect",
                 "name": "Protect",
                 "skillimage": "assets/images/PokemonArena/eevee/eevee/protect.png",
-                "skilldescription": "Eevee makes one ally invulnerable for 1 turn.",
+                "skilldescription": "Eevee makes one ally, or herself, invulnerable for 1 turn.",
                 "energy": [
                     "Random"
                 ],
-                "target": "single-ally",
+                "target": "self-or-single-ally",
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [

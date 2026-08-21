@@ -679,7 +679,11 @@ test('experimental battle skin keeps the HUD framed on desktop and mobile', asyn
             skillPanel: bounds('.skillinformation'),
         };
     });
-    expect(desktopLayout.scale).toBe(1);
+    // The board now scales up past its native 770x560 size to fill large desktop
+    // viewports instead of staying pinned at 1 (see EXPERIMENTAL_BATTLE_MAX_SCALE in
+    // scripts/script.js). At the 1440x900 viewport this harness uses, that's
+    // min(1.6, (1440-12)/770, (900-12)/560) = 888/560.
+    expect(desktopLayout.scale).toBeCloseTo(888 / 560, 4);
     expect(desktopLayout.hud.y).toBeGreaterThanOrEqual(0);
     expect(desktopLayout.skillPanel.y + desktopLayout.skillPanel.height).toBeLessThanOrEqual(900);
     expect(desktopLayout.playerTeam.x).toBeLessThan(desktopLayout.enemyTeam.x);

@@ -303,7 +303,11 @@ html.battle-experimental .character-card {
     width: 75px;
     height: 92px;
     flex-basis: 92px;
-    filter: drop-shadow(0 5px 8px rgba(0, 0, 0, 0.42));
+    /* box-shadow, not filter: drop-shadow — filter creates a stacking context that
+       would trap .target-damage-preview's z-index inside this card, keeping the
+       hover tooltip from rendering above a neighboring card in the tight vertical
+       team stack. */
+    box-shadow: 0 5px 8px rgba(0, 0, 0, 0.42);
 }
 
 html.battle-experimental .character-face {
@@ -807,7 +811,15 @@ html.battle-experimental .backgroundingame:-webkit-full-screen {
     html.battle-experimental .ingame-sound-controller {
         max-width: 250px;
     }
+}
 
+/* The floating touch dock (big tap-friendly Options button) is only appropriate for
+   an actual touch device. Gating it on max-height alone meant any short-but-wide
+   desktop browser window (a common laptop size, not a phone) got a phone-sized
+   button rendered next to a desktop-scaled board, making it look oversized. Narrow
+   width still implies a phone/tablet regardless of pointer type; a merely short
+   window only counts when it's also a coarse (touch) pointer. */
+@media (max-width: 780px), ((max-height: 570px) and (pointer: coarse)) {
     html.battle-experimental .mobile-ingame-options-dock {
         position: fixed;
         inset: 0;

@@ -3232,6 +3232,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 });
             });
         }
+        const EXPERIMENTAL_BATTLE_MAX_SCALE = 1.6;
         const syncExperimentalBattleScale = () => {
             if (!experimentalBattleRoot) return;
             if (!isExperimentalBattleLayout()) {
@@ -3246,8 +3247,13 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 window.innerHeight,
                 window.visualViewport?.height || window.innerHeight
             );
+            // The board is designed at a fixed 770x560 canvas and scaled to fit. Capping
+            // at 1 meant it never grew past its native size, so a maximized desktop
+            // window left it looking small in a sea of black background (players had to
+            // zoom the browser itself to compensate). Let it scale up too, bounded so
+            // raster art doesn't get upscaled past a soft-looking point.
             const scale = Math.min(
-                1,
+                EXPERIMENTAL_BATTLE_MAX_SCALE,
                 Math.max(0.3, (viewportWidth - 12) / 770),
                 Math.max(0.3, (viewportHeight - 12) / 560)
             );
