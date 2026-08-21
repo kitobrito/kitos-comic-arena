@@ -18692,6 +18692,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             portraitEl.classList.remove('form-swapping');
             void portraitEl.offsetWidth;
             portraitEl.classList.add('form-swapping');
+            window.setTimeout(() => portraitEl.classList.remove('form-swapping'), 280);
             loadSelectionPreviewImage(
                 portraitEl,
                 activeSource || character.facePicture || (activeArenaMode === 'pokemon' ? POKEMON_FOUND_ICON_URL : ''),
@@ -19058,6 +19059,26 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         slot.removeAttribute('tabindex');
         slot.removeAttribute('aria-selected');
         slot.classList.remove('keyboard-highlighted');
+        slot.style.removeProperty('--slot-type-glow-a');
+        slot.style.removeProperty('--slot-type-glow-b');
+    };
+
+    const rosterHoverTickSound = isSelectionPage ? new Audio('assets/images/PokemonArena/sfx/UI Hover.mp3') : null;
+    const rosterConfirmSound = isSelectionPage ? new Audio('assets/images/PokemonArena/sfx/UI Select.mp3') : null;
+
+    const applyRosterSlotTypeGlow = (slot, character) => {
+        const types = (Array.isArray(character?.pokemonTypes) ? character.pokemonTypes : [])
+            .map((type) => String(type || '').trim().toLowerCase())
+            .filter(Boolean);
+        const colorA = types[0] ? POKEMON_EVOLUTION_TYPE_COLORS[types[0]] : null;
+        if (!colorA) {
+            slot.style.removeProperty('--slot-type-glow-a');
+            slot.style.removeProperty('--slot-type-glow-b');
+            return;
+        }
+        const colorB = types[1] ? POKEMON_EVOLUTION_TYPE_COLORS[types[1]] || colorA : colorA;
+        slot.style.setProperty('--slot-type-glow-a', colorA);
+        slot.style.setProperty('--slot-type-glow-b', colorB);
     };
 
     const buildRosterSlot = (index) => {
@@ -19074,12 +19095,15 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             delete slot.dataset.characterInitial;
             slot.removeAttribute('aria-label');
             slot.removeAttribute('tabindex');
+            slot.style.removeProperty('--slot-type-glow-a');
+            slot.style.removeProperty('--slot-type-glow-b');
             return;
         }
         slot.classList.remove('slot-empty');
         slot.classList.toggle('slot-locked', locked);
         slot.draggable = false;
         slot.dataset.characterInitial = String(character.name || '?').trim().charAt(0).toUpperCase() || '?';
+        applyRosterSlotTypeGlow(slot, character);
         slot.setAttribute(
             'aria-label',
             locked
@@ -19141,7 +19165,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         });
     };
 
-    const setSelectedSlot = (slotIndex, assignment) => {
+    const setSelectedSlot = (slotIndex, assignment, options = {}) => {
         const slotElement = selectedSlots[slotIndex];
         if (!slotElement) return;
         if (assignment && isCharacterLocked(roster[assignment.characterIndex])) {
@@ -19178,6 +19202,12 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             startSelectionPointerDrag(event, { type: 'selected', selectedIndex: slotIndex }, img)
         );
         slotElement.appendChild(img);
+        if (options.confirm) {
+            slotElement.classList.remove('selected-slot-confirm-burst');
+            void slotElement.offsetWidth;
+            slotElement.classList.add('selected-slot-confirm-burst');
+            soundManager.play(rosterConfirmSound);
+        }
         handleCharacterSelect(assignment.characterIndex, { openViewer: false });
     };
 
@@ -19190,7 +19220,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             const incoming = { characterIndex: payload.rosterIndex, rosterIndex: payload.rosterIndex };
             const displaced = selectedAssignments[targetSlotIndex];
             clearRosterSlot(payload.rosterIndex);
-            setSelectedSlot(targetSlotIndex, incoming);
+            setSelectedSlot(targetSlotIndex, incoming, { confirm: true });
             if (displaced && Number.isInteger(displaced.rosterIndex)) {
                 fillRosterSlot(displaced.rosterIndex);
             }
@@ -19286,7 +19316,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         const emptySlotIndex = selectedAssignments.findIndex((assignment) => !assignment);
         if (emptySlotIndex < 0) return;
         clearRosterSlot(rosterIndex);
-        setSelectedSlot(emptySlotIndex, { characterIndex: rosterIndex, rosterIndex });
+        setSelectedSlot(emptySlotIndex, { characterIndex: rosterIndex, rosterIndex }, { confirm: true });
         updateGameButtons();
         persistTeamSelection();
     };
@@ -19883,7 +19913,11 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             listItem.addEventListener('click', handleClick);
             listItem.addEventListener('dblclick', handleDoubleClick);
             listItem.addEventListener('pointerenter', () => {
-                if (Number.isInteger(rosterIndex)) preloadCharacterPreview(roster[rosterIndex]);
+                if (!Number.isInteger(rosterIndex)) return;
+                preloadCharacterPreview(roster[rosterIndex]);
+                if (!listItem.classList.contains('slot-empty')) {
+                    soundManager.play(rosterHoverTickSound);
+                }
             });
             listItem.addEventListener('pointerdown', () => {
                 if (Number.isInteger(rosterIndex)) preloadCharacterPreview(roster[rosterIndex]);

@@ -1505,6 +1505,32 @@ body.arena-mode-pokemon .selectionscroll {
     pointer-events: none;
 }
 
+.slot-item:not(.slot-empty) {
+    transition: box-shadow 160ms ease;
+}
+
+.slot-item:not(.slot-empty):not(.slot-locked):hover {
+    box-shadow:
+        -7px 0 16px 0 var(--slot-type-glow-a, transparent),
+        7px 0 16px 0 var(--slot-type-glow-b, transparent);
+}
+
+@keyframes selected-slot-confirm-pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.65), 0 0 0 0 rgba(255, 228, 50, 0.85);
+    }
+    40% {
+        box-shadow: 0 0 16px 6px rgba(255, 255, 255, 0.4), 0 0 30px 12px rgba(255, 228, 50, 0.55);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0), 0 0 0 0 rgba(255, 228, 50, 0);
+    }
+}
+
+.selected-character-slot.selected-slot-confirm-burst {
+    animation: selected-slot-confirm-pulse 520ms ease-out;
+}
+
 .slot-item.slot-locked,
 .slot-image.slot-locked {
     opacity: 0.6;
@@ -2257,6 +2283,18 @@ body.arena-mode-pokemon .skillviewer::after {
     height: 75px;
     border: 1px solid #000;
     transition: opacity 90ms ease;
+    animation: character-portrait-idle-breathe-classic 4200ms ease-in-out infinite;
+}
+
+@keyframes character-portrait-idle-breathe-classic {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.035); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .character-portrait {
+        animation: none;
+    }
 }
 
 .skill-images {

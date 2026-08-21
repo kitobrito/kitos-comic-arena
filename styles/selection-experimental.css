@@ -397,6 +397,18 @@ html.selection-experimental .character-portrait {
     object-fit: cover;
     transform: translateX(-50%);
     box-shadow: 0 14px 32px rgba(0, 0, 0, 0.5);
+    animation: character-portrait-idle-breathe-experimental 4200ms ease-in-out infinite;
+}
+
+@keyframes character-portrait-idle-breathe-experimental {
+    0%, 100% { transform: translateX(-50%) scale(1); }
+    50% { transform: translateX(-50%) scale(1.025); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html.selection-experimental .character-portrait {
+        animation: none;
+    }
 }
 
 html.selection-experimental .character-evolution-shadow {
@@ -734,7 +746,11 @@ html.selection-experimental .slot-item:not(.slot-locked):hover {
     z-index: 3;
     transform: translateY(-5px) skew(-8deg) scale(1.04);
     border-color: #ffe143;
-    box-shadow: 0 0 0 2px rgba(255, 225, 67, 0.42), 0 12px 22px rgba(0, 0, 0, 0.55);
+    box-shadow:
+        0 0 0 2px rgba(255, 225, 67, 0.42),
+        0 12px 22px rgba(0, 0, 0, 0.55),
+        -8px 0 18px 0 var(--slot-type-glow-a, transparent),
+        8px 0 18px 0 var(--slot-type-glow-b, transparent);
 }
 
 html.selection-experimental .slot-item.keyboard-highlighted {
