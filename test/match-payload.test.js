@@ -656,7 +656,10 @@ test('buildMatchPayloadForUser preserves pokemon arena and hides opponent cooldo
     assert.deepEqual(payload.pendingTurn.queueOrder, [0]);
     assert.deepEqual(payload.board.ash[0].state.cooldowns, { 'skill-a': 2 });
     assert.equal(payload.board.gary[0].state.cooldowns, undefined);
-    assert.equal(payload.backgroundOverride, 'assets/images/PokemonArena/newbattlepic/1783150082785.png');
+    assert.equal(
+        payload.backgroundOverride,
+        'assets/images/PokemonArena/backgrounds%20and%20weather/Default%20Background.jpg'
+    );
 });
 
 test('buildMatchPayloadForUser preserves status icon URLs for client passive icons', () => {
