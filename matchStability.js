@@ -88,6 +88,10 @@ const createMatchCommandCoordinator = ({ logger = console } = {}) => {
     return {
         execute,
         getActiveLaneCount: () => lanes.size,
+        // Lets a background job (e.g. abandoned-match cleanup) avoid racing a match
+        // that merely has a command in flight -- not actually abandoned -- by skipping
+        // any matchId this coordinator currently considers busy.
+        getActiveLaneMatchIds: () => Array.from(lanes.keys()),
     };
 };
 

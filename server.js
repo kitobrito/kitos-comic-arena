@@ -10642,11 +10642,11 @@ const advanceExpiredMatchAndBroadcast = async (matchId) => {
     return advanced;
 };
 
-const buildAbandonedActiveMatchFilter = (now = new Date()) => {
+const buildAbandonedActiveMatchFilter = (now = new Date(), { excludeMatchIds = [] } = {}) => {
     const nowMs = now instanceof Date ? now.getTime() : new Date(now).getTime();
     const safeNowMs = Number.isFinite(nowMs) ? nowMs : Date.now();
     const cutoff = new Date(safeNowMs - ABANDONED_ACTIVE_MATCH_MS);
-    return {
+    const filter = {
         status: 'active',
         $or: [
             { turnExpiresAt: { $lte: cutoff } },
@@ -10656,13 +10656,22 @@ const buildAbandonedActiveMatchFilter = (now = new Date()) => {
             },
         ],
     };
+    if (Array.isArray(excludeMatchIds) && excludeMatchIds.length > 0) {
+        filter.matchId = { $nin: excludeMatchIds };
+    }
+    return filter;
 };
 
 const retireAbandonedActiveMatches = async (now = new Date()) => {
     if (!matchesCollection) return { matchedCount: 0, modifiedCount: 0 };
     const endedAt = now instanceof Date ? now : new Date(now);
+    // A match with a currently in-flight command lane is not abandoned -- it just has
+    // an action mid-flight (possibly a slow one the lane watchdog hasn't released yet).
+    // Force-ending it out from under that command would look, to the player, exactly
+    // like their turn/skill action silently failing right before "match ended".
+    const activeLaneMatchIds = matchCommandCoordinator.getActiveLaneMatchIds();
     const result = await matchesCollection.updateMany(
-        buildAbandonedActiveMatchFilter(endedAt),
+        buildAbandonedActiveMatchFilter(endedAt, { excludeMatchIds: activeLaneMatchIds }),
         {
             $set: {
                 status: 'ended',
@@ -10858,6 +10867,12 @@ let privateQueue = [];
 const quickMatches = new Map(); // matchId -> { players, createdAt }
 const userToMatch = new Map(); // username -> { matchId, opponent }
 const battleBotMatchCreations = new Map(); // normalized queue key -> in-flight match promise
+// Guards the human-pairing critical section in /api/match/join: without this, two
+// concurrent join requests from the same user (a double-click, or a client retry
+// after a slow response) can both pass the stale userToMatch check and each
+// independently dequeue and pair with a DIFFERENT real waiting opponent, silently
+// orphaning one of them in a match this user never plays.
+const matchmakingJoinInFlight = new Set();
 const draftSessions = new Map(); // draftId -> draft state
 const userToDraft = new Map(); // username -> draftId
 const DRAFT_BAN_COUNT = 5;
@@ -13198,7 +13213,7 @@ const queueSkillForActorSlot = ({
     }
     const actorBoard = match.board?.[username] || [];
     const actorUnit = actorBoard[actorSlot];
-    if (!actorUnit || actorUnit.alive === false) {
+    if (!actorUnit || actorUnit.alive === false || battleLogic.isUnitBanished(actorUnit)) {
         throw new Error('Actor is unavailable.');
     }
     const actorState = battleLogic.getUnitState(match, username, actorSlot);
@@ -13437,16 +13452,32 @@ const exchangeChakra = ({ match, username, chakraType, cost = 2, spendAssignment
         }
     }
 
+    // Simulate the exchange on a scratch copy first. A queued skill may have already
+    // reserved random chakra via pendingTurns[username].unresolvedRandom; if this
+    // exchange would drop the pool's total below that reservation, the player would be
+    // left unable to ever finish assigning it, permanently blocking turn-end. Refuse
+    // the exchange outright instead of committing it and stranding them.
+    const projectedPool = { ...pool };
     if (normalizedAssignments) {
         chakraTypes.forEach((type) => {
-            pool[type] = Math.max(0, (Number(pool[type]) || 0) - (normalizedAssignments[type] || 0));
+            projectedPool[type] = Math.max(0, (Number(projectedPool[type]) || 0) - (normalizedAssignments[type] || 0));
         });
     } else {
-        const spendType = chakraTypes.find((type) => (Number(pool[type]) || 0) >= exchangeCost);
+        const spendType = chakraTypes.find((type) => (Number(projectedPool[type]) || 0) >= exchangeCost);
         if (!spendType) throw new Error('Unable to exchange chakra.');
-        pool[spendType] = Math.max(0, (Number(pool[spendType]) || 0) - exchangeCost);
+        projectedPool[spendType] = Math.max(0, (Number(projectedPool[spendType]) || 0) - exchangeCost);
     }
-    pool[chakraType] = (Number(pool[chakraType]) || 0) + 1;
+    projectedPool[chakraType] = (Number(projectedPool[chakraType]) || 0) + 1;
+
+    const pendingForExchange = getPendingTurn(match, username);
+    const unresolvedRandomForExchange = Math.max(0, Number(pendingForExchange.unresolvedRandom) || 0);
+    if (unresolvedRandomForExchange > 0 && getTotalChakra(projectedPool) < unresolvedRandomForExchange) {
+        throw new Error('This exchange would leave too little chakra for a skill you already queued this turn.');
+    }
+
+    chakraTypes.forEach((type) => {
+        pool[type] = projectedPool[type];
+    });
     match.chakraPools[username] = pool;
 };
 
@@ -13570,6 +13601,15 @@ const finalizeTurn = async (match, username, options = {}) => {
     const pools = match.chakraPools;
     match.pendingTurns = match.pendingTurns || {};
     const blockedActorGainCount = getTeamStatusFlagCount(match, username, 'preventNextTurnChakraGain');
+    if (options.expired) {
+        // A manual turn/end refuses to run while unresolvedRandom > 0 (see the
+        // 'unresolved-random' rejection on the route). A forced/expired turn-end has no
+        // such gate and previously ran resolvePendingTurnSkills regardless, letting a
+        // queued skill's outstanding random-chakra cost go unpaid. Auto-assign whatever
+        // chakra remains -- the same mechanism a battle bot's own turn already uses --
+        // so a manual and a forced turn-end charge the identical amount.
+        assignBattleBotRandomChakra({ match, username });
+    }
     const pendingTurnBeforeResolve = getPendingTurn(match, username);
     const hpBeforeResolve = snapshotBattleHpByUsername(match);
     battleLogic.resolvePendingTurnSkills({
@@ -14482,7 +14522,15 @@ app.post('/api/match/join', requireSession, async (req, res) => {
             return res.status(403).json({ error: error.message || 'Character is locked.' });
         }
 
-        // Try to pair with waiting opponent
+        // Try to pair with waiting opponent. Guarded per-username: two concurrent join
+        // requests here must not both dequeue a real opponent for the same user.
+        if (matchmakingJoinInFlight.has(username)) {
+            return res.status(409).json({
+                error: 'Your previous match request is still being processed. Please try again in a moment.',
+            });
+        }
+        matchmakingJoinInFlight.add(username);
+        try {
         const opponent = mode === 'private'
             ? dequeuePrivateOpponent(username, targetUsername, arena)
             : dequeueOpponent(username, mode, draftMode, arena);
@@ -14607,6 +14655,9 @@ app.post('/api/match/join', requireSession, async (req, res) => {
             ladderLevel: Number(getProfileArenaState(profile, arena)?.ladder?.level) || 1,
         });
         return res.json({ ok: true, queued: true, mode, arena });
+        } finally {
+            matchmakingJoinInFlight.delete(username);
+        }
     } catch (error) {
         console.error('Matchmaking error:', error);
         return res.status(500).json({ error: 'Internal server error.' });

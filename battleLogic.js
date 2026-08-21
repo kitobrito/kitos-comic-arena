@@ -6754,6 +6754,43 @@ const collectPreChannelCancelChakraGains = ({ match, skill, queued, actorUnit, a
     return matchedEffects;
 };
 
+// Chakra for a queued skill is reserved up front, at queue time (server.js
+// queueSkillForActorSlot), long before this function decides whether that skill
+// actually fires. If a queued action turns out to be unusable by the time its turn
+// comes to resolve -- its unit died or was banished, its skill went on cooldown, a
+// status now blocks it, etc. -- nothing else in this file ever returns that chakra.
+// This refunds the specific-type reservation exactly, and returns as much of the
+// random-type reservation as is still traceable via this turn's randomAssignments
+// (pendingTurns get wiped right after finalizeTurn regardless, so this only needs to
+// keep the running total correct within this same resolution pass, not any state that
+// outlives it).
+const refundReservedChakraForSkippedAction = ({ match, username, pending, entry }) => {
+    if (!match || !username || !entry) return;
+    const pool = match.chakraPools?.[username];
+    if (!pool) return;
+    const reservedSpecific =
+        entry.reservedSpecific && typeof entry.reservedSpecific === 'object' ? entry.reservedSpecific : {};
+    Object.keys(reservedSpecific).forEach((type) => {
+        const amount = Number(reservedSpecific[type]) || 0;
+        if (amount > 0) {
+            pool[type] = (Number(pool[type]) || 0) + amount;
+        }
+    });
+    let requiredRandomRemaining = Math.max(0, Number(entry.requiredRandom) || 0);
+    if (requiredRandomRemaining > 0 && pending?.randomAssignments && typeof pending.randomAssignments === 'object') {
+        Object.keys(pending.randomAssignments).forEach((type) => {
+            if (requiredRandomRemaining <= 0) return;
+            const available = Math.max(0, Number(pending.randomAssignments[type]) || 0);
+            if (available <= 0) return;
+            const refundAmount = Math.min(available, requiredRandomRemaining);
+            pending.randomAssignments[type] = available - refundAmount;
+            pool[type] = (Number(pool[type]) || 0) + refundAmount;
+            requiredRandomRemaining -= refundAmount;
+        });
+    }
+    match.chakraPools[username] = pool;
+};
+
 const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
     if (!match || !actingUsername) return;
     const pending = match.pendingTurns?.[actingUsername];
@@ -6822,11 +6859,31 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
         const actorSlot = Number.parseInt(queued?.actorSlot, 10);
         if (!Number.isInteger(actorSlot) || actorSlot < 0) continue;
 
+        // A manually-queued skill had its chakra reserved back when it was queued
+        // (server.js queueSkillForActorSlot). If it turns out to be unusable by the
+        // time we get here -- dead/banished unit, expired cooldown, a status that now
+        // blocks it -- refund that reservation instead of silently erasing it.
+        const refundSkippedQueuedAction = () => {
+            if (queued?.isAutoCast) return;
+            refundReservedChakraForSkippedAction({
+                match,
+                username: actingUsername,
+                pending,
+                entry: pending.queuedByActorSlot?.[String(actorSlot)],
+            });
+        };
+
         const actorUnit = actorBoard[actorSlot];
-        if (!actorUnit || actorUnit.alive === false || isUnitBanished(actorUnit)) continue;
+        if (!actorUnit || actorUnit.alive === false || isUnitBanished(actorUnit)) {
+            refundSkippedQueuedAction();
+            continue;
+        }
 
         const actorState = ensureUnitStateShape(actorUnit);
-        if (getStatusMetadataTotals(actorState).cannotUseSkills) continue;
+        if (getStatusMetadataTotals(actorState).cannotUseSkills) {
+            refundSkippedQueuedAction();
+            continue;
+        }
 
         // Snapshotted before the generic onOwnerUseSkillTrigger cleanup below removes
         // zapdos_charge on any skill cast (including Zap Cannon itself).
@@ -6846,18 +6903,29 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
             ? actorCharacter.skills[queued.skillIndex]
             : null;
         const skill = getSkillByIndices(characters, actorUnit.rosterIndex, queued.skillIndex, actorState);
-        if (!skill) continue;
+        if (!skill) {
+            refundSkippedQueuedAction();
+            continue;
+        }
         const cooldownSkillId =
             skill?.useBaseSkillCooldown && baseSkill?.id ? baseSkill.id : skill.id || baseSkill?.id || null;
         if (!queued?.isAutoCast && cooldownSkillId && getSkillCooldownRemaining(actorState, cooldownSkillId) > 0) {
+            refundSkippedQueuedAction();
             continue;
         }
-        if (isSkillIndexBlockedForActor(actorState, queued.skillIndex)) continue;
+        if (isSkillIndexBlockedForActor(actorState, queued.skillIndex)) {
+            refundSkippedQueuedAction();
+            continue;
+        }
 
         const blockedByCannotUseHarmfulSkills =
             hasStatusMetadataFlag(actorState, 'cannotUseHarmfulSkills') && skillHasHarmfulEffects(skill);
-        if (blockedByCannotUseHarmfulSkills) continue;
+        if (blockedByCannotUseHarmfulSkills) {
+            refundSkippedQueuedAction();
+            continue;
+        }
         if (hasStatusMetadataFlag(actorState, 'cannotUseHelpfulSkills') && !skillHasHarmfulEffects(skill)) {
+            refundSkippedQueuedAction();
             continue;
         }
         const blockedSkillClasses = new Set(
@@ -6877,6 +6945,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 blockedSkillClasses.has(typeof entry === 'string' ? entry.trim().toLowerCase() : '')
             )
         ) {
+            refundSkippedQueuedAction();
             continue;
         }
         const blockedSkillIds = new Set(
@@ -6888,6 +6957,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
             })
         );
         if (blockedSkillIds.size > 0 && skill?.id && blockedSkillIds.has(skill.id)) {
+            refundSkippedQueuedAction();
             continue;
         }
         const skillFailChancePercent = Math.max(
@@ -6902,6 +6972,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
             hasStatusMetadataFlag(actorState, 'cannotUseNonMentalSkills') &&
             !hasSkillClass(skill?.classes || [], 'mental')
         ) {
+            refundSkippedQueuedAction();
             continue;
         }
         if (skill?.id) {

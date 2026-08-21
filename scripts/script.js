@@ -8810,6 +8810,12 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             if (!matchIdFromUrl) return;
             clearActiveTargetSelectionState();
             const resolutionAnimationEntries = getQueuedResolutionAnimationEntries();
+            // Every fetchMatchCommand call is serialized onto one shared request chain, so
+            // an auto-end-turn fired right as a skill/queue request is still in flight would
+            // otherwise sit behind that request's own timeout window before this one even
+            // starts. Give any in-flight skill queue a bounded chance to land first, same as
+            // the manual end-turn confirm already does.
+            await waitForPendingSkillQueues(4000);
             try {
                 const response = await fetchMatchCommand(`${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/turn/end`, {
                     method: 'POST',
@@ -14810,6 +14816,15 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                                 recoveryMessage: 'Refreshing your queued turn...',
                             }
                         );
+                    } else if (error?.name === 'MatchCommandTimeoutError') {
+                        // The client gave up waiting, but the server never saw that --
+                        // it can still commit this queue request moments from now. Say
+                        // so instead of silently reverting the skill icon with no
+                        // explanation, which reads as "the game ate my input."
+                        announceMatchIssue(
+                            'Still waiting to hear back about that skill. Resyncing -- it may already be queued.',
+                            { tone: 'info', reason: 'queue-skill-timeout' }
+                        );
                     }
                     recoverCurrentMatchState({
                         reason: 'queue-skill',
@@ -15790,6 +15805,18 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             } catch (error) {
                 console.warn('Failed to end turn.', error);
                 if (isSilentMatchRecoveryError(error)) {
+                    if (error?.name === 'MatchCommandTimeoutError') {
+                        // The request timed out client-side, but the server has no way
+                        // to know we gave up -- it can still commit this turn-end
+                        // moments from now. Say so explicitly instead of leaving the
+                        // player with zero feedback, and tell them not to just click
+                        // again (a real click debounce is handled by isEndingTurn, but
+                        // the underlying request itself is not idempotent).
+                        setEndTurnModalStatus(
+                            'Still waiting to hear back from the server about your turn. Please wait -- resyncing...',
+                            'info'
+                        );
+                    }
                     const recovered = await recoverCurrentMatchState({
                         reason: 'end-turn',
                         message: 'Retrying match sync after turn submit...',
