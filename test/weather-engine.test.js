@@ -367,3 +367,116 @@ test('a set_weather skill effect resolved through resolvePendingTurnSkills popul
     assert.equal(match.weather.sourceSkillId, 'test-summon-sunny-day');
     assert.equal(match.weather.excludeSkillId, 'test-summon-sunny-day');
 });
+
+test('applyDamageToUnit applies Polluted Air\'s Poison bonus and excludes Smokescreen itself', () => {
+    const match = {
+        turnNumber: 0,
+        weather: {
+            key: 'pollutedair',
+            excludeSkillId: 'koffing-smokescreen',
+            damageTypeModifiers: { Poison: 5 },
+            afflictionDamageBonusFlat: 0,
+        },
+    };
+
+    const poisonMoveTarget = makeUnit();
+    const poisonDealt = applyDamageToUnit(poisonMoveTarget, 10, {
+        match,
+        sourceUsername: 'ash',
+        targetUsername: 'gary',
+        sourceSkillId: 'koffing-sludge',
+        skillClasses: ['Poison', 'Special'],
+    });
+    assert.equal(poisonDealt, 15, 'Poison move should gain the +5 Polluted Air bonus');
+
+    const smokescreenTarget = makeUnit();
+    const smokescreenDealt = applyDamageToUnit(smokescreenTarget, 10, {
+        match,
+        sourceUsername: 'ash',
+        targetUsername: 'gary',
+        sourceSkillId: 'koffing-smokescreen',
+        skillClasses: ['Poison', 'Special'],
+    });
+    assert.equal(smokescreenDealt, 10, 'Smokescreen should not buff its own damage from the weather it summons');
+});
+
+test('tickWeatherForTurnEnd deals Polluted Air chip damage to non-Poison units only', () => {
+    const poisonCharacter = { id: 'test-poison-mon', pokemonTypes: ['Poison'] };
+    const normalCharacter = { id: 'test-normal-mon-2', pokemonTypes: ['Normal'] };
+    const characters = [poisonCharacter, normalCharacter];
+
+    const poisonUnit = makeUnit({ rosterIndex: 0 });
+    const normalUnit = makeUnit({ rosterIndex: 1 });
+    const match = {
+        turnNumber: 1,
+        board: { ash: [poisonUnit], gary: [normalUnit] },
+        weather: {
+            key: 'pollutedair',
+            roundsRemaining: 4,
+            totalRounds: 4,
+            lastDecrementTurnNumber: 0,
+            periodicNonTypeDamage: { amount: 5, immuneTypes: ['Poison'] },
+        },
+    };
+
+    tickWeatherForTurnEnd({ match, characters });
+    assert.equal(poisonUnit.hp, 100, 'Poison-type unit should be immune to Polluted Air chip damage');
+    assert.equal(normalUnit.hp, 95, 'non-Poison unit should take the 5 affliction damage tick');
+});
+
+test('Polluted Air grants Poison type Pokemon bonus evasion against enemy skills', () => {
+    const characters = [
+        {
+            id: 'test-attacker',
+            skills: [
+                {
+                    id: 'test-tackle',
+                    classes: ['Normal', 'Physical', 'Instant'],
+                    target: 'single-enemy',
+                    effects: [{ type: 'damage', scope: 'target', amount: 10 }],
+                },
+            ],
+        },
+        { id: 'test-poison-defender', pokemonTypes: ['Poison'], skills: [] },
+        { id: 'test-normal-defender', pokemonTypes: ['Normal'], skills: [] },
+    ];
+
+    const makeWeatherMatch = (defenderRosterIndex) => ({
+        players: [{ username: 'ash' }, { username: 'gary' }],
+        turnNumber: 0,
+        weather: {
+            key: 'pollutedair',
+            roundsRemaining: 4,
+            totalRounds: 4,
+            lastDecrementTurnNumber: 0,
+            evasionBonusByType: { Poison: 100 },
+        },
+        board: {
+            ash: [makeUnit({ rosterIndex: 0 })],
+            gary: [makeUnit({ rosterIndex: defenderRosterIndex })],
+        },
+        chakraPools: {
+            ash: { taijutsu: 0, ninjutsu: 0, genjutsu: 0, bloodline: 0 },
+            gary: { taijutsu: 0, ninjutsu: 0, genjutsu: 0, bloodline: 0 },
+        },
+        pendingTurns: {
+            ash: {
+                queueOrder: ['0'],
+                queuedByActorSlot: {
+                    '0': { skillIndex: 0, targetSelection: [{ username: 'gary', slot: 0 }] },
+                },
+            },
+        },
+        pendingActions: [],
+        pendingQueuedEffects: [],
+        economy: { turnCounts: { ash: 1, gary: 1 } },
+    });
+
+    const poisonMatch = makeWeatherMatch(1);
+    resolvePendingTurnSkills({ match: poisonMatch, actingUsername: 'ash', characters });
+    assert.equal(poisonMatch.board.gary[0].hp, 100, 'a Poison type Pokemon should evade with a 100% weather-granted chance');
+
+    const normalMatch = makeWeatherMatch(2);
+    resolvePendingTurnSkills({ match: normalMatch, actingUsername: 'ash', characters });
+    assert.equal(normalMatch.board.gary[0].hp, 90, 'a non-Poison Pokemon should not gain any evasion from Polluted Air');
+});

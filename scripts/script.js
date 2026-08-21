@@ -1092,6 +1092,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         snowstorm: 'assets/images/PokemonArena/backgrounds%20and%20weather/Snowstorm.jpg',
         wildfire: 'assets/images/PokemonArena/backgrounds%20and%20weather/Wildfire.jpg',
         thunderstorm: 'assets/images/PokemonArena/backgrounds%20and%20weather/Lightning%20Storm.jpg',
+        pollutedair: 'assets/images/PokemonArena/backgrounds%20and%20weather/Polluted%20Air.jpg',
     };
     const getPokemonWeatherBackgroundUrl = (weatherKey = '') =>
         POKEMON_WEATHER_BACKGROUND_URLS[typeof weatherKey === 'string' ? weatherKey.trim() : ''] || '';

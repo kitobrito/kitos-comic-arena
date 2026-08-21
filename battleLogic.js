@@ -65,6 +65,7 @@ const setWeather = (match, weatherConfig = {}) => {
         damageTypeModifiers: { ...(weatherConfig.damageTypeModifiers || {}) },
         afflictionDamageBonusFlat: Number(weatherConfig.afflictionDamageBonusFlat) || 0,
         costTypeModifiers: { ...(weatherConfig.costTypeModifiers || {}) },
+        evasionBonusByType: { ...(weatherConfig.evasionBonusByType || {}) },
         evasionImmuneTypes: Array.isArray(weatherConfig.evasionImmuneTypes)
             ? [...weatherConfig.evasionImmuneTypes]
             : [],
@@ -103,6 +104,15 @@ const weatherEvasionImmune = (match, { moveType } = {}) => {
     const weather = match?.weather;
     if (!weather || !moveType) return false;
     return Array.isArray(weather.evasionImmuneTypes) && weather.evasionImmuneTypes.includes(moveType);
+};
+
+// Lets a weather config read `evasionBonusByType: {Type: percent}` to grant flat evasion to any
+// unit whose active Pokemon types include that type, for as long as the weather is active.
+const weatherEvasionBonusForActiveTypes = (match, activeTypes = []) => {
+    const weather = match?.weather;
+    if (!weather || !Array.isArray(activeTypes) || !activeTypes.length) return 0;
+    const bonusByType = weather.evasionBonusByType || {};
+    return activeTypes.reduce((sum, type) => sum + (Number(bonusByType[type]) || 0), 0);
 };
 
 const weatherCostModifierFor = (match, { moveType } = {}) => {
@@ -8120,7 +8130,17 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 targetState,
                 skillClasses: skill.classes || [],
                 isEnemySkill,
-            });
+            }) + weatherEvasionBonusForActiveTypes(
+                match,
+                getActivePokemonTypes({
+                    character: resolveEffectiveCharacter({
+                        characters,
+                        rosterIndex: recipient.unit.rosterIndex,
+                        actorState: targetState,
+                    }),
+                    unit: recipient.unit,
+                })
+            );
             const evasionBlockedByWeather = weatherEvasionImmune(match, {
                 moveType: weatherEffectiveMoveType(match, getPokemonMoveType(skill.classes || [])),
             });

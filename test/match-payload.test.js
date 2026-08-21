@@ -410,7 +410,7 @@ test('batch evolution, Smokescreen, and Scyther changes survive stored overrides
     ).energy, ['Random']);
     assert.deepEqual(correctedKoffing.skills.find(
         (skill) => skill.id === 'koffing-weezing-smokescreen'
-    ).energy, ['Random', 'Random']);
+    ).energy, ['Random']);
 
     const correctedDoubleTeam = corrected.find(
         (character) => character.id === 'scyther'

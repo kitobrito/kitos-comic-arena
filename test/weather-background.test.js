@@ -11,6 +11,7 @@ test('every referenced weather/default arena background file exists locally', ()
         'assets/images/PokemonArena/backgrounds and weather/Snowstorm.jpg',
         'assets/images/PokemonArena/backgrounds and weather/Wildfire.jpg',
         'assets/images/PokemonArena/backgrounds and weather/Lightning Storm.jpg',
+        'assets/images/PokemonArena/backgrounds and weather/Polluted Air.jpg',
     ];
     backgroundFiles.forEach((file) => {
         assert.ok(fs.existsSync(path.join(root, file)), `Missing ${file}`);
@@ -29,6 +30,10 @@ test('client maps each active weather key to its background image and swaps the 
     assert.match(
         script,
         /thunderstorm:\s*'assets\/images\/PokemonArena\/backgrounds%20and%20weather\/Lightning%20Storm\.jpg'/
+    );
+    assert.match(
+        script,
+        /pollutedair:\s*'assets\/images\/PokemonArena\/backgrounds%20and%20weather\/Polluted%20Air\.jpg'/
     );
     assert.match(script, /getPokemonWeatherBackgroundUrl\(data\?\.weather\?\.key\)/);
 });

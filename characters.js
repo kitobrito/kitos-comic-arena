@@ -23264,28 +23264,30 @@ const characters = [
                 "id": "koffing-smokescreen",
                 "name": "Smokescreen",
                 "skillimage": "assets/images/PokemonArena/koffing/koffingsmokescreen.webp",
-                "skilldescription": "Koffing's team gains 20% evasion for 2 turns.",
+                "skilldescription": "Summons Polluted Air for 4 turns: Poison skills deal +5 damage (Smokescreen excluded), Poison type Pokemon gain 20% evasion, and every other Pokemon takes 5 affliction damage each turn.",
                 "energy": [
                     "Random"
                 ],
-                "target": "all-allies",
+                "target": "self",
                 "damage": 0,
                 "cooldown": 4,
                 "classes": [
-                    "Normal",
-                    "Physical",
+                    "Poison",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
                     {
-                        "type": "apply_status",
-                        "statusId": "koffing_smokescreen_cover",
-                        "duration": 2,
-                        "scope": "all-allies",
-                        "metadata": {
-                            "evadeChancePercent": 20,
-                            "turnDurationAnchor": "source_turn",
-                            "tooltipText": "This character has 20% evasion."
+                        "type": "set_weather",
+                        "scope": "self",
+                        "weather": {
+                            "key": "pollutedair",
+                            "name": "Polluted Air",
+                            "description": "Poison skills deal +5 damage (Smokescreen excluded). Poison type Pokemon gain 20% evasion. Every turn, 5 affliction damage strikes every non-Poison Pokemon.",
+                            "rounds": 4,
+                            "damageTypeModifiers": { "Poison": 5 },
+                            "periodicNonTypeDamage": { "immuneTypes": ["Poison"], "amount": 5 },
+                            "evasionBonusByType": { "Poison": 20 }
                         }
                     },
                     {
@@ -23516,29 +23518,30 @@ const characters = [
                     "statusId": "koffing_weezing_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/koffing/weezingsmokescreen.webp",
-                "skilldescription": "Weezing's team gains 30% evasion for 3 turns.",
+                "skilldescription": "Summons Polluted Air for 4 turns: Poison skills deal +5 damage (Smokescreen excluded), Poison type Pokemon gain 20% evasion, and every other Pokemon takes 5 affliction damage each turn.",
                 "energy": [
-                    "Random",
                     "Random"
                 ],
-                "target": "all-allies",
+                "target": "self",
                 "damage": 0,
                 "cooldown": 4,
                 "classes": [
-                    "Normal",
-                    "Physical",
+                    "Poison",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
                     {
-                        "type": "apply_status",
-                        "statusId": "weezing_smokescreen_cover",
-                        "duration": 3,
-                        "scope": "all-allies",
-                        "metadata": {
-                            "evadeChancePercent": 30,
-                            "turnDurationAnchor": "source_turn",
-                            "tooltipText": "This character has 30% evasion."
+                        "type": "set_weather",
+                        "scope": "self",
+                        "weather": {
+                            "key": "pollutedair",
+                            "name": "Polluted Air",
+                            "description": "Poison skills deal +5 damage (Smokescreen excluded). Poison type Pokemon gain 20% evasion. Every turn, 5 affliction damage strikes every non-Poison Pokemon.",
+                            "rounds": 4,
+                            "damageTypeModifiers": { "Poison": 5 },
+                            "periodicNonTypeDamage": { "immuneTypes": ["Poison"], "amount": 5 },
+                            "evasionBonusByType": { "Poison": 20 }
                         }
                     }
                 ]

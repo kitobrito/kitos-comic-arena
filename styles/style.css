@@ -4694,6 +4694,7 @@ body.weather-fx-lightning-active #weather-fx-lightning-static {
 .weather-fx-start-burst.snowstorm { --weather-fx-start-burst-color: rgba(190, 232, 255, 0.85); }
 .weather-fx-start-burst.wildfire { --weather-fx-start-burst-color: rgba(255, 140, 45, 0.85); }
 .weather-fx-start-burst.thunderstorm { --weather-fx-start-burst-color: rgba(255, 250, 200, 0.9); }
+.weather-fx-start-burst.pollutedair { --weather-fx-start-burst-color: rgba(207, 112, 223, 0.85); }
 
 .weather-fx-start-burst.weather-fx-start-burst-active {
     animation: weather-fx-start-burst-flash 850ms ease-out;
