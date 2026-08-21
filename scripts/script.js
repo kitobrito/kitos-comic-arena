@@ -16663,6 +16663,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
 
     const closeSelectionUnlockConfirm = () => {
         pendingLockedCharacterId = '';
+        if (selectionUnlockConfirmYes) selectionUnlockConfirmYes.disabled = false;
         if (!selectionUnlockConfirmBackdrop) return;
         selectionUnlockConfirmBackdrop.classList.add('hidden');
         selectionUnlockConfirmBackdrop.setAttribute('aria-hidden', 'true');
@@ -16674,6 +16675,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         if (!characterId || !selectionUnlockConfirmBackdrop) return;
         const cost = missionUnlockCostByCharacterId.get(characterId) || DEFAULT_UNLOCK_POINT_COST;
         pendingLockedCharacterId = characterId;
+        if (selectionUnlockConfirmYes) selectionUnlockConfirmYes.disabled = false;
         if (selectionUnlockConfirmMessage) {
             selectionUnlockConfirmMessage.textContent = `${character.name || 'This character'} is locked. Unlock them for ${cost.toLocaleString()} points?`;
         }
