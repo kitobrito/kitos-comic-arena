@@ -3177,6 +3177,29 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         return `ingame.html?matchId=${encodeURIComponent(matchId)}&arena=${encodeURIComponent(arena)}${layoutQuery}`;
     };
 
+    // Shared across pages (not just ingame's evolution cinematic) - the selection screen's
+    // roster hover-glow also keys off this map.
+    const POKEMON_EVOLUTION_TYPE_COLORS = {
+        bug: '#a8d936',
+        dark: '#77645a',
+        dragon: '#7867ff',
+        electric: '#ffe45b',
+        fairy: '#ff9de2',
+        fighting: '#ff684e',
+        fire: '#ff633f',
+        flying: '#79bfff',
+        ghost: '#9676dc',
+        grass: '#68dd70',
+        ground: '#d9a75f',
+        ice: '#86f1ff',
+        normal: '#d7d4c5',
+        poison: '#cf70df',
+        psychic: '#ff66aa',
+        rock: '#cdb66c',
+        steel: '#aabbd4',
+        water: '#4e9dff',
+    };
+
     if (isIngamePage) {
         const ingameLayoutToggle = document.querySelector('.ingame-layout-toggle');
         const experimentalBattleRoot = document.querySelector('.backgroundingame');
@@ -9509,26 +9532,6 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             );
         };
 
-        const POKEMON_EVOLUTION_TYPE_COLORS = {
-            bug: '#a8d936',
-            dark: '#77645a',
-            dragon: '#7867ff',
-            electric: '#ffe45b',
-            fairy: '#ff9de2',
-            fighting: '#ff684e',
-            fire: '#ff633f',
-            flying: '#79bfff',
-            ghost: '#9676dc',
-            grass: '#68dd70',
-            ground: '#d9a75f',
-            ice: '#86f1ff',
-            normal: '#d7d4c5',
-            poison: '#cf70df',
-            psychic: '#ff66aa',
-            rock: '#cdb66c',
-            steel: '#aabbd4',
-            water: '#4e9dff',
-        };
         const pokemonEvolutionCinematicQueue = [];
         let pokemonEvolutionCinematicActive = false;
 
