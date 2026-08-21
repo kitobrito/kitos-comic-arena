@@ -32333,8 +32333,8 @@ const characters = [
                 "id": "mewtwo-psychic",
                 "name": "Psychic",
                 "skillimage": "assets/images/PokemonArena/mewtwo/psychic.png",
-                "skilldescription": "Deals 20 damage and steals one copy-safe helpful active effect from the enemy for up to 2 turns. For 1 turn, Mewtwo's next Drain Punch or Shadow Ball deals 5 additional damage.",
-                "description": "Deals 20 damage and steals one copy-safe helpful active effect from the enemy for up to 2 turns. For 1 turn, Mewtwo's next Drain Punch or Shadow Ball deals 5 additional damage.",
+                "skilldescription": "Deals 20 damage and steals one copy-safe helpful active effect from the enemy for up to 2 turns. For 1 turn, Mewtwo's next Drain Punch or Shadow Ball deals 5 additional damage. If Recover was just used, this also heals Mewtwo for 5 HP.",
+                "description": "Deals 20 damage and steals one copy-safe helpful active effect from the enemy for up to 2 turns. For 1 turn, Mewtwo's next Drain Punch or Shadow Ball deals 5 additional damage. If Recover was just used, this also heals Mewtwo for 5 HP.",
                 "energy": [
                     "Ninjutsu"
                 ],
@@ -32390,6 +32390,16 @@ const characters = [
                             "statusIconUrl": "assets/images/PokemonArena/mewtwo/psychic.png",
                             "tooltipText": "Mewtwo's next Drain Punch or Shadow Ball deals 5 additional damage."
                         }
+                    },
+                    {
+                        "type": "heal",
+                        "amount": 5,
+                        "scope": "self",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "mewtwo_recover_followup",
+                            "consumeOnMatch": true
+                        }
                     }
                 ]
             },
@@ -32397,8 +32407,8 @@ const characters = [
                 "id": "mewtwo-shadow-ball",
                 "name": "Shadow Ball",
                 "skillimage": "assets/images/PokemonArena/mewtwo/shadowball.png",
-                "skilldescription": "Deals 20 damage and delays the target's skills for 1 turn. For 1 turn, Mewtwo's next Drain Punch or Psychic deals 5 affliction damage.",
-                "description": "Deals 20 damage and delays the target's skills for 1 turn. For 1 turn, Mewtwo's next Drain Punch or Psychic deals 5 affliction damage.",
+                "skilldescription": "Deals 20 damage and delays the target's skills for 1 turn. For 1 turn, Mewtwo's next Drain Punch or Psychic deals 5 affliction damage. If Recover was just used, this also heals Mewtwo for 5 HP.",
+                "description": "Deals 20 damage and delays the target's skills for 1 turn. For 1 turn, Mewtwo's next Drain Punch or Psychic deals 5 affliction damage. If Recover was just used, this also heals Mewtwo for 5 HP.",
                 "energy": [
                     "Bloodline"
                 ],
@@ -32452,6 +32462,16 @@ const characters = [
                             "statusIconUrl": "assets/images/PokemonArena/mewtwo/shadowball.png",
                             "tooltipText": "Mewtwo's next Drain Punch or Psychic deals 5 affliction damage."
                         }
+                    },
+                    {
+                        "type": "heal",
+                        "amount": 5,
+                        "scope": "self",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "mewtwo_recover_followup",
+                            "consumeOnMatch": true
+                        }
                     }
                 ]
             },
@@ -32459,8 +32479,8 @@ const characters = [
                 "id": "mewtwo-drain-punch",
                 "name": "Drain Punch",
                 "skillimage": "assets/images/PokemonArena/mewtwo/drainpunch.png",
-                "skilldescription": "Steals 20 HP from one enemy. For 1 turn, Mewtwo's next Shadow Ball or Psychic steals 5 HP.",
-                "description": "Steals 20 HP from one enemy. For 1 turn, Mewtwo's next Shadow Ball or Psychic steals 5 HP.",
+                "skilldescription": "Steals 20 HP from one enemy. For 1 turn, Mewtwo's next Shadow Ball or Psychic steals 5 HP. If Recover was just used, this also heals Mewtwo for 5 HP.",
+                "description": "Steals 20 HP from one enemy. For 1 turn, Mewtwo's next Shadow Ball or Psychic steals 5 HP. If Recover was just used, this also heals Mewtwo for 5 HP.",
                 "energy": [
                     "Genjutsu"
                 ],
@@ -32510,6 +32530,16 @@ const characters = [
                             "statusIconUrl": "assets/images/PokemonArena/mewtwo/drainpunch.png",
                             "tooltipText": "Mewtwo's next Shadow Ball or Psychic steals 5 HP."
                         }
+                    },
+                    {
+                        "type": "heal",
+                        "amount": 5,
+                        "scope": "self",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "mewtwo_recover_followup",
+                            "consumeOnMatch": true
+                        }
                     }
                 ]
             },
@@ -32517,8 +32547,8 @@ const characters = [
                 "id": "mewtwo-recover",
                 "name": "Recover",
                 "skillimage": "assets/images/PokemonArena/mewtwo/recover.png",
-                "skilldescription": "Heals Mewtwo for 20 HP. Consecutive uses heal 2 less HP each time, stacking down to 0; using another skill resets it.",
-                "description": "Heals Mewtwo for 20 HP. Consecutive uses heal 2 less HP each time, stacking down to 0; using another skill resets it.",
+                "skilldescription": "Heals Mewtwo for 20 HP. Consecutive uses heal 2 less HP each time, stacking down to 0; using another skill resets it. For 1 turn, Mewtwo's next Shadow Ball, Drain Punch, or Psychic also heals him for 5 HP.",
+                "description": "Heals Mewtwo for 20 HP. Consecutive uses heal 2 less HP each time, stacking down to 0; using another skill resets it. For 1 turn, Mewtwo's next Shadow Ball, Drain Punch, or Psychic also heals him for 5 HP.",
                 "energy": [
                     "Taijutsu"
                 ],
@@ -32534,6 +32564,16 @@ const characters = [
                     {
                         "type": "mewtwo_recover",
                         "scope": "self"
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "mewtwo_recover_followup",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "statusIconUrl": "assets/images/PokemonArena/mewtwo/recover.png",
+                            "tooltipText": "Mewtwo's next Shadow Ball, Drain Punch, or Psychic also heals him for 5 HP."
+                        }
                     }
                 ]
             }

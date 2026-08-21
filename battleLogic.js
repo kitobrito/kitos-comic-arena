@@ -10700,6 +10700,24 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         });
                         return;
                     }
+                    const condition = effect?.condition;
+                    if (condition) {
+                        const conditionMatches = doesEffectConditionMatch({
+                            condition,
+                            actorState,
+                            targetState,
+                            actorUnit,
+                            actorUsername: actingUsername,
+                            targetUnit: recipient.unit,
+                            targetUsername: recipient.username,
+                        });
+                        if (!conditionMatches) return;
+                        if (condition.consumeOnMatch && condition.statusId) {
+                            const scope = condition.scope === 'target' ? 'target' : 'self';
+                            const scopedState = scope === 'target' ? targetState : actorState;
+                            consumeStatus(scopedState, condition.statusId);
+                        }
+                    }
                     const sourceHealingBonus = Math.max(
                         0,
                         Number(getStatusMetadataTotals(actorState, actorUnit).healingBonusFlat) || 0
