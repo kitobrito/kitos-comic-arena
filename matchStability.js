@@ -23,6 +23,8 @@ const normalizeMatchVersionFields = (match) => {
     return match;
 };
 
+const DEFAULT_LANE_WATCHDOG_MS = 20000;
+
 const createMatchCommandCoordinator = ({ logger = console } = {}) => {
     const lanes = new Map();
 
@@ -39,6 +41,24 @@ const createMatchCommandCoordinator = ({ logger = console } = {}) => {
             if (lanes.get(key) === settled) lanes.delete(key);
         });
         lanes.set(key, settled);
+        // A command that never settles (a hung DB call with no timeout of its own,
+        // a response that never finishes or closes) must not permanently block every
+        // other command queued behind it for this match. Release the lane after a
+        // bounded wait so play can continue; persistMatchState's stateRevision check
+        // still protects against the stuck task and a later command racing each other.
+        const watchdogMs = metadata.watchdogMs ?? DEFAULT_LANE_WATCHDOG_MS;
+        const watchdogTimer = setTimeout(() => {
+            if (lanes.get(key) === settled) {
+                lanes.delete(key);
+                logger.warn?.('[match-command] lane-watchdog-released', {
+                    matchId: key,
+                    command: commandName,
+                    durationMs: Date.now() - startedAt,
+                });
+            }
+        }, watchdogMs);
+        if (typeof watchdogTimer.unref === 'function') watchdogTimer.unref();
+        settled.finally(() => clearTimeout(watchdogTimer));
         if (metadata.log !== false) {
             run.then(
                 (result) => logger.info?.('[match-command]', {

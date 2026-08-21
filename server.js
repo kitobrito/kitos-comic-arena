@@ -15098,15 +15098,24 @@ app.post('/api/match/:matchId/skill/queue', requireSession, withMatchCommand(asy
     if (!Number.isInteger(actorSlot) || actorSlot < 0 || !Number.isInteger(skillIndex) || skillIndex < 0) {
         return res.status(400).json({ error: 'actorSlot and skillIndex are required.' });
     }
-    const match = await matchesCollection.findOne({ matchId });
-    if (!match) {
-        return res.status(404).json({ error: 'Match not found.' });
+    let hydrated;
+    try {
+        const match = await matchesCollection.findOne({ matchId });
+        if (!match) {
+            return res.status(404).json({ error: 'Match not found.' });
+        }
+        const hydratedTurn = await ensureMatchTurnData(match);
+        const hydratedEcon = await ensureMatchEconomy(hydratedTurn);
+        const hydratedPending = await ensurePendingTurnState(hydratedEcon);
+        const hydratedBoard = await ensureBoardState(hydratedPending);
+        hydrated = await autoAdvanceTurnIfExpired(hydratedBoard);
+    } catch (error) {
+        if (isMatchRevisionConflict(error)) {
+            return respondWithLatestRevisionConflict(res, matchId, req.authUser.username);
+        }
+        console.error('[match-skill-queue] hydrate-failed', { matchId, error: error?.message || String(error) });
+        return res.status(500).json({ error: 'Failed to load match state.' });
     }
-    const hydratedTurn = await ensureMatchTurnData(match);
-    const hydratedEcon = await ensureMatchEconomy(hydratedTurn);
-    const hydratedPending = await ensurePendingTurnState(hydratedEcon);
-    const hydratedBoard = await ensureBoardState(hydratedPending);
-    const hydrated = await autoAdvanceTurnIfExpired(hydratedBoard);
     if (!hydrated) {
         return res.status(404).json({ error: 'Match not found.' });
     }
@@ -15306,14 +15315,23 @@ app.post('/api/match/:matchId/skill/cancel', requireSession, withMatchCommand(as
     if (!Number.isInteger(actorSlot) || actorSlot < 0) {
         return res.status(400).json({ error: 'actorSlot is required.' });
     }
-    const match = await matchesCollection.findOne({ matchId });
-    if (!match) {
-        return res.status(404).json({ error: 'Match not found.' });
+    let hydrated;
+    try {
+        const match = await matchesCollection.findOne({ matchId });
+        if (!match) {
+            return res.status(404).json({ error: 'Match not found.' });
+        }
+        const hydratedTurn = await ensureMatchTurnData(match);
+        const hydratedEcon = await ensureMatchEconomy(hydratedTurn);
+        const hydratedPending = await ensurePendingTurnState(hydratedEcon);
+        hydrated = await autoAdvanceTurnIfExpired(hydratedPending);
+    } catch (error) {
+        if (isMatchRevisionConflict(error)) {
+            return respondWithLatestRevisionConflict(res, matchId, req.authUser.username);
+        }
+        console.error('[match-skill-cancel] hydrate-failed', { matchId, error: error?.message || String(error) });
+        return res.status(500).json({ error: 'Failed to load match state.' });
     }
-    const hydratedTurn = await ensureMatchTurnData(match);
-    const hydratedEcon = await ensureMatchEconomy(hydratedTurn);
-    const hydratedPending = await ensurePendingTurnState(hydratedEcon);
-    const hydrated = await autoAdvanceTurnIfExpired(hydratedPending);
     if (!hydrated) {
         return res.status(404).json({ error: 'Match not found.' });
     }
@@ -15371,14 +15389,23 @@ app.post('/api/match/:matchId/skill/cancel', requireSession, withMatchCommand(as
 app.post('/api/match/:matchId/skill/reorder', requireSession, withMatchCommand(async (req, res) => {
     const { matchId } = req.params;
     const actorSlots = Array.isArray(req.body?.actorSlots) ? req.body.actorSlots : [];
-    const match = await matchesCollection.findOne({ matchId });
-    if (!match) {
-        return res.status(404).json({ error: 'Match not found.' });
+    let hydrated;
+    try {
+        const match = await matchesCollection.findOne({ matchId });
+        if (!match) {
+            return res.status(404).json({ error: 'Match not found.' });
+        }
+        const hydratedTurn = await ensureMatchTurnData(match);
+        const hydratedEcon = await ensureMatchEconomy(hydratedTurn);
+        const hydratedPending = await ensurePendingTurnState(hydratedEcon);
+        hydrated = await autoAdvanceTurnIfExpired(hydratedPending);
+    } catch (error) {
+        if (isMatchRevisionConflict(error)) {
+            return respondWithLatestRevisionConflict(res, matchId, req.authUser.username);
+        }
+        console.error('[match-skill-reorder] hydrate-failed', { matchId, error: error?.message || String(error) });
+        return res.status(500).json({ error: 'Failed to load match state.' });
     }
-    const hydratedTurn = await ensureMatchTurnData(match);
-    const hydratedEcon = await ensureMatchEconomy(hydratedTurn);
-    const hydratedPending = await ensurePendingTurnState(hydratedEcon);
-    const hydrated = await autoAdvanceTurnIfExpired(hydratedPending);
     if (!hydrated) {
         return res.status(404).json({ error: 'Match not found.' });
     }
@@ -15406,8 +15433,8 @@ app.post('/api/match/:matchId/skill/reorder', requireSession, withMatchCommand(a
             actionRejected: 'pending-turn-start-choice',
         });
     }
-    reorderQueuedSkills({ match: hydrated, username, actorSlots });
     try {
+        reorderQueuedSkills({ match: hydrated, username, actorSlots });
         await persistMatchState(hydrated, {
             pendingTurns: hydrated.pendingTurns,
         });
@@ -15415,7 +15442,7 @@ app.post('/api/match/:matchId/skill/reorder', requireSession, withMatchCommand(a
         if (isMatchRevisionConflict(error)) {
             return respondWithLatestRevisionConflict(res, matchId, username);
         }
-        throw error;
+        return res.status(400).json({ error: error.message || 'Failed to reorder skills.' });
     }
     await broadcastMatchState(hydrated);
     return res.json({
@@ -15450,14 +15477,23 @@ app.post('/api/match/:matchId/turn/random/adjust', requireSession, withMatchComm
     ) {
         return res.status(400).json({ error: 'chakraType and delta are required.' });
     }
-    const match = await matchesCollection.findOne({ matchId });
-    if (!match) {
-        return res.status(404).json({ error: 'Match not found.' });
+    let hydrated;
+    try {
+        const match = await matchesCollection.findOne({ matchId });
+        if (!match) {
+            return res.status(404).json({ error: 'Match not found.' });
+        }
+        const hydratedTurn = await ensureMatchTurnData(match);
+        const hydratedEcon = await ensureMatchEconomy(hydratedTurn);
+        const hydratedPending = await ensurePendingTurnState(hydratedEcon);
+        hydrated = await autoAdvanceTurnIfExpired(hydratedPending);
+    } catch (error) {
+        if (isMatchRevisionConflict(error)) {
+            return respondWithLatestRevisionConflict(res, matchId, req.authUser.username);
+        }
+        console.error('[match-random-adjust] hydrate-failed', { matchId, error: error?.message || String(error) });
+        return res.status(500).json({ error: 'Failed to load match state.' });
     }
-    const hydratedTurn = await ensureMatchTurnData(match);
-    const hydratedEcon = await ensureMatchEconomy(hydratedTurn);
-    const hydratedPending = await ensurePendingTurnState(hydratedEcon);
-    const hydrated = await autoAdvanceTurnIfExpired(hydratedPending);
     if (!hydrated) {
         return res.status(404).json({ error: 'Match not found.' });
     }
@@ -15517,17 +15553,27 @@ app.post('/api/match/:matchId/chakra/exchange', requireSession, withMatchCommand
         req.body?.spendAssignments && typeof req.body.spendAssignments === 'object'
             ? req.body.spendAssignments
             : null;
+    const requestId = typeof req.body?.requestId === 'string' ? req.body.requestId.trim().slice(0, 100) : '';
     if (!chakraTypes.includes(chakraType)) {
         return res.status(400).json({ error: 'chakraType is required.' });
     }
-    const match = await matchesCollection.findOne({ matchId });
-    if (!match) {
-        return res.status(404).json({ error: 'Match not found.' });
+    let hydrated;
+    try {
+        const match = await matchesCollection.findOne({ matchId });
+        if (!match) {
+            return res.status(404).json({ error: 'Match not found.' });
+        }
+        const hydratedTurn = await ensureMatchTurnData(match);
+        const hydratedEcon = await ensureMatchEconomy(hydratedTurn);
+        const hydratedPending = await ensurePendingTurnState(hydratedEcon);
+        hydrated = await autoAdvanceTurnIfExpired(hydratedPending);
+    } catch (error) {
+        if (isMatchRevisionConflict(error)) {
+            return respondWithLatestRevisionConflict(res, matchId, req.authUser.username);
+        }
+        console.error('[match-chakra-exchange] hydrate-failed', { matchId, error: error?.message || String(error) });
+        return res.status(500).json({ error: 'Failed to load match state.' });
     }
-    const hydratedTurn = await ensureMatchTurnData(match);
-    const hydratedEcon = await ensureMatchEconomy(hydratedTurn);
-    const hydratedPending = await ensurePendingTurnState(hydratedEcon);
-    const hydrated = await autoAdvanceTurnIfExpired(hydratedPending);
     if (!hydrated) {
         return res.status(404).json({ error: 'Match not found.' });
     }
@@ -15555,6 +15601,24 @@ app.post('/api/match/:matchId/chakra/exchange', requireSession, withMatchCommand
             actionRejected: 'pending-turn-start-choice',
         });
     }
+    // A lost response after the server already committed the spend must not let a
+    // client retry spend chakra twice. If this exact attempt (by client-supplied
+    // requestId) was already applied for this user, replay the current state instead
+    // of exchanging again.
+    if (requestId && hydrated.chakraExchangeRequests?.[username] === requestId) {
+        const safePayload = buildMatchPayloadForUser(hydrated, username);
+        return res.json({
+            ok: true,
+            ...buildMatchVersionPayload(hydrated),
+            staleAction: true,
+            actionRejected: 'duplicate-chakra-exchange',
+            chakraPools: safePayload?.chakraPools || null,
+            pendingTurn: safePayload?.pendingTurn || makeEmptyPendingTurn(),
+            currentTurn: hydrated.currentTurn,
+            turnExpiresAt: hydrated.turnExpiresAt,
+            turnDurationMs: getTurnDurationMsForUser(hydrated, hydrated?.currentTurn),
+        });
+    }
     try {
         exchangeChakra({
             match: hydrated,
@@ -15563,8 +15627,15 @@ app.post('/api/match/:matchId/chakra/exchange', requireSession, withMatchCommand
             cost: 2,
             spendAssignments,
         });
+        if (requestId) {
+            hydrated.chakraExchangeRequests = {
+                ...(hydrated.chakraExchangeRequests || {}),
+                [username]: requestId,
+            };
+        }
         await persistMatchState(hydrated, {
             chakraPools: hydrated.chakraPools,
+            ...(requestId ? { chakraExchangeRequests: hydrated.chakraExchangeRequests } : {}),
         });
         queueMatchStateBroadcast(hydrated);
         const safePayload = buildMatchPayloadForUser(hydrated, username);
@@ -15592,15 +15663,24 @@ app.post('/api/match/:matchId/skill/targets', requireSession, withMatchCommand(a
     if (!Number.isInteger(actorSlot) || actorSlot < 0 || !Number.isInteger(skillIndex) || skillIndex < 0) {
         return res.status(400).json({ error: 'actorSlot and skillIndex are required.' });
     }
-    const match = await matchesCollection.findOne({ matchId });
-    if (!match) {
-        return res.status(404).json({ error: 'Match not found.' });
+    let hydrated;
+    try {
+        const match = await matchesCollection.findOne({ matchId });
+        if (!match) {
+            return res.status(404).json({ error: 'Match not found.' });
+        }
+        const hydratedTurn = await ensureMatchTurnData(match);
+        const hydratedEcon = await ensureMatchEconomy(hydratedTurn);
+        const hydratedPending = await ensurePendingTurnState(hydratedEcon);
+        const hydratedBoard = await ensureBoardState(hydratedPending);
+        hydrated = await autoAdvanceTurnIfExpired(hydratedBoard);
+    } catch (error) {
+        if (isMatchRevisionConflict(error)) {
+            return respondWithLatestRevisionConflict(res, matchId, req.authUser.username);
+        }
+        console.error('[match-skill-targets] hydrate-failed', { matchId, error: error?.message || String(error) });
+        return res.status(500).json({ error: 'Failed to load match state.' });
     }
-    const hydratedTurn = await ensureMatchTurnData(match);
-    const hydratedEcon = await ensureMatchEconomy(hydratedTurn);
-    const hydratedPending = await ensurePendingTurnState(hydratedEcon);
-    const hydratedBoard = await ensureBoardState(hydratedPending);
-    const hydrated = await autoAdvanceTurnIfExpired(hydratedBoard);
     if (!hydrated) {
         return res.status(404).json({ error: 'Match not found.' });
     }

@@ -4075,6 +4075,13 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             genjutsu: 0,
         });
         let exchangeSpendAssignments = emptyPool();
+        // Kept set across a submit attempt so a retry after an ambiguous network
+        // failure (timeout/dropped response) replays the SAME idempotency key. The
+        // server treats a repeat of an already-applied requestId as a no-op instead
+        // of spending chakra a second time.
+        let exchangeRequestId = null;
+        const makeExchangeRequestId = () =>
+            window.crypto?.randomUUID ? window.crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
         const normalizePool = (pool = {}) => ({
             taijutsu: Number(pool.taijutsu) || 0,
             ninjutsu: Number(pool.ninjutsu) || 0,
@@ -15969,6 +15976,9 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 exchangeOkButton.style.opacity = '0.45';
             }
             setExchangeStatus('Exchanging energy...');
+            if (!exchangeRequestId) {
+                exchangeRequestId = makeExchangeRequestId();
+            }
             try {
                 const response = await fetchMatchCommand(
                     `${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/chakra/exchange`,
@@ -15979,9 +15989,14 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                         body: JSON.stringify({
                             chakraType: selectedExchangeType,
                             spendAssignments: exchangeSpendAssignments,
+                            requestId: exchangeRequestId,
                         }),
                     }
                 );
+                // The server has now given a definitive answer for this attempt (applied,
+                // rejected, or already-applied) — a NEW click should mint a fresh key rather
+                // than replay this one.
+                exchangeRequestId = null;
                 const data = await response.json();
                 if (response.status === 401 || response.status === 403) {
                     redirectToSelectionLogin(currentMatchArena, {
