@@ -281,6 +281,16 @@ const UNLOCK_POINT_STORE_PACKAGES = [
         label: '3,000 Unlock Points',
         description: '3,000 Pokemon Arena unlock points',
     },
+    {
+        packageId: 'pokemon-100000-points',
+        arena: 'pokemon',
+        points: 100000,
+        amountUsd: '50.00',
+        currency: 'USD',
+        provider: 'paypal',
+        label: '100,000 Unlock Points',
+        description: '100,000 Pokemon Arena unlock points',
+    },
 ];
 let missionCatalogCache = null;
 let botTeamsCache = null;
