@@ -33157,8 +33157,8 @@ const characters = [
                 "id": "drowzee-nightmare",
                 "name": "Nightmare",
                 "skillimage": "assets/images/PokemonArena/Drowzee/S2.webp",
-                "skilldescription": "May only be used on an enemy affected by Hypnosis. Deals 10 affliction damage each turn for 2 turns, extends Hypnosis by 1 turn, and drains 1 random energy from the target each turn this damage lands.",
-                "description": "May only be used on an enemy affected by Hypnosis. Deals 10 affliction damage each turn for 2 turns, extends Hypnosis by 1 turn, and drains 1 random energy from the target each turn this damage lands.",
+                "skilldescription": "May only be used on an enemy affected by Hypnosis. Deals 10 affliction damage each turn for 2 turns, extends Hypnosis by 1 turn, and removes 1 random energy from the target's pool each turn this damage lands.",
+                "description": "May only be used on an enemy affected by Hypnosis. Deals 10 affliction damage each turn for 2 turns, extends Hypnosis by 1 turn, and removes 1 random energy from the target's pool each turn this damage lands.",
                 "energy": ["Bloodline"],
                 "cooldown": 3,
                 "target": "single-enemy",
@@ -33176,7 +33176,7 @@ const characters = [
                 "cooldown": 1,
                 "target": "single-enemy",
                 "damage": 0,
-                "classes": ["Psychic", "Special", "Instant"],
+                "classes": ["Psychic", "Special", "Instant", "Affliction"],
                 "effects": [{ "type": "drowzee_dream_eater", "scope": "target" }]
             },
             {
@@ -33229,8 +33229,8 @@ const characters = [
                 "actorCondition": { "statusId": "hypno_evolution" },
                 "hiddenFromSelectionViewer": true,
                 "skillimage": "assets/images/PokemonArena/Drowzee/hypnos2.webp",
-                "skilldescription": "May only be used on an enemy affected by Hypnosis. Deals 30 affliction damage each turn for 2 turns, extends Hypnosis by 1 turn, and drains 1 random energy from the target each turn this damage lands.",
-                "description": "May only be used on an enemy affected by Hypnosis. Deals 30 affliction damage each turn for 2 turns, extends Hypnosis by 1 turn, and drains 1 random energy from the target each turn this damage lands.",
+                "skilldescription": "May only be used on an enemy affected by Hypnosis. Deals 30 affliction damage each turn for 2 turns, extends Hypnosis by 1 turn, and removes 1 random energy from the target's pool each turn this damage lands.",
+                "description": "May only be used on an enemy affected by Hypnosis. Deals 30 affliction damage each turn for 2 turns, extends Hypnosis by 1 turn, and removes 1 random energy from the target's pool each turn this damage lands.",
                 "energy": ["Bloodline", "Bloodline"],
                 "cooldown": 3,
                 "target": "single-enemy",
@@ -33250,7 +33250,7 @@ const characters = [
                 "cooldown": 1,
                 "target": "single-enemy",
                 "damage": 0,
-                "classes": ["Psychic", "Special", "Instant"],
+                "classes": ["Psychic", "Special", "Instant", "Affliction"],
                 "effects": [{ "type": "hypno_dream_eater", "scope": "target" }]
             },
             {
