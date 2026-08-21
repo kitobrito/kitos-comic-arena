@@ -1181,6 +1181,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         thunderstorm: 'assets/images/PokemonArena/music/weather/Thunderstorm Weather.mp3',
     };
 
+    let lastKnownWeatherKey = null;
+    let lastKnownWeatherRounds = null;
     const trackWeatherChangeForAlert = (weather) => {
         if (!weather) {
             if (lastKnownWeatherKey && WEATHER_MUSIC_TRACKS[lastKnownWeatherKey]) {
@@ -1255,7 +1257,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             flashLayer?.classList.remove('weather-fx-lightning-flash-active');
             void flashLayer?.offsetWidth;
             flashLayer?.classList.add('weather-fx-lightning-flash-active');
-            playGeneratedIngameSound?.('lightning');
+            if (typeof playGeneratedIngameSound === 'function') playGeneratedIngameSound('lightning');
             scheduleNextLightningFlash();
         }, delayMs);
     };
@@ -3403,8 +3405,6 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         };
         let currentMatchMode = 'quick';
         let currentMatchBackgroundUrl = '';
-        let lastKnownWeatherKey = null;
-        let lastKnownWeatherRounds = null;
         currentMatchArena =
             normalizeArenaModeValue(arenaModeFromUrl) ||
             readCachedMatchArena(matchIdFromUrl) ||
