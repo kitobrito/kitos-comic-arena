@@ -11232,6 +11232,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                           .join(' | ')
                     : '';
             card.classList.remove('has-shield-bar', 'has-forcefield-bar');
+            const ratio = displayMaxHp > 0 ? hp / displayMaxHp : 0;
             const hpBand = ratio <= 0.3 ? 'low' : ratio <= 0.6 ? 'mid' : 'high';
             if (card.dataset.renderedHpBand !== hpBand) {
                 healthBar.classList.remove('hp-mid', 'hp-low');
