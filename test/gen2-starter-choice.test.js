@@ -121,9 +121,9 @@ test('all Gen 2 evolution face, skill, and selection render assets are wired loc
     const serverSource = fs.readFileSync(path.join(root, 'server.js'), 'utf8');
     const selectionSource = fs.readFileSync(path.join(root, 'scripts', 'script.js'), 'utf8');
     const expectedFaces = [
-        'Cyndaquil/quilavafp.png', 'Cyndaquil/typlosionfp.png',
-        'Cyndaquil/Chikorita/bayleaffp.png', 'Cyndaquil/Chikorita/meganiumfp.png',
-        'Cyndaquil/Totodile/croconawfp.png', 'Cyndaquil/Totodile/feraligatrfp.png',
+        'Cyndaquil/Quilava/quilavafp.png', 'Cyndaquil/typhlosion/typlosionfp.png',
+        'Cyndaquil/Chikorita/bayleaf/bayleaffp.png', 'Cyndaquil/Chikorita/meganium/meganiumfp.png',
+        'Cyndaquil/Totodile/Croconaw/croconawfp.png', 'Cyndaquil/Totodile/feraligatyr/feraligatrfp.png',
     ];
     expectedFaces.forEach((relativePath) => {
         const asset = path.join(root, 'assets', 'images', 'PokemonArena', ...relativePath.split('/'));
@@ -134,11 +134,15 @@ test('all Gen 2 evolution face, skill, and selection render assets are wired loc
         assert.ok(fs.existsSync(path.join(root, 'assets', 'images', 'selection-featured', 'PokemonArena', 'BIB', filename)));
         assert.match(selectionSource, new RegExp(filename.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
     });
-    assert.match(serverSource, /bayleafs5\.png/);
-    assert.match(serverSource, /'cyndaquil-aerial-flamethrower': 'assets\/images\/PokemonArena\/Cyndaquil\/quilavas3\.png'/);
-    assert.match(serverSource, /'cyndaquil-cynda-smokescreen': 'assets\/images\/PokemonArena\/Cyndaquil\/quilavas2\.png'/);
-    assert.match(serverSource, /'cyndaquil-aerial-flamethrower': 'assets\/images\/PokemonArena\/Cyndaquil\/typhlosions3\.png'/);
-    assert.match(serverSource, /'cyndaquil-cynda-smokescreen': 'assets\/images\/PokemonArena\/Cyndaquil\/typhlosions2\.png'/);
+    // Each evolution's four unreplaced base skills get a cosmetic recolor via
+    // skillImageOverridesBySkillId; the fully-replaced slot (e.g. cyndaquil-aerial-tackle
+    // -> cyndaquil-quilava-flame-wheel) intentionally has no entry here since that skill
+    // already carries its own dedicated evolved-form image.
+    assert.match(serverSource, /Chikorita\/bayleaf\/passive\.png/);
+    assert.match(serverSource, /'cyndaquil-aerial-flamethrower': 'assets\/images\/PokemonArena\/Cyndaquil\/Quilava\/flamethrower\.png'/);
+    assert.match(serverSource, /'cyndaquil-cynda-smokescreen': 'assets\/images\/PokemonArena\/Cyndaquil\/Quilava\/smokescreen\.png'/);
+    assert.match(serverSource, /'cyndaquil-aerial-flamethrower': 'assets\/images\/PokemonArena\/Cyndaquil\/typhlosion\/flamethrower\.png'/);
+    assert.match(serverSource, /'cyndaquil-cynda-smokescreen': 'assets\/images\/PokemonArena\/Cyndaquil\/typhlosion\/smokescreen\.png'/);
 });
 
 test('Totodile Water Gun damages enemies and builds a Water Ring', () => {

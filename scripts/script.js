@@ -1580,7 +1580,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
     // the middle stage (Quilava/Bayleaf/Croconaw); "evolution" is the final
     // stage (Typhlosion/Meganium/Feraligatr).
     const JOHTO_STARTER_MIDDLE_EVOLUTION_SKILL_BY_ID = Object.freeze({
-        'cyndaquil-aerial-flamethrower': 'cyndaquil-quilava-flame-wheel',
+        'cyndaquil-aerial-tackle': 'cyndaquil-quilava-flame-wheel',
         'chikorita-aerial-razor-leaf': 'chikorita-bayleaf-magical-leaf',
         'totodile-scary-face': 'totodile-croconaw-bite',
     });
@@ -1588,7 +1588,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
     // once rather than just one slot - see the hypno_evolution skillReplacements
     // in characters.js.
     const JOHTO_STARTER_FINAL_EVOLUTION_SKILL_BY_ID = Object.freeze({
-        'cyndaquil-aerial-flamethrower': 'cyndaquil-typhlosion-flame-wheel',
+        'cyndaquil-aerial-tackle': 'cyndaquil-typhlosion-flame-wheel',
         'chikorita-aerial-razor-leaf': 'chikorita-meganium-magical-leaf',
         'totodile-scary-face': 'totodile-feraligatr-dragon-claw',
         'drowzee-hypnosis': 'hypno-hypnosis',
@@ -1604,6 +1604,31 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         'totodile:evolution-2': 'Win 16 ranked matches to evolve into Croconaw.',
         'totodile:evolution': 'Win 16 ranked matches to evolve into Croconaw, then 36 more to reach Feraligatr.',
     });
+    // Lets the Base/Evolution/Evolution-2 preview toggle show each stage's cosmetically
+    // recolored skill icons (server.js POKEMON_GEN2_EVOLUTION_SKIN_CATALOG) even when
+    // that skin isn't the player's currently equipped one - previewing a form shouldn't
+    // require actually having it equipped.
+    const JOHTO_STARTER_EVOLUTION_SKIN_ID_BY_FORM_KEY = Object.freeze({
+        'cyndaquil:evolution-2': 'cyndaquil-quilava-evolution',
+        'cyndaquil:evolution': 'cyndaquil-typhlosion-evolution',
+        'chikorita:evolution-2': 'chikorita-bayleaf-evolution',
+        'chikorita:evolution': 'chikorita-meganium-evolution',
+        'totodile:evolution-2': 'totodile-croconaw-evolution',
+        'totodile:evolution': 'totodile-feraligatr-evolution',
+    });
+    const getSkinCatalogEntry = (skinId, arena = activeArenaMode) => {
+        if (!skinId) return null;
+        const catalog = Array.isArray(arenaSkinCatalogCache[arena]) ? arenaSkinCatalogCache[arena] : [];
+        return (
+            catalog.find((candidate) => normalizeSkinId(candidate?.skinId) === normalizeSkinId(skinId)) || null
+        );
+    };
+    const getSkinImageOverridesBySkillId = (skinId, arena = activeArenaMode) => {
+        const entry = getSkinCatalogEntry(skinId, arena);
+        return entry?.skillImageOverridesBySkillId && typeof entry.skillImageOverridesBySkillId === 'object'
+            ? entry.skillImageOverridesBySkillId
+            : {};
+    };
     const POKEMON_SELECTION_BATTLE_FORM_RENDERS_BY_ID = Object.freeze({
         nincada: [
             { id: 'ninjask', label: 'Ninjask', name: 'Ninjask', filename: 'ninjask.png.webp' },
@@ -18576,15 +18601,29 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 : normalizedForm === 'evolution'
                 ? JOHTO_STARTER_FINAL_EVOLUTION_SKILL_BY_ID
                 : null;
+        // The one skill a Johto starter's evolution fully replaces (e.g. Flame Wheel)
+        // already carries its own dedicated evolved-form image. The other, unreplaced
+        // base skills only look "evolved" if this preview's cosmetic recolors
+        // (skillImageOverridesBySkillId on the previewed stage's skin) get applied too.
+        const skinImageOverridesBySkillId = getSkinImageOverridesBySkillId(
+            JOHTO_STARTER_EVOLUTION_SKIN_ID_BY_FORM_KEY[`${getSelectionCharacterId(character)}:${normalizedForm}`]
+        );
+        const applyImageOverride = (skill) => {
+            const override = skill?.id ? skinImageOverridesBySkillId[skill.id] : null;
+            return override ? { ...skill, skillimage: override } : skill;
+        };
         if (johtoReplacementMap) {
             const skillsById = new Map(
                 (Array.isArray(character?.skills) ? character.skills : []).map((skill) => [skill?.id, skill])
             );
             const replaced = baseSkills.map((skill) => {
                 const replacementId = johtoReplacementMap[skill?.id];
-                return replacementId ? skillsById.get(replacementId) || skill : skill;
+                return applyImageOverride(replacementId ? skillsById.get(replacementId) || skill : skill);
             });
             if (replaced.some((skill, idx) => skill !== baseSkills[idx])) return replaced;
+        }
+        if (Object.keys(skinImageOverridesBySkillId).length) {
+            return baseSkills.map(applyImageOverride);
         }
         return baseSkills;
     };

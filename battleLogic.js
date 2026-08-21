@@ -8756,22 +8756,30 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 if (tracker?.metadata) {
                     tracker.metadata.waterRings = Math.max(0, Number(tracker.metadata.waterRings) || 0) + 1;
                 }
+                // Damage still hits the whole enemy team (effect.scope: 'all-enemy'), but the
+                // skill-delay only applies to the specifically clicked target (selectedTargets),
+                // not every recipient of the damage.
                 resolveRecipients(effect).forEach((recipient) => {
                     if (!recipient?.unit || recipient.unit.alive === false) return;
                     queueDamage(recipient, 15, effect);
-                    const targetState = ensureUnitStateShape(recipient.unit);
+                });
+                const primaryRecipient = selectedTargets.find(
+                    (entry) => entry?.unit && entry.unit.alive !== false
+                );
+                if (primaryRecipient) {
+                    const targetState = ensureUnitStateShape(primaryRecipient.unit);
                     const scaryFace = targetState.statuses.some(
                         (status) => status?.id === 'totodile_scary_face' && (Number(status?.remainingTurns) || 0) > 0
                     );
                     const delay = scaryFace ? 2 : 1;
-                    const character = Number.isInteger(recipient.unit.rosterIndex)
-                        ? characters?.[recipient.unit.rosterIndex]
+                    const character = Number.isInteger(primaryRecipient.unit.rosterIndex)
+                        ? characters?.[primaryRecipient.unit.rosterIndex]
                         : null;
                     (Array.isArray(character?.skills) ? character.skills : []).forEach((targetSkill) => {
                         if (!targetSkill?.id || !skillHasHarmfulEffects(targetSkill)) return;
                         targetState.cooldowns[targetSkill.id] = Math.max(0, Number(targetState.cooldowns[targetSkill.id]) || 0) + delay;
                     });
-                });
+                }
                 return;
             }
             if (effectType === 'totodile_aqua_tail') {

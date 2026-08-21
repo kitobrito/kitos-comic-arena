@@ -348,11 +348,11 @@ const getPokemonSkinTypeOverride = (skinId = '') =>
 const JOHTO_STARTER_EVOLUTION_SKILL_REPLACEMENTS = Object.freeze({
     'cyndaquil-quilava-evolution': {
         markerStatusId: 'cyndaquil_quilava_evolution',
-        skillReplacements: { 'cyndaquil-aerial-flamethrower': 'cyndaquil-quilava-flame-wheel' },
+        skillReplacements: { 'cyndaquil-aerial-tackle': 'cyndaquil-quilava-flame-wheel' },
     },
     'cyndaquil-typhlosion-evolution': {
         markerStatusId: 'cyndaquil_typhlosion_evolution',
-        skillReplacements: { 'cyndaquil-aerial-flamethrower': 'cyndaquil-typhlosion-flame-wheel' },
+        skillReplacements: { 'cyndaquil-aerial-tackle': 'cyndaquil-typhlosion-flame-wheel' },
     },
     'chikorita-bayleaf-evolution': {
         markerStatusId: 'chikorita_bayleaf_evolution',
