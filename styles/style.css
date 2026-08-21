@@ -13683,12 +13683,13 @@ body.end-turn-modal-open .global-status-tooltip {
     position: absolute;
     left: -22px;
     top: -22px;
-    z-index: 99999;
+    z-index: 10;
+    pointer-events: none;
 }
 
 .rank-hat.rank-hat-offset-left {
     left: -33px;
-    z-index: 99999;
+    z-index: 10;
 }
 
 
