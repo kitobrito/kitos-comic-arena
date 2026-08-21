@@ -172,6 +172,22 @@ const createEmptyChakraCost = () => ({
     genjutsu: 0,
 });
 
+const moveRandomChakra = ({ match, fromUsername, toUsername = null, count = 1 }) => {
+    if (!match || !fromUsername) return;
+    match.chakraPools = match.chakraPools || {};
+    const fromPool = match.chakraPools[fromUsername] || createEmptyChakraCost();
+    const toPool = toUsername ? (match.chakraPools[toUsername] || createEmptyChakraCost()) : null;
+    for (let i = 0; i < Math.max(0, Number(count) || 0); i += 1) {
+        const available = chakraTypes.filter((type) => (Number(fromPool[type]) || 0) > 0);
+        if (!available.length) break;
+        const picked = available[Math.floor(battleRandom() * available.length)];
+        fromPool[picked] = Math.max(0, (Number(fromPool[picked]) || 0) - 1);
+        if (toPool) toPool[picked] = (Number(toPool[picked]) || 0) + 1;
+    }
+    match.chakraPools[fromUsername] = fromPool;
+    if (toUsername) match.chakraPools[toUsername] = toPool;
+};
+
 const ensureUnitStateShape = (unit) => {
     if (!unit || typeof unit !== 'object') return { statuses: [], cooldowns: {}, skillUses: {} };
     if (!unit.state || typeof unit.state !== 'object') {
@@ -8573,6 +8589,8 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
             };
             if (effectType === 'drowzee_nightmare' || effectType === 'hypno_nightmare') {
                 markDrowzeeEvolutionFlag('usedNightmare');
+                const isHypno = effectType === 'hypno_nightmare';
+                const tickDamage = isHypno ? 30 : 10;
                 resolveRecipients(effect).forEach((recipient) => {
                     if (!recipient?.unit || recipient.unit.alive === false) return;
                     const targetState = ensureUnitStateShape(recipient.unit);
@@ -8580,49 +8598,47 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         (status) => status?.id === 'drowzee_hypnosis_active' && (Number(status?.remainingTurns) || 0) > 0
                     );
                     if (!hypnosisStatus) return;
-                    const currentHp = Math.max(0, Number(recipient.unit.hp) || 0);
-                    if (currentHp <= 20) {
-                        recipient.unit.hp = 0;
-                        recipient.unit.alive = false;
-                        triggerTeamMemberDeathHooks({ match, deadUsername: recipient.username, deadSlot: recipient.slot });
-                    } else {
-                        recipient.unit.hp = 20;
-                        hypnosisStatus.remainingTurns = Math.max(0, Number(hypnosisStatus.remainingTurns) || 0) + 1;
-                    }
+                    hypnosisStatus.remainingTurns = Math.max(0, Number(hypnosisStatus.remainingTurns) || 0) + 1;
+                    applyStatus({
+                        targetState,
+                        targetUnit: recipient.unit,
+                        statusId: 'drowzee_nightmare_dot',
+                        duration: 2,
+                        sourceSkillId: skill.id || null,
+                        sourceUsername: actingUsername,
+                        sourceSlot: actorSlot,
+                        metadata: {
+                            harmful: true,
+                            turnEndDamage: tickDamage,
+                            afflictionDamage: true,
+                            onSuccessfulTurnEndDamageDrainRandomChakraFromSelf: 1,
+                            tooltipTextTemplate:
+                                'Nightmare: This character takes {turnEndDamage} affliction damage and loses 1 random energy each turn.',
+                        },
+                        fresh: false,
+                    });
                 });
                 return;
             }
             if (effectType === 'drowzee_dream_eater' || effectType === 'hypno_dream_eater') {
                 markDrowzeeEvolutionFlag('usedDreamEater');
                 const isHypno = effectType === 'hypno_dream_eater';
-                const damageAmount = isHypno ? 30 : 20;
-                const healAmount = isHypno ? 30 : 20;
                 resolveRecipients(effect).forEach((recipient) => {
                     if (!recipient?.unit || recipient.unit.alive === false) return;
+                    queueDamage(recipient, 30, {
+                        ...effect,
+                        metadata: { ...(effect?.metadata || {}), afflictionDamage: true },
+                    });
                     const targetState = ensureUnitStateShape(recipient.unit);
                     const hypnosisStatus = targetState.statuses.find(
                         (status) => status?.id === 'drowzee_hypnosis_active' && (Number(status?.remainingTurns) || 0) > 0
                     );
-                    if (!hypnosisStatus) return;
-                    const hpBeforeDamage = Math.max(0, Number(recipient.unit.hp) || 0);
-                    queueDamage(recipient, damageAmount, {
-                        ...effect,
-                        metadata: { ...(effect?.metadata || {}), afflictionDamage: true },
-                    });
-                    applyHealToUnit(actorUnit, healAmount, {
-                        sourceSkillId: skill.id || null,
-                        sourceUsername: actingUsername,
-                        sourceSlot: actorSlot,
-                    });
-                    // Approximates "if this kills" against pre-resolution HP, since queueDamage
-                    // defers the actual reduction - Dream Eater deals plain, unreduced damage so
-                    // this matches the real outcome in the overwhelming majority of cases.
-                    if (hpBeforeDamage > 0 && hpBeforeDamage <= damageAmount) {
-                        applyChakraGainToMatch({
+                    if (isHypno || hypnosisStatus) {
+                        moveRandomChakra({
                             match,
-                            username: actingUsername,
-                            chakraType: chakraTypes[Math.floor(battleRandom() * chakraTypes.length)],
-                            amount: 1,
+                            fromUsername: recipient.username,
+                            toUsername: actingUsername,
+                            count: 1,
                         });
                     }
                 });
@@ -12683,6 +12699,17 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                             sourceSkillId: periodicSourceSkillId,
                             sourceSkillClasses: ['Poison', 'Special', 'Affliction', 'Ranged', 'Instant'],
                             sourceSlot: status.sourceSlot,
+                        });
+                    }
+                    const drainRandomChakraFromSelfCount = Math.max(
+                        0,
+                        Number(status?.metadata?.onSuccessfulTurnEndDamageDrainRandomChakraFromSelf) || 0
+                    );
+                    if (dealt > 0 && drainRandomChakraFromSelfCount > 0 && username) {
+                        moveRandomChakra({
+                            match,
+                            fromUsername: username,
+                            count: drainRandomChakraFromSelfCount,
                         });
                     }
                     const onSuccessTurnEndApplyStatusToSelf =
