@@ -41,7 +41,7 @@ const makeMatch = ({ casterUnit, enemyUnits = [makeUnit(dummyEnemyIndex)], skill
 const findSkillIndex = (characterIndex, skillId) =>
     characters[characterIndex].skills.findIndex((skill) => skill?.id === skillId);
 
-test('Articuno Blizzard deals 15 damage to all enemies and delays their harmful skills by 1 turn', () => {
+test('Articuno Blizzard deals 15 damage to all enemies and applies a 1-turn cooldown-paralysis mark, not an outright cooldown lock', () => {
     const casterUnit = makeUnit(articunoIndex);
     const enemyUnit = makeUnit(dummyEnemyIndex);
     const skillIndex = findSkillIndex(articunoIndex, 'articuno-blizzard');
@@ -51,15 +51,18 @@ test('Articuno Blizzard deals 15 damage to all enemies and delays their harmful 
 
     assert.equal(enemyUnit.hp, 85);
     assert.equal(match.weather, null, 'Blizzard no longer summons weather on its own');
+    // Blizzard must apply the same articuno_blizzard/paralyzeCooldowns status Sheer
+    // Cold applies for the identical stated effect, rather than directly bumping every
+    // harmful skill's cooldown -- the latter would lock the target out of casting any
+    // harmful skill this turn, which "delays their harmful skills by 1 turn" does not
+    // mean (a skill they haven't used yet was never on cooldown to begin with).
+    const mark = enemyUnit.state.statuses.find((status) => status?.id === 'articuno_blizzard');
+    assert.ok(mark, 'Blizzard should apply the articuno_blizzard status to its targets');
+    assert.equal(mark.metadata?.paralyzeCooldowns, true);
     assert.equal(
         enemyUnit.state.cooldowns['iron-man-repulsor-blast'],
-        1,
-        'a harmful enemy skill should be delayed by 1 turn'
-    );
-    assert.equal(
-        enemyUnit.state.cooldowns['iron-man-overcharge'],
         undefined,
-        'a non-harmful (self/ally-targeted) enemy skill should not be delayed'
+        'an unused harmful skill must not be force-locked onto cooldown by Blizzard'
     );
 });
 

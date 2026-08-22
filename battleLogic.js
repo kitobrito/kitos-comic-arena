@@ -8985,16 +8985,28 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 return;
             }
             if (effectType === 'articuno_blizzard') {
+                // Was directly force-incrementing every harmful skill's cooldown by 1,
+                // which locks the target out of casting ANY harmful skill that turn --
+                // not what "delays their harmful skills by 1 turn" describes, and
+                // inconsistent with Sheer Cold's own version of this exact effect just
+                // below, which correctly applies the articuno_blizzard status
+                // (paralyzeCooldowns: true). That status only pauses the recovery of
+                // cooldowns the target actually starts this turn -- i.e. a skill they
+                // cast is delayed in coming back off cooldown -- rather than blocking
+                // them from casting anything at all. Match that behavior here instead.
                 resolveRecipients(effect).forEach((recipient) => {
                     if (!recipient?.unit || recipient.unit.alive === false) return;
                     queueDamage(recipient, 15, effect);
                     const targetState = ensureUnitStateShape(recipient.unit);
-                    const character = Number.isInteger(recipient.unit.rosterIndex)
-                        ? characters?.[recipient.unit.rosterIndex]
-                        : null;
-                    (Array.isArray(character?.skills) ? character.skills : []).forEach((targetSkill) => {
-                        if (!targetSkill?.id || !skillHasHarmfulEffects(targetSkill)) return;
-                        targetState.cooldowns[targetSkill.id] = Math.max(0, Number(targetState.cooldowns[targetSkill.id]) || 0) + 1;
+                    applyStatus({
+                        targetState,
+                        statusId: 'articuno_blizzard',
+                        duration: 1,
+                        sourceSkillId: skill.id,
+                        sourceUsername: actingUsername,
+                        sourceSlot: actorSlot,
+                        metadata: { harmful: true, paralyzeCooldowns: true },
+                        fresh: false,
                     });
                 });
                 return;
