@@ -1722,6 +1722,9 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         'primeape-annihilape-evolution': [
             { id: 'base', label: 'Evolution', name: 'Annihilape', filename: 'annihilape.jpg.webp' },
         ],
+        'zubat-crobat': [
+            { id: 'base', label: 'Crobat', name: 'Crobat', filename: 'crobatrendernewui.png' },
+        ],
     });
     const getSelectionRenderSource = (filename = '') =>
         filename

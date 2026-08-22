@@ -3021,6 +3021,37 @@ const POKEMON_SKIN_CATALOG = [
         },
     },
     {
+        skinId: 'zubat-crobat',
+        characterId: 'zubat',
+        name: 'Crobat',
+        description:
+            'A Crobat-inspired skin for Zubat. Its portrait swaps to a swarming Crobat form on evolution, and its passive evolution skill is renamed "Swarm - Crobat" - combat skill art and stats otherwise evolve exactly as normal.',
+        unlockPointCost: 750,
+        previewFacePicture: 'assets/images/PokemonArena/zubat/skins/crobat/fp.png',
+        patch: {
+            facePicture: 'assets/images/PokemonArena/zubat/skins/crobat/fp.png',
+        },
+        skillImageOverridesBySkillId: {
+            'zubat-leech-life': 'assets/images/PokemonArena/zubat/skins/crobat/leechlife.png',
+            'zubat-supersonic': 'assets/images/PokemonArena/zubat/skins/crobat/supersonic.png',
+            'zubat-bite': 'assets/images/PokemonArena/zubat/skins/crobat/bite.png',
+            'zubat-draining-fangs': 'assets/images/PokemonArena/zubat/skins/crobat/drainingfangs.png',
+            'zubat-passive-evolution-golbat': 'assets/images/PokemonArena/zubat/skins/crobat/evolution.png',
+            'golbat-leech-life': 'assets/images/PokemonArena/zubat/skins/crobat/leechlife.png',
+            'golbat-supersonic': 'assets/images/PokemonArena/zubat/skins/crobat/supersonic.png',
+            'golbat-bite': 'assets/images/PokemonArena/zubat/skins/crobat/bite.png',
+            'golbat-draining-fangs': 'assets/images/PokemonArena/zubat/skins/crobat/drainingfangs.png',
+        },
+        skillOverridesBySkillId: {
+            'zubat-passive-evolution-golbat': {
+                name: 'Swarm - Crobat',
+            },
+        },
+        statusFacePictureOverridesByStatusId: {
+            zubat_golbat_evolution: 'assets/images/PokemonArena/zubat/skins/crobat/swarmfp.png',
+        },
+    },
+    {
         skinId: 'charmander-charizard-legendary',
         characterId: 'charmander',
         name: 'Charizard',

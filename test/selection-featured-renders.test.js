@@ -114,6 +114,7 @@ test('every supplied equipped-skin showcase render is mapped and optimized', () 
         'charizard.png.webp',
         'charizard.png.webp',
         'cosmiconixfixed.png.webp',
+        'crobatrendernewui.png',
         'croconaw.webp.webp',
         'crystalonix-removebg-preview.png.webp',
         'ferliagatr.png.webp',

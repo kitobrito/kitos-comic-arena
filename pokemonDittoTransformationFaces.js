@@ -99,6 +99,7 @@ const DITTO_TRANSFORMATION_FACE_BY_SKIN_ID = Object.freeze({
     'totodile-croconaw-evolution': toDittoTransformationFacePath('croconaw.webp'),
     'totodile-feraligatr-evolution': toDittoTransformationFacePath('feraligatyr.webp'),
     'primeape-annihilape-evolution': toDittoTransformationFacePath('annihilape.webp'),
+    'zubat-crobat': toDittoTransformationFacePath('crobat.webp'),
 });
 
 const DITTO_TRANSFORMATION_FACE_BY_SKIN_STATUS_ID = Object.freeze({

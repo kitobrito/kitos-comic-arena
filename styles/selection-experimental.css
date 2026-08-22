@@ -2509,7 +2509,7 @@ html.selection-experimental body.matchmaking-active .sound-controller {
     html.selection-experimental .selection-team-status {
         left: 50%;
         top: auto;
-        bottom: 72px;
+        bottom: 152px;
         width: 194px;
         font-size: 7px;
     }
