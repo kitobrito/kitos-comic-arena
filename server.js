@@ -169,6 +169,15 @@ const POKEMON_GEN2_STARTER_SELECTION_VERSION = 1;
 const POKEMON_GEN2_STARTER_UNLOCK_POINT_COST = 500;
 const LADDER_UNLOCK_POINTS_WIN = 10;
 const LADDER_UNLOCK_POINTS_LOSS = 3;
+// Alpha-to-Beta launch promo: ranked wins/losses grant a boosted unlock-point
+// reward for 30 days starting the day Beta was announced, then fall back to
+// the normal LADDER_UNLOCK_POINTS_WIN/LOSS amounts above automatically.
+const RANKED_BETA_LAUNCH_BONUS_UNLOCK_POINTS_WIN = 30;
+const RANKED_BETA_LAUNCH_BONUS_UNLOCK_POINTS_LOSS = 10;
+const RANKED_BETA_LAUNCH_BONUS_WINDOW = {
+    startsAt: new Date('2026-08-22T00:00:00.000Z'),
+    endsAt: new Date('2026-09-21T00:00:00.000Z'),
+};
 const MISSION_UNLOCK_POINT_PRICE_MIN = 150;
 const MISSION_UNLOCK_POINT_PRICE_MAX = 600;
 const MISSION_EEVEE_EVOLUTION_UNLOCK_POINT_COST = 500;
@@ -7784,10 +7793,14 @@ const applyMatchCompletionRewards = async (match, winnerUsername, endedAt) => {
             arenaProfile.ladder.losses += 1;
             arenaProfile.ladder.streak = Math.min(0, Number(arenaProfile.ladder.streak) || 0) - 1;
         }
+        const isRankedBetaLaunchBonusActive = isDateWithinWindow(
+            endedAt || new Date(),
+            RANKED_BETA_LAUNCH_BONUS_WINDOW
+        );
         const unlockPointDelta = winnerUsername && !suppressRankedPointRewards
             ? didWin
-                ? LADDER_UNLOCK_POINTS_WIN
-                : LADDER_UNLOCK_POINTS_LOSS
+                ? (isRankedBetaLaunchBonusActive ? RANKED_BETA_LAUNCH_BONUS_UNLOCK_POINTS_WIN : LADDER_UNLOCK_POINTS_WIN)
+                : (isRankedBetaLaunchBonusActive ? RANKED_BETA_LAUNCH_BONUS_UNLOCK_POINTS_LOSS : LADDER_UNLOCK_POINTS_LOSS)
             : 0;
         arenaProfile.missions = normalizeMissionState(arenaProfile.missions);
         arenaProfile.missions.unlockPoints += unlockPointDelta;
