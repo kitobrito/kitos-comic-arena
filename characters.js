@@ -23142,15 +23142,15 @@ const characters = [
             },
             {
                 "id": "koffing-smokescreen",
-                "name": "Smokescreen",
+                "name": "Polluted Air",
                 "skillimage": "assets/images/PokemonArena/koffing/koffingsmokescreen.webp",
-                "skilldescription": "Summons Polluted Air for 4 turns: Poison skills deal +5 damage (Smokescreen excluded), Poison type Pokemon gain 20% evasion, and every other Pokemon takes 5 affliction damage each turn.",
+                "skilldescription": "Summons Polluted Air for 4 turns: Poison skills deal +5 damage (Polluted Air excluded), Poison type Pokemon gain 20% evasion, and every non-Poison, non-Steel Pokemon takes 3 affliction damage each turn.",
                 "energy": [
-                    "Random"
+                    "Ninjutsu"
                 ],
                 "target": "self",
                 "damage": 0,
-                "cooldown": 4,
+                "cooldown": 5,
                 "classes": [
                     "Poison",
                     "Special",
@@ -23163,10 +23163,10 @@ const characters = [
                         "weather": {
                             "key": "pollutedair",
                             "name": "Polluted Air",
-                            "description": "Poison skills deal +5 damage (Smokescreen excluded). Poison type Pokemon gain 20% evasion. Every turn, 5 affliction damage strikes every non-Poison Pokemon.",
+                            "description": "Poison skills deal +5 damage (Polluted Air excluded). Poison type Pokemon gain 20% evasion. Every turn, 3 affliction damage strikes every non-Poison, non-Steel Pokemon.",
                             "rounds": 4,
                             "damageTypeModifiers": { "Poison": 5 },
-                            "periodicNonTypeDamage": { "immuneTypes": ["Poison"], "amount": 5 },
+                            "periodicNonTypeDamage": { "immuneTypes": ["Poison", "Steel"], "amount": 3 },
                             "evasionBonusByType": { "Poison": 20 }
                         }
                     },
@@ -23393,18 +23393,18 @@ const characters = [
             },
             {
                 "id": "koffing-weezing-smokescreen",
-                "name": "Smokescreen",
+                "name": "Polluted Air",
                 "actorCondition": {
                     "statusId": "koffing_weezing_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/koffing/weezingsmokescreen.webp",
-                "skilldescription": "Summons Polluted Air for 4 turns: Poison skills deal +5 damage (Smokescreen excluded), Poison type Pokemon gain 20% evasion, and every other Pokemon takes 5 affliction damage each turn.",
+                "skilldescription": "Summons Polluted Air for 4 turns: Poison skills deal +5 damage (Polluted Air excluded), Poison type Pokemon gain 20% evasion, and every non-Poison, non-Steel Pokemon takes 3 affliction damage each turn.",
                 "energy": [
-                    "Random"
+                    "Ninjutsu"
                 ],
                 "target": "self",
                 "damage": 0,
-                "cooldown": 4,
+                "cooldown": 5,
                 "classes": [
                     "Poison",
                     "Special",
@@ -23417,10 +23417,10 @@ const characters = [
                         "weather": {
                             "key": "pollutedair",
                             "name": "Polluted Air",
-                            "description": "Poison skills deal +5 damage (Smokescreen excluded). Poison type Pokemon gain 20% evasion. Every turn, 5 affliction damage strikes every non-Poison Pokemon.",
+                            "description": "Poison skills deal +5 damage (Polluted Air excluded). Poison type Pokemon gain 20% evasion. Every turn, 3 affliction damage strikes every non-Poison, non-Steel Pokemon.",
                             "rounds": 4,
                             "damageTypeModifiers": { "Poison": 5 },
-                            "periodicNonTypeDamage": { "immuneTypes": ["Poison"], "amount": 5 },
+                            "periodicNonTypeDamage": { "immuneTypes": ["Poison", "Steel"], "amount": 3 },
                             "evasionBonusByType": { "Poison": 20 }
                         }
                     }

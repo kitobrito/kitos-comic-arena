@@ -1279,6 +1279,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         document.body.classList.toggle('weather-fx-wildfire-active', normalizedKey === 'wildfire');
 
+        document.body.classList.toggle('weather-fx-smog-active', normalizedKey === 'pollutedair');
+
         const lightningActive = normalizedKey === 'thunderstorm';
         document.body.classList.toggle('weather-fx-lightning-active', lightningActive);
         stopWeatherFxLightning();

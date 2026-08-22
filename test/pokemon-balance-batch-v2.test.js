@@ -181,8 +181,8 @@ test('evolution thresholds and Koffing, Scyther, Hitmonchan values are updated',
     assert.equal(gastly.applyStatusAtStack.value, 35);
 
     const koffing = byId('koffing');
-    assert.deepEqual(skill(koffing, 'koffing-smokescreen').energy, ['Random']);
-    assert.deepEqual(skill(koffing, 'koffing-weezing-smokescreen').energy, ['Random']);
+    assert.deepEqual(skill(koffing, 'koffing-smokescreen').energy, ['Ninjutsu']);
+    assert.deepEqual(skill(koffing, 'koffing-weezing-smokescreen').energy, ['Ninjutsu']);
 
     const scyther = byId('scyther');
     const fury = skill(scyther, 'scyther-fury-cutter').effects.find(
