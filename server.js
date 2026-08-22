@@ -3025,7 +3025,7 @@ const POKEMON_SKIN_CATALOG = [
         characterId: 'zubat',
         name: 'Crobat',
         description:
-            'A Crobat-inspired skin for Zubat. Its portrait swaps to a swarming Crobat form on evolution, and its passive evolution skill is renamed "Swarm - Crobat" - combat skill art and stats otherwise evolve exactly as normal.',
+            'A Crobat-inspired skin for Zubat that renames every skill after its final evolution - Air Slash, Supersonic, Air Cutter, and Whirlwind - and calls him "Crobat" from the first turn. Its portrait swaps to a swarming Crobat form on evolution, when the passive evolution skill also renames itself "Swarm - Crobat." Combat stats otherwise evolve exactly as normal.',
         unlockPointCost: 750,
         previewFacePicture: 'assets/images/PokemonArena/zubat/skins/crobat/fp.png',
         patch: {
@@ -3043,8 +3043,47 @@ const POKEMON_SKIN_CATALOG = [
             'golbat-draining-fangs': 'assets/images/PokemonArena/zubat/skins/crobat/drainingfangs.png',
         },
         skillOverridesBySkillId: {
+            'zubat-leech-life': {
+                name: 'Air Slash',
+                skilldescription:
+                    'Steals 25 HP from one enemy. If that enemy is affected by Supersonic, this steals 5 additional HP. If Air Cutter improved this skill, it steals 5 additional HP. For 1 turn, if that enemy uses a new skill, Crobat steals 5 additional HP from them.',
+            },
+            'golbat-leech-life': {
+                name: 'Air Slash',
+                skilldescription:
+                    'Steals 30 HP from one enemy. If that enemy is affected by Supersonic, this steals 10 additional HP. If Air Cutter improved this skill, it steals 10 additional HP. For 1 turn, if that enemy uses a new skill, Crobat steals 20 additional HP from them.',
+            },
+            'zubat-supersonic': {
+                skilldescription:
+                    'For 1 turn, an enemy has a 45% chance for any skill they use to fail, their skills cost 1 additional random energy, and Air Slash steals 5 additional HP from them. If a skill fails this way, they lose 15 HP.',
+            },
+            'golbat-supersonic': {
+                skilldescription:
+                    'For 2 turns, an enemy has a 45% chance for any skill they use to fail, their skills cost 1 additional random energy, and Air Slash steals 10 additional HP from them. If a skill fails this way, they lose 15 HP.',
+            },
+            'zubat-bite': {
+                name: 'Air Cutter',
+                skilldescription:
+                    'Deals 20 damage to one enemy. If they are affected by Supersonic, their cooldowns are increased by 1. During the next turn, Air Slash steals 5 additional HP.',
+            },
+            'golbat-bite': {
+                name: 'Air Cutter',
+                skilldescription:
+                    'Deals 30 damage to one enemy. If they are affected by Supersonic, their cooldowns are increased by 1. During the next turn, Air Slash steals 10 additional HP.',
+            },
+            'zubat-draining-fangs': {
+                name: 'Whirlwind',
+                skilldescription: 'For 3 turns, Air Slash and Air Cutter steal 1 random energy from their target.',
+            },
+            'golbat-draining-fangs': {
+                name: 'Whirlwind',
+                skilldescription:
+                    'For 3 turns, Air Slash and Air Cutter steal 1 random energy from their target instead.',
+            },
             'zubat-passive-evolution-golbat': {
                 name: 'Swarm - Crobat',
+                skilldescription:
+                    'After Crobat has stolen 50 HP total in battle, a swarm of Crobat join him for the rest of the game, and his skills are improved.',
             },
         },
         statusFacePictureOverridesByStatusId: {
