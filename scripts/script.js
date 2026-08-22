@@ -15229,8 +15229,14 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             clearActiveSkillTargeting();
         });
 
+        const unqueueMostRecentlyQueuedSkill = () => {
+            const queueOrder = normalizePendingTurn(pendingTurnState).queueOrder;
+            if (!queueOrder.length) return;
+            const mostRecentActorSlot = queueOrder[queueOrder.length - 1];
+            cancelQueuedSkillForActor(mostRecentActorSlot);
+        };
+
         document.addEventListener('dblclick', (event) => {
-            if (!activeTargetOptions && !activeCastingSkill) return;
             if (activeChoicePopupMode === 'turn-start-target') return;
             const target = event.target;
             if (!target?.closest) return;
@@ -15254,7 +15260,14 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 ].join(',')
             );
             if (interactiveTarget) return;
-            clearActiveSkillTargeting();
+            if (activeTargetOptions || activeCastingSkill) {
+                clearActiveSkillTargeting();
+                return;
+            }
+            // Not mid-targeting and the double-click landed on empty space (background,
+            // portraits, health bars, anything not in the interactive list above) --
+            // treat it as "undo my last queued action" rather than a no-op.
+            unqueueMostRecentlyQueuedSkill();
         });
 
         // Hovering a valid target while a damage-dealing skill is selected flashes the
@@ -15563,6 +15576,15 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                                         getEffectiveCharacterPresentationForUnit(actorUnit, profile) || character;
                                     measureIngamePerf('click:skill-info', () =>
                                         renderSkillInfo(effectiveCharacter, effectiveSkill, slotIndex, skillIdx)
+                                    );
+                                    // renderSkillInfo only updates the name/description/energy/cooldown
+                                    // card. The small alternate-skill icon row below it is a separate
+                                    // render (renderSkillBrowserForCharacter) that's otherwise only
+                                    // triggered by clicking a character's portrait (renderCharacterInfo)
+                                    // -- refreshSelectedSkillInfo already pairs the two for 'skill' view
+                                    // mode, so do the same here for a direct skill-icon click.
+                                    measureIngamePerf('click:skill-browser-sync', () =>
+                                        renderSkillBrowserForCharacter(effectiveCharacter, slotIndex, skillIdx)
                                     );
                                     measureIngamePerf('click:active-skill-icon', () =>
                                         updateSkillBrowserActiveIcon(skillIdx)
