@@ -3330,6 +3330,17 @@ body.arena-mode-pokemon .chakra-box.white {
     gap: 2px;
 }
 
+/* .target-damage-preview's z-index only ever competes against its OWN card's other
+   children -- against a sibling card lower in the same team stack, what matters is
+   the two cards' own z-index (both 1 by default), which ties and falls back to DOM
+   order, so a later card paints over an earlier card's popup no matter how high the
+   popup's z-index is. Promote the hovered/focused card itself above its siblings so
+   its popup can actually escape into the next card's space. */
+.character-card.targetable:hover,
+.character-card.targetable:focus-within {
+    z-index: 20;
+}
+
 .target-damage-preview-total {
     color: #ffffff;
     font-size: 13px;
