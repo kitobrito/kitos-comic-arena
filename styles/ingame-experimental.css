@@ -603,6 +603,15 @@ html.battle-experimental .surrenderbutton:hover {
 
 /* Utility controls and modal surfaces */
 html.battle-experimental .ingame-sound-controller {
+    /* The base top:525px/width:164px position (styles/style.css) crams the
+       volume slider plus six buttons into rows that overflow past the
+       canvas's bottom edge - invisible here because .backgroundingame clips
+       overflow in this layout (unlike classic, which doesn't). Move it into
+       the open space beside the Surrender/Chat row instead of stacking
+       below it, with enough width for the buttons to fit in one row. */
+    top: 494px;
+    left: 232px;
+    width: 420px;
     border-color: rgba(255, 255, 255, 0.46);
     border-radius: 5px;
     background: rgba(8, 16, 20, 0.86);
@@ -806,10 +815,6 @@ html.battle-experimental .backgroundingame:-webkit-full-screen {
     html.battle-experimental .surrenderbutton {
         touch-action: manipulation;
         -webkit-tap-highlight-color: rgba(239, 64, 93, 0.32);
-    }
-
-    html.battle-experimental .ingame-sound-controller {
-        max-width: 250px;
     }
 }
 

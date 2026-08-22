@@ -7828,6 +7828,13 @@ body.weather-fx-lightning-active #weather-fx-lightning-static {
     position: absolute;
     left: 247px;
     top: 426px;
+    /* Sits at a fixed screen position that overlaps the third (bottom-most)
+       enemy card's damage-preview popup. Both this panel and the enemy
+       roster are otherwise unstacked (z-index: auto), so DOM order alone
+       decided the winner - a negative z-index here reliably drops it below
+       the roster (and its popups) without touching the weather-fx/scroll
+       layers, which don't occupy this region. */
+    z-index: -1;
 }
 
 .skillviewimage {
