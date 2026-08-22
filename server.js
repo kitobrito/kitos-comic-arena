@@ -6073,6 +6073,16 @@ const getDefaultMissionCatalog = () =>
     ensureRequiredMissionCatalogEntries(DEFAULT_MISSION_CATALOG);
 
 const getStoredMissionCatalog = async () => {
+    // missionCatalogCache is already treated as authoritative by callers elsewhere
+    // (getMissionLockedCharacterIds checks it before ever calling this function), and
+    // saveMissionCatalog already keeps it in sync on every admin edit -- but this
+    // function itself never read its own cache, so every call (including the one on
+    // every single match-completion reward pass, via applyMissionProgressForUsers)
+    // did a full DB round trip for data that only ever changes through that same
+    // admin save path. Missions don't change mid-match, so serve the cache directly.
+    if (missionCatalogCache && Array.isArray(missionCatalogCache) && missionCatalogCache.length) {
+        return missionCatalogCache;
+    }
     const defaultCatalog = getDefaultMissionCatalog();
     if (!appStateCollection) {
         missionCatalogCache = defaultCatalog;
@@ -7780,22 +7790,44 @@ const applyMatchCompletionRewards = async (match, winnerUsername, endedAt) => {
             previousUnlockPoints: initialArenaProfiles.get(username)?.missions?.unlockPoints || 0,
             previousLevel: initialArenaProfiles.get(username)?.ladder?.level || 1,
             previousRank: initialArenaProfiles.get(username)?.ladder?.rank || 'Academy Student',
+            // level/rank are never mutated by this loop (nothing here recomputes them from
+            // EXP), so "current" is just the same in-memory value -- no need to wait on a
+            // re-fetch to read them back. ladderRank/rankHatUrl are last-known values from
+            // before this match; the actual whole-playerbase recalculation below is kicked
+            // off in the background instead of awaited, so these two numbers may lag by a
+            // few seconds after a match ends, which is a fine trade for not blocking the
+            // win/loss result on a full-table rescan of every registered user.
+            currentExperiencePoints: nextExperiencePoints,
+            currentUnlockPoints: arenaProfile.missions.unlockPoints,
+            currentLevel: arenaProfile.ladder.level,
+            currentRank: arenaProfile.ladder.rank,
+            ladderRank: initialArenaProfiles.get(username)?.ladder?.ladderRank || null,
+            rankHatUrl: initialArenaProfiles.get(username)?.ladder?.rankHatUrl || '',
         });
     }
 
     if (profileUpdates.length > 0) {
         await usersCollection.bulkWrite(profileUpdates, { ordered: false });
     }
-    for (const clanGain of clanExperienceByName.values()) {
-        await addClanExperience(clanGain.name, clanGain.gain);
-    }
+    await Promise.all(
+        Array.from(clanExperienceByName.values()).map((clanGain) =>
+            addClanExperience(clanGain.name, clanGain.gain)
+        )
+    );
 
-    const refreshedProfiles = await recalculatePlayerLadderStandings(arena);
+    // Recomputes ladderRank/isHokage for every registered user by re-scanning the
+    // entire users collection -- a cost that grows with the whole playerbase, not just
+    // these two players, and none of the fields returned below actually depend on its
+    // result (see the comment above). Let it run after this function has already
+    // returned instead of making the match-ending player wait on it.
+    recalculatePlayerLadderStandings(arena).catch((error) => {
+        console.error('[ladder] background standings recalculation failed:', error);
+    });
+
     const results = {};
     usernames.forEach((username) => {
         const prelim = preliminaryResults.get(username);
-        const finalProfile = refreshedProfiles.get(username);
-        if (!prelim || !finalProfile) {
+        if (!prelim) {
             return;
         }
         results[username] = {
@@ -7805,15 +7837,15 @@ const applyMatchCompletionRewards = async (match, winnerUsername, endedAt) => {
             unlockPointDelta: prelim.unlockPointDelta || 0,
             rewardSuppressedReason: prelim.rewardSuppressedReason || '',
             previousExperiencePoints: prelim.previousExperiencePoints,
-            currentExperiencePoints: getProfileArenaState(finalProfile, arena).ladder.experiencePoints,
+            currentExperiencePoints: prelim.currentExperiencePoints,
             previousUnlockPoints: prelim.previousUnlockPoints || 0,
-            currentUnlockPoints: getProfileArenaState(finalProfile, arena).missions.unlockPoints || 0,
+            currentUnlockPoints: prelim.currentUnlockPoints || 0,
             previousLevel: prelim.previousLevel,
-            currentLevel: getProfileArenaState(finalProfile, arena).ladder.level,
+            currentLevel: prelim.currentLevel,
             previousRank: prelim.previousRank,
-            currentRank: getProfileArenaState(finalProfile, arena).ladder.rank,
-            ladderRank: getProfileArenaState(finalProfile, arena).ladder.ladderRank || null,
-            rankHatUrl: getProfileArenaState(finalProfile, arena).ladder.rankHatUrl || '',
+            currentRank: prelim.currentRank,
+            ladderRank: prelim.ladderRank,
+            rankHatUrl: prelim.rankHatUrl,
         };
     });
 
