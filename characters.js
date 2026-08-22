@@ -34050,7 +34050,7 @@ const characters = [
                         "value": 1
                     }
                 },
-                "classes": ["Fighting", "Special", "Control", "Instant"],
+                "classes": ["Fighting", "Special", "Instant"],
                 "effects": [
                     {
                         "type": "apply_status",
@@ -34078,7 +34078,7 @@ const characters = [
                     "cooldown": 2,
                     "target": "single-enemy",
                     "damage": 0,
-                    "classes": ["Fighting", "Special", "Control", "Instant"],
+                    "classes": ["Fighting", "Special", "Instant"],
                     "effects": [
                         {
                             "type": "apply_status",

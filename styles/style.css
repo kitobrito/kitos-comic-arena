@@ -7792,6 +7792,15 @@ body.weather-fx-lightning-active #weather-fx-lightning-static {
     transform: scaleX(-1);
 }
 
+/* .enemy-characters mirrors the whole enemy roster horizontally so their sprites face
+   the player; every other text-bearing overlay in this file already counters that with
+   its own scaleX(-1) (health-text, health-bar-damage-flash-label, the goblin-bomb/
+   space-marine/rex-charge labels below), but this one was missed, leaving the damage
+   preview tooltip's text mirrored and unreadable when hovering an enemy target. */
+.enemy-characters .target-damage-preview {
+    transform: translateX(-50%) scaleX(-1);
+}
+
 .skillinformation {
     background-image: url('../assets/images/ingamebottomscroll.png');
     width: 523px;

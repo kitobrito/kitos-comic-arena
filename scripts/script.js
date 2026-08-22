@@ -13435,25 +13435,19 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 skillInfo.cooldownEl.textContent = '';
             }
             if (skillInfo.classesEl) {
-                if (currentMatchArena === 'pokemon') {
-                    appendPokemonTypeBadges(
-                        skillInfo.classesEl,
-                        getVisiblePokemonTypes(character, unit),
-                        `Character | Role: ${roleText} | Type: `
-                    );
-                } else {
-                    skillInfo.classesEl.textContent = `Character | Role: ${roleText}`;
-                }
+                // The role/type badges are already shown up top via skillInfo.roleEl
+                // ("Role: X | Type: Y") -- this second copy just repeated the same
+                // information down here with "Character | " tacked on.
+                skillInfo.classesEl.innerHTML = '';
+                skillInfo.classesEl.textContent = '';
             }
             if (skillInfo.classPickerWrapEl && skillInfo.classPickerEl) {
                 skillInfo.classPickerWrapEl.style.display = 'none';
                 skillInfo.classPickerEl.innerHTML = '';
             }
             if (skillInfo.energyEl) {
+                // The skill icon row below is self-explanatory; it doesn't need a label.
                 skillInfo.energyEl.innerHTML = '';
-                const label = document.createElement('span');
-                label.textContent = 'Skills:';
-                skillInfo.energyEl.appendChild(label);
             }
             renderSkillBrowserForCharacter(character, actorSlot, null);
         };
