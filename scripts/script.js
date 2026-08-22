@@ -18753,6 +18753,41 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         return 'base';
     };
 
+    // A deterministic 0..1 value per identity string -- same character always gets the
+    // same variance, so the portrait's idle motion reads as "this Pokemon breathes like
+    // this" rather than random jitter, but different characters no longer pulse in
+    // perfect unison with each other.
+    const hashIdentityToUnitInterval = (value = '') => {
+        const str = String(value || '');
+        let hash = 0;
+        for (let i = 0; i < str.length; i += 1) {
+            hash = (Math.imul(hash, 31) + str.charCodeAt(i)) | 0;
+        }
+        return (hash >>> 0) / 4294967295;
+    };
+
+    const applyPortraitLifeVariance = (portraitElement, identity) => {
+        if (!portraitElement) return;
+        const seedBase = String(identity || 'unknown');
+        const durationUnit = hashIdentityToUnitInterval(`${seedBase}:duration`);
+        const scaleUnit = hashIdentityToUnitInterval(`${seedBase}:scale`);
+        const delayUnit = hashIdentityToUnitInterval(`${seedBase}:delay`);
+        const durationMs = Math.round(3600 + durationUnit * 1300); // 3600-4900ms
+        const scalePeak = (1.016 + scaleUnit * 0.018).toFixed(4); // 1.016-1.034
+        const delayMs = Math.round(delayUnit * durationMs * -1); // negative: starts mid-cycle
+        portraitElement.style.setProperty('--portrait-breathe-duration', `${durationMs}ms`);
+        portraitElement.style.setProperty('--portrait-breathe-scale', scalePeak);
+        portraitElement.style.setProperty('--portrait-breathe-delay', `${delayMs}ms`);
+    };
+
+    const playPortraitConfirmPop = (portraitElement) => {
+        if (!portraitElement) return;
+        portraitElement.classList.remove('portrait-confirm-pop');
+        void portraitElement.offsetWidth;
+        portraitElement.classList.add('portrait-confirm-pop');
+        window.setTimeout(() => portraitElement.classList.remove('portrait-confirm-pop'), 440);
+    };
+
     const renderSelectionCharacterForm = (character, requestedForm = 'base') => {
         if (!character) return;
         const availableForms = getSelectionCharacterRenderForms(character);
@@ -18800,6 +18835,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             void portraitEl.offsetWidth;
             portraitEl.classList.add('form-swapping');
             window.setTimeout(() => portraitEl.classList.remove('form-swapping'), 280);
+            applyPortraitLifeVariance(portraitEl, character.id || activeName || character.name);
             loadSelectionPreviewImage(
                 portraitEl,
                 activeSource || character.facePicture || (activeArenaMode === 'pokemon' ? POKEMON_FOUND_ICON_URL : ''),
@@ -19204,6 +19240,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             slot.removeAttribute('tabindex');
             slot.style.removeProperty('--slot-type-glow-a');
             slot.style.removeProperty('--slot-type-glow-b');
+            slot.style.removeProperty('--slot-tilt');
             return;
         }
         slot.classList.remove('slot-empty');
@@ -19211,6 +19248,11 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         slot.draggable = false;
         slot.dataset.characterInitial = String(character.name || '?').trim().charAt(0).toUpperCase() || '?';
         applyRosterSlotTypeGlow(slot, character);
+        // Every roster tile reacts to hover a little differently -- same idea as the
+        // preview portrait's breathing variance -- so the grid doesn't feel like one
+        // template stamped 40+ times.
+        const tiltUnit = hashIdentityToUnitInterval(`${character.id || character.name || index}:tilt`);
+        slot.style.setProperty('--slot-tilt', `${(tiltUnit * 6 - 3).toFixed(2)}deg`);
         slot.setAttribute(
             'aria-label',
             locked
@@ -19316,6 +19358,9 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             soundManager.play(rosterConfirmSound);
         }
         handleCharacterSelect(assignment.characterIndex, { openViewer: false });
+        if (options.confirm) {
+            playPortraitConfirmPop(portraitEl);
+        }
     };
 
     const moveDragPayloadToSelectedSlot = (payload, targetSlotIndex) => {
