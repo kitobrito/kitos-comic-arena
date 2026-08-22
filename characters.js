@@ -18934,19 +18934,6 @@ const characters = [
                                     "tooltipText": "This character cannot reduce damage or become invulnerable."
                                 }
                             },
-                            "onOwnerUseSkillApplyStatusToSourceOwner": {
-                                "statusId": "squirtle_evolution_tracker",
-                                "duration": 99,
-                                "metadata": {
-                                    "infiniteDuration": true,
-                                    "squirtleEvolutionStacks": 1,
-                                    "stackMetadataKey": "squirtleEvolutionStacks",
-                                    "stackDelta": 1,
-                                    "stackMax": 3,
-                                    "statusIconUrl": "assets/images/PokemonArena/squirtle/evolutionwartortle.jpg",
-                                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 3 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
-                                }
-                            },
                             "statusIconUrl": "assets/images/PokemonArena/squirtle/hydropump.jpg",
                             "tooltipText": "This character takes 20 damage at the start of each turn. If this character uses a new harmful skill, they are affected by Guard Break for 3 turns."
                         }
@@ -19021,22 +19008,7 @@ const characters = [
                         "scope": "all-allies",
                         "sourceRelation": "enemy",
                         "harmfulOnly": true,
-                        "count": 0,
-                        "metadata": {
-                            "onCleanseApplyStatusToOwner": {
-                                "statusId": "squirtle_evolution_tracker",
-                                "duration": 99,
-                                "metadata": {
-                                    "infiniteDuration": true,
-                                    "squirtleEvolutionStacks": 1,
-                                    "stackMetadataKey": "squirtleEvolutionStacks",
-                                    "stackDelta": 1,
-                                    "stackMax": 3,
-                                    "statusIconUrl": "assets/images/PokemonArena/squirtle/evolutionwartortle.jpg",
-                                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 3 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
-                                }
-                            }
-                        }
+                        "count": 0
                     },
                     {
                         "type": "damage",
@@ -19095,7 +19067,8 @@ const characters = [
                                 "metadata": {
                                     "infiniteDuration": true,
                                     "removeStatusIdsOnApply": [
-                                        "bulbasaur_sun_stacks"
+                                        "bulbasaur_sun_stacks",
+                                        "bulbasaur_sun_tracker"
                                     ],
                                     "facePictureOverride": "assets/images/PokemonArena/Bulbasaur/ivysaurfp.jpg",
                                     "skillReplacements": {
@@ -19390,7 +19363,7 @@ const characters = [
                     "statusId": "bulbasaur_ivysaur_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/Bulbasaur/ivysaurleechseed.png",
-                "skilldescription": "Ivysaur steals 25 health from one enemy immediately, then steals 10 health at the start of that enemy's next 2 turns. Ivysaur gains 1 Sun whenever Leech Seed deals damage.",
+                "skilldescription": "Ivysaur steals 25 health from one enemy immediately, then steals 10 health at the start of that enemy's next 2 turns.",
                 "energy": [
                     "Taijutsu",
                     "Random"
@@ -19407,30 +19380,7 @@ const characters = [
                     {
                         "type": "health_steal_damage",
                         "amount": 25,
-                        "scope": "target",
-                        "metadata": {
-                            "onSuccessfulDamageApplyStatusToOwner": {
-                                "statusId": "bulbasaur_sun_stacks",
-                                "duration": 99,
-                                "metadata": {
-                                    "infiniteDuration": true,
-                                    "bulbasaurSunStacks": 1,
-                                    "stackMetadataKey": "bulbasaurSunStacks",
-                                    "stackDelta": 1,
-                                    "stackMax": 5,
-                                    "randomCostReductionPerStatusMetadata": {
-                                        "skillIds": [
-                                            "bulbasaur-solar-beam",
-                                            "ivysaur-solar-beam"
-                                        ],
-                                        "metadataKey": "bulbasaurSunStacks",
-                                        "multiplier": 1
-                                    },
-                                    "statusIconUrl": "assets/images/PokemonArena/Bulbasaur/passiveevolveivysaur.png",
-                                    "tooltipTextTemplate": "Bulbasaur has {bulbasaurSunStacks} Sun stack(s). Solar Beam costs {bulbasaurSunStacks} less random energy. At 5 Sun, Bulbasaur evolves into Ivysaur and consumes all Sun stacks."
-                                }
-                            }
-                        }
+                        "scope": "target"
                     },
                     {
                         "type": "apply_status",
@@ -19445,52 +19395,8 @@ const characters = [
                             "fixedTurnStartDamage": true,
                             "ignoreTargetDamageReduction": true,
                             "ignoreTargetDestructibleDefense": true,
-                            "turnStartApplyStatusToSourceOwner": {
-                                "statusId": "bulbasaur_sun_stacks",
-                                "duration": 99,
-                                "sourceSkillId": "bulbasaur-passive-evolution-ivysaur",
-                                "metadata": {
-                                    "infiniteDuration": true,
-                                    "bulbasaurSunStacks": 1,
-                                    "stackMetadataKey": "bulbasaurSunStacks",
-                                    "stackDelta": 1,
-                                    "stackMax": 5,
-                                    "randomCostReductionPerStatusMetadata": {
-                                        "skillIds": [
-                                            "bulbasaur-solar-beam",
-                                            "ivysaur-solar-beam"
-                                        ],
-                                        "metadataKey": "bulbasaurSunStacks",
-                                        "multiplier": 1
-                                    },
-                                    "applyStatusAtStack": {
-                                        "metadataKey": "bulbasaurSunStacks",
-                                        "value": 5,
-                                        "statusId": "bulbasaur_ivysaur_evolution",
-                                        "duration": 99,
-                                        "sourceSkillId": "bulbasaur-passive-evolution-ivysaur",
-                                        "metadata": {
-                                            "infiniteDuration": true,
-                                            "removeStatusIdsOnApply": [
-                                                "bulbasaur_sun_stacks"
-                                            ],
-                                            "facePictureOverride": "assets/images/PokemonArena/Bulbasaur/ivysaurfp.jpg",
-                                            "skillReplacements": {
-                                                "bulbasaur-leech-seed": "ivysaur-leech-seed",
-                                                "bulbasaur-vine-whip": "ivysaur-vine-whip",
-                                                "bulbasaur-razor-leaf": "ivysaur-razor-leaf",
-                                                "bulbasaur-solar-beam": "ivysaur-solar-beam"
-                                            },
-                                            "tooltipText": "Bulbasaur has evolved into Ivysaur. All of his skills have improved effects.",
-                                            "healOnApplyFlat": 10
-                                        }
-                                    },
-                                    "statusIconUrl": "assets/images/PokemonArena/Bulbasaur/passiveevolveivysaur.png",
-                                    "tooltipTextTemplate": "Bulbasaur has {bulbasaurSunStacks} Sun stack(s). Solar Beam costs {bulbasaurSunStacks} less random energy. At 5 Sun, Bulbasaur evolves into Ivysaur and consumes all Sun stacks."
-                                }
-                            },
                             "statusIconUrl": "assets/images/PokemonArena/Bulbasaur/ivysaurleechseed.png",
-                            "tooltipText": "This character loses 10 health at the start of each of their next 2 turns. Ivysaur restores 10 health and gains 1 Sun whenever this deals damage."
+                            "tooltipText": "This character loses 10 health at the start of each of their next 2 turns. Ivysaur restores 10 health whenever this deals damage."
                         }
                     }
                 ]
@@ -22677,20 +22583,7 @@ const characters = [
                         "scope": "target",
                         "metadata": {
                             "harmful": true,
-                            "ignoreDamageReduction": true,
-                            "onSuccessfulDamageApplyStatusToOwner": {
-                                "statusId": "pidgey_evolution_tracker",
-                                "duration": 99,
-                                "metadata": {
-                                    "infiniteDuration": true,
-                                    "pidgeyDamageDealt": 0,
-                                    "stackMetadataKey": "pidgeyDamageDealt",
-                                    "stackDeltaFromDamageDealt": true,
-                                    "stackMax": 50,
-                                    "statusIconUrl": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
-                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/50 total damage. At 50 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
-                                }
-                            }
+                            "ignoreDamageReduction": true
                         }
                     },
                     {
@@ -22792,20 +22685,7 @@ const characters = [
                         "scope": "target",
                         "metadata": {
                             "harmful": true,
-                            "ignoreDamageReduction": true,
-                            "onSuccessfulDamageApplyStatusToOwner": {
-                                "statusId": "pidgey_evolution_tracker",
-                                "duration": 99,
-                                "metadata": {
-                                    "infiniteDuration": true,
-                                    "pidgeyDamageDealt": 0,
-                                    "stackMetadataKey": "pidgeyDamageDealt",
-                                    "stackDeltaFromDamageDealt": true,
-                                    "stackMax": 50,
-                                    "statusIconUrl": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
-                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/50 total damage. At 50 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
-                                }
-                            }
+                            "ignoreDamageReduction": true
                         }
                     },
                     {
@@ -23582,6 +23462,7 @@ const characters = [
                         "metadata": {
                             "hidden": true,
                             "infiniteDuration": true,
+                            "removeStatusIdsOnApply": ["zubat_evolution_tracker"],
                             "facePictureOverride": "assets/images/PokemonArena/zubat/golbatfp.webp",
                             "skillReplacements": {
                                 "zubat-leech-life": "golbat-leech-life",
@@ -23893,23 +23774,7 @@ const characters = [
                     {
                         "type": "health_steal_damage",
                         "amount": 30,
-                        "scope": "target",
-                        "metadata": {
-                            "onSuccessfulDamageApplyStatusToOwner": {
-                                "statusId": "zubat_evolution_tracker",
-                                "duration": 99,
-                                "metadata": {
-                                    "hidden": true,
-                                    "infiniteDuration": true,
-                                    "zubatHpStolen": 0,
-                                    "stackMetadataKey": "zubatHpStolen",
-                                    "stackDeltaFromDamageDealt": true,
-                                    "stackMax": 50,
-                                    "statusIconUrl": "assets/images/PokemonArena/zubat/golbatleechlife.webp",
-                                    "tooltipTextTemplate": "Zubat has stolen {zubatHpStolen}/50 total HP and will evolve into Golbat at 50."
-                                }
-                            }
-                        }
+                        "scope": "target"
                     },
                     {
                         "type": "health_steal_damage",
@@ -23918,22 +23783,6 @@ const characters = [
                         "condition": {
                             "scope": "target",
                             "statusId": "zubat_supersonic_mark"
-                        },
-                        "metadata": {
-                            "onSuccessfulDamageApplyStatusToOwner": {
-                                "statusId": "zubat_evolution_tracker",
-                                "duration": 99,
-                                "metadata": {
-                                    "hidden": true,
-                                    "infiniteDuration": true,
-                                    "zubatHpStolen": 0,
-                                    "stackMetadataKey": "zubatHpStolen",
-                                    "stackDeltaFromDamageDealt": true,
-                                    "stackMax": 50,
-                                    "statusIconUrl": "assets/images/PokemonArena/zubat/golbatleechlife.webp",
-                                    "tooltipTextTemplate": "Zubat has stolen {zubatHpStolen}/50 total HP and will evolve into Golbat at 50."
-                                }
-                            }
                         }
                     },
                     {
@@ -23943,22 +23792,6 @@ const characters = [
                         "condition": {
                             "scope": "self",
                             "statusId": "zubat_bite_bonus"
-                        },
-                        "metadata": {
-                            "onSuccessfulDamageApplyStatusToOwner": {
-                                "statusId": "zubat_evolution_tracker",
-                                "duration": 99,
-                                "metadata": {
-                                    "hidden": true,
-                                    "infiniteDuration": true,
-                                    "zubatHpStolen": 0,
-                                    "stackMetadataKey": "zubatHpStolen",
-                                    "stackDeltaFromDamageDealt": true,
-                                    "stackMax": 50,
-                                    "statusIconUrl": "assets/images/PokemonArena/zubat/golbatleechlife.webp",
-                                    "tooltipTextTemplate": "Zubat has stolen {zubatHpStolen}/50 total HP and will evolve into Golbat at 50."
-                                }
-                            }
                         }
                     },
                     {
@@ -23973,20 +23806,6 @@ const characters = [
                             "onOwnerUseSkillRequireNewSkill": true,
                             "onOwnerUseSkillSelfDamage": 20,
                             "onOwnerUseSkillHealSourceAmount": 20,
-                            "onOwnerUseSkillApplyStatusToSourceOwner": {
-                                "statusId": "zubat_evolution_tracker",
-                                "duration": 99,
-                                "metadata": {
-                                    "hidden": true,
-                                    "infiniteDuration": true,
-                                    "zubatHpStolen": 0,
-                                    "stackMetadataKey": "zubatHpStolen",
-                                    "stackDelta": 20,
-                                    "stackMax": 50,
-                                    "statusIconUrl": "assets/images/PokemonArena/zubat/golbatleechlife.webp",
-                                    "tooltipTextTemplate": "Zubat has stolen {zubatHpStolen}/50 total HP and will evolve into Golbat at 50."
-                                }
-                            },
                             "statusIconUrl": "assets/images/PokemonArena/zubat/golbatleechlife.webp",
                             "tooltipText": "The next new skill this character uses, they lose 20 HP and Golbat heals for 20 HP."
                         }
