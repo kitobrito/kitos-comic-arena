@@ -9732,8 +9732,12 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             candy.innerHTML = '<i></i><i></i><i></i>';
 
             core.append(oldPortrait, newPortrait, cocoon, ringA, ringB, ringC, flash);
-            buildPokemonEvolutionParticles('pokemon-evolution-particle', 24).forEach((node) => core.appendChild(node));
-            buildPokemonEvolutionParticles('pokemon-evolution-star', 12).forEach((node) => core.appendChild(node));
+            // Trimmed from 24/12 -- each particle/star is its own animated, composited
+            // layer running simultaneously with everything else in this cinematic, and
+            // the even angle-spacing in buildPokemonEvolutionParticles means a lower
+            // count still reads as a full ring, just a bit less dense.
+            buildPokemonEvolutionParticles('pokemon-evolution-particle', 16).forEach((node) => core.appendChild(node));
+            buildPokemonEvolutionParticles('pokemon-evolution-star', 8).forEach((node) => core.appendChild(node));
             crest.append(kicker, title, subtitle);
             stage.append(core, candy, crest);
             cinematic.append(backdrop, atmosphere, rays, stage);

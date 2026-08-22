@@ -14661,7 +14661,11 @@ body.end-turn-modal-open .global-status-tooltip {
             color-mix(in srgb, var(--evolution-primary) 24%, transparent) 0 12%,
             rgba(0, 7, 18, .7) 42%,
             rgba(0, 2, 10, .9) 100%);
-    backdrop-filter: saturate(.75) brightness(.54) blur(1px);
+    /* No blur() here -- it's the most expensive part of backdrop-filter (continuous
+       resampling of everything behind a full-viewport element for the whole 3.4s this
+       is visible) for a barely-perceptible 1px softening. saturate/brightness alone
+       still carries the darkened, desaturated backdrop look. */
+    backdrop-filter: saturate(.75) brightness(.54);
     animation: pokemon-evolution-backdrop-pulse 3400ms ease-in-out both;
 }
 
@@ -15012,16 +15016,22 @@ body.ui-disable-skill-cast-animations .pokemon-evolution-cinematic {
 }
 
 @keyframes pokemon-evolution-old-form {
+    /* filter is intentionally brightness/saturate only, no blur() -- blur forces the
+       browser to resample neighboring pixels every frame the value changes, unlike
+       brightness/saturate which are much cheaper per-pixel ops, and unlike transform/
+       opacity which are compositor-only. This is the portrait swap at the center of
+       the whole cinematic, so its paint cost matters more than any other element here. */
     0%, 12% { opacity: 0; transform: scale(.55); filter: brightness(1); }
     20% { opacity: 1; transform: scale(1); }
     37% { filter: brightness(1.4) saturate(1.25); }
     48% { opacity: 1; transform: scale(1.08); filter: brightness(8) saturate(0); }
-    54%, 100% { opacity: 0; transform: scale(.84); filter: brightness(12) blur(5px); }
+    54%, 100% { opacity: 0; transform: scale(.84); filter: brightness(12); }
 }
 
 @keyframes pokemon-evolution-new-form {
-    0%, 50% { opacity: 0; transform: scale(.68); filter: brightness(9) saturate(0) blur(5px); }
-    56% { opacity: 1; transform: scale(.9); filter: brightness(4) saturate(.35) blur(1px); }
+    /* Same reasoning as pokemon-evolution-old-form above: brightness/saturate only. */
+    0%, 50% { opacity: 0; transform: scale(.68); filter: brightness(9) saturate(0); }
+    56% { opacity: 1; transform: scale(.9); filter: brightness(4) saturate(.35); }
     68%, 88% { opacity: 1; transform: scale(1); filter: brightness(1.06) saturate(1.2); }
     100% { opacity: 0; transform: scale(1.08); filter: brightness(1.25); }
 }
