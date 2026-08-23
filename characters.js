@@ -23152,6 +23152,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 5,
                 "classes": [
+                    "Weather",
                     "Poison",
                     "Special",
                     "Instant"
@@ -23406,6 +23407,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 5,
                 "classes": [
+                    "Weather",
                     "Poison",
                     "Special",
                     "Instant"
@@ -31624,6 +31626,7 @@ const characters = [
                 "target": "self",
                 "damage": 0,
                 "classes": [
+                    "Weather",
                     "Ice",
                     "Special",
                     "Instant"
@@ -31728,6 +31731,7 @@ const characters = [
                 "target": "self",
                 "damage": 0,
                 "classes": [
+                    "Weather",
                     "Fire",
                     "Special",
                     "Instant",
@@ -31919,6 +31923,7 @@ const characters = [
                 "target": "self",
                 "damage": 0,
                 "classes": [
+                    "Weather",
                     "Electric",
                     "Special",
                     "Instant",
