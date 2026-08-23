@@ -8312,8 +8312,8 @@ const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonical
             'magneton-flash-cannon': ['skilldescription'],
         },
         koffing: {
-            'koffing-smokescreen': ['energy'],
-            'koffing-weezing-smokescreen': ['energy'],
+            'koffing-smokescreen': ['name', 'skilldescription', 'energy', 'cooldown', 'effects'],
+            'koffing-weezing-smokescreen': ['name', 'skilldescription', 'energy', 'cooldown', 'effects'],
             'koffing-weezing-self-destruct': ['useBaseSkillCooldown'],
         },
         abra: {
