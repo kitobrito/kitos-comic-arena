@@ -1266,6 +1266,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         snowstorm: 'assets/images/PokemonArena/weather-vfx/Snowstorm Sheet.png',
         wildfire: 'assets/images/PokemonArena/weather-vfx/Wildfire Sheet.png',
         thunderstorm: 'assets/images/PokemonArena/weather-vfx/Thunderstorm Sheet.png',
+        pollutedair: 'assets/images/PokemonArena/weather-vfx/Polluted Air Sheet.png',
     };
 
     let activeWeatherFxKey = null;
@@ -1278,8 +1279,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (normalizedKey === 'snowstorm') initWeatherFxSnow();
 
         document.body.classList.toggle('weather-fx-wildfire-active', normalizedKey === 'wildfire');
-
-        document.body.classList.toggle('weather-fx-smog-active', normalizedKey === 'pollutedair');
 
         const lightningActive = normalizedKey === 'thunderstorm';
         document.body.classList.toggle('weather-fx-lightning-active', lightningActive);

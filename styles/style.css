@@ -4692,26 +4692,6 @@ body.weather-fx-wildfire-active .skillholder {
     100% { opacity: 0.95; }
 }
 
-/* --- Polluted Air: a drifting toxic haze permeating the whole battlefield --- */
-body.weather-fx-smog-active #weather-fx-smog {
-    opacity: 0.85;
-}
-
-.weather-fx-smog {
-    background:
-        radial-gradient(ellipse 70% 60% at 22% 35%, rgba(142, 104, 168, 0.42) 0%, transparent 70%),
-        radial-gradient(ellipse 65% 55% at 72% 62%, rgba(104, 138, 92, 0.36) 0%, transparent 70%),
-        radial-gradient(ellipse 60% 60% at 48% 85%, rgba(120, 96, 150, 0.34) 0%, transparent 75%);
-    filter: blur(11px);
-    animation: weather-fx-smog-drift 15s ease-in-out infinite alternate;
-}
-
-@keyframes weather-fx-smog-drift {
-    0% { transform: translate(-4%, -3%) scale(1.04); }
-    50% { transform: translate(3%, 2%) scale(1.12); }
-    100% { transform: translate(-2%, 4%) scale(1.08); }
-}
-
 /* --- Lightning Storm: screen-wide static plus random full flashes --- */
 .weather-fx-lightning-static {
     background-image: repeating-linear-gradient(
