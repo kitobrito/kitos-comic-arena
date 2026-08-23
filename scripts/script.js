@@ -310,9 +310,26 @@ document.addEventListener('DOMContentLoaded', async () => {
         dock.append(toggle, panel);
         document.body.appendChild(dock);
     };
+    const setupBattleSoundControllerCollapse = () => {
+        if (!isIngamePage) return;
+        const toggle = document.getElementById('ingame-sound-controller-toggle');
+        const controller = document.getElementById('ingame-sound-controller');
+        if (!toggle || !controller) return;
+        toggle.addEventListener('click', () => {
+            const isOpen = controller.classList.toggle('ingame-sound-controller-open');
+            toggle.setAttribute('aria-expanded', String(isOpen));
+        });
+        document.addEventListener('click', (event) => {
+            if (!controller.classList.contains('ingame-sound-controller-open')) return;
+            if (controller.contains(event.target) || toggle.contains(event.target)) return;
+            controller.classList.remove('ingame-sound-controller-open');
+            toggle.setAttribute('aria-expanded', 'false');
+        });
+    };
     applyUiSettings();
     setupSelectionFullscreenToggle();
     setupMobileIngameUiOptions();
+    setupBattleSoundControllerCollapse();
 
     const shouldUseCustomCursor = (isIngamePage || isSelectionPage) && uiSettings.customCursor;
     const shouldUseGameClickSound = isIngamePage || isSelectionPage;
