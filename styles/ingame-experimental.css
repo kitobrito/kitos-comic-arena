@@ -274,7 +274,11 @@ html.battle-experimental .exchange-label:focus-visible {
 html.battle-experimental .player-characters,
 html.battle-experimental .enemy-characters {
     position: absolute;
-    z-index: 20;
+    /* Above .skillinformation (z-index: 30) so a card's hovered
+       .target-damage-preview popup (locally z-index: 55, but capped by this
+       container's own stacking level from the outside) isn't trapped behind
+       the skill-description card sitting over the same screen region. */
+    z-index: 35;
     top: 101px;
     left: 16px;
     width: 129px;
@@ -603,20 +607,57 @@ html.battle-experimental .surrenderbutton:hover {
 
 /* Utility controls and modal surfaces */
 html.battle-experimental .ingame-sound-controller {
-    /* The base top:525px/width:164px position (styles/style.css) crams the
-       volume slider plus six buttons into rows that overflow past the
-       canvas's bottom edge - invisible here because .backgroundingame clips
-       overflow in this layout (unlike classic, which doesn't). Move it into
-       the open space beside the Surrender/Chat row instead of stacking
-       below it, with enough width for the buttons to fit in one row. */
-    top: 494px;
-    left: 232px;
-    width: 420px;
+    /* Every other spot in this 770x560 layout is already claimed: the
+       Surrender/Chat row and .skillinformation card together span nearly
+       the entire bottom band, and .skillinformation alone (top:426px,
+       height:126px) covers most of the width above them too. The one
+       confirmed-empty rectangle is the gap between .player-characters
+       (left:16px, width:129px -> ends at 145px) and .skillinformation
+       (left:230px) - so this stacks vertically in that 85px-wide column
+       instead of trying to fit a horizontal row anywhere else. */
+    top: 101px;
+    left: 148px;
+    width: 78px;
+    height: 324px;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 6px;
+    padding: 8px 6px;
+    overflow-y: auto;
     border-color: rgba(255, 255, 255, 0.46);
     border-radius: 5px;
     background: rgba(8, 16, 20, 0.86);
     box-shadow: 0 7px 18px rgba(0, 0, 0, 0.42);
     backdrop-filter: blur(7px);
+}
+
+html.battle-experimental .ingame-sound-controller .mute-button,
+html.battle-experimental .ingame-sound-controller .ingame-mute-button,
+html.battle-experimental .ingame-sound-controller .effects-mute-button,
+html.battle-experimental .ingame-sound-controller .ingame-effects-mute-button,
+html.battle-experimental .ingame-sound-controller .skill-effects-toggle,
+html.battle-experimental .ingame-sound-controller .ingame-skill-effects-toggle {
+    width: 100%;
+    margin-right: 0;
+    flex: 0 0 auto;
+}
+
+html.battle-experimental .ingame-sound-controller .ingame-ui-options-toggle,
+html.battle-experimental .ingame-sound-controller .ingame-fullscreen-toggle,
+html.battle-experimental .ingame-sound-controller .ingame-status-reveal-toggle {
+    width: 100%;
+    margin-left: 0;
+    font-size: 8px;
+    padding: 3px 2px;
+    flex: 0 0 auto;
+}
+
+html.battle-experimental .ingame-sound-controller .ingame-sound-volume {
+    flex: 0 0 auto;
+    width: 100%;
+    margin-bottom: 0;
 }
 
 html.battle-experimental .ingame-ui-options-toggle {
