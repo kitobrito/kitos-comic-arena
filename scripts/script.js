@@ -19260,6 +19260,97 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
     const rosterHoverTickSound = isSelectionPage ? new Audio('assets/images/PokemonArena/sfx/UI Hover.mp3') : null;
     const rosterConfirmSound = isSelectionPage ? new Audio('assets/images/PokemonArena/sfx/UI Select.mp3') : null;
 
+    const ROSTER_FLIGHT_REDUCED_MOTION_QUERY = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    // Purely decorative -- appended to <body> as fixed-position overlays rather than
+    // inside .selected-character-slot, since that slot has overflow:hidden in the
+    // experimental UI and would clip a burst that's meant to spill past its edges.
+    const spawnTeamArrivalStars = (targetSlotEl) => {
+        if (!targetSlotEl) return;
+        const rect = targetSlotEl.getBoundingClientRect();
+        if (!rect.width || !rect.height) return;
+        const burst = document.createElement('div');
+        burst.className = 'team-slot-star-burst';
+        burst.style.left = `${rect.left + rect.width / 2}px`;
+        burst.style.top = `${rect.top + rect.height / 2}px`;
+        const STAR_GLYPHS = ['✦', '✧', '★'];
+        const STAR_COUNT = 7;
+        for (let i = 0; i < STAR_COUNT; i += 1) {
+            const star = document.createElement('span');
+            star.className = 'team-slot-star';
+            const angle = ((Math.PI * 2) / STAR_COUNT) * i + (Math.random() * 0.5 - 0.25);
+            const distance = 24 + Math.random() * 18;
+            star.style.setProperty('--star-dx', `${Math.cos(angle) * distance}px`);
+            star.style.setProperty('--star-dy', `${Math.sin(angle) * distance}px`);
+            star.style.animationDelay = `${Math.random() * 70}ms`;
+            star.style.fontSize = `${11 + Math.random() * 7}px`;
+            star.textContent = STAR_GLYPHS[i % STAR_GLYPHS.length];
+            burst.appendChild(star);
+        }
+        document.body.appendChild(burst);
+        window.setTimeout(() => burst.remove(), 800);
+    };
+
+    const playRosterToTeamFlight = (sourceEl, targetSlotEl, imageUrl) => {
+        if (!sourceEl || !targetSlotEl || !imageUrl) return;
+        if (ROSTER_FLIGHT_REDUCED_MOTION_QUERY.matches) return;
+        if (typeof sourceEl.animate !== 'function') return;
+        const sourceRect = sourceEl.getBoundingClientRect();
+        const targetRect = targetSlotEl.getBoundingClientRect();
+        if (!sourceRect.width || !targetRect.width) return;
+
+        const targetImage = targetSlotEl.querySelector('.selected-slot-image');
+        if (targetImage) targetImage.style.visibility = 'hidden';
+
+        const flightSize = Math.max(sourceRect.width, sourceRect.height) * 0.7;
+        const clone = document.createElement('img');
+        clone.src = imageUrl;
+        clone.className = 'roster-flight-clone';
+        clone.style.width = `${flightSize}px`;
+        clone.style.height = `${flightSize}px`;
+        clone.style.left = `${sourceRect.left + sourceRect.width / 2 - flightSize / 2}px`;
+        clone.style.top = `${sourceRect.top + sourceRect.height / 2 - flightSize / 2}px`;
+        document.body.appendChild(clone);
+
+        const startX = sourceRect.left + sourceRect.width / 2;
+        const startY = sourceRect.top + sourceRect.height / 2;
+        const endX = targetRect.left + targetRect.width / 2;
+        const endY = targetRect.top + targetRect.height / 2;
+        const midX = (startX + endX) / 2 + (Math.random() * 30 - 15);
+        const midY = Math.min(startY, endY) - 90;
+        const targetScale = (targetRect.width * 0.72) / flightSize;
+
+        const cleanup = () => {
+            clone.remove();
+            if (targetImage) targetImage.style.visibility = '';
+        };
+
+        let animation;
+        try {
+            animation = clone.animate(
+                [
+                    { transform: 'translate(0px, 0px) scale(1) rotate(0deg)' },
+                    {
+                        transform: `translate(${midX - startX}px, ${midY - startY}px) scale(0.85) rotate(8deg)`,
+                        offset: 0.55,
+                    },
+                    {
+                        transform: `translate(${endX - startX}px, ${endY - startY}px) scale(${targetScale}) rotate(0deg)`,
+                    },
+                ],
+                { duration: 620, easing: 'cubic-bezier(0.33, 0.05, 0.4, 1)' }
+            );
+        } catch (error) {
+            cleanup();
+            return;
+        }
+        animation.onfinish = () => {
+            cleanup();
+            spawnTeamArrivalStars(targetSlotEl);
+        };
+        animation.oncancel = cleanup;
+    };
+
     const applyRosterSlotTypeGlow = (slot, character) => {
         const types = (Array.isArray(character?.pokemonTypes) ? character.pokemonTypes : [])
             .map((type) => String(type || '').trim().toLowerCase())
@@ -19518,8 +19609,11 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         if (existingSlotIndex >= 0) return;
         const emptySlotIndex = selectedAssignments.findIndex((assignment) => !assignment);
         if (emptySlotIndex < 0) return;
+        const flightSourceEl = rosterSlotElements[rosterIndex] || null;
+        const flightImageUrl = flightSourceEl?.querySelector('.slot-image')?.src || '';
         clearRosterSlot(rosterIndex);
         setSelectedSlot(emptySlotIndex, { characterIndex: rosterIndex, rosterIndex }, { confirm: true });
+        playRosterToTeamFlight(flightSourceEl, selectedSlots[emptySlotIndex], flightImageUrl);
         updateGameButtons();
         persistTeamSelection();
     };

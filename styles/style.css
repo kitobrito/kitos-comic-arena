@@ -1549,6 +1549,54 @@ body.arena-mode-pokemon .selectionscroll {
     }
 }
 
+/* JS-driven overlays for the roster-to-team pick animation. Fixed-position and
+   appended to <body> (not inside .selected-character-slot) so they aren't clipped
+   by that slot's overflow:hidden in the experimental UI. Desktop only -- script.js
+   skips spawning these under a narrow viewport or prefers-reduced-motion. */
+.roster-flight-clone {
+    position: fixed;
+    z-index: 9998;
+    border-radius: 50%;
+    object-fit: cover;
+    pointer-events: none;
+    border: 2px solid rgba(255, 225, 67, 0.85);
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.5), 0 0 16px rgba(255, 225, 67, 0.5);
+    will-change: transform;
+}
+
+.team-slot-star-burst {
+    position: fixed;
+    z-index: 9997;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+
+.team-slot-star {
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: #ffe432;
+    line-height: 1;
+    text-shadow: 0 0 4px rgba(255, 225, 67, 0.9), 0 1px 2px rgba(0, 0, 0, 0.6);
+    opacity: 0;
+    animation: team-slot-star-pop 640ms ease-out forwards;
+}
+
+@keyframes team-slot-star-pop {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.3) rotate(0deg);
+    }
+    18% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: translate(calc(-50% + var(--star-dx, 0px)), calc(-50% + var(--star-dy, 0px))) scale(1) rotate(200deg);
+    }
+}
+
 .slot-item.slot-locked,
 .slot-image.slot-locked {
     opacity: 0.6;
