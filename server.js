@@ -64,6 +64,7 @@ const {
     syncPokemonPrimeapeRelease,
 } = require('./sync_pokemon_primeape_release');
 const { syncPokemonBattleExperienceNews } = require('./sync_pokemon_battle_experience_news');
+const { syncPokemonArenaBetaLaunchNews } = require('./sync_pokemon_arena_beta_launch_news');
 const { syncPokemonCompensationGrant } = require('./sync_pokemon_compensation_grant');
 let charactersData = require('./characters');
 
@@ -13991,6 +13992,8 @@ async function initDb() {
         }
         await syncPokemonBattleExperienceNews(db);
         console.log('Synced the Pokemon Arena Battle Experience Update news post.');
+        await syncPokemonArenaBetaLaunchNews(db);
+        console.log('Synced the Pokemon Arena Beta Launch news post.');
         await backfillUserProfiles();
         await appStateCollection.updateOne(
             { key: STARTUP_MIGRATION_STATE_KEY },

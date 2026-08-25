@@ -861,16 +861,29 @@ html.selection-experimental .slot-item:nth-child(6n) { animation-delay: 2.5s; }
    team too, reusing the same keyframe/stagger pattern as .slot-item above. */
 html.selection-experimental .selected-character-slot:has(.selected-slot-image) {
     animation: roster-slot-float 3.4s ease-in-out infinite;
+    transition: border-color 150ms ease-out, box-shadow 180ms ease-out;
 }
 
 html.selection-experimental .selected-character-slot:nth-child(3n+1) { animation-delay: 0s; }
 html.selection-experimental .selected-character-slot:nth-child(3n+2) { animation-delay: 0.7s; }
 html.selection-experimental .selected-character-slot:nth-child(3n) { animation-delay: 1.4s; }
 
+/* .selected-slot-confirm-burst (style.css) also drives `animation` on this
+   same element for its 520ms snap-in pulse when a pick is confirmed -- on
+   its own, equal specificity + later cascade order let the float rule above
+   silently win and cancel the pulse. List both here so they run together
+   instead of one clobbering the other. */
+html.selection-experimental .selected-character-slot.selected-slot-confirm-burst:has(.selected-slot-image) {
+    animation: selected-slot-confirm-pulse 520ms ease-out, roster-slot-float 3.4s ease-in-out infinite;
+}
+
 html.selection-experimental .selected-character-slot:has(.selected-slot-image):hover,
 html.selection-experimental .selected-character-slot.keyboard-highlighted {
     animation: none;
-    translate: 0 0;
+    translate: 0 -4px;
+    z-index: 4;
+    border-color: #ffe143;
+    box-shadow: 0 0 0 2px rgba(255, 225, 67, 0.42), 0 12px 22px rgba(0, 0, 0, 0.55);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2435,7 +2448,7 @@ html.selection-experimental body.matchmaking-active .sound-controller {
         right: 154px;
         top: 5px;
         width: auto;
-        height: min(54vh, 210px);
+        height: min(54vh, 700px);
         transform: none;
     }
 
@@ -2509,7 +2522,7 @@ html.selection-experimental body.matchmaking-active .sound-controller {
         top: auto;
         bottom: 5px;
         width: auto;
-        height: min(42vh, 162px);
+        height: min(42vh, 550px);
         grid-template-columns: repeat(5, minmax(0, 1fr)) minmax(200px, 2.6fr) repeat(5, minmax(0, 1fr));
         grid-template-rows: repeat(3, 1fr);
         gap: 3px;
@@ -2711,11 +2724,11 @@ html.selection-experimental body.matchmaking-active .sound-controller {
         left: calc(var(--compact-left-rail) + 10px);
         right: calc(var(--compact-right-rail) + 8px);
         width: auto;
-        height: min(46dvh, 270px);
+        height: min(46dvh, 700px);
     }
 
     html.selection-experimental .slot-list {
-        height: min(33dvh, 190px);
+        height: min(33dvh, 550px);
     }
 
     html.selection-experimental .button-container {
