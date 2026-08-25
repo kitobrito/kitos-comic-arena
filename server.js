@@ -8024,6 +8024,11 @@ const buildBattleProfileSnapshot = (profile = {}, arena = DEFAULT_ARENA_MODE) =>
             rank: ladder.rank || 'Academy Student',
             ladderRank: Number(ladder.ladderRank) || null,
             rankHatUrl: ladder.rankHatUrl || '',
+            experiencePoints: Number(ladder.experiencePoints) || 0,
+            wins: Number(ladder.wins) || 0,
+            losses: Number(ladder.losses) || 0,
+            streak: Number(ladder.streak) || 0,
+            highestStreak: Number(ladder.highestStreak) || 0,
         },
         skins: {
             equippedSkinByCharacterId: cloneSerializable(equippedSkins),

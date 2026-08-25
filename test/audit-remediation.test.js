@@ -312,12 +312,12 @@ test('new match documents retain only battle-visible profile fields', () => {
         {
             avatarUrl: '/avatar.png',
             clan: { name: 'Clan', abbreviation: 'CLN', experiencePoints: 999 },
-            ladder: { level: 7, rank: 'Chunin', wins: 50, recentGames: ['large'] },
+            ladder: { level: 7, rank: 'Chunin', wins: 50, losses: 12, streak: 3, highestStreak: 9, experiencePoints: 4200, recentGames: ['large'] },
             missions: { completedMissionIds: ['mission-one'] },
             recentLadderGames: [{ opponentUsername: 'Beta' }],
             arenas: {
                 pokemon: {
-                    ladder: { level: 7, rank: 'Chunin', wins: 50, recentGames: ['large'] },
+                    ladder: { level: 7, rank: 'Chunin', wins: 50, losses: 12, streak: 3, highestStreak: 9, experiencePoints: 4200, recentGames: ['large'] },
                     missions: { completedMissionIds: ['mission-one'] },
                     recentLadderGames: [{ opponentUsername: 'Beta' }],
                     skins: {
@@ -335,7 +335,12 @@ test('new match documents retain only battle-visible profile fields', () => {
     assert.equal(snapshot.skins.equippedSkinByCharacterId.ditto, 'ditto-shiny');
     assert.equal(snapshot.missions, undefined);
     assert.equal(snapshot.recentLadderGames, undefined);
-    assert.equal(snapshot.ladder.wins, undefined);
+    assert.equal(snapshot.ladder.wins, 50);
+    assert.equal(snapshot.ladder.losses, 12);
+    assert.equal(snapshot.ladder.streak, 3);
+    assert.equal(snapshot.ladder.highestStreak, 9);
+    assert.equal(snapshot.ladder.experiencePoints, 4200);
+    assert.equal(snapshot.ladder.recentGames, undefined);
     assert.equal(snapshot.clan.experiencePoints, undefined);
 });
 

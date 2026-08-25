@@ -2026,7 +2026,12 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
 
     const getArenaLadder = (profile = null, arena = 'comic') => {
         const arenaProfile = getArenaProfileView(profile, arena);
-        return arenaProfile?.ladder || profile?.ladder || null;
+        if (arenaProfile?.ladder) return arenaProfile.ladder;
+        // Only fall back to the raw top-level ladder for the comic arena (where
+        // that IS the correct field) - falling back here for pokemon would leak
+        // a player's comic-arena wins/losses/rank into pokemon-arena displays
+        // whenever their pokemon-specific ladder state happens to be missing.
+        return arena === 'pokemon' ? null : profile?.ladder || null;
     };
 
     const cloneRosterData = (entries = []) => JSON.parse(JSON.stringify(Array.isArray(entries) ? entries : []));
@@ -3028,8 +3033,12 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         const username = options.username || fallbackUsername || profileView?.username || '';
         const profile = profileView?.profile || profileView || {};
         const arenaProfile = getArenaProfileView(profile, currentMatchArena || activeArenaMode);
+        // Not arenaProfile?.ladder directly - getArenaProfileView's shallow merge leaves a
+        // profile's top-level (comic) ladder untouched whenever arenas.pokemon exists but
+        // its own nested .ladder doesn't, which would leak comic stats into this panel the
+        // same way getArenaLadder's old fallback did.
         const ladder = normalizeLadderPresentation(
-            arenaProfile?.ladder || getArenaLadder(profile, currentMatchArena || activeArenaMode) || {}
+            getArenaLadder(profile, currentMatchArena || activeArenaMode) || {}
         );
         const clanAbbreviation = arenaProfile?.clan?.abbreviation || profile?.clan?.abbreviation || 'None';
         const avatarUrl = resolvePlayerAvatarUrl(
@@ -13647,11 +13656,12 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         };
 
         const hydrateOpponentIntroStats = async (opponent = {}) => {
-            if (opponent?.profile?.ladder) {
+            const snapshotLadder = getArenaLadder(opponent?.profile, currentMatchArena);
+            if (snapshotLadder) {
                 setBattleIntroLadderStats({
                     recordEl: battleIntroTopRecordEl,
                     streakEl: battleIntroTopStreakEl,
-                    ladder: opponent.profile.ladder,
+                    ladder: snapshotLadder,
                 });
                 return;
             }
