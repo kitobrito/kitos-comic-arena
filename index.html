@@ -1626,6 +1626,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         min-width: 0;
       }
 
+      /* The wider (max-width: 1320px) rule hides .aside entirely to avoid
+         clutter on tablets/small laptops, but that swept in phones too -
+         the ladder/leaderboards are the entire point of this sidebar, so
+         bring it back once the layout is already a single stacked column. */
+      .aside {
+        display: block;
+      }
+
       .release-grid {
         grid-template-columns: 1fr;
       }
