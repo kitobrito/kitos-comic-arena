@@ -20443,6 +20443,11 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             cancelSelectionPreview();
             handleSelectedSlotDoubleClick(slotIndex);
         });
+        slot.addEventListener('pointerenter', () => {
+            if (slot.querySelector('.selected-slot-image')) {
+                soundManager.play(rosterHoverTickSound);
+            }
+        });
     });
 
     const applySavedTeam = () => {
