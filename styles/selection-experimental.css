@@ -1818,7 +1818,7 @@ html.selection-experimental body.matchmaking-active .sound-controller {
     }
 
     html.selection-experimental body {
-        min-height: 1513px;
+        min-height: 1563px;
         overflow: visible;
     }
 
@@ -1830,8 +1830,8 @@ html.selection-experimental body.matchmaking-active .sound-controller {
     html.selection-experimental .background {
         width: 100%;
         min-width: 0;
-        height: 1513px;
-        min-height: 1513px;
+        height: 1563px;
+        min-height: 1563px;
         overflow: hidden;
         background-position: center top;
         background-attachment: scroll;
@@ -1840,7 +1840,7 @@ html.selection-experimental body.matchmaking-active .sound-controller {
 
     html.selection-experimental .selectionpage {
         width: 100%;
-        height: 1513px;
+        height: 1563px;
         animation: none !important;
         transform: none !important;
         touch-action: pan-y pinch-zoom;
@@ -1881,7 +1881,7 @@ html.selection-experimental body.matchmaking-active .sound-controller {
 
     html.selection-experimental .player-card {
         left: 7px;
-        top: 62px;
+        top: 112px;
         width: 220px;
         min-height: 82px;
         height: 82px;
@@ -1934,7 +1934,7 @@ html.selection-experimental body.matchmaking-active .sound-controller {
     html.selection-experimental .sound-controller {
         left: auto;
         right: 7px;
-        top: 62px;
+        top: 112px;
         bottom: auto;
         width: 150px;
         min-height: 72px;
@@ -1944,7 +1944,7 @@ html.selection-experimental body.matchmaking-active .sound-controller {
     html.selection-experimental .selection-mode-controls {
         left: 7px;
         right: 7px;
-        top: 164px;
+        top: 214px;
         bottom: auto;
         width: auto;
         min-height: 48px;
@@ -1972,7 +1972,7 @@ html.selection-experimental body.matchmaking-active .sound-controller {
     html.selection-experimental .skillviewer.raveling {
         left: 7px;
         right: 7px;
-        top: 222px;
+        top: 272px;
         width: auto;
         height: 330px;
         transform: none;
@@ -2069,7 +2069,7 @@ html.selection-experimental body.matchmaking-active .sound-controller {
     html.selection-experimental .slot-list {
         left: 7px;
         right: 7px;
-        top: 564px;
+        top: 614px;
         bottom: auto;
         width: auto;
         height: 548px;
@@ -2117,7 +2117,7 @@ html.selection-experimental body.matchmaking-active .sound-controller {
 
     html.selection-experimental .lastpage,
     html.selection-experimental .nextpage {
-        top: 1121px;
+        top: 1171px;
         bottom: auto;
         width: 44px;
         height: 44px;
@@ -2143,7 +2143,7 @@ html.selection-experimental body.matchmaking-active .sound-controller {
 
     html.selection-experimental .selected-character-slot-list {
         left: 50%;
-        top: 1170px;
+        top: 1220px;
         bottom: auto;
         gap: 8px;
     }
@@ -2170,7 +2170,7 @@ html.selection-experimental body.matchmaking-active .sound-controller {
     html.selection-experimental .button-container {
         left: 7px;
         right: 7px;
-        top: 1308px;
+        top: 1358px;
         bottom: auto;
         width: auto;
         gap: 6px;
@@ -2188,7 +2188,7 @@ html.selection-experimental body.matchmaking-active .sound-controller {
     html.selection-experimental .selection-team-status {
         left: 12px;
         right: 12px;
-        top: 1414px;
+        top: 1464px;
         bottom: auto;
         width: auto;
         min-height: 34px;

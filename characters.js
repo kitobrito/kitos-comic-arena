@@ -30512,7 +30512,6 @@ const characters = [
                 "skilldescription": "Casts a random copy-safe damaging skill on an enemy or a random copy-safe helpful skill on an ally.",
                 "description": "Casts a random copy-safe damaging skill on an enemy or a random copy-safe helpful skill on an ally.",
                 "energy": [
-                    "Random",
                     "Random"
                 ],
                 "cooldown": 2,
@@ -32731,8 +32730,8 @@ const characters = [
                 "actorCondition": { "statusId": "cyndaquil_typhlosion_evolution" },
                 "hiddenFromSelectionViewer": true,
                 "skillimage": "assets/images/PokemonArena/Cyndaquil/typhlosion/typhlosionflamewheel.png",
-                "skilldescription": "Deals 25 affliction damage to one enemy and 15 affliction damage to the other enemies. For 1 turn, Typhlosion gains 15 unpierceable damage reduction and ignores enemy stun effects. Enemies affected by Cynda-Smokescreen take 5 additional damage next turn.",
-                "description": "Deals 25 affliction damage to one enemy and 15 affliction damage to the other enemies. For 1 turn, Typhlosion gains 15 unpierceable damage reduction and ignores enemy stun effects. Enemies affected by Cynda-Smokescreen take 5 additional damage next turn.",
+                "skilldescription": "Deals 25 affliction damage to one enemy and 10 affliction damage to the other enemies. For 1 turn, Typhlosion gains 15 unpierceable damage reduction and ignores enemy stun effects. Enemies affected by Cynda-Smokescreen take 5 additional damage next turn.",
+                "description": "Deals 25 affliction damage to one enemy and 10 affliction damage to the other enemies. For 1 turn, Typhlosion gains 15 unpierceable damage reduction and ignores enemy stun effects. Enemies affected by Cynda-Smokescreen take 5 additional damage next turn.",
                 "energy": ["Random", "Random", "Random"],
                 "cooldown": 1,
                 "target": "single-enemy",

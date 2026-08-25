@@ -8377,6 +8377,18 @@ const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonical
             'scyther-x-cutter': ['skilldescription', 'effects'],
             'scyther-double-team': ['skilldescription', 'cooldown', 'effects'],
         },
+        clefairy: {
+            'clefairy-metronome': ['energy'],
+        },
+        eevee: {
+            'eevee-swift': ['energy'],
+        },
+        cyndaquil: {
+            'cyndaquil-aerial-flamethrower': ['skilldescription', 'description', 'effects'],
+            'cyndaquil-cynda-smokescreen': ['skilldescription', 'description', 'effects'],
+            'cyndaquil-quilava-flame-wheel': ['skilldescription', 'description', 'effects'],
+            'cyndaquil-typhlosion-flame-wheel': ['skilldescription', 'description', 'effects'],
+        },
     };
     const canonicalById = new Map(
         (Array.isArray(canonicalCharacters) ? canonicalCharacters : []).map((character) => [

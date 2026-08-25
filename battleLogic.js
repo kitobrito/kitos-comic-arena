@@ -8596,7 +8596,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
             if (effectType === 'cyndaquil_quilava_flame_wheel' || effectType === 'cyndaquil_typhlosion_flame_wheel') {
                 const isTyphlosion = effectType === 'cyndaquil_typhlosion_flame_wheel';
                 const primaryDamage = isTyphlosion ? 25 : 20;
-                const splashDamage = isTyphlosion ? 15 : 5;
+                const splashDamage = isTyphlosion ? 10 : 5;
                 const shieldAmount = isTyphlosion ? 15 : 10;
                 const selected = resolveRecipients(effect);
                 const selectedKeys = new Set(selected.map((entry) => `${entry.username}:${entry.slot}`));
