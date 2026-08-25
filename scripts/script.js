@@ -20448,6 +20448,19 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 soundManager.play(rosterHoverTickSound);
             }
         });
+        // The page-load "pop in" entrance animation is only meant to play once. It's
+        // gated on `.selected-character-slot`'s computed `animation` property, which
+        // our own float-on-hover rule below also drives (via :has(.selected-slot-image))
+        // -- every time a slot flips from filled back to empty, that override stops
+        // matching and the entrance animation's rule becomes the active one again,
+        // replaying its 0% keyframe (opacity/scale from nothing) as if freshly loaded.
+        // Once it's played through naturally, permanently mark it so it can never
+        // reactivate from a later filled<->empty toggle.
+        slot.addEventListener('animationend', (event) => {
+            if (event.animationName === 'selection-bubble-pop') {
+                slot.classList.add('slot-post-intro');
+            }
+        });
     });
 
     const applySavedTeam = () => {

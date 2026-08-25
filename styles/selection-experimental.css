@@ -857,6 +857,14 @@ html.selection-experimental .slot-item:nth-child(6n) { animation-delay: 2.5s; }
     }
 }
 
+/* Once the page-load entrance animation has played through naturally (see the
+   `animationend` listener in script.js), permanently stop `selection-bubble-pop`
+   (style.css) from being this element's active animation -- otherwise every
+   later filled<->empty toggle below re-triggers its entrance keyframes. */
+html.selection-experimental .selected-character-slot.slot-post-intro {
+    animation: none;
+}
+
 /* Give the roster's punchy, floating feel to a character once they're on the
    team too, reusing the same keyframe/stagger pattern as .slot-item above. */
 html.selection-experimental .selected-character-slot:has(.selected-slot-image) {
