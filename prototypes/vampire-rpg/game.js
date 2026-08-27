@@ -61,6 +61,31 @@
         'hobgoblin-archer': 'assets/skeleton.png',
         'zombie': 'assets/skeleton.png',
     };
+    // Attack/hit/defeated pose sets, for the three enemies with real
+    // (non-tinted-placeholder) art - mirrors VAMPIRE_POSES/setVampireImage
+    // below, just keyed by characterId instead of skill id. Enemies with no
+    // entry here keep showing their single static ENEMY_ART image for the
+    // whole fight, exactly as before - no regression for the placeholder five.
+    const ENEMY_POSES = {
+        'goblin-grunt': {
+            idle: 'assets/goblin-grunt.png',
+            attack: 'assets/goblin-grunt-attack.png',
+            hit: 'assets/goblin-grunt-hit.png',
+            defeated: 'assets/goblin-grunt-defeated.png',
+        },
+        'skeleton': {
+            idle: 'assets/skeleton.png',
+            attack: 'assets/skeleton-attack.png',
+            hit: 'assets/skeleton-hit.png',
+            defeated: 'assets/skeleton-defeated.png',
+        },
+        'giant-rat': {
+            idle: 'assets/giant-rat.png',
+            attack: 'assets/giant-rat-attack.png',
+            hit: 'assets/giant-rat-hit.png',
+            defeated: 'assets/giant-rat-defeated.png',
+        },
+    };
 
     const CAMPAIGN = [
         { label: 'A Lone Goblin Grunt', enemies: ['goblin-grunt'] },
@@ -611,8 +636,21 @@
         if (figure) figure.style.height = VAMPIRE_POSE_HEIGHT[poseKey] || '';
     }
 
+    // Same direct-DOM-swap pattern as setVampireImage, for an enemy slot.
+    // A no-op for any characterId without an ENEMY_POSES entry - those keep
+    // their single static ENEMY_ART image, unchanged.
+    function setEnemyImage(slot, characterId, poseKey) {
+        const poses = ENEMY_POSES[characterId];
+        if (!poses) return;
+        const el = findCombatantEl('enemy', slot);
+        const img = el && el.querySelector('.figure img');
+        if (img) img.src = poses[poseKey] || poses.idle;
+    }
+
     // Applies brief lunge/hit-flash animation classes and spawns floating
     // damage/heal numbers, reading fresh DOM built by the render() just prior.
+    // Also drives enemy attack/hit/defeated pose-swapping (setEnemyImage) for
+    // the three enemies with a real pose set - a no-op for everyone else.
     function showTurnEffects(acted, diffs) {
         acted.forEach(({ username, slot }) => {
             const el = findCombatantEl(username, slot);
@@ -620,6 +658,14 @@
             if (!figure) return;
             figure.classList.add('is-acting');
             setTimeout(() => figure.classList.remove('is-acting'), 260);
+            if (username === 'enemy') {
+                const unit = state.match.board.enemy[slot];
+                const character = unit && characterForUnit(unit);
+                if (character) {
+                    setEnemyImage(slot, character.characterId, 'attack');
+                    setTimeout(() => setEnemyImage(slot, character.characterId, 'idle'), 420);
+                }
+            }
         });
         diffs.forEach(({ username, slot, delta }) => {
             const el = findCombatantEl(username, slot);
@@ -633,6 +679,18 @@
                 // present; remove it once the shake finishes so idle-bob resumes
                 // instead of being silently overridden for the rest of the fight.
                 setTimeout(() => figure.classList.remove('is-hit'), 340);
+                if (username === 'enemy') {
+                    const unit = state.match.board.enemy[slot];
+                    const character = unit && characterForUnit(unit);
+                    if (character) {
+                        if (unit.alive === false) {
+                            setEnemyImage(slot, character.characterId, 'defeated');
+                        } else {
+                            setEnemyImage(slot, character.characterId, 'hit');
+                            setTimeout(() => setEnemyImage(slot, character.characterId, 'idle'), 420);
+                        }
+                    }
+                }
             }
             const num = document.createElement('span');
             num.className = 'dmg-float ' + (delta < 0 ? 'dmg' : 'heal');
@@ -680,8 +738,13 @@
 
     function renderCombatant({ unit, character, isEnemy, slot, targetable }) {
         const dead = unit.alive === false;
+        // An enemy with a dedicated defeated pose reads as "dead" through
+        // its own art, so it skips the heavy grayscale/fade treatment
+        // below that the placeholder enemies still need (see .combatant.dead
+        // vs .combatant.dead.has-defeated-pose in style.css).
+        const enemyPoses = isEnemy ? ENEMY_POSES[character.characterId] : null;
         const el = document.createElement('div');
-        el.className = 'combatant' + (isEnemy ? '' : ' player') + (dead ? ' dead' : '') + (targetable ? ' targetable' : '');
+        el.className = 'combatant' + (isEnemy ? '' : ' player') + (dead ? ' dead' : '') + (dead && enemyPoses ? ' has-defeated-pose' : '') + (targetable ? ' targetable' : '');
         el.dataset.username = isEnemy ? 'enemy' : 'player';
         el.dataset.slot = String(slot);
 
@@ -699,7 +762,7 @@
         const img = document.createElement('img');
         img.alt = character.name;
         img.src = isEnemy
-            ? (ENEMY_ART[character.characterId] || '')
+            ? (dead && enemyPoses ? enemyPoses.defeated : (ENEMY_ART[character.characterId] || ''))
             : VAMPIRE_POSES[state.vampirePose] || VAMPIRE_POSES.idle;
         figure.appendChild(img);
         el.appendChild(figure);

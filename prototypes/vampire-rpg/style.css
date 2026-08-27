@@ -412,6 +412,14 @@ button { font-family: inherit; }
 .enemy-cluster[data-count="3"] .combatant .figure.char-skeleton { height: 28.1cqh; }
 .enemy-cluster[data-count="3"] .combatant .figure.char-goblin-grunt { height: 17.3cqh; }
 .enemy-cluster[data-count="3"] .combatant .figure.char-giant-rat { height: 10.8cqh; }
+/* Skeleton's defeated pose is a collapsed, wide illustration (aspect ratio
+   ~2.05, vs ~0.87 standing) - shown at the standing height it would render
+   about 2.3x wider than upright and overlap its neighbors, so it gets a
+   shorter height here (same ratio applied to each context above) to keep
+   roughly the same on-screen footprint instead. */
+.combatant.dead.has-defeated-pose .figure.char-skeleton { height: 16.4cqh; }
+.enemy-cluster[data-count="2"] .combatant.dead.has-defeated-pose .figure.char-skeleton { height: 14.1cqh; }
+.enemy-cluster[data-count="3"] .combatant.dead.has-defeated-pose .figure.char-skeleton { height: 11.8cqh; }
 .enemy-cluster[data-count="2"] .combatant .figure.char-hobgoblin-warrior { height: 25.8cqh; }
 .enemy-cluster[data-count="2"] .combatant .figure.char-zombie { height: 27.5cqh; }
 .enemy-cluster[data-count="2"] .combatant .figure.char-hobgoblin-archer { height: 24.1cqh; }
@@ -424,6 +432,10 @@ button { font-family: inherit; }
 .enemy-cluster[data-count="3"] .combatant .figure.char-goblin-sneak { height: 15.8cqh; }
 
 .combatant.dead { opacity: 0.32; filter: grayscale(0.9) brightness(0.7); }
+/* A dedicated defeated-pose illustration already tells "this is dead" on
+   its own - the heavy fade above would wash it out almost entirely, so it
+   gets a much lighter treatment instead. */
+.combatant.dead.has-defeated-pose { opacity: 1; filter: brightness(0.82) saturate(0.85); }
 
 .combatant.targetable .figure { cursor: crosshair; }
 .combatant.targetable .figure::after {
