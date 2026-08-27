@@ -158,6 +158,11 @@ button { font-family: inherit; }
     gap: 10px;
     margin-top: 4px;
 }
+/* .encounter-btn's 340px min-width is meant for the big standalone buttons
+   on Camp/Origin/Age/Title - inside a choice-grid card (as narrow as
+   240px, see .choice-grid above) that same min-width overflows the card
+   instead of fitting it. Scoped to this context only. */
+.choice-card .encounter-btn { min-width: 0; width: 100%; }
 .slot-card-actions .encounter-btn { flex: 1; }
 .slot-card-actions .text-link-btn { margin-top: 0; white-space: nowrap; }
 
@@ -666,6 +671,13 @@ button { font-family: inherit; }
        stretched background instead - never eats into the box model, so
        padding always gives the text real breathing room regardless of how
        small the button gets. */
+    /* Explicit background-color, not just background-image: buttons get a
+       default UA background (renders as a bright off-white ~rgb(240,240,240)
+       in Chromium) that background-image doesn't reliably paint over in
+       every state/timing - confirmed via getComputedStyle that it was
+       leaking through. This closes that gap for good instead of hoping the
+       image always wins. */
+    background-color: var(--wine);
     background-image: url('assets/btn-normal.png');
     background-size: 100% 100%;
     border: 1px solid var(--gold-dim);
