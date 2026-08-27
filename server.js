@@ -272,34 +272,34 @@ const UNLOCK_POINT_STORE_PACKAGES = [
         description: '750 Pokemon Arena unlock points',
     },
     {
-        packageId: 'pokemon-1500-points',
+        packageId: 'pokemon-1600-points',
         arena: 'pokemon',
-        points: 1500,
+        points: 1600,
         amountUsd: '10.00',
         currency: 'USD',
         provider: 'paypal',
-        label: '1,500 Unlock Points',
-        description: '1,500 Pokemon Arena unlock points',
+        label: '1,600 Unlock Points',
+        description: '1,600 Pokemon Arena unlock points (+7% bonus)',
     },
     {
-        packageId: 'pokemon-3000-points',
+        packageId: 'pokemon-3400-points',
         arena: 'pokemon',
-        points: 3000,
+        points: 3400,
         amountUsd: '20.00',
         currency: 'USD',
         provider: 'paypal',
-        label: '3,000 Unlock Points',
-        description: '3,000 Pokemon Arena unlock points',
+        label: '3,400 Unlock Points',
+        description: '3,400 Pokemon Arena unlock points (+13% bonus)',
     },
     {
-        packageId: 'pokemon-100000-points',
+        packageId: 'pokemon-9500-points',
         arena: 'pokemon',
-        points: 100000,
+        points: 9500,
         amountUsd: '50.00',
         currency: 'USD',
         provider: 'paypal',
-        label: '100,000 Unlock Points',
-        description: '100,000 Pokemon Arena unlock points',
+        label: '9,500 Unlock Points',
+        description: '9,500 Pokemon Arena unlock points (+27% bonus, our best rate)',
     },
 ];
 let missionCatalogCache = null;
@@ -3374,6 +3374,97 @@ const POKEMON_SKIN_CATALOG = [
             'After Charizard critically strikes or burns an enemy twice, it evolves into Gigantamax Charizard and all four skills gain their improved effects.',
     }),
 ];
+
+// Discounted multi-skin bundles. Each grants every skin in `skinIds` for one
+// combined unlockPointCost, cheaper than buying them individually through
+// POKEMON_SKIN_CATALOG above. Priced in points (not real money) so they use
+// the exact same purchase/ownership machinery as a single skin unlock.
+const POKEMON_SKIN_BUNDLES = [
+    {
+        bundleId: 'onix-elemental-collection',
+        arena: 'pokemon',
+        name: 'Onix Elemental Collection',
+        description: 'All five Onix skins - Crystal, Bismuth, Golden, Magma, and Cosmic - for less than buying them one at a time.',
+        unlockPointCost: 3200,
+        individualPointCost: 4000,
+        previewFacePicture: 'assets/images/PokemonArena/onix/skins/Cosmic/CosmicFP.png',
+        skinIds: ['onix-crystal', 'onix-bismuth', 'onix-golden', 'onix-magma', 'onix-cosmic'],
+    },
+    {
+        bundleId: 'evolution-legends',
+        arena: 'pokemon',
+        name: 'Evolution Legends',
+        description: 'Three showpiece transformations: Charmander into Charizard, Magikarp into a red Gyarados, and Zubat into Crobat.',
+        unlockPointCost: 2500,
+        individualPointCost: 3100,
+        previewFacePicture: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardfp.jpg',
+        skinIds: ['charmander-charizard-legendary', 'magikarp-golden-gyarados-red', 'zubat-crobat'],
+    },
+    {
+        bundleId: 'dittos-closet',
+        arena: 'pokemon',
+        name: "Ditto's Closet",
+        description: 'Both Ditto skins - Shiny and Flubber - in one cheap, low-commitment pack.',
+        unlockPointCost: 800,
+        individualPointCost: 1000,
+        previewFacePicture: 'assets/images/PokemonArena/Ditto/Done/shinyFP.jpg',
+        skinIds: ['ditto-shiny', 'ditto-flubber'],
+    },
+    {
+        bundleId: 'ultimate-skin-vault',
+        arena: 'pokemon',
+        name: 'Ultimate Skin Vault',
+        description: 'Every skin currently in Pokemon Arena, in a single purchase, for the biggest discount in the shop.',
+        unlockPointCost: 6500,
+        individualPointCost: 9600,
+        previewFacePicture: 'assets/images/PokemonArena/zubat/skins/crobat/fp.png',
+        skinIds: [
+            'ditto-shiny',
+            'ditto-flubber',
+            'pikachu-raichu',
+            'butterfree-pink',
+            'onix-crystal',
+            'onix-bismuth',
+            'onix-golden',
+            'onix-magma',
+            'onix-cosmic',
+            'magikarp-golden-gyarados-red',
+            'zubat-crobat',
+            'charmander-charizard-legendary',
+        ],
+    },
+];
+
+const getArenaSkinBundleCatalog = (arena = DEFAULT_ARENA_MODE) =>
+    normalizeArenaMode(arena) === 'pokemon' ? POKEMON_SKIN_BUNDLES : [];
+
+const getArenaSkinBundleCatalogById = (arena = DEFAULT_ARENA_MODE) => {
+    const catalog = new Map();
+    getArenaSkinBundleCatalog(arena).forEach((entry = {}) => {
+        const bundleId = typeof entry.bundleId === 'string' ? entry.bundleId.trim() : '';
+        const skinIds = Array.isArray(entry.skinIds)
+            ? entry.skinIds.map((id) => normalizeSkinId(id)).filter(Boolean)
+            : [];
+        if (!bundleId || !skinIds.length) return;
+        catalog.set(bundleId, {
+            ...entry,
+            bundleId,
+            skinIds,
+            unlockPointCost: Math.max(1, Math.floor(Number(entry.unlockPointCost) || 1)),
+        });
+    });
+    return catalog;
+};
+
+const serializeSkinBundleEntryForClient = (entry = {}) => ({
+    bundleId: entry.bundleId,
+    name: typeof entry.name === 'string' ? entry.name.trim() : '',
+    description: typeof entry.description === 'string' ? entry.description.trim() : '',
+    unlockPointCost: entry.unlockPointCost,
+    individualPointCost: Math.max(0, Math.floor(Number(entry.individualPointCost) || 0)),
+    previewFacePicture: typeof entry.previewFacePicture === 'string' ? entry.previewFacePicture : '',
+    skinIds: entry.skinIds,
+});
 
 const POKEMON_GEN2_EVOLUTION_SKIN_CATALOG = [
     {
@@ -16186,10 +16277,14 @@ const buildArenaSkinsResponse = ({ arena = DEFAULT_ARENA_MODE, profile = null } 
     const catalog = Array.from(getArenaSkinCatalogById(normalizedArena).values()).map(
         serializeSkinCatalogEntryForClient
     );
+    const bundles = Array.from(getArenaSkinBundleCatalogById(normalizedArena).values()).map(
+        serializeSkinBundleEntryForClient
+    );
     return {
         ok: true,
         arena: normalizedArena,
         skins: catalog,
+        bundles,
         unlockedSkinIds: skinState.unlockedSkinIds,
         equippedSkinByCharacterId: skinState.equippedSkinByCharacterId,
         unlockPoints: missionState.unlockPoints,
@@ -16467,6 +16562,82 @@ app.post('/api/skins/unlock', requireSession, async (req, res) => {
     } catch (error) {
         console.error('Skin unlock error:', error);
         return res.status(500).json({ error: 'Unable to unlock skin.' });
+    }
+});
+
+app.post('/api/skins/unlock-bundle', requireSession, async (req, res) => {
+    try {
+        const arena = normalizeArenaMode(req.body?.arena || req.query?.arena);
+        const bundleId =
+            typeof (req.body?.bundleId || req.body?.bundle_id) === 'string'
+                ? (req.body.bundleId || req.body.bundle_id).trim()
+                : '';
+        if (!bundleId) {
+            return res.status(400).json({ error: 'Bundle is required.' });
+        }
+
+        const user = await usersCollection.findOne({ username: req.authUser.username });
+        if (!user) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+
+        const bundleEntry = getArenaSkinBundleCatalogById(arena).get(bundleId);
+        if (!bundleEntry) {
+            return res.status(404).json({ error: 'Bundle not found.' });
+        }
+
+        const skinCatalogById = getArenaSkinCatalogById(arena);
+        const validSkinIds = bundleEntry.skinIds.filter((skinId) => skinCatalogById.has(skinId));
+
+        const profile = normalizeUserProfile(user);
+        const arenaState = getProfileArenaState(profile, arena);
+        const missionState = normalizeMissionState(arenaState.missions);
+        const skinState = normalizeArenaSkinState(arenaState.skins, arena);
+        const alreadyOwned = new Set(skinState.unlockedSkinIds);
+        const newSkinIds = validSkinIds.filter((skinId) => !alreadyOwned.has(skinId));
+        if (!newSkinIds.length) {
+            return res.status(409).json({ error: 'You already own every skin in this bundle.' });
+        }
+        if (missionState.unlockPoints < bundleEntry.unlockPointCost) {
+            return res.status(400).json({
+                error: `You need ${bundleEntry.unlockPointCost} unlock points to buy this bundle.`,
+                unlockPoints: missionState.unlockPoints,
+                unlockPointCost: bundleEntry.unlockPointCost,
+            });
+        }
+
+        missionState.unlockPoints -= bundleEntry.unlockPointCost;
+        skinState.unlockedSkinIds = [...skinState.unlockedSkinIds, ...newSkinIds];
+        arenaState.missions = normalizeMissionState(missionState);
+        arenaState.skins = normalizeArenaSkinState(skinState, arena);
+        arenaState.ladder = {
+            ...(arenaState.ladder || {}),
+            unlockPoints: arenaState.missions.unlockPoints,
+        };
+
+        const normalizedProfile = normalizeUserProfile({
+            ...user,
+            profile: setProfileArenaState(profile, arena, arenaState),
+        });
+        await usersCollection.updateOne(
+            { _id: user._id },
+            {
+                $set: {
+                    profile: normalizedProfile,
+                },
+            }
+        );
+
+        return res.json({
+            ...buildArenaSkinsResponse({ arena, profile: normalizedProfile }),
+            bundleId,
+            skinIds: newSkinIds,
+            unlockPointCost: bundleEntry.unlockPointCost,
+            profile: normalizedProfile,
+        });
+    } catch (error) {
+        console.error('Skin bundle unlock error:', error);
+        return res.status(500).json({ error: 'Unable to unlock skin bundle.' });
     }
 });
 
