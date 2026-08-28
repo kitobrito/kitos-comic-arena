@@ -2190,10 +2190,16 @@
         const grid = document.createElement('div');
         grid.className = 'choice-grid';
         options.forEach((opt) => {
-            const mechanics = opt.kind === 'skill'
+            // Only a real skill unlock (level 5/6's branch skills) shows
+            // which specialization it belongs to - the level 2/8 plain
+            // stat choices carry requiresSpecialization purely as hidden
+            // investment-tracking metadata (see LEVEL_CHOICES[2] in
+            // progression.js) and must show nothing beyond their label.
+            const isSkillChoice = opt.kind === 'skill';
+            const mechanics = isSkillChoice
                 ? buildSkillTooltipLines(null, opt.skill).map((l) => l.text).join(' · ')
-                : (opt.mechanics || '');
-            const spec = opt.requiresSpecialization ? PROGRESSION.SPECIALIZATIONS[opt.requiresSpecialization] : null;
+                : '';
+            const spec = isSkillChoice && opt.requiresSpecialization ? PROGRESSION.SPECIALIZATIONS[opt.requiresSpecialization] : null;
             grid.appendChild(choiceCard({
                 name: opt.label,
                 flavor: spec ? spec.name : '',

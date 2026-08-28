@@ -93,24 +93,26 @@
     //    since specialization is always chosen by level 4, well before
     //    level 5/6, exactly one of the three per level ever matches.
     const LEVEL_CHOICES = {
+        // Exactly 3 plain-looking options - "+8 Max HP" / "+5 Blood
+        // Capacity" / "+2% Evasion", nothing else shown on any of them (see
+        // renderLevelUpScreen in game.js, which only shows flavor/mechanics
+        // text for kind:'skill' entries - never for these). Each one is
+        // SECRETLY tied to one specialization via requiresSpecialization
+        // (Max HP->Feral, Blood Capacity->Hemonancer, Evasion->Shadow) -
+        // purely investment-tracking metadata read by
+        // investedSpecializations/comboArtKeyFor in game.js, not a gate and
+        // never surfaced to the player. Picking one is a real, if invisible,
+        // step toward that specialization's transformed idle art, same as
+        // picking one of the level 5/6 branch skills below would be.
         2: [
-            { id: 'vigor', label: '+8 Max HP', kind: 'maxHp', value: 8 },
-            { id: 'wellspring', label: '+2 Blood Capacity', kind: 'bloodCap', value: 2 },
-            // A little early taste of each path - freely pickable like
-            // every other option here (requiresSpecialization is used
-            // purely as flavor + investment-tracking metadata, not a gate -
-            // same as the level 5/6 branch skills below), but it DOES
-            // count as a real point toward that specialization behind the
-            // scenes (see investedSpecializations/comboArtKeyFor in
-            // game.js), same as picking one of their actual skills would.
-            // kind:'evasion' is new - buildComposedVampire turns the total
-            // into a small permanent evadeChancePercent status (the same
-            // real engine primitive Mist Form's temporary version rides -
-            // confirmed additive with it, not overriding, via direct
-            // source read of battleEngine.js's evade-chance summation).
-            { id: 'evasion_feral', label: "Predator's Instinct", requiresSpecialization: 'feral', kind: 'evasion', value: 1, mechanics: '+1% evade chance' },
-            { id: 'evasion_hemonancer', label: 'Blood-Sense', requiresSpecialization: 'hemonancer', kind: 'evasion', value: 1, mechanics: '+1% evade chance' },
-            { id: 'evasion_shadow', label: 'Fading Step', requiresSpecialization: 'elder_mastery', kind: 'evasion', value: 1, mechanics: '+1% evade chance' },
+            { id: 'vigor', label: '+8 Max HP', kind: 'maxHp', value: 8, requiresSpecialization: 'feral' },
+            { id: 'wellspring', label: '+5 Blood Capacity', kind: 'bloodCap', value: 5, requiresSpecialization: 'hemonancer' },
+            // buildComposedVampire turns the evasion total into a small
+            // permanent evadeChancePercent status (the same real engine
+            // primitive Mist Form's temporary version rides - confirmed
+            // additive with it, not overriding, via direct source read of
+            // battleEngine.js's evade-chance summation).
+            { id: 'evasion_shadow', label: '+2% Evasion', kind: 'evasion', value: 2, requiresSpecialization: 'elder_mastery' },
         ],
         // Milestone 3: each specialization's first "branch" skill - see the
         // comments on SPECIALIZATIONS above for the shared mechanics list
