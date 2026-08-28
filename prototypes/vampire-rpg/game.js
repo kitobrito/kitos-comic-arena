@@ -55,6 +55,38 @@
         form_shadow_feral: 'assets/form-shadow-feral-1.png',
         form_shadow_hemo: 'assets/form-shadow-hemo-1.png',
         form_shadow_hemo_feral: 'assets/form-shadow-hemo-feral-1.png',
+        // 3-frame walk cycle played by performApproach - one set per
+        // current appearance (base/feral/hemo/shadow), no dedicated
+        // hybrid-combo walk art exists, see playerWalkFrames() for the
+        // fallback. Not tied to a skill id (SKILL_ACTION_POSE) since
+        // Approach isn't a skill.
+        walk_base_1: 'assets/vampire-walk-1.png',
+        walk_base_2: 'assets/vampire-walk-2.png',
+        walk_base_3: 'assets/vampire-walk-3.png',
+        walk_feral_1: 'assets/feral-walk-1.png',
+        walk_feral_2: 'assets/feral-walk-2.png',
+        walk_feral_3: 'assets/feral-walk-3.png',
+        walk_hemo_1: 'assets/hemo-walk-1.png',
+        walk_hemo_2: 'assets/hemo-walk-2.png',
+        walk_hemo_3: 'assets/hemo-walk-3.png',
+        walk_shadow_1: 'assets/shadow-walk-1.png',
+        walk_shadow_2: 'assets/shadow-walk-2.png',
+        walk_shadow_3: 'assets/shadow-walk-3.png',
+        // Full hybrid-combo walk sets now exist too (matches every form_X
+        // combo already in this file) - playerWalkFrames() uses these
+        // directly instead of falling back to a single spec's set.
+        walk_hemo_feral_1: 'assets/hemo-feral-walk-1.png',
+        walk_hemo_feral_2: 'assets/hemo-feral-walk-2.png',
+        walk_hemo_feral_3: 'assets/hemo-feral-walk-3.png',
+        walk_shadow_feral_1: 'assets/shadow-feral-walk-1.png',
+        walk_shadow_feral_2: 'assets/shadow-feral-walk-2.png',
+        walk_shadow_feral_3: 'assets/shadow-feral-walk-3.png',
+        walk_shadow_hemo_1: 'assets/shadow-hemo-walk-1.png',
+        walk_shadow_hemo_2: 'assets/shadow-hemo-walk-2.png',
+        walk_shadow_hemo_3: 'assets/shadow-hemo-walk-3.png',
+        walk_shadow_hemo_feral_1: 'assets/shadow-hemo-feral-walk-1.png',
+        walk_shadow_hemo_feral_2: 'assets/shadow-hemo-feral-walk-2.png',
+        walk_shadow_hemo_feral_3: 'assets/shadow-hemo-feral-walk-3.png',
     };
     // The idle pose is tall and narrow; the lunge/bite poses are wide
     // action shots. Since .figure's height is fixed (see style.css), a wide
@@ -95,6 +127,43 @@
         form_shadow_feral: '54cqh',
         form_shadow_hemo: '50cqh',
         form_shadow_hemo_feral: '50cqh',
+        // Same content-fill-scan reasoning as above (measured directly from
+        // the art). The shadow set's middle frame dissolves into a
+        // shapeless shadow-wisp (not bottom-anchored like a normal stride -
+        // by design, matching Mist Form's aesthetic), so its true fill
+        // ratio isn't comparable to a standing pose's - sized to match its
+        // two neighboring grounded frames instead of the raw scan number,
+        // so the 3-frame cycle doesn't visibly pop in size mid-swap.
+        walk_base_1: '54cqh',
+        walk_base_2: '54cqh',
+        walk_base_3: '49cqh',
+        walk_feral_1: '61cqh',
+        walk_feral_2: '63cqh',
+        walk_feral_3: '62cqh',
+        walk_hemo_1: '55cqh',
+        walk_hemo_2: '56cqh',
+        walk_hemo_3: '49cqh',
+        walk_shadow_1: '60cqh',
+        walk_shadow_2: '62cqh',
+        walk_shadow_3: '62cqh',
+        // Hybrid-combo walk art is a low, dynamic crouched-run pose (not a
+        // tall standing stride) across all three frames of every combo set,
+        // so its fill ratio runs much lower (40-53%) than the single-spec
+        // sets above - flat per-set values (matched within each set so the
+        // 3 frames don't visibly pop in size) rather than the raw
+        // formula, same reasoning as walk_shadow_2 above.
+        walk_hemo_feral_1: '64cqh',
+        walk_hemo_feral_2: '64cqh',
+        walk_hemo_feral_3: '64cqh',
+        walk_shadow_feral_1: '66cqh',
+        walk_shadow_feral_2: '66cqh',
+        walk_shadow_feral_3: '66cqh',
+        walk_shadow_hemo_1: '57cqh',
+        walk_shadow_hemo_2: '57cqh',
+        walk_shadow_hemo_3: '57cqh',
+        walk_shadow_hemo_feral_1: '65cqh',
+        walk_shadow_hemo_feral_2: '65cqh',
+        walk_shadow_hemo_feral_3: '65cqh',
     };
     // Milestone 3+: the player can invest in more than one specialization
     // (see renderLevelUpScreen - level 5/6 branch choices are no longer
@@ -151,6 +220,19 @@
         const key = save && save.character ? comboArtKeyFor(save.character) : null;
         return key ? 'form_' + key.replace(/-/g, '_') : 'idle';
     }
+    // The 3-frame walk-cycle pose keys (into VAMPIRE_POSES) matching the
+    // player's CURRENT appearance, for performApproach. Every combo
+    // comboArtKeyFor can produce now has a matching walk_X set (base plus
+    // all 7 specialization combos), so this mirrors comboArtKeyFor exactly
+    // rather than approximating with a single spec.
+    function playerWalkFrames() {
+        const key = save && save.character ? comboArtKeyFor(save.character) : null;
+        const primary = key ? key.replace(/-/g, '_') : 'base';
+        // Pose KEYS (into VAMPIRE_POSES/VAMPIRE_POSE_HEIGHT), not resolved
+        // paths - setVampireImage does that lookup itself, and also needs
+        // the key to apply the matching height override.
+        return ['walk_' + primary + '_1', 'walk_' + primary + '_2', 'walk_' + primary + '_3'];
+    }
     // .camp-figure's height/bottom (style.css) were hand-tuned specifically
     // for vampire-standing.png's crop (99.6% content-fill - see
     // VAMPIRE_POSE_HEIGHT's own comment) to get the "big, centered,
@@ -176,23 +258,23 @@
         'goblin-grunt': 'assets/goblin-grunt.png',
         'skeleton': 'assets/skeleton.png',
         'giant-rat': 'assets/giant-rat.png',
-        // Assignments deliberately avoid two reused-art enemies sharing a
-        // base image within the same campaign encounter (see CAMPAIGN
-        // below) - e.g. Goblin Warrior (characterId 'hobgoblin-warrior' -
-        // display name only, see characters.source.js) fights alongside
-        // the real Skeleton in encounter 3, so it reuses goblin-grunt art
-        // instead.
-        'goblin-sneak': 'assets/goblin-grunt.png',
-        'goblin-shaman': 'assets/goblin-grunt.png',
-        'hobgoblin-warrior': 'assets/goblin-grunt.png',
-        'hobgoblin-archer': 'assets/skeleton.png',
-        'zombie': 'assets/skeleton.png',
+        'zombie': 'assets/zombie.png',
+        'hobgoblin-archer': 'assets/goblin-archer.png',
+        'goblin-shaman': 'assets/goblin-shaman.png',
+        'goblin-sneak': 'assets/goblin-sneak.png',
+        // Display name "Goblin Warrior" (see characters.source.js) - a
+        // goblin in heavy armor, not a distinct hobgoblin species.
+        'hobgoblin-warrior': 'assets/goblin-warrior.png',
     };
-    // Attack/hit/defeated pose sets, for the three enemies with real
-    // (non-tinted-placeholder) art - mirrors VAMPIRE_POSES/setVampireImage
-    // below, just keyed by characterId instead of skill id. Enemies with no
-    // entry here keep showing their single static ENEMY_ART image for the
-    // whole fight, exactly as before - no regression for the placeholder five.
+    // Attack/hit/defeated pose sets, for every enemy - the whole roster now
+    // has real art, no placeholders left. Mirrors VAMPIRE_POSES/
+    // setVampireImage below, just keyed by characterId instead of skill id.
+    // `attack` may be a single path or an array of paths played as a
+    // sequence (see playEnemyPoseSequence) - Goblin Grunt/Skeleton/Giant
+    // Rat predate that and stay single-frame. `buff` is a separate pose
+    // for an enemy's own self-target skill (see chooseEnemyAction's
+    // poseKey logic) - falls back to idle for enemies with no dedicated
+    // one (Skeleton's Brittle Guard, Goblin Warrior's Shield Wall, etc.).
     const ENEMY_POSES = {
         'goblin-grunt': {
             idle: 'assets/goblin-grunt.png',
@@ -211,6 +293,46 @@
             attack: 'assets/giant-rat-attack.png',
             hit: 'assets/giant-rat-hit.png',
             defeated: 'assets/giant-rat-defeated.png',
+        },
+        'zombie': {
+            idle: 'assets/zombie.png',
+            attack: ['assets/zombie-attack-1.png', 'assets/zombie-attack-2.png'],
+            hit: 'assets/zombie-hit.png',
+            defeated: 'assets/zombie-defeated.png',
+        },
+        'hobgoblin-archer': {
+            idle: 'assets/goblin-archer.png',
+            attack: ['assets/goblin-archer-attack-1.png', 'assets/goblin-archer-attack-2.png'],
+            hit: 'assets/goblin-archer-hit.png',
+            defeated: 'assets/goblin-archer-defeated.png',
+            // Not a pose - the arrow sprite fired alongside the attack
+            // sequence (see fireProjectile / showTurnEffects).
+            projectile: 'assets/goblin-archer-projectile.png',
+        },
+        'goblin-shaman': {
+            idle: 'assets/goblin-shaman.png',
+            attack: 'assets/goblin-shaman-spell.png',
+            // A second, distinct pose for Mending Chant specifically (see
+            // showTurnEffects) - the offensive spell art doesn't fit
+            // healing itself or an ally.
+            heal: 'assets/goblin-shaman-heal-spell.png',
+            hit: 'assets/goblin-shaman-hit.png',
+            defeated: 'assets/goblin-shaman-defeated.png',
+        },
+        'goblin-sneak': {
+            idle: 'assets/goblin-sneak.png',
+            attack: 'assets/goblin-sneak-attack.png',
+            // Slip Away (self-target) gets its own "vanish into shadow"
+            // pose instead of the attack lunge - see chooseEnemyAction.
+            buff: 'assets/goblin-sneak-buff.png',
+            hit: 'assets/goblin-sneak-hit.png',
+            defeated: 'assets/goblin-sneak-defeated.png',
+        },
+        'hobgoblin-warrior': {
+            idle: 'assets/goblin-warrior.png',
+            attack: ['assets/goblin-warrior-attack-1.png', 'assets/goblin-warrior-attack-2.png'],
+            hit: 'assets/goblin-warrior-hit.png',
+            defeated: 'assets/goblin-warrior-defeated.png',
         },
     };
 
@@ -234,6 +356,40 @@
         // Giant Rat has its own real art) - see ENEMY_ART above.
         { label: "The Elder's Trial: Goblin Warrior, Zombie, and Giant Rat", enemies: ['hobgoblin-warrior', 'zombie', 'giant-rat'], bg: 'assets/bg-ruined-castle.jpg' },
     ];
+
+    // --- UI sound effects (JDSherbert's free Ultimate UI SFX Pack) ---------
+    // Several numbered variants per category (mp3, mono - smallest/most
+    // compatible of the pack's formats for short one-shot blips) - a
+    // category with more than one variant picks randomly each play so
+    // frequent sounds (select, cursor) don't feel like the same clip on
+    // repeat.
+    const SFX = {
+        select: ['assets/sfx-select-1.mp3', 'assets/sfx-select-2.mp3'],
+        cancel: ['assets/sfx-cancel-1.mp3', 'assets/sfx-cancel-2.mp3'],
+        cursor: ['assets/sfx-cursor-1.mp3', 'assets/sfx-cursor-2.mp3', 'assets/sfx-cursor-3.mp3', 'assets/sfx-cursor-4.mp3', 'assets/sfx-cursor-5.mp3'],
+        error: ['assets/sfx-error-1.mp3'],
+        popupOpen: ['assets/sfx-popup-open-1.mp3'],
+        popupClose: ['assets/sfx-popup-close-1.mp3'],
+        swipe: ['assets/sfx-swipe-1.mp3', 'assets/sfx-swipe-2.mp3'],
+    };
+    // A fresh Audio() per play (not a shared/reused element) so two quick
+    // clicks can overlap instead of the second cutting the first off.
+    // Wrapped in try/catch + a swallowed play() rejection since browsers
+    // can block audio before the page has seen a user gesture - a blocked
+    // sound should never be a console error, just silently skipped.
+    function playSfx(category) {
+        const variants = SFX[category];
+        if (!variants || !variants.length) return;
+        try {
+            const src = variants[Math.floor(Math.random() * variants.length)];
+            const audio = new Audio(src);
+            audio.volume = 0.5;
+            const p = audio.play();
+            if (p && p.catch) p.catch(() => {});
+        } catch (err) {
+            // Ignore - sound is a nice-to-have, never worth breaking a click over.
+        }
+    }
 
     // --- Save / persistence -------------------------------------------------
     // Multiple character slots, all under one localStorage key (an array of
@@ -308,7 +464,7 @@
             ? Math.max(0, age.powerBonus - age.powerDecayPerLevel * (level - 1))
             : age.powerBonus;
 
-        const choiceBonuses = { maxHp: 0, bloodCap: 0, power: 0 };
+        const choiceBonuses = { maxHp: 0, bloodCap: 0, power: 0, evasion: 0 };
         const choiceSkills = [];
         (characterSave.levelChoiceIds || []).forEach((choiceId) => {
             Object.values(PROGRESSION.LEVEL_CHOICES).forEach((options) => {
@@ -337,6 +493,23 @@
         Object.assign(dayCurse.metadata, curseMetadataFor(characterSave, 'day'));
 
         character.startingHp = 100 + choiceBonuses.maxHp;
+
+        // Level 2's "preview" evasion picks (see LEVEL_CHOICES) - a small
+        // PERMANENT evadeChancePercent status, confirmed additive with a
+        // temporary one like Mist Form's (battleEngine.js sums every
+        // active status's evadeChancePercent, not last-write-wins).
+        if (choiceBonuses.evasion > 0) {
+            character.startStatuses.push({
+                id: 'vampire_innate_evasion',
+                duration: 999,
+                metadata: {
+                    infiniteDuration: true,
+                    harmful: false,
+                    evadeChancePercent: choiceBonuses.evasion,
+                    tooltipText: choiceBonuses.evasion + '% chance to evade an attack entirely.',
+                },
+            });
+        }
 
         // Milestone 3 specialization "branch" skills, picked via the level-
         // up screen (kind:'skill' entries in LEVEL_CHOICES) - same
@@ -523,6 +696,15 @@
                 metadata: curseMetadataFor(save.character, 'night'),
             });
         }
+        // Every enemy starts Far - the player has to spend a turn Approaching
+        // (see onApproachClick/performApproach) before any Melee-tagged skill
+        // can target them (renderSkillButton/onSkillClick check this). Once
+        // closed, a slot stays Close for the rest of the encounter - this is
+        // a one-time "engage" cost, not a per-turn tax. Player-side only:
+        // enemies always attack normally regardless of range (their own
+        // chooseEnemyAction/runEnemyTurn are unaffected).
+        const range = {};
+        board.enemy.forEach((_, slot) => { range[slot] = 'far'; });
         state = {
             match: {
                 players,
@@ -544,6 +726,11 @@
             // at the start of every encounter, same "fresh start each fight"
             // philosophy as HP already fully healing at Camp.
             potionsRemaining: 3,
+            range,
+            // Slot of the most recently Approached enemy (see
+            // engagedForwardCqw) - null until the first Approach this
+            // encounter.
+            engagedSlot: null,
         };
         log(encounter.label + ' blocks your path.');
         screen = 'battle';
@@ -617,6 +804,40 @@
         render();
     }
 
+    // Range gate: a skill needs the target Close only if it's tagged Melee
+    // in the vendored roster data (see characters.source.js/progression.js -
+    // every physical melee attack in this roster already carries this tag
+    // for the engine's own classification, so this reads it rather than
+    // adding a parallel field). Self-target skills are never gated (checked
+    // by callers before this matters - a self buff has no "target" to be
+    // far from).
+    function skillRequiresMelee(skill) {
+        return !!(skill && skill.classes && skill.classes.some((c) => String(c).toLowerCase() === 'melee'));
+    }
+    function isClose(slot) {
+        return !!(state.range && state.range[slot] === 'close');
+    }
+    function anyFarAliveEnemy() {
+        return state.match.board.enemy.some((u, slot) => u.alive !== false && !isClose(slot));
+    }
+    function anyCloseAliveEnemy() {
+        return state.match.board.enemy.some((u, slot) => u.alive !== false && isClose(slot));
+    }
+    // How far forward (in cqw, toward the enemy-cluster side) the player
+    // should stand - proportional to state.engagedSlot's position within
+    // the CURRENT enemy line-up (leftmost enemy = a short step, rightmost =
+    // a longer one), not a single fixed distance - approximates the
+    // approached enemy's real horizontal position using cheap arithmetic
+    // (slot index / count) rather than measuring actual DOM coordinates,
+    // since the enemy-cluster's layout already spaces slots out evenly by
+    // CSS. 0 if nothing has been Approached yet this encounter.
+    function engagedForwardCqw() {
+        if (state.engagedSlot == null) return 0;
+        const count = state.match.board.enemy.length;
+        const frac = count > 1 ? (state.engagedSlot + 0.5) / count : 0.5;
+        return 6 + frac * 16;
+    }
+
     function buildTargetSelection(skill, actingUsername, actorSlot, targetSlot) {
         if (skill.target === 'self') return [{ username: actingUsername, slot: actorSlot }];
         if (targetSlot == null) return [];
@@ -630,10 +851,14 @@
     }
 
     function checkOutcome() {
+        const wasOver = state.over;
         const enemiesAlive = state.match.board.enemy.some((u) => u.alive !== false);
         const playerAlive = state.match.board.player.some((u) => u.alive !== false);
         if (!enemiesAlive) state.over = 'win';
         else if (!playerAlive) state.over = 'lose';
+        // checkOutcome() is called after every actor's turn, win or not - only
+        // sound off on the actual win/lose transition, not every re-check.
+        if (!wasOver && state.over) playSfx('popupOpen');
     }
 
     function onSkillClick(skillIndex) {
@@ -644,13 +869,17 @@
         if (!isActiveSkill(skill)) return;
         if (BE.getSkillCooldownRemaining(unit.state, skill.id) > 0) return;
         if (skill.id === 'vampire_potion' && state.potionsRemaining <= 0) return;
+        if (skill.id === 'life_rip' && bloodStacks(unit) <= 0) return;
+        playSfx('select');
         if (skill.target === 'self') {
             playPlayerAction(skillIndex, null);
             return;
         }
+        const meleeGated = skillRequiresMelee(skill);
         const aliveEnemies = state.match.board.enemy
             .map((u, slot) => ({ u, slot }))
-            .filter((e) => e.u.alive !== false);
+            .filter((e) => e.u.alive !== false && (!meleeGated || isClose(e.slot)));
+        if (meleeGated && aliveEnemies.length === 0) return; // guarded by the disabled button too
         if (aliveEnemies.length === 1) {
             playPlayerAction(skillIndex, aliveEnemies[0].slot);
             return;
@@ -659,10 +888,77 @@
         render();
     }
 
+    // Approach isn't a real engine skill (no damage/heal/status effect) -
+    // it just flips a Far enemy's range to Close and spends the turn doing
+    // it, same "windup -> enemy replies" pacing as every other action (see
+    // performApproach). Reuses the exact same click-a-target flow as a
+    // single-enemy skill (state.pendingSkillIndex), with the string
+    // 'approach' as a sentinel instead of a numeric skill index - handled
+    // explicitly wherever pendingSkillIndex is read.
+    function onApproachClick() {
+        if (state.over || state.busy) return;
+        if (!anyFarAliveEnemy()) return;
+        playSfx('select');
+        const farEnemies = state.match.board.enemy
+            .map((u, slot) => ({ u, slot }))
+            .filter((e) => e.u.alive !== false && !isClose(e.slot));
+        if (farEnemies.length === 1) {
+            performApproach(farEnemies[0].slot);
+            return;
+        }
+        state.pendingSkillIndex = 'approach';
+        render();
+    }
+
+    function performApproach(slot) {
+        const enemyUnit = state.match.board.enemy[slot];
+        const enemyCharacter = enemyUnit && characterForUnit(enemyUnit);
+        const prevEngageCqw = engagedForwardCqw(); // BEFORE this approach's own state change
+        state.range[slot] = 'close';
+        state.engagedSlot = slot;
+        endSideTurn('player');
+        checkOutcome();
+        log('You close the distance to ' + (enemyCharacter ? enemyCharacter.name : 'the enemy') + '.', 'you');
+        render();
+        // 3-frame walk cycle (see playerWalkFrames) instead of a strike pose
+        // - reuses playVampirePoseSequence with an empty diffs array since
+        // Approach deals no damage/heals nothing (no floating numbers to
+        // show), same revert-to-idle-when-done behavior as every other
+        // sequence.
+        const totalMs = playVampirePoseSequence(playerWalkFrames(), [], { stepMs: 260, holdMs: 480 });
+        // render() just above already put .combatant.player at its correct
+        // --engage-x for the CURRENT state (see engagedForwardCqw). That's
+        // instant, not animated (a brand-new element can't transition from
+        // a state it was never in). To actually SHOW the step, briefly
+        // force --engage-x back to its PRE-approach value, then restore the
+        // new value with a transition enabled - so it animates from old to
+        // new over the same totalMs the walk cycle takes, landing in sync.
+        const combatantEl = findCombatantEl('player', 0);
+        if (combatantEl) {
+            const newEngageX = combatantEl.style.getPropertyValue('--engage-x');
+            combatantEl.style.transition = 'none';
+            combatantEl.style.setProperty('--engage-x', prevEngageCqw + 'cqw');
+            void combatantEl.offsetWidth; // force reflow before re-enabling the transition
+            combatantEl.style.transition = 'transform ' + totalMs + 'ms ease';
+            combatantEl.style.setProperty('--engage-x', newEngageX);
+        }
+        if (!state.over) {
+            state.busy = true;
+            setTimeout(runEnemyTurn, totalMs + 150);
+        }
+    }
+
     function onEnemyTargetClick(slot) {
         if (state.over || state.busy || state.pendingSkillIndex == null) return;
         const unit = state.match.board.enemy[slot];
         if (!unit || unit.alive === false) return;
+        playSfx('select');
+        if (state.pendingSkillIndex === 'approach') {
+            if (isClose(slot)) return;
+            state.pendingSkillIndex = null;
+            performApproach(slot);
+            return;
+        }
         const skillIndex = state.pendingSkillIndex;
         state.pendingSkillIndex = null;
         playPlayerAction(skillIndex, slot);
@@ -700,8 +996,8 @@
     // numbers still show, just with no pose swap. Returns the total time
     // (ms) the sequence takes, so callers can time the enemy's reply.
     function playVampirePoseSequence(frames, diffs, opts) {
-        const stepMs = (opts && opts.stepMs) || 150;
-        const holdMs = (opts && opts.holdMs) || 360;
+        const stepMs = (opts && opts.stepMs) || 260;
+        const holdMs = (opts && opts.holdMs) || 550;
         frames.forEach((frame, i) => {
             setTimeout(() => {
                 setVampireImage(frame);
@@ -738,22 +1034,69 @@
         // is a brace or a working of magic on oneself, not a strike - it
         // skips the windup/lunge that reads as an attack. Enemy-targeted
         // skills still get the full windup -> action -> impact sequence.
-        let enemyTurnDelay = 900;
+        // Slowed down from the original 900ms/700ms/160ms - too fast to
+        // actually see the new pose art land (reported by a friend of the
+        // player's). enemyTurnDelay stays a bit ahead of each branch's own
+        // worst-case total (self: 2-frame Blood Ward, 920ms; attack:
+        // windup + 3-frame Blood Projectile, 1330ms) so the enemy never
+        // replies mid-animation.
+        let enemyTurnDelay = 1450;
         const actionPose = SKILL_ACTION_POSE[skill.id];
         const frames = actionPose ? (Array.isArray(actionPose) ? actionPose : [actionPose]) : [];
         if (skill.target === 'self') {
-            playVampirePoseSequence(frames, diffs, { stepMs: 220, holdMs: 380 });
-            enemyTurnDelay = 700;
+            playVampirePoseSequence(frames, diffs, { stepMs: 320, holdMs: 600 });
+            enemyTurnDelay = 1050;
         } else {
             setVampireImage('windup');
             setTimeout(() => {
-                playVampirePoseSequence(frames, diffs, { stepMs: 150, holdMs: 360 });
-            }, 160);
+                playVampirePoseSequence(frames, diffs, { stepMs: 260, holdMs: 550 });
+            }, 260);
         }
         if (!state.over) {
             state.busy = true;
             setTimeout(runEnemyTurn, enemyTurnDelay);
         }
+    }
+
+    // Goblin Shaman's Mending Chant (target:'self-or-ally') is the one
+    // enemy skill that isn't just "attack the player" - it needs a real
+    // "should I heal, and who" decision instead of the plain
+    // first-available-skill pick below. Heals only when it or an ally is
+    // actually hurt (below 75% of their own max HP), picking whoever's
+    // worst off; otherwise falls through to a normal attack, same turn.
+    function chooseEnemyAction(unit, character, slot, enemyBoard) {
+        const healSkillIndex = character.skills.findIndex(
+            (sk) => sk.target === 'self-or-ally' && isActiveSkill(sk) && BE.getSkillCooldownRemaining(unit.state, sk.id) <= 0
+        );
+        if (healSkillIndex >= 0) {
+            let bestSlot = -1;
+            let bestRatio = 0.75; // only worth casting below this fraction of max HP
+            enemyBoard.forEach((allyUnit, allySlot) => {
+                if (!allyUnit || allyUnit.alive === false) return;
+                const ratio = allyUnit.hp / maxHpForCharacter(characterForUnit(allyUnit));
+                if (ratio < bestRatio) {
+                    bestRatio = ratio;
+                    bestSlot = allySlot;
+                }
+            });
+            if (bestSlot >= 0) {
+                const skill = character.skills[healSkillIndex];
+                return { skillIndex: healSkillIndex, skill, targetSelection: [{ username: 'enemy', slot: bestSlot }], poseKey: 'heal' };
+            }
+        }
+        const skillIndex = character.skills.findIndex(
+            (sk) => sk.target !== 'self-or-ally' && isActiveSkill(sk) && BE.getSkillCooldownRemaining(unit.state, sk.id) <= 0
+        );
+        if (skillIndex < 0) return null;
+        const skill = character.skills[skillIndex];
+        const targetSelection = skill.target === 'self'
+            ? [{ username: 'enemy', slot }]
+            : [{ username: 'player', slot: 0 }];
+        // 'buff' for a self-target skill (e.g. Slip Away's shadow-step
+        // pose) rather than the attack lunge - falls back to idle for
+        // enemies with no dedicated buff pose (see ENEMY_POSES).
+        const poseKey = skill.target === 'self' ? 'buff' : 'attack';
+        return { skillIndex, skill, targetSelection, poseKey };
     }
 
     function runEnemyTurn() {
@@ -763,16 +1106,12 @@
         enemyBoard.forEach((unit, slot) => {
             if (!unit || unit.alive === false) return;
             const character = characterForUnit(unit);
-            const skillIndex = character.skills.findIndex(
-                (sk) => isActiveSkill(sk) && BE.getSkillCooldownRemaining(unit.state, sk.id) <= 0
-            );
-            if (skillIndex < 0) return;
-            const skill = character.skills[skillIndex];
-            const targetSelection = skill.target === 'self'
-                ? [{ username: 'enemy', slot }]
-                : [{ username: 'player', slot: 0 }];
-            actions.push({ slot, character, skillIndex, skill, targetSelection });
-            acted.push({ username: 'enemy', slot });
+            const action = chooseEnemyAction(unit, character, slot, enemyBoard);
+            if (!action) return;
+            const { skillIndex, skill, targetSelection, poseKey } = action;
+            actions.push({ slot, character, skillIndex, skill, targetSelection, poseKey });
+            const target = targetSelection[0];
+            acted.push({ username: 'enemy', slot, poseKey, targetUsername: target && target.username, targetSlot: target && target.slot });
         });
         const overallBefore = snapshotHp();
         // Resolved one actor at a time rather than as a single batched call -
@@ -805,10 +1144,10 @@
             setTimeout(() => {
                 state.vampirePose = 'death';
                 render();
-            }, 550);
+            }, 750);
         } else if (vampireHurt) {
             setVampireImage('hit');
-            setTimeout(() => setVampireImage(state.vampirePose), 420);
+            setTimeout(() => setVampireImage(state.vampirePose), 620);
         }
     }
 
@@ -821,6 +1160,15 @@
     }
 
     // --- Post-battle flow: XP, level-ups, specialization, campaign advance ---
+
+    // A "big moment" screen (a real choice to make, or the campaign's own
+    // ending) gets a popup-open sting; a plain return to Camp doesn't -
+    // keeps this from turning into a sound on literally every screen swap.
+    function screenTransitionSfx(nextScreen) {
+        if (nextScreen === 'levelup' || nextScreen === 'levelup-anim' || nextScreen === 'specialization' || nextScreen === 'campaign-complete') {
+            playSfx('popupOpen');
+        }
+    }
 
     function onBattleOverContinue() {
         const won = state.over === 'win';
@@ -855,6 +1203,7 @@
         } else {
             screen = save.campaign.completed ? 'campaign-complete' : 'camp';
         }
+        screenTransitionSfx(screen);
         render();
     }
 
@@ -866,6 +1215,7 @@
         } else {
             screen = save.campaign.completed ? 'campaign-complete' : 'camp';
         }
+        screenTransitionSfx(screen);
         render();
     }
 
@@ -930,26 +1280,118 @@
         if (!poses) return;
         const el = findCombatantEl('enemy', slot);
         const img = el && el.querySelector('.figure img');
-        if (img) img.src = poses[poseKey] || poses.idle;
+        if (!img) return;
+        const pose = poses[poseKey] || poses.idle;
+        img.src = Array.isArray(pose) ? pose[pose.length - 1] : pose;
+    }
+
+    // Steps an enemy's image through a pose (a single path, or an array of
+    // paths - Zombie/Goblin Archer's 2-frame attacks) at stepMs intervals,
+    // holding the last frame for holdMs before reverting to idle. Mirrors
+    // playVampirePoseSequence's shape and reasoning: a same-tick swap
+    // doesn't give the new pose art any time to actually be seen.
+    function playEnemyPoseSequence(slot, characterId, poseKey, opts) {
+        const poses = ENEMY_POSES[characterId];
+        if (!poses) return;
+        const pose = poses[poseKey] || poses.idle;
+        const frames = Array.isArray(pose) ? pose : [pose];
+        const stepMs = (opts && opts.stepMs) || 260;
+        const holdMs = (opts && opts.holdMs) || 550;
+        frames.forEach((frameSrc, i) => {
+            setTimeout(() => {
+                const el = findCombatantEl('enemy', slot);
+                const img = el && el.querySelector('.figure img');
+                if (img) img.src = frameSrc;
+            }, i * stepMs);
+        });
+        setTimeout(() => setEnemyImage(slot, characterId, 'idle'), (frames.length - 1) * stepMs + holdMs);
+    }
+
+    // Measures the flight path for fireProjectile - split out from it and
+    // called EARLY (synchronously, right when showTurnEffects itself runs)
+    // rather than inside the delayed setTimeout that actually launches the
+    // arrow. Measuring .stage's aspect-ratio-derived box from deep inside
+    // that nested timeout intermittently returned a zero-size rect in
+    // testing (a real, reproduced layout-timing quirk - the exact same
+    // query against the exact same element succeeds immediately before and
+    // after), even though nothing else touches the DOM in between.
+    // Capturing coordinates at a known-good synchronous moment sidesteps
+    // it entirely instead of chasing the browser-timing root cause.
+    function computeProjectileShot(fromUsername, fromSlot, toUsername, toSlot) {
+        const stageEl = document.querySelector('.stage');
+        const fromEl = findCombatantEl(fromUsername, fromSlot);
+        const toEl = findCombatantEl(toUsername, toSlot);
+        if (!stageEl || !fromEl || !toEl) return null;
+        const stageRect = stageEl.getBoundingClientRect();
+        const fromRect = fromEl.getBoundingClientRect();
+        const toRect = toEl.getBoundingClientRect();
+        if (!stageRect.width || !stageRect.height) return null;
+        return {
+            fromX: fromRect.left + fromRect.width / 2 - stageRect.left,
+            fromY: fromRect.top + fromRect.height * 0.4 - stageRect.top,
+            toX: toRect.left + toRect.width / 2 - stageRect.left,
+            toY: toRect.top + toRect.height * 0.4 - stageRect.top,
+        };
+    }
+
+    // A rotated arrow sprite that flies from the pre-measured shot's start
+    // to end point, timed to land right as showTurnEffects' hit-flash and
+    // damage number apply to the target - purely cosmetic, no bearing on
+    // the actual (already-resolved) combat math.
+    function fireProjectile(shot, imgSrc, durationMs) {
+        const stageEl = document.querySelector('.stage');
+        if (!stageEl || !shot) return;
+        const { fromX, fromY, toX, toY } = shot;
+        const angleDeg = (Math.atan2(toY - fromY, toX - fromX) * 180) / Math.PI;
+        const dist = Math.hypot(toX - fromX, toY - fromY);
+
+        const proj = document.createElement('img');
+        proj.src = imgSrc;
+        proj.className = 'projectile';
+        proj.style.width = Math.max(36, dist * 0.24) + 'px';
+        proj.style.left = fromX + 'px';
+        proj.style.top = fromY + 'px';
+        proj.style.transform = 'translate(-8%, -50%) rotate(' + angleDeg + 'deg)';
+        stageEl.appendChild(proj);
+        // Force layout so the position transition below actually animates
+        // from the start point instead of jumping straight to the end.
+        void proj.offsetWidth;
+        proj.style.transition = 'left ' + durationMs + 'ms linear, top ' + durationMs + 'ms linear';
+        proj.style.left = toX + 'px';
+        proj.style.top = toY + 'px';
+        setTimeout(() => proj.remove(), durationMs + 80);
     }
 
     // Applies brief lunge/hit-flash animation classes and spawns floating
-    // damage/heal numbers, reading fresh DOM built by the render() just prior.
-    // Also drives enemy attack/hit/defeated pose-swapping (setEnemyImage) for
-    // the three enemies with a real pose set - a no-op for everyone else.
+    // damage/heal numbers, reading fresh DOM built by the render() just
+    // prior. Also drives enemy attack/heal/defeated pose-swapping
+    // (playEnemyPoseSequence) and the Goblin Archer's flying-arrow sprite,
+    // for every enemy with a real pose set - a no-op for the placeholder
+    // two (Goblin Sneak, Goblin Warrior).
     function showTurnEffects(acted, diffs) {
-        acted.forEach(({ username, slot }) => {
+        acted.forEach(({ username, slot, poseKey, targetUsername, targetSlot }) => {
             const el = findCombatantEl(username, slot);
             const figure = el && el.querySelector('.figure');
             if (!figure) return;
             figure.classList.add('is-acting');
-            setTimeout(() => figure.classList.remove('is-acting'), 260);
+            setTimeout(() => figure.classList.remove('is-acting'), 380);
             if (username === 'enemy') {
                 const unit = state.match.board.enemy[slot];
                 const character = unit && characterForUnit(unit);
                 if (character) {
-                    setEnemyImage(slot, character.characterId, 'attack');
-                    setTimeout(() => setEnemyImage(slot, character.characterId, 'idle'), 420);
+                    const key = poseKey || 'attack';
+                    playEnemyPoseSequence(slot, character.characterId, key, { stepMs: 260, holdMs: 550 });
+                    const poses = ENEMY_POSES[character.characterId];
+                    const attackFrames = poses && Array.isArray(poses.attack) ? poses.attack : (poses ? [poses.attack] : []);
+                    if (poses && poses.projectile && key === 'attack' && targetUsername != null && targetSlot != null) {
+                        // Measured NOW (see computeProjectileShot's own
+                        // comment for why), launched later timed to land as
+                        // the release frame (the last one) shows, right as
+                        // the hit lands below.
+                        const shot = computeProjectileShot('enemy', slot, targetUsername, targetSlot);
+                        const launchDelay = (attackFrames.length - 1) * 260;
+                        if (shot) setTimeout(() => fireProjectile(shot, poses.projectile, 420), launchDelay);
+                    }
                 }
             }
         });
@@ -964,7 +1406,7 @@
                 // is-hit's animation (transform) takes over from idle-bob while
                 // present; remove it once the shake finishes so idle-bob resumes
                 // instead of being silently overridden for the rest of the fight.
-                setTimeout(() => figure.classList.remove('is-hit'), 340);
+                setTimeout(() => figure.classList.remove('is-hit'), 500);
                 if (username === 'enemy') {
                     const unit = state.match.board.enemy[slot];
                     const character = unit && characterForUnit(unit);
@@ -972,8 +1414,7 @@
                         if (unit.alive === false) {
                             setEnemyImage(slot, character.characterId, 'defeated');
                         } else {
-                            setEnemyImage(slot, character.characterId, 'hit');
-                            setTimeout(() => setEnemyImage(slot, character.characterId, 'idle'), 420);
+                            playEnemyPoseSequence(slot, character.characterId, 'hit', { stepMs: 260, holdMs: 550 });
                         }
                     }
                 }
@@ -1022,7 +1463,7 @@
         );
     }
 
-    function renderCombatant({ unit, character, isEnemy, slot, targetable }) {
+    function renderCombatant({ unit, character, isEnemy, slot, targetable, engageCqw }) {
         const dead = unit.alive === false;
         // An enemy with a dedicated defeated pose reads as "dead" through
         // its own art, so it skips the heavy grayscale/fade treatment
@@ -1033,11 +1474,20 @@
         el.className = 'combatant' + (isEnemy ? '' : ' player') + (dead ? ' dead' : '') + (dead && enemyPoses ? ' has-defeated-pose' : '') + (targetable ? ' targetable' : '');
         el.dataset.username = isEnemy ? 'enemy' : 'player';
         el.dataset.slot = String(slot);
+        // How far forward (toward whichever enemy was last Approached - see
+        // engagedForwardCqw) the player stands - a number, not a boolean,
+        // since a flat "engaged" position landed the player next to
+        // whichever enemy happens to render first rather than the one
+        // actually Close (reported live against a 3-enemy board).
+        if (!isEnemy) el.style.setProperty('--engage-x', (engageCqw || 0) + 'cqw');
 
         const nameplate = document.createElement('div');
         nameplate.className = 'nameplate' + (isEnemy ? '' : ' player-nameplate');
+        const rangeBadge = isEnemy
+            ? ' <span class="range-badge ' + (isClose(slot) ? 'is-close' : 'is-far') + '">' + (isClose(slot) ? 'Close' : 'Far') + '</span>'
+            : '';
         nameplate.innerHTML =
-            '<div class="name">' + character.name + (!isEnemy ? ' <span class="level-badge">Lv ' + save.character.level + '</span>' : '') + '</div>' +
+            '<div class="name">' + character.name + rangeBadge + (!isEnemy ? ' <span class="level-badge">Lv ' + save.character.level + '</span>' : '') + '</div>' +
             renderMeter('hp', isEnemy ? 'enemy-tone' : 'player-tone', unit.hp, maxHpForCharacter(character), 'HP', renderArmorBadge(getArmorAmount(unit)), 'stat-icon-hp') +
             (!isEnemy ? renderMeter('blood', '', bloodStacks(unit), bite_bloodMax(character), 'Blood', '', 'stat-icon-blood') : '') +
             (!isEnemy ? renderXpLine(save.character) : '');
@@ -1055,7 +1505,23 @@
             figure.style.height = VAMPIRE_POSE_HEIGHT[poseKey] || '';
         }
         figure.appendChild(img);
-        el.appendChild(figure);
+        if (isEnemy) {
+            el.appendChild(figure);
+        } else {
+            // A dedicated wrapper for the uniform size-down (see .figure-scale
+            // in style.css) - .figure's own `transform` is perpetually
+            // claimed by its idle-bob animation (and is-acting/is-hit swap
+            // out that whole `animation` property while active), so a
+            // static scale() declared directly on .figure would just get
+            // silently overridden, same reason engage-x lives on .combatant
+            // instead. setVampireImage/playEnemyPoseSequence etc. all find
+            // .figure via querySelector, which reaches through this extra
+            // nesting level with no changes needed.
+            const scaleWrap = document.createElement('div');
+            scaleWrap.className = 'figure-scale';
+            scaleWrap.appendChild(figure);
+            el.appendChild(scaleWrap);
+        }
 
         if (targetable) {
             el.setAttribute('role', 'button');
@@ -1149,6 +1615,11 @@
                 const compact = describeStatusMetadataCompact(feralStatus.metadata);
                 if (compact) lines.push({ text: compact });
             }
+            const evasionStatus = unit.state.statuses.find((s) => s.id === 'vampire_innate_evasion');
+            if (evasionStatus) {
+                const compact = describeStatusMetadataCompact(evasionStatus.metadata);
+                if (compact) lines.push({ text: compact });
+            }
             return lines;
         }
         return (skill.effects || []).map(describeEffect).filter(Boolean);
@@ -1163,7 +1634,13 @@
         const isPotion = skill.id === 'vampire_potion';
         const cooldown = isPassive ? 0 : BE.getSkillCooldownRemaining(unit.state, skill.id);
         const potionsLeft = state.potionsRemaining;
-        btn.disabled = isPassive || cooldown > 0 || state.over || state.busy || (isPotion && potionsLeft <= 0);
+        const meleeBlocked = !isPassive && skillRequiresMelee(skill) && !state.match.board.enemy.some((u, s) => u.alive !== false && isClose(s));
+        // Life Rip's damage is entirely bonusPerStatusMetadata off current
+        // Blood (see characters.source.js) - at 0 Blood it would still fire
+        // for its bare 8 base damage, which read as "free to spam" rather
+        // than the Blood-spending finisher it's meant to be.
+        const noBlood = skill.id === 'life_rip' && bloodStacks(unit) <= 0;
+        btn.disabled = isPassive || cooldown > 0 || state.over || state.busy || (isPotion && potionsLeft <= 0) || meleeBlocked || noBlood;
         const iconImg = skill.id === 'vampire_bite' ? 'assets/icon-bite.jpg'
             : skill.id === 'life_rip' ? 'assets/icon-liferip.jpg'
             : null;
@@ -1181,6 +1658,8 @@
         // to show remaining uses instead of a cooldown.
         const tagHtml = isPotion ? '<span class="skill-tag">' + potionsLeft + ' left</span>'
             : isPassive ? '<span class="skill-tag">Passive</span>'
+            : meleeBlocked ? '<span class="skill-tag">Too far</span>'
+            : noBlood ? '<span class="skill-tag">No Blood</span>'
             : cooldown > 0 ? '<span class="skill-tag">Cooldown ' + cooldown + '</span>'
             : '';
         btn.innerHTML =
@@ -1206,6 +1685,18 @@
             pierceRow.textContent = 'Armor-piercing';
             tooltip.appendChild(pierceRow);
         }
+        if (meleeBlocked) {
+            const rangeRow = document.createElement('div');
+            rangeRow.className = 'skill-tooltip-line';
+            rangeRow.textContent = 'Melee - Approach an enemy first.';
+            tooltip.appendChild(rangeRow);
+        }
+        if (noBlood) {
+            const bloodRow = document.createElement('div');
+            bloodRow.className = 'skill-tooltip-line';
+            bloodRow.textContent = 'Requires at least 1 Blood.';
+            tooltip.appendChild(bloodRow);
+        }
         if (!isPassive) {
             btn.addEventListener('click', () => onSkillClick(skillIndex));
         }
@@ -1214,6 +1705,35 @@
         // would fade the tooltip along with it (this is exactly the Passive
         // slot, the one button that's always disabled and most needs a
         // clearly-readable tooltip since it can't be tried by clicking).
+        const slot = document.createElement('div');
+        slot.className = 'skill-slot';
+        slot.appendChild(btn);
+        slot.appendChild(tooltip);
+        return slot;
+    }
+
+    // Not a real skill (no engine effect) - see onApproachClick/
+    // performApproach. Rendered with the same skill-slot/skill-btn markup
+    // as every real skill so it sits in the panel identically, styled and
+    // tooltipped the same way.
+    function renderApproachButton() {
+        const btn = document.createElement('button');
+        btn.className = 'skill-btn';
+        btn.type = 'button';
+        const noFarEnemies = !anyFarAliveEnemy();
+        btn.disabled = !!state.over || state.busy || noFarEnemies;
+        btn.innerHTML =
+            '<span class="skill-icon">&#128099;</span>' +
+            '<span class="skill-text"><span class="skill-name">Approach</span>' +
+            (noFarEnemies ? '<span class="skill-tag">All close</span>' : '') +
+            '</span>';
+        btn.addEventListener('click', onApproachClick);
+        const tooltip = document.createElement('div');
+        tooltip.className = 'skill-tooltip';
+        const row = document.createElement('div');
+        row.className = 'skill-tooltip-line';
+        row.textContent = 'Close the distance to an enemy so you can use Melee skills on them. Uses your turn.';
+        tooltip.appendChild(row);
         const slot = document.createElement('div');
         slot.className = 'skill-slot';
         slot.appendChild(btn);
@@ -1263,31 +1783,47 @@
         });
         logBox.appendChild(list);
 
+        const pendingIsApproach = state.pendingSkillIndex === 'approach';
         if (state.pendingSkillIndex != null) {
             const hint = document.createElement('div');
             hint.className = 'target-hint';
-            hint.textContent = 'Choose a target...';
+            hint.textContent = pendingIsApproach ? 'Choose who to approach...' : 'Choose a target...';
             stage.appendChild(hint);
         }
 
         const vUnit = vampireUnit();
         const vChar = characterForUnit(vUnit);
-        stage.appendChild(renderCombatant({ unit: vUnit, character: vChar, isEnemy: false, slot: 0, targetable: false }));
+        stage.appendChild(renderCombatant({ unit: vUnit, character: vChar, isEnemy: false, slot: 0, targetable: false, engageCqw: engagedForwardCqw() }));
 
+        const pendingSkill = (!pendingIsApproach && state.pendingSkillIndex != null) ? vChar.skills[state.pendingSkillIndex] : null;
+        const pendingMeleeGate = !!pendingSkill && skillRequiresMelee(pendingSkill);
         const cluster = document.createElement('div');
         cluster.className = 'enemy-cluster';
         cluster.dataset.count = String(state.match.board.enemy.length);
         state.match.board.enemy.forEach((unit, slot) => {
             const character = characterForUnit(unit);
-            const targetable = state.pendingSkillIndex != null && unit.alive !== false;
+            let targetable = state.pendingSkillIndex != null && unit.alive !== false;
+            if (targetable && pendingIsApproach) targetable = !isClose(slot);
+            else if (targetable && pendingMeleeGate) targetable = isClose(slot);
             cluster.appendChild(renderCombatant({ unit, character, isEnemy: true, slot, targetable }));
         });
         stage.appendChild(cluster);
 
+        // A sibling of the stage now, not a child overlaid on top of it (see
+        // .panel in style.css) - it used to be position:absolute inside
+        // .stage, pinned to the bottom. That was fine at 5 skills, but a
+        // leveled-up character can have 8 (base 5 + 3 specialization
+        // picks), wrapping the button grid to 3 rows - measured live, that
+        // covers up to 44% of the stage's height, hiding the lower portion
+        // of the enemy cluster and even the player themself behind it.
+        // Living below the stage entirely (like Combat Log already does,
+        // see logBox below) scales correctly no matter how many skills a
+        // character ends up with, instead of fragile margin-tuning for one
+        // specific row count.
         const panel = document.createElement('div');
         panel.className = 'panel';
+        panel.appendChild(renderApproachButton());
         vChar.skills.forEach((_, idx) => panel.appendChild(renderSkillButton(vChar, vUnit, idx)));
-        stage.appendChild(panel);
 
         if (state.over && !suppressOverlay) {
             const overlay = document.createElement('div');
@@ -1296,12 +1832,16 @@
             const btn = document.createElement('button');
             btn.className = 'restart-btn';
             btn.textContent = state.over === 'win' ? 'Continue' : 'Return to camp';
-            btn.addEventListener('click', onBattleOverContinue);
+            btn.addEventListener('click', () => {
+                playSfx('select');
+                onBattleOverContinue();
+            });
             overlay.appendChild(btn);
             stage.appendChild(overlay);
         }
 
         frame.appendChild(stage);
+        frame.appendChild(panel);
         frame.appendChild(logBox);
         root.appendChild(frame);
     }
@@ -1340,7 +1880,12 @@
             '<span class="choice-name">' + name + '</span>' +
             (flavor ? '<span class="choice-flavor">' + flavor + '</span>' : '') +
             (mechanics ? '<span class="choice-mechanics">' + mechanics + '</span>' : '');
-        btn.addEventListener('click', onClick);
+        // Shared by every pick-a-card screen (Origin/Age at creation, Level
+        // Up choices, Specialization) - one hook covers all of them.
+        btn.addEventListener('click', () => {
+            playSfx('select');
+            onClick();
+        });
         return btn;
     }
 
@@ -1544,7 +2089,10 @@
                 '<span class="mission-quest">Defeat ' + upcomingEncounter.enemies.length + ' ' +
                     (upcomingEncounter.enemies.length === 1 ? 'enemy' : 'enemies') + '</span>';
             mission.addEventListener('click', () => {
-                if (window.confirm('Start this encounter?\n\n' + upcomingEncounter.label)) newGame(encounterIndex);
+                if (window.confirm('Start this encounter?\n\n' + upcomingEncounter.label)) {
+                    playSfx('swipe');
+                    newGame(encounterIndex);
+                }
             });
             scene.appendChild(mission);
         } else {
@@ -1644,7 +2192,7 @@
         options.forEach((opt) => {
             const mechanics = opt.kind === 'skill'
                 ? buildSkillTooltipLines(null, opt.skill).map((l) => l.text).join(' · ')
-                : '';
+                : (opt.mechanics || '');
             const spec = opt.requiresSpecialization ? PROGRESSION.SPECIALIZATIONS[opt.requiresSpecialization] : null;
             grid.appendChild(choiceCard({
                 name: opt.label,

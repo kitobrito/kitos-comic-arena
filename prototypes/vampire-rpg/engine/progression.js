@@ -96,6 +96,21 @@
         2: [
             { id: 'vigor', label: '+8 Max HP', kind: 'maxHp', value: 8 },
             { id: 'wellspring', label: '+2 Blood Capacity', kind: 'bloodCap', value: 2 },
+            // A little early taste of each path - freely pickable like
+            // every other option here (requiresSpecialization is used
+            // purely as flavor + investment-tracking metadata, not a gate -
+            // same as the level 5/6 branch skills below), but it DOES
+            // count as a real point toward that specialization behind the
+            // scenes (see investedSpecializations/comboArtKeyFor in
+            // game.js), same as picking one of their actual skills would.
+            // kind:'evasion' is new - buildComposedVampire turns the total
+            // into a small permanent evadeChancePercent status (the same
+            // real engine primitive Mist Form's temporary version rides -
+            // confirmed additive with it, not overriding, via direct
+            // source read of battleEngine.js's evade-chance summation).
+            { id: 'evasion_feral', label: "Predator's Instinct", requiresSpecialization: 'feral', kind: 'evasion', value: 1, mechanics: '+1% evade chance' },
+            { id: 'evasion_hemonancer', label: 'Blood-Sense', requiresSpecialization: 'hemonancer', kind: 'evasion', value: 1, mechanics: '+1% evade chance' },
+            { id: 'evasion_shadow', label: 'Fading Step', requiresSpecialization: 'elder_mastery', kind: 'evasion', value: 1, mechanics: '+1% evade chance' },
         ],
         // Milestone 3: each specialization's first "branch" skill - see the
         // comments on SPECIALIZATIONS above for the shared mechanics list
