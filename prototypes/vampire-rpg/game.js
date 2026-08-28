@@ -360,6 +360,25 @@
         ];
         const board = BE.buildInitialBoard(players, ROSTER);
         applyStartingHpOverrides(board);
+        // Random start (was always Day). buildComposedVampire's
+        // startStatuses already put the Day curse on the player unit by
+        // default - on a Night roll, swap it for the Night blessing using
+        // the exact same status swap the manual toggle button uses
+        // (toggleDayNight), just inlined since that function assumes
+        // `state` already exists and this runs before it does.
+        const startDayNight = Math.random() < 0.5 ? 'night' : 'day';
+        if (startDayNight === 'night') {
+            const playerUnit = board.player[0];
+            const vs = playerUnit.state;
+            vs.statuses = vs.statuses.filter((s) => s.id !== DAY_STATUS_ID);
+            BE.applyStatus({
+                targetState: vs,
+                targetUnit: playerUnit,
+                statusId: NIGHT_STATUS_ID,
+                duration: 999,
+                metadata: curseMetadataFor(save.character, 'night'),
+            });
+        }
         state = {
             match: {
                 players,
@@ -368,7 +387,7 @@
                 chakraPools: { player: emptyChakraPool(), enemy: emptyChakraPool() },
                 economy: { turnCounts: { player: 0, enemy: 0 } },
             },
-            dayNight: 'day',
+            dayNight: startDayNight,
             vampirePose: 'idle',
             log: [],
             over: null,
@@ -1311,28 +1330,51 @@
         const xpProgress = xpProgressFor(ch);
 
         const header = screenHeader('Camp', ch.name || 'The Vampire', 'Level ' + ch.level + ' ' + origin.name + ' ' + age.name + (spec ? ' · ' + spec.name : ''));
+        const encounterIndex = save.campaign.encounterIndex;
+        // Very-basic quest, no tracking/rewards/panel art: just the
+        // upcoming encounter's enemy count, handed out fresh each Camp
+        // visit rather than persisted, since it's always "beat what's next."
+        const upcomingEncounter = !save.campaign.completed ? CAMPAIGN[encounterIndex] : null;
+
+        // The Vampire standing in camp, with the mission panel beside them.
+        // Clicking the panel doesn't jump straight into the fight - it
+        // confirms first (native confirm(), same "no custom modal system"
+        // precedent as Delete This Character below).
+        const scene = document.createElement('div');
+        scene.className = 'camp-stage';
+        const figureWrap = document.createElement('div');
+        figureWrap.className = 'camp-figure';
+        figureWrap.innerHTML = '<img src="' + VAMPIRE_POSES.idle + '" alt="" />';
+        scene.appendChild(figureWrap);
+        if (upcomingEncounter) {
+            const mission = document.createElement('button');
+            mission.className = 'mission-panel';
+            mission.type = 'button';
+            mission.innerHTML =
+                '<span class="mission-title">Mission ' + (encounterIndex + 1) + ' of ' + CAMPAIGN.length + '</span>' +
+                '<span class="mission-label">' + upcomingEncounter.label + '</span>' +
+                '<span class="mission-quest">Defeat ' + upcomingEncounter.enemies.length + ' ' +
+                    (upcomingEncounter.enemies.length === 1 ? 'enemy' : 'enemies') + '</span>';
+            mission.addEventListener('click', () => {
+                if (window.confirm('Start this encounter?\n\n' + upcomingEncounter.label)) newGame(encounterIndex);
+            });
+            scene.appendChild(mission);
+        } else {
+            const done = document.createElement('div');
+            done.className = 'mission-panel mission-complete';
+            done.textContent = 'The campaign is complete. ' + (ch.name || 'Your Vampire') + ' has survived every encounter.';
+            scene.appendChild(done);
+        }
+
         const sheet = document.createElement('div');
         sheet.className = 'character-sheet';
         sheet.innerHTML =
             '<div class="sheet-row"><span><span class="stat-icon stat-icon-xp"></span>XP</span><span>' + xpProgress.xp + ' / ' + xpProgress.nextThreshold + '</span></div>' +
             '<div class="meter xp-meter"><span style="width:' + xpProgress.pct + '%"></span></div>' +
             '<div class="sheet-row"><span>Specialization</span><span>' + (spec ? spec.name : 'Not yet chosen') + '</span></div>';
-        const encounterIndex = save.campaign.encounterIndex;
+
         const btnRow = document.createElement('div');
         btnRow.className = 'button-column';
-        if (save.campaign.completed) {
-            const done = document.createElement('div');
-            done.className = 'subtitle';
-            done.textContent = 'The campaign is complete. ' + (ch.name || 'Your Vampire') + ' has survived every encounter.';
-            btnRow.appendChild(done);
-        } else {
-            const encounter = CAMPAIGN[encounterIndex];
-            const enter = document.createElement('button');
-            enter.className = 'encounter-btn';
-            enter.textContent = 'Enter Encounter ' + (encounterIndex + 1) + ' of ' + CAMPAIGN.length + ': ' + encounter.label;
-            enter.addEventListener('click', () => newGame(encounterIndex));
-            btnRow.appendChild(enter);
-        }
         const menuBtn = document.createElement('button');
         menuBtn.className = 'text-link-btn';
         menuBtn.textContent = '← Save and Exit to Main Menu';
@@ -1363,8 +1405,8 @@
             render();
         });
         btnRow.appendChild(deleteBtn);
-        const wrap = panelWrap([header, sheet, btnRow]);
-        wrap.classList.add('camp-screen'); // vampire's own lair - see CSS
+        const wrap = panelWrap([header, scene, sheet, btnRow]);
+        wrap.classList.add('camp-screen'); // the main hub - see CSS
         root.appendChild(wrap);
     }
 
