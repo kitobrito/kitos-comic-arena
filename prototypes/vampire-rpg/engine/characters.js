@@ -405,6 +405,23 @@ const characters = [
                     },
                 ],
             },
+            {
+                id: 'goblin_shaman_mending_chant',
+                name: 'Mending Chant',
+                skilldescription: 'Channels restorative magic into itself or its most wounded ally.',
+                energy: [],
+                // Not 'self' or 'single-enemy' - a marker game.js's enemy
+                // turn AI (chooseEnemyAction) reads specifically: heal
+                // whichever of itself/its allies is hurt worst, and only
+                // when someone actually needs it (see the function for the
+                // exact threshold) - otherwise this skill is skipped
+                // entirely in favor of a normal attack, same turn.
+                target: 'self-or-ally',
+                damage: 0,
+                cooldown: 3,
+                classes: ['Bloodline', 'Instant'],
+                effects: [{ type: 'heal', amount: 14, scope: 'target' }],
+            },
         ],
     },
     {
