@@ -365,11 +365,11 @@
         },
         // Distinct id from the Age "elder" - this is the specialization,
         // not the lineage age. The internal id stays "elder_mastery" (saves
-        // already store this string), but it's labeled "Supernatural" in
-        // the UI - also avoids confusing it with the Age called "Elder".
+        // already store this string), but it's labeled "Shadow" in the UI -
+        // also avoids confusing it with the Age called "Elder".
         elder_mastery: {
             id: 'elder_mastery',
-            name: 'Supernatural',
+            name: 'Shadow',
             flavorText: '"I have mastered being a Vampire."',
             gameplayText: 'Refined, defensive mastery. New skill: Shadow Veil - guard, then punish.',
             skill: {
