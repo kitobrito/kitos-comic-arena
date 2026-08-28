@@ -195,6 +195,13 @@
     // The combined art key for whatever the character has invested in so
     // far (e.g. 'shadow-feral'), or null if not specialized yet at all.
     function comboArtKeyFor(characterSave) {
+        // The character's LOOK stays the base form until the real
+        // specialization choice (level 4's "Choose Your Path") is made,
+        // even if a hidden level-2 pick already counts as an investment
+        // (see LEVEL_CHOICES[2] in progression.js) - it should count
+        // toward the eventual combo once specialized, not transform the
+        // character early on its own.
+        if (!characterSave.specialization) return null;
         const specs = investedSpecializations(characterSave);
         if (specs.size === 0) return null;
         const artKeys = new Set(Array.from(specs).map((id) => SPEC_ART_KEY[id]));
