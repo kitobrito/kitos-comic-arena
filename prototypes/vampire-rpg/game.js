@@ -53,8 +53,10 @@
         'giant-rat': 'assets/giant-rat.png',
         // Assignments deliberately avoid two reused-art enemies sharing a
         // base image within the same campaign encounter (see CAMPAIGN
-        // below) - e.g. Hobgoblin Warrior fights alongside the real
-        // Skeleton in encounter 3, so it reuses goblin-grunt art instead.
+        // below) - e.g. Goblin Warrior (characterId 'hobgoblin-warrior' -
+        // display name only, see characters.source.js) fights alongside
+        // the real Skeleton in encounter 3, so it reuses goblin-grunt art
+        // instead.
         'goblin-sneak': 'assets/goblin-grunt.png',
         'goblin-shaman': 'assets/goblin-grunt.png',
         'hobgoblin-warrior': 'assets/goblin-grunt.png',
@@ -87,22 +89,25 @@
         },
     };
 
+    // Each encounter's own illustrated locale (one photo, not a day/night
+    // pair - see the .night-tint CSS rule for how the day/night curse
+    // toggle still reads as a mood shift over a single background image).
     const CAMPAIGN = [
-        { label: 'A Lone Goblin Grunt', enemies: ['goblin-grunt'] },
-        { label: 'A Giant Rat and a Goblin Sneak', enemies: ['giant-rat', 'goblin-sneak'] },
-        { label: 'A Skeleton and a Hobgoblin Warrior', enemies: ['skeleton', 'hobgoblin-warrior'] },
-        { label: 'A Goblin Shaman, a Hobgoblin Archer, and a Zombie', enemies: ['goblin-shaman', 'hobgoblin-archer', 'zombie'] },
+        { label: 'A Lone Goblin Grunt', enemies: ['goblin-grunt'], bg: 'assets/bg-goblin-cave.jpg' },
+        { label: 'A Giant Rat and a Goblin Sneak', enemies: ['giant-rat', 'goblin-sneak'], bg: 'assets/bg-forest-day.jpg' },
+        { label: 'A Skeleton and a Goblin Warrior', enemies: ['skeleton', 'hobgoblin-warrior'], bg: 'assets/bg-graveyard.jpg' },
+        { label: 'A Goblin Shaman, a Goblin Archer, and a Zombie', enemies: ['goblin-shaman', 'hobgoblin-archer', 'zombie'], bg: 'assets/bg-abandoned-village.jpg' },
         // By this point the player has specialized - this finale exists so
         // there's at least one fight left to actually feel that choice in,
         // not just pick it and see the campaign end.
-        { label: 'The Warband Regroups: Goblin Grunt, Skeleton, and Giant Rat', enemies: ['goblin-grunt', 'skeleton', 'giant-rat'] },
+        { label: 'The Warband Regroups: Goblin Grunt, Skeleton, and Giant Rat', enemies: ['goblin-grunt', 'skeleton', 'giant-rat'], bg: 'assets/bg-forest-night.jpg' },
         // Milestone 3: exists so there's a fight left to use the first
         // specialization "branch" skill (unlocked after encounter 5) in -
         // same reasoning as the encounter above. Enemies chosen so none of
         // the three share a tinted-art base image with each other (Warrior
         // uses goblin-grunt.png, Zombie/Skeleton-family uses skeleton.png,
         // Giant Rat has its own real art) - see ENEMY_ART above.
-        { label: "The Elder's Trial: Hobgoblin Warrior, Zombie, and Giant Rat", enemies: ['hobgoblin-warrior', 'zombie', 'giant-rat'] },
+        { label: "The Elder's Trial: Goblin Warrior, Zombie, and Giant Rat", enemies: ['hobgoblin-warrior', 'zombie', 'giant-rat'], bg: 'assets/bg-ruined-castle.jpg' },
     ];
 
     // --- Save / persistence -------------------------------------------------
@@ -301,6 +306,41 @@
             });
         });
     }
+    // Second engine gap, same "patch it in glue code, not the vendored
+    // file" boundary as the override above: applyHealToUnit() in
+    // battleEngine.js clamps every heal to
+    // Math.min(DEFAULT_HP, cap, before + heal), and DEFAULT_HP is a
+    // hardcoded module constant (100, the original Naruto-Arena baseline) -
+    // not something unit.hpCap can raise, since it's unconditionally
+    // included in that min() regardless. So any Vampire with a real max HP
+    // above 100 (e.g. the +8 Max HP level-2 choice) silently can't be
+    // healed past 100 by a 'heal'-type effect (Potion, Blood Ward), even
+    // though their HP bar's own max is higher. Confirmed via direct
+    // source read of battleEngine.js's applyHealToUnit and reproduced live
+    // (Potion healed 82->100, not 82->108, for a 108-max-HP test character).
+    // Fixed here by re-deriving the same flat-heal formula the engine uses
+    // (effect.amount + the healer's own positive healingBonusFlat, floored
+    // at 0 - mirrors getStatusMetadataTotals' sourceHealingBonus exactly)
+    // and topping the unit up to its REAL cap after the engine's clamp has
+    // already run.
+    function healingBonusFlatFor(unitState) {
+        let total = 0;
+        (unitState && unitState.statuses || []).forEach((s) => {
+            total += Number(s && s.metadata && s.metadata.healingBonusFlat) || 0;
+        });
+        return Math.max(0, total);
+    }
+    function fixHealCapBug(unit, skill, beforeHp) {
+        const cap = maxHpForCharacter(characterForUnit(unit));
+        if (!unit || cap <= 100 || !skill || !Array.isArray(skill.effects)) return;
+        const bonus = healingBonusFlatFor(unit.state);
+        skill.effects.forEach((effect) => {
+            if (effect.type !== 'heal' || effect.scope !== 'self') return;
+            const trueHeal = (Number(effect.amount) || 0) + bonus;
+            const correctHp = Math.min(cap, beforeHp + trueHeal);
+            if (correctHp > unit.hp) unit.hp = correctHp;
+        });
+    }
     function isActiveSkill(skill) {
         if (!skill) return false;
         if ((skill.classes || []).some((c) => String(c).toLowerCase() === 'passive')) return false;
@@ -334,6 +374,13 @@
             over: null,
             pendingSkillIndex: null,
             busy: false,
+            bg: encounter.bg,
+            // Consumable, not a skill on cooldown - gated by this count
+            // instead of the engine's own per-skill cooldown system (see
+            // onSkillClick/playPlayerAction/renderSkillButton). Resets to 3
+            // at the start of every encounter, same "fresh start each fight"
+            // philosophy as HP already fully healing at Camp.
+            potionsRemaining: 3,
         };
         log(encounter.label + ' blocks your path.');
         screen = 'battle';
@@ -362,6 +409,29 @@
             });
         });
         return diffs;
+    }
+
+    // Turns a diffHp() result into a trailing "(20 dmg to Skeleton, +2 HP)"
+    // clause for the combat log - reused for both the player's own actions
+    // and each enemy's. actorUsername/actorSlot identify who cast the skill,
+    // so a self-heal/self-buff reads as "(+80 HP)" rather than the more
+    // stilted "(+80 HP to you)".
+    function describeDiffsForLog(diffs, actorUsername, actorSlot) {
+        if (!diffs || !diffs.length) return '';
+        const parts = diffs
+            .map(({ username, slot, delta }) => {
+                if (!delta) return null;
+                const isSelf = username === actorUsername && slot === actorSlot;
+                let who = '';
+                if (!isSelf) {
+                    const unit = state.match.board[username] && state.match.board[username][slot];
+                    const character = unit && characterForUnit(unit);
+                    who = ' to ' + (username === 'player' ? 'you' : (character ? character.name : 'the target'));
+                }
+                return (delta < 0 ? -delta + ' dmg' : '+' + delta + ' HP') + who;
+            })
+            .filter(Boolean);
+        return parts.length ? ' (' + parts.join(', ') + ')' : '';
     }
 
     function toggleDayNight() {
@@ -410,6 +480,7 @@
         const skill = character.skills[skillIndex];
         if (!isActiveSkill(skill)) return;
         if (BE.getSkillCooldownRemaining(unit.state, skill.id) > 0) return;
+        if (skill.id === 'vampire_potion' && state.potionsRemaining <= 0) return;
         if (skill.target === 'self') {
             playPlayerAction(skillIndex, null);
             return;
@@ -452,23 +523,30 @@
             queueOrder: [0],
             queuedByActorSlot: { 0: { skillIndex, targetSelection } },
         };
+        if (skill.id === 'vampire_potion') state.potionsRemaining = Math.max(0, state.potionsRemaining - 1);
         const before = snapshotHp();
         BE.resolvePendingTurnSkills({ match: state.match, actingUsername: 'player', characters: ROSTER });
-        log('You use ' + skill.name + '.', 'you');
+        fixHealCapBug(unit, skill, before.player[0]);
         endSideTurn('player');
         checkOutcome();
         state.pendingSkillIndex = null;
         const diffs = diffHp(before);
+        log('You use ' + skill.name + '.' + describeDiffsForLog(diffs, 'player', 0), 'you');
         render();
         // Guard is a brace, not a strike - it skips the windup/lunge
         // (which reads as an attack), but now has its own dedicated pose
         // (distinct from the hit-reaction pose, which has its own art too)
         // so it still gets a visual beat, just not a lunge into it.
+        // Potion is likewise self-directed, not an attack - same no-lunge
+        // treatment, minus a dedicated pose swap since no potion art exists.
         let enemyTurnDelay = 900;
         if (skill.id === 'vampire_guard') {
             setVampireImage('vampire_guard');
             showTurnEffects([{ username: 'player', slot: 0 }], diffs);
             setTimeout(() => setVampireImage(state.vampirePose), 500);
+            enemyTurnDelay = 700;
+        } else if (skill.id === 'vampire_potion') {
+            showTurnEffects([{ username: 'player', slot: 0 }], diffs);
             enemyTurnDelay = 700;
         } else {
             setVampireImage('windup');
@@ -487,8 +565,7 @@
 
     function runEnemyTurn() {
         const enemyBoard = state.match.board.enemy;
-        const queueOrder = [];
-        const queuedByActorSlot = {};
+        const actions = [];
         const acted = [];
         enemyBoard.forEach((unit, slot) => {
             if (!unit || unit.alive === false) return;
@@ -501,18 +578,29 @@
             const targetSelection = skill.target === 'self'
                 ? [{ username: 'enemy', slot }]
                 : [{ username: 'player', slot: 0 }];
-            queueOrder.push(slot);
-            queuedByActorSlot[slot] = { skillIndex, targetSelection };
+            actions.push({ slot, character, skillIndex, skill, targetSelection });
             acted.push({ username: 'enemy', slot });
-            log(character.name + ' uses ' + skill.name + '.', 'foe');
         });
-        state.match.pendingTurns.enemy = { queueOrder, queuedByActorSlot };
-        const before = snapshotHp();
-        BE.resolvePendingTurnSkills({ match: state.match, actingUsername: 'enemy', characters: ROSTER });
+        const overallBefore = snapshotHp();
+        // Resolved one actor at a time rather than as a single batched call -
+        // Node-verified to produce byte-identical final HP/cooldown state to
+        // the old combined call (see scratchpad/split_resolve_test.js) - so
+        // each log line can report the damage/heal THAT specific skill use
+        // caused, instead of one number blurred across every acting enemy.
+        actions.forEach(({ slot, character, skillIndex, skill, targetSelection }) => {
+            const before = snapshotHp();
+            state.match.pendingTurns.enemy = {
+                queueOrder: [slot],
+                queuedByActorSlot: { [slot]: { skillIndex, targetSelection } },
+            };
+            BE.resolvePendingTurnSkills({ match: state.match, actingUsername: 'enemy', characters: ROSTER });
+            const stepDiffs = diffHp(before);
+            log(character.name + ' uses ' + skill.name + '.' + describeDiffsForLog(stepDiffs, 'enemy', slot), 'foe');
+        });
         endSideTurn('enemy');
         checkOutcome();
         state.busy = false;
-        const diffs = diffHp(before);
+        const diffs = diffHp(overallBefore);
         const vampireHurt = diffs.some((d) => d.username === 'player' && d.slot === 0 && d.delta < 0);
         const justLost = state.over === 'lose';
         if (justLost) state.vampirePose = 'hit';
@@ -610,8 +698,9 @@
     }
 
     // Sums the engine-unread `armorAmount` marker key across a unit's active
-    // statuses (see curseMetadataFor() for the player, and Hobgoblin
-    // Warrior's startStatuses for an enemy example) - purely for the shield
+    // statuses (see curseMetadataFor() for the player, and Goblin
+    // Warrior's (characterId 'hobgoblin-warrior') startStatuses for an
+    // enemy example) - purely for the shield
     // badge UI. The real mitigation math runs entirely on the standard
     // damageReductionFlat metadata key already read by the vendored engine;
     // this never affects combat, only what the shield badge displays.
@@ -800,6 +889,8 @@
         if (meta.DamageDebuff) parts.push('-' + meta.DamageDebuff + ' dmg dealt');
         if (meta.damageTakenBonusFlat) parts.push('+' + meta.damageTakenBonusFlat + ' dmg taken');
         if (meta.healingBonusFlat) parts.push((meta.healingBonusFlat > 0 ? '+' : '') + meta.healingBonusFlat + ' healing');
+        if (meta.evadeChancePercent) parts.push(meta.evadeChancePercent + '% evade chance');
+        if (meta.cannotUseHarmfulSkills) parts.push('cannot use harmful skills');
         return parts.join(', ');
     }
 
@@ -834,7 +925,12 @@
                 return { text: '+' + (Number(meta.stackDelta) || 1) + ' Blood' };
             }
             const compact = describeStatusMetadataCompact(meta);
-            return compact ? { text: compact } : null;
+            if (!compact) return null;
+            // Only worth calling out for a genuinely timed buff/debuff - not
+            // the always-on curse/passive statuses (infiniteDuration) and
+            // not 1-turn effects (the default, unremarkable case).
+            const showDuration = effect.duration > 1 && !meta.infiniteDuration;
+            return { text: showDuration ? compact + ', ' + effect.duration + ' turns' : compact };
         }
         return null;
     }
@@ -863,12 +959,15 @@
         btn.className = 'skill-btn';
         btn.type = 'button';
         const isPassive = !isActiveSkill(skill);
+        const isPotion = skill.id === 'vampire_potion';
         const cooldown = isPassive ? 0 : BE.getSkillCooldownRemaining(unit.state, skill.id);
-        btn.disabled = isPassive || cooldown > 0 || state.over || state.busy;
+        const potionsLeft = state.potionsRemaining;
+        btn.disabled = isPassive || cooldown > 0 || state.over || state.busy || (isPotion && potionsLeft <= 0);
         const iconImg = skill.id === 'vampire_bite' ? 'assets/icon-bite.jpg'
             : skill.id === 'life_rip' ? 'assets/icon-liferip.jpg'
             : null;
         const icon = skill.id === 'vampire_guard' ? '&#128737;'
+            : isPotion ? '&#129514;'
             : skill.id === 'feral_rampage' ? '&#128064;'
             : skill.id === 'hemonancer_blood_ward' ? '&#128167;'
             : skill.id === 'elder_mastery_shadow_veil' ? '&#127763;'
@@ -876,10 +975,17 @@
         const iconHtml = iconImg
             ? '<span class="skill-icon skill-icon-framed"><img src="' + iconImg + '" alt="" /></span>'
             : '<span class="skill-icon">' + icon + '</span>';
+        // Potion is gated by a use-count, not the engine's turn-based cooldown
+        // (see state.potionsRemaining) - it reuses the same .skill-tag slot
+        // to show remaining uses instead of a cooldown.
+        const tagHtml = isPotion ? '<span class="skill-tag">' + potionsLeft + ' left</span>'
+            : isPassive ? '<span class="skill-tag">Passive</span>'
+            : cooldown > 0 ? '<span class="skill-tag">Cooldown ' + cooldown + '</span>'
+            : '';
         btn.innerHTML =
             iconHtml +
             '<span class="skill-text"><span class="skill-name">' + skill.name + '</span>' +
-            (isPassive ? '<span class="skill-tag">Passive</span>' : cooldown > 0 ? '<span class="skill-tag">Cooldown ' + cooldown + '</span>' : '') +
+            tagHtml +
             '</span>';
         const tooltip = document.createElement('div');
         tooltip.className = 'skill-tooltip';
@@ -914,9 +1020,14 @@
         return slot;
     }
 
-    function renderStageBackdrop() {
+    // Each encounter carries its own single illustrated locale (not a
+    // day/night pair) - the day/night curse toggle is conveyed by
+    // .night-tint fading in over whichever photo this is, rather than by
+    // swapping to a second photo (most locations don't have one).
+    function renderStageBackdrop(bg) {
         return (
-            '<div class="backdrop day"></div><div class="backdrop night"></div><div class="scrim"></div>'
+            '<div class="backdrop" style="background-image:url(\'' + bg + '\')"></div>' +
+            '<div class="night-tint"></div><div class="scrim"></div>'
         );
     }
 
@@ -926,7 +1037,7 @@
         frame.className = 'stage-frame';
         const stage = document.createElement('div');
         stage.className = 'stage ' + (state.dayNight === 'night' ? 'is-night' : 'is-day');
-        stage.innerHTML = renderStageBackdrop();
+        stage.innerHTML = renderStageBackdrop(state.bg || 'assets/background-day.jpg');
 
         const dnBtn = document.createElement('button');
         dnBtn.className = 'daynight-toggle';
@@ -1252,7 +1363,9 @@
             render();
         });
         btnRow.appendChild(deleteBtn);
-        root.appendChild(panelWrap([header, sheet, btnRow]));
+        const wrap = panelWrap([header, sheet, btnRow]);
+        wrap.classList.add('camp-screen'); // vampire's own lair - see CSS
+        root.appendChild(wrap);
     }
 
     // A short celebratory beat before the actual choice screen: the XP bar

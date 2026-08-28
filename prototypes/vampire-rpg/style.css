@@ -90,6 +90,17 @@ button { font-family: inherit; }
     gap: 10px;
     padding: clamp(24px, 6vh, 60px) 0;
 }
+/* Camp is the Vampire's own lair, not a generic menu screen - the candle-lit
+   crypt reads as "home base" the way a human adventurer's camp wouldn't.
+   Dark gradient layered under the photo (not a separate overlay element,
+   since .rpg-screen is a single flat container unlike .stage) keeps the
+   character sheet and buttons readable over it. */
+.rpg-screen.camp-screen {
+    background-image: linear-gradient(180deg, rgba(18,7,15,0.55) 0%, rgba(18,7,15,0.78) 55%, rgba(18,7,15,0.94) 100%), url('assets/bg-camp-crypt.jpg');
+    background-size: cover;
+    background-position: center;
+    border-radius: 4px;
+}
 .button-column {
     display: flex;
     flex-direction: column;
@@ -254,18 +265,28 @@ button { font-family: inherit; }
     container-name: stage;
 }
 
-/* --- illustrated day/night backgrounds, crossfaded --- */
+/* --- illustrated per-encounter background --- */
 .backdrop {
     position: absolute;
     inset: 0;
     background-size: cover;
     background-position: center;
-    transition: opacity 900ms ease;
 }
-.backdrop.day { background-image: url('assets/background-day.jpg'); opacity: 1; }
-.backdrop.night { background-image: url('assets/background-night.jpg'); opacity: 0; }
-.stage.is-night .backdrop.day { opacity: 0; }
-.stage.is-night .backdrop.night { opacity: 1; }
+/* Day/night curse toggle: most locations only have one photo (not a
+   day/night pair), so instead of crossfading to a second image, a dark
+   blue-black wash fades in over whatever the current encounter's photo
+   is - reads as a real mood/lighting shift without needing source art
+   for every location in both states. */
+.night-tint {
+    position: absolute;
+    inset: 0;
+    background: rgba(6,8,26,0.5);
+    mix-blend-mode: multiply;
+    opacity: 0;
+    transition: opacity 900ms ease;
+    pointer-events: none;
+}
+.stage.is-night .night-tint { opacity: 1; }
 /* Subtle scrim so UI chrome (log, nameplates, panel) stays readable over
    whatever's happening in the painted sky beneath it. */
 .scrim {
@@ -406,10 +427,22 @@ button { font-family: inherit; }
 .enemy-cluster[data-count="3"] .combatant:nth-child(2) { margin-bottom: 30%; }
 .enemy-cluster[data-count="3"] .combatant:nth-child(3) { margin-bottom: 24%; }
 .enemy-cluster .combatant .figure { transform-origin: 50% 100%; }
-.enemy-cluster[data-count="2"] .combatant .figure.char-skeleton { height: 33.5cqh; }
+.enemy-cluster[data-count="2"] .combatant .figure.char-skeleton { height: 38.5cqh; }
+/* At this height the Skeleton (tallest figure in the roster) renders wide
+   enough that, centered in its column, it overlaps the player Vampire on
+   its left (confirmed via getBoundingClientRect - a real overlap, not
+   "standing close" as elsewhere in this file). margin-left has no effect
+   here since the combatant column is exactly shrink-wrapped around the
+   figure with no centering slack to eat into, and a plain transform on
+   the figure itself would be silently overridden by its own idle-bob
+   keyframe animation (same reasoning as the cluster-shrink note above) -
+   so the nudge goes on the combatant wrapper instead, which has neither
+   issue. Only needed in the 2-enemy cluster (its only 3-enemy encounter
+   already has ~36-38px of clearance on both sides with no fix). */
+.enemy-cluster[data-count="2"] .combatant:has(.char-skeleton) { transform: translateX(7cqw); }
 .enemy-cluster[data-count="2"] .combatant .figure.char-goblin-grunt { height: 20.6cqh; }
 .enemy-cluster[data-count="2"] .combatant .figure.char-giant-rat { height: 12.9cqh; }
-.enemy-cluster[data-count="3"] .combatant .figure.char-skeleton { height: 28.1cqh; }
+.enemy-cluster[data-count="3"] .combatant .figure.char-skeleton { height: 32.3cqh; }
 .enemy-cluster[data-count="3"] .combatant .figure.char-goblin-grunt { height: 17.3cqh; }
 .enemy-cluster[data-count="3"] .combatant .figure.char-giant-rat { height: 10.8cqh; }
 /* Skeleton's defeated pose is a collapsed, wide illustration (aspect ratio
@@ -417,9 +450,9 @@ button { font-family: inherit; }
    about 2.3x wider than upright and overlap its neighbors, so it gets a
    shorter height here (same ratio applied to each context above) to keep
    roughly the same on-screen footprint instead. */
-.combatant.dead.has-defeated-pose .figure.char-skeleton { height: 16.4cqh; }
-.enemy-cluster[data-count="2"] .combatant.dead.has-defeated-pose .figure.char-skeleton { height: 14.1cqh; }
-.enemy-cluster[data-count="3"] .combatant.dead.has-defeated-pose .figure.char-skeleton { height: 11.8cqh; }
+.combatant.dead.has-defeated-pose .figure.char-skeleton { height: 18.9cqh; }
+.enemy-cluster[data-count="2"] .combatant.dead.has-defeated-pose .figure.char-skeleton { height: 16.2cqh; }
+.enemy-cluster[data-count="3"] .combatant.dead.has-defeated-pose .figure.char-skeleton { height: 13.6cqh; }
 .enemy-cluster[data-count="2"] .combatant .figure.char-hobgoblin-warrior { height: 25.8cqh; }
 .enemy-cluster[data-count="2"] .combatant .figure.char-zombie { height: 27.5cqh; }
 .enemy-cluster[data-count="2"] .combatant .figure.char-hobgoblin-archer { height: 24.1cqh; }
@@ -568,7 +601,7 @@ button { font-family: inherit; }
     pointer-events: none;
 }
 /* Relative in-world scale between characters - tallest to shortest. */
-.figure.char-skeleton { height: 39cqh; }
+.figure.char-skeleton { height: 44.9cqh; }
 .figure.char-goblin-grunt { height: 24cqh; }
 .figure.char-giant-rat { height: 15cqh; }
 .figure.char-hobgoblin-warrior { height: 30cqh; }
