@@ -147,6 +147,25 @@ const characters = [
                 ],
             },
             {
+                id: 'vampire_potion',
+                name: 'Potion',
+                skillimage: '',
+                skilldescription: 'Drink a healing potion, restoring 80 health. Limited supply - 3 per encounter.',
+                energy: [],
+                target: 'self',
+                damage: 0,
+                // No engine cooldown - the "3 per encounter" limit is tracked
+                // separately in game.js's own battle state
+                // (state.potionsRemaining), since the engine's cooldown
+                // system is turn-based, not use-count-based. See
+                // onSkillClick/playPlayerAction/renderSkillButton in game.js.
+                cooldown: 0,
+                classes: ['Instant'],
+                effects: [
+                    { type: 'heal', amount: 80, scope: 'self' },
+                ],
+            },
+            {
                 id: 'vampire_curse_passive',
                 name: "Passive: Vampire's Curse",
                 skillimage: '',
@@ -389,7 +408,11 @@ const characters = [
     {
         id: 'hobgoblin-warrior',
         characterId: 'hobgoblin-warrior',
-        name: 'Hobgoblin Warrior',
+        // Display name only - "Hobgoblin" implied bigger/orange art that
+        // doesn't exist yet, this reuses tinted goblin-grunt.png (see
+        // ENEMY_ART in game.js), so it's named for what it actually looks
+        // like. id/characterId stay as-is (saves/CAMPAIGN reference them).
+        name: 'Goblin Warrior',
         startingHp: 55,
         role: 'Stronger Frontline',
         roleCategory: 'stronger-frontline',
@@ -455,7 +478,8 @@ const characters = [
     {
         id: 'hobgoblin-archer',
         characterId: 'hobgoblin-archer',
-        name: 'Hobgoblin Archer',
+        // Same reasoning as Goblin Warrior above - display name only.
+        name: 'Goblin Archer',
         startingHp: 35,
         role: 'Ranged',
         roleCategory: 'ranged',

@@ -271,12 +271,12 @@
                         {
                             type: 'apply_status',
                             statusId: 'elder_mastery_charm_status',
-                            duration: 1,
+                            duration: 2,
                             scope: 'target',
                             metadata: {
                                 harmful: true,
                                 cannotUseHarmfulSkills: true,
-                                tooltipText: 'Charmed: cannot use a harmful skill next turn.',
+                                tooltipText: 'Charmed: cannot use a harmful skill for 2 turns.',
                             },
                         },
                     ],
@@ -364,11 +364,12 @@
             },
         },
         // Distinct id from the Age "elder" - this is the specialization,
-        // not the lineage age. Labeled "Elder Mastery" in the UI to avoid
-        // confusing the two.
+        // not the lineage age. The internal id stays "elder_mastery" (saves
+        // already store this string), but it's labeled "Supernatural" in
+        // the UI - also avoids confusing it with the Age called "Elder".
         elder_mastery: {
             id: 'elder_mastery',
-            name: 'Elder Mastery',
+            name: 'Supernatural',
             flavorText: '"I have mastered being a Vampire."',
             gameplayText: 'Refined, defensive mastery. New skill: Shadow Veil - guard, then punish.',
             skill: {
