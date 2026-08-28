@@ -114,6 +114,76 @@
             // battleEngine.js's evade-chance summation).
             { id: 'evasion_shadow', label: '+2% Evasion', kind: 'evasion', value: 2, requiresSpecialization: 'elder_mastery' },
         ],
+        // Same "secretly tied to a specialization, nothing shown about
+        // that" treatment as level 2 above - kind:'passive' entries grant
+        // a real permanent effect immediately on pick (see
+        // buildComposedVampire in game.js), same as everything else here.
+        3: [
+            {
+                id: 'feral_deep_hunger',
+                label: '+5% Life Steal',
+                kind: 'passive',
+                requiresSpecialization: 'feral',
+                // The engine has no generic "% of damage dealt, by any
+                // skill" lifesteal primitive (only per-skill, fixed
+                // health_steal_damage amounts - see Vampire Bite/Rampage/
+                // Blood Claw, which already lifesteal on their own). This
+                // approximates the ask with a flat healingBonusFlat that
+                // strengthens EVERY lifesteal effect already in the kit,
+                // reusing the same primitive the day/night curse's own
+                // heal swing already rides, rather than hand-tuning a new
+                // sub-effect onto each damage skill individually.
+                passiveStatus: {
+                    id: 'feral_deep_hunger_passive',
+                    duration: 999,
+                    metadata: {
+                        infiniteDuration: true,
+                        harmful: false,
+                        healingBonusFlat: 3,
+                        tooltipText: 'Deeper hunger: +3 to any lifesteal healing.',
+                    },
+                },
+            },
+            {
+                id: 'hemonancer_extended_reach',
+                label: '+1 Range',
+                kind: 'passive',
+                requiresSpecialization: 'hemonancer',
+                // Range is a real step count per enemy, fixed by their
+                // position in the line-up (see baseStepsForSlot in
+                // game.js) - this shaves 1 step off every enemy's starting
+                // distance for the rest of the fight (checked directly by
+                // this choice's id in newGame(), since it's a one-time
+                // snapshot at encounter start, not an ongoing status
+                // check). The status below exists purely so the Passive
+                // tooltip can show it - see describeStatusMetadataCompact's
+                // rangeBonusSteps case.
+                passiveStatus: {
+                    id: 'hemonancer_extended_reach_passive',
+                    duration: 999,
+                    metadata: {
+                        infiniteDuration: true,
+                        harmful: false,
+                        rangeBonusSteps: 1,
+                        tooltipText: 'Extended reach: every enemy starts 1 step closer.',
+                    },
+                },
+            },
+            {
+                id: 'elder_mastery_night_gift',
+                label: '+5 Stats at Night',
+                kind: 'passive',
+                requiresSpecialization: 'elder_mastery',
+                // No standalone status - merged directly into the Night
+                // Blessing curse status itself (see curseMetadataFor in
+                // game.js), keyed off this choice's id, so it always
+                // tracks whichever curse status is currently active
+                // (battle start, manual toggle, etc.) instead of being a
+                // second, separately-managed bonus that could drift out
+                // of sync with it.
+                nightStatBonus: 5,
+            },
+        ],
         // Milestone 3: each specialization's first "branch" skill - see the
         // comments on SPECIALIZATIONS above for the shared mechanics list
         // (evadeChancePercent, cannotUseHarmfulSkills, etc.) these ride on.

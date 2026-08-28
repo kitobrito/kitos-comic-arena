@@ -181,14 +181,38 @@
     // their level-4 primary pick, plus any level 5/6 branch skill picked
     // from a DIFFERENT specialization's option (now allowed - see
     // renderLevelUpScreen). Returns a Set of internal specialization ids.
-    function investedSpecializations(characterSave) {
-        const specs = new Set();
-        if (characterSave.specialization) specs.add(characterSave.specialization);
+    // Weighted "investment points" toward each specialization - the real
+    // level 4 pick (characterSave.specialization) is worth
+    // PRIMARY_SPEC_POINTS on its own; every other spec-tagged pick (level
+    // 2/3's hidden choices, or a level 5/6 branch skill from ANY tree, not
+    // just the primary one) is worth 1. A single uniform rule then decides
+    // what "counts" (see investedSpecializations below): >= SPEC_POINTS_TO_SHOW
+    // - the primary clears that on its own with room to spare, so it never
+    // needs special-casing, while a second specialization only shows up
+    // once at least two separate picks have actually gone toward it, not
+    // just one stray choice.
+    const PRIMARY_SPEC_POINTS = 4;
+    const SPEC_POINTS_TO_SHOW = 2;
+    function specializationPoints(characterSave) {
+        const points = {};
+        if (characterSave.specialization) {
+            points[characterSave.specialization] = (points[characterSave.specialization] || 0) + PRIMARY_SPEC_POINTS;
+        }
         (characterSave.levelChoiceIds || []).forEach((choiceId) => {
             Object.values(PROGRESSION.LEVEL_CHOICES).forEach((options) => {
                 const found = options.find((c) => c.id === choiceId);
-                if (found && found.requiresSpecialization) specs.add(found.requiresSpecialization);
+                if (found && found.requiresSpecialization) {
+                    points[found.requiresSpecialization] = (points[found.requiresSpecialization] || 0) + 1;
+                }
             });
+        });
+        return points;
+    }
+    function investedSpecializations(characterSave) {
+        const points = specializationPoints(characterSave);
+        const specs = new Set();
+        Object.keys(points).forEach((id) => {
+            if (points[id] >= SPEC_POINTS_TO_SHOW) specs.add(id);
         });
         return specs;
     }
@@ -473,12 +497,23 @@
 
         const choiceBonuses = { maxHp: 0, bloodCap: 0, power: 0, evasion: 0 };
         const choiceSkills = [];
+        // Level 3's secretly-spec-tagged passives (see LEVEL_CHOICES[3]) -
+        // a real permanent status pushed onto startStatuses below, same as
+        // every other choice here grants its effect immediately on pick.
+        const choicePassives = [];
         (characterSave.levelChoiceIds || []).forEach((choiceId) => {
             Object.values(PROGRESSION.LEVEL_CHOICES).forEach((options) => {
                 const found = options.find((c) => c.id === choiceId);
                 if (!found) return;
                 if (found.kind === 'skill') {
                     choiceSkills.push(found.skill);
+                } else if (found.kind === 'passive') {
+                    if (found.passiveStatus) choicePassives.push(found.passiveStatus);
+                    // nightStatBonus (Shadow's level 3 pick) isn't applied
+                    // here - curseMetadataFor reads the choice id directly,
+                    // since the curse status is also (re)built outside
+                    // buildComposedVampire (manual Day/Night toggle, a
+                    // Night-start encounter roll).
                 } else {
                     choiceBonuses[found.kind] += found.value;
                 }
@@ -517,6 +552,10 @@
                 },
             });
         }
+
+        choicePassives.forEach((status) => {
+            character.startStatuses.push(JSON.parse(JSON.stringify(status)));
+        });
 
         // Milestone 3 specialization "branch" skills, picked via the level-
         // up screen (kind:'skill' entries in LEVEL_CHOICES) - same
@@ -559,14 +598,22 @@
                 tooltipText: 'Daylight Curse: deals ' + curseFlat + ' less damage, takes ' + curseFlat + ' more damage, heals ' + curseFlat + ' less. Armor ' + armorAmount + '.',
             };
         }
+        // Level 3's secretly-Shadow pick ("+5 Stats at Night") merges
+        // straight into the Night Blessing itself rather than a second
+        // status - looked up by choice id directly since curseMetadataFor
+        // is also called for the manual Day/Night toggle and a Night-start
+        // encounter roll, not just at composition time (see
+        // buildComposedVampire).
+        const nightGift = (characterSave.levelChoiceIds || []).includes('elder_mastery_night_gift') ? 5 : 0;
+        const nightTotal = curseFlat + nightGift;
         return {
             infiniteDuration: true, harmful: false,
-            damageBonusFlat: curseFlat, healingBonusFlat: curseFlat,
+            damageBonusFlat: nightTotal, healingBonusFlat: nightTotal,
             // Night Blessing's own curseFlat reduction and base Armor both
             // land on the same damageReductionFlat total, and add together.
-            damageReductionFlat: curseFlat + armorAmount,
+            damageReductionFlat: nightTotal + armorAmount,
             armorAmount: armorAmount,
-            tooltipText: 'Night Blessing: deals ' + curseFlat + ' more damage, takes ' + curseFlat + ' less damage, heals ' + curseFlat + ' more. Armor ' + armorAmount + '.',
+            tooltipText: 'Night Blessing: deals ' + nightTotal + ' more damage, takes ' + nightTotal + ' less damage, heals ' + nightTotal + ' more. Armor ' + armorAmount + '.' + (nightGift ? ' (+5 from your affinity for the night.)' : ''),
         };
     }
 
@@ -703,15 +750,23 @@
                 metadata: curseMetadataFor(save.character, 'night'),
             });
         }
-        // Every enemy starts Far - the player has to spend a turn Approaching
-        // (see onApproachClick/performApproach) before any Melee-tagged skill
-        // can target them (renderSkillButton/onSkillClick check this). Once
-        // closed, a slot stays Close for the rest of the encounter - this is
-        // a one-time "engage" cost, not a per-turn tax. Player-side only:
-        // enemies always attack normally regardless of range (their own
-        // chooseEnemyAction/runEnemyTurn are unaffected).
+        // Every enemy starts some number of STEPS away (see
+        // baseStepsForSlot - fixed by position in the line-up: the enemy
+        // closest to the player, slot 0, is 1 step; each slot after that is
+        // one step farther), not a flat Far/Close - the player has to spend
+        // a turn Approaching (see onApproachClick/performApproach) to close
+        // ONE step at a time before any Melee-tagged skill can target that
+        // enemy (renderSkillButton/onSkillClick check isClose, which just
+        // reads "0 steps left"). Once at 0 it stays there for the rest of
+        // the encounter. Player-side only: enemies always attack normally
+        // regardless of range (their own chooseEnemyAction/runEnemyTurn are
+        // unaffected). Hemonancer's level 3 pick ("+1 Range" -
+        // hemonancer_extended_reach) shaves 1 step off every enemy's
+        // starting distance, checked directly by choice id since it's a
+        // one-time snapshot at encounter start, not an ongoing status check.
+        const rangeBonus = (save.character.levelChoiceIds || []).includes('hemonancer_extended_reach') ? 1 : 0;
         const range = {};
-        board.enemy.forEach((_, slot) => { range[slot] = 'far'; });
+        board.enemy.forEach((_, slot) => { range[slot] = Math.max(0, baseStepsForSlot(slot) - rangeBonus); });
         state = {
             match: {
                 players,
@@ -821,8 +876,21 @@
     function skillRequiresMelee(skill) {
         return !!(skill && skill.classes && skill.classes.some((c) => String(c).toLowerCase() === 'melee'));
     }
+    // Range is a real step count now, not a Far/Close boolean - each enemy's
+    // BASE distance is fixed by its position in the line-up (leftmost/
+    // closest to the player = 1 step, next = 2, etc. - see newGame()'s
+    // range init), and each Approach closes exactly one step on whichever
+    // enemy it targets (see performApproach), not the whole gap at once.
+    // isClose/anyFarAliveEnemy/anyCloseAliveEnemy all still read as a
+    // simple boolean off of this - "0 steps left" - so every OTHER caller
+    // (melee gating, badges, targeting) is unaffected by the step count
+    // itself, only performApproach/engagedForwardCqw below deal with it
+    // directly.
+    function baseStepsForSlot(slot) {
+        return slot + 1;
+    }
     function isClose(slot) {
-        return !!(state.range && state.range[slot] === 'close');
+        return !!(state.range && state.range[slot] != null && state.range[slot] <= 0);
     }
     function anyFarAliveEnemy() {
         return state.match.board.enemy.some((u, slot) => u.alive !== false && !isClose(slot));
@@ -831,18 +899,22 @@
         return state.match.board.enemy.some((u, slot) => u.alive !== false && isClose(slot));
     }
     // How far forward (in cqw, toward the enemy-cluster side) the player
-    // should stand - proportional to state.engagedSlot's position within
-    // the CURRENT enemy line-up (leftmost enemy = a short step, rightmost =
-    // a longer one), not a single fixed distance - approximates the
-    // approached enemy's real horizontal position using cheap arithmetic
-    // (slot index / count) rather than measuring actual DOM coordinates,
-    // since the enemy-cluster's layout already spaces slots out evenly by
-    // CSS. 0 if nothing has been Approached yet this encounter.
+    // should stand - scaled by BOTH state.engagedSlot's position in the
+    // line-up (a farther-ranked enemy has more ground to physically cross)
+    // AND how many of that enemy's steps have actually been closed so far
+    // (a partial Approach only advances partway, not the full distance -
+    // reads as "creeping forward" over multiple turns against a
+    // multi-step enemy, matching the frame swap already scrubbing the walk
+    // cycle). 0 if nothing has been Approached yet this encounter.
     function engagedForwardCqw() {
         if (state.engagedSlot == null) return 0;
+        const slot = state.engagedSlot;
         const count = state.match.board.enemy.length;
-        const frac = count > 1 ? (state.engagedSlot + 0.5) / count : 0.5;
-        return 6 + frac * 16;
+        const base = baseStepsForSlot(slot);
+        const remaining = state.range && state.range[slot] != null ? state.range[slot] : base;
+        const progress = base > 0 ? Math.max(0, Math.min(1, (base - remaining) / base)) : 1;
+        const frac = count > 1 ? (slot + 0.5) / count : 0.5;
+        return (6 + frac * 16) * progress;
     }
 
     function buildTargetSelection(skill, actingUsername, actorSlot, targetSlot) {
@@ -920,12 +992,18 @@
     function performApproach(slot) {
         const enemyUnit = state.match.board.enemy[slot];
         const enemyCharacter = enemyUnit && characterForUnit(enemyUnit);
+        const name = enemyCharacter ? enemyCharacter.name : 'the enemy';
         const prevEngageCqw = engagedForwardCqw(); // BEFORE this approach's own state change
-        state.range[slot] = 'close';
+        // Closes exactly ONE step, not the whole gap - a multi-step-away
+        // enemy needs a separate Approach (a separate turn) per remaining
+        // step.
+        state.range[slot] = Math.max(0, (state.range[slot] || 0) - 1);
         state.engagedSlot = slot;
         endSideTurn('player');
         checkOutcome();
-        log('You close the distance to ' + (enemyCharacter ? enemyCharacter.name : 'the enemy') + '.', 'you');
+        log(isClose(slot)
+            ? 'You close the distance to ' + name + '.'
+            : 'You advance on ' + name + '. (' + state.range[slot] + ' step' + (state.range[slot] === 1 ? '' : 's') + ' left)', 'you');
         render();
         // 3-frame walk cycle (see playerWalkFrames) instead of a strike pose
         // - reuses playVampirePoseSequence with an empty diffs array since
@@ -1490,8 +1568,10 @@
 
         const nameplate = document.createElement('div');
         nameplate.className = 'nameplate' + (isEnemy ? '' : ' player-nameplate');
+        const stepsLeft = isEnemy && state.range ? (state.range[slot] || 0) : 0;
         const rangeBadge = isEnemy
-            ? ' <span class="range-badge ' + (isClose(slot) ? 'is-close' : 'is-far') + '">' + (isClose(slot) ? 'Close' : 'Far') + '</span>'
+            ? ' <span class="range-badge ' + (stepsLeft <= 0 ? 'is-close' : 'is-far') + '">' +
+                (stepsLeft <= 0 ? 'Close' : stepsLeft + (stepsLeft === 1 ? ' Step' : ' Steps')) + '</span>'
             : '';
         nameplate.innerHTML =
             '<div class="name">' + character.name + rangeBadge + (!isEnemy ? ' <span class="level-badge">Lv ' + save.character.level + '</span>' : '') + '</div>' +
@@ -1565,6 +1645,7 @@
         if (meta.healingBonusFlat) parts.push((meta.healingBonusFlat > 0 ? '+' : '') + meta.healingBonusFlat + ' healing');
         if (meta.evadeChancePercent) parts.push(meta.evadeChancePercent + '% evade chance');
         if (meta.cannotUseHarmfulSkills) parts.push('cannot use harmful skills');
+        if (meta.rangeBonusSteps) parts.push('+' + meta.rangeBonusSteps + ' Range');
         return parts.join(', ');
     }
 
@@ -1627,6 +1708,16 @@
                 const compact = describeStatusMetadataCompact(evasionStatus.metadata);
                 if (compact) lines.push({ text: compact });
             }
+            // Level 3's secretly-spec-tagged passives (see LEVEL_CHOICES[3])
+            // - the mechanical benefit is always visible here, only WHICH
+            // specialization it's tied to stays hidden.
+            ['feral_deep_hunger_passive', 'hemonancer_extended_reach_passive'].forEach((statusId) => {
+                const status = unit.state.statuses.find((s) => s.id === statusId);
+                if (status) {
+                    const compact = describeStatusMetadataCompact(status.metadata);
+                    if (compact) lines.push({ text: compact });
+                }
+            });
             return lines;
         }
         return (skill.effects || []).map(describeEffect).filter(Boolean);
@@ -1739,7 +1830,7 @@
         tooltip.className = 'skill-tooltip';
         const row = document.createElement('div');
         row.className = 'skill-tooltip-line';
-        row.textContent = 'Close the distance to an enemy so you can use Melee skills on them. Uses your turn.';
+        row.textContent = 'Close one step toward an enemy so you can use Melee skills on them. Farther enemies may take more than one Approach. Uses your turn.';
         tooltip.appendChild(row);
         const slot = document.createElement('div');
         slot.className = 'skill-slot';
