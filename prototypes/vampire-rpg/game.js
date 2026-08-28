@@ -31,6 +31,30 @@
         hit: 'assets/vampire-hit.png',
         death: 'assets/vampire-defeated.png',
         levelup: 'assets/vampire-level-up.png',
+        // Milestone 3 branch-skill poses. Blood Ward and Blood Projectile
+        // are 2/3-frame sequences (see SKILL_ACTION_POSE below); the rest
+        // are single poses.
+        feral_rampage: 'assets/vampire-rampage.png',
+        feral_blood_frenzy: 'assets/vampire-blood-frenzy.png',
+        hemonancer_blood_ward_1: 'assets/vampire-blood-ward-1.png',
+        hemonancer_blood_ward_2: 'assets/vampire-blood-ward-2.png',
+        hemonancer_blood_projectile_1: 'assets/vampire-blood-projectile-1.png',
+        hemonancer_blood_projectile_2: 'assets/vampire-blood-projectile-2.png',
+        hemonancer_blood_projectile_3: 'assets/vampire-blood-projectile-3.png',
+        elder_mastery_shadow_veil: 'assets/vampire-shadow-veil.png',
+        elder_mastery_mist_form: 'assets/vampire-mist-form.png',
+        elder_mastery_charm: 'assets/vampire-charm.png',
+        // Multi-spec transformed idle forms - see playerIdlePoseKey()
+        // below. Only stage 1 of each combo exists in this prototype -
+        // the campaign is short enough that no character reaches further
+        // than that no matter how they spec (see investedSpecializations).
+        form_feral: 'assets/form-feral-1.png',
+        form_hemo: 'assets/form-hemo-1.png',
+        form_shadow: 'assets/form-shadow-1.png',
+        form_hemo_feral: 'assets/form-hemo-feral-1.png',
+        form_shadow_feral: 'assets/form-shadow-feral-1.png',
+        form_shadow_hemo: 'assets/form-shadow-hemo-1.png',
+        form_shadow_hemo_feral: 'assets/form-shadow-hemo-feral-1.png',
     };
     // The idle pose is tall and narrow; the lunge/bite poses are wide
     // action shots. Since .figure's height is fixed (see style.css), a wide
@@ -41,6 +65,107 @@
         windup: '34cqh',
         vampire_bite: '32cqh',
         life_rip: '42cqh',
+        // The Milestone 3 branch-skill art (below) shares one 351x710
+        // canvas, but unlike idle - which fills ~99.6% of ITS canvas
+        // height edge to edge - each of these poses only fills 65-83% of
+        // theirs (crouched/dynamic poses leave headroom/legroom idle
+        // doesn't). At the base height that reads as a noticeably SMALLER
+        // character, not a same-scale action pose - so each gets scaled
+        // up by the inverse of its own content-fill ratio (measured via a
+        // pixel-alpha bounding-box scan of the actual art, not guessed) to
+        // land back at roughly idle's true on-screen character size.
+        feral_rampage: '71cqh',
+        feral_blood_frenzy: '65cqh',
+        hemonancer_blood_ward_1: '55cqh',
+        hemonancer_blood_ward_2: '58cqh',
+        hemonancer_blood_projectile_1: '63cqh',
+        hemonancer_blood_projectile_2: '63cqh',
+        hemonancer_blood_projectile_3: '63cqh',
+        elder_mastery_shadow_veil: '68cqh',
+        elder_mastery_mist_form: '60cqh',
+        elder_mastery_charm: '56cqh',
+        // Multi-spec transformed idle forms - see playerIdlePoseKey()
+        // below. Same content-fill-scan reasoning as above; these fill
+        // 79-92% of their canvas (standing portraits, not dynamic action
+        // shots), so the corrections are milder.
+        form_feral: '54cqh',
+        form_hemo: '50cqh',
+        form_shadow: '58cqh',
+        form_hemo_feral: '50cqh',
+        form_shadow_feral: '54cqh',
+        form_shadow_hemo: '50cqh',
+        form_shadow_hemo_feral: '50cqh',
+    };
+    // Milestone 3+: the player can invest in more than one specialization
+    // (see renderLevelUpScreen - level 5/6 branch choices are no longer
+    // filtered to just the character's primary pick), and their idle
+    // appearance transforms to reflect whichever specialization(s) they've
+    // actually put choices into. Internal specialization ids -> the short
+    // key used both in VAMPIRE_POSES/VAMPIRE_POSE_HEIGHT's form_X entries
+    // and in the art's own file naming.
+    const SPEC_ART_KEY = { feral: 'feral', hemonancer: 'hemo', elder_mastery: 'shadow' };
+    // Combined-key ordering always follows this sequence (matches the
+    // source art's own file-naming convention: shadow-hemo-feral, not
+    // e.g. feral-hemo-shadow).
+    const SPEC_ART_ORDER = ['shadow', 'hemo', 'feral'];
+    // Every specialization choice the character has actually picked -
+    // their level-4 primary pick, plus any level 5/6 branch skill picked
+    // from a DIFFERENT specialization's option (now allowed - see
+    // renderLevelUpScreen). Returns a Set of internal specialization ids.
+    function investedSpecializations(characterSave) {
+        const specs = new Set();
+        if (characterSave.specialization) specs.add(characterSave.specialization);
+        (characterSave.levelChoiceIds || []).forEach((choiceId) => {
+            Object.values(PROGRESSION.LEVEL_CHOICES).forEach((options) => {
+                const found = options.find((c) => c.id === choiceId);
+                if (found && found.requiresSpecialization) specs.add(found.requiresSpecialization);
+            });
+        });
+        return specs;
+    }
+    // The combined art key for whatever the character has invested in so
+    // far (e.g. 'shadow-feral'), or null if not specialized yet at all.
+    function comboArtKeyFor(characterSave) {
+        const specs = investedSpecializations(characterSave);
+        if (specs.size === 0) return null;
+        const artKeys = new Set(Array.from(specs).map((id) => SPEC_ART_KEY[id]));
+        return SPEC_ART_ORDER.filter((k) => artKeys.has(k)).join('-');
+    }
+    // "Feral" for a single specialization, "Shadow + Feral" for a
+    // multi-spec build, or '' if not specialized yet - the one shared
+    // formatter for every "Specialization" display spot (title slot card,
+    // header subtitles, Camp's character sheet). Same shadow/hemo/feral
+    // ordering as SPEC_ART_ORDER, just in internal-id form.
+    const SPEC_ID_ORDER = ['elder_mastery', 'hemonancer', 'feral'];
+    function specializationLabel(characterSave) {
+        const specs = investedSpecializations(characterSave);
+        if (specs.size === 0) return '';
+        return SPEC_ID_ORDER.filter((id) => specs.has(id))
+            .map((id) => PROGRESSION.SPECIALIZATIONS[id].name)
+            .join(' + ');
+    }
+    // The pose key (into VAMPIRE_POSES/VAMPIRE_POSE_HEIGHT) for the
+    // player's current idle appearance - the base standing pose until
+    // they've specialized, then their transformed form.
+    function playerIdlePoseKey() {
+        const key = save && save.character ? comboArtKeyFor(save.character) : null;
+        return key ? 'form_' + key.replace(/-/g, '_') : 'idle';
+    }
+    // .camp-figure's height/bottom (style.css) were hand-tuned specifically
+    // for vampire-standing.png's crop (99.6% content-fill - see
+    // VAMPIRE_POSE_HEIGHT's own comment) to get the "big, centered,
+    // feet-not-visible" look. The form_X portraits fill less of their own
+    // canvas (79-92%), so both values scale up together by the same
+    // content-fill-deficit factor to preserve that same crop framing
+    // instead of just going bigger and shifting the crop point.
+    const CAMP_FIGURE_OVERRIDE = {
+        form_feral: { height: '170%', bottom: '-64%' },
+        form_hemo: { height: '156%', bottom: '-59%' },
+        form_shadow: { height: '182%', bottom: '-69%' },
+        form_hemo_feral: { height: '157%', bottom: '-60%' },
+        form_shadow_feral: { height: '170%', bottom: '-64%' },
+        form_shadow_hemo: { height: '156%', bottom: '-59%' },
+        form_shadow_hemo_feral: { height: '156%', bottom: '-59%' },
     };
     // Enemies only have illustrated art for the original three; the five
     // Milestone 2 additions reuse that art with a CSS tint filter (see
@@ -307,39 +432,58 @@
         });
     }
     // Second engine gap, same "patch it in glue code, not the vendored
-    // file" boundary as the override above: applyHealToUnit() in
-    // battleEngine.js clamps every heal to
-    // Math.min(DEFAULT_HP, cap, before + heal), and DEFAULT_HP is a
-    // hardcoded module constant (100, the original Naruto-Arena baseline) -
-    // not something unit.hpCap can raise, since it's unconditionally
-    // included in that min() regardless. So any Vampire with a real max HP
-    // above 100 (e.g. the +8 Max HP level-2 choice) silently can't be
-    // healed past 100 by a 'heal'-type effect (Potion, Blood Ward), even
-    // though their HP bar's own max is higher. Confirmed via direct
-    // source read of battleEngine.js's applyHealToUnit and reproduced live
-    // (Potion healed 82->100, not 82->108, for a 108-max-HP test character).
-    // Fixed here by re-deriving the same flat-heal formula the engine uses
-    // (effect.amount + the healer's own positive healingBonusFlat, floored
-    // at 0 - mirrors getStatusMetadataTotals' sourceHealingBonus exactly)
-    // and topping the unit up to its REAL cap after the engine's clamp has
-    // already run.
-    function healingBonusFlatFor(unitState) {
+    // file" boundary as the override above. Two separate vendored
+    // functions - applyHealToUnit() (the 'heal' effect type) and
+    // applyDirectHpGainToUnit() (the lifesteal side of
+    // 'health_steal_damage', e.g. Rampage/Blood Claw/Bite's lifesteal
+    // sub-effect) - both clamp to Math.min(DEFAULT_HP, cap, before + gain),
+    // and DEFAULT_HP is a hardcoded module constant (100, the original
+    // Naruto-Arena baseline) - not something unit.hpCap can raise, since
+    // it's unconditionally included in that min() regardless. So any
+    // Vampire with a real max HP above 100 (e.g. the +8 Max HP level-2
+    // choice) silently can't be healed OR lifestealed past 100, even
+    // though their HP bar's own max is higher - and worse, once already
+    // above 100 (starting HP, or a prior over-cap moment), ANY further
+    // heal/lifesteal clamps them straight back DOWN to 100, which reads
+    // as the lifesteal damaging its own caster. Confirmed via direct
+    // source read of both functions, reproduced live (Potion: 82->100 not
+    // 82->108), and root-caused for Rampage via a traced/instrumented
+    // copy of battleLogic.js (908->100 landed on applyDirectHpGainToUnit's
+    // clamp, not any self-damage effect - see scratchpad/rampage_trace_test.js).
+    // Fixed here by re-deriving each effect's own gain formula (base
+    // amount + the healer's own relevant positive status bonus - floored
+    // at 0, mirroring getStatusMetadataTotals' sourceHealingBonus/
+    // skill-damage-bonus math) and topping the unit up to its REAL cap
+    // after the engine's clamp has already run.
+    function statusMetadataFlatFor(unitState, key) {
         let total = 0;
         (unitState && unitState.statuses || []).forEach((s) => {
-            total += Number(s && s.metadata && s.metadata.healingBonusFlat) || 0;
+            total += Number(s && s.metadata && s.metadata[key]) || 0;
         });
         return Math.max(0, total);
     }
-    function fixHealCapBug(unit, skill, beforeHp) {
+    function fixHpCapBug(unit, skill, beforeHp) {
         const cap = maxHpForCharacter(characterForUnit(unit));
         if (!unit || cap <= 100 || !skill || !Array.isArray(skill.effects)) return;
-        const bonus = healingBonusFlatFor(unit.state);
+        const healingBonus = statusMetadataFlatFor(unit.state, 'healingBonusFlat');
+        const damageBonus = statusMetadataFlatFor(unit.state, 'damageBonusFlat');
+        let trueGain = 0;
         skill.effects.forEach((effect) => {
-            if (effect.type !== 'heal' || effect.scope !== 'self') return;
-            const trueHeal = (Number(effect.amount) || 0) + bonus;
-            const correctHp = Math.min(cap, beforeHp + trueHeal);
-            if (correctHp > unit.hp) unit.hp = correctHp;
+            if (effect.type === 'heal' && effect.scope === 'self') {
+                trueGain += (Number(effect.amount) || 0) + healingBonus;
+            } else if (effect.type === 'health_steal_damage' && effect.scope === 'target') {
+                // health_steal_damage is always armor-piercing in the
+                // engine (queueDamage forces ignoreDamageReduction for it
+                // regardless of the effect's own metadata), so the raw
+                // amount + the caster's own damage bonus IS what's dealt
+                // (and so lifestolen) - no target-side mitigation to
+                // account for.
+                trueGain += (Number(effect.amount) || 0) + damageBonus;
+            }
         });
+        if (trueGain <= 0) return;
+        const correctHp = Math.min(cap, beforeHp + trueGain);
+        if (correctHp > unit.hp) unit.hp = correctHp;
     }
     function isActiveSkill(skill) {
         if (!skill) return false;
@@ -524,14 +668,51 @@
         playPlayerAction(skillIndex, slot);
     }
 
-    // Skill id -> action-pose key in VAMPIRE_POSES, for the attack sequence
-    // (windup -> action pose -> impact -> back to idle). Skills with no
-    // mapped pose just hold the windup frame briefly instead.
+    // Skill id -> action-pose key(s) in VAMPIRE_POSES, for the attack
+    // sequence (windup -> action pose -> impact -> back to idle). A value
+    // can be a single key or an array of keys played in sequence (Blood
+    // Ward, Blood Projectile) - see playVampirePoseSequence. Skills with
+    // no mapped pose just hold the windup frame briefly instead (attacks)
+    // or show no pose swap at all (self-target - see playPlayerAction).
     const SKILL_ACTION_POSE = {
         vampire_bite: 'vampire_bite',
         life_rip: 'life_rip',
         vampire_guard: 'vampire_guard',
+        feral_rampage: 'feral_rampage',
+        feral_blood_frenzy: 'feral_blood_frenzy',
+        elder_mastery_shadow_veil: 'elder_mastery_shadow_veil',
+        elder_mastery_mist_form: 'elder_mastery_mist_form',
+        elder_mastery_charm: 'elder_mastery_charm',
+        hemonancer_blood_ward: ['hemonancer_blood_ward_1', 'hemonancer_blood_ward_2'],
+        hemonancer_blood_projectile: [
+            'hemonancer_blood_projectile_1',
+            'hemonancer_blood_projectile_2',
+            'hemonancer_blood_projectile_3',
+        ],
+        // feral_blood_claw and hemonancer_blood_curse have no dedicated
+        // art yet - left unmapped, same as before this batch.
     };
+
+    // Steps the Vampire's image through one or more VAMPIRE_POSES frames,
+    // landing floating damage/heal numbers on the LAST frame (the moment
+    // of impact/completion), then reverting to the persistent pose once
+    // done. `frames` may be empty (no dedicated art for this skill) - the
+    // numbers still show, just with no pose swap. Returns the total time
+    // (ms) the sequence takes, so callers can time the enemy's reply.
+    function playVampirePoseSequence(frames, diffs, opts) {
+        const stepMs = (opts && opts.stepMs) || 150;
+        const holdMs = (opts && opts.holdMs) || 360;
+        frames.forEach((frame, i) => {
+            setTimeout(() => {
+                setVampireImage(frame);
+                if (i === frames.length - 1) showTurnEffects([{ username: 'player', slot: 0 }], diffs);
+            }, i * stepMs);
+        });
+        if (!frames.length) showTurnEffects([{ username: 'player', slot: 0 }], diffs);
+        const totalMs = frames.length ? (frames.length - 1) * stepMs + holdMs : holdMs;
+        setTimeout(() => setVampireImage(state.vampirePose), totalMs);
+        return totalMs;
+    }
 
     function playPlayerAction(skillIndex, targetSlot) {
         const unit = vampireUnit();
@@ -545,36 +726,29 @@
         if (skill.id === 'vampire_potion') state.potionsRemaining = Math.max(0, state.potionsRemaining - 1);
         const before = snapshotHp();
         BE.resolvePendingTurnSkills({ match: state.match, actingUsername: 'player', characters: ROSTER });
-        fixHealCapBug(unit, skill, before.player[0]);
+        fixHpCapBug(unit, skill, before.player[0]);
         endSideTurn('player');
         checkOutcome();
         state.pendingSkillIndex = null;
         const diffs = diffHp(before);
         log('You use ' + skill.name + '.' + describeDiffsForLog(diffs, 'player', 0), 'you');
         render();
-        // Guard is a brace, not a strike - it skips the windup/lunge
-        // (which reads as an attack), but now has its own dedicated pose
-        // (distinct from the hit-reaction pose, which has its own art too)
-        // so it still gets a visual beat, just not a lunge into it.
-        // Potion is likewise self-directed, not an attack - same no-lunge
-        // treatment, minus a dedicated pose swap since no potion art exists.
+        // Any self-target skill (Guard, Potion, and now the self-buff
+        // branch skills - Blood Frenzy/Blood Ward/Mist Form/Shadow Veil)
+        // is a brace or a working of magic on oneself, not a strike - it
+        // skips the windup/lunge that reads as an attack. Enemy-targeted
+        // skills still get the full windup -> action -> impact sequence.
         let enemyTurnDelay = 900;
-        if (skill.id === 'vampire_guard') {
-            setVampireImage('vampire_guard');
-            showTurnEffects([{ username: 'player', slot: 0 }], diffs);
-            setTimeout(() => setVampireImage(state.vampirePose), 500);
-            enemyTurnDelay = 700;
-        } else if (skill.id === 'vampire_potion') {
-            showTurnEffects([{ username: 'player', slot: 0 }], diffs);
+        const actionPose = SKILL_ACTION_POSE[skill.id];
+        const frames = actionPose ? (Array.isArray(actionPose) ? actionPose : [actionPose]) : [];
+        if (skill.target === 'self') {
+            playVampirePoseSequence(frames, diffs, { stepMs: 220, holdMs: 380 });
             enemyTurnDelay = 700;
         } else {
             setVampireImage('windup');
-            const actionPose = SKILL_ACTION_POSE[skill.id];
             setTimeout(() => {
-                if (actionPose) setVampireImage(actionPose);
-                showTurnEffects([{ username: 'player', slot: 0 }], diffs);
+                playVampirePoseSequence(frames, diffs, { stepMs: 150, holdMs: 360 });
             }, 160);
-            setTimeout(() => setVampireImage(state.vampirePose), 520);
         }
         if (!state.over) {
             state.busy = true;
@@ -737,11 +911,15 @@
     // Swaps the Vampire's <img src> directly (no full render()) so an
     // in-flight damage number or hit-flash on any combatant isn't cut short.
     function setVampireImage(poseKey) {
+        // 'idle' isn't a fixed image - it's whichever transformed form (or
+        // the base standing pose) the character's current specialization
+        // investment resolves to. See playerIdlePoseKey().
+        const resolvedKey = poseKey === 'idle' ? playerIdlePoseKey() : poseKey;
         const el = findCombatantEl('player', 0);
         const figure = el && el.querySelector('.figure');
         const img = figure && figure.querySelector('img');
-        if (img) img.src = VAMPIRE_POSES[poseKey] || VAMPIRE_POSES.idle;
-        if (figure) figure.style.height = VAMPIRE_POSE_HEIGHT[poseKey] || '';
+        if (img) img.src = VAMPIRE_POSES[resolvedKey] || VAMPIRE_POSES.idle;
+        if (figure) figure.style.height = VAMPIRE_POSE_HEIGHT[resolvedKey] || '';
     }
 
     // Same direct-DOM-swap pattern as setVampireImage, for an enemy slot.
@@ -869,9 +1047,13 @@
         figure.className = 'figure char-' + character.characterId;
         const img = document.createElement('img');
         img.alt = character.name;
-        img.src = isEnemy
-            ? (dead && enemyPoses ? enemyPoses.defeated : (ENEMY_ART[character.characterId] || ''))
-            : VAMPIRE_POSES[state.vampirePose] || VAMPIRE_POSES.idle;
+        if (isEnemy) {
+            img.src = dead && enemyPoses ? enemyPoses.defeated : (ENEMY_ART[character.characterId] || '');
+        } else {
+            const poseKey = state.vampirePose === 'idle' ? playerIdlePoseKey() : state.vampirePose;
+            img.src = VAMPIRE_POSES[poseKey] || VAMPIRE_POSES.idle;
+            figure.style.height = VAMPIRE_POSE_HEIGHT[poseKey] || '';
+        }
         figure.appendChild(img);
         el.appendChild(figure);
 
@@ -1200,9 +1382,9 @@
         const ch = slotSave.character;
         const origin = PROGRESSION.ORIGINS[ch.origin];
         const age = PROGRESSION.AGES[ch.age];
-        const spec = ch.specialization ? PROGRESSION.SPECIALIZATIONS[ch.specialization] : null;
+        const specLabel = specializationLabel(ch);
         name.textContent = ch.name || 'Vampire';
-        flavor.textContent = 'Level ' + ch.level + ' ' + origin.name + ' ' + age.name + (spec ? ' · ' + spec.name : '');
+        flavor.textContent = 'Level ' + ch.level + ' ' + origin.name + ' ' + age.name + (specLabel ? ' · ' + specLabel : '');
         const actions = document.createElement('div');
         actions.className = 'slot-card-actions';
         const playBtn = document.createElement('button');
@@ -1326,10 +1508,10 @@
         const ch = save.character;
         const origin = PROGRESSION.ORIGINS[ch.origin];
         const age = PROGRESSION.AGES[ch.age];
-        const spec = ch.specialization ? PROGRESSION.SPECIALIZATIONS[ch.specialization] : null;
+        const specLabel = specializationLabel(ch);
         const xpProgress = xpProgressFor(ch);
 
-        const header = screenHeader('Camp', ch.name || 'The Vampire', 'Level ' + ch.level + ' ' + origin.name + ' ' + age.name + (spec ? ' · ' + spec.name : ''));
+        const header = screenHeader('Camp', ch.name || 'The Vampire', 'Level ' + ch.level + ' ' + origin.name + ' ' + age.name + (specLabel ? ' · ' + specLabel : ''));
         const encounterIndex = save.campaign.encounterIndex;
         // Very-basic quest, no tracking/rewards/panel art: just the
         // upcoming encounter's enemy count, handed out fresh each Camp
@@ -1344,7 +1526,13 @@
         scene.className = 'camp-stage';
         const figureWrap = document.createElement('div');
         figureWrap.className = 'camp-figure';
-        figureWrap.innerHTML = '<img src="' + VAMPIRE_POSES.idle + '" alt="" />';
+        const campPoseKey = playerIdlePoseKey();
+        figureWrap.innerHTML = '<img src="' + (VAMPIRE_POSES[campPoseKey] || VAMPIRE_POSES.idle) + '" alt="" />';
+        const campOverride = CAMP_FIGURE_OVERRIDE[campPoseKey];
+        if (campOverride) {
+            figureWrap.style.height = campOverride.height;
+            figureWrap.style.bottom = campOverride.bottom;
+        }
         scene.appendChild(figureWrap);
         if (upcomingEncounter) {
             const mission = document.createElement('button');
@@ -1371,7 +1559,7 @@
         sheet.innerHTML =
             '<div class="sheet-row"><span><span class="stat-icon stat-icon-xp"></span>XP</span><span>' + xpProgress.xp + ' / ' + xpProgress.nextThreshold + '</span></div>' +
             '<div class="meter xp-meter"><span style="width:' + xpProgress.pct + '%"></span></div>' +
-            '<div class="sheet-row"><span>Specialization</span><span>' + (spec ? spec.name : 'Not yet chosen') + '</span></div>';
+            '<div class="sheet-row"><span>Specialization</span><span>' + (specLabel || 'Not yet chosen') + '</span></div>';
 
         const btnRow = document.createElement('div');
         btnRow.className = 'button-column';
@@ -1444,14 +1632,12 @@
     function renderLevelUpScreen(root) {
         const level = save.character.pendingLevelUps[0];
         // Specialization-gated entries (Milestone 3's "branch" skills) are
-        // filtered to just the one matching the character's specialization
-        // - since specialization is always chosen well before these levels
-        // are reached, exactly one of the three ever matches, so this still
-        // renders as a single confirm-to-unlock card via the same flow as
-        // every other level-up choice.
-        const options = PROGRESSION.LEVEL_CHOICES[level].filter(
-            (opt) => !opt.requiresSpecialization || opt.requiresSpecialization === save.character.specialization
-        );
+        // NOT filtered to the character's own specialization - the player
+        // can multi-spec, picking a branch skill from any of the three
+        // trees at each of these levels regardless of what they picked
+        // before (see investedSpecializations/comboArtKeyFor, which read
+        // these picks back out to drive the transformed-idle-form art).
+        const options = PROGRESSION.LEVEL_CHOICES[level];
         const header = screenHeader('Level Up', 'Level ' + level, 'Choose one.');
         const grid = document.createElement('div');
         grid.className = 'choice-grid';
@@ -1459,8 +1645,10 @@
             const mechanics = opt.kind === 'skill'
                 ? buildSkillTooltipLines(null, opt.skill).map((l) => l.text).join(' · ')
                 : '';
+            const spec = opt.requiresSpecialization ? PROGRESSION.SPECIALIZATIONS[opt.requiresSpecialization] : null;
             grid.appendChild(choiceCard({
                 name: opt.label,
+                flavor: spec ? spec.name : '',
                 mechanics: mechanics,
                 onClick: () => pickLevelChoice(level, opt.id),
             }));
