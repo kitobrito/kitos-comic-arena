@@ -189,7 +189,16 @@ const characters = [
         // at a hardcoded 100); game.js reads this field itself right after
         // buildInitialBoard() and overrides unit.hp for characters that
         // declare it, purely in the prototype's own glue code.
-        startingHp: 40,
+        // Rebalanced up from 40 - a level 1 Vampire's guaranteed (non-crit)
+        // Bite alone was landing 28-36 depending on origin/age (see
+        // buildComposedVampire's power math in game.js), one-shotting most
+        // of the roster on the very first skill used, reported live. All
+        // eight enemies below got the same pass, keeping their relative
+        // order but raising the floor so nothing dies to a single
+        // non-crit hit any more (Bite's rare 15% crit can still finish
+        // off the squishier ones in one - that's meant to feel special,
+        // not become the norm).
+        startingHp: 70,
         role: 'Basic Melee',
         roleCategory: 'basic-melee',
         universe: 'vampire-rpg',
@@ -205,7 +214,11 @@ const characters = [
                 damage: 0,
                 cooldown: 0,
                 classes: ['Physical', 'Melee', 'Instant'],
-                effects: [{ type: 'damage', amount: 9, scope: 'target' }],
+                // Rebalanced 9 -> 14 (~1.6x, same pass as startingHp above -
+                // see that comment) so enemy attacks stay a real threat
+                // against the same buffed HP pool, not just a slower grind
+                // at the old trickle of damage.
+                effects: [{ type: 'damage', amount: 14, scope: 'target' }],
             },
             {
                 id: 'goblin_grunt_reckless_swing',
@@ -216,7 +229,7 @@ const characters = [
                 damage: 0,
                 cooldown: 2,
                 classes: ['Physical', 'Melee', 'Instant'],
-                effects: [{ type: 'damage', amount: 16, scope: 'target' }],
+                effects: [{ type: 'damage', amount: 26, scope: 'target' }],
             },
         ],
     },
@@ -224,7 +237,7 @@ const characters = [
         id: 'skeleton',
         characterId: 'skeleton',
         name: 'Skeleton',
-        startingHp: 40,
+        startingHp: 70, // rebalanced from 40 - see goblin-grunt's comment above
         role: 'Undead Fighter',
         roleCategory: 'undead-fighter',
         universe: 'vampire-rpg',
@@ -240,7 +253,7 @@ const characters = [
                 damage: 0,
                 cooldown: 0,
                 classes: ['Physical', 'Melee', 'Instant'],
-                effects: [{ type: 'damage', amount: 8, scope: 'target' }],
+                effects: [{ type: 'damage', amount: 13, scope: 'target' }], // rebalanced from 8 - see goblin-grunt's damage comment above
             },
             {
                 id: 'skeleton_brittle_guard',
@@ -271,7 +284,7 @@ const characters = [
         id: 'giant-rat',
         characterId: 'giant-rat',
         name: 'Giant Rat',
-        startingHp: 40,
+        startingHp: 65, // rebalanced from 40 - see goblin-grunt's comment above (kept a notch below Grunt/Skeleton - "Weak Fast Attacker")
         role: 'Weak Fast Attacker',
         roleCategory: 'weak-fast-attacker',
         universe: 'vampire-rpg',
@@ -287,7 +300,7 @@ const characters = [
                 damage: 0,
                 cooldown: 0,
                 classes: ['Physical', 'Melee', 'Instant'],
-                effects: [{ type: 'damage', amount: 6, scope: 'target' }],
+                effects: [{ type: 'damage', amount: 10, scope: 'target' }], // rebalanced from 6 - see goblin-grunt's damage comment above
             },
             {
                 id: 'giant_rat_swarm_squeak',
@@ -306,8 +319,8 @@ const characters = [
                         scope: 'self',
                         metadata: {
                             harmful: false,
-                            damageBonusFlat: 4,
-                            tooltipText: 'Deals 4 more damage for 2 turns.',
+                            damageBonusFlat: 6, // rebalanced from 4, same pass
+                            tooltipText: 'Deals 6 more damage for 2 turns.',
                         },
                     },
                 ],
@@ -318,7 +331,7 @@ const characters = [
         id: 'goblin-sneak',
         characterId: 'goblin-sneak',
         name: 'Goblin Sneak',
-        startingHp: 28,
+        startingHp: 50, // rebalanced from 28 - see goblin-grunt's HP comment above
         role: 'Fast Low-HP Attacker',
         roleCategory: 'fast-low-hp-attacker',
         universe: 'vampire-rpg',
@@ -334,7 +347,7 @@ const characters = [
                 damage: 0,
                 cooldown: 0,
                 classes: ['Physical', 'Melee', 'Instant'],
-                effects: [{ type: 'damage', amount: 7, scope: 'target' }],
+                effects: [{ type: 'damage', amount: 11, scope: 'target' }], // rebalanced from 7 - see goblin-grunt's damage comment above
             },
             {
                 id: 'goblin_sneak_slip_away',
@@ -365,7 +378,7 @@ const characters = [
         id: 'goblin-shaman',
         characterId: 'goblin-shaman',
         name: 'Goblin Shaman',
-        startingHp: 32,
+        startingHp: 55, // rebalanced from 32 - see goblin-grunt's HP comment above
         role: 'Weak Ranged Caster',
         roleCategory: 'weak-ranged-caster',
         universe: 'vampire-rpg',
@@ -381,7 +394,7 @@ const characters = [
                 damage: 0,
                 cooldown: 0,
                 classes: ['Ranged', 'Instant'],
-                effects: [{ type: 'damage', amount: 8, scope: 'target' }],
+                effects: [{ type: 'damage', amount: 13, scope: 'target' }], // rebalanced from 8 - see goblin-grunt's damage comment above
             },
             {
                 id: 'goblin_shaman_hex',
@@ -433,7 +446,7 @@ const characters = [
         // ENEMY_ART in game.js), so it's named for what it actually looks
         // like. id/characterId stay as-is (saves/CAMPAIGN reference them).
         name: 'Goblin Warrior',
-        startingHp: 55,
+        startingHp: 100, // rebalanced from 55 - see goblin-grunt's HP comment above
         role: 'Stronger Frontline',
         roleCategory: 'stronger-frontline',
         universe: 'vampire-rpg',
@@ -468,7 +481,7 @@ const characters = [
                 damage: 0,
                 cooldown: 0,
                 classes: ['Physical', 'Melee', 'Instant'],
-                effects: [{ type: 'damage', amount: 12, scope: 'target' }],
+                effects: [{ type: 'damage', amount: 19, scope: 'target' }], // rebalanced from 12 - see goblin-grunt's damage comment above
             },
             {
                 id: 'hobgoblin_warrior_shield_wall',
@@ -500,7 +513,7 @@ const characters = [
         characterId: 'hobgoblin-archer',
         // Same reasoning as Goblin Warrior above - display name only.
         name: 'Goblin Archer',
-        startingHp: 35,
+        startingHp: 60, // rebalanced from 35 - see goblin-grunt's HP comment above
         role: 'Ranged',
         roleCategory: 'ranged',
         universe: 'vampire-rpg',
@@ -516,7 +529,7 @@ const characters = [
                 damage: 0,
                 cooldown: 0,
                 classes: ['Ranged', 'Instant'],
-                effects: [{ type: 'damage', amount: 11, scope: 'target' }],
+                effects: [{ type: 'damage', amount: 17, scope: 'target' }], // rebalanced from 11 - see goblin-grunt's damage comment above
             },
             {
                 id: 'hobgoblin_archer_piercing_volley',
@@ -527,7 +540,7 @@ const characters = [
                 damage: 0,
                 cooldown: 2,
                 classes: ['Ranged', 'Instant'],
-                effects: [{ type: 'damage', amount: 15, scope: 'target' }],
+                effects: [{ type: 'damage', amount: 24, scope: 'target' }], // rebalanced from 15
             },
         ],
     },
@@ -535,7 +548,7 @@ const characters = [
         id: 'zombie',
         characterId: 'zombie',
         name: 'Zombie',
-        startingHp: 50,
+        startingHp: 85, // rebalanced from 50 - see goblin-grunt's HP comment above
         role: 'Slow Durable Undead',
         roleCategory: 'slow-durable-undead',
         universe: 'vampire-rpg',
@@ -551,7 +564,7 @@ const characters = [
                 damage: 0,
                 cooldown: 0,
                 classes: ['Physical', 'Melee', 'Instant'],
-                effects: [{ type: 'damage', amount: 8, scope: 'target' }],
+                effects: [{ type: 'damage', amount: 13, scope: 'target' }], // rebalanced from 8 - see goblin-grunt's damage comment above
             },
             {
                 id: 'zombie_grasping_lunge',
@@ -562,7 +575,7 @@ const characters = [
                 damage: 0,
                 cooldown: 2,
                 classes: ['Physical', 'Melee', 'Instant'],
-                effects: [{ type: 'damage', amount: 14, scope: 'target' }],
+                effects: [{ type: 'damage', amount: 22, scope: 'target' }], // rebalanced from 14
             },
         ],
     },
