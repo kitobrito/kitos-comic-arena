@@ -368,7 +368,12 @@
         },
         'zombie': {
             idle: 'assets/zombie.png',
-            attack: ['assets/zombie-attack-1.png', 'assets/zombie-attack-2.png'],
+            // attack-1 repeated (per feedback: "another zombie walk
+            // animation frame") - an extra shuffle-step before the bite
+            // lands, no new art needed since attack-1 already reads as a
+            // mid-stride shamble. Three steps of the walk-up now play
+            // before attack-2's own strike, closing more of the gap.
+            attack: ['assets/zombie-attack-1.png', 'assets/zombie-attack-1.png', 'assets/zombie-attack-2.png'],
             hit: 'assets/zombie-hit.png',
             defeated: 'assets/zombie-defeated.png',
         },
@@ -420,6 +425,60 @@
             belly_slam: ['assets/smile-golem-belly-jump.png', 'assets/smile-golem-belly-slam.png'],
             hit: 'assets/smile-golem-hit.png',
             defeated: 'assets/smile-golem-defeated.png',
+        },
+    };
+
+    // Per-pose height override for the enemy roster - same reasoning and
+    // same pixel-alpha-scan methodology as VAMPIRE_POSE_HEIGHT above, just
+    // keyed by characterId then poseKey instead of by skill/frame id.
+    // Every enemy's `idle` pose is already ~99%+ fill (that's what the flat
+    // .figure.char-X CSS height in style.css was tuned against), but the
+    // attack/hit/heal/buff art was never audited the same way - a real,
+    // live-screenshotted "the character visibly shrinks when it attacks or
+    // gets hit" bug, not just a theoretical concern. `defeated` poses are a
+    // separate case: several of these are genuinely collapsed/prone
+    // silhouettes (confirmed by eye, not just by the fill number), so
+    // scaling those to match idle's FILL would stretch a lying-down body
+    // to an unnaturally tall height - they're sized instead to preserve
+    // roughly the same on-screen WIDTH footprint idle has, matching the
+    // existing Skeleton `.combatant.dead.has-defeated-pose` precedent in
+    // style.css. Characters not listed here (Goblin Grunt, Skeleton, Giant
+    // Rat, Smile Golem) already measured at ~100% fill on every pose - no
+    // compensation needed, they fall through to the base CSS height.
+    const ENEMY_POSE_HEIGHT = {
+        'hobgoblin-warrior': {
+            attack: '33.5cqh',
+            hit: '33.5cqh',
+            defeated: '35cqh',
+        },
+        'zombie': {
+            attack: '49cqh',
+            hit: '51cqh',
+            defeated: '42cqh',
+        },
+        'hobgoblin-archer': {
+            attack: '29.5cqh',
+            hit: '31cqh',
+            // Archer's defeated canvas is proportionally wider than idle's
+            // by almost exactly the amount its content is shorter - the
+            // footprint-preserving math lands back near the base height.
+            defeated: '27cqh',
+        },
+        'goblin-shaman': {
+            attack: '27.5cqh',
+            heal: '25cqh',
+            hit: '32.5cqh',
+            defeated: '26cqh',
+        },
+        'goblin-sneak': {
+            attack: '27.5cqh',
+            buff: '25cqh',
+            hit: '24cqh',
+            // Sneak's idle was cropped tight to a small portrait canvas in
+            // an earlier pass this session, while defeated is still the
+            // original wide 677x369 sprawl - the footprint match against
+            // that small idle canvas is why this drops so far below base.
+            defeated: '10cqh',
         },
     };
 
@@ -1102,6 +1161,36 @@
         requestAnimationFrame(tick);
     }
 
+    // Same technique as animatePlayerStep above, mirrored for an enemy
+    // slot on its own attack turn - negative cqw since the enemy sits on
+    // the right (.enemy-cluster) and closes the gap moving left, toward
+    // the player. Re-queries the element every frame for the same reason
+    // (render() rebuilds the combatant DOM on any state change - a class+
+    // transition doesn't survive that, see animatePlayerStep's comment).
+    function animateEnemyStep(slot, forward, durationMs, onDone) {
+        // -28cqw (was -20) - live-tuned per feedback ("have the zombie
+        // shuffle another frame closer") against the Zombie's own 2-frame
+        // attack sequence specifically, then kept as the one shared
+        // distance every melee enemy travels, same reasoning as the
+        // player's own single shared +20cqw constant above.
+        const startCqw = forward ? 0 : -28;
+        const endCqw = forward ? -28 : 0;
+        const startTime = performance.now();
+        function tick(now) {
+            const el = findCombatantEl('enemy', slot);
+            const t = Math.min(1, (now - startTime) / durationMs);
+            const eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; // easeInOutCubic
+            const cqw = startCqw + (endCqw - startCqw) * eased;
+            if (el) el.style.transform = cqw ? 'translateX(' + cqw.toFixed(2) + 'cqw)' : '';
+            if (t < 1) {
+                requestAnimationFrame(tick);
+            } else if (onDone) {
+                onDone();
+            }
+        }
+        requestAnimationFrame(tick);
+    }
+
     // A tiny number of skills need a value computed fresh at the exact
     // moment they're cast, rather than a fixed number baked into their
     // static skill data - so far just Blood Frenzy's damage bonus ("+5
@@ -1307,7 +1396,7 @@
         // shadow-step pose) rather than the attack lunge - falls back to
         // idle for enemies with no dedicated buff pose (see ENEMY_POSES).
         const poseKey = ENEMY_SKILL_POSE[skill.id] || (skill.target === 'self' ? 'buff' : 'attack');
-        return { skillIndex, skill, targetSelection, poseKey };
+        return { skillIndex, skill, targetSelection, poseKey, isMelee: skillRequiresMelee(skill) };
     }
 
     function runEnemyTurn() {
@@ -1319,10 +1408,10 @@
             const character = characterForUnit(unit);
             const action = chooseEnemyAction(unit, character, slot, enemyBoard);
             if (!action) return;
-            const { skillIndex, skill, targetSelection, poseKey } = action;
+            const { skillIndex, skill, targetSelection, poseKey, isMelee } = action;
             actions.push({ slot, character, skillIndex, skill, targetSelection, poseKey });
             const target = targetSelection[0];
-            acted.push({ username: 'enemy', slot, poseKey, targetUsername: target && target.username, targetSlot: target && target.slot });
+            acted.push({ username: 'enemy', slot, poseKey, isMelee, targetUsername: target && target.username, targetSlot: target && target.slot });
         });
         const overallBefore = snapshotHp();
         // Resolved one actor at a time rather than as a single batched call -
@@ -1552,10 +1641,14 @@
         const poses = ENEMY_POSES[characterId];
         if (!poses) return;
         const el = findCombatantEl('enemy', slot);
-        const img = el && el.querySelector('.figure img');
+        const figure = el && el.querySelector('.figure');
+        const img = figure && figure.querySelector('img');
         if (!img) return;
         const pose = poses[poseKey] || poses.idle;
         img.src = Array.isArray(pose) ? pose[pose.length - 1] : pose;
+        const resolvedKey = poses[poseKey] ? poseKey : 'idle';
+        const heights = ENEMY_POSE_HEIGHT[characterId];
+        figure.style.height = (heights && heights[resolvedKey]) || '';
     }
 
     // Steps an enemy's image through a pose (a single path, or an array of
@@ -1568,13 +1661,21 @@
         if (!poses) return;
         const pose = poses[poseKey] || poses.idle;
         const frames = Array.isArray(pose) ? pose : [pose];
+        const resolvedKey = poses[poseKey] ? poseKey : 'idle';
+        const heights = ENEMY_POSE_HEIGHT[characterId];
+        // One height for the whole sequence (all frames share the same
+        // poseKey, e.g. Zombie's 2-frame attack) - set once up front rather
+        // than re-measured per frame, same as the single-image path below.
+        const heightForPose = (heights && heights[resolvedKey]) || '';
         const stepMs = (opts && opts.stepMs) || 260;
         const holdMs = (opts && opts.holdMs) || 550;
         frames.forEach((frameSrc, i) => {
             setTimeout(() => {
                 const el = findCombatantEl('enemy', slot);
-                const img = el && el.querySelector('.figure img');
+                const figure = el && el.querySelector('.figure');
+                const img = figure && figure.querySelector('img');
                 if (img) img.src = frameSrc;
+                if (figure) figure.style.height = heightForPose;
             }, i * stepMs);
         });
         setTimeout(() => setEnemyImage(slot, characterId, 'idle'), (frames.length - 1) * stepMs + holdMs);
@@ -1657,7 +1758,7 @@
     // for every enemy with a real pose set - a no-op for the placeholder
     // two (Goblin Sneak, Goblin Warrior).
     function showTurnEffects(acted, diffs) {
-        acted.forEach(({ username, slot, poseKey, targetUsername, targetSlot }) => {
+        acted.forEach(({ username, slot, poseKey, isMelee, targetUsername, targetSlot }) => {
             const el = findCombatantEl(username, slot);
             const figure = el && el.querySelector('.figure');
             if (!figure) return;
@@ -1668,7 +1769,9 @@
                 const character = unit && characterForUnit(unit);
                 if (character) {
                     const key = poseKey || 'attack';
-                    playEnemyPoseSequence(slot, character.characterId, key, { stepMs: 260, holdMs: 550 });
+                    const seqStepMs = 260;
+                    const seqHoldMs = 550;
+                    playEnemyPoseSequence(slot, character.characterId, key, { stepMs: seqStepMs, holdMs: seqHoldMs });
                     const poses = ENEMY_POSES[character.characterId];
                     const attackFrames = poses && Array.isArray(poses.attack) ? poses.attack : (poses ? [poses.attack] : []);
                     if (poses && poses.projectile && key === 'attack' && targetUsername != null && targetSlot != null) {
@@ -1679,6 +1782,30 @@
                         const shot = computeProjectileShot('enemy', slot, targetUsername, targetSlot);
                         const launchDelay = (attackFrames.length - 1) * 260;
                         if (shot) setTimeout(() => fireProjectile(shot, poses.projectile, 420), launchDelay);
+                    }
+                    // A melee attack's own walk-up (per feedback: "instead
+                    // of standing in place") - the enemy equivalent of
+                    // playPlayerAction's animatePlayerStep. Runs
+                    // CONCURRENTLY with the pose sequence above, timed to
+                    // arrive right as the sequence's own hold phase (the
+                    // strike/impact frame) begins, rather than as a
+                    // separate phase before it - several enemies' multi-
+                    // frame attack art already doubles as the walk itself
+                    // (Zombie's attack-1/attack-2 is its shamble-then-bite,
+                    // Smile Golem's own first Belly Slam frame is literally
+                    // named "walk"), so the physical step and the pose
+                    // frames read as one motion, not two. A single-frame
+                    // attacker (Goblin Grunt/Sneak, Giant Rat) still gets
+                    // the physical step alone - no walk-cycle art to swap,
+                    // but the closing-the-gap motion itself still reads.
+                    // Ranged skills (Goblin Shaman/Hobgoblin Archer) never
+                    // set isMelee, so they stay planted and fire at range.
+                    if (isMelee) {
+                        const thisPose = poses && poses[key];
+                        const frameCount = Array.isArray(thisPose) ? thisPose.length : 1;
+                        const seqTotalMs = frameCount > 1 ? (frameCount - 1) * seqStepMs + seqHoldMs : seqHoldMs;
+                        animateEnemyStep(slot, true, seqTotalMs);
+                        setTimeout(() => animateEnemyStep(slot, false, 420), seqTotalMs);
                     }
                 }
             }
@@ -2595,5 +2722,43 @@
         renderTitleScreen(root);
     }
 
+    // Every pose swap (walk-up, windup, attack frames, hit, defeated -
+    // both the Vampire's own and every enemy's) is a plain <img src>
+    // write with no crossfade, timed tightly against the walk/attack
+    // animation above - the FIRST time any given pose is used mid-battle,
+    // the browser has to fetch it over the network before it can paint,
+    // which reads as a stutter/blank-flash right in the middle of an
+    // otherwise-smooth sequence (per feedback: "make the animations
+    // smoother in general" - this is the concrete, fixable cause, not
+    // just the walk/easing math, which was already interpolated via
+    // requestAnimationFrame). Warms the browser's image cache for the
+    // WHOLE roster up front, on the title screen, well before any of it
+    // is actually needed, so every in-battle swap is already local.
+    // Bare `new Image()` objects are never attached to the DOM - setting
+    // .src alone is enough to start and cache the fetch.
+    function preloadBattleArt() {
+        const seen = new Set();
+        function queue(value) {
+            if (!value) return;
+            if (Array.isArray(value)) return value.forEach(queue);
+            if (typeof value === 'object') return Object.values(value).forEach(queue);
+            if (typeof value === 'string' && !seen.has(value)) {
+                seen.add(value);
+                const img = new Image();
+                img.src = value;
+            }
+        }
+        queue(VAMPIRE_POSES);
+        queue(ENEMY_POSES);
+    }
+
     document.addEventListener('DOMContentLoaded', render);
+    // Deferred off the initial render (requestIdleCallback where
+    // available) so warming the cache never competes with the title
+    // screen's own first paint - falls back to a short setTimeout on
+    // browsers without it (Safari).
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window.requestIdleCallback) requestIdleCallback(preloadBattleArt);
+        else setTimeout(preloadBattleArt, 300);
+    });
 })();
