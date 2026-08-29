@@ -476,74 +476,54 @@ button { font-family: inherit; }
     align-items: center;
     transition: filter 200ms ease, opacity 400ms ease;
 }
-.combatant.player { left: 15%; }
+.combatant.player {
+    left: 15%;
+    /* The melee walk-up flourish's forward-and-back step (see
+       animatePlayerStep in game.js) writes a plain inline
+       transform:translateX(...cqw) directly, re-resolved every
+       requestAnimationFrame tick rather than as a CSS class+transition
+       - render() fully tears down and rebuilds this element on any
+       state change, which broke a CSS transition two different ways
+       (reported live as "teleporting"): no "before" frame to animate
+       from if the element was rebuilt right as the transition started,
+       and an abandoned in-flight transition if it was rebuilt again
+       mid-animation. A per-frame JS write just re-applies wherever the
+       animation currently is to whatever element exists that frame, so
+       neither case can desync it. Nothing is ever left shifted between
+       turns either way - every attack starts and ends at this same
+       left:15% spot (see animatePlayerStep's own comment). */
+}
 
+/* Single enemy slot for now (1-on-1 combat, per feedback) - right-aligned
+   in its own column, anchored at the SAME bottom offset (8%) as
+   .combatant.player above, resolved against the same .stage height in
+   both cases, so feet land on the same ground line regardless of the
+   stage's own aspect ratio. The previous version instead anchored the
+   enemy via a flex child's own margin-bottom% - CSS always resolves a
+   margin percentage against the containing block's WIDTH, even for
+   margin-bottom, so that put the enemy's feet at 32% of the (much wider)
+   cluster width above the floor rather than 8% of the stage's height
+   like the player - the two only coincidentally lined up at one
+   specific aspect ratio, and visibly diverged (reported live - a
+   screenshot showed the enemy floating well above the player's own
+   ground line) at the session's actual widescreen aspect ratio. */
 .enemy-cluster {
     position: absolute;
     right: 11%;
-    bottom: 0;
+    bottom: 8%;
     display: flex;
     align-items: flex-end;
     justify-content: flex-end;
-    gap: 2%;
-    height: 100%;
     width: 46%;
 }
-.enemy-cluster .combatant {
-    position: relative;
-    bottom: auto;
-    left: auto;
-    margin-bottom: 32%;
-}
-.enemy-cluster[data-count="1"] .combatant { margin-bottom: 32%; }
-/* Cluster shrink is expressed as height (not transform: scale), because the
-   idle-bob animation below also animates `transform` on .figure - a CSS
-   animation always wins over a plain declaration for the same property
-   regardless of selector specificity, so a static transform:scale() here
-   would simply be ignored once idle-bob is running. Height composes fine
-   with an animated transform sitting on top of it. */
-.enemy-cluster[data-count="2"] .combatant:nth-child(1) { margin-bottom: 32%; }
-.enemy-cluster[data-count="2"] .combatant:nth-child(2) { margin-bottom: 34%; }
-.enemy-cluster[data-count="3"] .combatant:nth-child(1) { margin-bottom: 32%; }
-.enemy-cluster[data-count="3"] .combatant:nth-child(2) { margin-bottom: 30%; }
-.enemy-cluster[data-count="3"] .combatant:nth-child(3) { margin-bottom: 30%; }
+.enemy-cluster .combatant { position: relative; left: auto; }
 .enemy-cluster .combatant .figure { transform-origin: 50% 100%; }
-.enemy-cluster[data-count="2"] .combatant .figure.char-skeleton { height: 38.5cqh; }
-/* At this height the Skeleton (tallest figure in the roster) renders wide
-   enough that, centered in its column, it overlaps the player Vampire on
-   its left (confirmed via getBoundingClientRect - a real overlap, not
-   "standing close" as elsewhere in this file). margin-left has no effect
-   here since the combatant column is exactly shrink-wrapped around the
-   figure with no centering slack to eat into, and a plain transform on
-   the figure itself would be silently overridden by its own idle-bob
-   keyframe animation (same reasoning as the cluster-shrink note above) -
-   so the nudge goes on the combatant wrapper instead, which has neither
-   issue. Only needed in the 2-enemy cluster (its only 3-enemy encounter
-   already has ~36-38px of clearance on both sides with no fix). */
-.enemy-cluster[data-count="2"] .combatant:has(.char-skeleton) { transform: translateX(7cqw); }
-.enemy-cluster[data-count="2"] .combatant .figure.char-goblin-grunt { height: 20.6cqh; }
-.enemy-cluster[data-count="2"] .combatant .figure.char-giant-rat { height: 12.9cqh; }
-.enemy-cluster[data-count="3"] .combatant .figure.char-skeleton { height: 32.3cqh; }
-.enemy-cluster[data-count="3"] .combatant .figure.char-goblin-grunt { height: 17.3cqh; }
-.enemy-cluster[data-count="3"] .combatant .figure.char-giant-rat { height: 10.8cqh; }
 /* Skeleton's defeated pose is a collapsed, wide illustration (aspect ratio
    ~2.05, vs ~0.87 standing) - shown at the standing height it would render
-   about 2.3x wider than upright and overlap its neighbors, so it gets a
-   shorter height here (same ratio applied to each context above) to keep
-   roughly the same on-screen footprint instead. */
-.combatant.dead.has-defeated-pose .figure.char-skeleton { height: 18.9cqh; }
-.enemy-cluster[data-count="2"] .combatant.dead.has-defeated-pose .figure.char-skeleton { height: 16.2cqh; }
-.enemy-cluster[data-count="3"] .combatant.dead.has-defeated-pose .figure.char-skeleton { height: 13.6cqh; }
-.enemy-cluster[data-count="2"] .combatant .figure.char-hobgoblin-warrior { height: 25.8cqh; }
-.enemy-cluster[data-count="2"] .combatant .figure.char-zombie { height: 27.5cqh; }
-.enemy-cluster[data-count="2"] .combatant .figure.char-hobgoblin-archer { height: 24.1cqh; }
-.enemy-cluster[data-count="2"] .combatant .figure.char-goblin-shaman { height: 19.8cqh; }
-.enemy-cluster[data-count="2"] .combatant .figure.char-goblin-sneak { height: 18.9cqh; }
-.enemy-cluster[data-count="3"] .combatant .figure.char-hobgoblin-warrior { height: 21.6cqh; }
-.enemy-cluster[data-count="3"] .combatant .figure.char-zombie { height: 23cqh; }
-.enemy-cluster[data-count="3"] .combatant .figure.char-hobgoblin-archer { height: 20.2cqh; }
-.enemy-cluster[data-count="3"] .combatant .figure.char-goblin-shaman { height: 16.6cqh; }
-.enemy-cluster[data-count="3"] .combatant .figure.char-goblin-sneak { height: 15.8cqh; }
+   about 2.3x wider than upright, so it gets a shorter height here (same
+   ratio as standing-to-defeated below) to keep roughly the same on-screen
+   footprint instead. */
+.combatant.dead.has-defeated-pose .figure.char-skeleton { height: 17.3cqh; }
 
 .combatant.dead { opacity: 0.32; filter: grayscale(0.9) brightness(0.7); }
 /* A dedicated defeated-pose illustration already tells "this is dead" on
@@ -691,15 +671,31 @@ button { font-family: inherit; }
    pulling them up off the ground. */
 .figure-scale { display: flex; align-items: flex-end; justify-content: center; }
 .combatant.player .figure-scale { transform: scale(0.92); transform-origin: bottom center; }
-/* Relative in-world scale between characters - tallest to shortest. */
-.figure.char-skeleton { height: 44.9cqh; }
+/* Relative in-world scale between characters - tallest to shortest.
+   Re-audited together with the player's own true rendered height (the
+   base .figure rule below is 46cqh, scaled by .figure-scale's 0.92 above
+   -> ~42.3cqh true) via a pixel-alpha content-bounding-box scan of each
+   character's actual art (same technique as VAMPIRE_POSE_HEIGHT's own
+   comments in game.js), not eyeballed - most of these images are
+   cropped edge-to-edge already so their cqh value IS their true height,
+   but goblin-archer/goblin-sneak/goblin-warrior carried real transparent
+   padding (measured 3-6% of canvas height on top and bottom) that was
+   silently shrinking them below their stated height and floating their
+   feet above the ground line - cropped out at the source instead of
+   compensated here (see assets/*.png), so all eight numbers below are
+   now directly comparable "true" heights. Skeleton and Zombie are
+   human-sized undead, so sit close to the Vampire's own ~42.3cqh;
+   Hobgoblin Warrior/Archer are bulkier elite goblins, taller than the
+   base Goblin Grunt tier; Goblin Shaman/Sneak sit at or under Grunt;
+   Giant Rat is the smallest, a low quadruped. */
+.figure.char-skeleton { height: 41cqh; }
+.figure.char-zombie { height: 39cqh; }
+.figure.char-hobgoblin-warrior { height: 31cqh; }
+.figure.char-hobgoblin-archer { height: 27cqh; }
 .figure.char-goblin-grunt { height: 24cqh; }
-.figure.char-giant-rat { height: 15cqh; }
-.figure.char-hobgoblin-warrior { height: 30cqh; }
-.figure.char-zombie { height: 32cqh; }
-.figure.char-hobgoblin-archer { height: 28cqh; }
 .figure.char-goblin-shaman { height: 23cqh; }
-.figure.char-goblin-sneak { height: 22cqh; }
+.figure.char-goblin-sneak { height: 20cqh; }
+.figure.char-giant-rat { height: 15cqh; }
 
 /* The whole roster has real art now - Goblin Sneak and Goblin Warrior
    (characterId 'hobgoblin-warrior') were the last two tinted
