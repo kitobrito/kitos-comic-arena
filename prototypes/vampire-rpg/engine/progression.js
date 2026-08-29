@@ -121,7 +121,14 @@
     // there's a fight left to use THAT skill in too, and its 38 XP is what
     // pushes cumulative XP (153) past the level-6 threshold (150) for the
     // second branch skill, unlocked as encounter 6's own capstone reward.
-    const XP_PER_ENCOUNTER = [15, 18, 22, 28, 32, 38];
+    // 45 (7th entry, Smile Golem) continues the same ramp and pushes
+    // cumulative XP (153 -> 198) past the level-7 threshold (195) for one
+    // last level-up on the way out - there's no LEVEL_CHOICES[7] (and
+    // none is added for this - the campaign ends right after this fight,
+    // same "only add a choice tier when there's a fight left to use it
+    // in" reasoning as encounters 5/6 above), so it's just the ordinary
+    // passive level-up with no choice screen.
+    const XP_PER_ENCOUNTER = [15, 18, 22, 28, 32, 38, 45];
 
     // Pick-one-of-two (or, for the specialization-gated entries added in
     // Milestone 3, pick-the-one-matching-entry) at these levels. Each
@@ -238,27 +245,67 @@
                 skill: {
                     id: 'feral_blood_frenzy',
                     name: 'Blood Frenzy',
-                    skilldescription: 'Give in further to the hunger - hit harder, but take the consequences.',
+                    skilldescription: 'Give in further to the hunger - hit harder the more hurt you are, but take the consequences.',
                     energy: [],
                     target: 'self',
                     damage: 0,
-                    cooldown: 3,
+                    // Raised from 3 alongside the longer duration below -
+                    // per feedback.
+                    cooldown: 6,
                     classes: ['Instant'],
                     effects: [
                         {
                             type: 'apply_status',
                             statusId: 'feral_blood_frenzy_status',
-                            duration: 2,
+                            // Raised from 2 turns, per feedback.
+                            duration: 3,
                             scope: 'self',
                             metadata: {
                                 harmful: false,
+                                // damageBonusFlat is a PLACEHOLDER here (0)
+                                // deliberately - the real value ("+5 per 15
+                                // missing HP") has to be computed from the
+                                // caster's actual HP at the moment this is
+                                // cast, which this static skill data can't
+                                // express. getStatusMetadataTotals in
+                                // battleEngine.js only ever reads a flat
+                                // number here (no missing-HP-scaling
+                                // support at the status layer - confirmed
+                                // by reading it directly; that scaling only
+                                // exists for a skill's OWN damage effect,
+                                // via amountFromSourceMissingHp, which
+                                // doesn't apply to a buff affecting later,
+                                // unrelated skills). game.js's
+                                // applyDynamicSkillEffects overwrites this
+                                // field with the real computed number
+                                // immediately before every cast - see its
+                                // own comment for the exact formula.
+                                damageBonusFlat: 0,
+                                // "+15% lifesteal" - translated to a flat
+                                // bonus for the same reason as above (no
+                                // percent-of-damage-healed primitive exists
+                                // in this engine - healingBonusFlat is
+                                // strictly additive, not multiplicative).
+                                // +3 approximates 15% of a typical single
+                                // Feral lifesteal hit (Rampage 14, Bite's
+                                // own Feral-boosted drink ~10-20).
+                                healingBonusFlat: 3,
                                 // Stacks with the Feral passive's own +3
                                 // damageTakenBonusFlat - Frenzy is a real
-                                // risk spike (+7 taken total), not a free
-                                // bonus, matching Feral's high-risk identity.
-                                damageBonusFlat: 6,
+                                // risk spike, not a free bonus, matching
+                                // Feral's high-risk identity.
                                 damageTakenBonusFlat: 4,
-                                tooltipText: 'Blood Frenzy: deals 6 more damage, takes 4 more damage, for 2 turns.',
+                                // {damageBonusFlat} is filled in live by
+                                // describeStatusMetadataCompact/the
+                                // tooltip renderer in game.js, same
+                                // template-placeholder mechanism the Blood
+                                // resource status already uses (see
+                                // tooltipTextTemplate elsewhere in this
+                                // file) - shows the ACTUAL number this
+                                // specific cast landed on, not a generic
+                                // formula string.
+                                tooltipTextTemplate:
+                                    'Blood Frenzy: deals {damageBonusFlat} more damage (+5 per 15 missing HP when cast), heals more from lifesteal, takes 4 more damage, for 3 turns.',
                             },
                         },
                     ],
@@ -272,14 +319,17 @@
                 skill: {
                     id: 'hemonancer_blood_projectile',
                     name: 'Blood Projectile',
-                    skilldescription: 'Hurl a bolt of hardened blood, drawing a little more into reserve.',
+                    skilldescription: 'Hurl a bolt of hardened blood that drinks on impact, drawing a little more into reserve.',
                     energy: [],
                     target: 'single-enemy',
                     damage: 0,
                     cooldown: 1,
                     classes: ['Bloodline', 'Ranged', 'Instant'],
                     effects: [
-                        { type: 'damage', amount: 14, scope: 'target' },
+                        // health_steal_damage instead of plain damage, per
+                        // feedback - now heals the caster too, not just a
+                        // ranged hit.
+                        { type: 'health_steal_damage', amount: 14, scope: 'target' },
                         // A second, smaller Blood-generation source than
                         // Bite (stackDelta 1 vs 2) - gives Hemonancer a
                         // non-melee way to build toward Life Rip.
@@ -308,25 +358,23 @@
                 skill: {
                     id: 'elder_mastery_mist_form',
                     name: 'Mist Form',
-                    skilldescription: 'Dissolve into mist for a moment, harder to land a blow on.',
+                    skilldescription: 'Dissolve into mist, shrugging off every hostile working on you - even mid-stun.',
                     energy: [],
                     target: 'self',
                     damage: 0,
-                    cooldown: 4,
+                    cooldown: 5,
                     classes: ['Instant'],
-                    effects: [
-                        {
-                            type: 'apply_status',
-                            statusId: 'elder_mastery_mist_form_status',
-                            duration: 2,
-                            scope: 'self',
-                            metadata: {
-                                harmful: false,
-                                evadeChancePercent: 35,
-                                tooltipText: 'Mist Form: 35% chance to evade an attack entirely, for 2 turns.',
-                            },
-                        },
-                    ],
+                    // cleanse_harmful is a real, proven engine effect type
+                    // (battleEngine.js) - strips every harmful status off
+                    // the target, no count given so it's unbounded (all of
+                    // them, not just one). A stun (cannotUseSkills) is a
+                    // harmful status, so this genuinely breaks one - but
+                    // only because game.js's own stun-handling specifically
+                    // special-cases this ONE skill id to stay castable
+                    // while stunned (see its own comment in game.js);
+                    // nothing about this effect itself bypasses the
+                    // engine's normal cannotUseSkills gate.
+                    effects: [{ type: 'cleanse_harmful', scope: 'self' }],
                 },
             },
         ],
@@ -342,14 +390,36 @@
                 skill: {
                     id: 'feral_blood_claw',
                     name: 'Blood Claw',
-                    skilldescription: 'A deeper, armor-piercing rend - more lifesteal than Rampage.',
+                    skilldescription: 'Spend every drop of stored Blood in one armor-piercing rend, stealing half of it back as health.',
                     energy: [],
                     target: 'single-enemy',
                     damage: 0,
                     cooldown: 2,
                     classes: ['Physical', 'Melee', 'Instant'],
                     effects: [
-                        { type: 'health_steal_damage', amount: 20, scope: 'target', metadata: { ignoreDamageReduction: true } },
+                        {
+                            type: 'health_steal_damage',
+                            // 0 base - per feedback, the whole amount comes
+                            // from consumed Blood below (same
+                            // bonusPerStatusMetadata/consumeStatus
+                            // mechanism Life Rip already proves works,
+                            // just multiplier:0.5 - "half the amount of
+                            // blood spent" - instead of Life Rip's 6, and
+                            // health_steal_damage instead of plain damage
+                            // so it heals the caster too).
+                            amount: 0,
+                            scope: 'target',
+                            metadata: {
+                                ignoreDamageReduction: true, // "piercing damage"
+                                bonusPerStatusMetadata: {
+                                    statusId: 'vampire_blood_resource',
+                                    metadataKey: 'bloodStacks',
+                                    multiplier: 0.5,
+                                    scope: 'self',
+                                    consumeStatus: true,
+                                },
+                            },
+                        },
                     ],
                 },
             },
@@ -361,7 +431,7 @@
                 skill: {
                     id: 'hemonancer_blood_curse',
                     name: 'Blood Curse',
-                    skilldescription: 'Curse the enemy’s blood, weakening the force behind their strikes.',
+                    skilldescription: 'Curse the enemy’s blood, souring it in their veins and weakening the force behind their strikes.',
                     energy: [],
                     target: 'single-enemy',
                     damage: 0,
@@ -371,12 +441,33 @@
                         {
                             type: 'apply_status',
                             statusId: 'hemonancer_blood_curse_status',
-                            duration: 2,
+                            duration: 3,
                             scope: 'target',
                             metadata: {
                                 harmful: true,
-                                DamageDebuff: 5,
-                                tooltipText: 'Blood Curse: deals 5 less damage, for 2 turns.',
+                                // A real percent, not a flat DamageDebuff -
+                                // nonAfflictionDamageMultiplier is a real,
+                                // proven engine primitive (battleEngine.js)
+                                // that multiplies the STATUS HOLDER's own
+                                // outgoing (non-affliction) damage - reads
+                                // "sourceTotals" specifically when THIS
+                                // unit is the attacker, confirmed by
+                                // reading the multiplication site directly,
+                                // not assumed. Doesn't touch this turnEndDamage
+                                // tick below (that's affliction damage,
+                                // exempted from this multiplier by the same
+                                // engine code).
+                                nonAfflictionDamageMultiplier: 0.5,
+                                // turnEndDamage + afflictionDamage:true is
+                                // the same "This character takes N
+                                // affliction damage each turn" primitive
+                                // already proven elsewhere in the vendored
+                                // engine - applied to the enemy (scope:
+                                // 'target' above), it bleeds them for 7
+                                // every turn this is active.
+                                turnEndDamage: 7,
+                                afflictionDamage: true,
+                                tooltipText: 'Blood Curse: deals 50% less damage and takes 7 affliction damage each turn, for 3 turns.',
                             },
                         },
                     ],
@@ -453,13 +544,42 @@
             skill: {
                 id: 'feral_rampage',
                 name: 'Rampage',
-                skilldescription: 'A reckless melee lifesteal strike.',
+                skilldescription: 'A reckless melee lifesteal strike, drawing deep on the hunger.',
                 energy: [],
                 target: 'single-enemy',
                 damage: 0,
-                cooldown: 1,
+                // Raised from 1 - "for 3 turns" (per feedback) read as
+                // this skill's own new reuse timer rather than a
+                // multi-turn auto-ticking effect: this engine's turn-end
+                // recurring-effect primitives (turnEndDamage/
+                // turnEndHealFlat, used elsewhere in this file) are all
+                // self-scoped - they damage/heal whoever HOLDS the status,
+                // not a specific opponent chosen at cast time - so a true
+                // "automatically steal from the enemy every turn for 3
+                // turns" effect isn't something this engine's proven
+                // primitives support without a real risk of quietly
+                // building something that doesn't work as intended.
+                cooldown: 3,
                 classes: ['Physical', 'Melee', 'Instant'],
-                effects: [{ type: 'health_steal_damage', amount: 14, scope: 'target' }],
+                effects: [
+                    // amounts raised from 14/(no Blood) to 12 health stolen
+                    // + 12 Blood gained, per feedback.
+                    { type: 'health_steal_damage', amount: 12, scope: 'target' },
+                    {
+                        type: 'apply_status',
+                        statusId: 'vampire_blood_resource',
+                        duration: 99,
+                        scope: 'self',
+                        metadata: {
+                            harmful: false,
+                            infiniteDuration: true,
+                            stackMetadataKey: 'bloodStacks',
+                            stackDelta: 12,
+                            stackMax: 10,
+                            tooltipTextTemplate: 'Blood: {bloodStacks}/10',
+                        },
+                    },
+                ],
             },
         },
         hemonancer: {
@@ -481,12 +601,29 @@
                     {
                         type: 'apply_status',
                         statusId: 'hemonancer_blood_ward_status',
-                        duration: 2,
+                        // Long enough to read as "lasts until it breaks",
+                        // not a short timed buff like the old flat
+                        // mitigation this replaced - a shield dying to
+                        // plain expiry rather than actually absorbing a
+                        // hit would feel wrong for this mechanic.
+                        duration: 6,
                         scope: 'self',
                         metadata: {
                             harmful: false,
-                            damageReductionFlat: 5,
-                            tooltipText: 'Blood Ward: takes 5 less damage for 2 turns.',
+                            // destructibleDefensePoints is a real, proven
+                            // engine primitive (battleEngine.js) - a shield
+                            // pool that absorbs incoming damage before HP,
+                            // ticking down per hit rather than per turn.
+                            // onBreakDamageToSourceAmount is the engine's
+                            // own "counterattack when the shield reaches 0"
+                            // hook, read from this exact status right when
+                            // its destructibleDefensePoints hits 0 - fires
+                            // automatically against whichever enemy dealt
+                            // the breaking hit, no extra wiring needed.
+                            destructibleDefensePoints: 30,
+                            onBreakDamageToSourceAmount: 30,
+                            onBreakDamageToSourceLabel: 'Blood Ward bursts',
+                            tooltipText: 'Blood Ward: a 30-point shield. Bursts for 30 damage to whatever breaks it.',
                         },
                     },
                 ],
@@ -504,7 +641,7 @@
             skill: {
                 id: 'elder_mastery_shadow_veil',
                 name: 'Shadow Veil',
-                skilldescription: 'Refined mastery: guard low, then strike from the shadows.',
+                skilldescription: 'Refined mastery: slip half into shadow, striking harder from it.',
                 energy: [],
                 target: 'self',
                 damage: 0,
@@ -518,9 +655,14 @@
                         scope: 'self',
                         metadata: {
                             harmful: false,
-                            damageReductionFlat: 4,
-                            damageBonusFlat: 4,
-                            tooltipText: 'Shadow Veil: takes 4 less damage, deals 4 more, for 2 turns.',
+                            // Per feedback: real evasion instead of the old
+                            // flat damageReductionFlat, and a bigger damage
+                            // bonus (10, was 4) - evadeChancePercent is the
+                            // same proven primitive Mist Form/the level-2
+                            // evasion picks already use.
+                            evadeChancePercent: 30,
+                            damageBonusFlat: 10,
+                            tooltipText: 'Shadow Veil: 30% chance to evade an attack, deals 10 more damage, for 2 turns.',
                         },
                     },
                 ],

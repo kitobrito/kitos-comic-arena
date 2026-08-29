@@ -119,7 +119,7 @@ const characters = [
                 id: 'vampire_guard',
                 name: 'Guard',
                 skillimage: '',
-                skilldescription: 'Brace yourself, gaining 5 Armor against the enemy’s next attack.',
+                skilldescription: 'Brace yourself, halving the damage of the enemy’s next attack.',
                 energy: [],
                 target: 'self',
                 damage: 0,
@@ -127,7 +127,7 @@ const characters = [
                 // option (replaces a plain no-op Wait). Re-casting while
                 // already guarding just refreshes the same status rather
                 // than stacking (applyStatus merges same-id statuses), so
-                // there's no way to compound Armor by spamming this.
+                // there's no way to compound the reduction by spamming this.
                 cooldown: 0,
                 classes: ['Instant'],
                 effects: [
@@ -137,14 +137,24 @@ const characters = [
                         // duration:2 mirrors every other "protects through
                         // the opponent's next turn" self-buff already in
                         // this roster (Brittle Guard, Shield Wall, Swarm
-                        // Squeak all use the same value for the same intent).
+                        // Squeak all use the same value for the same intent)
+                        // - every enemy in this roster only ever acts once
+                        // per their own turn, so this reads as "the next
+                        // attack" in practice, not a longer window.
                         duration: 2,
                         scope: 'self',
                         metadata: {
                             harmful: false,
-                            damageReductionFlat: 5,
-                            armorAmount: 5, // shows the shield badge too
-                            tooltipText: 'Guard: +5 Armor against the enemy’s next attack.',
+                            // Percent, not flat - damageReductionPercent is
+                            // the same proven engine primitive Mist Form's
+                            // evadeChancePercent-adjacent damage mitigation
+                            // family already rides on (getStatusMetadataTotals
+                            // in battleEngine.js). No armorAmount marker any
+                            // more - that key drives the flat "Armor" badge
+                            // specifically, which would misreport this as a
+                            // flat number instead of a percentage.
+                            damageReductionPercent: 50,
+                            tooltipText: 'Guard: the enemy’s next attack deals 50% less damage.',
                         },
                     },
                 ],
@@ -576,6 +586,112 @@ const characters = [
                 cooldown: 2,
                 classes: ['Physical', 'Melee', 'Instant'],
                 effects: [{ type: 'damage', amount: 22, scope: 'target' }], // rebalanced from 14
+            },
+        ],
+    },
+    {
+        // The demo's final boss - see game.js's CAMPAIGN (7th and last
+        // encounter). Real name/art provided by the user; the two skills
+        // below are its whole identity: a spammable basic bite and its
+        // headline Belly Slam, which both hits hard AND stuns.
+        id: 'smile-golem',
+        characterId: 'smile-golem',
+        name: 'Smile Golem',
+        // Comfortably the tankiest thing in the roster (next highest is
+        // Goblin Warrior at 100) - a real multi-exchange boss fight, not
+        // a bigger version of a regular encounter.
+        startingHp: 200,
+        role: 'Boss',
+        roleCategory: 'boss',
+        universe: 'vampire-rpg',
+        facePicture: '',
+        characterdeescription: 'A hulking, pallid mass with a grin that never falters and never should.',
+        skills: [
+            {
+                id: 'smile_golem_bite',
+                name: 'Rotten Bite',
+                skilldescription: 'Lunges forward, jaws impossibly wide.',
+                energy: [],
+                target: 'single-enemy',
+                damage: 0,
+                cooldown: 0,
+                classes: ['Physical', 'Melee', 'Instant'],
+                // Design intent (per feedback): a level 1 character should
+                // NOT be able to beat this boss, and even a properly
+                // leveled one shouldn't be able to without spending at
+                // least one Potion. Brought down twice now (originally
+                // 23, then 15) - Belly Slam's stun is a full 2 turns, and
+                // EVERY enemy turn during that window (the stun itself
+                // plus its 2 bonus turns) is a live Rotten Bite/Belly Slam
+                // hit with zero player response possible - live-tested a
+                // single stun window (Belly Slam + 2 free Rotten Bites) at
+                // amount:15 for over 55 unanswered damage, enough on its
+                // own to kill a level 6 character who wasn't already near
+                // full HP. Landed here, near the roster's weakest basics
+                // (Giant Rat/Goblin Sneak are 10-11) - the stun window
+                // should read as "genuinely dangerous, survivable if
+                // you're not already low," not "an automatic death
+                // sentence whenever it lands."
+                effects: [{ type: 'damage', amount: 12, scope: 'target' }],
+            },
+            {
+                id: 'smile_golem_belly_slam',
+                name: 'Belly Slam',
+                skilldescription: 'Leaps its full weight down on you, dazing you senseless.',
+                energy: [],
+                target: 'single-enemy',
+                damage: 0,
+                // Raised from the roster's usual secondary-skill cooldown
+                // (3, still used by every other enemy's own Brittle Guard/
+                // Shield Wall/Slip Away/Hex) specifically because its own
+                // stun below now lasts 2 turns, not 1 - each of those
+                // skipped player turns is still a real ENEMY turn too
+                // (chooseEnemyAction runs, cooldowns tick down), so a
+                // lower cooldown here let this cooldown itself recover
+                // DURING the stun window, letting it re-fire almost back
+                // to back - a real stun-lock, live-tested into an
+                // unwinnable fight even for a level 6 character. 5 leaves
+                // real breathing room between casts even accounting for
+                // that.
+                cooldown: 5,
+                classes: ['Physical', 'Melee', 'Instant'],
+                effects: [
+                    // Still hits harder than Rotten Bite, on top of the
+                    // stun, but scaled back alongside it - see Rotten
+                    // Bite's own comment for the full "must cost at least
+                    // one Potion, but a 2-turn stun is already a huge
+                    // swing on its own" reasoning.
+                    { type: 'damage', amount: 18, scope: 'target' },
+                    {
+                        type: 'apply_status',
+                        statusId: 'smile_golem_belly_slam_stun',
+                        // duration:2 - a real two-turn stun, per feedback.
+                        // Node-verified against the real engine
+                        // (tickStatusesForTurnEnd): each of the player's
+                        // skipped turns (see the player-stun handling in
+                        // game.js's runEnemyTurn) ticks this down by one
+                        // via that same handler's own endSideTurn('player')
+                        // call, expiring on the tick that resolves the
+                        // SECOND skipped turn - runEnemyTurn re-checks
+                        // isActorUnableToUseSkills fresh after every single
+                        // enemy action, so it naturally keeps skipping and
+                        // re-skipping for as many turns as this status
+                        // stays active, with no extra code needed for a
+                        // multi-turn duration versus a one-turn one.
+                        duration: 2,
+                        scope: 'target',
+                        metadata: {
+                            harmful: true,
+                            // Same key the vendored engine's own "stunned"
+                            // convention uses (see battleEngine.js) -
+                            // blocks EVERY skill, not just harmful ones
+                            // (cannotUseHarmfulSkills would still let
+                            // Guard/Potion through) - a real stun.
+                            cannotUseSkills: true,
+                            tooltipText: 'Stunned by the Belly Slam - cannot act next turn.',
+                        },
+                    },
+                ],
             },
         ],
     },

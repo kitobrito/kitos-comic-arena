@@ -336,6 +336,7 @@
         // Display name "Goblin Warrior" (see characters.source.js) - a
         // goblin in heavy armor, not a distinct hobgoblin species.
         'hobgoblin-warrior': 'assets/goblin-warrior.png?v=2',
+        'smile-golem': 'assets/smile-golem.png',
     };
     // Attack/hit/defeated pose sets, for every enemy - the whole roster now
     // has real art, no placeholders left. Mirrors VAMPIRE_POSES/
@@ -405,6 +406,28 @@
             hit: 'assets/goblin-warrior-hit.png',
             defeated: 'assets/goblin-warrior-defeated.png',
         },
+        'smile-golem': {
+            idle: 'assets/smile-golem.png',
+            // Rotten Bite's own pose - a shamble-forward frame (the boss's
+            // only walk art) leading into the lunge, same 2-frame-sequence
+            // mechanism as Zombie/Goblin Archer above.
+            attack: ['assets/smile-golem-walk.png', 'assets/smile-golem-bite.png'],
+            // Belly Slam's dedicated windup+impact sequence - selected via
+            // ENEMY_SKILL_POSE below instead of the generic 'attack' key,
+            // since this boss (unlike the rest of the roster) has a real
+            // signature move that needs to visually read as different from
+            // its basic attack, not just a bigger number.
+            belly_slam: ['assets/smile-golem-belly-jump.png', 'assets/smile-golem-belly-slam.png'],
+            hit: 'assets/smile-golem-hit.png',
+            defeated: 'assets/smile-golem-defeated.png',
+        },
+    };
+
+    // A handful of enemy skills get their own distinct pose instead of the
+    // generic self/attack fallback below (see chooseEnemyAction) - so far
+    // just Smile Golem's own signature move, keyed by skill id.
+    const ENEMY_SKILL_POSE = {
+        smile_golem_belly_slam: 'belly_slam',
     };
 
     // Each encounter's own illustrated locale (one photo, not a day/night
@@ -429,6 +452,13 @@
         // specialization "branch" skill (unlocked after encounter 5) in -
         // same reasoning as the encounter above.
         { label: "The Elder's Trial", enemies: ['zombie'], bg: 'assets/bg-ruined-castle.jpg' },
+        // The demo's actual final boss - a genuine step up (200 HP, a
+        // signature stun attack) rather than another reskinned regular
+        // encounter, so it earns its own last slot instead of replacing
+        // The Elder's Trial above. bg-camp-crypt isn't used anywhere else
+        // in the campaign - a dedicated arena for the one enemy that
+        // needed one.
+        { label: 'Smile Golem', enemies: ['smile-golem'], bg: 'assets/bg-camp-crypt.jpg' },
     ];
 
     // --- UI sound effects (JDSherbert's free Ultimate UI SFX Pack) ---------
@@ -1072,10 +1102,78 @@
         requestAnimationFrame(tick);
     }
 
+    // A tiny number of skills need a value computed fresh at the exact
+    // moment they're cast, rather than a fixed number baked into their
+    // static skill data - so far just Blood Frenzy's damage bonus ("+5
+    // per 15 missing HP", per feedback). getStatusMetadataTotals in
+    // battleEngine.js only ever reads a status's damageBonusFlat as a
+    // plain flat number (verified directly - no missing-HP-scaling
+    // support at that layer; the engine's own amountFromSourceMissingHp
+    // primitive only scales a skill's OWN damage effect, not a buff
+    // affecting later, unrelated skills), so this mutates the skill's
+    // own effect metadata in place immediately before
+    // BE.resolvePendingTurnSkills reads it - the same pattern
+    // buildComposedVampire already uses for e.g. biteBonusPerBlood, just
+    // recomputed on every cast instead of once at battle start, since it
+    // depends on live HP, not a fixed build-time choice.
+    function applyDynamicSkillEffects(skill, unit, character) {
+        if (skill.id === 'feral_blood_frenzy') {
+            const missingHp = Math.max(0, maxHpForCharacter(character) - unit.hp);
+            const bonus = Math.floor(missingHp / 15) * 5;
+            const statusEffect = (skill.effects || []).find(
+                (e) => e.type === 'apply_status' && e.statusId === 'feral_blood_frenzy_status'
+            );
+            if (statusEffect) statusEffect.metadata.damageBonusFlat = bonus;
+        } else if (skill.id === 'vampire_bite') {
+            // Bite's 15% crit (effects[1]) is rolled HERE, once, instead
+            // of left to the engine's own internal roll for that effect -
+            // the floating "CRIT!" text below needs to know FOR CERTAIN
+            // whether it fired, and inferring that after the fact from
+            // the dealt damage turned out to be unreliable: Feral's
+            // biteBonusPerBlood (buildComposedVampire) only augments
+            // effects[0], not this crit copy, and that bonus is itself a
+            // runtime, Blood-stack-dependent amount the engine computes
+            // during resolution, not something reflected in either
+            // effect's static .amount ahead of time - so "expected
+            // non-crit vs crit total" can't be computed precisely enough
+            // to trust for a specialized character. Overwriting
+            // activationChancePercent to a guaranteed 0 or 100 makes the
+            // engine deterministically honor a decision already made
+            // here, eliminating the inference problem entirely. 15% is
+            // hardcoded rather than read from the effect itself, since by
+            // definition this overwrites that same field every cast -
+            // reading it back next turn would read last turn's 0-or-100,
+            // not the true rate.
+            const critEffect = (skill.effects || [])[1];
+            if (critEffect) {
+                state.lastPlayerActionCrit = Math.random() < 0.15;
+                critEffect.activationChancePercent = state.lastPlayerActionCrit ? 100 : 0;
+            }
+        } else if (skill.id === 'elder_mastery_mist_form') {
+            // Explicitly castable even while stunned (per feedback) -
+            // stripped directly here, before BE.resolvePendingTurnSkills
+            // gets a chance to run, rather than trusting that resolution
+            // path to honor a skill cast by an actor it might otherwise
+            // consider unable to act (unverified either way, and "Mist
+            // Form silently does nothing" is a bad enough failure mode to
+            // guard against regardless of which way that turns out).
+            // Only strips a stun specifically (cannotUseSkills) - the
+            // skill's own cleanse_harmful effect (progression.js) handles
+            // stripping everything else normally once resolution proceeds.
+            unit.state.statuses = (unit.state.statuses || []).filter(
+                (s) => !(s && s.metadata && s.metadata.cannotUseSkills)
+            );
+            state.lastPlayerActionCrit = false;
+        } else {
+            state.lastPlayerActionCrit = false;
+        }
+    }
+
     function playPlayerAction(skillIndex, targetSlot) {
         const unit = vampireUnit();
         const character = characterForUnit(unit);
         const skill = character.skills[skillIndex];
+        applyDynamicSkillEffects(skill, unit, character);
         const targetSelection = buildTargetSelection(skill, 'player', 0, targetSlot);
         state.match.pendingTurns.player = {
             queueOrder: [0],
@@ -1178,18 +1276,37 @@
                 return { skillIndex: healSkillIndex, skill, targetSelection: [{ username: 'enemy', slot: bestSlot }], poseKey: 'heal' };
             }
         }
-        const skillIndex = character.skills.findIndex(
-            (sk) => sk.target !== 'self-or-ally' && isActiveSkill(sk) && BE.getSkillCooldownRemaining(unit.state, sk.id) <= 0
-        );
+        // Checked LAST skill first, not first-to-last: every enemy's own
+        // basic attack is listed first and has cooldown 0 (always ready),
+        // so a first-to-last search always resolved to it and a cooldown-
+        // gated secondary (Reckless Swing, Shield Wall, Hex, Slip Away,
+        // Brittle Guard, Swarm Squeak - every enemy's whole "second skill"
+        // identity) could never actually fire once off cooldown - Node-
+        // verified against the real engine (Goblin Grunt never once used
+        // Reckless Swing across 6 simulated turns). This flips the
+        // priority to "use your special whenever it's up, otherwise fall
+        // back to the basic attack" - the natural reading of having a
+        // cooldown at all, and required for Smile Golem's own Belly Slam
+        // (listed second) to ever trigger.
+        let skillIndex = -1;
+        for (let i = character.skills.length - 1; i >= 0; i--) {
+            const sk = character.skills[i];
+            if (sk.target !== 'self-or-ally' && isActiveSkill(sk) && BE.getSkillCooldownRemaining(unit.state, sk.id) <= 0) {
+                skillIndex = i;
+                break;
+            }
+        }
         if (skillIndex < 0) return null;
         const skill = character.skills[skillIndex];
         const targetSelection = skill.target === 'self'
             ? [{ username: 'enemy', slot }]
             : [{ username: 'player', slot: 0 }];
-        // 'buff' for a self-target skill (e.g. Slip Away's shadow-step
-        // pose) rather than the attack lunge - falls back to idle for
-        // enemies with no dedicated buff pose (see ENEMY_POSES).
-        const poseKey = skill.target === 'self' ? 'buff' : 'attack';
+        // A skill-specific pose (see ENEMY_SKILL_POSE - currently just
+        // Smile Golem's Belly Slam) wins over the generic self/attack
+        // fallback. 'buff' is for a self-target skill (e.g. Slip Away's
+        // shadow-step pose) rather than the attack lunge - falls back to
+        // idle for enemies with no dedicated buff pose (see ENEMY_POSES).
+        const poseKey = ENEMY_SKILL_POSE[skill.id] || (skill.target === 'self' ? 'buff' : 'attack');
         return { skillIndex, skill, targetSelection, poseKey };
     }
 
@@ -1225,10 +1342,20 @@
         });
         endSideTurn('enemy');
         checkOutcome();
-        state.busy = false;
         const diffs = diffHp(overallBefore);
         const vampireHurt = diffs.some((d) => d.username === 'player' && d.slot === 0 && d.delta < 0);
         const justLost = state.over === 'lose';
+        // Smile Golem's Belly Slam is the only source of a real stun in
+        // this roster (cannotUseSkills - see its own comment in
+        // characters.js) - isActorUnableToUseSkills reads unit.state
+        // directly, the same shape already read elsewhere in this file,
+        // no new engine surface needed.
+        const playerStunned = !state.over && BE.isActorUnableToUseSkills(vampireUnit().state);
+        // Stays busy straight through a skipped turn instead of releasing
+        // control back to a player who has nothing they can legally
+        // click - onSkillClick/onEnemyTargetClick/renderSkillButton all
+        // already gate on state.busy for the normal mid-animation case.
+        state.busy = playerStunned;
         if (justLost) state.vampirePose = 'hit';
         // Suppress the defeat overlay for a beat so the hit -> death pose
         // sequence is actually visible before it's covered.
@@ -1239,7 +1366,59 @@
                 state.vampirePose = 'death';
                 render();
             }, 750);
+        } else if (playerStunned) {
+            // Mist Form is explicitly castable through a stun (per
+            // feedback) - if it's unlocked and off cooldown, leave
+            // control with the player instead of auto-skipping: every
+            // OTHER button stays disabled (renderSkillButton's own
+            // stunnedBlocked check), so Mist Form is their only real
+            // option, but it IS a real option, not an automatic bypass -
+            // using it still costs their turn (applyDynamicSkillEffects
+            // strips the stun immediately before it resolves, then
+            // playPlayerAction's normal flow takes over from there). If
+            // Mist Form isn't available, this is unchanged from before -
+            // a full auto-skip.
+            const pStunUnit = vampireUnit();
+            const pStunCharacter = characterForUnit(pStunUnit);
+            const mistFormIndex = pStunCharacter.skills.findIndex((sk) => sk.id === 'elder_mastery_mist_form');
+            const mistFormAvailable = mistFormIndex >= 0 && BE.getSkillCooldownRemaining(pStunUnit.state, 'elder_mastery_mist_form') <= 0;
+            // Belly Slam always deals damage alongside the stun, so
+            // vampireHurt is true here too - show the same hit-flash
+            // first, then the stun message, then either hand control
+            // back (Mist Form available) or go straight to the enemy's
+            // next turn. endSideTurn('player') (the non-Mist-Form path)
+            // is what ticks the stun down by one (duration:2 - see its
+            // own comment in characters.js) - this function re-checks
+            // playerStunned fresh after every single enemy action, so it
+            // naturally keeps skipping and re-queuing another enemy turn
+            // for as long as the status stays active, with no extra
+            // logic needed for a two-turn stun versus a one-turn one.
+            if (vampireHurt) setVampireImage('hit');
+            setTimeout(() => {
+                setVampireImage(state.vampirePose);
+                if (mistFormAvailable) {
+                    log('You are stunned by the Belly Slam and cannot act - except with Mist Form!', 'you');
+                    state.busy = false;
+                    render();
+                    showStatusFloat('player', 0, 'STUNNED', 'stunned');
+                    return;
+                }
+                log('You are stunned by the Belly Slam and cannot act!', 'you');
+                endSideTurn('player');
+                checkOutcome();
+                render();
+                showStatusFloat('player', 0, 'STUNNED', 'stunned');
+                if (state.over) {
+                    state.busy = false;
+                } else {
+                    state.busy = true;
+                    setTimeout(runEnemyTurn, 900);
+                }
+            }, 700);
         } else if (vampireHurt) {
+            // state.busy is already false here (set from playerStunned,
+            // false in this branch) - control returns to the player as
+            // soon as the hit-flash finishes on its own timer below.
             setVampireImage('hit');
             setTimeout(() => setVampireImage(state.vampirePose), 620);
         }
@@ -1456,6 +1635,21 @@
         setTimeout(() => proj.remove(), durationMs + 80);
     }
 
+    // Floating word (not a number - see .dmg-float in style.css for the
+    // sibling mechanism this mirrors) over a combatant's own figure.
+    // Callers must call this AFTER any render() in the same sequence -
+    // render() fully rebuilds .figure fresh each time, so appending
+    // before it would just be wiped out immediately.
+    function showStatusFloat(username, slot, text, cls) {
+        const el = findCombatantEl(username, slot);
+        const figure = el && el.querySelector('.figure');
+        if (!figure) return;
+        const span = document.createElement('span');
+        span.className = 'status-float ' + cls;
+        span.textContent = text;
+        figure.appendChild(span);
+    }
+
     // Applies brief lunge/hit-flash animation classes and spawns floating
     // damage/heal numbers, reading fresh DOM built by the render() just
     // prior. Also drives enemy attack/heal/defeated pose-swapping
@@ -1517,6 +1711,16 @@
             num.className = 'dmg-float ' + (delta < 0 ? 'dmg' : 'heal');
             num.textContent = delta < 0 ? String(delta) : '+' + delta;
             figure.appendChild(num);
+            // Only ever true for the enemy's own diff entry, on the same
+            // turn Bite's crit was rolled (see applyDynamicSkillEffects) -
+            // Bite is the only skill in the game with a crit chance, and
+            // only ever targets an enemy. Cleared back to false as soon as
+            // it's been shown once, so a later non-crit hit (or the
+            // enemy's own turn) doesn't accidentally re-show it.
+            if (state.lastPlayerActionCrit && username === 'enemy' && delta < 0) {
+                showStatusFloat('enemy', slot, 'CRIT!', 'crit');
+                state.lastPlayerActionCrit = false;
+            }
         });
     }
 
@@ -1636,12 +1840,22 @@
         const parts = [];
         if (meta.armorAmount) parts.push('+' + meta.armorAmount + ' Armor');
         else if (meta.damageReductionFlat) parts.push('-' + meta.damageReductionFlat + ' dmg taken');
+        if (meta.damageReductionPercent) parts.push('-' + meta.damageReductionPercent + '% dmg taken');
         if (meta.damageBonusFlat) parts.push('+' + meta.damageBonusFlat + ' dmg dealt');
         if (meta.DamageDebuff) parts.push('-' + meta.DamageDebuff + ' dmg dealt');
+        if (meta.nonAfflictionDamageMultiplier) parts.push('-' + Math.round((1 - meta.nonAfflictionDamageMultiplier) * 100) + '% dmg dealt');
         if (meta.damageTakenBonusFlat) parts.push('+' + meta.damageTakenBonusFlat + ' dmg taken');
         if (meta.healingBonusFlat) parts.push((meta.healingBonusFlat > 0 ? '+' : '') + meta.healingBonusFlat + ' healing');
         if (meta.evadeChancePercent) parts.push(meta.evadeChancePercent + '% evade chance');
         if (meta.cannotUseHarmfulSkills) parts.push('cannot use harmful skills');
+        if (meta.cannotUseSkills) parts.push('stunned - cannot act');
+        if (meta.destructibleDefensePoints) {
+            parts.push(
+                meta.destructibleDefensePoints + ' shield' +
+                (meta.onBreakDamageToSourceAmount ? ' (bursts for ' + meta.onBreakDamageToSourceAmount + ' when broken)' : '')
+            );
+        }
+        if (meta.turnEndDamage) parts.push(meta.turnEndDamage + (meta.afflictionDamage ? ' affliction' : '') + ' dmg each turn');
         return parts.join(', ');
     }
 
@@ -1669,7 +1883,21 @@
             return { text: 'Heal ' + effect.amount };
         }
         if (effect.type === 'health_steal_damage') {
+            const stack = meta.bonusPerStatusMetadata;
+            if (stack) {
+                // Blood Claw: 0 base, entire amount from consumed Blood -
+                // "amount + multiplier per Blood" would misleadingly show
+                // "0 dmg" as if that were a real floor, so this reads it
+                // as a pure multiplier instead when the base is 0.
+                const text = effect.amount
+                    ? effect.amount + ' dmg + ' + stack.multiplier + ' per Blood, heals you the same'
+                    : stack.multiplier + ' per Blood spent, heals you the same';
+                return { text, pierce };
+            }
             return { text: effect.amount + ' dmg, heals you the same', pierce };
+        }
+        if (effect.type === 'cleanse_harmful') {
+            return { text: 'Removes all harmful effects on you (even a stun)' };
         }
         if (effect.type === 'apply_status') {
             if (effect.statusId === BLOOD_STATUS_ID) {
@@ -1733,7 +1961,13 @@
         // for its bare 8 base damage, which read as "free to spam" rather
         // than the Blood-spending finisher it's meant to be.
         const noBlood = skill.id === 'life_rip' && bloodStacks(unit) <= 0;
-        btn.disabled = isPassive || cooldown > 0 || state.over || state.busy || (isPotion && potionsLeft <= 0) || noBlood;
+        // Mist Form is explicitly castable through a stun (per feedback) -
+        // every other skill stays blocked while cannotUseSkills is active
+        // on the player (see runEnemyTurn's own stun handling, which
+        // leaves state.busy false specifically so this button - and only
+        // this one - can still be clicked).
+        const stunnedBlocked = skill.id !== 'elder_mastery_mist_form' && BE.isActorUnableToUseSkills(unit.state);
+        btn.disabled = isPassive || cooldown > 0 || state.over || state.busy || (isPotion && potionsLeft <= 0) || noBlood || stunnedBlocked;
         const iconImg = skill.id === 'vampire_bite' ? 'assets/icon-bite.jpg'
             : skill.id === 'life_rip' ? 'assets/icon-liferip.jpg'
             : null;
@@ -1752,6 +1986,7 @@
         const tagHtml = isPotion ? '<span class="skill-tag">' + potionsLeft + ' left</span>'
             : isPassive ? '<span class="skill-tag">Passive</span>'
             : noBlood ? '<span class="skill-tag">No Blood</span>'
+            : stunnedBlocked ? '<span class="skill-tag">Stunned</span>'
             : cooldown > 0 ? '<span class="skill-tag">Cooldown ' + cooldown + '</span>'
             : '';
         btn.innerHTML =
