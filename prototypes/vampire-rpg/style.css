@@ -659,32 +659,6 @@ button { font-family: inherit; }
 .meter.xp-meter-mini { height: 5px; margin-top: 5px; }
 .meter.xp-meter-mini > span { background: linear-gradient(90deg, var(--gold-dim), var(--gold)); }
 
-/* Range readout - Far means the player hasn't spent an Approach on this
-   enemy yet, so their Melee-tagged skills can't target it (see
-   skillRequiresMelee/renderApproachButton in game.js). Close is permanent
-   for the rest of the encounter once reached. */
-.range-badge {
-    display: inline-block;
-    margin-left: 6px;
-    padding: 1px 8px;
-    border-radius: 999px;
-    font-size: 0.6rem;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    vertical-align: middle;
-    border: 1px solid transparent;
-}
-.range-badge.is-far {
-    background: rgba(168, 62, 62, 0.28);
-    color: #f0c2c2;
-    border-color: rgba(210, 100, 100, 0.5);
-}
-.range-badge.is-close {
-    background: rgba(70, 150, 100, 0.28);
-    color: #c3ecd2;
-    border-color: rgba(100, 190, 130, 0.5);
-}
-
 /* Character art is height-anchored (via container query units against the
    .stage) rather than boxed to a fixed aspect ratio, since real poses vary
    wildly in width (a tall standing idle vs. a wide lunging attack) but
@@ -708,8 +682,7 @@ button { font-family: inherit; }
     pointer-events: none;
 }
 /* Uniform size-down for the player specifically (reported as reading too
-   large standing next to the enemies once Approach puts them on the same
-   patch of ground). A dedicated wrapper around .figure (see
+   large standing next to the enemies). A dedicated wrapper around .figure (see
    renderCombatant in game.js) rather than a scale() on .figure itself -
    .figure's transform is perpetually claimed by idle-bob (and
    is-acting/is-hit swap out its whole `animation` property while active),
@@ -760,25 +733,6 @@ button { font-family: inherit; }
     55% { transform: translateY(-2%) scale(1.06); }
     100% { transform: translateY(0) scale(1); }
 }
-/* Approach (performApproach/engagedForwardCqw in game.js) - once the player
-   has closed on an enemy, they visibly step forward, toward that SPECIFIC
-   enemy's rough position (--engage-x is set per-render from the approached
-   enemy's slot, not one fixed distance - a flat "always move the same
-   amount" landed the player next to whichever enemy renders first rather
-   than the one actually being Close, reported live against a 3-enemy
-   board), and stay there for the rest of the encounter (not a
-   lunge-and-snap-back - that read as "didn't actually move" in testing,
-   since state.range's Close is itself permanent for the rest of the
-   fight, not a per-turn thing). Lives on .combatant, not .figure -
-   .figure's own transform is perpetually driven by its idle-bob keyframe
-   animation (same reason is-acting/is-hit swap the whole `animation`
-   property instead of setting transform directly - see those comments
-   below), but .combatant has no competing animation, so a plain
-   transition here is reliable. --engage-x is set on every render() (not
-   just the moment Approach is clicked) so the position is always a direct
-   function of state.engagedSlot - it can never silently reset on some
-   later, unrelated action's re-render. */
-.combatant.player { transition: transform 900ms ease; transform: translateX(var(--engage-x, 0)); }
 .figure.is-hit { animation: hit-shake 480ms ease; }
 @keyframes hit-shake {
     0%, 100% { transform: translateX(0); }

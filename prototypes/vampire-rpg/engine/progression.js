@@ -145,27 +145,24 @@
                 },
             },
             {
-                id: 'hemonancer_extended_reach',
-                label: '+1 Range',
+                id: 'hemonancer_blood_drain',
+                label: '+5 Blood Drained',
                 kind: 'passive',
                 requiresSpecialization: 'hemonancer',
-                // Range is a real step count per enemy, fixed by their
-                // position in the line-up (see baseStepsForSlot in
-                // game.js) - this shaves 1 step off every enemy's starting
-                // distance for the rest of the fight (checked directly by
-                // this choice's id in newGame(), since it's a one-time
-                // snapshot at encounter start, not an ongoing status
-                // check). The status below exists purely so the Passive
-                // tooltip can show it - see describeStatusMetadataCompact's
-                // rangeBonusSteps case.
+                // Adds directly to Vampire Bite's own Blood-generation
+                // (its apply_status effect's stackDelta, 2 -> 7) at
+                // composition time - see buildComposedVampire in game.js,
+                // same "merge extra metadata onto Bite's own effect"
+                // pattern Feral's biteBonusPerBlood already uses on the
+                // damage effect, just a different field/effect.
+                biteBloodBonus: 5,
                 passiveStatus: {
-                    id: 'hemonancer_extended_reach_passive',
+                    id: 'hemonancer_blood_drain_passive',
                     duration: 999,
                     metadata: {
                         infiniteDuration: true,
                         harmful: false,
-                        rangeBonusSteps: 1,
-                        tooltipText: 'Extended reach: every enemy starts 1 step closer.',
+                        tooltipText: 'Deeper drain: Vampire Bite draws 5 more Blood per bite.',
                     },
                 },
             },
