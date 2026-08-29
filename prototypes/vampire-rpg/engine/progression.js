@@ -24,9 +24,54 @@
             name: 'Born',
             description: 'Born into a Vampire bloodline, never fully human.',
             mechanicalNote: 'Stronger traditional Vampire power. Full sunlight weakness.',
+            // Fallback only - a Born character always picks one of LINEAGES
+            // below (see renderLineageScreen/effectiveOriginStats in
+            // game.js), which fully overrides powerBonus/curseFlat. These
+            // three values stay here just as the Full Vampire lineage's own
+            // numbers, so an old save with origin:'born' and no lineage
+            // field (from before this feature existed) still resolves to
+            // exactly what "Born" always meant, unchanged.
             powerBonus: 2, // flat bonus added to Bite/Life Rip base damage
             curseFlat: 5, // full +-5 day/night swing (unchanged from Milestone 1)
             bloodCapBonus: 0,
+        },
+    };
+
+    // A Born Vampire additionally picks a bloodline (see renderLineageScreen
+    // in game.js) - which of their parents was the Vampire changes how
+    // strong the blood runs. Rides the exact same two levers Origin itself
+    // already uses (powerBonus/curseFlat - see ORIGINS above and
+    // curseMetadataFor in game.js for what curseFlat actually drives: the
+    // day-curse penalty AND the night-blessing bonus are the same swing, so
+    // "no weakness to sunlight" below also means no night blessing either -
+    // a real trade, not a pure downgrade). bloodCapBonus is deliberately
+    // NOT overridden per-lineage - Born's own bloodCapBonus (0, above)
+    // applies to all three; only Vampire power and the day/night swing were
+    // asked to differ.
+    const LINEAGES = {
+        full: {
+            id: 'full',
+            name: 'Full Vampire',
+            description: 'Two Vampire parents - the bloodline runs purest in you.',
+            mechanicalNote: 'Strongest Vampire power. Full sunlight weakness.',
+            powerBonus: 2,
+            curseFlat: 5,
+        },
+        'half-vampire': {
+            id: 'half-vampire',
+            name: 'Half-Vampire',
+            description: 'A Vampire mother, a human father.',
+            mechanicalNote: 'Higher Vampire power than a Half-Human. Very little sunlight weakness.',
+            powerBonus: 1,
+            curseFlat: 2,
+        },
+        'half-human': {
+            id: 'half-human',
+            name: 'Half-Human',
+            description: 'A human mother, a Vampire father.',
+            mechanicalNote: 'Weaker overall Vampire power. No weakness to sunlight.',
+            powerBonus: -1,
+            curseFlat: 0,
         },
     };
 
@@ -483,7 +528,7 @@
         },
     };
 
-    const api = { ORIGINS, AGES, XP_TABLE, XP_PER_ENCOUNTER, LEVEL_CHOICES, SPECIALIZATION_UNLOCK_LEVEL, SPECIALIZATIONS };
+    const api = { ORIGINS, LINEAGES, AGES, XP_TABLE, XP_PER_ENCOUNTER, LEVEL_CHOICES, SPECIALIZATION_UNLOCK_LEVEL, SPECIALIZATIONS };
     if (typeof module !== 'undefined' && module.exports) {
         module.exports = api;
     }
