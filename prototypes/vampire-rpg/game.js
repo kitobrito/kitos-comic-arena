@@ -503,10 +503,14 @@
         slots[index] = null;
         writeSlots(slots);
     }
-    function newSave(origin, age, name) {
+    // lineage is null for Made characters (no sub-choice) and for any old
+    // Born save from before this feature existed - effectiveOriginStats
+    // below treats a Born character with no lineage as Full Vampire, so
+    // neither case changes behavior.
+    function newSave(origin, age, name, lineage) {
         return {
             version: 1,
-            character: { name: name || 'Vampire', origin, age, specialization: null, level: 1, xp: 0, levelChoiceIds: [] },
+            character: { name: name || 'Vampire', origin, lineage: lineage || null, age, specialization: null, level: 1, xp: 0, levelChoiceIds: [] },
             campaign: { encounterIndex: 0, completed: false },
         };
     }
@@ -514,10 +518,38 @@
     let save = null;
     let activeSlotIndex = null; // which of the SLOT_COUNT slots `save` came from / saves back to
     let screen = 'title';
-    let creationDraft = null; // { origin, age, name } while creating, before confirm
+    let creationDraft = null; // { origin, lineage, age, name } while creating, before confirm
     let state = null; // ephemeral battle state, unchanged shape from Milestone 1
 
     // --- Character composition -----------------------------------------------
+
+    // A Born character's actual powerBonus/curseFlat come from their chosen
+    // LINEAGES entry, not ORIGINS.born directly (see progression.js's
+    // comments on both) - this is the one place that resolves which applies.
+    // Made characters, and any Born save from before lineages existed (no
+    // characterSave.lineage), just fall through to the plain origin - a
+    // lineage-less Born character behaves exactly like Full Vampire, since
+    // ORIGINS.born's own numbers are that lineage's numbers.
+    function effectiveOriginStats(characterSave) {
+        if (characterSave.origin === 'born' && characterSave.lineage && PROGRESSION.LINEAGES[characterSave.lineage]) {
+            const lineage = PROGRESSION.LINEAGES[characterSave.lineage];
+            const bornBase = PROGRESSION.ORIGINS.born;
+            return { powerBonus: lineage.powerBonus, curseFlat: lineage.curseFlat, bloodCapBonus: bornBase.bloodCapBonus };
+        }
+        return PROGRESSION.ORIGINS[characterSave.origin];
+    }
+
+    // Display label for a character's origin, e.g. in the camp header or a
+    // save slot card - "Half-Vampire" for a lineaged Born character instead
+    // of the generic "Born", so the choice actually reads back to the
+    // player. Falls back to the plain origin name for Made characters and
+    // any lineage-less Born save.
+    function originDisplayName(characterSave) {
+        if (characterSave.origin === 'born' && characterSave.lineage && PROGRESSION.LINEAGES[characterSave.lineage]) {
+            return PROGRESSION.LINEAGES[characterSave.lineage].name;
+        }
+        return PROGRESSION.ORIGINS[characterSave.origin].name;
+    }
 
     // Builds a fresh roster entry from the base Vampire template + this
     // save's origin/age/level/specialization/level-choices, following only
@@ -527,7 +559,7 @@
     // vendored engine already reads by index, so no engine changes needed.
     function buildComposedVampire(characterSave) {
         const character = JSON.parse(JSON.stringify(BASE_VAMPIRE));
-        const origin = PROGRESSION.ORIGINS[characterSave.origin];
+        const origin = effectiveOriginStats(characterSave); // lineage-aware for a Born character - see its own comment
         const age = PROGRESSION.AGES[characterSave.age];
         const level = characterSave.level;
 
@@ -632,7 +664,7 @@
     }
 
     function curseMetadataFor(characterSave, mode) {
-        const curseFlat = PROGRESSION.ORIGINS[characterSave.origin].curseFlat;
+        const curseFlat = effectiveOriginStats(characterSave).curseFlat; // lineage-aware for a Born character
         const armorAmount = PLAYER_ARMOR[mode];
         if (mode === 'day') {
             return {
@@ -1944,11 +1976,10 @@
         }
 
         const ch = slotSave.character;
-        const origin = PROGRESSION.ORIGINS[ch.origin];
         const age = PROGRESSION.AGES[ch.age];
         const specLabel = specializationLabel(ch);
         name.textContent = ch.name || 'Vampire';
-        flavor.textContent = 'Level ' + ch.level + ' ' + origin.name + ' ' + age.name + (specLabel ? ' · ' + specLabel : '');
+        flavor.textContent = 'Level ' + ch.level + ' ' + originDisplayName(ch) + ' ' + age.name + (specLabel ? ' · ' + specLabel : '');
         const actions = document.createElement('div');
         actions.className = 'slot-card-actions';
         const playBtn = document.createElement('button');
@@ -1976,6 +2007,16 @@
         return card;
     }
 
+    // A Born character picks a bloodline right after Origin (see
+    // renderLineageScreen below) - a Made character has no such choice
+    // (there's no parentage question for a transformation), so their flow
+    // stays the plain 3-step Origin -> Age -> Confirm it always was. Every
+    // screen below that shows a step count reads creationDraft.origin to
+    // pick between "of 3" and "of 4" for exactly this reason.
+    function creationTotalSteps() {
+        return creationDraft.origin === 'born' ? 4 : 3;
+    }
+
     function renderOriginScreen(root) {
         const header = screenHeader('Create Character — Step 1 of 3', 'Choose Your Origin', 'How you became a Vampire shapes what you are now.');
         const grid = document.createElement('div');
@@ -1987,7 +2028,13 @@
                 mechanics: origin.mechanicalNote,
                 onClick: () => {
                     creationDraft.origin = origin.id;
-                    screen = 'age';
+                    if (origin.id === 'born') {
+                        creationDraft.lineage = null; // cleared here, chosen on the next screen
+                        screen = 'lineage';
+                    } else {
+                        creationDraft.lineage = null; // Made has no lineage sub-choice
+                        screen = 'age';
+                    }
                     render();
                 },
             }));
@@ -1995,8 +2042,42 @@
         root.appendChild(panelWrap([header, grid]));
     }
 
+    // Only reachable when creationDraft.origin === 'born' (see
+    // renderOriginScreen above) - a Made character skips straight to Age.
+    function renderLineageScreen(root) {
+        const header = screenHeader(
+            'Create Character — Step 2 of ' + creationTotalSteps(),
+            'Choose Your Bloodline',
+            'Which of your parents carried the curse changes how deep it runs in you.'
+        );
+        const grid = document.createElement('div');
+        grid.className = 'choice-grid';
+        Object.values(PROGRESSION.LINEAGES).forEach((lineage) => {
+            grid.appendChild(choiceCard({
+                name: lineage.name,
+                flavor: lineage.description,
+                mechanics: lineage.mechanicalNote,
+                onClick: () => {
+                    creationDraft.lineage = lineage.id;
+                    screen = 'age';
+                    render();
+                },
+            }));
+        });
+        const back = document.createElement('button');
+        back.className = 'text-link-btn';
+        back.textContent = '← Back to Origin';
+        back.addEventListener('click', () => { screen = 'origin'; render(); });
+        root.appendChild(panelWrap([header, grid, back]));
+    }
+
     function renderAgeScreen(root) {
-        const header = screenHeader('Create Character — Step 2 of 3', 'Choose Your Age', 'How long you have carried the curse.');
+        const isBorn = creationDraft.origin === 'born';
+        const header = screenHeader(
+            'Create Character — Step ' + (isBorn ? 3 : 2) + ' of ' + creationTotalSteps(),
+            'Choose Your Age',
+            'How long you have carried the curse.'
+        );
         const grid = document.createElement('div');
         grid.className = 'choice-grid';
         Object.values(PROGRESSION.AGES).forEach((age) => {
@@ -2013,15 +2094,16 @@
         });
         const back = document.createElement('button');
         back.className = 'text-link-btn';
-        back.textContent = '← Back to Origin';
-        back.addEventListener('click', () => { screen = 'origin'; render(); });
+        back.textContent = isBorn ? '← Back to Bloodline' : '← Back to Origin';
+        back.addEventListener('click', () => { screen = isBorn ? 'lineage' : 'origin'; render(); });
         root.appendChild(panelWrap([header, grid, back]));
     }
 
     function renderConfirmScreen(root) {
         const origin = PROGRESSION.ORIGINS[creationDraft.origin];
+        const lineage = creationDraft.origin === 'born' && creationDraft.lineage ? PROGRESSION.LINEAGES[creationDraft.lineage] : null;
         const age = PROGRESSION.AGES[creationDraft.age];
-        const header = screenHeader('Create Character — Step 3 of 3', 'Confirm Your Character', 'Class: Vampire');
+        const header = screenHeader('Create Character — Step ' + creationTotalSteps() + ' of ' + creationTotalSteps(), 'Confirm Your Character', 'Class: Vampire');
 
         const nameField = document.createElement('div');
         nameField.className = 'name-field';
@@ -2048,14 +2130,15 @@
         summary.innerHTML =
             '<div class="sheet-row"><span>Class</span><span>Vampire</span></div>' +
             '<div class="sheet-row"><span>Origin</span><span>' + origin.name + '</span></div>' +
+            (lineage ? '<div class="sheet-row"><span>Bloodline</span><span>' + lineage.name + '</span></div>' : '') +
             '<div class="sheet-row"><span>Age</span><span>' + age.name + '</span></div>' +
             '<div class="sheet-row"><span>Level</span><span>1</span></div>' +
-            '<p class="sheet-note">' + origin.mechanicalNote + ' ' + age.mechanicalNote + '</p>';
+            '<p class="sheet-note">' + (lineage ? lineage.mechanicalNote : origin.mechanicalNote) + ' ' + age.mechanicalNote + '</p>';
         const confirmBtn = document.createElement('button');
         confirmBtn.className = 'encounter-btn';
         confirmBtn.textContent = 'Confirm Character';
         confirmBtn.addEventListener('click', () => {
-            save = newSave(creationDraft.origin, creationDraft.age, (creationDraft.name || '').trim());
+            save = newSave(creationDraft.origin, creationDraft.age, (creationDraft.name || '').trim(), creationDraft.lineage);
             writeSave(save);
             creationDraft = null;
             screen = 'camp';
@@ -2070,12 +2153,11 @@
 
     function renderCampScreen(root) {
         const ch = save.character;
-        const origin = PROGRESSION.ORIGINS[ch.origin];
         const age = PROGRESSION.AGES[ch.age];
         const specLabel = specializationLabel(ch);
         const xpProgress = xpProgressFor(ch);
 
-        const header = screenHeader('Camp', ch.name || 'The Vampire', 'Level ' + ch.level + ' ' + origin.name + ' ' + age.name + (specLabel ? ' · ' + specLabel : ''));
+        const header = screenHeader('Camp', ch.name || 'The Vampire', 'Level ' + ch.level + ' ' + originDisplayName(ch) + ' ' + age.name + (specLabel ? ' · ' + specLabel : ''));
         const encounterIndex = save.campaign.encounterIndex;
         // Very-basic quest, no tracking/rewards/panel art: just the
         // upcoming encounter's enemy count, handed out fresh each Camp
@@ -2267,6 +2349,7 @@
             return;
         }
         if (screen === 'origin') return renderOriginScreen(root);
+        if (screen === 'lineage') return renderLineageScreen(root);
         if (screen === 'age') return renderAgeScreen(root);
         if (screen === 'confirm') return renderConfirmScreen(root);
         if (screen === 'camp') return renderCampScreen(root);
