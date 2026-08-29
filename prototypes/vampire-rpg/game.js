@@ -324,12 +324,18 @@
         'skeleton': 'assets/skeleton.png',
         'giant-rat': 'assets/giant-rat.png',
         'zombie': 'assets/zombie.png',
-        'hobgoblin-archer': 'assets/goblin-archer.png',
+        // ?v=2 on these three specifically - their source PNGs got
+        // cropped in place (real transparent padding removed, see the
+        // sizing-audit comment on .figure.char-* in style.css) without a
+        // filename change, so a browser that already cached the old
+        // (padded) bytes under this same path needs a new query string
+        // to actually re-fetch.
+        'hobgoblin-archer': 'assets/goblin-archer.png?v=2',
         'goblin-shaman': 'assets/goblin-shaman.png',
-        'goblin-sneak': 'assets/goblin-sneak.png',
+        'goblin-sneak': 'assets/goblin-sneak.png?v=2',
         // Display name "Goblin Warrior" (see characters.source.js) - a
         // goblin in heavy armor, not a distinct hobgoblin species.
-        'hobgoblin-warrior': 'assets/goblin-warrior.png',
+        'hobgoblin-warrior': 'assets/goblin-warrior.png?v=2',
     };
     // Attack/hit/defeated pose sets, for every enemy - the whole roster now
     // has real art, no placeholders left. Mirrors VAMPIRE_POSES/
@@ -366,7 +372,7 @@
             defeated: 'assets/zombie-defeated.png',
         },
         'hobgoblin-archer': {
-            idle: 'assets/goblin-archer.png',
+            idle: 'assets/goblin-archer.png?v=2',
             attack: ['assets/goblin-archer-attack-1.png', 'assets/goblin-archer-attack-2.png'],
             hit: 'assets/goblin-archer-hit.png',
             defeated: 'assets/goblin-archer-defeated.png',
@@ -385,7 +391,7 @@
             defeated: 'assets/goblin-shaman-defeated.png',
         },
         'goblin-sneak': {
-            idle: 'assets/goblin-sneak.png',
+            idle: 'assets/goblin-sneak.png?v=2',
             attack: 'assets/goblin-sneak-attack.png',
             // Slip Away (self-target) gets its own "vanish into shadow"
             // pose instead of the attack lunge - see chooseEnemyAction.
@@ -394,7 +400,7 @@
             defeated: 'assets/goblin-sneak-defeated.png',
         },
         'hobgoblin-warrior': {
-            idle: 'assets/goblin-warrior.png',
+            idle: 'assets/goblin-warrior.png?v=2',
             attack: ['assets/goblin-warrior-attack-1.png', 'assets/goblin-warrior-attack-2.png'],
             hit: 'assets/goblin-warrior-hit.png',
             defeated: 'assets/goblin-warrior-defeated.png',
@@ -995,6 +1001,45 @@
         return totalMs;
     }
 
+    // Animates the player's .combatant stepping forward (toward the
+    // enemy) or back (returning to its base spot) for the melee walk-up
+    // flourish below, by interpolating an inline transform directly via
+    // requestAnimationFrame - re-resolving the element fresh on EVERY
+    // frame instead of holding one reference for the whole animation.
+    // render() fully tears down and rebuilds the combatant DOM on any
+    // state change (see its own comments); a plain CSS class+transition
+    // toggled once and left to run doesn't survive that. Two ways it
+    // broke, both reported live: render() firing between the class being
+    // added and the next paint hands the transition a brand new element
+    // with no "before" frame to animate from, so it jumps straight to
+    // the end position instead of visibly walking there ("teleporting
+    // forward then walking instead of walking from its original spot");
+    // render() firing again mid-transition abandons whatever the CSS
+    // engine had in flight, snapping to whatever the fresh element's
+    // static (untransitioned) style happens to resolve to. Re-querying
+    // the element every single frame sidesteps both - if render() swaps
+    // it out between two frames, the very next frame just keeps writing
+    // the current interpolated position onto the new element, not
+    // whatever that element's own default style would have been.
+    function animatePlayerStep(forward, durationMs, onDone) {
+        const startCqw = forward ? 0 : 20;
+        const endCqw = forward ? 20 : 0;
+        const startTime = performance.now();
+        function tick(now) {
+            const el = findCombatantEl('player', 0);
+            const t = Math.min(1, (now - startTime) / durationMs);
+            const eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; // easeInOutCubic
+            const cqw = startCqw + (endCqw - startCqw) * eased;
+            if (el) el.style.transform = cqw ? 'translateX(' + cqw.toFixed(2) + 'cqw)' : '';
+            if (t < 1) {
+                requestAnimationFrame(tick);
+            } else if (onDone) {
+                onDone();
+            }
+        }
+        requestAnimationFrame(tick);
+    }
+
     function playPlayerAction(skillIndex, targetSlot) {
         const unit = vampireUnit();
         const character = characterForUnit(unit);
@@ -1036,14 +1081,30 @@
             // cosmetic (no range gate any more, every skill can already
             // hit any alive enemy), just sells "closing the gap" for a
             // Melee-tagged hit specifically. Ranged/self skills skip
-            // straight to their own windup below.
+            // straight to their own windup below. The player's own
+            // .combatant physically steps forward while this plays (see
+            // animatePlayerStep above) and steps back again once the
+            // strike lands - a temporary, timer-driven, self-resetting
+            // transform, not the old persistent --engage-x position
+            // (removed per feedback) - nothing is ever left shifted
+            // between turns.
             const walkFrames = playerWalkFrames();
             const walkStepMs = walkFrames.length > 3 ? 200 : 260;
-            const walkTotalMs = playVampirePoseSequence(walkFrames, [], { stepMs: walkStepMs, holdMs: 300 });
+            // Mirrors playVampirePoseSequence's own totalMs formula
+            // below (frames.length ? (frames.length-1)*stepMs+holdMs :
+            // holdMs) - needed here, ahead of that call, so the walk and
+            // the physical step start together and take the same total
+            // time. Keep the two in sync if either formula ever changes.
+            const walkTotalMs = walkFrames.length ? (walkFrames.length - 1) * walkStepMs + 300 : 300;
+            animatePlayerStep(true, walkTotalMs);
+            playVampirePoseSequence(walkFrames, [], { stepMs: walkStepMs, holdMs: 300 });
             setTimeout(() => {
                 setVampireImage('windup');
                 setTimeout(() => {
-                    playVampirePoseSequence(frames, diffs, { stepMs: 260, holdMs: 550 });
+                    const attackTotalMs = playVampirePoseSequence(frames, diffs, { stepMs: 260, holdMs: 550 });
+                    setTimeout(() => {
+                        animatePlayerStep(false, 450);
+                    }, attackTotalMs);
                 }, 260);
             }, walkTotalMs);
             enemyTurnDelay = walkTotalMs + 1450;
