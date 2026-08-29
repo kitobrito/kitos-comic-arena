@@ -55,11 +55,11 @@
         form_shadow_feral: 'assets/form-shadow-feral-1.png',
         form_shadow_hemo: 'assets/form-shadow-hemo-1.png',
         form_shadow_hemo_feral: 'assets/form-shadow-hemo-feral-1.png',
-        // 3-frame walk cycle played by performApproach - one set per
-        // current appearance (base/feral/hemo/shadow), no dedicated
-        // hybrid-combo walk art exists, see playerWalkFrames() for the
-        // fallback. Not tied to a skill id (SKILL_ACTION_POSE) since
-        // Approach isn't a skill.
+        // 3-frame walk cycle played before a Melee-tagged skill's own
+        // action pose (see playPlayerAction) - one set per current
+        // appearance (base/feral/hemo/shadow), see playerWalkFrames().
+        // Not tied to a skill id (SKILL_ACTION_POSE) since it's a shared
+        // pre-attack flourish, not any one skill's own pose.
         walk_base_1: 'assets/vampire-walk-1.png',
         walk_base_2: 'assets/vampire-walk-2.png',
         walk_base_3: 'assets/vampire-walk-3.png',
@@ -279,10 +279,11 @@
         return key ? 'form_' + key.replace(/-/g, '_') : 'idle';
     }
     // The 3-frame walk-cycle pose keys (into VAMPIRE_POSES) matching the
-    // player's CURRENT appearance, for performApproach. Every combo
-    // comboArtKeyFor can produce now has a matching walk_X set (base plus
-    // all 7 specialization combos), so this mirrors comboArtKeyFor exactly
-    // rather than approximating with a single spec.
+    // player's CURRENT appearance, played as a walk-up flourish before a
+    // Melee-tagged skill's own action pose (see playPlayerAction). Every
+    // combo comboArtKeyFor can produce now has a matching walk_X set (base
+    // plus all 7 specialization combos), so this mirrors comboArtKeyFor
+    // exactly rather than approximating with a single spec.
     function playerWalkFrames() {
         const key = save && save.character ? comboArtKeyFor(save.character) : null;
         const primary = key ? key.replace(/-/g, '_') : 'base';
@@ -403,22 +404,25 @@
     // Each encounter's own illustrated locale (one photo, not a day/night
     // pair - see the .night-tint CSS rule for how the day/night curse
     // toggle still reads as a mood shift over a single background image).
+    // Single enemy per encounter for now (per feedback - the multi-enemy
+    // groupings and their occupancy/lane mechanic were pulled back out,
+    // "lets stick to one single enemy for the time being. 1 on 1 combat").
+    // Each entry below keeps its original encounter's background/theme but
+    // was trimmed to one representative enemy, chosen so nothing repeats
+    // across the whole campaign and the back half still escalates.
     const CAMPAIGN = [
         { label: 'A Lone Goblin Grunt', enemies: ['goblin-grunt'], bg: 'assets/bg-goblin-cave.jpg' },
-        { label: 'A Giant Rat and a Goblin Sneak', enemies: ['giant-rat', 'goblin-sneak'], bg: 'assets/bg-forest-day.jpg' },
-        { label: 'A Skeleton and a Goblin Warrior', enemies: ['skeleton', 'hobgoblin-warrior'], bg: 'assets/bg-graveyard.jpg' },
-        { label: 'A Goblin Shaman, a Goblin Archer, and a Zombie', enemies: ['goblin-shaman', 'hobgoblin-archer', 'zombie'], bg: 'assets/bg-abandoned-village.jpg' },
+        { label: 'A Goblin Sneak', enemies: ['goblin-sneak'], bg: 'assets/bg-forest-day.jpg' },
+        { label: 'A Restless Skeleton', enemies: ['skeleton'], bg: 'assets/bg-graveyard.jpg' },
+        { label: 'A Goblin Shaman', enemies: ['goblin-shaman'], bg: 'assets/bg-abandoned-village.jpg' },
         // By this point the player has specialized - this finale exists so
         // there's at least one fight left to actually feel that choice in,
         // not just pick it and see the campaign end.
-        { label: 'The Warband Regroups: Goblin Grunt, Skeleton, and Giant Rat', enemies: ['goblin-grunt', 'skeleton', 'giant-rat'], bg: 'assets/bg-forest-night.jpg' },
+        { label: "The Warband's Last Warrior", enemies: ['hobgoblin-warrior'], bg: 'assets/bg-forest-night.jpg' },
         // Milestone 3: exists so there's a fight left to use the first
         // specialization "branch" skill (unlocked after encounter 5) in -
-        // same reasoning as the encounter above. Enemies chosen so none of
-        // the three share a tinted-art base image with each other (Warrior
-        // uses goblin-grunt.png, Zombie/Skeleton-family uses skeleton.png,
-        // Giant Rat has its own real art) - see ENEMY_ART above.
-        { label: "The Elder's Trial: Goblin Warrior, Zombie, and Giant Rat", enemies: ['hobgoblin-warrior', 'zombie', 'giant-rat'], bg: 'assets/bg-ruined-castle.jpg' },
+        // same reasoning as the encounter above.
+        { label: "The Elder's Trial", enemies: ['zombie'], bg: 'assets/bg-ruined-castle.jpg' },
     ];
 
     // --- UI sound effects (JDSherbert's free Ultimate UI SFX Pack) ---------
@@ -534,6 +538,7 @@
         // a real permanent status pushed onto startStatuses below, same as
         // every other choice here grants its effect immediately on pick.
         const choicePassives = [];
+        let biteBloodBonus = 0;
         (characterSave.levelChoiceIds || []).forEach((choiceId) => {
             Object.values(PROGRESSION.LEVEL_CHOICES).forEach((options) => {
                 const found = options.find((c) => c.id === choiceId);
@@ -542,6 +547,7 @@
                     choiceSkills.push(found.skill);
                 } else if (found.kind === 'passive') {
                     if (found.passiveStatus) choicePassives.push(found.passiveStatus);
+                    if (found.biteBloodBonus) biteBloodBonus += found.biteBloodBonus;
                     // nightStatBonus (Shadow's level 3 pick) isn't applied
                     // here - curseMetadataFor reads the choice id directly,
                     // since the curse status is also (re)built outside
@@ -560,6 +566,8 @@
         bite.effects[0].amount += power;
         bite.effects[1].amount += power;
         bite.effects[3].metadata.stackMax = bloodCap;
+        // Hemonancer's level 3 pick ("+5 Blood Drained") - see LEVEL_CHOICES[3].
+        if (biteBloodBonus) bite.effects[3].metadata.stackDelta += biteBloodBonus;
 
         const lifeRip = character.skills.find((s) => s.id === 'life_rip');
         lifeRip.effects[0].amount += power;
@@ -783,23 +791,6 @@
                 metadata: curseMetadataFor(save.character, 'night'),
             });
         }
-        // Every enemy starts some number of STEPS away (see
-        // baseStepsForSlot - fixed by position in the line-up: the enemy
-        // closest to the player, slot 0, is 1 step; each slot after that is
-        // one step farther), not a flat Far/Close - the player has to spend
-        // a turn Approaching (see onApproachClick/performApproach) to close
-        // ONE step at a time before any Melee-tagged skill can target that
-        // enemy (renderSkillButton/onSkillClick check isClose, which just
-        // reads "0 steps left"). Once at 0 it stays there for the rest of
-        // the encounter. Player-side only: enemies always attack normally
-        // regardless of range (their own chooseEnemyAction/runEnemyTurn are
-        // unaffected). Hemonancer's level 3 pick ("+1 Range" -
-        // hemonancer_extended_reach) shaves 1 step off every enemy's
-        // starting distance, checked directly by choice id since it's a
-        // one-time snapshot at encounter start, not an ongoing status check.
-        const rangeBonus = (save.character.levelChoiceIds || []).includes('hemonancer_extended_reach') ? 1 : 0;
-        const range = {};
-        board.enemy.forEach((_, slot) => { range[slot] = Math.max(0, baseStepsForSlot(slot) - rangeBonus); });
         state = {
             match: {
                 players,
@@ -821,7 +812,6 @@
             // at the start of every encounter, same "fresh start each fight"
             // philosophy as HP already fully healing at Camp.
             potionsRemaining: 3,
-            range,
         };
         log(encounter.label + ' blocks your path.');
         screen = 'battle';
@@ -895,66 +885,13 @@
         render();
     }
 
-    // Range gate: a skill needs the target Close only if it's tagged Melee
-    // in the vendored roster data (see characters.source.js/progression.js -
-    // every physical melee attack in this roster already carries this tag
-    // for the engine's own classification, so this reads it rather than
-    // adding a parallel field). Self-target skills are never gated (checked
-    // by callers before this matters - a self buff has no "target" to be
-    // far from).
+    // No range gate any more (per feedback - the whole Approach/lane
+    // system was pulled back out) - every skill can hit any alive enemy
+    // regardless of distance. skillRequiresMelee stays only as a cosmetic
+    // hint: playPlayerAction plays a brief walk-up flourish before a
+    // Melee-tagged skill's own action pose, instead of gating anything.
     function skillRequiresMelee(skill) {
         return !!(skill && skill.classes && skill.classes.some((c) => String(c).toLowerCase() === 'melee'));
-    }
-    // Range is a real step count now, not a Far/Close boolean - each enemy's
-    // BASE distance is fixed by its position in the line-up (leftmost/
-    // closest to the player = 1 step, next = 2, etc. - see newGame()'s
-    // range init), and each Approach closes exactly one step on whichever
-    // enemy it targets (see performApproach), not the whole gap at once.
-    // isClose/anyFarAliveEnemy/anyCloseAliveEnemy all still read as a
-    // simple boolean off of this - "0 steps left" - so every OTHER caller
-    // (melee gating, badges, targeting) is unaffected by the step count
-    // itself, only performApproach/engagedForwardCqw below deal with it
-    // directly.
-    function baseStepsForSlot(slot) {
-        return slot + 1;
-    }
-    function isClose(slot) {
-        return !!(state.range && state.range[slot] != null && state.range[slot] <= 0);
-    }
-    function anyFarAliveEnemy() {
-        return state.match.board.enemy.some((u, slot) => u.alive !== false && !isClose(slot));
-    }
-    function anyCloseAliveEnemy() {
-        return state.match.board.enemy.some((u, slot) => u.alive !== false && isClose(slot));
-    }
-    // How far forward (in cqw) a given enemy's slot implies the player
-    // should stand - scaled by BOTH that slot's position in the line-up (a
-    // farther-ranked enemy has more ground to physically cross) AND how
-    // many of ITS steps have actually been closed so far (a partial
-    // Approach only advances partway, not the full distance).
-    function forwardCqwForSlot(slot) {
-        const count = state.match.board.enemy.length;
-        const base = baseStepsForSlot(slot);
-        const remaining = state.range && state.range[slot] != null ? state.range[slot] : base;
-        const progress = base > 0 ? Math.max(0, Math.min(1, (base - remaining) / base)) : 1;
-        const frac = count > 1 ? (slot + 0.5) / count : 0.5;
-        return (6 + frac * 16) * progress;
-    }
-    // The player's actual forward position: the BEST progress made toward
-    // ANY enemy so far, not just whichever was most recently Approached -
-    // approaching a nearer enemy after already advancing on a farther one
-    // must never visually walk the player backward again (reported live -
-    // switching targets was snapping them back toward the start). Safe to
-    // recompute fresh from state.range every time rather than tracking a
-    // separate high-water mark, since steps only ever count down, never
-    // back up.
-    function engagedForwardCqw() {
-        if (!state.range) return 0;
-        let best = 0;
-        state.match.board.enemy.forEach((unit, slot) => {
-            best = Math.max(best, forwardCqwForSlot(slot));
-        });
-        return best;
     }
 
     function buildTargetSelection(skill, actingUsername, actorSlot, targetSlot) {
@@ -994,80 +931,12 @@
             playPlayerAction(skillIndex, null);
             return;
         }
-        const meleeGated = skillRequiresMelee(skill);
-        const aliveEnemies = state.match.board.enemy
-            .map((u, slot) => ({ u, slot }))
-            .filter((e) => e.u.alive !== false && (!meleeGated || isClose(e.slot)));
-        if (meleeGated && aliveEnemies.length === 0) return; // guarded by the disabled button too
         // Always go through the target picker, even with only one valid
         // enemy - no auto-fire-on-the-only-target shortcut (removed per
         // feedback: picking a target should always be an explicit click).
+        // No range gate any more - every enemy is a valid target.
         state.pendingSkillIndex = skillIndex;
         render();
-    }
-
-    // Approach isn't a real engine skill (no damage/heal/status effect) -
-    // it just flips a Far enemy's range to Close and spends the turn doing
-    // it, same "windup -> enemy replies" pacing as every other action (see
-    // performApproach). Reuses the exact same click-a-target flow as a
-    // single-enemy skill (state.pendingSkillIndex), with the string
-    // 'approach' as a sentinel instead of a numeric skill index - handled
-    // explicitly wherever pendingSkillIndex is read.
-    function onApproachClick() {
-        if (state.over || state.busy) return;
-        if (!anyFarAliveEnemy()) return;
-        playSfx('select');
-        // Always go through the target picker - no auto-fire-on-the-only-
-        // far-enemy shortcut (removed per feedback, same as skills above).
-        state.pendingSkillIndex = 'approach';
-        render();
-    }
-
-    function performApproach(slot) {
-        const enemyUnit = state.match.board.enemy[slot];
-        const enemyCharacter = enemyUnit && characterForUnit(enemyUnit);
-        const name = enemyCharacter ? enemyCharacter.name : 'the enemy';
-        const prevEngageCqw = engagedForwardCqw(); // BEFORE this approach's own state change
-        // Closes exactly ONE step, not the whole gap - a multi-step-away
-        // enemy needs a separate Approach (a separate turn) per remaining
-        // step.
-        state.range[slot] = Math.max(0, (state.range[slot] || 0) - 1);
-        endSideTurn('player');
-        checkOutcome();
-        log(isClose(slot)
-            ? 'You close the distance to ' + name + '.'
-            : 'You advance on ' + name + '. (' + state.range[slot] + ' step' + (state.range[slot] === 1 ? '' : 's') + ' left)', 'you');
-        render();
-        // 3-frame walk cycle (see playerWalkFrames) instead of a strike pose
-        // - reuses playVampirePoseSequence with an empty diffs array since
-        // Approach deals no damage/heals nothing (no floating numbers to
-        // show), same revert-to-idle-when-done behavior as every other
-        // sequence. Feral/Hemo's 6-frame cycle steps slightly faster per
-        // frame than the 3-frame default - at the same stepMs it would run
-        // noticeably longer than every other appearance's Approach.
-        const walkFrames = playerWalkFrames();
-        const walkStepMs = walkFrames.length > 3 ? 200 : 260;
-        const totalMs = playVampirePoseSequence(walkFrames, [], { stepMs: walkStepMs, holdMs: 480 });
-        // render() just above already put .combatant.player at its correct
-        // --engage-x for the CURRENT state (see engagedForwardCqw). That's
-        // instant, not animated (a brand-new element can't transition from
-        // a state it was never in). To actually SHOW the step, briefly
-        // force --engage-x back to its PRE-approach value, then restore the
-        // new value with a transition enabled - so it animates from old to
-        // new over the same totalMs the walk cycle takes, landing in sync.
-        const combatantEl = findCombatantEl('player', 0);
-        if (combatantEl) {
-            const newEngageX = combatantEl.style.getPropertyValue('--engage-x');
-            combatantEl.style.transition = 'none';
-            combatantEl.style.setProperty('--engage-x', prevEngageCqw + 'cqw');
-            void combatantEl.offsetWidth; // force reflow before re-enabling the transition
-            combatantEl.style.transition = 'transform ' + totalMs + 'ms ease';
-            combatantEl.style.setProperty('--engage-x', newEngageX);
-        }
-        if (!state.over) {
-            state.busy = true;
-            setTimeout(runEnemyTurn, totalMs + 150);
-        }
     }
 
     function onEnemyTargetClick(slot) {
@@ -1075,12 +944,6 @@
         const unit = state.match.board.enemy[slot];
         if (!unit || unit.alive === false) return;
         playSfx('select');
-        if (state.pendingSkillIndex === 'approach') {
-            if (isClose(slot)) return;
-            state.pendingSkillIndex = null;
-            performApproach(slot);
-            return;
-        }
         const skillIndex = state.pendingSkillIndex;
         state.pendingSkillIndex = null;
         playPlayerAction(skillIndex, slot);
@@ -1168,6 +1031,22 @@
         if (skill.target === 'self') {
             playVampirePoseSequence(frames, diffs, { stepMs: 320, holdMs: 600 });
             enemyTurnDelay = 1050;
+        } else if (skillRequiresMelee(skill)) {
+            // A walk-up flourish before the strike itself - purely
+            // cosmetic (no range gate any more, every skill can already
+            // hit any alive enemy), just sells "closing the gap" for a
+            // Melee-tagged hit specifically. Ranged/self skills skip
+            // straight to their own windup below.
+            const walkFrames = playerWalkFrames();
+            const walkStepMs = walkFrames.length > 3 ? 200 : 260;
+            const walkTotalMs = playVampirePoseSequence(walkFrames, [], { stepMs: walkStepMs, holdMs: 300 });
+            setTimeout(() => {
+                setVampireImage('windup');
+                setTimeout(() => {
+                    playVampirePoseSequence(frames, diffs, { stepMs: 260, holdMs: 550 });
+                }, 260);
+            }, walkTotalMs);
+            enemyTurnDelay = walkTotalMs + 1450;
         } else {
             setVampireImage('windup');
             setTimeout(() => {
@@ -1585,7 +1464,7 @@
         );
     }
 
-    function renderCombatant({ unit, character, isEnemy, slot, targetable, engageCqw }) {
+    function renderCombatant({ unit, character, isEnemy, slot, targetable }) {
         const dead = unit.alive === false;
         // An enemy with a dedicated defeated pose reads as "dead" through
         // its own art, so it skips the heavy grayscale/fade treatment
@@ -1596,22 +1475,10 @@
         el.className = 'combatant' + (isEnemy ? '' : ' player') + (dead ? ' dead' : '') + (dead && enemyPoses ? ' has-defeated-pose' : '') + (targetable ? ' targetable' : '');
         el.dataset.username = isEnemy ? 'enemy' : 'player';
         el.dataset.slot = String(slot);
-        // How far forward (toward whichever enemy was last Approached - see
-        // engagedForwardCqw) the player stands - a number, not a boolean,
-        // since a flat "engaged" position landed the player next to
-        // whichever enemy happens to render first rather than the one
-        // actually Close (reported live against a 3-enemy board).
-        if (!isEnemy) el.style.setProperty('--engage-x', (engageCqw || 0) + 'cqw');
-
         const nameplate = document.createElement('div');
         nameplate.className = 'nameplate' + (isEnemy ? '' : ' player-nameplate');
-        const stepsLeft = isEnemy && state.range ? (state.range[slot] || 0) : 0;
-        const rangeBadge = isEnemy
-            ? ' <span class="range-badge ' + (stepsLeft <= 0 ? 'is-close' : 'is-far') + '">' +
-                (stepsLeft <= 0 ? 'Close' : stepsLeft + (stepsLeft === 1 ? ' Step' : ' Steps')) + '</span>'
-            : '';
         nameplate.innerHTML =
-            '<div class="name">' + character.name + rangeBadge + (!isEnemy ? ' <span class="level-badge">Lv ' + save.character.level + '</span>' : '') + '</div>' +
+            '<div class="name">' + character.name + (!isEnemy ? ' <span class="level-badge">Lv ' + save.character.level + '</span>' : '') + '</div>' +
             renderMeter('hp', isEnemy ? 'enemy-tone' : 'player-tone', unit.hp, maxHpForCharacter(character), 'HP', renderArmorBadge(getArmorAmount(unit)), 'stat-icon-hp') +
             (!isEnemy ? renderMeter('blood', '', bloodStacks(unit), bite_bloodMax(character), 'Blood', '', 'stat-icon-blood') : '') +
             (!isEnemy ? renderXpLine(save.character) : '');
@@ -1637,8 +1504,8 @@
             // claimed by its idle-bob animation (and is-acting/is-hit swap
             // out that whole `animation` property while active), so a
             // static scale() declared directly on .figure would just get
-            // silently overridden, same reason engage-x lives on .combatant
-            // instead. setVampireImage/playEnemyPoseSequence etc. all find
+            // silently overridden - hence the wrapper.
+            // setVampireImage/playEnemyPoseSequence etc. all find
             // .figure via querySelector, which reaches through this extra
             // nesting level with no changes needed.
             const scaleWrap = document.createElement('div');
@@ -1682,7 +1549,6 @@
         if (meta.healingBonusFlat) parts.push((meta.healingBonusFlat > 0 ? '+' : '') + meta.healingBonusFlat + ' healing');
         if (meta.evadeChancePercent) parts.push(meta.evadeChancePercent + '% evade chance');
         if (meta.cannotUseHarmfulSkills) parts.push('cannot use harmful skills');
-        if (meta.rangeBonusSteps) parts.push('+' + meta.rangeBonusSteps + ' Range');
         return parts.join(', ');
     }
 
@@ -1748,7 +1614,7 @@
             // Level 3's secretly-spec-tagged passives (see LEVEL_CHOICES[3])
             // - the mechanical benefit is always visible here, only WHICH
             // specialization it's tied to stays hidden.
-            ['feral_deep_hunger_passive', 'hemonancer_extended_reach_passive'].forEach((statusId) => {
+            ['feral_deep_hunger_passive', 'hemonancer_blood_drain_passive'].forEach((statusId) => {
                 const status = unit.state.statuses.find((s) => s.id === statusId);
                 if (status) {
                     const compact = describeStatusMetadataCompact(status.metadata);
@@ -1769,13 +1635,12 @@
         const isPotion = skill.id === 'vampire_potion';
         const cooldown = isPassive ? 0 : BE.getSkillCooldownRemaining(unit.state, skill.id);
         const potionsLeft = state.potionsRemaining;
-        const meleeBlocked = !isPassive && skillRequiresMelee(skill) && !state.match.board.enemy.some((u, s) => u.alive !== false && isClose(s));
         // Life Rip's damage is entirely bonusPerStatusMetadata off current
         // Blood (see characters.source.js) - at 0 Blood it would still fire
         // for its bare 8 base damage, which read as "free to spam" rather
         // than the Blood-spending finisher it's meant to be.
         const noBlood = skill.id === 'life_rip' && bloodStacks(unit) <= 0;
-        btn.disabled = isPassive || cooldown > 0 || state.over || state.busy || (isPotion && potionsLeft <= 0) || meleeBlocked || noBlood;
+        btn.disabled = isPassive || cooldown > 0 || state.over || state.busy || (isPotion && potionsLeft <= 0) || noBlood;
         const iconImg = skill.id === 'vampire_bite' ? 'assets/icon-bite.jpg'
             : skill.id === 'life_rip' ? 'assets/icon-liferip.jpg'
             : null;
@@ -1793,7 +1658,6 @@
         // to show remaining uses instead of a cooldown.
         const tagHtml = isPotion ? '<span class="skill-tag">' + potionsLeft + ' left</span>'
             : isPassive ? '<span class="skill-tag">Passive</span>'
-            : meleeBlocked ? '<span class="skill-tag">Too far</span>'
             : noBlood ? '<span class="skill-tag">No Blood</span>'
             : cooldown > 0 ? '<span class="skill-tag">Cooldown ' + cooldown + '</span>'
             : '';
@@ -1820,12 +1684,6 @@
             pierceRow.textContent = 'Armor-piercing';
             tooltip.appendChild(pierceRow);
         }
-        if (meleeBlocked) {
-            const rangeRow = document.createElement('div');
-            rangeRow.className = 'skill-tooltip-line';
-            rangeRow.textContent = 'Melee - Approach an enemy first.';
-            tooltip.appendChild(rangeRow);
-        }
         if (noBlood) {
             const bloodRow = document.createElement('div');
             bloodRow.className = 'skill-tooltip-line';
@@ -1840,35 +1698,6 @@
         // would fade the tooltip along with it (this is exactly the Passive
         // slot, the one button that's always disabled and most needs a
         // clearly-readable tooltip since it can't be tried by clicking).
-        const slot = document.createElement('div');
-        slot.className = 'skill-slot';
-        slot.appendChild(btn);
-        slot.appendChild(tooltip);
-        return slot;
-    }
-
-    // Not a real skill (no engine effect) - see onApproachClick/
-    // performApproach. Rendered with the same skill-slot/skill-btn markup
-    // as every real skill so it sits in the panel identically, styled and
-    // tooltipped the same way.
-    function renderApproachButton() {
-        const btn = document.createElement('button');
-        btn.className = 'skill-btn';
-        btn.type = 'button';
-        const noFarEnemies = !anyFarAliveEnemy();
-        btn.disabled = !!state.over || state.busy || noFarEnemies;
-        btn.innerHTML =
-            '<span class="skill-icon">&#128099;</span>' +
-            '<span class="skill-text"><span class="skill-name">Approach</span>' +
-            (noFarEnemies ? '<span class="skill-tag">All close</span>' : '') +
-            '</span>';
-        btn.addEventListener('click', onApproachClick);
-        const tooltip = document.createElement('div');
-        tooltip.className = 'skill-tooltip';
-        const row = document.createElement('div');
-        row.className = 'skill-tooltip-line';
-        row.textContent = 'Close one step toward an enemy so you can use Melee skills on them. Farther enemies may take more than one Approach. Uses your turn.';
-        tooltip.appendChild(row);
         const slot = document.createElement('div');
         slot.className = 'skill-slot';
         slot.appendChild(btn);
@@ -1918,28 +1747,23 @@
         });
         logBox.appendChild(list);
 
-        const pendingIsApproach = state.pendingSkillIndex === 'approach';
         if (state.pendingSkillIndex != null) {
             const hint = document.createElement('div');
             hint.className = 'target-hint';
-            hint.textContent = pendingIsApproach ? 'Choose who to approach...' : 'Choose a target...';
+            hint.textContent = 'Choose a target...';
             stage.appendChild(hint);
         }
 
         const vUnit = vampireUnit();
         const vChar = characterForUnit(vUnit);
-        stage.appendChild(renderCombatant({ unit: vUnit, character: vChar, isEnemy: false, slot: 0, targetable: false, engageCqw: engagedForwardCqw() }));
+        stage.appendChild(renderCombatant({ unit: vUnit, character: vChar, isEnemy: false, slot: 0, targetable: false }));
 
-        const pendingSkill = (!pendingIsApproach && state.pendingSkillIndex != null) ? vChar.skills[state.pendingSkillIndex] : null;
-        const pendingMeleeGate = !!pendingSkill && skillRequiresMelee(pendingSkill);
         const cluster = document.createElement('div');
         cluster.className = 'enemy-cluster';
         cluster.dataset.count = String(state.match.board.enemy.length);
         state.match.board.enemy.forEach((unit, slot) => {
             const character = characterForUnit(unit);
-            let targetable = state.pendingSkillIndex != null && unit.alive !== false;
-            if (targetable && pendingIsApproach) targetable = !isClose(slot);
-            else if (targetable && pendingMeleeGate) targetable = isClose(slot);
+            const targetable = state.pendingSkillIndex != null && unit.alive !== false;
             cluster.appendChild(renderCombatant({ unit, character, isEnemy: true, slot, targetable }));
         });
         stage.appendChild(cluster);
@@ -1957,7 +1781,6 @@
         // specific row count.
         const panel = document.createElement('div');
         panel.className = 'panel';
-        panel.appendChild(renderApproachButton());
         vChar.skills.forEach((_, idx) => panel.appendChild(renderSkillButton(vChar, vUnit, idx)));
 
         if (state.over && !suppressOverlay) {
