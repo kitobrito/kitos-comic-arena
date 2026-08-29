@@ -478,6 +478,15 @@ button { font-family: inherit; }
 }
 .combatant.player {
     left: 15%;
+    /* 26px lower than the shared bottom:8% baseline (per feedback, a
+       remaining feet-alignment nudge - iterated live from 3px to 10px to
+       18px to this) - calc() against bottom rather than a transform,
+       since the walk-up flourish's own JS-driven transform (see the next
+       comment) fully replaces .combatant.player's inline transform on
+       every animation frame - stacking this into transform too would
+       just get overwritten the instant that animation runs, not
+       combined with it. */
+    bottom: calc(8% - 26px);
     /* The melee walk-up flourish's forward-and-back step (see
        animatePlayerStep in game.js) writes a plain inline
        transform:translateX(...cqw) directly, re-resolved every
@@ -696,6 +705,12 @@ button { font-family: inherit; }
 .figure.char-goblin-shaman { height: 23cqh; }
 .figure.char-goblin-sneak { height: 20cqh; }
 .figure.char-giant-rat { height: 15cqh; }
+/* Smile Golem (the final boss) - deliberately the largest figure in the
+   roster, taller even than the Vampire's own ~42.3cqh, so it physically
+   dominates the screen the way a final boss should. Its own art is
+   edge-to-edge with no transparent padding (measured the same way as
+   the rest of this block), so 50cqh here is directly its true height. */
+.figure.char-smile-golem { height: 50cqh; }
 
 /* The whole roster has real art now - Goblin Sneak and Goblin Warrior
    (characterId 'hobgoblin-warrior') were the last two tinted
@@ -704,24 +719,24 @@ button { font-family: inherit; }
 
 /* Idle breathing/sway loop - a subtle standing-in-place motion built from
    the same single illustrated pose, per the "position interpolation and
-   scaling, not frame-by-frame sprites" brief. Staggered per character
-   (via animation-delay) so the cast doesn't bob in unison. Composed as a
-   proper @keyframes animation, not a static transform, so is-acting/is-hit
-   below (also animations) can cleanly take over the `transform` property
-   while active and hand it back to idle-bob when their class is removed. */
+   scaling, not frame-by-frame sprites" brief. Composed as a proper
+   @keyframes animation, not a static transform, so is-acting/is-hit below
+   (also animations) can cleanly take over the `transform` property while
+   active and hand it back to idle-bob when their class is removed.
+   Previously staggered per character (a different animation-delay/
+   -duration each) so a multi-enemy group didn't bob in unison - now
+   always 1-on-1 (no per-character overrides left below), that stagger
+   meant the player and their one opponent were almost never at the same
+   point in the cycle at any given instant, which could read as their
+   feet floating a couple of px out of alignment with each other even
+   though the resting (0%/100%) position itself was correctly lined up
+   (reported live via a screenshot) - every combatant now shares the
+   exact same cycle, so the two are always mid-breath together, not just
+   at rest together. */
 @keyframes idle-bob {
     0%, 100% { transform: translateY(0) scale(1); }
     50% { transform: translateY(-1.4%) scale(1.008); }
 }
-.combatant.player .figure { animation-delay: -0.6s; }
-.figure.char-skeleton { animation-duration: 4.6s; animation-delay: -1.8s; }
-.figure.char-goblin-grunt { animation-duration: 3.5s; animation-delay: -0.3s; }
-.figure.char-giant-rat { animation-duration: 3.9s; animation-delay: -2.6s; }
-.figure.char-hobgoblin-warrior { animation-duration: 4.4s; animation-delay: -0.9s; }
-.figure.char-zombie { animation-duration: 5.1s; animation-delay: -1.4s; }
-.figure.char-hobgoblin-archer { animation-duration: 3.7s; animation-delay: -2s; }
-.figure.char-goblin-shaman { animation-duration: 4s; animation-delay: -0.6s; }
-.figure.char-goblin-sneak { animation-duration: 3.3s; animation-delay: -1.2s; }
 
 .figure.is-acting { animation: acting-lunge 380ms ease; }
 @keyframes acting-lunge {
@@ -772,6 +787,37 @@ button { font-family: inherit; }
     0% { transform: translate(-50%, 0) scale(0.85); opacity: 0; }
     18% { transform: translate(-50%, -8%) scale(1.08); opacity: 1; }
     100% { transform: translate(-50%, -60%) scale(1); opacity: 0; }
+}
+
+/* --- floating status words (STUNNED, CRIT!) --- same mechanism as
+   .dmg-float above (showStatusFloat in game.js), sized/positioned for a
+   word instead of a number and held noticeably longer (1400ms with a
+   plateau, vs. the number's quick 950ms fade) - meant to register as its
+   own callout, not blend into an adjacent damage number appearing at the
+   same moment (CRIT! shows alongside its own dmg-float hit). Sits above
+   the number (top:-8% vs. the number's 6%) for exactly that reason. */
+.status-float {
+    position: absolute;
+    top: -8%;
+    left: 50%;
+    z-index: 7;
+    font-family: 'Cinzel', serif;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    font-size: clamp(0.95rem, 2.1vw, 1.35rem);
+    text-transform: uppercase;
+    pointer-events: none;
+    white-space: nowrap;
+    text-shadow: 0 0 6px rgba(0,0,0,0.9), 0 0 16px currentColor;
+    animation: float-up-word 1400ms ease-out forwards;
+}
+.status-float.crit { color: #ff8a3d; }
+.status-float.stunned { color: #c88bff; }
+@keyframes float-up-word {
+    0% { transform: translate(-50%, 0) scale(0.8); opacity: 0; }
+    15% { transform: translate(-50%, -10%) scale(1.12); opacity: 1; }
+    75% { transform: translate(-50%, -45%) scale(1); opacity: 1; }
+    100% { transform: translate(-50%, -65%) scale(1); opacity: 0; }
 }
 
 /* --- bottom control panel --- */
