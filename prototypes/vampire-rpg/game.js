@@ -148,7 +148,10 @@
         walk_base_2: '54cqh',
         walk_base_3: '49cqh',
         walk_feral_1: '61cqh',
-        walk_feral_2: '63cqh',
+        // Reported live as visibly too large in the actual battle scene
+        // compared to its neighbors, despite the formula putting it close
+        // to frames 1/3 - cut down by feel rather than by the raw scan.
+        walk_feral_2: '54cqh',
         walk_feral_3: '62cqh',
         // New frames 4-6 are lower-crouch dynamic poses with more head/
         // footroom in their own canvas than 1-3 - capped near this game's
@@ -819,10 +822,6 @@
             // philosophy as HP already fully healing at Camp.
             potionsRemaining: 3,
             range,
-            // Slot of the most recently Approached enemy (see
-            // engagedForwardCqw) - null until the first Approach this
-            // encounter.
-            engagedSlot: null,
         };
         log(encounter.label + ' blocks your path.');
         screen = 'battle';
@@ -928,23 +927,34 @@
     function anyCloseAliveEnemy() {
         return state.match.board.enemy.some((u, slot) => u.alive !== false && isClose(slot));
     }
-    // How far forward (in cqw, toward the enemy-cluster side) the player
-    // should stand - scaled by BOTH state.engagedSlot's position in the
-    // line-up (a farther-ranked enemy has more ground to physically cross)
-    // AND how many of that enemy's steps have actually been closed so far
-    // (a partial Approach only advances partway, not the full distance -
-    // reads as "creeping forward" over multiple turns against a
-    // multi-step enemy, matching the frame swap already scrubbing the walk
-    // cycle). 0 if nothing has been Approached yet this encounter.
-    function engagedForwardCqw() {
-        if (state.engagedSlot == null) return 0;
-        const slot = state.engagedSlot;
+    // How far forward (in cqw) a given enemy's slot implies the player
+    // should stand - scaled by BOTH that slot's position in the line-up (a
+    // farther-ranked enemy has more ground to physically cross) AND how
+    // many of ITS steps have actually been closed so far (a partial
+    // Approach only advances partway, not the full distance).
+    function forwardCqwForSlot(slot) {
         const count = state.match.board.enemy.length;
         const base = baseStepsForSlot(slot);
         const remaining = state.range && state.range[slot] != null ? state.range[slot] : base;
         const progress = base > 0 ? Math.max(0, Math.min(1, (base - remaining) / base)) : 1;
         const frac = count > 1 ? (slot + 0.5) / count : 0.5;
         return (6 + frac * 16) * progress;
+    }
+    // The player's actual forward position: the BEST progress made toward
+    // ANY enemy so far, not just whichever was most recently Approached -
+    // approaching a nearer enemy after already advancing on a farther one
+    // must never visually walk the player backward again (reported live -
+    // switching targets was snapping them back toward the start). Safe to
+    // recompute fresh from state.range every time rather than tracking a
+    // separate high-water mark, since steps only ever count down, never
+    // back up.
+    function engagedForwardCqw() {
+        if (!state.range) return 0;
+        let best = 0;
+        state.match.board.enemy.forEach((unit, slot) => {
+            best = Math.max(best, forwardCqwForSlot(slot));
+        });
+        return best;
     }
 
     function buildTargetSelection(skill, actingUsername, actorSlot, targetSlot) {
@@ -989,10 +999,9 @@
             .map((u, slot) => ({ u, slot }))
             .filter((e) => e.u.alive !== false && (!meleeGated || isClose(e.slot)));
         if (meleeGated && aliveEnemies.length === 0) return; // guarded by the disabled button too
-        if (aliveEnemies.length === 1) {
-            playPlayerAction(skillIndex, aliveEnemies[0].slot);
-            return;
-        }
+        // Always go through the target picker, even with only one valid
+        // enemy - no auto-fire-on-the-only-target shortcut (removed per
+        // feedback: picking a target should always be an explicit click).
         state.pendingSkillIndex = skillIndex;
         render();
     }
@@ -1008,13 +1017,8 @@
         if (state.over || state.busy) return;
         if (!anyFarAliveEnemy()) return;
         playSfx('select');
-        const farEnemies = state.match.board.enemy
-            .map((u, slot) => ({ u, slot }))
-            .filter((e) => e.u.alive !== false && !isClose(e.slot));
-        if (farEnemies.length === 1) {
-            performApproach(farEnemies[0].slot);
-            return;
-        }
+        // Always go through the target picker - no auto-fire-on-the-only-
+        // far-enemy shortcut (removed per feedback, same as skills above).
         state.pendingSkillIndex = 'approach';
         render();
     }
@@ -1028,7 +1032,6 @@
         // enemy needs a separate Approach (a separate turn) per remaining
         // step.
         state.range[slot] = Math.max(0, (state.range[slot] || 0) - 1);
-        state.engagedSlot = slot;
         endSideTurn('player');
         checkOutcome();
         log(isClose(slot)
