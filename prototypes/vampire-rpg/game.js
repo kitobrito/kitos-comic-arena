@@ -63,12 +63,22 @@
         walk_base_1: 'assets/vampire-walk-1.png',
         walk_base_2: 'assets/vampire-walk-2.png',
         walk_base_3: 'assets/vampire-walk-3.png',
+        // Feral and Hemo each got extended to a 6-frame cycle (playerWalkFrames
+        // returns all 6 for these two specifically - see WALK_FRAME_COUNT).
+        // Hemo's new frames were inserted BEFORE its original 3, which were
+        // renumbered 4-6 rather than reshuffled in place.
         walk_feral_1: 'assets/feral-walk-1.png',
         walk_feral_2: 'assets/feral-walk-2.png',
         walk_feral_3: 'assets/feral-walk-3.png',
+        walk_feral_4: 'assets/feral-walk-4.png',
+        walk_feral_5: 'assets/feral-walk-5.png',
+        walk_feral_6: 'assets/feral-walk-6.png',
         walk_hemo_1: 'assets/hemo-walk-1.png',
         walk_hemo_2: 'assets/hemo-walk-2.png',
         walk_hemo_3: 'assets/hemo-walk-3.png',
+        walk_hemo_4: 'assets/hemo-walk-4.png',
+        walk_hemo_5: 'assets/hemo-walk-5.png',
+        walk_hemo_6: 'assets/hemo-walk-6.png',
         walk_shadow_1: 'assets/shadow-walk-1.png',
         walk_shadow_2: 'assets/shadow-walk-2.png',
         walk_shadow_3: 'assets/shadow-walk-3.png',
@@ -140,9 +150,23 @@
         walk_feral_1: '61cqh',
         walk_feral_2: '63cqh',
         walk_feral_3: '62cqh',
-        walk_hemo_1: '55cqh',
-        walk_hemo_2: '56cqh',
-        walk_hemo_3: '49cqh',
+        // New frames 4-6 are lower-crouch dynamic poses with more head/
+        // footroom in their own canvas than 1-3 - capped near this game's
+        // existing high end (feral_rampage sits at 71cqh) instead of the
+        // raw scan formula, which would swing as high as ~124cqh and pop
+        // wildly mid-cycle against frames 1-3.
+        walk_feral_4: '72cqh',
+        walk_feral_5: '74cqh',
+        walk_feral_6: '70cqh',
+        // walk_hemo_1/2/3 are the NEW inserted frames (measured fresh);
+        // walk_hemo_4/5/6 carry the ORIGINAL 3 frames' own heights
+        // forward unchanged, just renumbered.
+        walk_hemo_1: '60cqh',
+        walk_hemo_2: '54cqh',
+        walk_hemo_3: '54cqh',
+        walk_hemo_4: '55cqh',
+        walk_hemo_5: '56cqh',
+        walk_hemo_6: '49cqh',
         walk_shadow_1: '60cqh',
         walk_shadow_2: '62cqh',
         walk_shadow_3: '62cqh',
@@ -259,10 +283,16 @@
     function playerWalkFrames() {
         const key = save && save.character ? comboArtKeyFor(save.character) : null;
         const primary = key ? key.replace(/-/g, '_') : 'base';
+        // Feral and Hemo (pure, non-hybrid appearances only) each got
+        // extended to a 6-frame walk cycle; base, Shadow, and every hybrid
+        // combo still have 3.
+        const frameCount = (primary === 'feral' || primary === 'hemo') ? 6 : 3;
         // Pose KEYS (into VAMPIRE_POSES/VAMPIRE_POSE_HEIGHT), not resolved
         // paths - setVampireImage does that lookup itself, and also needs
         // the key to apply the matching height override.
-        return ['walk_' + primary + '_1', 'walk_' + primary + '_2', 'walk_' + primary + '_3'];
+        const frames = [];
+        for (let i = 1; i <= frameCount; i++) frames.push('walk_' + primary + '_' + i);
+        return frames;
     }
     // .camp-figure's height/bottom (style.css) were hand-tuned specifically
     // for vampire-standing.png's crop (99.6% content-fill - see
@@ -1009,8 +1039,12 @@
         // - reuses playVampirePoseSequence with an empty diffs array since
         // Approach deals no damage/heals nothing (no floating numbers to
         // show), same revert-to-idle-when-done behavior as every other
-        // sequence.
-        const totalMs = playVampirePoseSequence(playerWalkFrames(), [], { stepMs: 260, holdMs: 480 });
+        // sequence. Feral/Hemo's 6-frame cycle steps slightly faster per
+        // frame than the 3-frame default - at the same stepMs it would run
+        // noticeably longer than every other appearance's Approach.
+        const walkFrames = playerWalkFrames();
+        const walkStepMs = walkFrames.length > 3 ? 200 : 260;
+        const totalMs = playVampirePoseSequence(walkFrames, [], { stepMs: walkStepMs, holdMs: 480 });
         // render() just above already put .combatant.player at its correct
         // --engage-x for the CURRENT state (see engagedForwardCqw). That's
         // instant, not animated (a brand-new element can't transition from
