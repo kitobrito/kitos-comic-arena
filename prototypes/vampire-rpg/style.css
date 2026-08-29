@@ -468,15 +468,112 @@ button { font-family: inherit; }
 }
 
 /* --- combatants --- */
+/* Two lanes for now (more later): a BACK lane where enemies line up
+   left-to-right (the existing flex-distributed .enemy-cluster, unchanged
+   below - still needs per-count sizing so 2-3 enemies don't overlap
+   sharing one row), and a FRONT lane close to the camera, shared by the
+   player and whichever single enemy currently occupies melee range with
+   them (see frontLaneOccupantSlot in game.js) - .combatant.front-lane
+   below. Everyone else waits in the back lane regardless of their own
+   step count until that spot opens up (the occupant dies). */
 .combatant {
     position: absolute;
     bottom: 8%;
+    left: 16%;
+    z-index: 3;
     display: flex;
     flex-direction: column;
     align-items: center;
-    transition: filter 200ms ease, opacity 400ms ease;
+    transition: filter 200ms ease, opacity 400ms ease, left 200ms ease;
 }
-.combatant.player { left: 15%; }
+/* A marked spot on the ground at each fixed position (player's home spot,
+   the two front-lane slots) - a ring, not a filled disc, so it reads as a
+   floor marking rather than a shadow. Purely decorative/positioning aid
+   (see LANE_SPOTS in game.js for the exact list), centered under where
+   that slot's combatant actually stands. */
+.lane-spot {
+    position: absolute;
+    bottom: 6.5%;
+    width: 8%;
+    aspect-ratio: 1;
+    transform: translateX(-50%);
+    border: 2px solid rgba(200, 162, 74, 0.4);
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(200, 162, 74, 0.25), inset 0 0 8px rgba(200, 162, 74, 0.15);
+    pointer-events: none;
+    z-index: 1;
+}
+/* The front-lane occupant is appended directly to .stage (not inside
+   .enemy-cluster - see renderBattleScreen), so this positions against the
+   whole stage, matching the player's own row. Two spots
+   (FRONT_LANE_CAPACITY in game.js). A rendered enemy figure at full/
+   unshrunk height runs surprisingly wide (confirmed via measurement -
+   ~30% of the stage's own width for some poses), so these need to sit
+   well clear of BOTH each other and the player's own spot/engaged step
+   (see FRONT_LANE_FORWARD_CQW in game.js) - the original 30%/52% still
+   overlapped the player entirely, hiding them completely behind the
+   first enemy's sprite. z-index stays below the player's own (3) so an
+   enemy can never cover the player even if art proves wider still. */
+.combatant.front-lane-0 { left: 40%; z-index: 2; }
+.combatant.front-lane-1 { left: 74%; z-index: 2; }
+/* A full/unshrunk enemy figure runs far wider than its "left" position
+   alone suggests (confirmed live - one measured at 31% of the stage's
+   OWN width), enough to still collide with its neighbor at the spacing
+   above for the widest characters in the roster. Scaled down specifically
+   in the front lane (not the .figure base rule, which the back lane and
+   everywhere else still needs at full size) via height, not transform -
+   transform on .figure is perpetually claimed by its own idle-bob
+   animation (see the comment on it below), so a static scale() here would
+   just be silently overridden once idle-bob starts. */
+.combatant.front-lane .figure { height: 24cqh !important; }
+/* Retreated to the back lane (see onLaneShiftClick) - matches roughly
+   where the back-lane enemy row itself stands (see .enemy-cluster's own
+   margin-bottom below), same X spot as always, just farther from camera. */
+.combatant.player.in-back-lane { bottom: 30%; }
+
+/* A visible ground line marking the boundary between the back lane (enemy
+   line-up) and the front lane (melee range, shared with the player) -
+   the two rows read as one cluttered mess without something drawing the
+   actual line between them. Sits right where combatants' own feet
+   actually land (measured live - .combatant's bottom:8% puts feet at
+   ~8.3% from the stage's bottom edge, not visually where a naive read of
+   "8%" suggests once the figure's own height is accounted for), a couple
+   percent below so it reads as ground the feet stand ON, not through. */
+.lane-divider {
+    position: absolute;
+    left: 8%;
+    right: 8%;
+    bottom: 6%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(200, 162, 74, 0.55) 15%, rgba(200, 162, 74, 0.55) 85%, transparent);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.6);
+    pointer-events: none;
+    z-index: 1;
+}
+.lane-divider::before, .lane-divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0;
+}
+.lane-label {
+    position: absolute;
+    bottom: calc(6% + 4px);
+    font-family: 'Cinzel', serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(239, 225, 204, 0.55);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+    pointer-events: none;
+    z-index: 1;
+}
+/* The back label sits up near where the back lane actually stands (its
+   own margin-bottom-based positioning below runs well above the line),
+   not pinned to the divider like the front label. */
+.lane-label.back { left: 55%; bottom: 38%; }
+.lane-label.front { left: 8%; }
 
 .enemy-cluster {
     position: absolute;
@@ -683,6 +780,16 @@ button { font-family: inherit; }
     background: rgba(70, 150, 100, 0.28);
     color: #c3ecd2;
     border-color: rgba(100, 190, 130, 0.5);
+}
+/* Fully closed the distance, but the front lane already holds
+   FRONT_LANE_CAPACITY other enemies - waiting for a spot, not yet
+   actually in melee range (see isWaitingForFrontLane in game.js). A
+   distinct amber state so it doesn't read as either "still approaching"
+   or "already engaged". */
+.range-badge.is-waiting {
+    background: rgba(180, 140, 60, 0.28);
+    color: #f0dcb0;
+    border-color: rgba(210, 170, 90, 0.5);
 }
 
 /* Character art is height-anchored (via container query units against the

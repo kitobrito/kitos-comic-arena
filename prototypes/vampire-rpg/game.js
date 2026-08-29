@@ -786,20 +786,22 @@
         // Every enemy starts some number of STEPS away (see
         // baseStepsForSlot - fixed by position in the line-up: the enemy
         // closest to the player, slot 0, is 1 step; each slot after that is
-        // one step farther), not a flat Far/Close - the player has to spend
-        // a turn Approaching (see onApproachClick/performApproach) to close
-        // ONE step at a time before any Melee-tagged skill can target that
-        // enemy (renderSkillButton/onSkillClick check isClose, which just
-        // reads "0 steps left"). Once at 0 it stays there for the rest of
-        // the encounter. Player-side only: enemies always attack normally
-        // regardless of range (their own chooseEnemyAction/runEnemyTurn are
-        // unaffected). Hemonancer's level 3 pick ("+1 Range" -
-        // hemonancer_extended_reach) shaves 1 step off every enemy's
-        // starting distance, checked directly by choice id since it's a
-        // one-time snapshot at encounter start, not an ongoing status check.
+        // one step farther). Either side can spend a turn closing a step
+        // (player: onApproachClick/performApproach; melee-only enemies:
+        // chooseEnemyAction's own Advance branch). Reaching 0 steps doesn't
+        // automatically mean melee range, though - the front lane only
+        // holds FRONT_LANE_CAPACITY enemies at once (see
+        // promoteFrontLane/isClose/isWaitingForFrontLane), so a 3rd
+        // fully-closed enemy waits for a spot to open (one of the other two
+        // dying) rather than piling in. Hemonancer's level 3 pick
+        // ("+1 Range" - hemonancer_extended_reach) shaves 1 step off every
+        // enemy's starting distance, checked directly by choice id since
+        // it's a one-time snapshot at encounter start, not an ongoing
+        // status check.
         const rangeBonus = (save.character.levelChoiceIds || []).includes('hemonancer_extended_reach') ? 1 : 0;
         const range = {};
         board.enemy.forEach((_, slot) => { range[slot] = Math.max(0, baseStepsForSlot(slot) - rangeBonus); });
+        const frontLaneOccupants = [];
         state = {
             match: {
                 players,
@@ -822,6 +824,12 @@
             // philosophy as HP already fully healing at Camp.
             potionsRemaining: 3,
             range,
+            frontLaneOccupants,
+            // The player's own lane - front (default, melee-capable) or
+            // back (retreated - Melee skills unusable, and no front-lane
+            // enemy can melee the player either, but ranged/self skills on
+            // both sides are unaffected). See onLaneShiftClick.
+            playerInBackLane: false,
         };
         log(encounter.label + ' blocks your path.');
         screen = 'battle';
@@ -905,56 +913,87 @@
     function skillRequiresMelee(skill) {
         return !!(skill && skill.classes && skill.classes.some((c) => String(c).toLowerCase() === 'melee'));
     }
-    // Range is a real step count now, not a Far/Close boolean - each enemy's
+    // Range is a real step count, not a Far/Close boolean - each enemy's
     // BASE distance is fixed by its position in the line-up (leftmost/
     // closest to the player = 1 step, next = 2, etc. - see newGame()'s
-    // range init), and each Approach closes exactly one step on whichever
-    // enemy it targets (see performApproach), not the whole gap at once.
-    // isClose/anyFarAliveEnemy/anyCloseAliveEnemy all still read as a
-    // simple boolean off of this - "0 steps left" - so every OTHER caller
-    // (melee gating, badges, targeting) is unaffected by the step count
-    // itself, only performApproach/engagedForwardCqw below deal with it
-    // directly.
+    // range init), and each Approach/Advance closes exactly one step on
+    // whichever enemy it targets, not the whole gap at once. Reaching 0
+    // steps doesn't automatically mean melee range, though - see the
+    // front-lane occupancy system just below.
     function baseStepsForSlot(slot) {
         return slot + 1;
     }
+    function stepsLeftForSlot(slot) {
+        return state.range && state.range[slot] != null ? state.range[slot] : baseStepsForSlot(slot);
+    }
+    // Two lanes: BACK (where enemies start, spread left-to-right - the
+    // .enemy-cluster) and FRONT (melee range, shared with the player). The
+    // front lane holds the player plus up to FRONT_LANE_CAPACITY enemies
+    // at once - a real occupancy cap ("cannot stack on each other unless
+    // one is dead"), not just "reached 0 steps". state.frontLaneOccupants
+    // tracks exactly which enemy slots currently hold a front-lane spot,
+    // explicitly managed (not derived from steps alone) so a 3rd
+    // fully-closed enemy visibly WAITS instead of silently overlapping an
+    // already-occupied spot.
+    const FRONT_LANE_CAPACITY = 2;
+    // The player's fixed step forward (cqw) into the front lane once
+    // anyone's actually in it with them - a real, visible "lean in" (8
+    // read as barely-there against a full walk-cycle animation, reported
+    // live as "not moving at all"), while still staying clear of
+    // .combatant.front-lane-0's own spot (40% in style.css, ~10% clearance
+    // at 16%+14%=30%) - a rendered enemy figure runs surprisingly wide
+    // (confirmed via live measurement), and too large an offset here puts
+    // the player directly behind it, hidden completely.
+    const FRONT_LANE_FORWARD_CQW = 14;
     function isClose(slot) {
-        return !!(state.range && state.range[slot] != null && state.range[slot] <= 0);
+        return !!(state.frontLaneOccupants && state.frontLaneOccupants.indexOf(slot) !== -1);
+    }
+    // True once an enemy has closed all its own steps but the front lane
+    // is full - distinct from isClose (an actual held spot). Shown as its
+    // own "Waiting" badge state rather than looking identical to Close.
+    function isWaitingForFrontLane(slot) {
+        return !isClose(slot) && stepsLeftForSlot(slot) <= 0;
+    }
+    // Drops any dead occupant, then fills open front-lane spots (lowest
+    // slot first) with any alive enemy that's fully closed the distance
+    // but hasn't been let in yet. Call after anything that could free or
+    // fill a spot: a step closing (performApproach/enemy Advance) or a
+    // death (checkOutcome already runs after every single actor's turn,
+    // so hooking it there covers both without a separate call site).
+    function promoteFrontLane() {
+        if (!state.frontLaneOccupants) return;
+        state.frontLaneOccupants = state.frontLaneOccupants.filter((slot) => {
+            const u = state.match.board.enemy[slot];
+            return u && u.alive !== false;
+        });
+        state.match.board.enemy.forEach((unit, slot) => {
+            if (state.frontLaneOccupants.length >= FRONT_LANE_CAPACITY) return;
+            if (!unit || unit.alive === false) return;
+            if (state.frontLaneOccupants.indexOf(slot) !== -1) return;
+            if (stepsLeftForSlot(slot) <= 0) state.frontLaneOccupants.push(slot);
+        });
     }
     function anyFarAliveEnemy() {
-        return state.match.board.enemy.some((u, slot) => u.alive !== false && !isClose(slot));
+        return state.match.board.enemy.some((u, slot) => u.alive !== false && stepsLeftForSlot(slot) > 0);
     }
     function anyCloseAliveEnemy() {
         return state.match.board.enemy.some((u, slot) => u.alive !== false && isClose(slot));
     }
-    // How far forward (in cqw) a given enemy's slot implies the player
-    // should stand - scaled by BOTH that slot's position in the line-up (a
-    // farther-ranked enemy has more ground to physically cross) AND how
-    // many of ITS steps have actually been closed so far (a partial
-    // Approach only advances partway, not the full distance).
-    function forwardCqwForSlot(slot) {
-        const count = state.match.board.enemy.length;
-        const base = baseStepsForSlot(slot);
-        const remaining = state.range && state.range[slot] != null ? state.range[slot] : base;
-        const progress = base > 0 ? Math.max(0, Math.min(1, (base - remaining) / base)) : 1;
-        const frac = count > 1 ? (slot + 0.5) / count : 0.5;
-        return (6 + frac * 16) * progress;
+    // True melee eligibility between the player and a specific enemy slot -
+    // both sides have to actually be in the front lane together. An enemy
+    // holding a front-lane spot (isClose) can't melee a player who's
+    // retreated to the back lane, and the player can't melee out from the
+    // back lane either, even at an enemy that's already Close.
+    function canMeleeAcross(slot) {
+        return isClose(slot) && !state.playerInBackLane;
     }
-    // The player's actual forward position: the BEST progress made toward
-    // ANY enemy so far, not just whichever was most recently Approached -
-    // approaching a nearer enemy after already advancing on a farther one
-    // must never visually walk the player backward again (reported live -
-    // switching targets was snapping them back toward the start). Safe to
-    // recompute fresh from state.range every time rather than tracking a
-    // separate high-water mark, since steps only ever count down, never
-    // back up.
+    // The player steps into the front lane the moment anyone else is in it
+    // with them - one fixed spot (see FRONT_LANE_FORWARD_CQW), not a
+    // per-enemy distance - now that lanes are fixed marked spots rather
+    // than a continuous distance to close individually.
     function engagedForwardCqw() {
-        if (!state.range) return 0;
-        let best = 0;
-        state.match.board.enemy.forEach((unit, slot) => {
-            best = Math.max(best, forwardCqwForSlot(slot));
-        });
-        return best;
+        if (state.playerInBackLane) return 0; // a different fixed spot entirely - see .combatant.player.in-back-lane
+        return anyCloseAliveEnemy() ? FRONT_LANE_FORWARD_CQW : 0;
     }
 
     function buildTargetSelection(skill, actingUsername, actorSlot, targetSlot) {
@@ -971,6 +1010,11 @@
 
     function checkOutcome() {
         const wasOver = state.over;
+        // Runs after every single actor's turn (player or enemy) - the one
+        // central hook that covers both a step just closing and a death
+        // just freeing a front-lane spot, without a separate call site for
+        // each.
+        promoteFrontLane();
         const enemiesAlive = state.match.board.enemy.some((u) => u.alive !== false);
         const playerAlive = state.match.board.player.some((u) => u.alive !== false);
         if (!enemiesAlive) state.over = 'win';
@@ -997,7 +1041,7 @@
         const meleeGated = skillRequiresMelee(skill);
         const aliveEnemies = state.match.board.enemy
             .map((u, slot) => ({ u, slot }))
-            .filter((e) => e.u.alive !== false && (!meleeGated || isClose(e.slot)));
+            .filter((e) => e.u.alive !== false && (!meleeGated || canMeleeAcross(e.slot)));
         if (meleeGated && aliveEnemies.length === 0) return; // guarded by the disabled button too
         // Always go through the target picker, even with only one valid
         // enemy - no auto-fire-on-the-only-target shortcut (removed per
@@ -1028,6 +1072,7 @@
         const enemyCharacter = enemyUnit && characterForUnit(enemyUnit);
         const name = enemyCharacter ? enemyCharacter.name : 'the enemy';
         const prevEngageCqw = engagedForwardCqw(); // BEFORE this approach's own state change
+        const beforeEnemyRects = captureEnemyRects(); // ditto, for the FLIP slide below
         // Closes exactly ONE step, not the whole gap - a multi-step-away
         // enemy needs a separate Approach (a separate turn) per remaining
         // step.
@@ -1036,8 +1081,14 @@
         checkOutcome();
         log(isClose(slot)
             ? 'You close the distance to ' + name + '.'
+            : isWaitingForFrontLane(slot)
+            ? 'You reach ' + name + ', but there\'s no room in melee range yet.'
             : 'You advance on ' + name + '. (' + state.range[slot] + ' step' + (state.range[slot] === 1 ? '' : 's') + ' left)', 'you');
         render();
+        // Slide, don't teleport, any enemy that just moved lanes (this
+        // Approach could have pushed one into an open front-lane spot via
+        // promoteFrontLane, called from checkOutcome above).
+        flipEnemyLaneMoves(beforeEnemyRects);
         // 3-frame walk cycle (see playerWalkFrames) instead of a strike pose
         // - reuses playVampirePoseSequence with an empty diffs array since
         // Approach deals no damage/heals nothing (no floating numbers to
@@ -1063,6 +1114,57 @@
             void combatantEl.offsetWidth; // force reflow before re-enabling the transition
             combatantEl.style.transition = 'transform ' + totalMs + 'ms ease';
             combatantEl.style.setProperty('--engage-x', newEngageX);
+        }
+        if (!state.over) {
+            state.busy = true;
+            setTimeout(runEnemyTurn, totalMs + 150);
+        }
+    }
+
+    // Full - can't push into a spot that's already got 2 enemies in it,
+    // same "cannot stack unless one is dead" rule enemies themselves obey.
+    function frontLaneFull() {
+        return !!(state.frontLaneOccupants && state.frontLaneOccupants.length >= FRONT_LANE_CAPACITY);
+    }
+    // Retreat to the back lane (out of melee range entirely - Melee
+    // skills become unusable, and no front-lane enemy can melee the
+    // player either - see canMeleeAcross) or Advance back to the front
+    // lane - two separate buttons (see renderLaneShiftButtons), each
+    // costs a turn same as everything else here.
+    function onLaneShiftClick(toBackLane) {
+        if (state.over || state.busy) return;
+        if (state.playerInBackLane === toBackLane) return; // already there
+        if (!toBackLane && frontLaneFull()) return; // guarded by the disabled button too
+        playSfx('select');
+        const prevInBackLane = state.playerInBackLane;
+        const prevEngageCqw = engagedForwardCqw();
+        state.playerInBackLane = toBackLane;
+        endSideTurn('player');
+        checkOutcome();
+        log(state.playerInBackLane
+            ? 'You fall back to the back lane, out of melee range.'
+            : 'You advance back to the front lane.', 'you');
+        render();
+        // Real movement between lanes, not an instant toggle - same walk
+        // cycle Approach uses (see playerWalkFrames), and the same "force
+        // the old value, reflow, then transition to the new one" trick for
+        // BOTH axes (engage-x horizontally, bottom% for the lane depth) -
+        // a brand-new element (render() rebuilds from scratch every time)
+        // can't transition from a state it was never actually in.
+        const walkFrames = playerWalkFrames();
+        const walkStepMs = walkFrames.length > 3 ? 200 : 260;
+        const totalMs = playVampirePoseSequence(walkFrames, [], { stepMs: walkStepMs, holdMs: 480 });
+        const combatantEl = findCombatantEl('player', 0);
+        if (combatantEl) {
+            const newEngageX = combatantEl.style.getPropertyValue('--engage-x');
+            const newBottom = getComputedStyle(combatantEl).bottom;
+            combatantEl.style.transition = 'none';
+            combatantEl.style.setProperty('--engage-x', prevEngageCqw + 'cqw');
+            combatantEl.style.bottom = prevInBackLane ? '30%' : '8%';
+            void combatantEl.offsetWidth;
+            combatantEl.style.transition = 'transform ' + totalMs + 'ms ease, bottom ' + totalMs + 'ms ease';
+            combatantEl.style.setProperty('--engage-x', newEngageX);
+            combatantEl.style.bottom = newBottom;
         }
         if (!state.over) {
             state.busy = true;
@@ -1206,10 +1308,32 @@
                 return { skillIndex: healSkillIndex, skill, targetSelection: [{ username: 'enemy', slot: bestSlot }], poseKey: 'heal' };
             }
         }
-        const skillIndex = character.skills.findIndex(
+        // Melee-tagged skills need this enemy to actually hold a front-lane
+        // spot (isClose) - same gate the player's own melee skills check,
+        // now applied symmetrically. wantsSkillIndex (ignoring range) vs
+        // usableSkillIndex (respecting it) lets this tell "wants to melee
+        // but can't reach" apart from "genuinely has nothing to do" below.
+        const wantsSkillIndex = character.skills.findIndex(
             (sk) => sk.target !== 'self-or-ally' && isActiveSkill(sk) && BE.getSkillCooldownRemaining(unit.state, sk.id) <= 0
         );
-        if (skillIndex < 0) return null;
+        const usableSkillIndex = character.skills.findIndex(
+            (sk) => sk.target !== 'self-or-ally' && isActiveSkill(sk) && BE.getSkillCooldownRemaining(unit.state, sk.id) <= 0
+                && (!skillRequiresMelee(sk) || canMeleeAcross(slot))
+        );
+        if (usableSkillIndex < 0) {
+            // Nothing it can actually use right now. If that's specifically
+            // because its skill needs melee range and it hasn't closed the
+            // distance yet, spend the turn Advancing one step instead of
+            // doing nothing (mirrors the player's own Approach) - but only
+            // while it still HAS steps left; once fully closed and merely
+            // waiting on a full front lane (see isWaitingForFrontLane),
+            // advancing further would be a no-op, so it just holds instead.
+            if (wantsSkillIndex >= 0 && skillRequiresMelee(character.skills[wantsSkillIndex]) && stepsLeftForSlot(slot) > 0) {
+                return { advance: true };
+            }
+            return null;
+        }
+        const skillIndex = usableSkillIndex;
         const skill = character.skills[skillIndex];
         const targetSelection = skill.target === 'self'
             ? [{ username: 'enemy', slot }]
@@ -1223,6 +1347,7 @@
 
     function runEnemyTurn() {
         const enemyBoard = state.match.board.enemy;
+        const beforeEnemyRects = captureEnemyRects(); // before anything this turn could move a lane occupant
         const actions = [];
         const acted = [];
         enemyBoard.forEach((unit, slot) => {
@@ -1230,6 +1355,16 @@
             const character = characterForUnit(unit);
             const action = chooseEnemyAction(unit, character, slot, enemyBoard);
             if (!action) return;
+            if (action.advance) {
+                // Mirrors performApproach - closes exactly one step, and
+                // promoteFrontLane (via checkOutcome below) is what
+                // actually grants a spot once it reaches 0, same as the
+                // player's own Approach.
+                state.range[slot] = Math.max(0, stepsLeftForSlot(slot) - 1);
+                log(character.name + ' advances.', 'foe');
+                acted.push({ username: 'enemy', slot, poseKey: 'advance' });
+                return;
+            }
             const { skillIndex, skill, targetSelection, poseKey } = action;
             actions.push({ slot, character, skillIndex, skill, targetSelection, poseKey });
             const target = targetSelection[0];
@@ -1261,6 +1396,7 @@
         // Suppress the defeat overlay for a beat so the hit -> death pose
         // sequence is actually visible before it's covered.
         render(justLost ? { suppressOverlay: true } : undefined);
+        flipEnemyLaneMoves(beforeEnemyRects);
         showTurnEffects(acted, diffs);
         if (justLost) {
             setTimeout(() => {
@@ -1378,6 +1514,40 @@
     function findCombatantEl(username, slot) {
         const root = document.getElementById('app');
         return root.querySelector('.combatant[data-username="' + username + '"][data-slot="' + slot + '"]');
+    }
+
+    // Snapshot every living enemy's ON-SCREEN rect right before a render()
+    // that might move one between lanes - pair with flipEnemyLaneMoves
+    // right after that render() to turn what would otherwise be an
+    // instant teleport (render() rebuilds every combatant from scratch
+    // each time, so a plain CSS transition has no "old" state to animate
+    // from) into a real slide, using the standard FLIP technique (First,
+    // Last, Invert, Play) already proven elsewhere in this file for the
+    // player's own engage-x.
+    function captureEnemyRects() {
+        const rects = {};
+        state.match.board.enemy.forEach((unit, slot) => {
+            const el = findCombatantEl('enemy', slot);
+            if (el) rects[slot] = el.getBoundingClientRect();
+        });
+        return rects;
+    }
+    function flipEnemyLaneMoves(beforeRects) {
+        state.match.board.enemy.forEach((unit, slot) => {
+            const el = findCombatantEl('enemy', slot);
+            const before = beforeRects[slot];
+            if (!el || !before) return;
+            const after = el.getBoundingClientRect();
+            const dx = before.left - after.left;
+            const dy = before.top - after.top;
+            if (Math.abs(dx) < 2 && Math.abs(dy) < 2) return; // didn't actually move lanes
+            el.style.transition = 'none';
+            el.style.transform = 'translate(' + dx + 'px, ' + dy + 'px)';
+            void el.offsetWidth;
+            el.style.transition = 'transform 550ms ease';
+            el.style.transform = '';
+            setTimeout(() => { el.style.transition = ''; }, 600);
+        });
     }
 
     // Swaps the Vampire's <img src> directly (no full render()) so an
@@ -1593,7 +1763,7 @@
         // vs .combatant.dead.has-defeated-pose in style.css).
         const enemyPoses = isEnemy ? ENEMY_POSES[character.characterId] : null;
         const el = document.createElement('div');
-        el.className = 'combatant' + (isEnemy ? '' : ' player') + (dead ? ' dead' : '') + (dead && enemyPoses ? ' has-defeated-pose' : '') + (targetable ? ' targetable' : '');
+        el.className = 'combatant' + (isEnemy ? '' : ' player') + (dead ? ' dead' : '') + (dead && enemyPoses ? ' has-defeated-pose' : '') + (targetable ? ' targetable' : '') + (!isEnemy && state.playerInBackLane ? ' in-back-lane' : '');
         el.dataset.username = isEnemy ? 'enemy' : 'player';
         el.dataset.slot = String(slot);
         // How far forward (toward whichever enemy was last Approached - see
@@ -1605,10 +1775,15 @@
 
         const nameplate = document.createElement('div');
         nameplate.className = 'nameplate' + (isEnemy ? '' : ' player-nameplate');
-        const stepsLeft = isEnemy && state.range ? (state.range[slot] || 0) : 0;
+        // Three states now: an actual front-lane spot (Close), fully
+        // closed but the front lane is full (Waiting - see
+        // isWaitingForFrontLane/FRONT_LANE_CAPACITY), or still has real
+        // ground to cover (N Steps).
+        const rangeState = !isEnemy ? null : isClose(slot) ? 'close' : isWaitingForFrontLane(slot) ? 'waiting' : 'far';
+        const stepsLeft = isEnemy ? stepsLeftForSlot(slot) : 0;
+        const rangeBadgeText = rangeState === 'close' ? 'Close' : rangeState === 'waiting' ? 'Waiting' : stepsLeft + (stepsLeft === 1 ? ' Step' : ' Steps');
         const rangeBadge = isEnemy
-            ? ' <span class="range-badge ' + (stepsLeft <= 0 ? 'is-close' : 'is-far') + '">' +
-                (stepsLeft <= 0 ? 'Close' : stepsLeft + (stepsLeft === 1 ? ' Step' : ' Steps')) + '</span>'
+            ? ' <span class="range-badge is-' + rangeState + '">' + rangeBadgeText + '</span>'
             : '';
         nameplate.innerHTML =
             '<div class="name">' + character.name + rangeBadge + (!isEnemy ? ' <span class="level-badge">Lv ' + save.character.level + '</span>' : '') + '</div>' +
@@ -1769,7 +1944,7 @@
         const isPotion = skill.id === 'vampire_potion';
         const cooldown = isPassive ? 0 : BE.getSkillCooldownRemaining(unit.state, skill.id);
         const potionsLeft = state.potionsRemaining;
-        const meleeBlocked = !isPassive && skillRequiresMelee(skill) && !state.match.board.enemy.some((u, s) => u.alive !== false && isClose(s));
+        const meleeBlocked = !isPassive && skillRequiresMelee(skill) && !state.match.board.enemy.some((u, s) => u.alive !== false && canMeleeAcross(s));
         // Life Rip's damage is entirely bonusPerStatusMetadata off current
         // Blood (see characters.source.js) - at 0 Blood it would still fire
         // for its bare 8 base damage, which read as "free to spam" rather
@@ -1876,6 +2051,56 @@
         return slot;
     }
 
+    // Not a real skill either, same as Approach - just a lane toggle (see
+    // onLaneShiftClick).
+    // Two separate, always-visible buttons (not one toggle) - Front and
+    // Back - each disabled when it wouldn't do anything: Front when
+    // already in front OR the front lane is already full (can't push into
+    // an occupied spot, same "cannot stack" rule enemies obey), Back when
+    // already in back.
+    function renderLaneShiftButtons() {
+        const full = frontLaneFull();
+        const specs = [
+            {
+                toBackLane: false,
+                icon: '&#8593;',
+                label: 'Front Lane',
+                disabled: !state.playerInBackLane || full,
+                tooltip: full && state.playerInBackLane
+                    ? 'The front lane is full (2 enemies already there) - wait for one to fall before advancing.'
+                    : 'Advance to the front lane so you can use Melee skills again. Uses your turn.',
+            },
+            {
+                toBackLane: true,
+                icon: '&#8595;',
+                label: 'Back Lane',
+                disabled: state.playerInBackLane,
+                tooltip: 'Fall back to the back lane, out of melee range entirely - no enemy can melee you there. Ranged and self skills still work either way. Uses your turn.',
+            },
+        ];
+        return specs.map((spec) => {
+            const btn = document.createElement('button');
+            btn.className = 'skill-btn';
+            btn.type = 'button';
+            btn.disabled = !!state.over || state.busy || spec.disabled;
+            btn.innerHTML =
+                '<span class="skill-icon">' + spec.icon + '</span>' +
+                '<span class="skill-text"><span class="skill-name">' + spec.label + '</span></span>';
+            btn.addEventListener('click', () => onLaneShiftClick(spec.toBackLane));
+            const tooltip = document.createElement('div');
+            tooltip.className = 'skill-tooltip';
+            const row = document.createElement('div');
+            row.className = 'skill-tooltip-line';
+            row.textContent = spec.tooltip;
+            tooltip.appendChild(row);
+            const slot = document.createElement('div');
+            slot.className = 'skill-slot';
+            slot.appendChild(btn);
+            slot.appendChild(tooltip);
+            return slot;
+        });
+    }
+
     // Each encounter carries its own single illustrated locale (not a
     // day/night pair) - the day/night curse toggle is conveyed by
     // .night-tint fading in over whichever photo this is, rather than by
@@ -1893,7 +2118,22 @@
         frame.className = 'stage-frame';
         const stage = document.createElement('div');
         stage.className = 'stage ' + (state.dayNight === 'night' ? 'is-night' : 'is-day');
-        stage.innerHTML = renderStageBackdrop(state.bg || 'assets/background-day.jpg');
+        stage.innerHTML = renderStageBackdrop(state.bg || 'assets/background-day.jpg') +
+            // A visible line + labels marking the boundary between the back
+            // lane (enemy line-up) and the front lane (melee range) - see
+            // .lane-divider/.lane-label in style.css. Purely visual, drawn
+            // every render (cheap, and its position never actually
+            // changes) rather than conditionally - always there so the two
+            // lanes read as distinct rows from the very first frame.
+            '<div class="lane-divider"></div>' +
+            '<div class="lane-label back">Back Lane</div>' +
+            '<div class="lane-label front">Front Lane</div>' +
+            // Ground-marked spots at the fixed positions (player home,
+            // both front-lane slots - see the matching left% values on
+            // .combatant/.combatant.front-lane-0/.combatant.front-lane-1).
+            '<div class="lane-spot" style="left:16%"></div>' +
+            '<div class="lane-spot" style="left:40%"></div>' +
+            '<div class="lane-spot" style="left:74%"></div>';
 
         const dnBtn = document.createElement('button');
         dnBtn.className = 'daynight-toggle';
@@ -1934,13 +2174,31 @@
         const pendingMeleeGate = !!pendingSkill && skillRequiresMelee(pendingSkill);
         const cluster = document.createElement('div');
         cluster.className = 'enemy-cluster';
-        cluster.dataset.count = String(state.match.board.enemy.length);
+        // dataset.count only reflects the BACK lane now (front-lane
+        // occupants render outside the cluster entirely - see below), so
+        // the per-count sizing/spacing rules still fit however many are
+        // actually sharing that row.
+        const backLaneSlots = state.match.board.enemy
+            .map((u, slot) => slot)
+            .filter((slot) => !isClose(slot));
+        cluster.dataset.count = String(backLaneSlots.length);
         state.match.board.enemy.forEach((unit, slot) => {
             const character = characterForUnit(unit);
             let targetable = state.pendingSkillIndex != null && unit.alive !== false;
-            if (targetable && pendingIsApproach) targetable = !isClose(slot);
-            else if (targetable && pendingMeleeGate) targetable = isClose(slot);
-            cluster.appendChild(renderCombatant({ unit, character, isEnemy: true, slot, targetable }));
+            if (targetable && pendingIsApproach) targetable = stepsLeftForSlot(slot) > 0;
+            else if (targetable && pendingMeleeGate) targetable = canMeleeAcross(slot);
+            const combatantEl = renderCombatant({ unit, character, isEnemy: true, slot, targetable });
+            if (isClose(slot)) {
+                // Front-lane occupant - escapes the back row's flex layout
+                // entirely so it can stand at a fixed spot next to the
+                // player (see .combatant.front-lane in style.css), same
+                // reasoning as before: positioning it relative to .stage
+                // itself, not the (still relatively-positioned) cluster.
+                combatantEl.classList.add('front-lane', 'front-lane-' + state.frontLaneOccupants.indexOf(slot));
+                stage.appendChild(combatantEl);
+            } else {
+                cluster.appendChild(combatantEl);
+            }
         });
         stage.appendChild(cluster);
 
@@ -1958,6 +2216,7 @@
         const panel = document.createElement('div');
         panel.className = 'panel';
         panel.appendChild(renderApproachButton());
+        renderLaneShiftButtons().forEach((el) => panel.appendChild(el));
         vChar.skills.forEach((_, idx) => panel.appendChild(renderSkillButton(vChar, vUnit, idx)));
 
         if (state.over && !suppressOverlay) {
