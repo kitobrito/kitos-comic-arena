@@ -90,6 +90,98 @@ button { font-family: inherit; }
     gap: 10px;
     padding: clamp(24px, 6vh, 60px) 0;
 }
+/* Camp is the main hub between encounters - a traveler's waystation
+   (weapon rack, map table) rather than a menu screen. */
+.rpg-screen.camp-screen { border-radius: 4px; }
+/* The photo + character + mission panel live in their own fixed-aspect
+   box (same pattern as the battle .stage), NOT smeared across the whole
+   growing .rpg-screen panel - that was the actual bug behind "he isn't
+   fitting into the background": the character's position had no fixed
+   relationship to where the ground/path actually is in the photo, since
+   the panel's height (and so the visible crop of a background-size:cover
+   image) shifted with content. Pinning both the photo and the character
+   to percentages of the SAME fixed box lets the character's feet land on
+   the path consistently. */
+.camp-stage {
+    position: relative;
+    width: 100%;
+    max-width: 680px;
+    aspect-ratio: 1376 / 768;
+    margin: 4px 0 8px;
+    border-radius: 4px;
+    overflow: hidden;
+    background-image: url('assets/bg-adventure-camp.jpg');
+    background-size: cover;
+    background-position: center;
+    container-type: size; /* so .mission-panel's cqw padding below resolves */
+}
+.camp-screen .eyebrow, .camp-screen h1, .camp-screen .subtitle, .camp-screen .text-link-btn {
+    text-shadow: 0 2px 10px rgba(0,0,0,0.85), 0 1px 3px rgba(0,0,0,0.9);
+}
+/* Feet pinned near the bottom of the dirt path, not floating up in the
+   tents/treeline. */
+/* Centered on the dirt path, which runs straight down the middle of the
+   photo. Shifted below the frame (negative bottom) and enlarged so the
+   feet crop off below .camp-stage's overflow:hidden edge - a close-up
+   portrait crop (waist-up), not full-body-to-feet. */
+.camp-figure {
+    position: absolute;
+    left: 50%;
+    bottom: -55%;
+    height: 145%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: flex-end;
+}
+.camp-figure img {
+    height: 100%;
+    width: auto;
+    max-width: none;
+    object-fit: contain;
+    filter: drop-shadow(0 14px 14px rgba(0,0,0,0.55));
+}
+.mission-panel {
+    position: absolute;
+    right: 5%;
+    bottom: 8%;
+    width: 42%;
+    max-width: 320px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    text-align: left;
+    background: linear-gradient(180deg, rgba(47,26,41,0.9), rgba(24,12,20,0.9));
+    border: 1px solid var(--gold-dim);
+    border-radius: 6px;
+    padding: clamp(8px, 1.8cqw, 14px) clamp(10px, 2.2cqw, 16px);
+    color: var(--parchment);
+    font-family: 'EB Garamond', Garamond, Georgia, serif;
+    cursor: pointer;
+    transition: border-color 150ms ease, transform 150ms ease;
+}
+.mission-panel:hover { border-color: var(--gold); transform: translateY(-2px); }
+.mission-panel:active { transform: translateY(0); }
+.mission-title {
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold);
+}
+.mission-label { font-size: 0.95rem; line-height: 1.3; }
+.mission-quest {
+    font-weight: 600;
+    color: var(--gold);
+    letter-spacing: 0.02em;
+}
+.mission-complete {
+    cursor: default;
+    text-align: center;
+    align-items: center;
+    color: var(--parchment-dim);
+}
+.mission-panel.mission-complete:hover { border-color: var(--gold-dim); transform: none; }
 .button-column {
     display: flex;
     flex-direction: column;
@@ -254,18 +346,28 @@ button { font-family: inherit; }
     container-name: stage;
 }
 
-/* --- illustrated day/night backgrounds, crossfaded --- */
+/* --- illustrated per-encounter background --- */
 .backdrop {
     position: absolute;
     inset: 0;
     background-size: cover;
     background-position: center;
-    transition: opacity 900ms ease;
 }
-.backdrop.day { background-image: url('assets/background-day.jpg'); opacity: 1; }
-.backdrop.night { background-image: url('assets/background-night.jpg'); opacity: 0; }
-.stage.is-night .backdrop.day { opacity: 0; }
-.stage.is-night .backdrop.night { opacity: 1; }
+/* Day/night curse toggle: most locations only have one photo (not a
+   day/night pair), so instead of crossfading to a second image, a dark
+   blue-black wash fades in over whatever the current encounter's photo
+   is - reads as a real mood/lighting shift without needing source art
+   for every location in both states. */
+.night-tint {
+    position: absolute;
+    inset: 0;
+    background: rgba(6,8,26,0.5);
+    mix-blend-mode: multiply;
+    opacity: 0;
+    transition: opacity 900ms ease;
+    pointer-events: none;
+}
+.stage.is-night .night-tint { opacity: 1; }
 /* Subtle scrim so UI chrome (log, nameplates, panel) stays readable over
    whatever's happening in the painted sky beneath it. */
 .scrim {
@@ -368,68 +470,69 @@ button { font-family: inherit; }
 /* --- combatants --- */
 .combatant {
     position: absolute;
-    bottom: 19%;
+    bottom: 8%;
     display: flex;
     flex-direction: column;
     align-items: center;
     transition: filter 200ms ease, opacity 400ms ease;
 }
-.combatant.player { left: 15%; }
+.combatant.player {
+    left: 15%;
+    /* 26px lower than the shared bottom:8% baseline (per feedback, a
+       remaining feet-alignment nudge - iterated live from 3px to 10px to
+       18px to this) - calc() against bottom rather than a transform,
+       since the walk-up flourish's own JS-driven transform (see the next
+       comment) fully replaces .combatant.player's inline transform on
+       every animation frame - stacking this into transform too would
+       just get overwritten the instant that animation runs, not
+       combined with it. */
+    bottom: calc(8% - 26px);
+    /* The melee walk-up flourish's forward-and-back step (see
+       animatePlayerStep in game.js) writes a plain inline
+       transform:translateX(...cqw) directly, re-resolved every
+       requestAnimationFrame tick rather than as a CSS class+transition
+       - render() fully tears down and rebuilds this element on any
+       state change, which broke a CSS transition two different ways
+       (reported live as "teleporting"): no "before" frame to animate
+       from if the element was rebuilt right as the transition started,
+       and an abandoned in-flight transition if it was rebuilt again
+       mid-animation. A per-frame JS write just re-applies wherever the
+       animation currently is to whatever element exists that frame, so
+       neither case can desync it. Nothing is ever left shifted between
+       turns either way - every attack starts and ends at this same
+       left:15% spot (see animatePlayerStep's own comment). */
+}
 
+/* Single enemy slot for now (1-on-1 combat, per feedback) - right-aligned
+   in its own column, anchored at the SAME bottom offset (8%) as
+   .combatant.player above, resolved against the same .stage height in
+   both cases, so feet land on the same ground line regardless of the
+   stage's own aspect ratio. The previous version instead anchored the
+   enemy via a flex child's own margin-bottom% - CSS always resolves a
+   margin percentage against the containing block's WIDTH, even for
+   margin-bottom, so that put the enemy's feet at 32% of the (much wider)
+   cluster width above the floor rather than 8% of the stage's height
+   like the player - the two only coincidentally lined up at one
+   specific aspect ratio, and visibly diverged (reported live - a
+   screenshot showed the enemy floating well above the player's own
+   ground line) at the session's actual widescreen aspect ratio. */
 .enemy-cluster {
     position: absolute;
     right: 11%;
-    bottom: 0;
+    bottom: 8%;
     display: flex;
     align-items: flex-end;
     justify-content: flex-end;
-    gap: 2%;
-    height: 100%;
     width: 46%;
 }
-.enemy-cluster .combatant {
-    position: relative;
-    bottom: auto;
-    left: auto;
-    margin-bottom: 19%;
-}
-.enemy-cluster[data-count="1"] .combatant { margin-bottom: 19%; }
-/* Cluster shrink is expressed as height (not transform: scale), because the
-   idle-bob animation below also animates `transform` on .figure - a CSS
-   animation always wins over a plain declaration for the same property
-   regardless of selector specificity, so a static transform:scale() here
-   would simply be ignored once idle-bob is running. Height composes fine
-   with an animated transform sitting on top of it. */
-.enemy-cluster[data-count="2"] .combatant:nth-child(1) { margin-bottom: 19%; }
-.enemy-cluster[data-count="2"] .combatant:nth-child(2) { margin-bottom: 27%; }
-.enemy-cluster[data-count="3"] .combatant:nth-child(1) { margin-bottom: 19%; }
-.enemy-cluster[data-count="3"] .combatant:nth-child(2) { margin-bottom: 30%; }
-.enemy-cluster[data-count="3"] .combatant:nth-child(3) { margin-bottom: 24%; }
+.enemy-cluster .combatant { position: relative; left: auto; }
 .enemy-cluster .combatant .figure { transform-origin: 50% 100%; }
-.enemy-cluster[data-count="2"] .combatant .figure.char-skeleton { height: 33.5cqh; }
-.enemy-cluster[data-count="2"] .combatant .figure.char-goblin-grunt { height: 20.6cqh; }
-.enemy-cluster[data-count="2"] .combatant .figure.char-giant-rat { height: 12.9cqh; }
-.enemy-cluster[data-count="3"] .combatant .figure.char-skeleton { height: 28.1cqh; }
-.enemy-cluster[data-count="3"] .combatant .figure.char-goblin-grunt { height: 17.3cqh; }
-.enemy-cluster[data-count="3"] .combatant .figure.char-giant-rat { height: 10.8cqh; }
 /* Skeleton's defeated pose is a collapsed, wide illustration (aspect ratio
    ~2.05, vs ~0.87 standing) - shown at the standing height it would render
-   about 2.3x wider than upright and overlap its neighbors, so it gets a
-   shorter height here (same ratio applied to each context above) to keep
-   roughly the same on-screen footprint instead. */
-.combatant.dead.has-defeated-pose .figure.char-skeleton { height: 16.4cqh; }
-.enemy-cluster[data-count="2"] .combatant.dead.has-defeated-pose .figure.char-skeleton { height: 14.1cqh; }
-.enemy-cluster[data-count="3"] .combatant.dead.has-defeated-pose .figure.char-skeleton { height: 11.8cqh; }
-.enemy-cluster[data-count="2"] .combatant .figure.char-hobgoblin-warrior { height: 25.8cqh; }
-.enemy-cluster[data-count="2"] .combatant .figure.char-zombie { height: 27.5cqh; }
-.enemy-cluster[data-count="2"] .combatant .figure.char-hobgoblin-archer { height: 24.1cqh; }
-.enemy-cluster[data-count="2"] .combatant .figure.char-goblin-shaman { height: 19.8cqh; }
-.enemy-cluster[data-count="2"] .combatant .figure.char-goblin-sneak { height: 18.9cqh; }
-.enemy-cluster[data-count="3"] .combatant .figure.char-hobgoblin-warrior { height: 21.6cqh; }
-.enemy-cluster[data-count="3"] .combatant .figure.char-zombie { height: 23cqh; }
-.enemy-cluster[data-count="3"] .combatant .figure.char-hobgoblin-archer { height: 20.2cqh; }
-.enemy-cluster[data-count="3"] .combatant .figure.char-goblin-shaman { height: 16.6cqh; }
-.enemy-cluster[data-count="3"] .combatant .figure.char-goblin-sneak { height: 15.8cqh; }
+   about 2.3x wider than upright, so it gets a shorter height here (same
+   ratio as standing-to-defeated below) to keep roughly the same on-screen
+   footprint instead. */
+.combatant.dead.has-defeated-pose .figure.char-skeleton { height: 17.3cqh; }
 
 .combatant.dead { opacity: 0.32; filter: grayscale(0.9) brightness(0.7); }
 /* A dedicated defeated-pose illustration already tells "this is dead" on
@@ -567,62 +670,87 @@ button { font-family: inherit; }
     filter: drop-shadow(0 14px 14px rgba(0,0,0,0.55));
     pointer-events: none;
 }
-/* Relative in-world scale between characters - tallest to shortest. */
-.figure.char-skeleton { height: 39cqh; }
+/* Uniform size-down for the player specifically (reported as reading too
+   large standing next to the enemies). A dedicated wrapper around .figure (see
+   renderCombatant in game.js) rather than a scale() on .figure itself -
+   .figure's transform is perpetually claimed by idle-bob (and
+   is-acting/is-hit swap out its whole `animation` property while active),
+   so a static scale() declared there would just get silently overridden.
+   bottom-center origin keeps the feet planted instead of the shrink
+   pulling them up off the ground. */
+.figure-scale { display: flex; align-items: flex-end; justify-content: center; }
+.combatant.player .figure-scale { transform: scale(0.92); transform-origin: bottom center; }
+/* Relative in-world scale between characters - tallest to shortest.
+   Re-audited together with the player's own true rendered height (the
+   base .figure rule below is 46cqh, scaled by .figure-scale's 0.92 above
+   -> ~42.3cqh true) via a pixel-alpha content-bounding-box scan of each
+   character's actual art (same technique as VAMPIRE_POSE_HEIGHT's own
+   comments in game.js), not eyeballed - most of these images are
+   cropped edge-to-edge already so their cqh value IS their true height,
+   but goblin-archer/goblin-sneak/goblin-warrior carried real transparent
+   padding (measured 3-6% of canvas height on top and bottom) that was
+   silently shrinking them below their stated height and floating their
+   feet above the ground line - cropped out at the source instead of
+   compensated here (see assets/*.png), so all eight numbers below are
+   now directly comparable "true" heights. Skeleton and Zombie are
+   human-sized undead, so sit close to the Vampire's own ~42.3cqh;
+   Hobgoblin Warrior/Archer are bulkier elite goblins, taller than the
+   base Goblin Grunt tier; Goblin Shaman/Sneak sit at or under Grunt;
+   Giant Rat is the smallest, a low quadruped. */
+.figure.char-skeleton { height: 41cqh; }
+.figure.char-zombie { height: 39cqh; }
+.figure.char-hobgoblin-warrior { height: 31cqh; }
+.figure.char-hobgoblin-archer { height: 27cqh; }
 .figure.char-goblin-grunt { height: 24cqh; }
-.figure.char-giant-rat { height: 15cqh; }
-.figure.char-hobgoblin-warrior { height: 30cqh; }
-.figure.char-zombie { height: 32cqh; }
-.figure.char-hobgoblin-archer { height: 28cqh; }
 .figure.char-goblin-shaman { height: 23cqh; }
-.figure.char-goblin-sneak { height: 22cqh; }
+.figure.char-goblin-sneak { height: 20cqh; }
+.figure.char-giant-rat { height: 15cqh; }
+/* Smile Golem (the final boss) - deliberately the largest figure in the
+   roster, taller even than the Vampire's own ~42.3cqh, so it physically
+   dominates the screen the way a final boss should. Its own art is
+   edge-to-edge with no transparent padding (measured the same way as
+   the rest of this block), so 50cqh here is directly its true height. */
+.figure.char-smile-golem { height: 50cqh; }
 
-/* Milestone 2's five new enemies reuse the three existing illustrations
-   (see ENEMY_ART in game.js) with a hue/saturation tint so they're still
-   visually distinct from each other and from the original - a clearly
-   placeholder measure pending real art, not a final look. Each declares the
-   full filter chain (drop-shadow + tint) since an element's filter can't be
-   composed across two separate rules. */
-.figure.char-goblin-sneak img { filter: drop-shadow(0 14px 14px rgba(0,0,0,0.55)) hue-rotate(45deg) saturate(1.3) brightness(0.95); }
-.figure.char-goblin-shaman img { filter: drop-shadow(0 14px 14px rgba(0,0,0,0.55)) hue-rotate(255deg) saturate(1.5); }
-.figure.char-hobgoblin-warrior img { filter: drop-shadow(0 14px 14px rgba(0,0,0,0.55)) hue-rotate(-25deg) saturate(1.2) brightness(1.08); }
-.figure.char-hobgoblin-archer img { filter: drop-shadow(0 14px 14px rgba(0,0,0,0.55)) hue-rotate(175deg) saturate(1.15); }
-.figure.char-zombie img { filter: drop-shadow(0 14px 14px rgba(0,0,0,0.55)) hue-rotate(95deg) saturate(0.65) brightness(0.85); }
+/* The whole roster has real art now - Goblin Sneak and Goblin Warrior
+   (characterId 'hobgoblin-warrior') were the last two tinted
+   goblin-grunt.png placeholders. Both fall back to .figure img's plain
+   drop-shadow now instead of the old hue-rotate tint. */
 
 /* Idle breathing/sway loop - a subtle standing-in-place motion built from
    the same single illustrated pose, per the "position interpolation and
-   scaling, not frame-by-frame sprites" brief. Staggered per character
-   (via animation-delay) so the cast doesn't bob in unison. Composed as a
-   proper @keyframes animation, not a static transform, so is-acting/is-hit
-   below (also animations) can cleanly take over the `transform` property
-   while active and hand it back to idle-bob when their class is removed. */
+   scaling, not frame-by-frame sprites" brief. Composed as a proper
+   @keyframes animation, not a static transform, so is-acting/is-hit below
+   (also animations) can cleanly take over the `transform` property while
+   active and hand it back to idle-bob when their class is removed.
+   Previously staggered per character (a different animation-delay/
+   -duration each) so a multi-enemy group didn't bob in unison - now
+   always 1-on-1 (no per-character overrides left below), that stagger
+   meant the player and their one opponent were almost never at the same
+   point in the cycle at any given instant, which could read as their
+   feet floating a couple of px out of alignment with each other even
+   though the resting (0%/100%) position itself was correctly lined up
+   (reported live via a screenshot) - every combatant now shares the
+   exact same cycle, so the two are always mid-breath together, not just
+   at rest together. */
 @keyframes idle-bob {
     0%, 100% { transform: translateY(0) scale(1); }
     50% { transform: translateY(-1.4%) scale(1.008); }
 }
-.combatant.player .figure { animation-delay: -0.6s; }
-.figure.char-skeleton { animation-duration: 4.6s; animation-delay: -1.8s; }
-.figure.char-goblin-grunt { animation-duration: 3.5s; animation-delay: -0.3s; }
-.figure.char-giant-rat { animation-duration: 3.9s; animation-delay: -2.6s; }
-.figure.char-hobgoblin-warrior { animation-duration: 4.4s; animation-delay: -0.9s; }
-.figure.char-zombie { animation-duration: 5.1s; animation-delay: -1.4s; }
-.figure.char-hobgoblin-archer { animation-duration: 3.7s; animation-delay: -2s; }
-.figure.char-goblin-shaman { animation-duration: 4s; animation-delay: -0.6s; }
-.figure.char-goblin-sneak { animation-duration: 3.3s; animation-delay: -1.2s; }
 
-.figure.is-acting { animation: acting-lunge 260ms ease; }
+.figure.is-acting { animation: acting-lunge 380ms ease; }
 @keyframes acting-lunge {
     0% { transform: translateY(0) scale(1); }
     55% { transform: translateY(-2%) scale(1.06); }
     100% { transform: translateY(0) scale(1); }
 }
-.figure.is-hit { animation: hit-shake 320ms ease; }
+.figure.is-hit { animation: hit-shake 480ms ease; }
 @keyframes hit-shake {
     0%, 100% { transform: translateX(0); }
     25% { transform: translateX(-3%); }
     75% { transform: translateX(3%); }
 }
-.figure.is-hit img { animation: hit-flash 320ms ease; }
+.figure.is-hit img { animation: hit-flash 480ms ease; }
 @keyframes hit-flash {
     /* brightness(0) crushes the art to solid black while keeping its alpha
        shape; invert(1) flips that to solid white - a true white silhouette
@@ -646,27 +774,67 @@ button { font-family: inherit; }
 }
 .dmg-float.dmg { color: #ffdc6b; }
 .dmg-float.heal { color: #8ff0b0; }
+
+/* --- Goblin Archer's flying arrow (fireProjectile in game.js) --- */
+.projectile {
+    position: absolute;
+    height: auto;
+    z-index: 6;
+    pointer-events: none;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
+}
 @keyframes float-up {
     0% { transform: translate(-50%, 0) scale(0.85); opacity: 0; }
     18% { transform: translate(-50%, -8%) scale(1.08); opacity: 1; }
     100% { transform: translate(-50%, -60%) scale(1); opacity: 0; }
 }
 
-/* --- bottom control panel --- */
-/* Panel chrome is clamp(min, Ncqh/cqw, max)-sized for the same reason as
-   .log above: fixed px here would hold its height constant while the
-   cqh-scaled character stack above it shrinks, closing the gap at smaller
-   viewport widths until feet clip under the panel. */
-.panel {
+/* --- floating status words (STUNNED, CRIT!) --- same mechanism as
+   .dmg-float above (showStatusFloat in game.js), sized/positioned for a
+   word instead of a number and held noticeably longer (1400ms with a
+   plateau, vs. the number's quick 950ms fade) - meant to register as its
+   own callout, not blend into an adjacent damage number appearing at the
+   same moment (CRIT! shows alongside its own dmg-float hit). Sits above
+   the number (top:-8% vs. the number's 6%) for exactly that reason. */
+.status-float {
     position: absolute;
-    left: 0; right: 0; bottom: 0;
+    top: -8%;
+    left: 50%;
     z-index: 7;
-    padding: clamp(5px, 1.8cqh, 10px) 3% clamp(6px, 2.2cqh, 12px);
-    background: linear-gradient(180deg, rgba(36,17,32,0) 0%, rgba(20,10,17,0.94) 26%, rgba(15,7,13,0.98) 100%);
-    border-top: 1px solid rgba(200, 162, 74, 0.28);
+    font-family: 'Cinzel', serif;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    font-size: clamp(0.95rem, 2.1vw, 1.35rem);
+    text-transform: uppercase;
+    pointer-events: none;
+    white-space: nowrap;
+    text-shadow: 0 0 6px rgba(0,0,0,0.9), 0 0 16px currentColor;
+    animation: float-up-word 1400ms ease-out forwards;
+}
+.status-float.crit { color: #ff8a3d; }
+.status-float.stunned { color: #c88bff; }
+@keyframes float-up-word {
+    0% { transform: translate(-50%, 0) scale(0.8); opacity: 0; }
+    15% { transform: translate(-50%, -10%) scale(1.12); opacity: 1; }
+    75% { transform: translate(-50%, -45%) scale(1); opacity: 1; }
+    100% { transform: translate(-50%, -65%) scale(1); opacity: 0; }
+}
+
+/* --- bottom control panel --- */
+/* Its own panel below the stage now (see the comment on renderBattleScreen
+   in game.js for why), not an absolute-positioned overlay pinned inside
+   it - a leveled-up character's skill count made that overlay tall enough
+   to hide the lower half of the battlefield. */
+.panel {
+    width: 100%;
+    margin-top: 8px;
+    padding: 10px 3%;
+    background: linear-gradient(180deg, rgba(36,17,32,0.88), rgba(18,7,15,0.9));
+    border: 1px solid rgba(200, 162, 74, 0.3);
+    border-radius: 4px;
     display: flex;
     justify-content: center;
-    gap: clamp(6px, 1.4cqw, 14px);
+    gap: clamp(6px, 1.4vw, 14px);
     flex-wrap: wrap;
 }
 .skill-slot {
@@ -694,7 +862,7 @@ button { font-family: inherit; }
     background-size: 100% 100%;
     border: 1px solid var(--gold-dim);
     border-radius: 5px;
-    padding: clamp(4px, 1.1cqh, 7px) clamp(6px, 1cqw, 10px);
+    padding: clamp(4px, 0.9vw, 7px) clamp(6px, 0.8vw, 10px);
     display: flex;
     align-items: center;
     gap: 9px;
@@ -706,19 +874,19 @@ button { font-family: inherit; }
 .skill-btn:active:not(:disabled) { background-image: url('assets/btn-pressed.png'); transform: translateY(0); }
 .skill-btn:disabled { background-image: url('assets/btn-disabled.png'); opacity: 0.55; cursor: default; transform: none; }
 .skill-icon {
-    width: clamp(19px, 5.1cqh, 28px); height: clamp(19px, 5.1cqh, 28px);
+    width: clamp(19px, 4vw, 28px); height: clamp(19px, 4vw, 28px);
     flex: none;
     border-radius: 50%;
     background: radial-gradient(circle at 35% 35%, var(--blood-bright), var(--blood) 70%);
     display: flex; align-items: center; justify-content: center;
-    font-size: clamp(0.6rem, 2.3cqh, 0.9rem);
+    font-size: clamp(0.6rem, 1.9vw, 0.9rem);
 }
 /* Skills with real portrait art (Bite, Life Rip) get a bigger icon slot
    framed with the ornate skill-icon-frame art - emoji-icon skills stay at
    the smaller base .skill-icon size above, since the frame's fine detail
    needs more room than that to read. */
 .skill-icon-framed {
-    width: clamp(42px, 11cqh, 60px); height: clamp(42px, 11cqh, 60px);
+    width: clamp(42px, 8.6vw, 60px); height: clamp(42px, 8.6vw, 60px);
     background: none;
     position: relative;
     overflow: visible;
@@ -728,7 +896,7 @@ button { font-family: inherit; }
        skill name text sitting immediately to the right in the flex row.
        Icon is always the first flex child here, so only the right side
        needs protecting. */
-    margin-right: clamp(8px, 2.2cqw, 16px);
+    margin-right: clamp(8px, 1.7vw, 16px);
 }
 .skill-icon-framed img {
     position: absolute;
@@ -748,8 +916,8 @@ button { font-family: inherit; }
     pointer-events: none;
 }
 .skill-text { display: flex; flex-direction: column; gap: 1px; }
-.skill-name { font-family: 'Cinzel', serif; font-weight: 600; font-size: clamp(0.64rem, 2.4cqh, 0.82rem); color: var(--parchment); }
-.skill-tag { font-size: clamp(0.48rem, 1.8cqh, 0.62rem); color: var(--gold); font-family: 'Cinzel', serif; letter-spacing: 0.04em; }
+.skill-name { font-family: 'Cinzel', serif; font-weight: 600; font-size: clamp(0.64rem, 2vw, 0.82rem); color: var(--parchment); }
+.skill-tag { font-size: clamp(0.48rem, 1.5vw, 0.62rem); color: var(--gold); font-family: 'Cinzel', serif; letter-spacing: 0.04em; }
 
 /* Custom stylized tooltip, replacing the native browser title attribute -
    shows on hover AND focus, including on disabled buttons (the Passive

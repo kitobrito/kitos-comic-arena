@@ -39,7 +39,7 @@ const characters = [
                 id: 'vampire_bite',
                 name: 'Vampire Bite',
                 skillimage: '',
-                skilldescription: 'Sink your fangs into an enemy, dealing damage and drawing out their Blood. 15% chance to crit for extra damage; heals a little of what it deals.',
+                skilldescription: 'Sink your fangs into an enemy, dealing damage and drawing out their Blood. 15% chance to crit for extra damage; a deep lifesteal drink heals you for a good share of the damage.',
                 energy: [],
                 target: 'single-enemy',
                 damage: 0,
@@ -56,19 +56,20 @@ const characters = [
                     // curse's flat +-5 applies to it too - on a crit the curse
                     // swings by +-10 total, not +-5.
                     { type: 'damage', amount: 20, scope: 'target', activationChancePercent: 15, metadata: { ignoreDamageReduction: true } },
-                    // Lifesteal: heals the Vampire for a flat 2 (10% of the 20
-                    // base) whenever this connects. Doesn't scale with the
-                    // crit roll above - the engine has no "% of damage just
-                    // dealt" mechanic, only 1:1 health_steal_damage, so this
-                    // is its own small fixed slice. It also goes through the
-                    // same curse math as everything else: during the day the
-                    // -5 flat debuff clamps this specific 2-damage slice to
-                    // 0, so the lifesteal effectively does nothing in
-                    // daylight - reads as "the curse suppresses his
-                    // bloodlust," not a bug, but flagging it since it means
-                    // this heal only reliably works at night. Also
-                    // armor-piercing, same as the rest of the bite.
-                    { type: 'health_steal_damage', amount: 2, scope: 'target', metadata: { ignoreDamageReduction: true } },
+                    // Lifesteal: heals the Vampire for a flat 10 (50% of the
+                    // 20 base - was 2/10% before user feedback asked for a
+                    // bigger drink) whenever this connects. Doesn't scale
+                    // with the crit roll above - the engine has no "% of
+                    // damage just dealt" mechanic, only 1:1
+                    // health_steal_damage, so this is its own fixed slice,
+                    // expressed as a fraction of the base hit instead. Goes
+                    // through the same curse math as everything else: at 10
+                    // the daytime -3/-5 flat debuff (curseFlat) only shaves
+                    // it down to 5-7, not to 0 like the old 2-heal did, so
+                    // (unlike before) it's a reliable heal day or night, just
+                    // a stronger one at night. Also armor-piercing, same as
+                    // the rest of the bite.
+                    { type: 'health_steal_damage', amount: 10, scope: 'target', metadata: { ignoreDamageReduction: true } },
                     {
                         type: 'apply_status',
                         statusId: 'vampire_blood_resource',
@@ -144,6 +145,25 @@ const characters = [
                             tooltipText: 'Guard: +5 Armor against the enemy’s next attack.',
                         },
                     },
+                ],
+            },
+            {
+                id: 'vampire_potion',
+                name: 'Potion',
+                skillimage: '',
+                skilldescription: 'Drink a healing potion, restoring 80 health. Limited supply - 3 per encounter.',
+                energy: [],
+                target: 'self',
+                damage: 0,
+                // No engine cooldown - the "3 per encounter" limit is tracked
+                // separately in game.js's own battle state
+                // (state.potionsRemaining), since the engine's cooldown
+                // system is turn-based, not use-count-based. See
+                // onSkillClick/playPlayerAction/renderSkillButton in game.js.
+                cooldown: 0,
+                classes: ['Instant'],
+                effects: [
+                    { type: 'heal', amount: 80, scope: 'self' },
                 ],
             },
             {
@@ -384,12 +404,33 @@ const characters = [
                     },
                 ],
             },
+            {
+                id: 'goblin_shaman_mending_chant',
+                name: 'Mending Chant',
+                skilldescription: 'Channels restorative magic into itself or its most wounded ally.',
+                energy: [],
+                // Not 'self' or 'single-enemy' - a marker game.js's enemy
+                // turn AI (chooseEnemyAction) reads specifically: heal
+                // whichever of itself/its allies is hurt worst, and only
+                // when someone actually needs it (see the function for the
+                // exact threshold) - otherwise this skill is skipped
+                // entirely in favor of a normal attack, same turn.
+                target: 'self-or-ally',
+                damage: 0,
+                cooldown: 3,
+                classes: ['Bloodline', 'Instant'],
+                effects: [{ type: 'heal', amount: 14, scope: 'target' }],
+            },
         ],
     },
     {
         id: 'hobgoblin-warrior',
         characterId: 'hobgoblin-warrior',
-        name: 'Hobgoblin Warrior',
+        // Display name only - "Hobgoblin" implied bigger/orange art that
+        // doesn't exist yet, this reuses tinted goblin-grunt.png (see
+        // ENEMY_ART in game.js), so it's named for what it actually looks
+        // like. id/characterId stay as-is (saves/CAMPAIGN reference them).
+        name: 'Goblin Warrior',
         startingHp: 55,
         role: 'Stronger Frontline',
         roleCategory: 'stronger-frontline',
@@ -455,7 +496,8 @@ const characters = [
     {
         id: 'hobgoblin-archer',
         characterId: 'hobgoblin-archer',
-        name: 'Hobgoblin Archer',
+        // Same reasoning as Goblin Warrior above - display name only.
+        name: 'Goblin Archer',
         startingHp: 35,
         role: 'Ranged',
         roleCategory: 'ranged',

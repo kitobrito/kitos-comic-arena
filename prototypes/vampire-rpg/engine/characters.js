@@ -41,7 +41,7 @@ const characters = [
                 id: 'vampire_bite',
                 name: 'Vampire Bite',
                 skillimage: '',
-                skilldescription: 'Sink your fangs into an enemy, dealing damage and drawing out their Blood. 15% chance to crit for extra damage; heals a little of what it deals.',
+                skilldescription: 'Sink your fangs into an enemy, dealing damage and drawing out their Blood. 15% chance to crit for extra damage; a deep lifesteal drink heals you for a good share of the damage.',
                 energy: [],
                 target: 'single-enemy',
                 damage: 0,
@@ -58,19 +58,20 @@ const characters = [
                     // curse's flat +-5 applies to it too - on a crit the curse
                     // swings by +-10 total, not +-5.
                     { type: 'damage', amount: 20, scope: 'target', activationChancePercent: 15, metadata: { ignoreDamageReduction: true } },
-                    // Lifesteal: heals the Vampire for a flat 2 (10% of the 20
-                    // base) whenever this connects. Doesn't scale with the
-                    // crit roll above - the engine has no "% of damage just
-                    // dealt" mechanic, only 1:1 health_steal_damage, so this
-                    // is its own small fixed slice. It also goes through the
-                    // same curse math as everything else: during the day the
-                    // -5 flat debuff clamps this specific 2-damage slice to
-                    // 0, so the lifesteal effectively does nothing in
-                    // daylight - reads as "the curse suppresses his
-                    // bloodlust," not a bug, but flagging it since it means
-                    // this heal only reliably works at night. Also
-                    // armor-piercing, same as the rest of the bite.
-                    { type: 'health_steal_damage', amount: 2, scope: 'target', metadata: { ignoreDamageReduction: true } },
+                    // Lifesteal: heals the Vampire for a flat 10 (50% of the
+                    // 20 base - was 2/10% before user feedback asked for a
+                    // bigger drink) whenever this connects. Doesn't scale
+                    // with the crit roll above - the engine has no "% of
+                    // damage just dealt" mechanic, only 1:1
+                    // health_steal_damage, so this is its own fixed slice,
+                    // expressed as a fraction of the base hit instead. Goes
+                    // through the same curse math as everything else: at 10
+                    // the daytime -3/-5 flat debuff (curseFlat) only shaves
+                    // it down to 5-7, not to 0 like the old 2-heal did, so
+                    // (unlike before) it's a reliable heal day or night, just
+                    // a stronger one at night. Also armor-piercing, same as
+                    // the rest of the bite.
+                    { type: 'health_steal_damage', amount: 10, scope: 'target', metadata: { ignoreDamageReduction: true } },
                     {
                         type: 'apply_status',
                         statusId: 'vampire_blood_resource',
@@ -118,7 +119,7 @@ const characters = [
                 id: 'vampire_guard',
                 name: 'Guard',
                 skillimage: '',
-                skilldescription: 'Brace yourself, gaining 5 Armor against the enemy’s next attack.',
+                skilldescription: 'Brace yourself, halving the damage of the enemy’s next attack.',
                 energy: [],
                 target: 'self',
                 damage: 0,
@@ -126,7 +127,7 @@ const characters = [
                 // option (replaces a plain no-op Wait). Re-casting while
                 // already guarding just refreshes the same status rather
                 // than stacking (applyStatus merges same-id statuses), so
-                // there's no way to compound Armor by spamming this.
+                // there's no way to compound the reduction by spamming this.
                 cooldown: 0,
                 classes: ['Instant'],
                 effects: [
@@ -136,16 +137,45 @@ const characters = [
                         // duration:2 mirrors every other "protects through
                         // the opponent's next turn" self-buff already in
                         // this roster (Brittle Guard, Shield Wall, Swarm
-                        // Squeak all use the same value for the same intent).
+                        // Squeak all use the same value for the same intent)
+                        // - every enemy in this roster only ever acts once
+                        // per their own turn, so this reads as "the next
+                        // attack" in practice, not a longer window.
                         duration: 2,
                         scope: 'self',
                         metadata: {
                             harmful: false,
-                            damageReductionFlat: 5,
-                            armorAmount: 5, // shows the shield badge too
-                            tooltipText: 'Guard: +5 Armor against the enemy’s next attack.',
+                            // Percent, not flat - damageReductionPercent is
+                            // the same proven engine primitive Mist Form's
+                            // evadeChancePercent-adjacent damage mitigation
+                            // family already rides on (getStatusMetadataTotals
+                            // in battleEngine.js). No armorAmount marker any
+                            // more - that key drives the flat "Armor" badge
+                            // specifically, which would misreport this as a
+                            // flat number instead of a percentage.
+                            damageReductionPercent: 50,
+                            tooltipText: 'Guard: the enemy’s next attack deals 50% less damage.',
                         },
                     },
+                ],
+            },
+            {
+                id: 'vampire_potion',
+                name: 'Potion',
+                skillimage: '',
+                skilldescription: 'Drink a healing potion, restoring 80 health. Limited supply - 3 per encounter.',
+                energy: [],
+                target: 'self',
+                damage: 0,
+                // No engine cooldown - the "3 per encounter" limit is tracked
+                // separately in game.js's own battle state
+                // (state.potionsRemaining), since the engine's cooldown
+                // system is turn-based, not use-count-based. See
+                // onSkillClick/playPlayerAction/renderSkillButton in game.js.
+                cooldown: 0,
+                classes: ['Instant'],
+                effects: [
+                    { type: 'heal', amount: 80, scope: 'self' },
                 ],
             },
             {
@@ -169,7 +199,16 @@ const characters = [
         // at a hardcoded 100); game.js reads this field itself right after
         // buildInitialBoard() and overrides unit.hp for characters that
         // declare it, purely in the prototype's own glue code.
-        startingHp: 40,
+        // Rebalanced up from 40 - a level 1 Vampire's guaranteed (non-crit)
+        // Bite alone was landing 28-36 depending on origin/age (see
+        // buildComposedVampire's power math in game.js), one-shotting most
+        // of the roster on the very first skill used, reported live. All
+        // eight enemies below got the same pass, keeping their relative
+        // order but raising the floor so nothing dies to a single
+        // non-crit hit any more (Bite's rare 15% crit can still finish
+        // off the squishier ones in one - that's meant to feel special,
+        // not become the norm).
+        startingHp: 70,
         role: 'Basic Melee',
         roleCategory: 'basic-melee',
         universe: 'vampire-rpg',
@@ -185,7 +224,11 @@ const characters = [
                 damage: 0,
                 cooldown: 0,
                 classes: ['Physical', 'Melee', 'Instant'],
-                effects: [{ type: 'damage', amount: 9, scope: 'target' }],
+                // Rebalanced 9 -> 14 (~1.6x, same pass as startingHp above -
+                // see that comment) so enemy attacks stay a real threat
+                // against the same buffed HP pool, not just a slower grind
+                // at the old trickle of damage.
+                effects: [{ type: 'damage', amount: 14, scope: 'target' }],
             },
             {
                 id: 'goblin_grunt_reckless_swing',
@@ -196,7 +239,7 @@ const characters = [
                 damage: 0,
                 cooldown: 2,
                 classes: ['Physical', 'Melee', 'Instant'],
-                effects: [{ type: 'damage', amount: 16, scope: 'target' }],
+                effects: [{ type: 'damage', amount: 26, scope: 'target' }],
             },
         ],
     },
@@ -204,7 +247,7 @@ const characters = [
         id: 'skeleton',
         characterId: 'skeleton',
         name: 'Skeleton',
-        startingHp: 40,
+        startingHp: 70, // rebalanced from 40 - see goblin-grunt's comment above
         role: 'Undead Fighter',
         roleCategory: 'undead-fighter',
         universe: 'vampire-rpg',
@@ -220,7 +263,7 @@ const characters = [
                 damage: 0,
                 cooldown: 0,
                 classes: ['Physical', 'Melee', 'Instant'],
-                effects: [{ type: 'damage', amount: 8, scope: 'target' }],
+                effects: [{ type: 'damage', amount: 13, scope: 'target' }], // rebalanced from 8 - see goblin-grunt's damage comment above
             },
             {
                 id: 'skeleton_brittle_guard',
@@ -251,7 +294,7 @@ const characters = [
         id: 'giant-rat',
         characterId: 'giant-rat',
         name: 'Giant Rat',
-        startingHp: 40,
+        startingHp: 65, // rebalanced from 40 - see goblin-grunt's comment above (kept a notch below Grunt/Skeleton - "Weak Fast Attacker")
         role: 'Weak Fast Attacker',
         roleCategory: 'weak-fast-attacker',
         universe: 'vampire-rpg',
@@ -267,7 +310,7 @@ const characters = [
                 damage: 0,
                 cooldown: 0,
                 classes: ['Physical', 'Melee', 'Instant'],
-                effects: [{ type: 'damage', amount: 6, scope: 'target' }],
+                effects: [{ type: 'damage', amount: 10, scope: 'target' }], // rebalanced from 6 - see goblin-grunt's damage comment above
             },
             {
                 id: 'giant_rat_swarm_squeak',
@@ -286,8 +329,8 @@ const characters = [
                         scope: 'self',
                         metadata: {
                             harmful: false,
-                            damageBonusFlat: 4,
-                            tooltipText: 'Deals 4 more damage for 2 turns.',
+                            damageBonusFlat: 6, // rebalanced from 4, same pass
+                            tooltipText: 'Deals 6 more damage for 2 turns.',
                         },
                     },
                 ],
@@ -298,7 +341,7 @@ const characters = [
         id: 'goblin-sneak',
         characterId: 'goblin-sneak',
         name: 'Goblin Sneak',
-        startingHp: 28,
+        startingHp: 50, // rebalanced from 28 - see goblin-grunt's HP comment above
         role: 'Fast Low-HP Attacker',
         roleCategory: 'fast-low-hp-attacker',
         universe: 'vampire-rpg',
@@ -314,7 +357,7 @@ const characters = [
                 damage: 0,
                 cooldown: 0,
                 classes: ['Physical', 'Melee', 'Instant'],
-                effects: [{ type: 'damage', amount: 7, scope: 'target' }],
+                effects: [{ type: 'damage', amount: 11, scope: 'target' }], // rebalanced from 7 - see goblin-grunt's damage comment above
             },
             {
                 id: 'goblin_sneak_slip_away',
@@ -345,7 +388,7 @@ const characters = [
         id: 'goblin-shaman',
         characterId: 'goblin-shaman',
         name: 'Goblin Shaman',
-        startingHp: 32,
+        startingHp: 55, // rebalanced from 32 - see goblin-grunt's HP comment above
         role: 'Weak Ranged Caster',
         roleCategory: 'weak-ranged-caster',
         universe: 'vampire-rpg',
@@ -361,7 +404,7 @@ const characters = [
                 damage: 0,
                 cooldown: 0,
                 classes: ['Ranged', 'Instant'],
-                effects: [{ type: 'damage', amount: 8, scope: 'target' }],
+                effects: [{ type: 'damage', amount: 13, scope: 'target' }], // rebalanced from 8 - see goblin-grunt's damage comment above
             },
             {
                 id: 'goblin_shaman_hex',
@@ -386,13 +429,34 @@ const characters = [
                     },
                 ],
             },
+            {
+                id: 'goblin_shaman_mending_chant',
+                name: 'Mending Chant',
+                skilldescription: 'Channels restorative magic into itself or its most wounded ally.',
+                energy: [],
+                // Not 'self' or 'single-enemy' - a marker game.js's enemy
+                // turn AI (chooseEnemyAction) reads specifically: heal
+                // whichever of itself/its allies is hurt worst, and only
+                // when someone actually needs it (see the function for the
+                // exact threshold) - otherwise this skill is skipped
+                // entirely in favor of a normal attack, same turn.
+                target: 'self-or-ally',
+                damage: 0,
+                cooldown: 3,
+                classes: ['Bloodline', 'Instant'],
+                effects: [{ type: 'heal', amount: 14, scope: 'target' }],
+            },
         ],
     },
     {
         id: 'hobgoblin-warrior',
         characterId: 'hobgoblin-warrior',
-        name: 'Hobgoblin Warrior',
-        startingHp: 55,
+        // Display name only - "Hobgoblin" implied bigger/orange art that
+        // doesn't exist yet, this reuses tinted goblin-grunt.png (see
+        // ENEMY_ART in game.js), so it's named for what it actually looks
+        // like. id/characterId stay as-is (saves/CAMPAIGN reference them).
+        name: 'Goblin Warrior',
+        startingHp: 100, // rebalanced from 55 - see goblin-grunt's HP comment above
         role: 'Stronger Frontline',
         roleCategory: 'stronger-frontline',
         universe: 'vampire-rpg',
@@ -427,7 +491,7 @@ const characters = [
                 damage: 0,
                 cooldown: 0,
                 classes: ['Physical', 'Melee', 'Instant'],
-                effects: [{ type: 'damage', amount: 12, scope: 'target' }],
+                effects: [{ type: 'damage', amount: 19, scope: 'target' }], // rebalanced from 12 - see goblin-grunt's damage comment above
             },
             {
                 id: 'hobgoblin_warrior_shield_wall',
@@ -457,8 +521,9 @@ const characters = [
     {
         id: 'hobgoblin-archer',
         characterId: 'hobgoblin-archer',
-        name: 'Hobgoblin Archer',
-        startingHp: 35,
+        // Same reasoning as Goblin Warrior above - display name only.
+        name: 'Goblin Archer',
+        startingHp: 60, // rebalanced from 35 - see goblin-grunt's HP comment above
         role: 'Ranged',
         roleCategory: 'ranged',
         universe: 'vampire-rpg',
@@ -474,7 +539,7 @@ const characters = [
                 damage: 0,
                 cooldown: 0,
                 classes: ['Ranged', 'Instant'],
-                effects: [{ type: 'damage', amount: 11, scope: 'target' }],
+                effects: [{ type: 'damage', amount: 17, scope: 'target' }], // rebalanced from 11 - see goblin-grunt's damage comment above
             },
             {
                 id: 'hobgoblin_archer_piercing_volley',
@@ -485,7 +550,7 @@ const characters = [
                 damage: 0,
                 cooldown: 2,
                 classes: ['Ranged', 'Instant'],
-                effects: [{ type: 'damage', amount: 15, scope: 'target' }],
+                effects: [{ type: 'damage', amount: 24, scope: 'target' }], // rebalanced from 15
             },
         ],
     },
@@ -493,7 +558,7 @@ const characters = [
         id: 'zombie',
         characterId: 'zombie',
         name: 'Zombie',
-        startingHp: 50,
+        startingHp: 85, // rebalanced from 50 - see goblin-grunt's HP comment above
         role: 'Slow Durable Undead',
         roleCategory: 'slow-durable-undead',
         universe: 'vampire-rpg',
@@ -509,7 +574,7 @@ const characters = [
                 damage: 0,
                 cooldown: 0,
                 classes: ['Physical', 'Melee', 'Instant'],
-                effects: [{ type: 'damage', amount: 8, scope: 'target' }],
+                effects: [{ type: 'damage', amount: 13, scope: 'target' }], // rebalanced from 8 - see goblin-grunt's damage comment above
             },
             {
                 id: 'zombie_grasping_lunge',
@@ -520,7 +585,113 @@ const characters = [
                 damage: 0,
                 cooldown: 2,
                 classes: ['Physical', 'Melee', 'Instant'],
-                effects: [{ type: 'damage', amount: 14, scope: 'target' }],
+                effects: [{ type: 'damage', amount: 22, scope: 'target' }], // rebalanced from 14
+            },
+        ],
+    },
+    {
+        // The demo's final boss - see game.js's CAMPAIGN (7th and last
+        // encounter). Real name/art provided by the user; the two skills
+        // below are its whole identity: a spammable basic bite and its
+        // headline Belly Slam, which both hits hard AND stuns.
+        id: 'smile-golem',
+        characterId: 'smile-golem',
+        name: 'Smile Golem',
+        // Comfortably the tankiest thing in the roster (next highest is
+        // Goblin Warrior at 100) - a real multi-exchange boss fight, not
+        // a bigger version of a regular encounter.
+        startingHp: 200,
+        role: 'Boss',
+        roleCategory: 'boss',
+        universe: 'vampire-rpg',
+        facePicture: '',
+        characterdeescription: 'A hulking, pallid mass with a grin that never falters and never should.',
+        skills: [
+            {
+                id: 'smile_golem_bite',
+                name: 'Rotten Bite',
+                skilldescription: 'Lunges forward, jaws impossibly wide.',
+                energy: [],
+                target: 'single-enemy',
+                damage: 0,
+                cooldown: 0,
+                classes: ['Physical', 'Melee', 'Instant'],
+                // Design intent (per feedback): a level 1 character should
+                // NOT be able to beat this boss, and even a properly
+                // leveled one shouldn't be able to without spending at
+                // least one Potion. Brought down twice now (originally
+                // 23, then 15) - Belly Slam's stun is a full 2 turns, and
+                // EVERY enemy turn during that window (the stun itself
+                // plus its 2 bonus turns) is a live Rotten Bite/Belly Slam
+                // hit with zero player response possible - live-tested a
+                // single stun window (Belly Slam + 2 free Rotten Bites) at
+                // amount:15 for over 55 unanswered damage, enough on its
+                // own to kill a level 6 character who wasn't already near
+                // full HP. Landed here, near the roster's weakest basics
+                // (Giant Rat/Goblin Sneak are 10-11) - the stun window
+                // should read as "genuinely dangerous, survivable if
+                // you're not already low," not "an automatic death
+                // sentence whenever it lands."
+                effects: [{ type: 'damage', amount: 12, scope: 'target' }],
+            },
+            {
+                id: 'smile_golem_belly_slam',
+                name: 'Belly Slam',
+                skilldescription: 'Leaps its full weight down on you, dazing you senseless.',
+                energy: [],
+                target: 'single-enemy',
+                damage: 0,
+                // Raised from the roster's usual secondary-skill cooldown
+                // (3, still used by every other enemy's own Brittle Guard/
+                // Shield Wall/Slip Away/Hex) specifically because its own
+                // stun below now lasts 2 turns, not 1 - each of those
+                // skipped player turns is still a real ENEMY turn too
+                // (chooseEnemyAction runs, cooldowns tick down), so a
+                // lower cooldown here let this cooldown itself recover
+                // DURING the stun window, letting it re-fire almost back
+                // to back - a real stun-lock, live-tested into an
+                // unwinnable fight even for a level 6 character. 5 leaves
+                // real breathing room between casts even accounting for
+                // that.
+                cooldown: 5,
+                classes: ['Physical', 'Melee', 'Instant'],
+                effects: [
+                    // Still hits harder than Rotten Bite, on top of the
+                    // stun, but scaled back alongside it - see Rotten
+                    // Bite's own comment for the full "must cost at least
+                    // one Potion, but a 2-turn stun is already a huge
+                    // swing on its own" reasoning.
+                    { type: 'damage', amount: 18, scope: 'target' },
+                    {
+                        type: 'apply_status',
+                        statusId: 'smile_golem_belly_slam_stun',
+                        // duration:2 - a real two-turn stun, per feedback.
+                        // Node-verified against the real engine
+                        // (tickStatusesForTurnEnd): each of the player's
+                        // skipped turns (see the player-stun handling in
+                        // game.js's runEnemyTurn) ticks this down by one
+                        // via that same handler's own endSideTurn('player')
+                        // call, expiring on the tick that resolves the
+                        // SECOND skipped turn - runEnemyTurn re-checks
+                        // isActorUnableToUseSkills fresh after every single
+                        // enemy action, so it naturally keeps skipping and
+                        // re-skipping for as many turns as this status
+                        // stays active, with no extra code needed for a
+                        // multi-turn duration versus a one-turn one.
+                        duration: 2,
+                        scope: 'target',
+                        metadata: {
+                            harmful: true,
+                            // Same key the vendored engine's own "stunned"
+                            // convention uses (see battleEngine.js) -
+                            // blocks EVERY skill, not just harmful ones
+                            // (cannotUseHarmfulSkills would still let
+                            // Guard/Potion through) - a real stun.
+                            cannotUseSkills: true,
+                            tooltipText: 'Stunned by the Belly Slam - cannot act next turn.',
+                        },
+                    },
+                ],
             },
         ],
     },
