@@ -35450,7 +35450,6 @@ const characters = [
             {
                 "id": "pinsir-struggle-bug",
                 "name": "Struggle Bug",
-                "hiddenFromSelectionViewer": true,
                 "skillimage": "assets/images/PokemonArena/pinsir/strugglebug.jpg",
                 "skilldescription": "One enemy becomes permanently unable to reduce damage or become invulnerable and is dealt 30 damage. Guillotine has a 10% increased chance to hit (stacks). Swaps to \"Guillotine\" for 1 turn.",
                 "description": "One enemy becomes permanently unable to reduce damage or become invulnerable and is dealt 30 damage. Guillotine has a 10% increased chance to hit (stacks). Swaps to \"Guillotine\" for 1 turn.",
