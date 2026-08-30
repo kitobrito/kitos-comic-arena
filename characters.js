@@ -35424,7 +35424,6 @@ const characters = [
             {
                 "id": "pinsir-guillotine",
                 "name": "Guillotine",
-                "hiddenFromSelectionViewer": true,
                 "skillimage": "assets/images/PokemonArena/pinsir/guillotine.jpg",
                 "skilldescription": "Has a 10% chance to instantly kill one enemy. If successful, this has a 15% increased chance to hit (stacks).",
                 "description": "Has a 10% chance to instantly kill one enemy. If successful, this has a 15% increased chance to hit (stacks).",
