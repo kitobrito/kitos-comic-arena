@@ -4620,6 +4620,63 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
         appliedUnpierceableMitigation = Math.min(baseUnpierceableMitigation, postStandardMitigation);
     }
     const dealt = roundCombatAmountUp(postStandardMitigation - appliedUnpierceableMitigation);
+    // Marowak's Bone Club: a flat, decaying shield (modeled as unpierceableDamageReductionFlat,
+    // already applied above). It loses 5 reduction every time Marowak takes non-affliction
+    // damage, ending once it hits 0 -- narrow, ID-gated side effect, mirrors the hiveSwarm
+    // check near the top of this function.
+    if (!afflictionDamage) {
+        const boneClub = (Array.isArray(targetState.statuses) ? targetState.statuses : []).find(
+            (entry) => entry?.id === 'marowak_bone_club_active' && (Number(entry?.remainingTurns) || 0) > 0
+        );
+        if (boneClub) {
+            const nextReduction = Math.max(
+                0,
+                (Math.max(0, Number(boneClub.metadata?.unpierceableDamageReductionFlat) || 0)) - 5
+            );
+            if (nextReduction <= 0) {
+                targetState.statuses = targetState.statuses.filter((entry) => entry !== boneClub);
+            } else {
+                boneClub.metadata = { ...(boneClub.metadata || {}), unpierceableDamageReductionFlat: nextReduction };
+            }
+        }
+    }
+    // Pinsir's Rock Tomb: while its destructible defense is up, any enemy that
+    // damages Pinsir bumps Guillotine's hit chance -- an approximation of "any
+    // enemy that targets him" narrowed to "damages him", same narrow ID-gated
+    // pattern as the Bone Club hook above.
+    if (
+        dealt >= 0 &&
+        context?.sourceUsername &&
+        context?.targetUsername &&
+        context.sourceUsername !== context.targetUsername
+    ) {
+        const rockTomb = (Array.isArray(targetState.statuses) ? targetState.statuses : []).find(
+            (entry) =>
+                entry?.id === 'pinsir_rock_tomb_active' &&
+                (Number(entry?.remainingTurns) || 0) > 0 &&
+                Math.max(0, Number(entry?.metadata?.destructibleDefensePoints) || 0) > 0
+        );
+        if (rockTomb) {
+            applyStatus({
+                targetState,
+                targetUnit: unit,
+                statusId: 'pinsir_guillotine_bonus',
+                duration: 99,
+                sourceSkillId: rockTomb?.sourceSkillId || null,
+                sourceUsername: rockTomb?.sourceUsername || null,
+                sourceSlot: Number.isInteger(rockTomb?.sourceSlot) ? rockTomb.sourceSlot : null,
+                metadata: {
+                    infiniteDuration: true,
+                    unremovable: true,
+                    hidden: true,
+                    pinsirGuillotineBonus: 5,
+                    mergeNumericAddKeys: ['pinsirGuillotineBonus'],
+                    tooltipTextTemplate: 'Guillotine has a {pinsirGuillotineBonus}% increased chance to hit.',
+                },
+                fresh: false,
+            });
+        }
+    }
     if (
         dealt > 0 &&
         !Boolean(context?.ignoreDamageDelay) &&
@@ -4975,6 +5032,23 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
                             : 'owner damaged',
                     skipDamageReflection: true,
                 });
+                // Mirrors the applyStatusToOwner-style hooks elsewhere: this reflect has
+                // no separate "chance", so firing it at all counts as a success -- e.g.
+                // Pinsir's Seismic Toss (self-targeted) rewarding a Guillotine bonus.
+                const applyStatusOnReflect = metadata.onOwnerDamagedApplyStatusToOwner;
+                if (applyStatusOnReflect?.statusId) {
+                    applyStatus({
+                        targetState,
+                        targetUnit: unit,
+                        statusId: applyStatusOnReflect.statusId,
+                        duration: applyStatusOnReflect.duration,
+                        sourceSkillId: applyStatusOnReflect.sourceSkillId || status?.sourceSkillId || null,
+                        sourceUsername: status?.sourceUsername || null,
+                        sourceSlot: Number.isInteger(status?.sourceSlot) ? status.sourceSlot : null,
+                        metadata: applyStatusOnReflect.metadata || {},
+                        fresh: false,
+                    });
+                }
             });
         }
         applyOnTeamMemberDamageTakenBonuses({
@@ -6212,6 +6286,71 @@ const processTurnStartStatusEffects = ({ match, startingUsername }) => {
                     }
                 }
             }
+            // Tauros's Earthquake: escalating 20/30/40 hit to everyone else on the
+            // battlefield (both teams) at the start of each of Tauros's own next
+            // three turns. Cancelled early like any other channeled status if Tauros
+            // casts a new skill (see cancelChanneledStatusesForActor).
+            if (status?.id === 'tauros_earthquake_channel') {
+                const lastTickTurnCount = Number(status?.metadata?._lastEarthquakeTickTurnCount);
+                if (!Number.isFinite(lastTickTurnCount) || lastTickTurnCount !== turnCount) {
+                    const tickAmount = Math.max(0, Number(status?.metadata?.earthquakeTickAmount) || 0);
+                    if (tickAmount > 0) {
+                        Object.keys(match.board || {}).forEach((boardUsername) => {
+                            const boardUnits = Array.isArray(match.board[boardUsername])
+                                ? match.board[boardUsername]
+                                : [];
+                            boardUnits.forEach((boardUnit, boardSlot) => {
+                                if (!boardUnit || boardUnit.alive === false) return;
+                                if (boardUsername === startingUsername && boardSlot === unitSlot) return;
+                                applyDamageToUnit(boardUnit, tickAmount, {
+                                    match,
+                                    sourceSkillId: status?.sourceSkillId || null,
+                                    sourceUsername: status?.sourceUsername || startingUsername,
+                                    sourceSlot: Number.isInteger(status?.sourceSlot) ? status.sourceSlot : unitSlot,
+                                    targetUsername: boardUsername,
+                                    targetSlot: boardSlot,
+                                    damageDebugReason: 'earthquake channel tick',
+                                    ignoreDamageImmunity: true,
+                                });
+                            });
+                        });
+                    }
+                    status.metadata = {
+                        ...(status.metadata || {}),
+                        _lastEarthquakeTickTurnCount: turnCount,
+                        earthquakeTickAmount: tickAmount + 10,
+                    };
+                }
+                return;
+            }
+            // Tauros's STAMPEDE!: the second 20-damage + full-stun wave, re-resolving
+            // the enemy team fresh at the start of Tauros's next turn.
+            if (status?.id === 'tauros_stampede_channel') {
+                getAliveEnemyRecipients({ match, username: startingUsername }).forEach((recipient) => {
+                    if (!recipient?.unit) return;
+                    applyDamageToUnit(recipient.unit, 20, {
+                        match,
+                        sourceSkillId: status?.sourceSkillId || null,
+                        sourceUsername: status?.sourceUsername || startingUsername,
+                        sourceSlot: Number.isInteger(status?.sourceSlot) ? status.sourceSlot : unitSlot,
+                        targetUsername: recipient.username,
+                        targetSlot: recipient.slot,
+                        damageDebugReason: 'stampede second wave',
+                    });
+                    applyStatus({
+                        targetState: ensureUnitStateShape(recipient.unit),
+                        targetUnit: recipient.unit,
+                        statusId: 'stunned',
+                        duration: 1,
+                        sourceSkillId: status?.sourceSkillId || null,
+                        sourceUsername: status?.sourceUsername || startingUsername,
+                        sourceSlot: Number.isInteger(status?.sourceSlot) ? status.sourceSlot : unitSlot,
+                        metadata: { harmful: true, cannotUseSkills: true, tooltipText: 'This character is stunned.' },
+                        fresh: false,
+                    });
+                });
+                return;
+            }
             const turnStartDamage = Math.max(0, Number(status?.metadata?.turnStartDamage) || 0);
             const turnStartBonusDamageIfTargetHasStatusId =
                 status?.metadata?.turnStartBonusDamageIfTargetHasStatusId &&
@@ -6279,6 +6418,23 @@ const processTurnStartStatusEffects = ({ match, startingUsername }) => {
                         sourceUsername: status?.sourceUsername || null,
                         sourceSlot: Number.isInteger(status?.sourceSlot) ? status.sourceSlot : null,
                         metadata: applyStatusToSourceOwner.metadata || {},
+                        fresh: false,
+                    });
+                }
+                // Mirrors turnStartApplyStatusToSourceOwner above, but targets the unit
+                // taking this turn-start damage instead of the status's source -- e.g.
+                // Marowak's Bonemerang stunning a repeat target when its delayed hit lands.
+                const applyStatusToTarget = status?.metadata?.turnStartApplyStatusToTarget;
+                if (applyStatusToTarget?.statusId) {
+                    applyStatus({
+                        targetState: state,
+                        targetUnit: unit,
+                        statusId: applyStatusToTarget.statusId,
+                        duration: applyStatusToTarget.duration,
+                        sourceSkillId: applyStatusToTarget.sourceSkillId || status?.sourceSkillId || null,
+                        sourceUsername: status?.sourceUsername || null,
+                        sourceSlot: Number.isInteger(status?.sourceSlot) ? status.sourceSlot : null,
+                        metadata: applyStatusToTarget.metadata || {},
                         fresh: false,
                     });
                 }
@@ -8640,6 +8796,509 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         cannotBeStunned: true,
                         allowDuplicateStatusInstances: true,
                         tooltipText: `This character has ${shieldAmount} unpierceable damage reduction and ignores stun effects.`,
+                    },
+                    fresh: false,
+                });
+                return;
+            }
+            if (effectType === 'marowak_bone_rush') {
+                // Cast-time cost: Bone Club loses 5 damage reduction, separate from the
+                // passive per-hit-taken decay handled in applyDamageToUnit.
+                const boneClub = actorState.statuses.find(
+                    (status) =>
+                        status?.id === 'marowak_bone_club_active' && (Number(status?.remainingTurns) || 0) > 0
+                );
+                if (boneClub) {
+                    const nextReduction = Math.max(
+                        0,
+                        (Math.max(0, Number(boneClub.metadata?.unpierceableDamageReductionFlat) || 0)) - 5
+                    );
+                    if (nextReduction <= 0) {
+                        actorState.statuses = actorState.statuses.filter((entry) => entry !== boneClub);
+                    } else {
+                        boneClub.metadata = { ...(boneClub.metadata || {}), unpierceableDamageReductionFlat: nextReduction };
+                    }
+                }
+                const stacksStatus = actorState.statuses.find((status) => status?.id === 'marowak_bone_club_stacks');
+                const stacks = Math.max(0, Number(stacksStatus?.metadata?.marowakBoneClubStacks) || 0);
+                const recipients = resolveRecipients(effect);
+                // Draft interpretation: "casts an additional time" at 2 stacks re-runs the
+                // whole 2-4 hit sequence a second, independent time (rather than just +1 hit).
+                const castCount = stacks >= 2 ? 2 : 1;
+                for (let cast = 0; cast < castCount; cast += 1) {
+                    const hitCount = 2 + Math.floor(battleRandom() * 3); // 2, 3, or 4
+                    for (let hitIndex = 0; hitIndex < hitCount; hitIndex += 1) {
+                        const amount = hitIndex < 2 ? 10 : 5;
+                        recipients.forEach((recipient) => {
+                            queueDamage(recipient, amount, { ...effect, metadata: { ...(effect?.metadata || {}) } });
+                        });
+                    }
+                }
+                return;
+            }
+            if (effectType === 'marowak_bonemerang') {
+                const recipients = resolveRecipients(effect);
+                const primaryRecipient = recipients[0] || null;
+                if (primaryRecipient) {
+                    queueDamage(primaryRecipient, 30, { ...effect, metadata: { ...(effect?.metadata || {}) } });
+                }
+                // Requires Bone Club: temporarily remove it (and its current reduction)
+                // from Marowak, restoring it at the start of Marowak's own next turn via
+                // the existing turnStartApplyStatusToOwner + removeSelfAfterApply hooks.
+                const boneClub = actorState.statuses.find(
+                    (status) =>
+                        status?.id === 'marowak_bone_club_active' && (Number(status?.remainingTurns) || 0) > 0
+                );
+                const savedReduction = Math.max(0, Number(boneClub?.metadata?.unpierceableDamageReductionFlat) || 0);
+                if (boneClub) {
+                    actorState.statuses = actorState.statuses.filter((entry) => entry !== boneClub);
+                }
+                applyStatus({
+                    targetState: actorState,
+                    targetUnit: actorUnit,
+                    statusId: 'marowak_bonemerang_active',
+                    duration: 1,
+                    sourceSkillId: skill.id,
+                    sourceUsername: actingUsername,
+                    sourceSlot: actorSlot,
+                    metadata: {
+                        harmful: false,
+                        unremovable: true,
+                        hidden: true,
+                        tooltipText: 'Bone Club is on loan to Bonemerang and will return next turn.',
+                        ...(savedReduction > 0
+                            ? {
+                                  turnStartApplyStatusToOwner: {
+                                      statusId: 'marowak_bone_club_active',
+                                      duration: 99,
+                                      metadata: {
+                                          infiniteDuration: true,
+                                          unpierceableDamageReductionFlat: savedReduction,
+                                          statusIconUrl: 'assets/images/PokemonArena/marowak/boneclub.png',
+                                          tooltipTextTemplate:
+                                              'Marowak has {unpierceableDamageReductionFlat} non-affliction damage reduction from Bone Club.',
+                                      },
+                                      removeSelfAfterApply: true,
+                                  },
+                              }
+                            : {}),
+                    },
+                    fresh: false,
+                });
+                // 25 damage to a random enemy at the start of their next turn. If that
+                // enemy is the same as the immediate target, they're fully stunned when
+                // the delayed hit lands.
+                const enemyRecipients = getAliveEnemyRecipients({ match, username: actingUsername });
+                if (enemyRecipients.length > 0) {
+                    const delayedRecipient = enemyRecipients[Math.floor(battleRandom() * enemyRecipients.length)];
+                    const isSameTarget = Boolean(
+                        primaryRecipient &&
+                            delayedRecipient.username === primaryRecipient.username &&
+                            delayedRecipient.slot === primaryRecipient.slot
+                    );
+                    applyStatus({
+                        targetState: ensureUnitStateShape(delayedRecipient.unit),
+                        targetUnit: delayedRecipient.unit,
+                        statusId: 'marowak_bonemerang_delayed_hit',
+                        duration: 1,
+                        sourceSkillId: skill.id,
+                        sourceUsername: actingUsername,
+                        sourceSlot: actorSlot,
+                        metadata: {
+                            harmful: true,
+                            hidden: true,
+                            skipFirstTurnStartTick: true,
+                            turnStartDamage: 25,
+                            ...(isSameTarget
+                                ? {
+                                      turnStartApplyStatusToTarget: {
+                                          statusId: 'stunned',
+                                          duration: 1,
+                                          metadata: {
+                                              harmful: true,
+                                              cannotUseSkills: true,
+                                              tooltipText: 'This character is stunned.',
+                                          },
+                                      },
+                                  }
+                                : {}),
+                            tooltipText: "Bonemerang will deal 25 damage at the start of this character's next turn.",
+                        },
+                        fresh: false,
+                    });
+                }
+                return;
+            }
+            if (effectType === 'pinsir_seismic_toss') {
+                // Draft interpretation: both the self- and enemy-targeted branches reuse
+                // whichever existing counter primitive is closest -- the self branch
+                // reflects damage taken (fires on every hit taken during the 1-turn
+                // window rather than strictly "the first"), the enemy branch reuses
+                // Machop's exact "first new damaging skill" counter mark. The 5-per-20HP
+                // amount is computed once, now, from Pinsir's current HP.
+                const recipients = resolveRecipients(effect);
+                const recipient = recipients[0] || null;
+                if (!recipient?.unit) return;
+                const counterAmount = 5 * Math.floor(Math.max(0, Number(actorUnit?.hp) || 0) / 20);
+                const isSelfTarget = recipient.username === actingUsername && recipient.slot === actorSlot;
+                const guillotineBonusStatus = {
+                    statusId: 'pinsir_guillotine_bonus',
+                    duration: 99,
+                    metadata: {
+                        infiniteDuration: true,
+                        unremovable: true,
+                        hidden: true,
+                        pinsirGuillotineBonus: 10,
+                        mergeNumericAddKeys: ['pinsirGuillotineBonus'],
+                        tooltipTextTemplate: 'Guillotine has a {pinsirGuillotineBonus}% increased chance to hit.',
+                    },
+                };
+                if (counterAmount > 0) {
+                    if (isSelfTarget) {
+                        applyStatus({
+                            targetState: actorState,
+                            targetUnit: actorUnit,
+                            statusId: 'pinsir_seismic_toss_guard',
+                            duration: 1,
+                            sourceSkillId: skill.id,
+                            sourceUsername: actingUsername,
+                            sourceSlot: actorSlot,
+                            metadata: {
+                                harmful: false,
+                                hidden: true,
+                                onOwnerDamagedDamageToSourceAmount: counterAmount,
+                                onOwnerDamagedApplyStatusToOwner: guillotineBonusStatus,
+                                tooltipTextTemplate: `Counters the next attack against Pinsir for ${counterAmount} damage.`,
+                            },
+                            fresh: false,
+                        });
+                    } else {
+                        applyStatus({
+                            targetState: ensureUnitStateShape(recipient.unit),
+                            targetUnit: recipient.unit,
+                            statusId: 'pinsir_seismic_toss_mark',
+                            duration: 1,
+                            sourceSkillId: skill.id,
+                            sourceUsername: actingUsername,
+                            sourceSlot: actorSlot,
+                            metadata: {
+                                harmful: true,
+                                hidden: true,
+                                counterOwnerNextNewDamagingSkill: true,
+                                onExpireEffects: [
+                                    {
+                                        type: 'damage',
+                                        amount: counterAmount,
+                                        scope: 'target',
+                                        metadata: {
+                                            ignoreDamageReduction: true,
+                                            ignoreDestructibleDefense: true,
+                                            onSuccessfulDamageApplyStatusToSourceOwner: guillotineBonusStatus,
+                                        },
+                                    },
+                                ],
+                            },
+                            fresh: false,
+                        });
+                    }
+                }
+                return;
+            }
+            if (effectType === 'pinsir_x_scissor') {
+                const recipients = resolveRecipients(effect);
+                recipients.forEach((recipient) => {
+                    if (!recipient?.unit || recipient.unit.alive === false) return;
+                    const targetState = ensureUnitStateShape(recipient.unit);
+                    const hasCritConditionStatus = (Array.isArray(targetState.statuses) ? targetState.statuses : []).some(
+                        (status) =>
+                            (status?.id === 'pinsir_vice_grip_mark' || status?.id === 'pinsir_struggle_bug_mark') &&
+                            (Number(status?.remainingTurns) || 0) > 0
+                    );
+                    const isCrit = hasCritConditionStatus || battleRandom() * 100 < 25;
+                    const amount = isCrit ? 30 : 15;
+                    queueDamage(recipient, amount, {
+                        ...effect,
+                        metadata: { ...(effect?.metadata || {}), ignoreDamageReduction: true, criticalHit: isCrit },
+                    });
+                    applyStatus({
+                        targetState: actorState,
+                        targetUnit: actorUnit,
+                        statusId: 'pinsir_guillotine_bonus',
+                        duration: 99,
+                        sourceSkillId: skill.id,
+                        sourceUsername: actingUsername,
+                        sourceSlot: actorSlot,
+                        metadata: {
+                            infiniteDuration: true,
+                            unremovable: true,
+                            hidden: true,
+                            pinsirGuillotineBonus: isCrit ? 10 : 5,
+                            mergeNumericAddKeys: ['pinsirGuillotineBonus'],
+                            tooltipTextTemplate: 'Guillotine has a {pinsirGuillotineBonus}% increased chance to hit.',
+                        },
+                        fresh: false,
+                    });
+                });
+                return;
+            }
+            if (effectType === 'pinsir_guillotine') {
+                const bonusStatus = actorState.statuses.find((status) => status?.id === 'pinsir_guillotine_bonus');
+                const bonusChance = Math.max(0, Number(bonusStatus?.metadata?.pinsirGuillotineBonus) || 0);
+                const chance = Math.min(100, 10 + bonusChance);
+                const recipients = resolveRecipients(effect);
+                recipients.forEach((recipient) => {
+                    if (!recipient?.unit || recipient.unit.alive === false) return;
+                    if (battleRandom() * 100 >= chance) return;
+                    queueDamage(recipient, 99999, {
+                        ...effect,
+                        metadata: {
+                            ...(effect?.metadata || {}),
+                            fixedDamage: true,
+                            ignoreDamageReduction: true,
+                            ignoreDestructibleDefense: true,
+                        },
+                    });
+                    applyStatus({
+                        targetState: actorState,
+                        targetUnit: actorUnit,
+                        statusId: 'pinsir_guillotine_bonus',
+                        duration: 99,
+                        sourceSkillId: skill.id,
+                        sourceUsername: actingUsername,
+                        sourceSlot: actorSlot,
+                        metadata: {
+                            infiniteDuration: true,
+                            unremovable: true,
+                            hidden: true,
+                            pinsirGuillotineBonus: 15,
+                            mergeNumericAddKeys: ['pinsirGuillotineBonus'],
+                            tooltipTextTemplate: 'Guillotine has a {pinsirGuillotineBonus}% increased chance to hit.',
+                        },
+                        fresh: false,
+                    });
+                    // Passive: Mega Pinsir -- triggers once, the first time Guillotine succeeds.
+                    const alreadyMegaEvolved = actorState.statuses.some(
+                        (status) => status?.id === 'pinsir_mega_evolved'
+                    );
+                    if (!alreadyMegaEvolved) {
+                        applyHealToUnit(actorUnit, 25);
+                        applyStatus({
+                            targetState: actorState,
+                            targetUnit: actorUnit,
+                            statusId: 'pinsir_mega_evolved',
+                            duration: 999,
+                            sourceSkillId: skill.id,
+                            sourceUsername: actingUsername,
+                            sourceSlot: actorSlot,
+                            metadata: {
+                                harmful: false,
+                                infiniteDuration: true,
+                                unremovable: true,
+                                hidden: true,
+                                unpierceableDamageReductionFlat: 10,
+                                skillReplacements: { 'pinsir-vice-grip': 'pinsir-struggle-bug' },
+                                tooltipText:
+                                    'Mega Pinsir: Vice Grip has permanently become Struggle Bug, and Pinsir has 10 unpierceable damage reduction.',
+                            },
+                            fresh: false,
+                        });
+                    }
+                });
+                return;
+            }
+            if (effectType === 'tauros_horn_attack') {
+                // "Destroys" the target's shield and damage reduction: strip any of
+                // their active (non-unremovable) statuses that are currently granting
+                // destructible defense or a flat/percent damage reduction, using the
+                // same metadata keys those buffs are declared with everywhere else in
+                // this file, then stun their Physical skills for 1 turn and hit them.
+                const shieldOrReductionKeys = [
+                    'destructibleDefensePoints',
+                    'damageReductionFlat',
+                    'damageReductionPercent',
+                    'unpierceableDamageReductionFlat',
+                    'unpierceableDamageReductionPercent',
+                ];
+                const recipients = resolveRecipients(effect);
+                recipients.forEach((recipient) => {
+                    if (!recipient?.unit || recipient.unit.alive === false) return;
+                    const targetState = ensureUnitStateShape(recipient.unit);
+                    targetState.statuses = (Array.isArray(targetState.statuses) ? targetState.statuses : []).filter(
+                        (status) => {
+                            const remaining = Number(status?.remainingTurns) || 0;
+                            if (remaining <= 0) return true;
+                            const metadata = status?.metadata || {};
+                            if (metadata.unremovable) return true;
+                            return !shieldOrReductionKeys.some((key) => Number(metadata[key]) > 0);
+                        }
+                    );
+                    applyStatus({
+                        targetState,
+                        targetUnit: recipient.unit,
+                        statusId: 'tauros_horn_attack_physical_lock',
+                        duration: 1,
+                        sourceSkillId: skill.id,
+                        sourceUsername: actingUsername,
+                        sourceSlot: actorSlot,
+                        metadata: {
+                            harmful: true,
+                            cannotUseSkillClasses: ['physical'],
+                            tooltipText: 'This character cannot use Physical skills.',
+                        },
+                        fresh: false,
+                    });
+                    queueDamage(recipient, 40, { ...effect, metadata: { ...(effect?.metadata || {}) } });
+                });
+                // Take-Down: Tauros loses 15 health if Horn Attack is used while its
+                // damage-reduction window is still active.
+                const takeDownActive = actorState.statuses.some(
+                    (status) => status?.id === 'tauros_take_down_active' && (Number(status?.remainingTurns) || 0) > 0
+                );
+                if (takeDownActive) {
+                    applyDamageToUnit(actorUnit, 15, {
+                        match,
+                        sourceUsername: actingUsername,
+                        sourceSkillId: skill.id,
+                        targetUsername: actingUsername,
+                        damageDebugReason: 'take-down horn attack recoil',
+                        ignoreDamageReduction: true,
+                        ignoreDestructibleDefense: true,
+                    });
+                }
+                return;
+            }
+            if (effectType === 'tauros_earthquake') {
+                // Deals this turn's burst immediately to everyone else on the
+                // battlefield (both teams), then hands off to the
+                // tauros_earthquake_channel turn-start hook below for the escalating
+                // 20/30/40 hits on Tauros's next three turns. "Bypassing" is already
+                // in this skill's classes, so queueDamage's bypassingDamage check
+                // ignores invulnerability automatically.
+                Object.keys(match.board || {}).forEach((boardUsername) => {
+                    const boardUnits = Array.isArray(match.board[boardUsername]) ? match.board[boardUsername] : [];
+                    boardUnits.forEach((boardUnit, boardSlot) => {
+                        if (!boardUnit || boardUnit.alive === false) return;
+                        if (boardUsername === actingUsername && boardSlot === actorSlot) return;
+                        queueDamage(
+                            { username: boardUsername, slot: boardSlot, unit: boardUnit },
+                            10,
+                            { ...effect, metadata: { ...(effect?.metadata || {}) } }
+                        );
+                    });
+                });
+                applyStatus({
+                    targetState: actorState,
+                    targetUnit: actorUnit,
+                    statusId: 'tauros_earthquake_channel',
+                    duration: 3,
+                    sourceSkillId: skill.id,
+                    sourceUsername: actingUsername,
+                    sourceSlot: actorSlot,
+                    metadata: {
+                        harmful: false,
+                        hidden: true,
+                        ongoingClass: 'channeled',
+                        earthquakeTickAmount: 20,
+                        tooltipText: 'Earthquake continues, striking everyone else again next turn.',
+                    },
+                    fresh: false,
+                });
+                return;
+            }
+            if (effectType === 'tauros_stampede') {
+                // First wave lands now on whoever resolveRecipients (all-enemy) finds;
+                // the second wave re-resolves the enemy team fresh at the start of
+                // Tauros's next turn via the tauros_stampede_channel hook below, so a
+                // revive or a new arrival is still caught.
+                const recipients = resolveRecipients(effect);
+                recipients.forEach((recipient) => {
+                    if (!recipient?.unit || recipient.unit.alive === false) return;
+                    queueDamage(recipient, 20, { ...effect, metadata: { ...(effect?.metadata || {}) } });
+                    applyStatus({
+                        targetState: ensureUnitStateShape(recipient.unit),
+                        targetUnit: recipient.unit,
+                        statusId: 'stunned',
+                        duration: 1,
+                        sourceSkillId: skill.id,
+                        sourceUsername: actingUsername,
+                        sourceSlot: actorSlot,
+                        metadata: { harmful: true, cannotUseSkills: true, tooltipText: 'This character is stunned.' },
+                        fresh: false,
+                    });
+                });
+                applyStatus({
+                    targetState: actorState,
+                    targetUnit: actorUnit,
+                    statusId: 'tauros_stampede_channel',
+                    duration: 1,
+                    sourceSkillId: skill.id,
+                    sourceUsername: actingUsername,
+                    sourceSlot: actorSlot,
+                    metadata: {
+                        harmful: false,
+                        hidden: true,
+                        tooltipText: 'Stampede will strike the enemy team once more next turn.',
+                    },
+                    fresh: false,
+                });
+                return;
+            }
+            if (effectType === 'darkrai_shadow_sneak') {
+                const recipients = resolveRecipients(effect);
+                recipients.forEach((recipient) => {
+                    if (!recipient?.unit || recipient.unit.alive === false) return;
+                    const targetState = ensureUnitStateShape(recipient.unit);
+                    const hasNightmare = (targetState.statuses || []).some(
+                        (status) =>
+                            status?.id === 'darkrai_nightmare_active' && (Number(status?.remainingTurns) || 0) > 0
+                    );
+                    const amount = hasNightmare ? 40 : 25;
+                    queueDamage(recipient, amount, { ...effect, metadata: { ...(effect?.metadata || {}) } });
+                });
+                return;
+            }
+            if (effectType === 'darkrai_dark_portal') {
+                // Duration is snapshotted from the target's current Nightmare
+                // remaining-turns at cast time; if Nightmare falls off early via its
+                // own escalating chance, the tickStatusesForTurnEnd hook above cuts
+                // this window short (and stuns Darkrai) rather than letting it run
+                // past its now-stale snapshot.
+                const recipients = resolveRecipients(effect);
+                const recipient = recipients[0] || null;
+                if (!recipient?.unit || recipient.unit.alive === false) return;
+                const targetState = ensureUnitStateShape(recipient.unit);
+                const nightmareStatus = targetState.statuses.find(
+                    (status) =>
+                        status?.id === 'darkrai_nightmare_active' && (Number(status?.remainingTurns) || 0) > 0
+                );
+                const portalDuration = Math.max(0, Number(nightmareStatus?.remainingTurns) || 0);
+                if (portalDuration <= 0) return;
+                applyStatus({
+                    targetState: actorState,
+                    targetUnit: actorUnit,
+                    statusId: 'darkrai_dark_portal_active',
+                    duration: portalDuration,
+                    sourceSkillId: skill.id,
+                    sourceUsername: actingUsername,
+                    sourceSlot: actorSlot,
+                    metadata: {
+                        harmful: false,
+                        invulnerable: true,
+                        darkraiDarkPortalTargetUsername: recipient.username,
+                        darkraiDarkPortalTargetSlot: recipient.slot,
+                        tooltipText: 'Darkrai ignores all damage while this target remains affected by Nightmare.',
+                        onExpireEffects: [
+                            {
+                                type: 'apply_status',
+                                statusId: 'stunned',
+                                scope: 'target',
+                                metadata: {
+                                    harmful: true,
+                                    cannotUseSkills: true,
+                                    tooltipText: 'This character is stunned.',
+                                },
+                            },
+                        ],
                     },
                     fresh: false,
                 });
@@ -12405,6 +13064,115 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                         ? status?.sourceUsername === endingUsername
                         : username === endingUsername;
                 if (!shouldTrigger) return;
+                // Darkrai's Nightmare: lasts up to 5 turns, with an escalating chance
+                // to wear off early at the end of the affected character's own turn
+                // (owner_turn is the default anchor above, so this only rolls on
+                // their turn, not Darkrai's) - 0% turn 1, 20% turn 2, 40% turn 3,
+                // 60% turn 4, 80% turn 5, then the 5-turn cap guarantees it ends.
+                if (status?.id === 'darkrai_nightmare_active') {
+                    const remainingTurns = Math.max(0, Number(status?.remainingTurns) || 0);
+                    const removalChance = Math.max(0, 5 - remainingTurns) * 20;
+                    if (battleRandom() * 100 < removalChance) {
+                        endedOngoingStatuses.add(status.id);
+                        // Early removal also cuts short any of Darkrai's Dark Portal
+                        // windows keyed to this exact unit, since Dark Portal's
+                        // duration is snapshotted from Nightmare's remaining turns.
+                        Object.keys(match.board || {}).forEach((portalUsername) => {
+                            const portalUnits = Array.isArray(match.board[portalUsername])
+                                ? match.board[portalUsername]
+                                : [];
+                            portalUnits.forEach((portalUnit) => {
+                                if (!portalUnit || portalUnit.alive === false) return;
+                                const portalState = ensureUnitStateShape(portalUnit);
+                                portalState.statuses = (portalState.statuses || []).filter((entry) => {
+                                    if (entry?.id !== 'darkrai_dark_portal_active') return true;
+                                    const matchesTarget =
+                                        entry?.metadata?.darkraiDarkPortalTargetUsername === username &&
+                                        entry?.metadata?.darkraiDarkPortalTargetSlot === unitSlot;
+                                    if (!matchesTarget) return true;
+                                    applyStatus({
+                                        targetState: portalState,
+                                        targetUnit: portalUnit,
+                                        statusId: 'stunned',
+                                        duration: 1,
+                                        sourceSkillId: entry?.sourceSkillId || null,
+                                        sourceUsername: entry?.sourceUsername || null,
+                                        sourceSlot: Number.isInteger(entry?.sourceSlot) ? entry.sourceSlot : null,
+                                        metadata: {
+                                            harmful: true,
+                                            cannotUseSkills: true,
+                                            tooltipText: 'This character is stunned.',
+                                        },
+                                        fresh: false,
+                                    });
+                                    return false;
+                                });
+                            });
+                        });
+                        return;
+                    }
+                }
+                // Darkrai's Bad Dreams: while active, every enemy currently affected
+                // by Nightmare takes 20 damage each turn (any player's turn ending,
+                // not just Darkrai's or the target's - this check isn't gated behind
+                // the owner/source turn anchor above). Pauses automatically whenever
+                // an enemy's Nightmare isn't active, and resumes the moment they're
+                // nightmared again, since it's a live check every tick, not a snapshot.
+                if (status?.id === 'darkrai_bad_dreams_active') {
+                    players
+                        .filter((entry) => entry?.username && entry.username !== username)
+                        .forEach((opponent) => {
+                            const enemyUnits = Array.isArray(match.board?.[opponent.username])
+                                ? match.board[opponent.username]
+                                : [];
+                            enemyUnits.forEach((enemyUnit, enemySlot) => {
+                                if (!enemyUnit || enemyUnit.alive === false) return;
+                                const enemyState = ensureUnitStateShape(enemyUnit);
+                                const hasNightmare = (enemyState.statuses || []).some(
+                                    (entry) =>
+                                        entry?.id === 'darkrai_nightmare_active' &&
+                                        (Number(entry?.remainingTurns) || 0) > 0
+                                );
+                                if (!hasNightmare) return;
+                                applyDamageToUnit(enemyUnit, 20, {
+                                    match,
+                                    sourceSkillId: status?.sourceSkillId || null,
+                                    sourceUsername: status?.sourceUsername || username,
+                                    sourceSlot: Number.isInteger(status?.sourceSlot) ? status.sourceSlot : unitSlot,
+                                    targetUsername: opponent.username,
+                                    targetSlot: enemySlot,
+                                    damageDebugReason: 'bad dreams tick',
+                                });
+                            });
+                        });
+                    return;
+                }
+                // Darkrai's Dark Void: if any of the 20 Barrier it granted is still
+                // unspent (the affected character never dealt enough outgoing damage
+                // to burn through it) by the end of their own turn, Nightmare's
+                // passive kicks in - this is the only source of Nightmare.
+                if (status?.id === 'darkrai_dark_void_nullify') {
+                    const remainingBarrier = Math.max(0, Number(status?.metadata?.barrierPoints) || 0);
+                    if (remainingBarrier > 0) {
+                        applyStatus({
+                            targetState: actorState,
+                            targetUnit: unit,
+                            statusId: 'darkrai_nightmare_active',
+                            duration: 5,
+                            sourceSkillId: status?.sourceSkillId || null,
+                            sourceUsername: status?.sourceUsername || null,
+                            sourceSlot: Number.isInteger(status?.sourceSlot) ? status.sourceSlot : null,
+                            metadata: {
+                                harmful: true,
+                                cannotUseSkills: true,
+                                tooltipText:
+                                    'This character is stunned by Nightmare. It has an escalating chance to be removed at the end of their turn.',
+                            },
+                            fresh: false,
+                        });
+                    }
+                    return;
+                }
                 if (Boolean(status?.metadata?.advanceAllEnemyPerishEachTurn)) {
                     players
                         .filter((entry) => entry?.username && entry.username !== status?.sourceUsername)

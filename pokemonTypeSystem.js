@@ -55,6 +55,10 @@ const POKEMON_CHARACTER_TYPES = Object.freeze({
     shedinja: ['Bug', 'Ghost'],
     primeape: ['Fighting'],
     drowzee: ['Psychic'],
+    marowak: ['Ground'],
+    pinsir: ['Bug'],
+    tauros: ['Normal'],
+    darkrai: ['Dark'],
 });
 
 const skillsByType = {
@@ -91,7 +95,8 @@ const skillsByType = {
         'ditto-transform-4', 'ditto-passive-transform',
         'scraggy-headbutt', 'scrafty-headbutt', 'scraggy-leer', 'scrafty-leer',
         'scraggy-focus-energy', 'nincada-hidden-power', 'ninjask-extreme-speed',
-        'ninjask-double-team',
+        'ninjask-double-team', 'pinsir-vice-grip', 'pinsir-guillotine',
+        'tauros-horn-attack', 'tauros-take-down', 'tauros-stampede',
     ],
     Fire: [
         'charmander-ember', 'charmander-flamethrower', 'charmander-passive-evolution-charmeleon',
@@ -142,6 +147,7 @@ const skillsByType = {
         'scraggy-hi-jump-kick', 'scrafty-hi-jump-kick',
         'scraggy-focus-blast', 'scrafty-focus-blast',
         'primeape-rock-smash', 'primeape-close-combat', 'primeape-passive-anger-point',
+        'pinsir-seismic-toss',
     ],
     Poison: [
         'koffing-smog', 'koffing-passive-poison-gas', 'koffing-passive-evolution-weezing',
@@ -155,6 +161,8 @@ const skillsByType = {
     Ground: [
         'pidgey-sand-attack', 'pidgeotto-sand-attack', 'eevee-dig', 'vaporeon-sand-attack',
         'nincada-evolve',
+        'marowak-bone-club', 'marowak-bone-rush', 'marowak-bonemerang', 'marowak-bone-guard',
+        'tauros-earthquake',
     ],
     Flying: [
         'pidgey-gust', 'pidgey-peck', 'pidgeotto-gust', 'pidgeotto-peck', 'zapdos-flight',
@@ -175,16 +183,17 @@ const skillsByType = {
         'beedrill-hive-sting', 'beedrill-evolution-mega', 'mega-beedrill-fell-stinger',
         'beedrill-hive-swarm-mega', 'nincada-struggle-bug', 'ninjask-skitter-smack',
         'ninjask-speed-boost', 'shedinja-bug-buzz', 'shedinja-wonder-guard',
+        'pinsir-x-scissor', 'pinsir-struggle-bug', 'pinsir-mega-pinsir-passive',
     ],
     Rock: [
         'aerodactyl-rock-slide', 'aerodactyl-stone-edge', 'aerodactyl-passive-tough-head',
-        'onix-rock-throw', 'onix-stealth-rock', 'onix-passive-sturdy',
+        'onix-rock-throw', 'onix-stealth-rock', 'onix-passive-sturdy', 'pinsir-rock-tomb',
     ],
     Ghost: [
         'gastly-lick', 'gastly-curse', 'gastly-spite', 'gastly-passive-evolution-haunter',
         'haunter-lick', 'haunter-curse', 'haunter-spite', 'mewtwo-shadow-ball',
         'ninjask-shadow-ball', 'shedinja-hex', 'primeape-rage-fist',
-        'drowzee-nightmare', 'hypno-nightmare',
+        'drowzee-nightmare', 'hypno-nightmare', 'darkrai-shadow-sneak',
     ],
     Dragon: [
         'charmander-dragon-claw', 'charmander-charizard-x-dragon-claw',
@@ -197,7 +206,8 @@ const skillsByType = {
         'zubat-bite', 'zubat-draining-fangs', 'golbat-bite', 'golbat-draining-fangs',
         'ekans-crunch', 'arbok-crunch', 'machop-taunt', 'machoke-taunt',
         'meowth-night-slash', 'persian-night-slash', 'shedinja-feint-attack',
-        'primeape-knock-off',
+        'primeape-knock-off', 'darkrai-nightmare-passive', 'darkrai-dark-void',
+        'darkrai-bad-dreams', 'darkrai-dark-portal',
     ],
     Steel: [
         'krabby-metal-claw', 'kingler-metal-claw', 'magneton-flash-cannon', 'onix-iron-tail',

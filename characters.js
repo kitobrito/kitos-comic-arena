@@ -35177,6 +35177,545 @@ const characters = [
         "description": "A relentless Fighting-type bruiser that tears down defenses and turns pain, type weakness, and critical hits into explosive damage.",
         "descriptionHtml": "A relentless Fighting-type bruiser that tears down defenses and turns pain, type weakness, and critical hits into explosive damage.",
         "pokemonTypes": ["Fighting"]
+    },
+    {
+        "id": "marowak",
+        "characterId": "marowak",
+        "name": "Marowak",
+        "facePicture": "assets/images/PokemonArena/marowak/facepicture.jpg",
+        "skills": [
+            {
+                "id": "marowak-bone-club",
+                "name": "Bone Club",
+                "skillimage": "assets/images/PokemonArena/marowak/boneclub.jpg",
+                "skilldescription": "Marowak equips a bone club, allowing the use of his other skills and granting him 20 damage reduction. Each time Marowak takes non-affliction damage, his damage reduction decreases by 5. When it reaches 0, Bone Club ends. Marowak can have up to 2 Bone Club stacks, but cannot use Bone Club while it is already active.",
+                "description": "Marowak equips a bone club, allowing the use of his other skills and granting him 20 damage reduction. Each time Marowak takes non-affliction damage, his damage reduction decreases by 5. When it reaches 0, Bone Club ends. Marowak can have up to 2 Bone Club stacks, but cannot use Bone Club while it is already active.",
+                "energy": [],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 0,
+                "actorCondition": { "missingStatusId": "marowak_bone_club_active" },
+                "classes": ["Ground", "Strategic", "Instant"],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "marowak_bone_club_active",
+                        "duration": 99,
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unpierceableDamageReductionFlat": 20,
+                            "statusIconUrl": "assets/images/PokemonArena/marowak/boneclub.jpg",
+                            "tooltipTextTemplate": "Marowak has {unpierceableDamageReductionFlat} non-affliction damage reduction from Bone Club."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "marowak_bone_club_stacks",
+                        "duration": 99,
+                        "scope": "self",
+                        "metadata": {
+                            "hidden": true,
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "marowakBoneClubStacks": 1,
+                            "stackMetadataKey": "marowakBoneClubStacks",
+                            "stackDelta": 1,
+                            "stackMax": 2,
+                            "tooltipTextTemplate": "Marowak has cast Bone Club {marowakBoneClubStacks} time(s) this match."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "marowak-bone-rush",
+                "name": "Bone Rush",
+                "skillimage": "assets/images/PokemonArena/marowak/bonerush.jpg",
+                "skilldescription": "Deals 10 damage to one enemy 2-4 times. Requires Bone Club. Bone Club loses 5 damage reduction. This skill loses 5 damage after its second hit (if applicable). If Marowak has 2 Bone Club stacks, Bone Rush casts an additional time.",
+                "description": "Deals 10 damage to one enemy 2-4 times. Requires Bone Club. Bone Club loses 5 damage reduction. This skill loses 5 damage after its second hit (if applicable). If Marowak has 2 Bone Club stacks, Bone Rush casts an additional time.",
+                "energy": ["Bloodline"],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "actorCondition": { "statusId": "marowak_bone_club_active" },
+                "classes": ["Ground", "Physical", "Instant"],
+                "effects": [{ "type": "marowak_bone_rush", "scope": "target" }]
+            },
+            {
+                "id": "marowak-bonemerang",
+                "name": "Bonemerang",
+                "skillimage": "assets/images/PokemonArena/marowak/bonemerang.jpg",
+                "skilldescription": "Deals 30 damage to one enemy this turn and 25 damage to a random enemy next turn. If this hits the same enemy twice they are fully stunned for 1 turn. Requires Bone Club. Bone Club and its damage reduction are removed from Marowak while this is active and then put back into him when it ends.",
+                "description": "Deals 30 damage to one enemy this turn and 25 damage to a random enemy next turn. If this hits the same enemy twice they are fully stunned for 1 turn. Requires Bone Club. Bone Club and its damage reduction are removed from Marowak while this is active and then put back into him when it ends.",
+                "energy": ["Bloodline", "Random"],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "actorCondition": { "statusId": "marowak_bone_club_active" },
+                "classes": ["Ground", "Physical", "Instant"],
+                "effects": [{ "type": "marowak_bonemerang", "scope": "target" }]
+            },
+            {
+                "id": "marowak-bone-guard",
+                "name": "Bone Guard",
+                "skillimage": "assets/images/PokemonArena/marowak/boneguard.jpg",
+                "skilldescription": "Marowak becomes invulnerable for 1 turn. Requires Bone Club.",
+                "description": "Marowak becomes invulnerable for 1 turn. Requires Bone Club.",
+                "energy": ["Random"],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 4,
+                "actorCondition": { "statusId": "marowak_bone_club_active" },
+                "classes": ["Ground", "Strategic", "Instant"],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "marowak_bone_guard_active",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "harmful": false,
+                            "invulnerable": true,
+                            "statusIconUrl": "assets/images/PokemonArena/marowak/boneguard.jpg",
+                            "tooltipText": "Marowak is invulnerable."
+                        }
+                    }
+                ]
+            }
+        ],
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "category": "Pokemon Arena",
+        "hidden": false,
+        "hiddenFromSelection": false,
+        "roleCategory": "bruiser",
+        "description": "A tenacious Ground-type bruiser who equips a bone club to unlock a burst-heavy toolkit, trading his own damage reduction to fuel multi-hit rushes and a two-turn bonemerang combo.",
+        "descriptionHtml": "A tenacious Ground-type bruiser who equips a bone club to unlock a burst-heavy toolkit, trading his own damage reduction to fuel multi-hit rushes and a two-turn bonemerang combo.",
+        "pokemonTypes": ["Ground"]
+    },
+    {
+        "id": "pinsir",
+        "characterId": "pinsir",
+        "name": "Pinsir",
+        "facePicture": "assets/images/PokemonArena/pinsir/facepicture.jpg",
+        "skills": [
+            {
+                "id": "pinsir-vice-grip",
+                "name": "Vice Grip",
+                "skillimage": "assets/images/PokemonArena/pinsir/vicegrip.jpg",
+                "skilldescription": "Makes one enemy unable to reduce damage or become invulnerable for 1 turn and deals 20 damage to them. Guillotine has a 5% increased chance to hit (stacks). Swaps to \"Guillotine\" for 1 turn.",
+                "description": "Makes one enemy unable to reduce damage or become invulnerable for 1 turn and deals 20 damage to them. Guillotine has a 5% increased chance to hit (stacks). Swaps to \"Guillotine\" for 1 turn.",
+                "energy": ["Taijutsu"],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": ["Normal", "Physical", "Instant"],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "pinsir_vice_grip_mark",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "cannotReduceDamage": true,
+                            "cannotBecomeInvulnerable": true,
+                            "tooltipText": "This character cannot reduce damage or become invulnerable."
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "metadata": {}
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "pinsir_guillotine_bonus",
+                        "duration": 99,
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "hidden": true,
+                            "pinsirGuillotineBonus": 5,
+                            "mergeNumericAddKeys": ["pinsirGuillotineBonus"],
+                            "tooltipTextTemplate": "Guillotine has a {pinsirGuillotineBonus}% increased chance to hit."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "pinsir_guillotine_swap",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "harmful": false,
+                            "hidden": true,
+                            "skillReplacements": { "pinsir-vice-grip": "pinsir-guillotine" },
+                            "tooltipText": "Vice Grip has swapped to Guillotine for 1 turn."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "pinsir-seismic-toss",
+                "name": "Pinsir Seismic Toss",
+                "skillimage": "assets/images/PokemonArena/pinsir/seismictoss.jpg",
+                "skilldescription": "Pinsir targets himself or an enemy for 1 turn. If an enemy uses a new skill on Pinsir (if on self) or if the target (if on enemy) uses a new harmful skill, they will be countered and dealt 5 damage for every 20 HP Pinsir has. If successful, \"Guillotine\" has a 10% increased chance to hit (stacks). Invisible.",
+                "description": "Pinsir targets himself or an enemy for 1 turn. If an enemy uses a new skill on Pinsir (if on self) or if the target (if on enemy) uses a new harmful skill, they will be countered and dealt 5 damage for every 20 HP Pinsir has. If successful, \"Guillotine\" has a 10% increased chance to hit (stacks). Invisible.",
+                "energy": ["Taijutsu"],
+                "target": "single-character",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": ["Fighting", "Physical", "Instant", "Invisible"],
+                "effects": [{ "type": "pinsir_seismic_toss", "scope": "target" }]
+            },
+            {
+                "id": "pinsir-x-scissor",
+                "name": "X-Scissor",
+                "skillimage": "assets/images/PokemonArena/pinsir/xscissor.jpg",
+                "skilldescription": "Deals 15 piercing damage to one enemy. This has a 25% chance to critical hit for 15 additional damage. If the target is affected by \"Vice Grip\" or \"Struggle Bug\", this has a 100% chance to critical hit. \"Guillotine\" has a 5% increased chance to hit (stacks), which is increased 10% if this skill critical hits.",
+                "description": "Deals 15 piercing damage to one enemy. This has a 25% chance to critical hit for 15 additional damage. If the target is affected by \"Vice Grip\" or \"Struggle Bug\", this has a 100% chance to critical hit. \"Guillotine\" has a 5% increased chance to hit (stacks), which is increased 10% if this skill critical hits.",
+                "energy": ["Random"],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": ["Bug", "Physical", "Instant"],
+                "effects": [{ "type": "pinsir_x_scissor", "scope": "target" }]
+            },
+            {
+                "id": "pinsir-rock-tomb",
+                "name": "Rock Tomb",
+                "skillimage": "assets/images/PokemonArena/pinsir/rocktomb.jpg",
+                "skilldescription": "Pinsir becomes invulnerable for 1 turn and gains 30 points of permanent destructible defense. While he has this destructible defense, any enemy that targets him will increase the hit chance of \"Guillotine\" by 5% (stacks).",
+                "description": "Pinsir becomes invulnerable for 1 turn and gains 30 points of permanent destructible defense. While he has this destructible defense, any enemy that targets him will increase the hit chance of \"Guillotine\" by 5% (stacks).",
+                "energy": ["Random"],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 6,
+                "classes": ["Rock", "Strategic", "Instant"],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "pinsir_rock_tomb_invulnerable",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "harmful": false,
+                            "invulnerable": true,
+                            "tooltipText": "Pinsir is invulnerable."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "pinsir_rock_tomb_active",
+                        "duration": 999,
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "destructibleDefensePoints": 30,
+                            "mergeNumericAddKeys": ["destructibleDefensePoints"],
+                            "tooltipTextTemplate": "Pinsir has {destructibleDefensePoints} destructible defense from Rock Tomb."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "pinsir-guillotine",
+                "name": "Guillotine",
+                "hiddenFromSelectionViewer": true,
+                "skillimage": "assets/images/PokemonArena/pinsir/guillotine.jpg",
+                "skilldescription": "Has a 10% chance to instantly kill one enemy. If successful, this has a 15% increased chance to hit (stacks).",
+                "description": "Has a 10% chance to instantly kill one enemy. If successful, this has a 15% increased chance to hit (stacks).",
+                "energy": ["Random", "Random"],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": ["Normal", "Physical", "Instant"],
+                "effects": [{ "type": "pinsir_guillotine", "scope": "target" }]
+            },
+            {
+                "id": "pinsir-mega-pinsir-passive",
+                "name": "Passive: Mega Pinsir",
+                "skillimage": "assets/images/PokemonArena/pinsir/megaevolution.jpg",
+                "skilldescription": "This skill activates if \"Guillotine\" is successful. When it does, Pinsir heals 25HP, gains 10 points of imperishable damage reduction, and Vice Grip swaps to \"Struggle Bug\" permanently.",
+                "description": "This skill activates if \"Guillotine\" is successful. When it does, Pinsir heals 25HP, gains 10 points of imperishable damage reduction, and Vice Grip swaps to \"Struggle Bug\" permanently.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": ["Bug", "Strategic", "Passive", "Instant"],
+                "effects": []
+            },
+            {
+                "id": "pinsir-struggle-bug",
+                "name": "Struggle Bug",
+                "hiddenFromSelectionViewer": true,
+                "skillimage": "assets/images/PokemonArena/pinsir/strugglebug.jpg",
+                "skilldescription": "One enemy becomes permanently unable to reduce damage or become invulnerable and is dealt 30 damage. Guillotine has a 10% increased chance to hit (stacks). Swaps to \"Guillotine\" for 1 turn.",
+                "description": "One enemy becomes permanently unable to reduce damage or become invulnerable and is dealt 30 damage. Guillotine has a 10% increased chance to hit (stacks). Swaps to \"Guillotine\" for 1 turn.",
+                "energy": ["Taijutsu", "Random"],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": ["Bug", "Physical", "Instant"],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "pinsir_struggle_bug_mark",
+                        "duration": 999,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "infiniteDuration": true,
+                            "cannotReduceDamage": true,
+                            "cannotBecomeInvulnerable": true,
+                            "tooltipText": "This character can never reduce damage or become invulnerable."
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 30,
+                        "scope": "target",
+                        "metadata": {}
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "pinsir_guillotine_bonus",
+                        "duration": 99,
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "hidden": true,
+                            "pinsirGuillotineBonus": 10,
+                            "mergeNumericAddKeys": ["pinsirGuillotineBonus"],
+                            "tooltipTextTemplate": "Guillotine has a {pinsirGuillotineBonus}% increased chance to hit."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "pinsir_guillotine_swap",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "harmful": false,
+                            "hidden": true,
+                            "skillReplacements": { "pinsir-struggle-bug": "pinsir-guillotine" },
+                            "tooltipText": "Struggle Bug has swapped to Guillotine for 1 turn."
+                        }
+                    }
+                ]
+            }
+        ],
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "category": "Pokemon Arena",
+        "hidden": false,
+        "hiddenFromSelection": false,
+        "roleCategory": "spike-dps",
+        "description": "A gambler's bruiser that spends every skill feeding Guillotine's hit chance, snowballing toward a one-hit kill and a permanent Mega Pinsir upgrade the moment it lands.",
+        "descriptionHtml": "A gambler's bruiser that spends every skill feeding Guillotine's hit chance, snowballing toward a one-hit kill and a permanent Mega Pinsir upgrade the moment it lands.",
+        "pokemonTypes": ["Bug"]
+    },
+    {
+        "id": "tauros",
+        "characterId": "tauros",
+        "name": "Tauros",
+        "facePicture": "assets/images/PokemonArena/tauros/facepicture.jpg",
+        "skills": [
+            {
+                "id": "tauros-horn-attack",
+                "name": "Horn Attack",
+                "skillimage": "assets/images/PokemonArena/tauros/hornattack.jpg",
+                "skilldescription": "Destroys one enemy's Shield and damage reduction, stuns their physical skills for 1 turn, and deals 40 damage to them.",
+                "description": "Destroys one enemy's Shield and damage reduction, stuns their physical skills for 1 turn, and deals 40 damage to them.",
+                "energy": ["Taijutsu", "Taijutsu"],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": ["Normal", "Physical", "Instant"],
+                "effects": [{ "type": "tauros_horn_attack", "scope": "target" }]
+            },
+            {
+                "id": "tauros-take-down",
+                "name": "Take-Down",
+                "skillimage": "assets/images/PokemonArena/tauros/takedown.jpg",
+                "skilldescription": "Tauros gains 50% damage reduction and makes Horn Attack cost 1 less green energy for 2 turns. Tauros loses 15 health if Horn Attack is used.",
+                "description": "Tauros gains 50% damage reduction and makes Horn Attack cost 1 less green energy for 2 turns. Tauros loses 15 health if Horn Attack is used.",
+                "energy": ["Random"],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": ["Normal", "Physical", "Instant"],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "tauros_take_down_active",
+                        "duration": 2,
+                        "scope": "self",
+                        "metadata": {
+                            "harmful": false,
+                            "damageReductionPercent": 50,
+                            "skillCostOverridesBySkillId": {
+                                "tauros-horn-attack": { "energy": ["Taijutsu"] }
+                            },
+                            "tooltipText": "Tauros has 50% damage reduction and Horn Attack costs 1 less Taijutsu energy."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "tauros-earthquake",
+                "name": "Earthquake",
+                "skillimage": "assets/images/PokemonArena/tauros/earthquake.jpg",
+                "skilldescription": "Tauros deals 10 damage to all characters except for himself this turn, 20 damage next turn, 30 damage the turn after that, and 40 damage the turn after that. This skill is channeled and ignores invulnerability.",
+                "description": "Tauros deals 10 damage to all characters except for himself this turn, 20 damage next turn, 30 damage the turn after that, and 40 damage the turn after that. This skill is channeled and ignores invulnerability.",
+                "energy": ["Random", "Random", "Random"],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 4,
+                "classes": ["Ground", "Physical", "Channeled", "Bypassing"],
+                "effects": [{ "type": "tauros_earthquake", "scope": "self" }]
+            },
+            {
+                "id": "tauros-stampede",
+                "name": "STAMPEDE!",
+                "skillimage": "assets/images/PokemonArena/tauros/stampede.jpg",
+                "skilldescription": "For 2 turns, 20 damage to the enemy team and fully stun their skills each turn.",
+                "description": "For 2 turns, 20 damage to the enemy team and fully stun their skills each turn.",
+                "energy": ["Taijutsu", "Taijutsu", "Taijutsu"],
+                "target": "all-enemy",
+                "damage": 0,
+                "cooldown": 6,
+                "classes": ["Normal", "Physical", "Instant"],
+                "effects": [{ "type": "tauros_stampede", "scope": "all-enemy" }]
+            }
+        ],
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "category": "Pokemon Arena",
+        "hidden": false,
+        "hiddenFromSelection": false,
+        "roleCategory": "bruiser",
+        "description": "A headstrong Normal-type bruiser who trades his own health for a devastating Horn Attack, then buries the enemy team under a channeled Earthquake or a two-turn Stampede.",
+        "descriptionHtml": "A headstrong Normal-type bruiser who trades his own health for a devastating Horn Attack, then buries the enemy team under a channeled Earthquake or a two-turn Stampede.",
+        "pokemonTypes": ["Normal"]
+    },
+    {
+        "id": "darkrai",
+        "characterId": "darkrai",
+        "name": "Darkrai",
+        "facePicture": "assets/images/PokemonArena/darkrai/facepicture.jpg",
+        "skills": [
+            {
+                "id": "darkrai-nightmare-passive",
+                "name": "Passive: Nightmare!",
+                "skillimage": "assets/images/PokemonArena/darkrai/nightmare.jpg",
+                "skilldescription": "A character affected by Nightmare (only applied by Darkrai's other skills) is stunned for up to 5 turns. At the end of their turn, Nightmare has an escalating chance to be removed early: 0% turn 1, 20% turn 2, 40% turn 3, 60% turn 4, 80% turn 5.",
+                "description": "A character affected by Nightmare (only applied by Darkrai's other skills) is stunned for up to 5 turns. At the end of their turn, Nightmare has an escalating chance to be removed early: 0% turn 1, 20% turn 2, 40% turn 3, 60% turn 4, 80% turn 5.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": ["Dark", "Strategic", "Passive", "Instant"],
+                "effects": []
+            },
+            {
+                "id": "darkrai-dark-void",
+                "name": "Dark Void",
+                "skillimage": "assets/images/PokemonArena/darkrai/darkvoid.jpg",
+                "skilldescription": "Deals 20 affliction damage to one enemy and gives them 20 points of Barrier. At the end of their turn, if any of that Barrier remains, they become affected by Nightmare.",
+                "description": "Deals 20 affliction damage to one enemy and gives them 20 points of Barrier. At the end of their turn, if any of that Barrier remains, they become affected by Nightmare.",
+                "energy": ["Genjutsu"],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": ["Dark", "Special", "Affliction", "Instant"],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "metadata": { "afflictionDamage": true }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "darkrai_dark_void_nullify",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "barrierPoints": 20,
+                            "tooltipTextTemplate": "This character has {barrierPoints} Barrier from Dark Void; their own outgoing damage is absorbed by it first. If any remains at the end of their turn, they become affected by Nightmare."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "darkrai-bad-dreams",
+                "name": "Bad Dreams",
+                "skillimage": "assets/images/PokemonArena/darkrai/baddreams.jpg",
+                "skilldescription": "While active, every enemy affected by Nightmare takes 20 damage at the end of Darkrai's turn. Pauses on an enemy whenever their Nightmare isn't active, and resumes automatically once they're nightmared again. Does not stack.",
+                "description": "While active, every enemy affected by Nightmare takes 20 damage at the end of Darkrai's turn. Pauses on an enemy whenever their Nightmare isn't active, and resumes automatically once they're nightmared again. Does not stack.",
+                "energy": ["Genjutsu", "Random"],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": ["Dark", "Special", "Affliction", "Instant"],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "darkrai_bad_dreams_active",
+                        "duration": 99,
+                        "scope": "self",
+                        "metadata": {
+                            "harmful": false,
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "tooltipText": "Bad Dreams is active. Enemies affected by Nightmare take 20 damage at the end of Darkrai's turn."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "darkrai-shadow-sneak",
+                "name": "Shadow Sneak",
+                "skillimage": "assets/images/PokemonArena/darkrai/shadowsneak.jpg",
+                "skilldescription": "Deals 25 damage to one enemy. If the target is affected by Nightmare, this deals 15 additional damage. Bypasses invulnerability.",
+                "description": "Deals 25 damage to one enemy. If the target is affected by Nightmare, this deals 15 additional damage. Bypasses invulnerability.",
+                "energy": ["Genjutsu", "Genjutsu"],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": ["Ghost", "Physical", "Instant", "Bypassing"],
+                "effects": [{ "type": "darkrai_shadow_sneak", "scope": "target" }]
+            },
+            {
+                "id": "darkrai-dark-portal",
+                "name": "Dark Portal",
+                "skillimage": "assets/images/PokemonArena/darkrai/darkportal.jpg",
+                "skilldescription": "Darkrai targets one enemy affected by Nightmare. Darkrai ignores all damage while that target remains affected by Nightmare. Darkrai is stunned for 1 turn when this effect ends.",
+                "description": "Darkrai targets one enemy affected by Nightmare. Darkrai ignores all damage while that target remains affected by Nightmare. Darkrai is stunned for 1 turn when this effect ends.",
+                "energy": ["Genjutsu"],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 4,
+                "actorCondition": { "missingStatusId": "darkrai_dark_portal_active" },
+                "classes": ["Dark", "Strategic", "Instant"],
+                "effects": [{ "type": "darkrai_dark_portal", "scope": "target" }]
+            }
+        ],
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "category": "Pokemon Arena",
+        "hidden": false,
+        "hiddenFromSelection": false,
+        "roleCategory": "controller",
+        "description": "A nightmare-weaving controller who stuns and marks enemies with an escalating-chance status, then leverages it for bonus damage, recurring team-wide affliction, and a temporary shield of invulnerability.",
+        "descriptionHtml": "A nightmare-weaving controller who stuns and marks enemies with an escalating-chance status, then leverages it for bonus damage, recurring team-wide affliction, and a temporary shield of invulnerability.",
+        "pokemonTypes": ["Dark"]
     }
 ];
 

@@ -617,6 +617,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                         playTone({ frequency: 260, endFrequency: 44, duration: 0.85, type: 'sawtooth', amount: 0.14, delay: 0.05 });
                         playNoise({ duration: 0.75, amount: 0.11, delay: 0.26, filterType: 'lowpass', frequency: 440, q: 0.9 });
                         break;
+                    case 'pinsir-guillotine-instant-kill':
+                        playNoise({ duration: 0.05, amount: 0.24, filterType: 'highpass', frequency: 3400, q: 1.6 });
+                        playTone({ frequency: 1400, endFrequency: 260, duration: 0.14, type: 'sawtooth', amount: 0.13 });
+                        playNoise({ duration: 0.05, amount: 0.22, delay: 0.09, filterType: 'highpass', frequency: 3800, q: 1.6 });
+                        playTone({ frequency: 1600, endFrequency: 220, duration: 0.16, type: 'sawtooth', amount: 0.12, delay: 0.09 });
+                        playNoise({ duration: 0.5, amount: 0.2, delay: 0.24, filterType: 'bandpass', frequency: 1500, q: 0.9 });
+                        playTone({ frequency: 180, endFrequency: 40, duration: 0.7, type: 'sawtooth', amount: 0.15, delay: 0.26 });
+                        playNoise({ duration: 0.9, amount: 0.12, delay: 0.4, filterType: 'lowpass', frequency: 500, q: 0.8 });
+                        break;
                     case 'damage':
                         playNoise({ duration: 0.12, amount: 0.11, filterType: 'bandpass', frequency: 700, q: 1.4 });
                         playTone({ frequency: 180, endFrequency: 90, duration: 0.13, type: 'triangle', amount: 0.055 });
@@ -1535,6 +1544,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         chikorita: 'chikorita.png.webp',
         clefairy: 'CLEFAIRY.png.webp',
         cyndaquil: 'cyndaquil.png.webp',
+        darkrai: 'darkrai.png',
         dragonite: 'Dragonite.png.webp',
         eevee: 'EEVEE.png.webp',
         ekans: '0023-ekans (1).webp.webp',
@@ -1549,6 +1559,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         machop: 'MACHOP.png.webp',
         magikarp: 'MAGIKARP.png.webp',
         magnemite: 'Magnemite.webp.webp',
+        marowak: 'marowak.png',
         meowth: 'Meowth.png.webp',
         mew: 'Pokémon_Mew_art.png.webp',
         mewtwo: 'Mewtwo_Render.webp.webp',
@@ -1557,11 +1568,13 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         onix: 'ONIX.png.webp',
         pidgey: 'Pidgey.webp.webp',
         pikachu: 'PIKACHU.png.webp',
+        pinsir: 'pinsir.webp',
         primeape: 'primeape.jpg.webp',
         'pokemon-trainer': 'POKEMONTRAINER.png.webp',
         scraggy: 'scraggy.png.webp',
         scyther: 'SCYTHER.png.webp',
         squirtle: 'Pokémon_Squirtle_art.png.webp',
+        tauros: 'tauros.webp',
         totodile: 'totodile.png.webp',
         vaporeon: 'VAPOREON.png.webp',
         zapdos: 'ZAPDOS.png.webp',
@@ -1588,6 +1601,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         magnemite: { name: 'Magneton', filename: 'magneton.png.webp' },
         meowth: { name: 'Persian', filename: 'persian.png.webp' },
         pidgey: { name: 'Pidgeotto', filename: 'pidgeotto.png.webp' },
+        pinsir: { name: 'Mega Pinsir', filename: 'megapinsir.webp' },
         scraggy: { name: 'Scrafty', filename: 'scrafty.png.webp' },
         squirtle: { name: 'Wartortle', filename: 'Wartortle.webp.webp' },
         totodile: { name: 'Feraligatr', filename: 'ferliagatr.png.webp' },
@@ -9567,6 +9581,12 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             if (event.type !== 'heal') {
                 showConfirmedTravelFx({ event, targetCard: card, kind: kind === 'affliction' ? 'special' : kind });
             }
+            if (isPinsirGuillotineLethalEvent(event, previousUnit, nextUnit)) {
+                const victimFace = card?.querySelector?.('.character-face');
+                const victimFaceSrc = victimFace?.dataset?.aliveSrc || victimFace?.src || '';
+                const victimName = getEffectiveCharacterForUnit(previousUnit)?.name || '';
+                queuePinsirGuillotineCinematic(card, victimFaceSrc, victimName);
+            }
             const communityClass = getCommunityConfirmedImpactClass(event.sourceSkillId || '');
             showTemporaryCardFx(
                 card,
@@ -9787,6 +9807,139 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         const queuePokemonEvolutionCinematic = (card, previousUnit, nextUnit, status) => {
             pokemonEvolutionCinematicQueue.push({ card, previousUnit, nextUnit, status });
             runNextPokemonEvolutionCinematic();
+        };
+
+        // Pinsir's Guillotine instant-kill cinematic: shows the victim's own portrait
+        // sliced apart by two horn-shaped streaks in slow motion, then shattered into a
+        // grid of fragments that scatter and fade - modeled directly on the evolution
+        // cinematic above (same queue/active pattern, same fixed-overlay staging).
+        const pinsirGuillotineCinematicQueue = [];
+        let pinsirGuillotineCinematicActive = false;
+        const PINSIR_GUILLOTINE_SHARD_GRID = 8;
+
+        const isPinsirGuillotineLethalEvent = (event, previousUnit, nextUnit) => {
+            if (!event || event.type === 'heal') return false;
+            if (event.sourceSkillId !== 'pinsir-guillotine') return false;
+            const prevHp = Number(previousUnit?.hp);
+            const nextHp = Number(nextUnit?.hp);
+            const wasAlive =
+                previousUnit &&
+                previousUnit.alive !== false &&
+                (!Number.isFinite(prevHp) || prevHp > 0);
+            const isDead =
+                nextUnit &&
+                (nextUnit.alive === false || (Number.isFinite(nextHp) && nextHp <= 0));
+            return Boolean(wasAlive && isDead);
+        };
+
+        const buildPinsirGuillotineShards = (gridSize) => {
+            const shards = [];
+            const cellCount = gridSize * gridSize;
+            const mid = (gridSize - 1) / 2;
+            for (let row = 0; row < gridSize; row += 1) {
+                for (let col = 0; col < gridSize; col += 1) {
+                    const shard = document.createElement('span');
+                    shard.className = `pinsir-guillotine-shard ${row < gridSize / 2 ? 'half-top' : 'half-bottom'}`;
+                    const sliceDirection = row < gridSize / 2 ? -1 : 1;
+                    const outwardAngle = Math.atan2(row - mid, col - mid) || sliceDirection * (Math.PI / 2);
+                    const distance = 90 + Math.random() * 130;
+                    shard.style.setProperty('--shard-col', String(col));
+                    shard.style.setProperty('--shard-row', String(row));
+                    shard.style.setProperty('--slice-dx', `${(col - mid) * 1.4}px`);
+                    shard.style.setProperty('--slice-dy', `${sliceDirection * (7 + Math.random() * 4)}px`);
+                    shard.style.setProperty('--slice-rot', `${sliceDirection * (2 + Math.random() * 3)}deg`);
+                    shard.style.setProperty('--shard-dx', `${Math.cos(outwardAngle) * distance}px`);
+                    shard.style.setProperty(
+                        '--shard-dy',
+                        `${Math.sin(outwardAngle) * distance + sliceDirection * 60}px`
+                    );
+                    shard.style.setProperty('--shard-rot', `${(Math.random() - 0.5) * 620}deg`);
+                    shard.style.setProperty('--shard-delay', `${(row * gridSize + col) % cellCount * 4 + Math.random() * 40}ms`);
+                    shards.push(shard);
+                }
+            }
+            return shards;
+        };
+
+        const runNextPinsirGuillotineCinematic = () => {
+            if (pinsirGuillotineCinematicActive || !pinsirGuillotineCinematicQueue.length) return;
+            pinsirGuillotineCinematicActive = true;
+            const { card, faceSrc, victimName } = pinsirGuillotineCinematicQueue.shift();
+            const face = card?.querySelector?.('.character-face');
+            const faceRect = face?.getBoundingClientRect?.() || card?.getBoundingClientRect?.();
+            if (!faceRect || !faceSrc) {
+                pinsirGuillotineCinematicActive = false;
+                runNextPinsirGuillotineCinematic();
+                return;
+            }
+            document.querySelectorAll('.pinsir-guillotine-cinematic').forEach((node) => node.remove());
+            const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+            const viewportWidth = window.visualViewport?.width || window.innerWidth;
+            const viewportHeight = window.visualViewport?.height || window.innerHeight;
+            const viewportLeft = window.visualViewport?.offsetLeft || 0;
+            const viewportTop = window.visualViewport?.offsetTop || 0;
+            const centerOnVisibleViewport = viewportWidth <= 680;
+            const centerX = centerOnVisibleViewport
+                ? viewportLeft + viewportWidth / 2
+                : Math.max(96, Math.min(window.innerWidth - 96, faceRect.left + faceRect.width / 2));
+            const centerY = centerOnVisibleViewport
+                ? viewportTop + viewportHeight / 2
+                : Math.max(122, Math.min(window.innerHeight - 122, faceRect.top + faceRect.height / 2));
+
+            const cinematic = document.createElement('div');
+            cinematic.className = `pinsir-guillotine-cinematic${reducedMotion ? ' reduced-motion' : ''}`;
+            cinematic.setAttribute('aria-hidden', 'true');
+            cinematic.style.setProperty('--guillotine-x', `${centerX}px`);
+            cinematic.style.setProperty('--guillotine-y', `${centerY}px`);
+            cinematic.style.setProperty('--guillotine-face', `url("${faceSrc}")`);
+
+            const backdrop = document.createElement('div');
+            backdrop.className = 'pinsir-guillotine-backdrop';
+            const stage = document.createElement('div');
+            stage.className = 'pinsir-guillotine-stage';
+            const portraitWrap = document.createElement('div');
+            portraitWrap.className = 'pinsir-guillotine-portrait-wrap';
+            const hornA = document.createElement('span');
+            hornA.className = 'pinsir-guillotine-horn horn-a';
+            const hornB = document.createElement('span');
+            hornB.className = 'pinsir-guillotine-horn horn-b';
+            const flash = document.createElement('span');
+            flash.className = 'pinsir-guillotine-flash';
+            const shardLayer = document.createElement('div');
+            shardLayer.className = 'pinsir-guillotine-shard-layer';
+            buildPinsirGuillotineShards(PINSIR_GUILLOTINE_SHARD_GRID).forEach((shard) =>
+                shardLayer.appendChild(shard)
+            );
+            portraitWrap.append(hornA, hornB, flash, shardLayer);
+
+            const crest = document.createElement('div');
+            crest.className = 'pinsir-guillotine-crest';
+            const kicker = document.createElement('span');
+            kicker.className = 'pinsir-guillotine-kicker';
+            kicker.textContent = victimName ? `${String(victimName).toUpperCase()} IS DEFEATED` : 'CRITICAL STRIKE';
+            const title = document.createElement('strong');
+            title.className = 'pinsir-guillotine-title';
+            title.textContent = 'INSTANT KILL';
+            crest.append(kicker, title);
+
+            stage.append(portraitWrap, crest);
+            cinematic.append(backdrop, stage);
+            document.body.appendChild(cinematic);
+            document.body.classList.add('pinsir-guillotine-cinematic-active');
+            playGeneratedIngameSound('pinsir-guillotine-instant-kill');
+
+            const duration = reducedMotion ? 700 : 2500;
+            window.setTimeout(() => {
+                cinematic.remove();
+                document.body.classList.remove('pinsir-guillotine-cinematic-active');
+                pinsirGuillotineCinematicActive = false;
+                runNextPinsirGuillotineCinematic();
+            }, duration);
+        };
+
+        const queuePinsirGuillotineCinematic = (card, faceSrc, victimName) => {
+            pinsirGuillotineCinematicQueue.push({ card, faceSrc, victimName });
+            runNextPinsirGuillotineCinematic();
         };
 
         const showConfirmedStatusChangeFx = (card, previousUnit, nextUnit) => {

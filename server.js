@@ -152,13 +152,13 @@ const LATEST_CHARACTER_RELEASES_BY_ARENA = {
         { label: 'General Grievous', characterId: 'general-grievous' },
     ],
     pokemon: [
-        { label: 'Primeape', characterId: 'primeape' },
-        { label: 'Nincada', characterId: 'nincada' },
-        { label: 'Dragapult', characterId: 'dragapult' },
+        { label: 'Pinsir', characterId: 'pinsir' },
+        { label: 'Tauros', characterId: 'tauros' },
+        { label: 'Darkrai', characterId: 'darkrai' },
     ],
 };
 const LATEST_CHARACTER_RELEASES_STATE_KEY = 'latest_character_releases';
-const LATEST_CHARACTER_RELEASES_VERSION = 'pokemon-primeape-annihilape-v1';
+const LATEST_CHARACTER_RELEASES_VERSION = 'pokemon-kanto-new-arrivals-v1';
 const MAINTENANCE_MODE_STATE_KEY = 'maintenance_mode';
 const MAINTENANCE_MODE_CACHE_TTL_MS = 10 * 1000;
 const DEFAULT_PROFILE_AVATAR = '/assets/images/external-mirror/i.postimg.cc/971bcdc8d3154d6d16a9.png';
