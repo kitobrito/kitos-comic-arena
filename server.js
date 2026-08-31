@@ -11804,7 +11804,7 @@ const buildPairedMatchDocument = ({ username, team, opponent, mode, arena, profi
                     : null,
         },
     ];
-    const board = battleLogic.buildInitialBoard(playerDocs);
+    const board = battleLogic.buildInitialBoard(playerDocs, charactersData);
     return {
         matchId,
         stateRevision: 0,
@@ -11854,7 +11854,7 @@ const buildBattleBotMatch = async ({ username, team, mode, arena, playerProfile 
         botPlayer,
     ];
     assertMatchTeamsBelongToArena(playerDocs, normalizedArena);
-    const board = battleLogic.buildInitialBoard(playerDocs);
+    const board = battleLogic.buildInitialBoard(playerDocs, charactersData);
     const matchDocument = {
         matchId: built.matchId,
         stateRevision: getMatchStateRevision(built),
@@ -11899,7 +11899,7 @@ const createMatchDocumentFromTeams = async ({ mode, arena, players, botMatch = n
         aliveCount: aliveLookup[player.username],
     }));
     assertMatchTeamsBelongToArena(playerDocs, normalizedArena);
-    const board = battleLogic.buildInitialBoard(playerDocs);
+    const board = battleLogic.buildInitialBoard(playerDocs, charactersData);
     const matchDocument = {
         matchId: built.matchId,
         stateRevision: getMatchStateRevision(built),
@@ -13712,7 +13712,7 @@ const ensureBoardState = async (match) => {
     let changed = false;
     const players = Array.isArray(match.players) ? match.players : [];
     if (!match.board) {
-        match.board = battleLogic.buildInitialBoard(players);
+        match.board = battleLogic.buildInitialBoard(players, charactersData);
         changed = true;
     }
     // Backfill aliveCount and board entries
@@ -13722,7 +13722,7 @@ const ensureBoardState = async (match) => {
             changed = true;
         }
         if (!match.board[player.username]) {
-            match.board[player.username] = battleLogic.buildInitialBoard([player])[player.username];
+            match.board[player.username] = battleLogic.buildInitialBoard([player], charactersData)[player.username];
             changed = true;
         }
         const units = Array.isArray(match.board[player.username]) ? match.board[player.username] : [];
@@ -13821,7 +13821,7 @@ const finalizeTurn = async (match, username, options = {}) => {
         return match;
     }
     if (!match.board) {
-        match.board = battleLogic.buildInitialBoard(match.players || []);
+        match.board = battleLogic.buildInitialBoard(match.players || [], charactersData);
     }
     const econ = match.economy;
     const pools = match.chakraPools;
