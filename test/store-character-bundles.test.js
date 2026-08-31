@@ -90,3 +90,16 @@ test('the server exposes storeBundles on /api/missions and a matching purchase e
     assert.match(serverSource, /storeBundles: buildStoreBundlesResponse\(arena, await getStoredMissionCatalog\(\)\),/);
     assert.match(serverSource, /app\.post\('\/api\/store\/unlock-bundle', requireSession, async \(req, res\) => \{/);
 });
+
+test('bundle card text is visible in the character store, not just the skins section', () => {
+    // .selection-mission-title/-reward/-progress use color:inherit, which only
+    // works where an ancestor .selection-mission-card sets an actual color --
+    // previously only true inside .selection-skins-section, so bundle cards
+    // rendered inside .selection-character-store had invisible (inherited
+    // default) text.
+    const experimentalCss = fs.readFileSync(path.join(root, 'styles', 'selection-experimental.css'), 'utf8');
+    assert.match(
+        experimentalCss,
+        /html\.selection-experimental \.selection-skins-section \.selection-mission-card,\s*html\.selection-experimental \.selection-character-store \.selection-mission-card \{\s*color: #fff;/
+    );
+});
