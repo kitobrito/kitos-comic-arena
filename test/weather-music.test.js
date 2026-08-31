@@ -42,9 +42,12 @@ test('a fresh weather with a theme swaps to a single-track (auto-looping) playli
 });
 
 test('weather ending resumes the normal battle playlist only if a weather track was actually playing', () => {
+    // resumeIngameBattleMusic wraps ensureIngameBattleMusic so Lance's champion
+    // theme (see LANCE_TEAM_CHARACTER_IDS) is what actually resumes when he's in
+    // the match, instead of the normal shuffled playlist.
     assert.match(
         script,
-        /if \(!weather\) \{\s*if \(lastKnownWeatherKey && WEATHER_MUSIC_TRACKS\[lastKnownWeatherKey\]\) \{\s*soundManager\.ensureIngameBattleMusic\(currentMatchArena\);\s*\}\s*lastKnownWeatherKey = null;/
+        /if \(!weather\) \{\s*if \(lastKnownWeatherKey && WEATHER_MUSIC_TRACKS\[lastKnownWeatherKey\]\) \{\s*resumeIngameBattleMusic\(currentMatchArena\);\s*\}\s*lastKnownWeatherKey = null;/
     );
 });
 

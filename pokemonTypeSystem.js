@@ -59,6 +59,13 @@ const POKEMON_CHARACTER_TYPES = Object.freeze({
     pinsir: ['Bug'],
     tauros: ['Normal'],
     darkrai: ['Dark'],
+    lance: ['Dragon'],
+    'lance-dragonite-1': ['Dragon', 'Flying'],
+    'lance-gyarados': ['Water', 'Flying'],
+    'lance-aerodactyl': ['Rock', 'Flying'],
+    'lance-charizard': ['Fire', 'Flying'],
+    'lance-kingdra': ['Water', 'Dragon'],
+    'lance-dragonite-2': ['Dragon', 'Flying'],
 });
 
 const skillsByType = {
@@ -97,6 +104,8 @@ const skillsByType = {
         'scraggy-focus-energy', 'nincada-hidden-power', 'ninjask-extreme-speed',
         'ninjask-double-team', 'pinsir-vice-grip', 'pinsir-guillotine',
         'tauros-horn-attack', 'tauros-take-down', 'tauros-stampede',
+        'lance-dragonite-1-hyper-beam', 'lance-kingdra-smokescreen',
+        'lance-dragonite-2-extreme-speed', 'lance-dragonite-2-safeguard',
     ],
     Fire: [
         'charmander-ember', 'charmander-flamethrower', 'charmander-passive-evolution-charmeleon',
@@ -107,6 +116,7 @@ const skillsByType = {
         'moltres-fire-spin', 'moltres-sunny-day', 'moltres-heat-wave', 'moltres-overheat',
         'moltres-heat', 'cyndaquil-aerial-flamethrower', 'cyndaquil-skyward-leap',
         'cyndaquil-warming-up', 'cyndaquil-quilava-flame-wheel', 'cyndaquil-typhlosion-flame-wheel',
+        'lance-charizard-flamethrower', 'lance-charizard-overheat',
     ],
     Water: [
         'squirtle-water-gun', 'squirtle-withdraw', 'squirtle-bubble',
@@ -116,6 +126,8 @@ const skillsByType = {
         'magikarp-passive-evolution-gyarados', 'gyarados-hydro-pump', 'vaporeon-hydro-pump',
         'mew-life-dew', 'totodile-aerial-water-gun', 'totodile-aqua-tail', 'totodile-water-rings',
         'totodile-croconaw-bite',
+        'lance-gyarados-aqua-tail', 'lance-gyarados-waterfall', 'lance-kingdra-hydro-pump',
+        'lance-kingdra-rain-dance',
     ],
     Electric: [
         'pikachu-thundershock', 'pikachu-volt-tackle', 'pikachu-thunder', 'pikachu-passive-static',
@@ -166,6 +178,7 @@ const skillsByType = {
     ],
     Flying: [
         'pidgey-gust', 'pidgey-peck', 'pidgeotto-gust', 'pidgeotto-peck', 'zapdos-flight',
+        'lance-dragonite-1-roost', 'lance-charizard-air-slash', 'lance-aerodactyl-aerial-ace',
     ],
     Psychic: [
         'pikachu-agility', 'butterfree-confusion', 'butterfree-psybeam', 'abra-future-sight',
@@ -188,6 +201,7 @@ const skillsByType = {
     Rock: [
         'aerodactyl-rock-slide', 'aerodactyl-stone-edge', 'aerodactyl-passive-tough-head',
         'onix-rock-throw', 'onix-stealth-rock', 'onix-passive-sturdy', 'pinsir-rock-tomb',
+        'lance-aerodactyl-rock-slide', 'lance-aerodactyl-ancient-power',
     ],
     Ghost: [
         'gastly-lick', 'gastly-curse', 'gastly-spite', 'gastly-passive-evolution-haunter',
@@ -201,6 +215,9 @@ const skillsByType = {
         'dragonite-draco-meteor', 'dragonite-dragon-boost', 'dragonite-pressure',
         'dragapult-dragon-darts', 'dragapult-dragon-tail', 'dragapult-dragon-rush',
         'totodile-feraligatr-dragon-claw',
+        'lance-champions-six-passive', 'lance-dragonite-1-dragon-claw', 'lance-dragonite-1-dragon-dance',
+        'lance-charizard-dragon-pulse', 'lance-gyarados-outrage', 'lance-kingdra-dragon-pulse',
+        'lance-dragonite-2-dragon-rush', 'lance-dragonite-2-draco-meteor',
     ],
     Dark: [
         'zubat-bite', 'zubat-draining-fangs', 'golbat-bite', 'golbat-draining-fangs',
@@ -208,6 +225,7 @@ const skillsByType = {
         'meowth-night-slash', 'persian-night-slash', 'shedinja-feint-attack',
         'primeape-knock-off', 'darkrai-nightmare-passive', 'darkrai-dark-void',
         'darkrai-bad-dreams', 'darkrai-dark-portal',
+        'lance-gyarados-crunch', 'lance-aerodactyl-taunt',
     ],
     Steel: [
         'krabby-metal-claw', 'kingler-metal-claw', 'magneton-flash-cannon', 'onix-iron-tail',

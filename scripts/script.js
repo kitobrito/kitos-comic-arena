@@ -1119,6 +1119,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         wildfire: 'assets/images/PokemonArena/backgrounds%20and%20weather/Wildfire.jpg',
         thunderstorm: 'assets/images/PokemonArena/backgrounds%20and%20weather/Lightning%20Storm.jpg',
         pollutedair: 'assets/images/PokemonArena/backgrounds%20and%20weather/Polluted%20Air.jpg',
+        rain: 'assets/images/PokemonArena/backgrounds%20and%20weather/Rain.jpg',
     };
     const getPokemonWeatherBackgroundUrl = (weatherKey = '') =>
         POKEMON_WEATHER_BACKGROUND_URLS[typeof weatherKey === 'string' ? weatherKey.trim() : ''] || '';
@@ -1207,12 +1208,42 @@ document.addEventListener('DOMContentLoaded', async () => {
         thunderstorm: 'assets/images/PokemonArena/music/weather/Thunderstorm Weather.mp3',
     };
 
+    // Lance's champion theme replaces the normal shuffled Pokemon battle playlist for
+    // both players whenever either team includes one of his three starting Pokemon,
+    // regardless of who picked him.
+    const LANCE_TEAM_CHARACTER_IDS = ['lance-dragonite-1', 'lance-gyarados', 'lance-aerodactyl'];
+    const LANCE_BATTLE_THEME_URL = 'assets/images/PokemonArena/lance/music/champion-battle-theme.mp3';
+    const matchIncludesLance = (data) =>
+        [data?.player?.team, data?.opponent?.team].some(
+            (team) =>
+                Array.isArray(team) &&
+                team.some((entry) => {
+                    const rosterIndex = Number.parseInt(entry, 10);
+                    return (
+                        Number.isInteger(rosterIndex) &&
+                        LANCE_TEAM_CHARACTER_IDS.includes(rosterData?.[rosterIndex]?.id)
+                    );
+                })
+        );
+
+    // Set once per match load (see matchIncludesLance above) so weather-end and
+    // battle-intro music resumes go back to Lance's theme instead of the normal
+    // shuffled playlist when he's the reason battle music is playing at all.
+    let currentMatchHasLance = false;
+    const resumeIngameBattleMusic = (arena = currentMatchArena) => {
+        if (currentMatchHasLance && (arena || currentMatchArena) === 'pokemon') {
+            soundManager.startMusic([LANCE_BATTLE_THEME_URL]);
+            return;
+        }
+        soundManager.ensureIngameBattleMusic(arena);
+    };
+
     let lastKnownWeatherKey = null;
     let lastKnownWeatherRounds = null;
     const trackWeatherChangeForAlert = (weather) => {
         if (!weather) {
             if (lastKnownWeatherKey && WEATHER_MUSIC_TRACKS[lastKnownWeatherKey]) {
-                soundManager.ensureIngameBattleMusic(currentMatchArena);
+                resumeIngameBattleMusic(currentMatchArena);
             }
             lastKnownWeatherKey = null;
             lastKnownWeatherRounds = null;
@@ -1226,7 +1257,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (weatherTrack) {
                 soundManager.startMusic([weatherTrack]);
             } else if (lastKnownWeatherKey && WEATHER_MUSIC_TRACKS[lastKnownWeatherKey]) {
-                soundManager.ensureIngameBattleMusic(currentMatchArena);
+                resumeIngameBattleMusic(currentMatchArena);
             }
         } else if (Number.isFinite(lastKnownWeatherRounds) && nextRounds < lastKnownWeatherRounds) {
             showWeatherChangeAlert({
@@ -13206,7 +13237,8 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             }
             setIngameArenaUiAssets(currentMatchArena);
             syncEnergyNameLabels();
-            soundManager.ensureIngameBattleMusic(currentMatchArena);
+            currentMatchHasLance = currentMatchArena === 'pokemon' && matchIncludesLance(data);
+            resumeIngameBattleMusic(currentMatchArena);
             if (data.player?.profile) {
                 currentPlayerProfileView = {
                     username: data.player.username || currentPlayerUsername || profileCache?.username || '',
@@ -13840,14 +13872,16 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         const playBattleIntro = async (data) => {
             if (hasPlayedBattleIntro || !battleIntroOverlayEl) return;
             hasPlayedBattleIntro = true;
+            const lanceIntroArena = data?.arena || currentMatchArena;
+            currentMatchHasLance = lanceIntroArena === 'pokemon' && matchIncludesLance(data);
             if (!uiSettings.battleIntro) {
-                soundManager.ensureIngameBattleMusic(data?.arena || currentMatchArena);
+                resumeIngameBattleMusic(lanceIntroArena);
                 battleIntroOverlayEl.classList.remove('visible');
                 battleIntroOverlayEl.setAttribute('aria-hidden', 'true');
                 return;
             }
             soundManager.duckMusic(BATTLE_INTRO_DURATION_MS + 250);
-            soundManager.ensureIngameBattleMusic(data?.arena || currentMatchArena);
+            resumeIngameBattleMusic(lanceIntroArena);
             const normalizeRosterIndex = (value) => {
                 if (Number.isInteger(value)) return value;
                 const parsed = Number.parseInt(value, 10);
@@ -18721,6 +18755,10 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
     ];
     const preferredPokemonCharacterDisplayOrder = [
         'pokemon-trainer',
+        'lance',
+        'lance-dragonite-1',
+        'lance-gyarados',
+        'lance-aerodactyl',
         'bulbasaur',
         'charmander',
         'squirtle',

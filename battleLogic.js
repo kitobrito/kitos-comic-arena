@@ -526,11 +526,19 @@ const buildInitialBoard = (players = [], characters = defaultCharacters) => {
                     fresh: false,
                 });
             }
+            // Lance's three starting Pokemon are the only characters with a
+            // non-default max HP (50 each instead of the usual 100) - everyone
+            // else keeps DEFAULT_HP untouched.
+            const startingHp = Number.isFinite(character?.maxHp) && character.maxHp > 0
+                ? character.maxHp
+                : DEFAULT_HP;
             return {
                 slot,
                 rosterIndex,
                 alive: true,
-                hp: DEFAULT_HP,
+                hp: startingHp,
+                hpCap: startingHp,
+                maxHp: startingHp,
                 state: {
                     statuses,
                     cooldowns: {},
@@ -4239,6 +4247,61 @@ const maybeTriggerReactiveDefenses = ({
     return Boolean(trapMetadata?.counterCancelsSkill);
 };
 
+// Lance's Champion's Six: each of his 3 starting Pokemon carries a hidden
+// lance_reserve_pending status naming its bench partner. When the active one
+// would otherwise die, this swaps the SAME unit (same slot, same match state
+// object) into that partner instead - same battle-form mechanism Nincada uses
+// to become Ninjask/Shedinja (effectiveCharacterId + facePictureOverride +
+// pokemonTypeOverride), just triggered by fainting instead of a cast skill.
+// Returns true if a swap happened (caller should not finalize the unit as dead).
+const tryLanceReserveSwap = (unit, targetState) => {
+    const pendingStatus = (Array.isArray(targetState.statuses) ? targetState.statuses : []).find(
+        (status) => status?.id === 'lance_reserve_pending' && (Number(status?.remainingTurns) || 0) > 0
+    );
+    const reserveCharacterId =
+        typeof pendingStatus?.metadata?.reserveCharacterId === 'string'
+            ? pendingStatus.metadata.reserveCharacterId
+            : '';
+    if (!reserveCharacterId) return false;
+    const allCharacterForms = [
+        ...defaultCharacters,
+        ...defaultCharacters.flatMap((entry) => (Array.isArray(entry?.battleForms) ? entry.battleForms : [])),
+    ];
+    const reserveCharacter = allCharacterForms.find(
+        (entry) => entry?.id === reserveCharacterId || entry?.characterId === reserveCharacterId
+    );
+    if (!reserveCharacter) return false;
+    const reserveMaxHp = Math.max(1, Number(reserveCharacter.maxHp) || 50);
+    targetState.statuses = [];
+    targetState.cooldowns = {};
+    targetState.skillUses = {};
+    unit.hp = reserveMaxHp;
+    unit.hpCap = reserveMaxHp;
+    unit.maxHp = reserveMaxHp;
+    unit.alive = true;
+    applyStatus({
+        targetState,
+        targetUnit: unit,
+        statusId: 'lance_reserve_active',
+        duration: 999,
+        sourceSkillId: null,
+        sourceUsername: null,
+        sourceSlot: null,
+        metadata: {
+            harmful: false,
+            infiniteDuration: true,
+            unremovable: true,
+            effectiveCharacterId: reserveCharacterId,
+            facePictureOverride: reserveCharacter.facePicture,
+            pokemonTypeOverride: Array.isArray(reserveCharacter.pokemonTypes) ? reserveCharacter.pokemonTypes : [],
+            statusIconUrl: reserveCharacter.facePicture,
+            tooltipText: `${reserveCharacter.name} has taken the field for Lance.`,
+        },
+        fresh: false,
+    });
+    return true;
+};
+
 const applyDamageToUnit = (unit, rawAmount, context = {}) => {
     if (!unit || unit.alive === false || isUnitBanished(unit)) return 0;
     const targetState = ensureUnitStateShape(unit);
@@ -4873,7 +4936,9 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
         }
     }
     if (unit.hp <= 0) {
-        unit.alive = false;
+        if (!tryLanceReserveSwap(unit, targetState)) {
+            unit.alive = false;
+        }
     }
     if (wasAlive && unit.alive === false && context?.match && context?.targetUsername) {
         if (typeof context?.sourceCharacterId === 'string' && context.sourceCharacterId) {
@@ -5317,7 +5382,9 @@ const applyHealthLossToUnit = (unit, rawAmount, context = {}) => {
     grantDestructibleDefenseFromSelfSkillHealthLoss(unit, lostAmount, context);
     setLastDamageDebug(targetState, loss, context);
     if (unit.hp <= 0) {
-        unit.alive = false;
+        if (!tryLanceReserveSwap(unit, targetState)) {
+            unit.alive = false;
+        }
     }
     if (wasAlive && unit.alive === false && context?.match && context?.targetUsername) {
         if (typeof context?.sourceCharacterId === 'string' && context.sourceCharacterId) {
@@ -6336,6 +6403,32 @@ const processTurnStartStatusEffects = ({ match, startingUsername }) => {
                         targetUsername: recipient.username,
                         targetSlot: recipient.slot,
                         damageDebugReason: 'stampede second wave',
+                    });
+                    applyStatus({
+                        targetState: ensureUnitStateShape(recipient.unit),
+                        targetUnit: recipient.unit,
+                        statusId: 'stunned',
+                        duration: 1,
+                        sourceSkillId: status?.sourceSkillId || null,
+                        sourceUsername: status?.sourceUsername || startingUsername,
+                        sourceSlot: Number.isInteger(status?.sourceSlot) ? status.sourceSlot : unitSlot,
+                        metadata: { harmful: true, cannotUseSkills: true, tooltipText: 'This character is stunned.' },
+                        fresh: false,
+                    });
+                });
+                return;
+            }
+            if (status?.id === 'lance_rock_slide_channel') {
+                getAliveEnemyRecipients({ match, username: startingUsername }).forEach((recipient) => {
+                    if (!recipient?.unit) return;
+                    applyDamageToUnit(recipient.unit, 15, {
+                        match,
+                        sourceSkillId: status?.sourceSkillId || null,
+                        sourceUsername: status?.sourceUsername || startingUsername,
+                        sourceSlot: Number.isInteger(status?.sourceSlot) ? status.sourceSlot : unitSlot,
+                        targetUsername: recipient.username,
+                        targetSlot: recipient.slot,
+                        damageDebugReason: 'rock slide second wave',
                     });
                     applyStatus({
                         targetState: ensureUnitStateShape(recipient.unit),
@@ -9302,6 +9395,161 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     },
                     fresh: false,
                 });
+                return;
+            }
+            if (effectType === 'lance_cleave_damage') {
+                // Hits the chosen target for the full amount and splashes every other
+                // enemy for the lesser amount - Gyarados's Aqua Tail/Waterfall and
+                // Dragonite's Draco Meteor all follow this exact shape.
+                const primaryAmount = Math.max(0, Number(effect?.amount) || 0);
+                const splashAmount = Math.max(0, Number(effect?.splashAmount) || 0);
+                const recipients = resolveRecipients(effect);
+                const primaryRecipient = recipients[0] || null;
+                if (primaryRecipient && primaryAmount > 0) {
+                    queueDamage(primaryRecipient, primaryAmount, {
+                        ...effect,
+                        metadata: { ...(effect?.metadata || {}) },
+                    });
+                }
+                if (splashAmount > 0) {
+                    getAliveEnemyRecipients({ match, username: actingUsername }).forEach((recipient) => {
+                        if (
+                            primaryRecipient &&
+                            recipient.username === primaryRecipient.username &&
+                            recipient.slot === primaryRecipient.slot
+                        ) {
+                            return;
+                        }
+                        queueDamage(recipient, splashAmount, {
+                            ...effect,
+                            metadata: { ...(effect?.metadata || {}) },
+                        });
+                    });
+                }
+                return;
+            }
+            if (effectType === 'lance_dragon_pulse_negative_status_bonus') {
+                const recipients = resolveRecipients(effect);
+                recipients.forEach((recipient) => {
+                    if (!recipient?.unit || recipient.unit.alive === false) return;
+                    const targetState = ensureUnitStateShape(recipient.unit);
+                    const hasNegativeStatus = (Array.isArray(targetState.statuses) ? targetState.statuses : []).some(
+                        (status) => isStatusActiveForMetadata(status, recipient.unit) && Boolean(status?.metadata?.harmful)
+                    );
+                    const amount =
+                        Math.max(0, Number(effect?.amount) || 0) +
+                        (hasNegativeStatus ? Math.max(0, Number(effect?.bonusAmount) || 0) : 0);
+                    queueDamage(recipient, amount, {
+                        ...effect,
+                        metadata: { ...(effect?.metadata || {}), ignoreDamageReduction: true, ignoreDestructibleDefense: true },
+                    });
+                });
+                return;
+            }
+            if (effectType === 'lance_remove_shield') {
+                const amount = Math.max(0, Number(effect?.amount) || 0);
+                const recipients = resolveRecipients(effect);
+                recipients.forEach((recipient) => {
+                    if (!recipient?.unit) return;
+                    const targetState = ensureUnitStateShape(recipient.unit);
+                    let remaining = amount;
+                    (Array.isArray(targetState.statuses) ? targetState.statuses : []).forEach((status) => {
+                        if (remaining <= 0) return;
+                        const points = Math.max(0, Number(status?.metadata?.destructibleDefensePoints) || 0);
+                        if (points <= 0) return;
+                        const removed = Math.min(points, remaining);
+                        status.metadata.destructibleDefensePoints = points - removed;
+                        remaining -= removed;
+                    });
+                });
+                return;
+            }
+            if (effectType === 'lance_rock_slide') {
+                // Deals 15 to the enemy team now, then again at the start of
+                // Aerodactyl's next turn, when everyone still targetable also gets
+                // stunned - mirrors Tauros's STAMPEDE! two-wave pattern.
+                const recipients = resolveRecipients(effect);
+                recipients.forEach((recipient) => {
+                    if (!recipient?.unit || recipient.unit.alive === false) return;
+                    queueDamage(recipient, 15, { ...effect, metadata: { ...(effect?.metadata || {}) } });
+                });
+                applyStatus({
+                    targetState: actorState,
+                    targetUnit: actorUnit,
+                    statusId: 'lance_rock_slide_channel',
+                    duration: 1,
+                    sourceSkillId: skill.id,
+                    sourceUsername: actingUsername,
+                    sourceSlot: actorSlot,
+                    metadata: {
+                        harmful: false,
+                        hidden: true,
+                        tooltipText: 'Rock Slide will strike the enemy team once more and stun them next turn.',
+                    },
+                    fresh: false,
+                });
+                return;
+            }
+            if (effectType === 'lance_aerial_ace') {
+                const recipients = resolveRecipients(effect);
+                const recipient = recipients[0] || null;
+                if (!recipient?.unit || recipient.unit.alive === false) return;
+                const targetState = ensureUnitStateShape(recipient.unit);
+                const isStunned = Boolean(getStatusMetadataTotals(targetState).cannotUseSkills);
+                const wouldBeExecutable = isStunned && Number(recipient.unit.hp) > 0 && Number(recipient.unit.hp) <= 15;
+                queueDamage(recipient, wouldBeExecutable ? 99999 : 35, {
+                    ...effect,
+                    metadata: {
+                        ...(effect?.metadata || {}),
+                        ignoreDamageReduction: true,
+                        ignoreDestructibleDefense: true,
+                        ...(wouldBeExecutable ? { fixedDamage: true } : {}),
+                    },
+                });
+                return;
+            }
+            if (effectType === 'lance_taunt') {
+                const recipients = resolveRecipients(effect);
+                recipients.forEach((recipient) => {
+                    if (!recipient?.unit || recipient.unit.alive === false) return;
+                    applyStatus({
+                        targetState: ensureUnitStateShape(recipient.unit),
+                        targetUnit: recipient.unit,
+                        statusId: 'lance_taunt_locked',
+                        duration: 1,
+                        sourceSkillId: skill.id,
+                        sourceUsername: actingUsername,
+                        sourceSlot: actorSlot,
+                        metadata: {
+                            harmful: true,
+                            taunt: true,
+                            cannotTargetAlliesOfUsername: actingUsername,
+                            allowedTargetSlot: actorSlot,
+                            tooltipText: 'This character can only target Aerodactyl.',
+                        },
+                        fresh: false,
+                    });
+                });
+                return;
+            }
+            if (effectType === 'lance_dragon_rush') {
+                const recipients = resolveRecipients(effect);
+                const recipient = recipients[0] || null;
+                if (!recipient?.unit || recipient.unit.alive === false) return;
+                queueDamage(recipient, 45, { ...effect, metadata: { ...(effect?.metadata || {}) } });
+                if (Number(recipient.unit.hp) > 0 && Number(recipient.unit.hp) <= 25) {
+                    applyStatus({
+                        targetState: ensureUnitStateShape(recipient.unit),
+                        targetUnit: recipient.unit,
+                        statusId: 'stunned',
+                        duration: 1,
+                        sourceSkillId: skill.id,
+                        sourceUsername: actingUsername,
+                        sourceSlot: actorSlot,
+                        metadata: { harmful: true, cannotUseSkills: true, tooltipText: 'This character is stunned.' },
+                        fresh: false,
+                    });
+                }
                 return;
             }
             const markDrowzeeEvolutionFlag = (flagKey) => {

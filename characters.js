@@ -35714,6 +35714,738 @@ const characters = [
         "description": "A nightmare-weaving controller who stuns and marks enemies with an escalating-chance status, then leverages it for bonus damage, recurring team-wide affliction, and a temporary shield of invulnerability.",
         "descriptionHtml": "A nightmare-weaving controller who stuns and marks enemies with an escalating-chance status, then leverages it for bonus damage, recurring team-wide affliction, and a temporary shield of invulnerability.",
         "pokemonTypes": ["Dark"]
+    },
+    {
+        "id": "lance",
+        "characterId": "lance",
+        "name": "Lance",
+        "facePicture": "assets/images/PokemonArena/BIB/lancepokemonchampion.webp",
+        "skills": [
+            {
+                "id": "lance-champions-six-passive",
+                "name": "Passive: Champion's Six",
+                "skillimage": "assets/images/PokemonArena/BIB/lancepokemonchampion.webp",
+                "skilldescription": "Lance commands six Pokemon: Dragonite, Gyarados, and Aerodactyl take the field, each backed by a partner (Charizard, Kingdra, and a second Dragonite) that takes over the instant the active one faints. Each of the six has its own independent 50 HP.",
+                "description": "Lance commands six Pokemon: Dragonite, Gyarados, and Aerodactyl take the field, each backed by a partner (Charizard, Kingdra, and a second Dragonite) that takes over the instant the active one faints. Each of the six has its own independent 50 HP.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": ["Dragon", "Strategic", "Passive", "Instant"],
+                "effects": []
+            }
+        ],
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "category": "Pokemon Arena",
+        "hidden": false,
+        "hiddenFromSelection": true,
+        "roleCategory": "hybrid",
+        "description": "The Pokemon Champion. Picking Lance fields his whole team at once: Dragonite, Gyarados, and Aerodactyl, each with a partner Pokemon waiting to take over the moment they fall.",
+        "descriptionHtml": "The Pokemon Champion. Picking Lance fields his whole team at once: Dragonite, Gyarados, and Aerodactyl, each with a partner Pokemon waiting to take over the moment they fall.",
+        "pokemonTypes": ["Dragon"]
+    },
+    {
+        "id": "lance-dragonite-1",
+        "characterId": "lance-dragonite-1",
+        "name": "Dragonite",
+        "maxHp": 50,
+        "facePicture": "assets/images/PokemonArena/lance/dragonite1/facepicture.jpg",
+        "skills": [
+            {
+                "id": "lance-dragonite-1-dragon-claw",
+                "name": "Dragon Claw",
+                "skillimage": "assets/images/PokemonArena/lance/dragonite1/dragonclaw.jpg",
+                "skilldescription": "Deals 30 piercing damage to one enemy. Has a 15% chance to critically hit, dealing 15 additional damage.",
+                "description": "Deals 30 piercing damage to one enemy. Has a 15% chance to critically hit, dealing 15 additional damage.",
+                "energy": ["Taijutsu", "Random"],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": ["Dragon", "Physical", "Instant"],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 30,
+                        "scope": "target",
+                        "metadata": { "ignoreDamageReduction": true, "ignoreDestructibleDefense": true }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "chance": 15,
+                        "metadata": { "ignoreDamageReduction": true, "ignoreDestructibleDefense": true }
+                    }
+                ]
+            },
+            {
+                "id": "lance-dragonite-1-dragon-dance",
+                "name": "Dragon Dance",
+                "skillimage": "assets/images/PokemonArena/lance/dragonite1/dragondance.jpg",
+                "skilldescription": "Grants Dragonite 20 Shield and 10 additional damage while this Shield remains. This effect stacks.",
+                "description": "Grants Dragonite 20 Shield and 10 additional damage while this Shield remains. This effect stacks.",
+                "energy": ["Bloodline"],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": ["Dragon", "Strategic", "Instant"],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "lance_dragonite_dragon_dance",
+                        "duration": 999,
+                        "scope": "self",
+                        "metadata": {
+                            "harmful": false,
+                            "infiniteDuration": true,
+                            "destructibleDefensePoints": 20,
+                            "damageBonusFlat": 10,
+                            "mergeNumericAddKeys": ["destructibleDefensePoints", "damageBonusFlat"],
+                            "tooltipTextTemplate": "Dragonite has {destructibleDefensePoints} Shield and deals {damageBonusFlat} additional damage from Dragon Dance."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "lance-dragonite-1-hyper-beam",
+                "name": "Hyper Beam",
+                "skillimage": "assets/images/PokemonArena/lance/dragonite1/hyperbeam.jpg",
+                "skilldescription": "Deals 50 Affliction damage to one enemy. Dragonite cannot use a new skill for 1 turn afterward.",
+                "description": "Deals 50 Affliction damage to one enemy. Dragonite cannot use a new skill for 1 turn afterward.",
+                "energy": ["Random", "Random", "Random"],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": ["Normal", "Special", "Affliction", "Instant"],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 50,
+                        "scope": "target",
+                        "metadata": { "afflictionDamage": true }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "lance_dragonite_hyper_beam_recharge",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "harmful": false,
+                            "cannotUseSkills": true,
+                            "tooltipText": "Dragonite cannot use a new skill after Hyper Beam."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "lance-dragonite-1-roost",
+                "name": "Roost",
+                "skillimage": "assets/images/PokemonArena/lance/dragonite1/roost.jpg",
+                "skilldescription": "Heals Dragonite for 20 HP.",
+                "description": "Heals Dragonite for 20 HP.",
+                "energy": ["Ninjutsu"],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": ["Flying", "Strategic", "Instant"],
+                "effects": [{ "type": "heal", "amount": 20, "scope": "self" }]
+            }
+        ],
+        "startStatuses": [
+            {
+                "statusId": "lance_reserve_pending",
+                "duration": 999,
+                "metadata": {
+                    "infiniteDuration": true,
+                    "unremovable": true,
+                    "hidden": true,
+                    "reserveCharacterId": "lance-charizard"
+                }
+            }
+        ],
+        "battleForms": [
+            {
+                "id": "lance-charizard",
+                "characterId": "lance-charizard",
+                "name": "Charizard",
+                "maxHp": 50,
+                "facePicture": "assets/images/PokemonArena/lance/charizard/facepicture.jpg",
+                "role": "Ranged Burst",
+                "universe": "pokemon",
+                "arena": "pokemon",
+                "roleCategory": "damage",
+                "description": "Dragonite's partner Pokemon, taking the field the moment Dragonite falls.",
+                "descriptionHtml": "Dragonite's partner Pokemon, taking the field the moment Dragonite falls.",
+                "pokemonTypes": ["Fire", "Flying"],
+                "skills": [
+                    {
+                        "id": "lance-charizard-flamethrower",
+                        "name": "Flamethrower",
+                        "skillimage": "assets/images/PokemonArena/lance/charizard/flamethrower.jpg",
+                        "skilldescription": "Deals 30 Affliction damage to one enemy. Has a 25% chance to Burn them, causing 10 damage at the end of their next 2 turns.",
+                        "description": "Deals 30 Affliction damage to one enemy. Has a 25% chance to Burn them, causing 10 damage at the end of their next 2 turns.",
+                        "energy": ["Ninjutsu"],
+                        "target": "single-enemy",
+                        "damage": 0,
+                        "cooldown": 1,
+                        "classes": ["Fire", "Special", "Affliction", "Instant"],
+                        "effects": [
+                            {
+                                "type": "damage",
+                                "amount": 30,
+                                "scope": "target",
+                                "metadata": { "afflictionDamage": true }
+                            },
+                            {
+                                "type": "apply_status",
+                                "statusId": "lance_charizard_burn",
+                                "duration": 2,
+                                "scope": "target",
+                                "chance": 25,
+                                "metadata": {
+                                    "harmful": true,
+                                    "turnEndDamage": 10,
+                                    "afflictionDamage": true,
+                                    "tooltipText": "This character is Burned, taking 10 affliction damage each turn."
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "id": "lance-charizard-dragon-pulse",
+                        "name": "Dragon Pulse",
+                        "skillimage": "assets/images/PokemonArena/lance/charizard/dragonpulse.jpg",
+                        "skilldescription": "Deals 35 piercing damage to one enemy. If the target has a negative status, deals 10 additional damage.",
+                        "description": "Deals 35 piercing damage to one enemy. If the target has a negative status, deals 10 additional damage.",
+                        "energy": ["Genjutsu", "Random"],
+                        "target": "single-enemy",
+                        "damage": 0,
+                        "cooldown": 2,
+                        "classes": ["Dragon", "Special", "Instant"],
+                        "effects": [{ "type": "lance_dragon_pulse_negative_status_bonus", "scope": "target", "amount": 35, "bonusAmount": 10 }]
+                    },
+                    {
+                        "id": "lance-charizard-air-slash",
+                        "name": "Air Slash",
+                        "skillimage": "assets/images/PokemonArena/lance/charizard/airslash.jpg",
+                        "skilldescription": "Deals 20 damage to one enemy and has a 40% chance to Stun them for 1 turn.",
+                        "description": "Deals 20 damage to one enemy and has a 40% chance to Stun them for 1 turn.",
+                        "energy": ["Taijutsu"],
+                        "target": "single-enemy",
+                        "damage": 0,
+                        "cooldown": 3,
+                        "classes": ["Flying", "Special", "Instant"],
+                        "effects": [
+                            {
+                                "type": "damage",
+                                "amount": 20,
+                                "scope": "target"
+                            },
+                            {
+                                "type": "apply_status",
+                                "statusId": "stunned",
+                                "duration": 1,
+                                "scope": "target",
+                                "chance": 40,
+                                "metadata": {
+                                    "harmful": true,
+                                    "cannotUseSkills": true,
+                                    "tooltipText": "This character is stunned."
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "id": "lance-charizard-overheat",
+                        "name": "Overheat",
+                        "skillimage": "assets/images/PokemonArena/lance/charizard/overheat.jpg",
+                        "skilldescription": "Deals 60 Affliction damage to one enemy. Charizard's damage is reduced by 10 for 2 turns afterward.",
+                        "description": "Deals 60 Affliction damage to one enemy. Charizard's damage is reduced by 10 for 2 turns afterward.",
+                        "energy": ["Random", "Random", "Random"],
+                        "target": "single-enemy",
+                        "damage": 0,
+                        "cooldown": 4,
+                        "classes": ["Fire", "Special", "Affliction", "Instant"],
+                        "effects": [
+                            {
+                                "type": "damage",
+                                "amount": 60,
+                                "scope": "target",
+                                "metadata": { "afflictionDamage": true }
+                            },
+                            {
+                                "type": "apply_status",
+                                "statusId": "lance_charizard_overheat_recoil",
+                                "duration": 2,
+                                "scope": "self",
+                                "metadata": {
+                                    "harmful": true,
+                                    "damageDebuffFlat": 10,
+                                    "tooltipText": "Charizard deals 10 less damage from Overheat's recoil."
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "category": "Pokemon Arena",
+        "hidden": false,
+        "hiddenFromSelection": false,
+        "roleCategory": "hybrid",
+        "description": "One of Lance's three starting Pokemon. Backed by Charizard, who takes the field the moment Dragonite falls.",
+        "descriptionHtml": "One of Lance's three starting Pokemon. Backed by Charizard, who takes the field the moment Dragonite falls.",
+        "pokemonTypes": ["Dragon", "Flying"]
+    },
+    {
+        "id": "lance-gyarados",
+        "characterId": "lance-gyarados",
+        "name": "Gyarados",
+        "maxHp": 50,
+        "facePicture": "assets/images/PokemonArena/lance/gyarados/facepicture.jpg",
+        "skills": [
+            {
+                "id": "lance-gyarados-aqua-tail",
+                "name": "Aqua Tail",
+                "skillimage": "assets/images/PokemonArena/lance/gyarados/aquatail.jpg",
+                "skilldescription": "Deals 20 damage to one enemy and 10 damage to all other enemies.",
+                "description": "Deals 20 damage to one enemy and 10 damage to all other enemies.",
+                "energy": ["Ninjutsu"],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": ["Water", "Physical", "Instant"],
+                "effects": [{ "type": "lance_cleave_damage", "scope": "target", "amount": 20, "splashAmount": 10 }]
+            },
+            {
+                "id": "lance-gyarados-crunch",
+                "name": "Crunch",
+                "skillimage": "assets/images/PokemonArena/lance/gyarados/crunch.jpg",
+                "skilldescription": "Deals 25 damage to one enemy and permanently increases the damage they take from Special skills by 5.",
+                "description": "Deals 25 damage to one enemy and permanently increases the damage they take from Special skills by 5.",
+                "energy": ["Genjutsu"],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": ["Dark", "Physical", "Instant"],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 25,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "lance_gyarados_crunch_mark",
+                        "duration": 999,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "specialDamageTakenBonusFlat": 5,
+                            "mergeNumericAddKeys": ["specialDamageTakenBonusFlat"],
+                            "tooltipTextTemplate": "This character takes {specialDamageTakenBonusFlat} additional damage from Special skills."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "lance-gyarados-outrage",
+                "name": "Outrage",
+                "skillimage": "assets/images/PokemonArena/lance/gyarados/outrage.jpg",
+                "skilldescription": "For 3 turns, Gyarados's skills have no cost, but each skill targets a random enemy. When Outrage ends, Gyarados is Stunned for 1 turn.",
+                "description": "For 3 turns, Gyarados's skills have no cost, but each skill targets a random enemy. When Outrage ends, Gyarados is Stunned for 1 turn.",
+                "energy": ["Taijutsu", "Random"],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": ["Dragon", "Physical", "Instant"],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "lance_gyarados_outrage",
+                        "duration": 3,
+                        "scope": "self",
+                        "metadata": {
+                            "harmful": false,
+                            "overrideAllSkillsToAllRandom": true,
+                            "fullyBlind": true,
+                            "onExpireEffects": [
+                                {
+                                    "type": "apply_status",
+                                    "statusId": "stunned",
+                                    "scope": "target",
+                                    "metadata": {
+                                        "harmful": true,
+                                        "cannotUseSkills": true,
+                                        "tooltipText": "This character is stunned."
+                                    }
+                                }
+                            ],
+                            "tooltipText": "Outrage is active: Gyarados's skills cost nothing but target a random enemy. Gyarados will be stunned when it ends."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "lance-gyarados-waterfall",
+                "name": "Waterfall",
+                "skillimage": "assets/images/PokemonArena/lance/gyarados/waterfall.jpg",
+                "skilldescription": "Deals 30 damage to one enemy and 15 damage to all other enemies.",
+                "description": "Deals 30 damage to one enemy and 15 damage to all other enemies.",
+                "energy": ["Ninjutsu", "Random"],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": ["Water", "Physical", "Instant"],
+                "effects": [{ "type": "lance_cleave_damage", "scope": "target", "amount": 30, "splashAmount": 15 }]
+            }
+        ],
+        "startStatuses": [
+            {
+                "statusId": "lance_reserve_pending",
+                "duration": 999,
+                "metadata": {
+                    "infiniteDuration": true,
+                    "unremovable": true,
+                    "hidden": true,
+                    "reserveCharacterId": "lance-kingdra"
+                }
+            }
+        ],
+        "battleForms": [
+            {
+                "id": "lance-kingdra",
+                "characterId": "lance-kingdra",
+                "name": "Kingdra",
+                "maxHp": 50,
+                "facePicture": "assets/images/PokemonArena/lance/kingdra/facepicture.jpg",
+                "role": "Control / Support",
+                "universe": "pokemon",
+                "arena": "pokemon",
+                "roleCategory": "support",
+                "description": "Gyarados's partner Pokemon, taking the field the moment Gyarados falls.",
+                "descriptionHtml": "Gyarados's partner Pokemon, taking the field the moment Gyarados falls.",
+                "pokemonTypes": ["Water", "Dragon"],
+                "skills": [
+                    {
+                        "id": "lance-kingdra-hydro-pump",
+                        "name": "Hydro Pump",
+                        "skillimage": "assets/images/PokemonArena/lance/kingdra/hydropump.jpg",
+                        "skilldescription": "Deals 35 damage to one enemy. Has a 20% chance to critically hit, dealing 15 additional damage.",
+                        "description": "Deals 35 damage to one enemy. Has a 20% chance to critically hit, dealing 15 additional damage.",
+                        "energy": ["Ninjutsu", "Random"],
+                        "target": "single-enemy",
+                        "damage": 0,
+                        "cooldown": 2,
+                        "classes": ["Water", "Special", "Instant"],
+                        "effects": [
+                            {
+                                "type": "damage",
+                                "amount": 35,
+                                "scope": "target"
+                            },
+                            {
+                                "type": "damage",
+                                "amount": 15,
+                                "scope": "target",
+                                "chance": 20
+                            }
+                        ]
+                    },
+                    {
+                        "id": "lance-kingdra-dragon-pulse",
+                        "name": "Dragon Pulse",
+                        "skillimage": "assets/images/PokemonArena/lance/kingdra/dragonpulse.jpg",
+                        "skilldescription": "Deals 25 piercing damage to one enemy and removes 5 Shield from the target.",
+                        "description": "Deals 25 piercing damage to one enemy and removes 5 Shield from the target.",
+                        "energy": ["Genjutsu"],
+                        "target": "single-enemy",
+                        "damage": 0,
+                        "cooldown": 1,
+                        "classes": ["Dragon", "Special", "Instant"],
+                        "effects": [
+                            {
+                                "type": "damage",
+                                "amount": 25,
+                                "scope": "target",
+                                "metadata": { "ignoreDamageReduction": true, "ignoreDestructibleDefense": true }
+                            },
+                            {
+                                "type": "lance_remove_shield",
+                                "scope": "target",
+                                "amount": 5
+                            }
+                        ]
+                    },
+                    {
+                        "id": "lance-kingdra-smokescreen",
+                        "name": "Smokescreen",
+                        "skillimage": "assets/images/PokemonArena/lance/kingdra/smokescreen.jpg",
+                        "skilldescription": "Reduces the damage of all enemy skills by 10 for 2 turns.",
+                        "description": "Reduces the damage of all enemy skills by 10 for 2 turns.",
+                        "energy": ["Genjutsu"],
+                        "target": "all-enemy",
+                        "damage": 0,
+                        "cooldown": 3,
+                        "classes": ["Normal", "Strategic", "Instant"],
+                        "effects": [
+                            {
+                                "type": "apply_status",
+                                "statusId": "lance_kingdra_smokescreen",
+                                "duration": 2,
+                                "scope": "all-enemy",
+                                "metadata": {
+                                    "harmful": true,
+                                    "damageDebuffFlat": 10,
+                                    "tooltipText": "This character deals 10 less damage from Smokescreen."
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "id": "lance-kingdra-rain-dance",
+                        "name": "Rain Dance",
+                        "skillimage": "assets/images/PokemonArena/lance/kingdra/raindance.jpg",
+                        "skilldescription": "Summons Rain for 4 turns: all Water-type Pokemon deal 10 additional damage.",
+                        "description": "Summons Rain for 4 turns: all Water-type Pokemon deal 10 additional damage.",
+                        "energy": ["Ninjutsu", "Ninjutsu"],
+                        "target": "self",
+                        "damage": 0,
+                        "cooldown": 5,
+                        "classes": ["Weather", "Water", "Special", "Instant"],
+                        "effects": [
+                            {
+                                "type": "set_weather",
+                                "scope": "self",
+                                "weather": {
+                                    "key": "rain",
+                                    "name": "Rain",
+                                    "description": "All Water-type Pokemon deal 10 additional damage.",
+                                    "rounds": 4,
+                                    "damageTypeModifiers": { "Water": 10 }
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "category": "Pokemon Arena",
+        "hidden": false,
+        "hiddenFromSelection": false,
+        "roleCategory": "hybrid",
+        "description": "One of Lance's three starting Pokemon. Backed by Kingdra, who takes the field the moment Gyarados falls.",
+        "descriptionHtml": "One of Lance's three starting Pokemon. Backed by Kingdra, who takes the field the moment Gyarados falls.",
+        "pokemonTypes": ["Water", "Flying"]
+    },
+    {
+        "id": "lance-aerodactyl",
+        "characterId": "lance-aerodactyl",
+        "name": "Aerodactyl",
+        "maxHp": 50,
+        "facePicture": "assets/images/PokemonArena/lance/aerodactyl/facepicture.jpg",
+        "skills": [
+            {
+                "id": "lance-aerodactyl-rock-slide",
+                "name": "Rock Slide",
+                "skillimage": "assets/images/PokemonArena/lance/aerodactyl/rockslide.jpg",
+                "skilldescription": "Deals 15 damage to the enemy team for 2 turns. On the second turn, all targetable enemies are Stunned for 1 turn.",
+                "description": "Deals 15 damage to the enemy team for 2 turns. On the second turn, all targetable enemies are Stunned for 1 turn.",
+                "energy": ["Genjutsu", "Random"],
+                "target": "all-enemy",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": ["Rock", "Physical", "Instant"],
+                "effects": [{ "type": "lance_rock_slide", "scope": "all-enemy" }]
+            },
+            {
+                "id": "lance-aerodactyl-aerial-ace",
+                "name": "Aerial Ace",
+                "skillimage": "assets/images/PokemonArena/lance/aerodactyl/aerialace.jpg",
+                "skilldescription": "Deals 35 piercing damage to one enemy. If the target is Stunned, they are executed if their HP is 15 or lower.",
+                "description": "Deals 35 piercing damage to one enemy. If the target is Stunned, they are executed if their HP is 15 or lower.",
+                "energy": ["Ninjutsu", "Random"],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": ["Flying", "Physical", "Instant"],
+                "effects": [{ "type": "lance_aerial_ace", "scope": "target" }]
+            },
+            {
+                "id": "lance-aerodactyl-taunt",
+                "name": "Taunt",
+                "skillimage": "assets/images/PokemonArena/lance/aerodactyl/taunt.jpg",
+                "skilldescription": "Forces all enemies to target only Aerodactyl for 1 turn.",
+                "description": "Forces all enemies to target only Aerodactyl for 1 turn.",
+                "energy": ["Random", "Random"],
+                "target": "all-enemy",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": ["Dark", "Strategic", "Instant"],
+                "effects": [{ "type": "lance_taunt", "scope": "all-enemy" }]
+            },
+            {
+                "id": "lance-aerodactyl-ancient-power",
+                "name": "Ancient Power",
+                "skillimage": "assets/images/PokemonArena/lance/aerodactyl/ancientpower.jpg",
+                "skilldescription": "Grants Lance's team 15 points of damage reduction for 2 turns.",
+                "description": "Grants Lance's team 15 points of damage reduction for 2 turns.",
+                "energy": ["Random"],
+                "target": "all-allies",
+                "damage": 0,
+                "cooldown": 4,
+                "classes": ["Rock", "Special", "Instant"],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "lance_ancient_power_shield",
+                        "duration": 2,
+                        "scope": "all-allies",
+                        "metadata": {
+                            "harmful": false,
+                            "damageReductionFlat": 15,
+                            "tooltipText": "This character has 15 damage reduction from Ancient Power."
+                        }
+                    }
+                ]
+            }
+        ],
+        "startStatuses": [
+            {
+                "statusId": "lance_reserve_pending",
+                "duration": 999,
+                "metadata": {
+                    "infiniteDuration": true,
+                    "unremovable": true,
+                    "hidden": true,
+                    "reserveCharacterId": "lance-dragonite-2"
+                }
+            }
+        ],
+        "battleForms": [
+            {
+                "id": "lance-dragonite-2",
+                "characterId": "lance-dragonite-2",
+                "name": "Dragonite",
+                "maxHp": 50,
+                "facePicture": "assets/images/PokemonArena/lance/dragonite2/facepicture.jpg",
+                "role": "Final Ace",
+                "universe": "pokemon",
+                "arena": "pokemon",
+                "roleCategory": "damage",
+                "description": "Aerodactyl's partner Pokemon and Lance's final ace, taking the field the moment Aerodactyl falls.",
+                "descriptionHtml": "Aerodactyl's partner Pokemon and Lance's final ace, taking the field the moment Aerodactyl falls.",
+                "pokemonTypes": ["Dragon", "Flying"],
+                "skills": [
+                    {
+                        "id": "lance-dragonite-2-extreme-speed",
+                        "name": "Extreme Speed",
+                        "skillimage": "assets/images/PokemonArena/lance/dragonite2/extremespeed.jpg",
+                        "skilldescription": "Deals 35 piercing damage to one enemy. This attack ignores Shield.",
+                        "description": "Deals 35 piercing damage to one enemy. This attack ignores Shield.",
+                        "energy": ["Taijutsu"],
+                        "target": "single-enemy",
+                        "damage": 0,
+                        "cooldown": 1,
+                        "classes": ["Normal", "Physical", "Instant"],
+                        "effects": [
+                            {
+                                "type": "damage",
+                                "amount": 35,
+                                "scope": "target",
+                                "metadata": { "ignoreDamageReduction": true, "ignoreDestructibleDefense": true }
+                            }
+                        ]
+                    },
+                    {
+                        "id": "lance-dragonite-2-dragon-rush",
+                        "name": "Dragon Rush",
+                        "skillimage": "assets/images/PokemonArena/lance/dragonite2/dragonrush.jpg",
+                        "skilldescription": "Deals 45 damage to one enemy. If the target has 25 HP or less, they are Stunned for 1 turn.",
+                        "description": "Deals 45 damage to one enemy. If the target has 25 HP or less, they are Stunned for 1 turn.",
+                        "energy": ["Taijutsu", "Random"],
+                        "target": "single-enemy",
+                        "damage": 0,
+                        "cooldown": 3,
+                        "classes": ["Dragon", "Physical", "Instant"],
+                        "effects": [{ "type": "lance_dragon_rush", "scope": "target" }]
+                    },
+                    {
+                        "id": "lance-dragonite-2-safeguard",
+                        "name": "Safeguard",
+                        "skillimage": "assets/images/PokemonArena/lance/dragonite2/safeguard.jpg",
+                        "skilldescription": "Grants Lance's team immunity to negative status effects for 2 turns.",
+                        "description": "Grants Lance's team immunity to negative status effects for 2 turns.",
+                        "energy": ["Random", "Random"],
+                        "target": "all-allies",
+                        "damage": 0,
+                        "cooldown": 4,
+                        "classes": ["Normal", "Strategic", "Instant"],
+                        "effects": [
+                            {
+                                "type": "apply_status",
+                                "statusId": "lance_safeguard",
+                                "duration": 2,
+                                "scope": "all-allies",
+                                "metadata": {
+                                    "harmful": false,
+                                    "ignoreHarmfulNonDamageEffects": true,
+                                    "tooltipText": "This character is immune to negative status effects from Safeguard."
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "id": "lance-dragonite-2-draco-meteor",
+                        "name": "Draco Meteor",
+                        "skillimage": "assets/images/PokemonArena/lance/dragonite2/dracometeor.jpg",
+                        "skilldescription": "Deals 70 Affliction damage to one enemy and 25 damage to all other enemies. Dragonite's damage is reduced by 15 for 2 turns afterward.",
+                        "description": "Deals 70 Affliction damage to one enemy and 25 damage to all other enemies. Dragonite's damage is reduced by 15 for 2 turns afterward.",
+                        "energy": ["Ninjutsu", "Ninjutsu", "Random"],
+                        "target": "single-enemy",
+                        "damage": 0,
+                        "cooldown": 5,
+                        "classes": ["Dragon", "Special", "Affliction", "Instant"],
+                        "effects": [
+                            {
+                                "type": "lance_cleave_damage",
+                                "scope": "target",
+                                "amount": 70,
+                                "splashAmount": 25,
+                                "metadata": { "afflictionDamage": true }
+                            },
+                            {
+                                "type": "apply_status",
+                                "statusId": "lance_draco_meteor_recoil",
+                                "duration": 2,
+                                "scope": "self",
+                                "metadata": {
+                                    "harmful": true,
+                                    "damageDebuffFlat": 15,
+                                    "tooltipText": "Dragonite deals 15 less damage from Draco Meteor's recoil."
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "category": "Pokemon Arena",
+        "hidden": false,
+        "hiddenFromSelection": false,
+        "roleCategory": "hybrid",
+        "description": "One of Lance's three starting Pokemon. Backed by a second Dragonite - his final ace - who takes the field the moment Aerodactyl falls.",
+        "descriptionHtml": "One of Lance's three starting Pokemon. Backed by a second Dragonite - his final ace - who takes the field the moment Aerodactyl falls.",
+        "pokemonTypes": ["Rock", "Flying"]
     }
 ];
 
