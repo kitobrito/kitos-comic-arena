@@ -6031,10 +6031,9 @@ const POKEMON_NINCADA_MISSION_ENTRY = {
     title: 'Evolution Specialist',
     level_requirement: 1,
     rank: '1',
-    reward_character: '',
-    reward_character_name: '',
-    reward: 'Earn 300 Pokemon Arena points.',
-    reward_unlock_points: 300,
+    reward_character: 'nincada',
+    reward_character_name: 'Nincada',
+    reward: 'Unlock Nincada.',
     arena: 'pokemon',
     mode_restriction: {
         allowed_modes: ['quick', 'ladder'],
@@ -6050,14 +6049,14 @@ const POKEMON_NINCADA_MISSION_ENTRY = {
     portrait: 'assets/images/PokemonArena/Nincada/Nincada-FP.jpg',
     portraitAlt: 'Nincada portrait',
     requirements: [
-        'Nincada is free to use right away - no unlock required.',
-        'Win 10 matches with Nincada on your team to earn 300 Pokemon Arena points.',
+        'Nincada unlocks by proving yourself with Beedrill first.',
+        'Win 10 matches with Beedrill on your team to unlock Nincada.',
     ],
     goals: [
         {
             type: 'win_matches',
-            character_id: 'nincada',
-            character_name: 'Nincada',
+            character_id: 'beedrill',
+            character_name: 'Beedrill',
             wins: 10,
         },
     ],
