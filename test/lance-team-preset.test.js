@@ -114,7 +114,7 @@ test('only the middle team slot renders when Lance is fielded -- the other two c
     assert.match(styleCss, /\.selected-character-slot\.lance-bundle-collapsed\s*\{\s*display: none;\s*\}/);
 });
 
-test('the character preview panel shows Lance and his champion render, not the fielded Pokemon', () => {
+test('the character preview panel shows Lance, his champion render, Dragon typing, and only his passive', () => {
     assert.match(
         script,
         /const LANCE_CHAMPION_PREVIEW_RENDER_URL = 'assets\/images\/PokemonArena\/BIB\/lancepokemonchampion\.webp';/
@@ -126,7 +126,11 @@ test('the character preview panel shows Lance and his champion render, not the f
     assert.match(script, /renderCharacter\(displayCharacter \|\| character, index\);/);
     assert.match(
         script,
-        /handleCharacterSelect\(assignment\.characterIndex, \{\s*openViewer: false,\s*displayCharacter: isBundled\s*\?\s*\{ \.\.\.character, name: 'Lance', facePicture: LANCE_CHAMPION_PREVIEW_RENDER_URL \}\s*:\s*null,\s*\}\);/
+        /const buildLanceDisplayCharacter = \(character\) => \{[\s\S]*?name: 'Lance',[\s\S]*?facePicture: LANCE_CHAMPION_PREVIEW_RENDER_URL,[\s\S]*?pokemonTypes: lanceCharacter\?\.pokemonTypes \|\| \['Dragon'\],[\s\S]*?skills: lanceCharacter\?\.skills \|\| character\.skills,/
+    );
+    assert.match(
+        script,
+        /handleCharacterSelect\(assignment\.characterIndex, \{\s*openViewer: false,\s*displayCharacter: isBundled\s*\?\s*buildLanceDisplayCharacter\(character\)\s*:\s*null,\s*\}\);/
     );
     assert.match(
         script,

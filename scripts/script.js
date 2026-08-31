@@ -19787,6 +19787,21 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
     // setSelectedSlot) so picking him reads as one choice, not three.
     const getLanceBundleMiddleSlotIndex = () => Math.floor(selectedSlots.length / 2);
 
+    // The character-preview identity shown for any of Lance's bundled Pokemon:
+    // his own name, champion render, Dragon typing, and his single passive as
+    // the only shown skill -- the real fielded Pokemon's description and role
+    // otherwise still come through untouched.
+    const buildLanceDisplayCharacter = (character) => {
+        const lanceCharacter = roster[getRosterIndexByCharacterId(LANCE_PRESET_CHARACTER_ID)];
+        return {
+            ...character,
+            name: 'Lance',
+            facePicture: LANCE_CHAMPION_PREVIEW_RENDER_URL,
+            pokemonTypes: lanceCharacter?.pokemonTypes || ['Dragon'],
+            skills: lanceCharacter?.skills || character.skills,
+        };
+    };
+
     // Lance is a single roster tile standing in for his whole starting team.
     // Picking him fills all three team slots at once with Dragonite/Gyarados/
     // Aerodactyl (each carrying its own reserve-swap partner -- see
@@ -19918,7 +19933,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         handleCharacterSelect(assignment.characterIndex, {
             openViewer: false,
             displayCharacter: isBundled
-                ? { ...character, name: 'Lance', facePicture: LANCE_CHAMPION_PREVIEW_RENDER_URL }
+                ? buildLanceDisplayCharacter(character)
                 : null,
         });
         if (options.confirm) {
@@ -20027,7 +20042,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         handleCharacterSelect(assignment.characterIndex, {
             openViewer: true,
             displayCharacter: isBundled
-                ? { ...character, name: 'Lance', facePicture: LANCE_CHAMPION_PREVIEW_RENDER_URL }
+                ? buildLanceDisplayCharacter(character)
                 : null,
         });
         if (selectionTeamStatusEl) {
