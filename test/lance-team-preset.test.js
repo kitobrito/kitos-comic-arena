@@ -133,6 +133,14 @@ test('the character preview panel shows Lance and his champion render, not the f
     );
 });
 
+test('the champion render is registered as a proper full-body featured render, not a face-crop', () => {
+    assert.match(script, /'lance-gyarados': 'lancepokemonchampion\.webp',/);
+    const renderPath = path.join(
+        root, 'assets', 'images', 'selection-featured', 'PokemonArena', 'BIB', 'lancepokemonchampion.webp'
+    );
+    assert.ok(fs.existsSync(renderPath), 'the registered featured render file should exist');
+});
+
 test('Lance himself is a pickable preset while his three Pokemon are reachable only through him', () => {
     const lance = findCharacter('lance');
     const dragonite1 = findCharacter('lance-dragonite-1');

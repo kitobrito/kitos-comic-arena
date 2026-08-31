@@ -1596,6 +1596,10 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         jolteon: 'JOLTEON.png.webp',
         koffing: 'Koffing.webp.webp',
         krabby: 'KRABBY.png.webp',
+        // Registered under lance-gyarados, not "lance" -- he's the one that always
+        // lands in the middle team slot (see getLanceBundleMiddleSlotIndex) and is
+        // the only Lance-bundle id ever previewed under his champion identity.
+        'lance-gyarados': 'lancepokemonchampion.webp',
         machop: 'MACHOP.png.webp',
         magikarp: 'MAGIKARP.png.webp',
         magnemite: 'Magnemite.webp.webp',
