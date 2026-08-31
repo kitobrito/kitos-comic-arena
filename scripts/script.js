@@ -1216,6 +1216,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     // picking his single roster tile is how a player fields his whole starting
     // team (LANCE_TEAM_CHARACTER_IDS) at once. See assignLanceTeamPreset below.
     const LANCE_PRESET_CHARACTER_ID = 'lance';
+    // The full champion render, used for the big character-preview panel when
+    // one of Lance's bundled Pokemon is showing there (see the displayCharacter
+    // override in setSelectedSlot) -- distinct from his small roster/team-slot
+    // face picture (lancefp.jpg, set on the "lance" entry in characters.js).
+    const LANCE_CHAMPION_PREVIEW_RENDER_URL = 'assets/images/PokemonArena/BIB/lancepokemonchampion.webp';
     const LANCE_BATTLE_THEME_URL = 'assets/images/PokemonArena/lance/music/champion-battle-theme.mp3';
     const matchIncludesLance = (data) => {
         const lanceRosterLookup = Array.isArray(window.characters) ? window.characters : [];
@@ -19481,13 +19486,17 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         });
     });
 
-    const handleCharacterSelect = (index, { openViewer = true } = {}) => {
+    const handleCharacterSelect = (index, { openViewer = true, displayCharacter = null } = {}) => {
         const character = roster[index];
         if (!character) return;
         if (openViewer) {
             openSkillViewer();
         }
-        renderCharacter(character, index);
+        // displayCharacter lets a caller swap the shown name/render without
+        // touching currentCharacterIndex -- used so Lance's bundled Pokemon
+        // preview under his own identity (see setSelectedSlot) while their
+        // real skills/types still come through untouched.
+        renderCharacter(displayCharacter || character, index);
     };
 
     const setDragPayload = (dataTransfer, payload) => {
@@ -19904,7 +19913,12 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             slotElement.classList.add('selected-slot-confirm-burst');
             soundManager.play(rosterConfirmSound);
         }
-        handleCharacterSelect(assignment.characterIndex, { openViewer: false });
+        handleCharacterSelect(assignment.characterIndex, {
+            openViewer: false,
+            displayCharacter: isBundled
+                ? { ...character, name: 'Lance', facePicture: LANCE_CHAMPION_PREVIEW_RENDER_URL }
+                : null,
+        });
         if (options.confirm) {
             playPortraitConfirmPop(portraitEl);
         }
@@ -20006,10 +20020,15 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             handleSelectedSlotDoubleClick(slotIndex);
             return;
         }
-        handleCharacterSelect(assignment.characterIndex, { openViewer: true });
+        const character = roster[assignment.characterIndex];
+        const isBundled = isLanceBundleCharacter(character);
+        handleCharacterSelect(assignment.characterIndex, {
+            openViewer: true,
+            displayCharacter: isBundled
+                ? { ...character, name: 'Lance', facePicture: LANCE_CHAMPION_PREVIEW_RENDER_URL }
+                : null,
+        });
         if (selectionTeamStatusEl) {
-            const character = roster[assignment.characterIndex];
-            const isBundled = isLanceBundleCharacter(character);
             selectionTeamStatusEl.textContent = isBundled
                 ? `Double-click ${character?.name || 'this character'} to remove Lance's whole team.`
                 : `Double-click ${character?.name || 'this character'} in Your Team to remove them.`;
