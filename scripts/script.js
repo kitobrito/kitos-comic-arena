@@ -1212,6 +1212,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     // both players whenever either team includes one of his three starting Pokemon,
     // regardless of who picked him.
     const LANCE_TEAM_CHARACTER_IDS = ['lance-dragonite-1', 'lance-gyarados', 'lance-aerodactyl'];
+    // Lance himself is a hiddenFromSelection preset: he never fights directly,
+    // picking his single roster tile is how a player fields his whole starting
+    // team (LANCE_TEAM_CHARACTER_IDS) at once. See assignLanceTeamPreset below.
+    const LANCE_PRESET_CHARACTER_ID = 'lance';
     const LANCE_BATTLE_THEME_URL = 'assets/images/PokemonArena/lance/music/champion-battle-theme.mp3';
     const matchIncludesLance = (data) => {
         const lanceRosterLookup = Array.isArray(window.characters) ? window.characters : [];
@@ -18832,11 +18836,16 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             .filter((index) => {
                 if (!Number.isInteger(index) || index < 0 || used.has(index)) return false;
                 if (getCharacterArenaMode(roster[index]) !== activeArenaMode) return false;
+                // hiddenFromSelection characters (e.g. Lance's own three Pokemon,
+                // which only reach the board through his single preset tile --
+                // see assignLanceTeamPreset) never get a roster grid tile of their own.
+                if (roster[index]?.hiddenFromSelection) return false;
                 used.add(index);
                 return true;
             });
         roster.forEach((character, index) => {
             if (getCharacterArenaMode(character) !== activeArenaMode) return;
+            if (character?.hiddenFromSelection) return;
             if (!used.has(index)) ordered.push(index);
         });
         return ordered;
@@ -19683,7 +19692,12 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         if (!slot) return;
         slot.innerHTML = '';
         const locked = isCharacterLocked(character);
-        const isSelected = selectedAssignments.some((assignment) => assignment?.rosterIndex === index);
+        // Lance himself never occupies a slot -- his own rosterIndex is never in
+        // selectedAssignments -- so his tile is only "selected" (greyed out) when
+        // his bundled team is already on the field. See assignLanceTeamPreset.
+        const isSelected =
+            selectedAssignments.some((assignment) => assignment?.rosterIndex === index) ||
+            (character?.id === LANCE_PRESET_CHARACTER_ID && getLanceBundleSlotIndices().length > 0);
         if (!character || isSelected) {
             slot.classList.add('slot-empty');
             slot.classList.remove('slot-locked');
@@ -19743,6 +19757,70 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         buildRosterSlot(index);
     };
 
+    const getRosterIndexByCharacterId = (id) =>
+        roster.findIndex((character) => character?.id === id || character?.characterId === id);
+
+    const isLanceBundleCharacter = (character) =>
+        LANCE_TEAM_CHARACTER_IDS.includes(character?.id || character?.characterId || '');
+
+    const getLanceBundleSlotIndices = () =>
+        selectedAssignments.reduce((acc, assignment, slotIndex) => {
+            if (assignment && isLanceBundleCharacter(roster[assignment.rosterIndex])) {
+                acc.push(slotIndex);
+            }
+            return acc;
+        }, []);
+
+    // The one team slot Lance's bundle actually renders as -- the rest
+    // collapse away (see the lance-bundle-collapsed branch in
+    // setSelectedSlot) so picking him reads as one choice, not three.
+    const getLanceBundleMiddleSlotIndex = () => Math.floor(selectedSlots.length / 2);
+
+    // Lance is a single roster tile standing in for his whole starting team.
+    // Picking him fills all three team slots at once with Dragonite/Gyarados/
+    // Aerodactyl (each carrying its own reserve-swap partner -- see
+    // tryLanceReserveSwap in battleLogic.js) instead of occupying one slot
+    // himself. Requires all team slots to be empty first since there's
+    // nowhere sensible to bump an existing pick to.
+    const assignLanceTeamPreset = (lanceRosterIndex) => {
+        if (selectedAssignments.some((assignment) => assignment)) {
+            if (selectionTeamStatusEl) {
+                selectionTeamStatusEl.textContent =
+                    'Clear your team first -- Lance fields all three of his Pokemon at once.';
+            }
+            return false;
+        }
+        const bundleRosterIndices = LANCE_TEAM_CHARACTER_IDS.map(getRosterIndexByCharacterId);
+        if (bundleRosterIndices.some((index) => index < 0)) {
+            console.warn('Lance team preset is missing one of its roster entries.', LANCE_TEAM_CHARACTER_IDS);
+            return false;
+        }
+        clearRosterSlot(lanceRosterIndex);
+        bundleRosterIndices.forEach((rosterIndex, slotIndex) => {
+            setSelectedSlot(slotIndex, { characterIndex: rosterIndex, rosterIndex }, { confirm: true });
+        });
+        updateGameButtons();
+        persistTeamSelection();
+        return true;
+    };
+
+    // Removing any one member of Lance's bundled team clears all three
+    // bundled slots together and restores the single "Lance" tile to the
+    // roster grid, rather than letting the team be picked apart one Pokemon
+    // at a time. Returns true if slotIndex was part of a Lance bundle.
+    const clearLanceBundleFromSlot = (slotIndex) => {
+        const bundleSlotIndices = getLanceBundleSlotIndices();
+        if (!bundleSlotIndices.includes(slotIndex)) return false;
+        bundleSlotIndices.forEach((index) => setSelectedSlot(index, null));
+        const lanceRosterIndex = getRosterIndexByCharacterId(LANCE_PRESET_CHARACTER_ID);
+        if (lanceRosterIndex >= 0) {
+            fillRosterSlot(lanceRosterIndex);
+        }
+        updateGameButtons();
+        persistTeamSelection();
+        return true;
+    };
+
     const renderEmptySelectedSlot = (slotElement, slotIndex) => {
         if (!slotElement) return;
         slotElement.innerHTML = '';
@@ -19776,24 +19854,40 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         selectedAssignments[slotIndex] = assignment;
         slotElement.innerHTML = '';
         slotElement.classList.remove('drag-over');
+        slotElement.classList.remove('lance-bundle-collapsed');
+        slotElement.removeAttribute('aria-hidden');
         if (!assignment) {
             renderEmptySelectedSlot(slotElement, slotIndex);
             return;
         }
         const character = roster[assignment.characterIndex];
+        const isBundled = isLanceBundleCharacter(character);
+        // Lance reads as one pick, not three -- every bundled slot except the
+        // middle one just disappears (see the CSS rule and
+        // getLanceBundleMiddleSlotIndex above); the middle slot renders as
+        // "Lance" himself even though its real assignment is whichever of his
+        // three Pokemon landed there.
+        if (isBundled && slotIndex !== getLanceBundleMiddleSlotIndex()) {
+            slotElement.classList.add('lance-bundle-collapsed');
+            slotElement.setAttribute('aria-hidden', 'true');
+            return;
+        }
+        const displayCharacter = isBundled
+            ? roster[getRosterIndexByCharacterId(LANCE_PRESET_CHARACTER_ID)] || character
+            : character;
         const isMobileTeamTap =
             document.documentElement.classList.contains('selection-experimental') &&
             window.matchMedia('(max-width: 700px) and (pointer: coarse)').matches;
         slotElement.title = isMobileTeamTap
-            ? `Tap ${character?.name || 'this character'} to remove them from your team.`
-            : `Double-click ${character?.name || 'this character'} to remove them from your team.`;
+            ? `Tap ${displayCharacter?.name || 'this character'} to remove them from your team.`
+            : `Double-click ${displayCharacter?.name || 'this character'} to remove them from your team.`;
         slotElement.setAttribute(
             'aria-label',
-            `${character?.name || 'Selected character'}; ${isMobileTeamTap ? 'tap' : 'double-click'} to remove`
+            `${displayCharacter?.name || 'Selected character'}; ${isMobileTeamTap ? 'tap' : 'double-click'} to remove`
         );
         const img = document.createElement('img');
-        setSelectionThumbnailWithFallback(img, character?.facePicture || '');
-        img.alt = character?.name || 'Selected character';
+        setSelectionThumbnailWithFallback(img, displayCharacter?.facePicture || '');
+        img.alt = displayCharacter?.name || 'Selected character';
         img.className = 'selected-slot-image';
         img.draggable = false;
         const dragStart = (event) => {
@@ -19818,6 +19912,24 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
 
     const moveDragPayloadToSelectedSlot = (payload, targetSlotIndex) => {
         if (payload.type === 'selected' && payload.selectedIndex === targetSlotIndex) {
+            return false;
+        }
+
+        if (
+            payload.type === 'roster' &&
+            Number.isInteger(payload.rosterIndex) &&
+            roster[payload.rosterIndex]?.id === LANCE_PRESET_CHARACTER_ID
+        ) {
+            return assignLanceTeamPreset(payload.rosterIndex);
+        }
+
+        // Lance's bundled slots move and clear together (see
+        // assignLanceTeamPreset/clearLanceBundleFromSlot) -- refuse any drag
+        // that would pick one of them apart individually.
+        if (
+            (payload.type === 'selected' && getLanceBundleSlotIndices().includes(payload.selectedIndex)) ||
+            getLanceBundleSlotIndices().includes(targetSlotIndex)
+        ) {
             return false;
         }
 
@@ -19875,6 +19987,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
     const handleSelectedSlotDoubleClick = (slotIndex) => {
         const assignment = selectedAssignments[slotIndex];
         if (!assignment) return;
+        if (clearLanceBundleFromSlot(slotIndex)) return;
         setSelectedSlot(slotIndex, null);
         if (Number.isInteger(assignment.rosterIndex)) {
             fillRosterSlot(assignment.rosterIndex);
@@ -19896,7 +20009,10 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         handleCharacterSelect(assignment.characterIndex, { openViewer: true });
         if (selectionTeamStatusEl) {
             const character = roster[assignment.characterIndex];
-            selectionTeamStatusEl.textContent = `Double-click ${character?.name || 'this character'} in Your Team to remove them.`;
+            const isBundled = isLanceBundleCharacter(character);
+            selectionTeamStatusEl.textContent = isBundled
+                ? `Double-click ${character?.name || 'this character'} to remove Lance's whole team.`
+                : `Double-click ${character?.name || 'this character'} in Your Team to remove them.`;
         }
     };
 
@@ -19914,6 +20030,10 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
     const addRosterCharacterToSelection = (rosterIndex) => {
         if (!Number.isInteger(rosterIndex) || !roster[rosterIndex]) return;
         if (isCharacterLocked(roster[rosterIndex])) return;
+        if (roster[rosterIndex]?.id === LANCE_PRESET_CHARACTER_ID) {
+            assignLanceTeamPreset(rosterIndex);
+            return;
+        }
         const existingSlotIndex = selectedAssignments.findIndex(
             (assignment) => assignment?.characterIndex === rosterIndex
         );
@@ -19943,6 +20063,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             Number.isInteger(payload.selectedIndex) &&
             selectedAssignments[payload.selectedIndex]
         ) {
+            if (clearLanceBundleFromSlot(payload.selectedIndex)) return;
             const assignment = selectedAssignments[payload.selectedIndex];
             setSelectedSlot(payload.selectedIndex, null);
             fillRosterSlot(assignment.rosterIndex);
@@ -19957,6 +20078,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         ) {
             return false;
         }
+        if (clearLanceBundleFromSlot(payload.selectedIndex)) return true;
         const assignment = selectedAssignments[payload.selectedIndex];
         setSelectedSlot(payload.selectedIndex, null);
         if (Number.isInteger(assignment.rosterIndex)) {
