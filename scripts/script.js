@@ -17223,6 +17223,37 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         }
     };
 
+    // Character (+ optionally skin) store bundles -- see storeBundles on the
+    // /api/missions payload and renderExperimentalCharacterStore above.
+    const unlockSelectionStoreBundle = async (bundleId, button = null) => {
+        if (!bundleId) return;
+        if (button) button.disabled = true;
+        setSelectionMissionsStatus('Unlocking bundle...');
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/store/unlock-bundle`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    arena: activeArenaMode,
+                    bundleId,
+                }),
+            });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(payload.error || 'Unable to unlock bundle.');
+            }
+            if (payload.profile) {
+                applyUpdatedProfile(payload.profile);
+            }
+            await loadSelectionMissions();
+            setSelectionMissionsStatus('Bundle unlocked with ladder points.');
+        } catch (error) {
+            if (button) button.disabled = false;
+            setSelectionMissionsStatus(error.message || 'Unable to unlock bundle.');
+        }
+    };
+
     const equipSelectionSkin = async (characterId, skinId, button = null) => {
         const normalizedCharacterId = normalizeSkinCharacterId(characterId);
         const normalizedSkinId = normalizeSkinId(skinId);
@@ -17286,6 +17317,102 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         intro.className = 'selection-store-category-intro';
         intro.innerHTML = '<strong>Character Collection</strong><span>Every fighter in this arena, with its unlock price and ownership status.</span>';
         section.appendChild(intro);
+
+        const storeBundles = Array.isArray(payload.storeBundles) ? payload.storeBundles : [];
+        if (storeBundles.length) {
+            const unlockedSkinIds = new Set(
+                getArenaSkinState(profileCache?.profile, activeArenaMode).unlockedSkinIds.map((entry) =>
+                    normalizeSkinId(entry)
+                )
+            );
+            const bundlesHeading = document.createElement('h3');
+            bundlesHeading.className = 'selection-section-title';
+            bundlesHeading.textContent = 'Character Bundles';
+            section.appendChild(bundlesHeading);
+
+            storeBundles.forEach((bundle = {}) => {
+                const bundleId = typeof bundle.bundleId === 'string' ? bundle.bundleId : '';
+                const bundleCharacterIds = Array.isArray(bundle.characterIds)
+                    ? bundle.characterIds.map((id) => String(id || '').trim().toLowerCase()).filter(Boolean)
+                    : [];
+                const bundleSkinIds = Array.isArray(bundle.skinIds)
+                    ? bundle.skinIds.map((id) => normalizeSkinId(id)).filter(Boolean)
+                    : [];
+                if (!bundleId || (!bundleCharacterIds.length && !bundleSkinIds.length)) return;
+
+                const ownedCharacterCount = bundleCharacterIds.filter((id) => unlockedIds.has(id)).length;
+                const ownedSkinCount = bundleSkinIds.filter((id) => unlockedSkinIds.has(id)).length;
+                const totalItems = bundleCharacterIds.length + bundleSkinIds.length;
+                const ownedCount = ownedCharacterCount + ownedSkinCount;
+                const isFullyOwned = totalItems > 0 && ownedCount === totalItems;
+
+                const card = document.createElement('article');
+                card.className = 'selection-mission-card selection-skin-card selection-store-bundle-card';
+
+                const head = document.createElement('div');
+                head.className = 'selection-mission-head';
+                const image = document.createElement('img');
+                image.className = 'selection-mission-image';
+                setSelectionThumbnailWithFallback(image, bundle.previewFacePicture || 'assets/images/default-avatar.png');
+                image.alt = bundle.name || 'Character bundle';
+                const titleWrap = document.createElement('div');
+                const title = document.createElement('h3');
+                title.className = 'selection-mission-title';
+                title.textContent = bundle.name || 'Character Bundle';
+                const reward = document.createElement('p');
+                reward.className = 'selection-mission-reward';
+                reward.textContent =
+                    bundle.description ||
+                    `${bundleCharacterIds.length} characters and ${bundleSkinIds.length} skins in one purchase.`;
+                titleWrap.appendChild(title);
+                titleWrap.appendChild(reward);
+                head.appendChild(image);
+                head.appendChild(titleWrap);
+                card.appendChild(head);
+
+                const cost = Math.max(1, Number(bundle.unlockPointCost) || 0);
+                const individualCost = Math.max(0, Number(bundle.individualPointCost) || 0);
+                const progressText = document.createElement('p');
+                progressText.className = 'selection-mission-progress';
+                progressText.textContent = isFullyOwned
+                    ? 'You already own everything in this bundle.'
+                    : ownedCount > 0
+                        ? `You own ${ownedCount} of ${totalItems} items -- buying grants the rest.`
+                        : individualCost > cost
+                            ? `${cost.toLocaleString()} unlock points (vs ${individualCost.toLocaleString()} buying each separately).`
+                            : `${cost.toLocaleString()} unlock points.`;
+                card.appendChild(progressText);
+
+                const actionRow = document.createElement('div');
+                actionRow.className = 'selection-mission-buy';
+                const actionLabel = document.createElement('span');
+                actionLabel.textContent = isFullyOwned
+                    ? 'Fully unlocked.'
+                    : `Buy for ${cost.toLocaleString()} unlock points.`;
+                const actionButton = document.createElement('button');
+                actionButton.type = 'button';
+                actionButton.className = 'selection-mission-action selection-mission-buy-action';
+                if (isFullyOwned) {
+                    actionButton.textContent = 'Owned';
+                    actionButton.disabled = true;
+                } else {
+                    actionButton.textContent = unlockPoints >= cost ? 'Buy Bundle' : 'Need Points';
+                    actionButton.disabled = unlockPoints < cost;
+                    actionButton.addEventListener('click', () => {
+                        unlockSelectionStoreBundle(bundleId, actionButton);
+                    });
+                }
+                actionRow.appendChild(actionLabel);
+                actionRow.appendChild(actionButton);
+                card.appendChild(actionRow);
+                section.appendChild(card);
+            });
+
+            const rosterHeading = document.createElement('h3');
+            rosterHeading.className = 'selection-section-title';
+            rosterHeading.textContent = 'Individual Characters';
+            section.appendChild(rosterHeading);
+        }
 
         const grid = document.createElement('div');
         grid.className = 'selection-character-store-grid';
