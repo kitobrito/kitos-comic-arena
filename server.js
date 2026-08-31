@@ -180,7 +180,10 @@ const RANKED_BETA_LAUNCH_BONUS_WINDOW = {
     endsAt: new Date('2026-09-21T00:00:00.000Z'),
 };
 const MISSION_UNLOCK_POINT_PRICE_MIN = 150;
-const MISSION_UNLOCK_POINT_PRICE_MAX = 600;
+// Raised from 600 -> 1000 so Lance's champion-tier unlock (the only mission
+// that has ever asked for more than 600) can actually charge what it asks
+// for -- resolveMissionUnlockPointCost() below was silently clamping it down.
+const MISSION_UNLOCK_POINT_PRICE_MAX = 1000;
 const MISSION_EEVEE_EVOLUTION_UNLOCK_POINT_COST = 500;
 const makePrimeapeReleaseWindow = (source = {}, fallbackStart = new Date()) => {
     const parsedStart = new Date(source?.startsAt || fallbackStart);

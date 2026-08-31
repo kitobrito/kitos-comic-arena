@@ -14,6 +14,7 @@ const test = require('node:test');
 const root = path.join(__dirname, '..');
 const script = fs.readFileSync(path.join(root, 'scripts', 'script.js'), 'utf8');
 const characters = require('../characters');
+const { resolveMissionUnlockPointCost } = require('../server');
 
 const findCharacter = (id) => characters.find((character) => character.id === id);
 
@@ -139,6 +140,18 @@ test('the champion render is registered as a proper full-body featured render, n
         root, 'assets', 'images', 'selection-featured', 'PokemonArena', 'BIB', 'lancepokemonchampion.webp'
     );
     assert.ok(fs.existsSync(renderPath), 'the registered featured render file should exist');
+});
+
+test("Lance's 1000-point unlock cost survives the server's price clamp", () => {
+    // resolveMissionUnlockPointCost() was silently clamping any mission's
+    // explicit cost down to MISSION_UNLOCK_POINT_PRICE_MAX (600) -- Lance is
+    // the first mission that has ever asked for more than that.
+    assert.equal(
+        resolveMissionUnlockPointCost({ missionId: 'lance-champion-trial', unlockPointCost: 1000, level_requirement: 30 }),
+        1000
+    );
+    const syncScript = fs.readFileSync(path.join(root, 'sync_pokemon_lance_mission.js'), 'utf8');
+    assert.match(syncScript, /unlockPointCost:\s*1000,/);
 });
 
 test('Lance himself is a pickable preset while his three Pokemon are reachable only through him', () => {
