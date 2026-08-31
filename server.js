@@ -16336,6 +16336,7 @@ app.get('/api/missions', async (req, res) => {
             ),
             purchasedUnlocks: missionState.purchasedUnlocks,
             pointStore: buildUnlockPointStoreResponse({ arena, profile: normalizedProfile }),
+            storeBundles: buildStoreBundlesResponse(arena, await getStoredMissionCatalog()),
         });
     } catch (error) {
         console.error('Mission catalog load error:', error);
@@ -16564,6 +16565,273 @@ app.post('/api/skins/unlock', requireSession, async (req, res) => {
     } catch (error) {
         console.error('Skin unlock error:', error);
         return res.status(500).json({ error: 'Unable to unlock skin.' });
+    }
+});
+
+// Character + skin "store bundles" -- discounted (or, for the legendary
+// collection, deliberately premium) multi-item packages priced in unlock
+// points, reusing the exact same purchase/ownership machinery as buying a
+// single character or skin. A bundle can grant characters, skins, or both.
+// `includeAllMissionCharacters: true` (the vault) resolves its characterIds
+// dynamically from the live mission catalog at request time instead of a
+// fixed list, so it stays complete as new characters ship.
+const POKEMON_STORE_BUNDLES = [
+    {
+        bundleId: 'dragon-masters-arsenal',
+        arena: 'pokemon',
+        name: "Dragon Master's Arsenal",
+        description: 'Lance and the three Pokemon that built his legend -- Aerodactyl, Magikarp, and Dragonite -- plus a Golden Magikarp skin that evolves into a red Gyarados.',
+        unlockPointCost: 2400,
+        individualPointCost: 3050,
+        previewFacePicture: 'assets/images/PokemonArena/BIB/lancepokemonchampion.webp',
+        characterIds: ['lance', 'aerodactyl', 'magikarp', 'dragonite'],
+        skinIds: ['magikarp-golden-gyarados-red'],
+    },
+    {
+        bundleId: 'legendary-mythical-collection',
+        arena: 'pokemon',
+        name: 'Legendary & Mythical Collection',
+        description: 'Articuno, Moltres, Zapdos, Mew, and Mewtwo, unlocked instantly with no rank requirement -- a premium price for skipping the grind entirely.',
+        unlockPointCost: 4000,
+        individualPointCost: 3000,
+        previewFacePicture: 'assets/images/PokemonArena/mewtwo/fp.png',
+        characterIds: ['articuno', 'moltres', 'zapdos', 'mew', 'mewtwo'],
+        skinIds: [],
+    },
+    {
+        bundleId: 'new-arrivals-pack',
+        arena: 'pokemon',
+        name: 'New Arrivals Pack',
+        description: 'The latest batch to join the arena: Marowak, Pinsir, Tauros, and Darkrai.',
+        unlockPointCost: 1300,
+        individualPointCost: 1700,
+        previewFacePicture: 'assets/images/PokemonArena/darkrai/facepicture.jpg',
+        characterIds: ['marowak', 'pinsir', 'tauros', 'darkrai'],
+        skinIds: [],
+    },
+    {
+        bundleId: 'community-choice-pack',
+        arena: 'pokemon',
+        name: 'Community Choice Pack',
+        description: 'Six Pokemon added straight from community requests: Ditto, Scraggy, Dragapult, Nincada, Darkrai, and Aegislash.',
+        unlockPointCost: 1450,
+        individualPointCost: 1900,
+        previewFacePicture: 'assets/images/PokemonArena/Dragapult/FP.jpg',
+        characterIds: ['ditto', 'scraggy', 'dragapult', 'nincada', 'darkrai', 'aegislash'],
+        skinIds: [],
+    },
+    {
+        bundleId: 'fighting-spirit-duo',
+        arena: 'pokemon',
+        name: 'Fighting Spirit Duo',
+        description: "Hitmonchan and Hitmonlee, the arena's Fighting-type siblings, in one cheap pack.",
+        unlockPointCost: 400,
+        individualPointCost: 500,
+        previewFacePicture: 'assets/images/PokemonArena/hitmonchan/fp.webp',
+        characterIds: ['hitmonchan', 'hitmonlee'],
+        skinIds: [],
+    },
+    {
+        bundleId: 'electric-speedster-pack',
+        arena: 'pokemon',
+        name: 'Electric Speedster Pack',
+        description: 'Pikachu, plus his Raichu-inspired skin, in one purchase.',
+        unlockPointCost: 700,
+        individualPointCost: 900,
+        previewFacePicture: 'assets/images/PokemonArena/Pikachu/skins/raichu/fp.webp',
+        characterIds: ['pikachu'],
+        skinIds: ['pikachu-raichu'],
+    },
+    {
+        bundleId: 'ditto-complete-pack',
+        arena: 'pokemon',
+        name: 'Ditto Complete Pack',
+        description: 'Ditto, unlocked with both of his skins -- Shiny and Flubber -- ready to equip.',
+        unlockPointCost: 1000,
+        individualPointCost: 1300,
+        previewFacePicture: 'assets/images/PokemonArena/Ditto/Done/shinyFP.jpg',
+        characterIds: ['ditto'],
+        skinIds: ['ditto-shiny', 'ditto-flubber'],
+    },
+    {
+        bundleId: 'ultimate-character-vault',
+        arena: 'pokemon',
+        name: 'Ultimate Character Vault',
+        description: 'Every mission-locked Pokemon currently in the arena, unlocked in a single purchase -- the biggest discount in the shop.',
+        unlockPointCost: 8500,
+        individualPointCost: 12700,
+        previewFacePicture: 'assets/images/PokemonArena/pokemonarenalogo.png',
+        includeAllMissionCharacters: true,
+        characterIds: [],
+        skinIds: [],
+    },
+];
+
+const getArenaStoreBundleCatalog = (arena = DEFAULT_ARENA_MODE) =>
+    normalizeArenaMode(arena) === 'pokemon' ? POKEMON_STORE_BUNDLES : [];
+
+const getArenaStoreBundleCatalogById = (arena = DEFAULT_ARENA_MODE) => {
+    const catalog = new Map();
+    getArenaStoreBundleCatalog(arena).forEach((entry = {}) => {
+        const bundleId = typeof entry.bundleId === 'string' ? entry.bundleId.trim() : '';
+        if (!bundleId) return;
+        catalog.set(bundleId, {
+            ...entry,
+            bundleId,
+            unlockPointCost: Math.max(1, Math.floor(Number(entry.unlockPointCost) || 1)),
+        });
+    });
+    return catalog;
+};
+
+// Resolves a bundle's actual character list -- either its fixed characterIds,
+// or (for includeAllMissionCharacters bundles) every character currently
+// rewarded by an active mission in this arena. Eevee's evolution path is
+// excluded since it's a one-choice-only mechanic, not a flat unlock.
+const resolveStoreBundleCharacterIds = (bundleEntry = {}, missions = [], arena = DEFAULT_ARENA_MODE) => {
+    if (bundleEntry.includeAllMissionCharacters) {
+        const normalizedArena = normalizeArenaMode(arena);
+        const ids = new Set();
+        (Array.isArray(missions) ? missions : [])
+            .filter((mission) => normalizeArenaMode(mission?.arena) === normalizedArena)
+            .filter((mission) => mission?.missionId !== 'eevee-evolution-path')
+            .forEach((mission) => {
+                getMissionUnlockRewardCharacterIds(mission).forEach((id) => {
+                    if (id) ids.add(id);
+                });
+            });
+        return Array.from(ids);
+    }
+    return (Array.isArray(bundleEntry.characterIds) ? bundleEntry.characterIds : [])
+        .map((id) => normalizeCharacterId(id))
+        .filter(Boolean);
+};
+
+const serializeStoreBundleEntryForClient = (entry = {}, missions = [], arena = DEFAULT_ARENA_MODE) => ({
+    bundleId: entry.bundleId,
+    name: typeof entry.name === 'string' ? entry.name.trim() : '',
+    description: typeof entry.description === 'string' ? entry.description.trim() : '',
+    unlockPointCost: entry.unlockPointCost,
+    individualPointCost: Math.max(0, Math.floor(Number(entry.individualPointCost) || 0)),
+    previewFacePicture: typeof entry.previewFacePicture === 'string' ? entry.previewFacePicture : '',
+    characterIds: resolveStoreBundleCharacterIds(entry, missions, arena),
+    skinIds: (Array.isArray(entry.skinIds) ? entry.skinIds : [])
+        .map((id) => normalizeSkinId(id))
+        .filter(Boolean),
+});
+
+const buildStoreBundlesResponse = (arena, missions) =>
+    Array.from(getArenaStoreBundleCatalogById(arena).values()).map((entry) =>
+        serializeStoreBundleEntryForClient(entry, missions, arena)
+    );
+
+app.post('/api/store/unlock-bundle', requireSession, async (req, res) => {
+    try {
+        const arena = normalizeArenaMode(req.body?.arena || req.query?.arena);
+        const bundleId =
+            typeof (req.body?.bundleId || req.body?.bundle_id) === 'string'
+                ? (req.body.bundleId || req.body.bundle_id).trim()
+                : '';
+        if (!bundleId) {
+            return res.status(400).json({ error: 'Bundle is required.' });
+        }
+
+        const user = await usersCollection.findOne({ username: req.authUser.username });
+        if (!user) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+
+        const bundleEntry = getArenaStoreBundleCatalogById(arena).get(bundleId);
+        if (!bundleEntry) {
+            return res.status(404).json({ error: 'Bundle not found.' });
+        }
+
+        const missions = await getStoredMissionCatalog();
+        const bundleCharacterIds = resolveStoreBundleCharacterIds(bundleEntry, missions, arena);
+        const skinCatalogById = getArenaSkinCatalogById(arena);
+        const bundleSkinIds = (Array.isArray(bundleEntry.skinIds) ? bundleEntry.skinIds : []).filter(
+            (skinId) => skinCatalogById.has(skinId)
+        );
+
+        const profile = normalizeUserProfile(user);
+        const arenaState = getProfileArenaState(profile, arena);
+        const missionState = normalizeMissionState(arenaState.missions);
+        const skinState = normalizeArenaSkinState(arenaState.skins, arena);
+
+        const unlockedCharacterIds = new Set(
+            missionState.unlockedCharacterIds.map((entry) => normalizeCharacterId(entry)).filter(Boolean)
+        );
+        const unlockedSkinIds = new Set(skinState.unlockedSkinIds);
+
+        // Only grant characters that are currently real mission-locked unlocks
+        // and not already owned -- a bundle referencing a character that's
+        // since become free (or was already bought) just silently skips it
+        // rather than erroring.
+        const newCharacterIds = bundleCharacterIds.filter((characterId) => {
+            if (unlockedCharacterIds.has(characterId)) return false;
+            return Boolean(findMissionForPurchasableCharacter(missions, characterId, arena));
+        });
+        const newSkinIds = bundleSkinIds.filter((skinId) => !unlockedSkinIds.has(skinId));
+
+        if (!newCharacterIds.length && !newSkinIds.length) {
+            return res.status(409).json({ error: 'You already own everything in this bundle.' });
+        }
+        if (missionState.unlockPoints < bundleEntry.unlockPointCost) {
+            return res.status(400).json({
+                error: `You need ${bundleEntry.unlockPointCost} unlock points to buy this bundle.`,
+                unlockPoints: missionState.unlockPoints,
+                unlockPointCost: bundleEntry.unlockPointCost,
+            });
+        }
+
+        const now = new Date();
+        missionState.unlockPoints -= bundleEntry.unlockPointCost;
+        newCharacterIds.forEach((characterId) => unlockedCharacterIds.add(characterId));
+        missionState.unlockedCharacterIds = Array.from(unlockedCharacterIds);
+        missionState.purchasedUnlocks = [
+            ...missionState.purchasedUnlocks,
+            {
+                characterId: '',
+                missionId: bundleEntry.bundleId,
+                cost: bundleEntry.unlockPointCost,
+                purchasedAt: now,
+            },
+        ];
+        skinState.unlockedSkinIds = [...skinState.unlockedSkinIds, ...newSkinIds];
+
+        arenaState.missions = normalizeMissionState(missionState);
+        arenaState.skins = normalizeArenaSkinState(skinState, arena);
+        arenaState.ladder = {
+            ...(arenaState.ladder || {}),
+            unlockPoints: arenaState.missions.unlockPoints,
+        };
+
+        const normalizedProfile = normalizeUserProfile({
+            ...user,
+            profile: setProfileArenaState(profile, arena, arenaState),
+        });
+        await usersCollection.updateOne(
+            { _id: user._id },
+            {
+                $set: {
+                    profile: normalizedProfile,
+                },
+            }
+        );
+
+        return res.json({
+            ok: true,
+            arena,
+            bundleId,
+            characterIds: newCharacterIds,
+            skinIds: newSkinIds,
+            unlockPoints: arenaState.missions.unlockPoints,
+            unlockPointCost: bundleEntry.unlockPointCost,
+            profile: normalizedProfile,
+        });
+    } catch (error) {
+        console.error('Store bundle unlock error:', error);
+        return res.status(500).json({ error: 'Unable to unlock bundle.' });
     }
 });
 
@@ -19519,6 +19787,8 @@ if (require.main === module) {
         buildMissionUserMap,
         ensureRequiredMissionCatalogEntries,
         resolveMissionUnlockPointCost,
+        findMissionForPurchasableCharacter,
+        getMissionUnlockRewardCharacterIds,
         areQueuedSkillRequestsEquivalent,
         queueSkillForActorSlot,
         resolveExpiredTurnStartChoiceIfNeeded,
@@ -19541,6 +19811,11 @@ if (require.main === module) {
         ensureMatchTurnData,
         getBattleBotActionDelayRange,
         POKEMON_SKIN_CATALOG,
+        POKEMON_STORE_BUNDLES,
+        getArenaStoreBundleCatalog,
+        getArenaStoreBundleCatalogById,
+        resolveStoreBundleCharacterIds,
+        buildStoreBundlesResponse,
         getPokemonPrimeapeSkinCatalogEntry,
         getPokemonPrimeapeMissionEntry,
         getPrimeapeReleaseWindow,
