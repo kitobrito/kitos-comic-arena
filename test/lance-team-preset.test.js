@@ -113,6 +113,26 @@ test('only the middle team slot renders when Lance is fielded -- the other two c
     assert.match(styleCss, /\.selected-character-slot\.lance-bundle-collapsed\s*\{\s*display: none;\s*\}/);
 });
 
+test('the character preview panel shows Lance and his champion render, not the fielded Pokemon', () => {
+    assert.match(
+        script,
+        /const LANCE_CHAMPION_PREVIEW_RENDER_URL = 'assets\/images\/PokemonArena\/BIB\/lancepokemonchampion\.webp';/
+    );
+    assert.match(
+        script,
+        /const handleCharacterSelect = \(index, \{ openViewer = true, displayCharacter = null \} = \{\}\) => \{/
+    );
+    assert.match(script, /renderCharacter\(displayCharacter \|\| character, index\);/);
+    assert.match(
+        script,
+        /handleCharacterSelect\(assignment\.characterIndex, \{\s*openViewer: false,\s*displayCharacter: isBundled\s*\?\s*\{ \.\.\.character, name: 'Lance', facePicture: LANCE_CHAMPION_PREVIEW_RENDER_URL \}\s*:\s*null,\s*\}\);/
+    );
+    assert.match(
+        script,
+        /handleCharacterSelect\(assignment\.characterIndex, \{\s*openViewer: true,\s*displayCharacter: isBundled/
+    );
+});
+
 test('Lance himself is a pickable preset while his three Pokemon are reachable only through him', () => {
     const lance = findCharacter('lance');
     const dragonite1 = findCharacter('lance-dragonite-1');
