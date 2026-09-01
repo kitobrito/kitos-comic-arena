@@ -13248,6 +13248,20 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             if (typeof data.backgroundOverride === 'string' && data.backgroundOverride.trim()) {
                 currentMatchBackgroundUrl = data.backgroundOverride.trim();
             }
+            // Establish core turn/ready/timer state FIRST, before any of the
+            // cosmetic rendering below (weather, portraits, health bars, status
+            // FX, etc.). A fresh match's first payload takes the "new visual
+            // signature" branch below, which runs a long chain of render calls
+            // before ever reaching the syncTurnState() call that used to live
+            // only at the tail of this function -- if any of those render
+            // calls throws (uncaught, since none of this is wrapped), the
+            // ready button and turn timer never activate and the match
+            // hard-freezes with no recovery path, since the fallback poller
+            // itself refuses to run without a turn owner already set. Calling
+            // syncTurnState() again further down (unchanged) is harmless --
+            // it's idempotent on an unchanged turnOwner.
+            pendingTurnState = normalizePendingTurn(data.pendingTurn);
+            syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
             setIngameArenaUiAssets(currentMatchArena);
             syncEnergyNameLabels();
             currentMatchHasLance = currentMatchArena === 'pokemon' && matchIncludesLance(data);
@@ -14149,7 +14163,22 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 const nextState = pendingSocketMatchState;
                 pendingSocketMatchState = null;
                 pendingSocketMatchStateFrame = null;
-                applyIncomingMatchState(nextState);
+                try {
+                    applyIncomingMatchState(nextState);
+                } catch (error) {
+                    // Runs in a bare microtask with nothing else watching it --
+                    // an uncaught throw here used to be a silent, unrecoverable
+                    // dead end for the rest of the live match (the outer
+                    // try/catch around the socket message handler doesn't reach
+                    // this deferred callback). Recover the same way the
+                    // synchronous socket-parse failures above do.
+                    console.warn('Deferred match state apply failed.', error);
+                    recoverCurrentMatchState({
+                        reason: 'deferred-socket-apply-failure',
+                        message: 'Retrying live match sync...',
+                        silent: true,
+                    }).catch(() => {});
+                }
             };
             if (typeof window.queueMicrotask === 'function') {
                 window.queueMicrotask(applyPendingSocketState);
@@ -15905,7 +15934,14 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 try {
                     applyIncomingMatchState(data, { playEntrySound: true });
                 } catch (error) {
+                    // This used to be swallowed with nothing but a console line --
+                    // if the very first render throws, the player is left staring
+                    // at a permanently frozen screen (see the early syncTurnState()
+                    // fix in applyMatchState for the main cause). A one-shot
+                    // auto-reload (guarded against loops by attemptMatchAutoRecovery
+                    // itself) gives a real chance of recovery instead.
                     console.warn('Unable to apply initial match state.', error);
+                    attemptMatchAutoRecovery('initial-render-failure');
                 }
                 await battleIntroPromise;
             } catch (error) {
