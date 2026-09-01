@@ -13260,7 +13260,23 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             // itself refuses to run without a turn owner already set. Calling
             // syncTurnState() again further down (unchanged) is harmless --
             // it's idempotent on an unchanged turnOwner.
+            //
+            // renderChakra() must run BEFORE syncTurnState(): syncTurnState()
+            // calls updateSkillAffordability()/setSkillInteractivity(), which
+            // read the outer playerPoolState -- and playerPoolState is only
+            // ever updated as a side effect of renderChakra() itself. Skipping
+            // this (an earlier version of this fix did) left affordability
+            // checks reading last poll's stale chakra amounts, corrupting
+            // which skills looked castable. Named distinctly from the
+            // existing later `pool`/`unchangedVisualPool` locals below (same
+            // formula) rather than hoisting them, to avoid touching that
+            // logic at all -- this is a pure addition.
             pendingTurnState = normalizePendingTurn(data.pendingTurn);
+            const earlyChakraPool =
+                getScopedValueForCurrentUsername(data.chakraPools, currentPlayerUsername) ||
+                playerPoolState ||
+                emptyPool();
+            renderChakra(earlyChakraPool);
             syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
             setIngameArenaUiAssets(currentMatchArena);
             syncEnergyNameLabels();
@@ -13361,6 +13377,15 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             measureIngamePerf('preload:match-visuals', () => preloadMatchVisualImages(data));
             measureIngamePerf('render:chakra', () => renderChakra(pool));
             measureIngamePerf('render:health', () => renderBoardHealth(data));
+            // renderBoardHealth() is what actually updates latestBoardState (used
+            // by updateSkillAffordability() for per-unit stun/dead checks). The
+            // early syncTurnState() call above (added to fix the match-start
+            // freeze) already recomputes affordability once using board state
+            // from before this render, since it necessarily runs before this
+            // point -- re-run it now that latestBoardState is current so
+            // stun/dead-gated skills aren't judged against a stale board for a
+            // frame.
+            updateSkillAffordability();
             measureIngamePerf('render:statuses', () =>
                 renderBoardStatuses(data, { animateNewIcons: shouldAnimateNewTurnStatusIcons })
             );

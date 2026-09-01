@@ -22,18 +22,28 @@ const script = fs.readFileSync(
     'utf8'
 );
 
-test('applyMatchState sets core turn/ready/timer state before any cosmetic rendering can throw', () => {
+test('applyMatchState sets pendingTurnState, chakra, and turn state early, in dependency order', () => {
     const fnStart = script.indexOf('const applyMatchState = (data) => {');
     assert.ok(fnStart >= 0, 'expected to find applyMatchState');
-    const fnBody = script.slice(fnStart, fnStart + 4000);
+
+    // Order matters and is easy to get backwards (this fix went through two
+    // iterations before landing here): pendingTurnState must be set before
+    // renderChakra() (buildDisplayedChakraPool() reads pendingTurnState to
+    // account for optimistic UI adjustments), and renderChakra() must run
+    // before syncTurnState() (which calls updateSkillAffordability(), and
+    // that reads the outer playerPoolState -- only ever updated as a side
+    // effect of renderChakra() itself). Getting this backwards previously
+    // shipped a real regression: skill affordability computed from the
+    // previous poll's stale chakra amounts.
     assert.match(
-        fnBody,
-        /pendingTurnState = normalizePendingTurn\(data\.pendingTurn\);\s*syncTurnState\(data\.currentTurn, data\.turnExpiresAt, data\.turnDurationMs\);\s*setIngameArenaUiAssets/
+        script,
+        /pendingTurnState = normalizePendingTurn\(data\.pendingTurn\);\s*const earlyChakraPool =\s*getScopedValueForCurrentUsername\(data\.chakraPools, currentPlayerUsername\) \|\|\s*playerPoolState \|\|\s*emptyPool\(\);\s*renderChakra\(earlyChakraPool\);\s*syncTurnState\(data\.currentTurn, data\.turnExpiresAt, data\.turnDurationMs\);\s*setIngameArenaUiAssets/
     );
+
     const earlySyncIndex = script.indexOf('syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);', fnStart);
     assert.ok(earlySyncIndex >= 0, 'expected an early syncTurnState() call before setIngameArenaUiAssets()');
 
-    // Everything downstream of the early call that could plausibly throw --
+    // Everything downstream of the early block that could plausibly throw --
     // weather/portrait rendering, the visual-signature branch, and the full
     // preload/render pipeline -- must all appear AFTER it now.
     const cosmeticMarkers = [
@@ -51,6 +61,19 @@ test('applyMatchState sets core turn/ready/timer state before any cosmetic rende
             `expected "${marker}" to run after the early syncTurnState() call, not before`
         );
     });
+});
+
+test('skill affordability is recomputed once latestBoardState is current, not just from the early sync', () => {
+    // updateSkillAffordability() reads latestBoardState, which is only ever
+    // set as a side effect of renderBoardHealth() -- and renderBoardHealth()
+    // necessarily runs after the early syncTurnState() call above (it's part
+    // of the cosmetic pipeline that call was moved ahead of). Without this,
+    // stun/dead-gated skill icons would be judged against a one-poll-stale
+    // board for a frame.
+    assert.match(
+        script,
+        /measureIngamePerf\('render:health', \(\) => renderBoardHealth\(data\)\);\s*(?:\/\/[^\n]*\n\s*)*updateSkillAffordability\(\);\s*measureIngamePerf\('render:statuses'/
+    );
 });
 
 test('a throw during the initial match render triggers auto-recovery instead of a silent freeze', () => {
