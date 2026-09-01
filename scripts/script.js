@@ -1213,18 +1213,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     // regardless of who picked him.
     const LANCE_TEAM_CHARACTER_IDS = ['lance-dragonite-1', 'lance-gyarados', 'lance-aerodactyl'];
     const LANCE_BATTLE_THEME_URL = 'assets/images/PokemonArena/lance/music/champion-battle-theme.mp3';
-    const matchIncludesLance = (data) =>
-        [data?.player?.team, data?.opponent?.team].some(
+    const matchIncludesLance = (data) => {
+        const lanceRosterLookup = Array.isArray(window.characters) ? window.characters : [];
+        return [data?.player?.team, data?.opponent?.team].some(
             (team) =>
                 Array.isArray(team) &&
                 team.some((entry) => {
                     const rosterIndex = Number.parseInt(entry, 10);
                     return (
                         Number.isInteger(rosterIndex) &&
-                        LANCE_TEAM_CHARACTER_IDS.includes(rosterData?.[rosterIndex]?.id)
+                        LANCE_TEAM_CHARACTER_IDS.includes(lanceRosterLookup[rosterIndex]?.id)
                     );
                 })
         );
+    };
 
     // Set once per match load (see matchIncludesLance above) so weather-end and
     // battle-intro music resumes go back to Lance's theme instead of the normal
