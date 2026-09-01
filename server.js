@@ -10614,6 +10614,14 @@ const sanitizeBoardForViewer = (board, viewerUsername) => {
                               : null,
                       alive: unit?.alive !== false,
                       hp: Number.isFinite(Number(unit?.hp)) ? Number(unit.hp) : 0,
+                      // hpCap/maxHp were missing here entirely -- fine while every
+                      // character shared the same 100 HP, but once Lance's
+                      // Pokemon set a real per-character maxHp (50), the client
+                      // never received it and fell back to its own 100 default.
+                      // buildInitialBoard always sets both, so this only omits
+                      // them for pre-existing persisted matches from before that.
+                      ...(Number.isFinite(Number(unit?.hpCap)) ? { hpCap: Number(unit.hpCap) } : {}),
+                      ...(Number.isFinite(Number(unit?.maxHp)) ? { maxHp: Number(unit.maxHp) } : {}),
                       state: sanitizeUnitStateForViewer({ unit, unitUsername, viewerUsername }),
                   }))
                 : [],
