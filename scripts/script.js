@@ -1212,15 +1212,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     // both players whenever either team includes one of his three starting Pokemon,
     // regardless of who picked him.
     const LANCE_TEAM_CHARACTER_IDS = ['lance-dragonite-1', 'lance-gyarados', 'lance-aerodactyl'];
-    // Lance himself is a hiddenFromSelection preset: he never fights directly,
-    // picking his single roster tile is how a player fields his whole starting
-    // team (LANCE_TEAM_CHARACTER_IDS) at once. See assignLanceTeamPreset below.
-    const LANCE_PRESET_CHARACTER_ID = 'lance';
-    // The full champion render, used for the big character-preview panel when
-    // one of Lance's bundled Pokemon is showing there (see the displayCharacter
-    // override in setSelectedSlot) -- distinct from his small roster/team-slot
-    // face picture (lancefp.jpg, set on the "lance" entry in characters.js).
-    const LANCE_CHAMPION_PREVIEW_RENDER_URL = 'assets/images/PokemonArena/BIB/lancepokemonchampion.webp';
     const LANCE_BATTLE_THEME_URL = 'assets/images/PokemonArena/lance/music/champion-battle-theme.mp3';
     const matchIncludesLance = (data) =>
         [data?.player?.team, data?.opponent?.team].some(
@@ -1596,10 +1587,6 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         jolteon: 'JOLTEON.png.webp',
         koffing: 'Koffing.webp.webp',
         krabby: 'KRABBY.png.webp',
-        // Registered under lance-gyarados, not "lance" -- he's the one that always
-        // lands in the middle team slot (see getLanceBundleMiddleSlotIndex) and is
-        // the only Lance-bundle id ever previewed under his champion identity.
-        'lance-gyarados': 'lancepokemonchampion.webp',
         machop: 'MACHOP.png.webp',
         magikarp: 'MAGIKARP.png.webp',
         magnemite: 'Magnemite.webp.webp',
@@ -17221,37 +17208,6 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         }
     };
 
-    // Character (+ optionally skin) store bundles -- see storeBundles on the
-    // /api/missions payload and renderExperimentalCharacterStore above.
-    const unlockSelectionStoreBundle = async (bundleId, button = null) => {
-        if (!bundleId) return;
-        if (button) button.disabled = true;
-        setSelectionMissionsStatus('Unlocking bundle...');
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/store/unlock-bundle`, {
-                method: 'POST',
-                credentials: 'include',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    arena: activeArenaMode,
-                    bundleId,
-                }),
-            });
-            const payload = await response.json().catch(() => ({}));
-            if (!response.ok) {
-                throw new Error(payload.error || 'Unable to unlock bundle.');
-            }
-            if (payload.profile) {
-                applyUpdatedProfile(payload.profile);
-            }
-            await loadSelectionMissions();
-            setSelectionMissionsStatus('Bundle unlocked with ladder points.');
-        } catch (error) {
-            if (button) button.disabled = false;
-            setSelectionMissionsStatus(error.message || 'Unable to unlock bundle.');
-        }
-    };
-
     const equipSelectionSkin = async (characterId, skinId, button = null) => {
         const normalizedCharacterId = normalizeSkinCharacterId(characterId);
         const normalizedSkinId = normalizeSkinId(skinId);
@@ -17315,102 +17271,6 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         intro.className = 'selection-store-category-intro';
         intro.innerHTML = '<strong>Character Collection</strong><span>Every fighter in this arena, with its unlock price and ownership status.</span>';
         section.appendChild(intro);
-
-        const storeBundles = Array.isArray(payload.storeBundles) ? payload.storeBundles : [];
-        if (storeBundles.length) {
-            const unlockedSkinIds = new Set(
-                getArenaSkinState(profileCache?.profile, activeArenaMode).unlockedSkinIds.map((entry) =>
-                    normalizeSkinId(entry)
-                )
-            );
-            const bundlesHeading = document.createElement('h3');
-            bundlesHeading.className = 'selection-section-title';
-            bundlesHeading.textContent = 'Character Bundles';
-            section.appendChild(bundlesHeading);
-
-            storeBundles.forEach((bundle = {}) => {
-                const bundleId = typeof bundle.bundleId === 'string' ? bundle.bundleId : '';
-                const bundleCharacterIds = Array.isArray(bundle.characterIds)
-                    ? bundle.characterIds.map((id) => String(id || '').trim().toLowerCase()).filter(Boolean)
-                    : [];
-                const bundleSkinIds = Array.isArray(bundle.skinIds)
-                    ? bundle.skinIds.map((id) => normalizeSkinId(id)).filter(Boolean)
-                    : [];
-                if (!bundleId || (!bundleCharacterIds.length && !bundleSkinIds.length)) return;
-
-                const ownedCharacterCount = bundleCharacterIds.filter((id) => unlockedIds.has(id)).length;
-                const ownedSkinCount = bundleSkinIds.filter((id) => unlockedSkinIds.has(id)).length;
-                const totalItems = bundleCharacterIds.length + bundleSkinIds.length;
-                const ownedCount = ownedCharacterCount + ownedSkinCount;
-                const isFullyOwned = totalItems > 0 && ownedCount === totalItems;
-
-                const card = document.createElement('article');
-                card.className = 'selection-mission-card selection-skin-card selection-store-bundle-card';
-
-                const head = document.createElement('div');
-                head.className = 'selection-mission-head';
-                const image = document.createElement('img');
-                image.className = 'selection-mission-image';
-                setSelectionThumbnailWithFallback(image, bundle.previewFacePicture || 'assets/images/default-avatar.png');
-                image.alt = bundle.name || 'Character bundle';
-                const titleWrap = document.createElement('div');
-                const title = document.createElement('h3');
-                title.className = 'selection-mission-title';
-                title.textContent = bundle.name || 'Character Bundle';
-                const reward = document.createElement('p');
-                reward.className = 'selection-mission-reward';
-                reward.textContent =
-                    bundle.description ||
-                    `${bundleCharacterIds.length} characters and ${bundleSkinIds.length} skins in one purchase.`;
-                titleWrap.appendChild(title);
-                titleWrap.appendChild(reward);
-                head.appendChild(image);
-                head.appendChild(titleWrap);
-                card.appendChild(head);
-
-                const cost = Math.max(1, Number(bundle.unlockPointCost) || 0);
-                const individualCost = Math.max(0, Number(bundle.individualPointCost) || 0);
-                const progressText = document.createElement('p');
-                progressText.className = 'selection-mission-progress';
-                progressText.textContent = isFullyOwned
-                    ? 'You already own everything in this bundle.'
-                    : ownedCount > 0
-                        ? `You own ${ownedCount} of ${totalItems} items -- buying grants the rest.`
-                        : individualCost > cost
-                            ? `${cost.toLocaleString()} unlock points (vs ${individualCost.toLocaleString()} buying each separately).`
-                            : `${cost.toLocaleString()} unlock points.`;
-                card.appendChild(progressText);
-
-                const actionRow = document.createElement('div');
-                actionRow.className = 'selection-mission-buy';
-                const actionLabel = document.createElement('span');
-                actionLabel.textContent = isFullyOwned
-                    ? 'Fully unlocked.'
-                    : `Buy for ${cost.toLocaleString()} unlock points.`;
-                const actionButton = document.createElement('button');
-                actionButton.type = 'button';
-                actionButton.className = 'selection-mission-action selection-mission-buy-action';
-                if (isFullyOwned) {
-                    actionButton.textContent = 'Owned';
-                    actionButton.disabled = true;
-                } else {
-                    actionButton.textContent = unlockPoints >= cost ? 'Buy Bundle' : 'Need Points';
-                    actionButton.disabled = unlockPoints < cost;
-                    actionButton.addEventListener('click', () => {
-                        unlockSelectionStoreBundle(bundleId, actionButton);
-                    });
-                }
-                actionRow.appendChild(actionLabel);
-                actionRow.appendChild(actionButton);
-                card.appendChild(actionRow);
-                section.appendChild(card);
-            });
-
-            const rosterHeading = document.createElement('h3');
-            rosterHeading.className = 'selection-section-title';
-            rosterHeading.textContent = 'Individual Characters';
-            section.appendChild(rosterHeading);
-        }
 
         const grid = document.createElement('div');
         grid.className = 'selection-character-store-grid';
@@ -18970,16 +18830,11 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             .filter((index) => {
                 if (!Number.isInteger(index) || index < 0 || used.has(index)) return false;
                 if (getCharacterArenaMode(roster[index]) !== activeArenaMode) return false;
-                // hiddenFromSelection characters (e.g. Lance's own three Pokemon,
-                // which only reach the board through his single preset tile --
-                // see assignLanceTeamPreset) never get a roster grid tile of their own.
-                if (roster[index]?.hiddenFromSelection) return false;
                 used.add(index);
                 return true;
             });
         roster.forEach((character, index) => {
             if (getCharacterArenaMode(character) !== activeArenaMode) return;
-            if (character?.hiddenFromSelection) return;
             if (!used.has(index)) ordered.push(index);
         });
         return ordered;
@@ -19615,17 +19470,13 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         });
     });
 
-    const handleCharacterSelect = (index, { openViewer = true, displayCharacter = null } = {}) => {
+    const handleCharacterSelect = (index, { openViewer = true } = {}) => {
         const character = roster[index];
         if (!character) return;
         if (openViewer) {
             openSkillViewer();
         }
-        // displayCharacter lets a caller swap the shown name/render without
-        // touching currentCharacterIndex -- used so Lance's bundled Pokemon
-        // preview under his own identity (see setSelectedSlot) while their
-        // real skills/types still come through untouched.
-        renderCharacter(displayCharacter || character, index);
+        renderCharacter(character, index);
     };
 
     const setDragPayload = (dataTransfer, payload) => {
@@ -19830,12 +19681,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         if (!slot) return;
         slot.innerHTML = '';
         const locked = isCharacterLocked(character);
-        // Lance himself never occupies a slot -- his own rosterIndex is never in
-        // selectedAssignments -- so his tile is only "selected" (greyed out) when
-        // his bundled team is already on the field. See assignLanceTeamPreset.
-        const isSelected =
-            selectedAssignments.some((assignment) => assignment?.rosterIndex === index) ||
-            (character?.id === LANCE_PRESET_CHARACTER_ID && getLanceBundleSlotIndices().length > 0);
+        const isSelected = selectedAssignments.some((assignment) => assignment?.rosterIndex === index);
         if (!character || isSelected) {
             slot.classList.add('slot-empty');
             slot.classList.remove('slot-locked');
@@ -19895,85 +19741,6 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         buildRosterSlot(index);
     };
 
-    const getRosterIndexByCharacterId = (id) =>
-        roster.findIndex((character) => character?.id === id || character?.characterId === id);
-
-    const isLanceBundleCharacter = (character) =>
-        LANCE_TEAM_CHARACTER_IDS.includes(character?.id || character?.characterId || '');
-
-    const getLanceBundleSlotIndices = () =>
-        selectedAssignments.reduce((acc, assignment, slotIndex) => {
-            if (assignment && isLanceBundleCharacter(roster[assignment.rosterIndex])) {
-                acc.push(slotIndex);
-            }
-            return acc;
-        }, []);
-
-    // The one team slot Lance's bundle actually renders as -- the rest
-    // collapse away (see the lance-bundle-collapsed branch in
-    // setSelectedSlot) so picking him reads as one choice, not three.
-    const getLanceBundleMiddleSlotIndex = () => Math.floor(selectedSlots.length / 2);
-
-    // The character-preview identity shown for any of Lance's bundled Pokemon:
-    // his own name, champion render, Dragon typing, and his single passive as
-    // the only shown skill -- the real fielded Pokemon's description and role
-    // otherwise still come through untouched.
-    const buildLanceDisplayCharacter = (character) => {
-        const lanceCharacter = roster[getRosterIndexByCharacterId(LANCE_PRESET_CHARACTER_ID)];
-        return {
-            ...character,
-            name: 'Lance',
-            facePicture: LANCE_CHAMPION_PREVIEW_RENDER_URL,
-            pokemonTypes: lanceCharacter?.pokemonTypes || ['Dragon'],
-            skills: lanceCharacter?.skills || character.skills,
-        };
-    };
-
-    // Lance is a single roster tile standing in for his whole starting team.
-    // Picking him fills all three team slots at once with Dragonite/Gyarados/
-    // Aerodactyl (each carrying its own reserve-swap partner -- see
-    // tryLanceReserveSwap in battleLogic.js) instead of occupying one slot
-    // himself. Requires all team slots to be empty first since there's
-    // nowhere sensible to bump an existing pick to.
-    const assignLanceTeamPreset = (lanceRosterIndex) => {
-        if (selectedAssignments.some((assignment) => assignment)) {
-            if (selectionTeamStatusEl) {
-                selectionTeamStatusEl.textContent =
-                    'Clear your team first -- Lance fields all three of his Pokemon at once.';
-            }
-            return false;
-        }
-        const bundleRosterIndices = LANCE_TEAM_CHARACTER_IDS.map(getRosterIndexByCharacterId);
-        if (bundleRosterIndices.some((index) => index < 0)) {
-            console.warn('Lance team preset is missing one of its roster entries.', LANCE_TEAM_CHARACTER_IDS);
-            return false;
-        }
-        clearRosterSlot(lanceRosterIndex);
-        bundleRosterIndices.forEach((rosterIndex, slotIndex) => {
-            setSelectedSlot(slotIndex, { characterIndex: rosterIndex, rosterIndex }, { confirm: true });
-        });
-        updateGameButtons();
-        persistTeamSelection();
-        return true;
-    };
-
-    // Removing any one member of Lance's bundled team clears all three
-    // bundled slots together and restores the single "Lance" tile to the
-    // roster grid, rather than letting the team be picked apart one Pokemon
-    // at a time. Returns true if slotIndex was part of a Lance bundle.
-    const clearLanceBundleFromSlot = (slotIndex) => {
-        const bundleSlotIndices = getLanceBundleSlotIndices();
-        if (!bundleSlotIndices.includes(slotIndex)) return false;
-        bundleSlotIndices.forEach((index) => setSelectedSlot(index, null));
-        const lanceRosterIndex = getRosterIndexByCharacterId(LANCE_PRESET_CHARACTER_ID);
-        if (lanceRosterIndex >= 0) {
-            fillRosterSlot(lanceRosterIndex);
-        }
-        updateGameButtons();
-        persistTeamSelection();
-        return true;
-    };
-
     const renderEmptySelectedSlot = (slotElement, slotIndex) => {
         if (!slotElement) return;
         slotElement.innerHTML = '';
@@ -20007,40 +19774,24 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         selectedAssignments[slotIndex] = assignment;
         slotElement.innerHTML = '';
         slotElement.classList.remove('drag-over');
-        slotElement.classList.remove('lance-bundle-collapsed');
-        slotElement.removeAttribute('aria-hidden');
         if (!assignment) {
             renderEmptySelectedSlot(slotElement, slotIndex);
             return;
         }
         const character = roster[assignment.characterIndex];
-        const isBundled = isLanceBundleCharacter(character);
-        // Lance reads as one pick, not three -- every bundled slot except the
-        // middle one just disappears (see the CSS rule and
-        // getLanceBundleMiddleSlotIndex above); the middle slot renders as
-        // "Lance" himself even though its real assignment is whichever of his
-        // three Pokemon landed there.
-        if (isBundled && slotIndex !== getLanceBundleMiddleSlotIndex()) {
-            slotElement.classList.add('lance-bundle-collapsed');
-            slotElement.setAttribute('aria-hidden', 'true');
-            return;
-        }
-        const displayCharacter = isBundled
-            ? roster[getRosterIndexByCharacterId(LANCE_PRESET_CHARACTER_ID)] || character
-            : character;
         const isMobileTeamTap =
             document.documentElement.classList.contains('selection-experimental') &&
             window.matchMedia('(max-width: 700px) and (pointer: coarse)').matches;
         slotElement.title = isMobileTeamTap
-            ? `Tap ${displayCharacter?.name || 'this character'} to remove them from your team.`
-            : `Double-click ${displayCharacter?.name || 'this character'} to remove them from your team.`;
+            ? `Tap ${character?.name || 'this character'} to remove them from your team.`
+            : `Double-click ${character?.name || 'this character'} to remove them from your team.`;
         slotElement.setAttribute(
             'aria-label',
-            `${displayCharacter?.name || 'Selected character'}; ${isMobileTeamTap ? 'tap' : 'double-click'} to remove`
+            `${character?.name || 'Selected character'}; ${isMobileTeamTap ? 'tap' : 'double-click'} to remove`
         );
         const img = document.createElement('img');
-        setSelectionThumbnailWithFallback(img, displayCharacter?.facePicture || '');
-        img.alt = displayCharacter?.name || 'Selected character';
+        setSelectionThumbnailWithFallback(img, character?.facePicture || '');
+        img.alt = character?.name || 'Selected character';
         img.className = 'selected-slot-image';
         img.draggable = false;
         const dragStart = (event) => {
@@ -20057,12 +19808,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             slotElement.classList.add('selected-slot-confirm-burst');
             soundManager.play(rosterConfirmSound);
         }
-        handleCharacterSelect(assignment.characterIndex, {
-            openViewer: false,
-            displayCharacter: isBundled
-                ? buildLanceDisplayCharacter(character)
-                : null,
-        });
+        handleCharacterSelect(assignment.characterIndex, { openViewer: false });
         if (options.confirm) {
             playPortraitConfirmPop(portraitEl);
         }
@@ -20070,24 +19816,6 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
 
     const moveDragPayloadToSelectedSlot = (payload, targetSlotIndex) => {
         if (payload.type === 'selected' && payload.selectedIndex === targetSlotIndex) {
-            return false;
-        }
-
-        if (
-            payload.type === 'roster' &&
-            Number.isInteger(payload.rosterIndex) &&
-            roster[payload.rosterIndex]?.id === LANCE_PRESET_CHARACTER_ID
-        ) {
-            return assignLanceTeamPreset(payload.rosterIndex);
-        }
-
-        // Lance's bundled slots move and clear together (see
-        // assignLanceTeamPreset/clearLanceBundleFromSlot) -- refuse any drag
-        // that would pick one of them apart individually.
-        if (
-            (payload.type === 'selected' && getLanceBundleSlotIndices().includes(payload.selectedIndex)) ||
-            getLanceBundleSlotIndices().includes(targetSlotIndex)
-        ) {
             return false;
         }
 
@@ -20145,7 +19873,6 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
     const handleSelectedSlotDoubleClick = (slotIndex) => {
         const assignment = selectedAssignments[slotIndex];
         if (!assignment) return;
-        if (clearLanceBundleFromSlot(slotIndex)) return;
         setSelectedSlot(slotIndex, null);
         if (Number.isInteger(assignment.rosterIndex)) {
             fillRosterSlot(assignment.rosterIndex);
@@ -20164,18 +19891,10 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             handleSelectedSlotDoubleClick(slotIndex);
             return;
         }
-        const character = roster[assignment.characterIndex];
-        const isBundled = isLanceBundleCharacter(character);
-        handleCharacterSelect(assignment.characterIndex, {
-            openViewer: true,
-            displayCharacter: isBundled
-                ? buildLanceDisplayCharacter(character)
-                : null,
-        });
+        handleCharacterSelect(assignment.characterIndex, { openViewer: true });
         if (selectionTeamStatusEl) {
-            selectionTeamStatusEl.textContent = isBundled
-                ? `Double-click ${character?.name || 'this character'} to remove Lance's whole team.`
-                : `Double-click ${character?.name || 'this character'} in Your Team to remove them.`;
+            const character = roster[assignment.characterIndex];
+            selectionTeamStatusEl.textContent = `Double-click ${character?.name || 'this character'} in Your Team to remove them.`;
         }
     };
 
@@ -20193,10 +19912,6 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
     const addRosterCharacterToSelection = (rosterIndex) => {
         if (!Number.isInteger(rosterIndex) || !roster[rosterIndex]) return;
         if (isCharacterLocked(roster[rosterIndex])) return;
-        if (roster[rosterIndex]?.id === LANCE_PRESET_CHARACTER_ID) {
-            assignLanceTeamPreset(rosterIndex);
-            return;
-        }
         const existingSlotIndex = selectedAssignments.findIndex(
             (assignment) => assignment?.characterIndex === rosterIndex
         );
@@ -20226,7 +19941,6 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             Number.isInteger(payload.selectedIndex) &&
             selectedAssignments[payload.selectedIndex]
         ) {
-            if (clearLanceBundleFromSlot(payload.selectedIndex)) return;
             const assignment = selectedAssignments[payload.selectedIndex];
             setSelectedSlot(payload.selectedIndex, null);
             fillRosterSlot(assignment.rosterIndex);
@@ -20241,7 +19955,6 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         ) {
             return false;
         }
-        if (clearLanceBundleFromSlot(payload.selectedIndex)) return true;
         const assignment = selectedAssignments[payload.selectedIndex];
         setSelectedSlot(payload.selectedIndex, null);
         if (Number.isInteger(assignment.rosterIndex)) {

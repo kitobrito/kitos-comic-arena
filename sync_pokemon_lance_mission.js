@@ -19,7 +19,6 @@ const lanceMission = {
     reward_character: 'lance',
     reward_character_name: 'Lance',
     reward: 'Unlock Lance.',
-    unlockPointCost: 1000,
     arena: 'pokemon',
     mode_restriction: {
         allowed_modes: ['quick', 'ladder'],

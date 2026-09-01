@@ -158,8 +158,6 @@ const darkraiMission = {
     reward_character: 'darkrai',
     reward_character_name: 'Darkrai',
     reward: 'Unlock Darkrai.',
-    // Points alone can't skip the rank -- same gate as the wave-2 legendaries.
-    purchase_requires_rank: true,
     arena: 'pokemon',
     mode_restriction: { allowed_modes: ['quick', 'ladder'] },
     win_streak: { character_id: '', character_name: '', wins: 0 },

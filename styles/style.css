@@ -1707,14 +1707,6 @@ body.arena-mode-pokemon .selectionscroll {
     z-index: 3;
 }
 
-/* Lance fields his whole starting team from one pick -- the two team slots
-   that flank his own (see assignLanceTeamPreset/getLanceBundleMiddleSlotIndex
-   in scripts/script.js) fully collapse out of the row instead of sitting
-   there empty, so "Your Team" reads as one choice, not three. */
-.selected-character-slot.lance-bundle-collapsed {
-    display: none;
-}
-
 .selected-character-slot {
     width: 50px;
     height: 50px;
