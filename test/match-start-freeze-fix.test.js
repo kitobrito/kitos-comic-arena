@@ -50,8 +50,8 @@ test('applyMatchState sets pendingTurnState, chakra, and turn state early, in de
         'setIngameArenaUiAssets(currentMatchArena);',
         'renderWeatherBanner(activePokemonWeather);',
         'buildMatchVisualSignature(data,',
-        "runIngameRenderStep('preload:match-visuals'",
-        "runIngameRenderStep('render:health'",
+        "measureIngamePerf('preload:match-visuals'",
+        "measureIngamePerf('render:health'",
     ];
     cosmeticMarkers.forEach((marker) => {
         const markerIndex = script.indexOf(marker, fnStart);
@@ -72,29 +72,7 @@ test('skill affordability is recomputed once latestBoardState is current, not ju
     // board for a frame.
     assert.match(
         script,
-        /runIngameRenderStep\('render:health', \(\) => renderBoardHealth\(data\)\);\s*(?:\/\/[^\n]*\n\s*)*updateSkillAffordability\(\);\s*runIngameRenderStep\('render:statuses'/
-    );
-});
-
-test('each cosmetic render step is isolated so one failure cannot block the others', () => {
-    // Previously these ran as plain sequential measureIngamePerf() calls with
-    // no error isolation between them -- a throw in an earlier step (e.g.
-    // preload) meant renderBoardHealth() never ran at all for that poll, and
-    // would keep never running on every subsequent poll too, since the same
-    // bad input recurs -- a silently, permanently stuck health bar with
-    // nothing in the console pointing at why.
-    assert.match(
-        script,
-        /const runIngameRenderStep = \(name, fn\) => \{\s*try \{\s*measureIngamePerf\(name, fn\);\s*\} catch \(error\) \{\s*console\.error\(`applyMatchState render step "\$\{name\}" failed`, error\);\s*\}\s*\};/
-    );
-    ['preload:match-visuals', 'render:chakra', 'render:health', 'render:statuses', 'render:cooldowns'].forEach(
-        (stepName) => {
-            assert.match(
-                script,
-                new RegExp(`runIngameRenderStep\\('${stepName}',`),
-                `expected "${stepName}" to run through the isolated render-step wrapper`
-            );
-        }
+        /measureIngamePerf\('render:health', \(\) => renderBoardHealth\(data\)\);\s*(?:\/\/[^\n]*\n\s*)*updateSkillAffordability\(\);\s*measureIngamePerf\('render:statuses'/
     );
 });
 

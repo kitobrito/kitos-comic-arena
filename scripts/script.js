@@ -13374,25 +13374,9 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 data.currentTurn !== lastTurnOwner &&
                 hasInitializedTurnState
             );
-            // Each render step below is isolated with its own try/catch so a
-            // failure in ANY ONE of them (e.g. an unexpected board/unit shape)
-            // can't silently prevent the OTHERS from running -- previously
-            // these ran as plain sequential statements, so a throw in an
-            // earlier step (preload, say) meant renderBoardHealth() never ran
-            // at all for that poll, and would keep never running on every
-            // subsequent poll too, since the same bad input recurs. Logged
-            // distinctly per step so a real recurring failure is actually
-            // visible (in the console) instead of a silent stuck health bar.
-            const runIngameRenderStep = (name, fn) => {
-                try {
-                    measureIngamePerf(name, fn);
-                } catch (error) {
-                    console.error(`applyMatchState render step "${name}" failed`, error);
-                }
-            };
-            runIngameRenderStep('preload:match-visuals', () => preloadMatchVisualImages(data));
-            runIngameRenderStep('render:chakra', () => renderChakra(pool));
-            runIngameRenderStep('render:health', () => renderBoardHealth(data));
+            measureIngamePerf('preload:match-visuals', () => preloadMatchVisualImages(data));
+            measureIngamePerf('render:chakra', () => renderChakra(pool));
+            measureIngamePerf('render:health', () => renderBoardHealth(data));
             // renderBoardHealth() is what actually updates latestBoardState (used
             // by updateSkillAffordability() for per-unit stun/dead checks). The
             // early syncTurnState() call above (added to fix the match-start
@@ -13402,10 +13386,10 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             // stun/dead-gated skills aren't judged against a stale board for a
             // frame.
             updateSkillAffordability();
-            runIngameRenderStep('render:statuses', () =>
+            measureIngamePerf('render:statuses', () =>
                 renderBoardStatuses(data, { animateNewIcons: shouldAnimateNewTurnStatusIcons })
             );
-            runIngameRenderStep('render:cooldowns', () =>
+            measureIngamePerf('render:cooldowns', () =>
                 renderSkillCooldownBadges(data, { animateTicks: shouldAnimateNewTurnStatusIcons })
             );
             pendingTurnState = normalizePendingTurn(data.pendingTurn);
