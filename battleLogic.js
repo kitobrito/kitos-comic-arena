@@ -9000,7 +9000,16 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         metadata: {
                             harmful: true,
                             hidden: true,
-                            skipFirstTurnStartTick: true,
+                            // No skipFirstTurnStartTick here: unlike the generic
+                            // apply_status effect path (which fires an immediate
+                            // manual tick on cast and uses this flag to avoid a
+                            // duplicate), this status is created via a custom
+                            // effect handler with no such immediate tick, on the
+                            // enemy's own unit. Its only opportunity to fire is
+                            // the very next time *their* turn starts (duration 1),
+                            // so skipping that first occurrence meant this delayed
+                            // hit -- and the same-target stun riding on it --
+                            // never landed at all.
                             turnStartDamage: 25,
                             ...(isSameTarget
                                 ? {
@@ -9615,6 +9624,37 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         },
                         fresh: false,
                     });
+                    // Applied via a custom effect handler rather than the generic
+                    // apply_status effect path, so it doesn't get that path's
+                    // automatic immediate tick on cast -- without this, "deals
+                    // damage each turn" only ever fired on the target's own next
+                    // 2 turns and never on the turn Nightmare was actually cast.
+                    const immediateDealt = applyDamageToUnit(recipient.unit, tickDamage, {
+                        match,
+                        sourceSkillId: skill.id || null,
+                        sourceUsername: actingUsername,
+                        sourceSlot: actorSlot,
+                        targetUsername: recipient.username,
+                        targetSlot: recipient.slot,
+                        afflictionDamage: true,
+                        damageDebugReason: 'nightmare damage over time on cast',
+                    });
+                    if (immediateDealt > 0) {
+                        moveRandomChakra({ match, fromUsername: recipient.username, count: 1 });
+                        // Mirrors the generic apply_status effect path: without this,
+                        // the very next natural turn-end tick would double up with
+                        // the immediate one just dealt above, for 3 total hits
+                        // across Nightmare's 2-turn duration instead of 2.
+                        const createdStatus = (targetState.statuses || []).find(
+                            (entry) => entry?.id === 'drowzee_nightmare_dot'
+                        );
+                        if (createdStatus) {
+                            createdStatus.metadata = {
+                                ...(createdStatus.metadata || {}),
+                                _skipNextTurnEndDamageAfterCast: true,
+                            };
+                        }
+                    }
                 });
                 return;
             }

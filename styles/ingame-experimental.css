@@ -63,6 +63,32 @@ html.battle-experimental .ingame-stage {
     z-index: 1;
 }
 
+/* Lance's champion BIB render, standing beside whichever side's team
+   includes him (toggled in scripts/script.js via updateLanceTeamIdentityRender).
+   Sits behind the team panel (z-index 35) but above the arena background. */
+html.battle-experimental .lance-champion-side-render {
+    position: absolute;
+    bottom: 0;
+    z-index: 20;
+    height: 92%;
+    width: auto;
+    pointer-events: none;
+    filter: drop-shadow(0 14px 22px rgba(0, 0, 0, 0.55));
+}
+
+html.battle-experimental .lance-champion-side-render[hidden] {
+    display: none;
+}
+
+html.battle-experimental .lance-champion-side-render-left {
+    left: 0;
+}
+
+html.battle-experimental .lance-champion-side-render-right {
+    right: 0;
+    transform: scaleX(-1);
+}
+
 /* Match header */
 html.battle-experimental .game-hud {
     position: absolute;

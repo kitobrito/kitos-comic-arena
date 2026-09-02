@@ -11272,6 +11272,14 @@ const shuffleList = (items = []) => {
     return next;
 };
 
+// Lance is a team-lock preset: picking his single roster tile is how a human
+// player fields his whole starting team (see LANCE_TEAM_CHARACTER_IDS in
+// scripts/script.js and assignLanceTeamPreset) at once. His three Pokemon are
+// real, independently playable characterIds so they can appear on a human's
+// board, but a bot has no team-lock UI to pick "lance" through -- without this
+// exclusion, buildBattleBotTeam could field one of them alone.
+const LANCE_TEAM_CHARACTER_IDS = ['lance-dragonite-1', 'lance-gyarados', 'lance-aerodactyl'];
+
 const getBattleBotAllowedCharacterIdsForArena = (arena = DEFAULT_ARENA_MODE) => {
     const normalizedArena = normalizeArenaMode(arena);
     return new Set(
@@ -11279,6 +11287,7 @@ const getBattleBotAllowedCharacterIdsForArena = (arena = DEFAULT_ARENA_MODE) => 
             .filter((character) => normalizeArenaMode(character?.arena || character?.universe) === normalizedArena)
             .map((character) => normalizeCharacterId(character?.characterId || character?.id))
             .filter(Boolean)
+            .filter((characterId) => !LANCE_TEAM_CHARACTER_IDS.includes(characterId))
     );
 };
 

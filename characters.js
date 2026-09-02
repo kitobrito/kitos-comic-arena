@@ -35672,6 +35672,7 @@ const characters = [
                             "harmful": false,
                             "infiniteDuration": true,
                             "unremovable": true,
+                            "triggerOnApply": true,
                             "tooltipText": "Bad Dreams is active. Enemies affected by Nightmare take 20 damage at the end of Darkrai's turn."
                         }
                     }

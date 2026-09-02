@@ -1222,19 +1222,41 @@ document.addEventListener('DOMContentLoaded', async () => {
     // face picture (lancefp.jpg, set on the "lance" entry in characters.js).
     const LANCE_CHAMPION_PREVIEW_RENDER_URL = 'assets/images/PokemonArena/BIB/lancepokemonchampion.webp';
     const LANCE_BATTLE_THEME_URL = 'assets/images/PokemonArena/lance/music/champion-battle-theme.mp3';
-    const matchIncludesLance = (data) => {
+    const teamIncludesLance = (team) => {
         const lanceRosterLookup = Array.isArray(window.characters) ? window.characters : [];
-        return [data?.player?.team, data?.opponent?.team].some(
-            (team) =>
-                Array.isArray(team) &&
-                team.some((entry) => {
-                    const rosterIndex = Number.parseInt(entry, 10);
-                    return (
-                        Number.isInteger(rosterIndex) &&
-                        LANCE_TEAM_CHARACTER_IDS.includes(lanceRosterLookup[rosterIndex]?.id)
-                    );
-                })
+        return (
+            Array.isArray(team) &&
+            team.some((entry) => {
+                const rosterIndex = Number.parseInt(entry, 10);
+                return (
+                    Number.isInteger(rosterIndex) &&
+                    LANCE_TEAM_CHARACTER_IDS.includes(lanceRosterLookup[rosterIndex]?.id)
+                );
+            })
         );
+    };
+    const matchIncludesLance = (data) =>
+        teamIncludesLance(data?.player?.team) || teamIncludesLance(data?.opponent?.team);
+
+    // Standing champion render shown beside whichever side's team includes
+    // Lance -- mirrors the mission/store BIB art (LANCE_CHAMPION_PREVIEW_RENDER_URL)
+    // but positioned in the battle-experimental combat lanes instead of a menu.
+    // Elements are looked up lazily (and cached) since this can run before
+    // ingame.html's markup has been parsed depending on call order.
+    const lanceSideRenderEls = { left: null, right: null };
+    const getLanceSideRenderEl = (side) => {
+        if (!lanceSideRenderEls[side]) {
+            lanceSideRenderEls[side] = document.querySelector(`.lance-champion-side-render-${side}`);
+        }
+        return lanceSideRenderEls[side];
+    };
+    const updateLanceTeamIdentityRender = (data) => {
+        const leftEl = getLanceSideRenderEl('left');
+        const rightEl = getLanceSideRenderEl('right');
+        const arena = (data?.arena || currentMatchArena || '').toString().trim().toLowerCase();
+        const isPokemonMatch = (arena || currentMatchArena) === 'pokemon';
+        if (leftEl) leftEl.hidden = !(isPokemonMatch && teamIncludesLance(data?.player?.team));
+        if (rightEl) rightEl.hidden = !(isPokemonMatch && teamIncludesLance(data?.opponent?.team));
     };
 
     // Set once per match load (see matchIncludesLance above) so weather-end and
@@ -13253,6 +13275,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             setIngameArenaUiAssets(currentMatchArena);
             syncEnergyNameLabels();
             currentMatchHasLance = currentMatchArena === 'pokemon' && matchIncludesLance(data);
+            updateLanceTeamIdentityRender(data);
             resumeIngameBattleMusic(currentMatchArena);
             if (data.player?.profile) {
                 currentPlayerProfileView = {
@@ -13889,6 +13912,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             hasPlayedBattleIntro = true;
             const lanceIntroArena = data?.arena || currentMatchArena;
             currentMatchHasLance = lanceIntroArena === 'pokemon' && matchIncludesLance(data);
+            updateLanceTeamIdentityRender(data);
             if (!uiSettings.battleIntro) {
                 resumeIngameBattleMusic(lanceIntroArena);
                 battleIntroOverlayEl.classList.remove('visible');
