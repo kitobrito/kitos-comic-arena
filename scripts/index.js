@@ -5490,7 +5490,14 @@
     playArenaButtons.forEach(function (button) {
       button.addEventListener("click", function () {
         var arena = button.getAttribute("data-play-arena") === "pokemon" ? "pokemon" : "comic";
-        var destination = (accountPanel.hidden ? "selection-login.html" : "selection.html") + "?arena=" + encodeURIComponent(arena);
+        // /pokemon-arena is the friendly, indexable URL for Pokemon Arena's
+        // selection page (see server.js's POKEMON_ARENA_SELECTION_HTML) --
+        // land there instead of the query-param form when already logged in.
+        var destination = accountPanel.hidden
+          ? "selection-login.html?arena=" + encodeURIComponent(arena)
+          : arena === "pokemon"
+          ? "pokemon-arena"
+          : "selection.html?arena=" + encodeURIComponent(arena);
         var targetInnerWidth = 760;
         var targetInnerHeight = 580;
         var chromeWidth = Math.max(0, window.outerWidth - window.innerWidth);
