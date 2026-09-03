@@ -33028,6 +33028,7 @@ const characters = [
                 "cooldown": 3,
                 "target": "single-enemy",
                 "damage": 0,
+                "targetCondition": { "statusId": "drowzee_hypnosis_active" },
                 "classes": ["Ghost", "Special", "Instant", "Affliction"],
                 "effects": [{ "type": "drowzee_nightmare", "scope": "target" }]
             },
@@ -33100,6 +33101,7 @@ const characters = [
                 "cooldown": 3,
                 "target": "single-enemy",
                 "damage": 0,
+                "targetCondition": { "statusId": "drowzee_hypnosis_active" },
                 "classes": ["Ghost", "Special", "Instant", "Affliction"],
                 "effects": [{ "type": "hypno_nightmare", "scope": "target" }]
             },
