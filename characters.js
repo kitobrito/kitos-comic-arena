@@ -35741,7 +35741,7 @@ const characters = [
         "category": "Pokemon Arena",
         "hidden": false,
         "hiddenFromSelection": false,
-        "roleCategory": "hybrid",
+        "roleCategory": "specialist",
         "description": "The Pokemon Champion. Picking Lance fields his whole team at once: Dragonite, Gyarados, and Aerodactyl, each with a partner Pokemon waiting to take over the moment they fall.",
         "descriptionHtml": "The Pokemon Champion. Picking Lance fields his whole team at once: Dragonite, Gyarados, and Aerodactyl, each with a partner Pokemon waiting to take over the moment they fall.",
         "pokemonTypes": ["Dragon"]

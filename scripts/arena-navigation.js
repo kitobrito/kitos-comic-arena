@@ -51,6 +51,24 @@
     document.title = document.title.replace(/pokemon[ -]?arena/ig, "Comic Arena");
   }
 
+  // A specific Website ball-tier render (assets/images/PokemonArena/Website)
+  // per page, read by portal-theme.css's body:is(.arena-mode-pokemon, ...)
+  // rule via --pokemon-website-background. missions.html and
+  // pokemon-charactersandskills.html pick their own at random instead (see
+  // their own inline scripts) and are deliberately left out of this map.
+  var PAGE_WEBSITE_BACKGROUNDS = {
+    "index.html": "/assets/images/PokemonArena/Website/pokeballs.jpg",
+    "community.html": "/assets/images/PokemonArena/Website/great-balls.jpg",
+    "events.html": "/assets/images/PokemonArena/Website/ultra-balls.jpg",
+    "manual.html": "/assets/images/PokemonArena/Website/safari-balls.jpg"
+  };
+  if (arena === "pokemon" && PAGE_WEBSITE_BACKGROUNDS[path]) {
+    document.body.style.setProperty(
+      "--pokemon-website-background",
+      "url('" + PAGE_WEBSITE_BACKGROUNDS[path] + "')"
+    );
+  }
+
   function destinationFor(targetArena) {
     if (path === "pokemon-charactersandskills.html" || path === "charactersandskills.html") {
       return targetArena === "pokemon" ? "pokemon-charactersandskills.html" : "charactersandskills.html";
