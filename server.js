@@ -8483,6 +8483,9 @@ const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonical
             'cyndaquil-quilava-flame-wheel': ['skilldescription', 'description', 'effects'],
             'cyndaquil-typhlosion-flame-wheel': ['skilldescription', 'description', 'effects'],
         },
+        'lance-gyarados': {
+            'lance-gyarados-outrage': ['energy', 'effects'],
+        },
     };
     const canonicalById = new Map(
         (Array.isArray(canonicalCharacters) ? canonicalCharacters : []).map((character) => [
