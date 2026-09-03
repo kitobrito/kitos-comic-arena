@@ -47,6 +47,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       font-family: "Barlow Condensed", system-ui, sans-serif;
     }
 
+    /* One of the Poke Ball-tier renders (assets/images/PokemonArena/Website),
+       picked at random per page load -- see the pokemonWebsiteBackground
+       script below. Falls back to the gradient above if the variable is
+       ever unset (arena=comic, or before the script runs). */
+    body.arena-mode-pokemon {
+      background-image: var(--pokemon-website-background);
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+    }
+
     a {
       color: inherit;
       text-decoration: none;
@@ -2415,6 +2427,24 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       document.body.classList.toggle("arena-mode-pokemon", pageArena === "pokemon");
       document.body.classList.toggle("arena-mode-comic", pageArena !== "pokemon");
       if (pokemonPointsPromo) pokemonPointsPromo.hidden = pageArena !== "pokemon";
+
+      if (pageArena === "pokemon") {
+        var POKEMON_WEBSITE_BACKGROUNDS = [
+          "assets/images/PokemonArena/Website/pokeballs.jpg",
+          "assets/images/PokemonArena/Website/great-balls.jpg",
+          "assets/images/PokemonArena/Website/ultra-balls.jpg",
+          "assets/images/PokemonArena/Website/master-balls.jpg",
+          "assets/images/PokemonArena/Website/safari-balls.jpg",
+          "assets/images/PokemonArena/Website/beast-balls.jpg"
+        ];
+        var chosenBackground = POKEMON_WEBSITE_BACKGROUNDS[
+          Math.floor(Math.random() * POKEMON_WEBSITE_BACKGROUNDS.length)
+        ];
+        document.body.style.setProperty(
+          "--pokemon-website-background",
+          "url('" + chosenBackground + "')"
+        );
+      }
 
       document.title = pageArena === "pokemon" ? "Pokemon Arena Missions" : "Comic Arena Missions";
       const activeMissionNavLink = document.querySelector('.nav-link.active[href="missions.html"]');
