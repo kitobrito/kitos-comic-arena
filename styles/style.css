@@ -2525,7 +2525,7 @@ body.arena-mode-pokemon .energy-pip.filled.energy-bloodline {
 }
 
 body.arena-mode-pokemon .energy-pip.filled.energy-genjutsu {
-    background-color: #e0b100;
+    background-color: #ffdd00;
 }
 
 .energy-pip.filled.energy-taijutsu {
@@ -3214,7 +3214,7 @@ body.arena-mode-pokemon .chakra-box.green {
 }
 
 body.arena-mode-pokemon .chakra-box.white {
-    background-color: #e0b100;
+    background-color: #ffdd00;
 }
 .chakra-box.black {
     background-color: #000;
@@ -8192,7 +8192,7 @@ body.arena-mode-pokemon .chakra-box.green {
 }
 
 body.arena-mode-pokemon .chakra-box.white {
-    background-color: #e0b100;
+    background-color: #ffdd00;
 }
 .chakra-box.black {
     background-color: #000;

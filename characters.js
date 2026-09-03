@@ -35757,8 +35757,8 @@ const characters = [
                 "id": "lance-dragonite-1-dragon-claw",
                 "name": "Dragon Claw",
                 "skillimage": "assets/images/PokemonArena/lance/dragonite1/dragonclaw.jpg",
-                "skilldescription": "Deals 30 piercing damage to one enemy. Has a 15% chance to critically hit, dealing 15 additional damage.",
-                "description": "Deals 30 piercing damage to one enemy. Has a 15% chance to critically hit, dealing 15 additional damage.",
+                "skilldescription": "Deals 30 piercing damage to one enemy. Has a 30% chance to critically hit, dealing 15 additional damage.",
+                "description": "Deals 30 piercing damage to one enemy. Has a 30% chance to critically hit, dealing 15 additional damage.",
                 "energy": ["Taijutsu", "Random"],
                 "target": "single-enemy",
                 "damage": 0,
@@ -35775,7 +35775,7 @@ const characters = [
                         "type": "damage",
                         "amount": 15,
                         "scope": "target",
-                        "chance": 15,
+                        "chance": 30,
                         "metadata": { "ignoreDamageReduction": true, "ignoreDestructibleDefense": true }
                     }
                 ]
@@ -36060,7 +36060,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/lance/gyarados/outrage.jpg",
                 "skilldescription": "For 3 turns, Gyarados's skills have no cost, but each skill targets a random enemy. When Outrage ends, Gyarados is Stunned for 1 turn.",
                 "description": "For 3 turns, Gyarados's skills have no cost, but each skill targets a random enemy. When Outrage ends, Gyarados is Stunned for 1 turn.",
-                "energy": ["Taijutsu", "Random"],
+                "energy": ["Taijutsu"],
                 "target": "self",
                 "damage": 0,
                 "cooldown": 0,
@@ -36160,15 +36160,15 @@ const characters = [
                     },
                     {
                         "id": "lance-kingdra-dragon-pulse",
-                        "name": "Dragon Pulse",
+                        "name": "Water Pulse",
                         "skillimage": "assets/images/PokemonArena/lance/kingdra/dragonpulse.jpg",
-                        "skilldescription": "Deals 25 piercing damage to one enemy and removes 5 Shield from the target.",
-                        "description": "Deals 25 piercing damage to one enemy and removes 5 Shield from the target.",
+                        "skilldescription": "Deals 25 piercing damage to one enemy and stuns their most recently used skill for 1 turn.",
+                        "description": "Deals 25 piercing damage to one enemy and stuns their most recently used skill for 1 turn.",
                         "energy": ["Genjutsu"],
                         "target": "single-enemy",
                         "damage": 0,
                         "cooldown": 1,
-                        "classes": ["Dragon", "Special", "Instant"],
+                        "classes": ["Water", "Special", "Instant"],
                         "effects": [
                             {
                                 "type": "damage",
@@ -36177,9 +36177,11 @@ const characters = [
                                 "metadata": { "ignoreDamageReduction": true, "ignoreDestructibleDefense": true }
                             },
                             {
-                                "type": "lance_remove_shield",
+                                "type": "apply_status",
+                                "statusId": "stunned",
+                                "duration": 1,
                                 "scope": "target",
-                                "amount": 5
+                                "metadata": { "harmful": true, "cannotUseSkills": true, "tooltipText": "This character is stunned." }
                             }
                         ]
                     },
@@ -36212,8 +36214,8 @@ const characters = [
                         "id": "lance-kingdra-rain-dance",
                         "name": "Rain Dance",
                         "skillimage": "assets/images/PokemonArena/lance/kingdra/raindance.jpg",
-                        "skilldescription": "Summons Rain for 4 turns: all Water-type Pokemon deal 10 additional damage.",
-                        "description": "Summons Rain for 4 turns: all Water-type Pokemon deal 10 additional damage.",
+                        "skilldescription": "Summons Rain for 4 turns: Water-type skills deal 10 additional damage and Fire-type skills deal 10 less damage.",
+                        "description": "Summons Rain for 4 turns: Water-type skills deal 10 additional damage and Fire-type skills deal 10 less damage.",
                         "energy": ["Ninjutsu", "Ninjutsu"],
                         "target": "self",
                         "damage": 0,
@@ -36226,9 +36228,9 @@ const characters = [
                                 "weather": {
                                     "key": "rain",
                                     "name": "Rain",
-                                    "description": "All Water-type Pokemon deal 10 additional damage.",
+                                    "description": "Water-type skills deal 10 additional damage and Fire-type skills deal 10 less damage.",
                                     "rounds": 4,
-                                    "damageTypeModifiers": { "Water": 10 }
+                                    "damageTypeModifiers": { "Water": 10, "Fire": -10 }
                                 }
                             }
                         ]
@@ -36285,7 +36287,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/lance/aerodactyl/taunt.jpg",
                 "skilldescription": "Forces all enemies to target only Aerodactyl for 1 turn.",
                 "description": "Forces all enemies to target only Aerodactyl for 1 turn.",
-                "energy": ["Random", "Random"],
+                "energy": ["Genjutsu"],
                 "target": "all-enemy",
                 "damage": 0,
                 "cooldown": 3,
@@ -36349,19 +36351,19 @@ const characters = [
                         "id": "lance-dragonite-2-extreme-speed",
                         "name": "Extreme Speed",
                         "skillimage": "assets/images/PokemonArena/lance/dragonite2/extremespeed.jpg",
-                        "skilldescription": "Deals 35 piercing damage to one enemy. This attack ignores Shield.",
-                        "description": "Deals 35 piercing damage to one enemy. This attack ignores Shield.",
+                        "skilldescription": "Deals 35 piercing damage to one enemy. This attack bypasses invulnerability.",
+                        "description": "Deals 35 piercing damage to one enemy. This attack bypasses invulnerability.",
                         "energy": ["Taijutsu"],
                         "target": "single-enemy",
                         "damage": 0,
                         "cooldown": 1,
-                        "classes": ["Normal", "Physical", "Instant"],
+                        "classes": ["Normal", "Physical", "Instant", "Bypassing"],
                         "effects": [
                             {
                                 "type": "damage",
                                 "amount": 35,
                                 "scope": "target",
-                                "metadata": { "ignoreDamageReduction": true, "ignoreDestructibleDefense": true }
+                                "metadata": { "ignoreDamageReduction": true, "ignoreInvulnerability": true }
                             }
                         ]
                     },

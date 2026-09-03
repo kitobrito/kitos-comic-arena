@@ -127,7 +127,7 @@ const skillsByType = {
         'mew-life-dew', 'totodile-aerial-water-gun', 'totodile-aqua-tail', 'totodile-water-rings',
         'totodile-croconaw-bite',
         'lance-gyarados-aqua-tail', 'lance-gyarados-waterfall', 'lance-kingdra-hydro-pump',
-        'lance-kingdra-rain-dance',
+        'lance-kingdra-rain-dance', 'lance-kingdra-dragon-pulse',
     ],
     Electric: [
         'pikachu-thundershock', 'pikachu-volt-tackle', 'pikachu-thunder', 'pikachu-passive-static',
