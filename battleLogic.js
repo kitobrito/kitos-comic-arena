@@ -4732,7 +4732,7 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
                     infiniteDuration: true,
                     unremovable: true,
                     hidden: true,
-                    pinsirGuillotineBonus: 5,
+                    pinsirGuillotineBonus: 8,
                     mergeNumericAddKeys: ['pinsirGuillotineBonus'],
                     tooltipTextTemplate: 'Guillotine has a {pinsirGuillotineBonus}% increased chance to hit.',
                 },
@@ -9050,7 +9050,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         infiniteDuration: true,
                         unremovable: true,
                         hidden: true,
-                        pinsirGuillotineBonus: 10,
+                        pinsirGuillotineBonus: 16,
                         mergeNumericAddKeys: ['pinsirGuillotineBonus'],
                         tooltipTextTemplate: 'Guillotine has a {pinsirGuillotineBonus}% increased chance to hit.',
                     },
@@ -9134,7 +9134,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                             infiniteDuration: true,
                             unremovable: true,
                             hidden: true,
-                            pinsirGuillotineBonus: isCrit ? 10 : 5,
+                            pinsirGuillotineBonus: isCrit ? 16 : 8,
                             mergeNumericAddKeys: ['pinsirGuillotineBonus'],
                             tooltipTextTemplate: 'Guillotine has a {pinsirGuillotineBonus}% increased chance to hit.',
                         },
@@ -9146,7 +9146,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
             if (effectType === 'pinsir_guillotine') {
                 const bonusStatus = actorState.statuses.find((status) => status?.id === 'pinsir_guillotine_bonus');
                 const bonusChance = Math.max(0, Number(bonusStatus?.metadata?.pinsirGuillotineBonus) || 0);
-                const chance = Math.min(100, 10 + bonusChance);
+                const chance = Math.min(100, 30 + bonusChance);
                 const recipients = resolveRecipients(effect);
                 recipients.forEach((recipient) => {
                     if (!recipient?.unit || recipient.unit.alive === false) return;
