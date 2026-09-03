@@ -1172,7 +1172,17 @@ body:is(.arena-mode-pokemon, .home-arena-pokemon, [data-page-arena="pokemon"]) {
   --portal-orange: #c62836;
   --portal-cream: #ffffff;
   color: #351010 !important;
-  background: linear-gradient(145deg, #fff 0%, #fff1f2 64%, #d62d3a 100%) fixed !important;
+  /* --pokemon-website-background (see missions.html) lets a page opt into
+     one of the Website ball-tier renders instead of the plain gradient --
+     falls back to the original gradient wherever that variable isn't set. */
+  background-image: var(
+    --pokemon-website-background,
+    linear-gradient(145deg, #fff 0%, #fff1f2 64%, #d62d3a 100%)
+  ) !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-attachment: fixed !important;
+  background-repeat: no-repeat !important;
 }
 
 body:is(.arena-mode-pokemon, .home-arena-pokemon, [data-page-arena="pokemon"]) .brand-mark,

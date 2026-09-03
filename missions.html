@@ -47,17 +47,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       font-family: "Barlow Condensed", system-ui, sans-serif;
     }
 
-    /* One of the Poke Ball-tier renders (assets/images/PokemonArena/Website),
-       picked at random per page load -- see the pokemonWebsiteBackground
-       script below. Falls back to the gradient above if the variable is
-       ever unset (arena=comic, or before the script runs). */
-    body.arena-mode-pokemon {
-      background-image: var(--pokemon-website-background);
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      background-attachment: fixed;
-    }
+    /* The actual --pokemon-website-background image swap for pokemon mode
+       lives in styles/portal-theme.css: its body:is(.arena-mode-pokemon, ...)
+       rule is deliberately loaded last with !important to win over every
+       page's own styling, so the override has to live there too rather than
+       here (a plain rule here can never win against that regardless of
+       specificity or source order). See the script below for the random
+       pick that sets the variable. */
 
     a {
       color: inherit;
@@ -1712,7 +1708,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       }
     }
   </style>
-  <link rel="stylesheet" href="styles/portal-theme.css?v=na-portal-v1" />
+  <link rel="stylesheet" href="styles/portal-theme.css?v=na-portal-v3" />
 </head>
 <body>
 <!-- Google Tag Manager (noscript) -->
