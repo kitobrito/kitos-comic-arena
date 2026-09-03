@@ -19581,6 +19581,49 @@ app.get(['/selection', '/selection.html'], (req, res) => {
     res.sendFile(path.join(__dirname, 'selection.html'));
 });
 
+// A dedicated, memorable, shareable URL for the Pokemon Arena -- previously it
+// only existed as a query param (selection.html?arena=pokemon) on the shared
+// selection page, which meant no distinct page title, no social-preview (Open
+// Graph) tags, and nothing search engines could index as "Pokemon Arena"
+// specifically. Serves the exact same selection.html, but with its <title>/
+// meta description/og tags swapped for Pokemon-specific copy, and
+// data-page-arena="pokemon" set on <body> so the client (see
+// defaultArenaModeFromPage in scripts/script.js) defaults to the Pokemon
+// roster without needing ?arena=pokemon in the URL at all. Built once at
+// startup since selection.html only changes between deploys.
+const POKEMON_ARENA_SELECTION_HTML = (() => {
+    try {
+        const raw = fs.readFileSync(path.join(__dirname, 'selection.html'), 'utf8');
+        return raw
+            .replace(
+                /<!-- SEO_TITLE_START -->[\s\S]*?<!-- SEO_TITLE_END -->/,
+                [
+                    '<!-- SEO_TITLE_START -->',
+                    '<title>Pokemon Arena | Comic-Arena</title>',
+                    '<meta name="description" content="Build a team of Pokemon and battle other players for free in Pokemon Arena, a browser Pokemon fighting game on Comic-Arena.">',
+                    '<meta property="og:title" content="Pokemon Arena">',
+                    '<meta property="og:description" content="Build a team of Pokemon and battle other players for free in Pokemon Arena, a browser Pokemon fighting game on Comic-Arena.">',
+                    '<meta property="og:type" content="website">',
+                    '<!-- SEO_TITLE_END -->',
+                ].join('\n    ')
+            )
+            .replace(
+                '<body class="app-loading app-loading-selection">',
+                '<body class="app-loading app-loading-selection" data-page-arena="pokemon">'
+            );
+    } catch (error) {
+        console.error('Failed to build the /pokemon-arena page from selection.html:', error.message || error);
+        return null;
+    }
+})();
+
+app.get(['/pokemon-arena', '/pokemon-arena.html'], (req, res) => {
+    if (!POKEMON_ARENA_SELECTION_HTML) {
+        return res.sendFile(path.join(__dirname, 'selection.html'));
+    }
+    res.type('html').send(POKEMON_ARENA_SELECTION_HTML);
+});
+
 app.get(['/ingame', '/ingame.html'], (req, res) => {
     res.sendFile(path.join(__dirname, 'ingame.html'));
 });
