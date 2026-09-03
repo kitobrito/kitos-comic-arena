@@ -13452,9 +13452,9 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                             sourceSlot: Number.isInteger(status?.sourceSlot) ? status.sourceSlot : null,
                             metadata: {
                                 harmful: true,
-                                cannotUseSkills: true,
+                                cannotUseHarmfulSkills: true,
                                 tooltipText:
-                                    'This character is stunned by Nightmare. It has an escalating chance to be removed at the end of their turn.',
+                                    'This character cannot use harmful skills due to Nightmare. It has an escalating chance to be removed at the end of their turn.',
                             },
                             fresh: false,
                         });

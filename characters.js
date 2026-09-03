@@ -35682,27 +35682,39 @@ const characters = [
                 "id": "darkrai-dark-portal",
                 "name": "Dark Portal",
                 "skillimage": "assets/images/PokemonArena/darkrai/darkportal.jpg",
-                "skilldescription": "Darkrai targets one enemy affected by Nightmare. Darkrai ignores all damage while that target remains affected by Nightmare. Darkrai is stunned for 1 turn when this effect ends.",
-                "description": "Darkrai targets one enemy affected by Nightmare. Darkrai ignores all damage while that target remains affected by Nightmare. Darkrai is stunned for 1 turn when this effect ends.",
-                "energy": ["Genjutsu"],
+                "skilldescription": "Banishes one enemy affected by Nightmare for 2 turns. A banished character is treated as if dead until it ends.",
+                "description": "Banishes one enemy affected by Nightmare for 2 turns. A banished character is treated as if dead until it ends.",
+                "energy": ["Genjutsu", "Genjutsu"],
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 4,
-                "actorCondition": { "missingStatusId": "darkrai_dark_portal_active" },
+                "cooldown": 6,
+                "targetCondition": { "statusId": "darkrai_nightmare_active" },
                 "classes": ["Dark", "Strategic", "Instant"],
-                "effects": [{ "type": "darkrai_dark_portal", "scope": "target" }]
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "darkrai_dark_portal_banish",
+                        "duration": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "banished": true,
+                            "tooltipText": "This character is banished and is treated as if dead until this effect ends."
+                        }
+                    }
+                ]
             },
             {
                 "id": "darkrai-nightmare-passive",
                 "name": "Passive: Nightmare!",
                 "skillimage": "assets/images/PokemonArena/darkrai/nightmare.jpg",
-                "skilldescription": "A character affected by Nightmare (only applied by Darkrai's other skills) is stunned for up to 5 turns. At the end of their turn, Nightmare has an escalating chance to be removed early: 0% turn 1, 20% turn 2, 40% turn 3, 60% turn 4, 80% turn 5.",
-                "description": "A character affected by Nightmare (only applied by Darkrai's other skills) is stunned for up to 5 turns. At the end of their turn, Nightmare has an escalating chance to be removed early: 0% turn 1, 20% turn 2, 40% turn 3, 60% turn 4, 80% turn 5.",
+                "skilldescription": "A character affected by Nightmare (only applied by Darkrai's other skills) cannot use harmful skills for up to 5 turns. At the end of their turn, Nightmare has an escalating chance to be removed early: 0% turn 1, 20% turn 2, 40% turn 3, 60% turn 4, 80% turn 5.",
+                "description": "A character affected by Nightmare (only applied by Darkrai's other skills) cannot use harmful skills for up to 5 turns. At the end of their turn, Nightmare has an escalating chance to be removed early: 0% turn 1, 20% turn 2, 40% turn 3, 60% turn 4, 80% turn 5.",
                 "energy": [],
                 "target": "",
                 "damage": 0,
                 "cooldown": 0,
-                "classes": ["Dark", "Strategic", "Passive", "Instant"],
+                "classes": ["Dark", "Strategic", "Passive", "Control"],
                 "effects": []
             }
         ],
