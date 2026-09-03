@@ -17005,8 +17005,16 @@ app.post('/api/unlock-points/paypal/create-order', requireSession, async (req, r
             ? req.body.layout
             : '';
         const layoutQuery = requestedLayout ? `&layout=${encodeURIComponent(requestedLayout)}` : '';
-        const returnUrl = `${baseUrl}/selection.html?arena=${encodeURIComponent(arena)}${layoutQuery}&unlockPointsPayment=paypal`;
-        const cancelUrl = `${baseUrl}/selection.html?arena=${encodeURIComponent(arena)}${layoutQuery}&unlockPointsPayment=paypal-cancelled`;
+        // Route back through the friendly /pokemon-arena URL for Pokemon Arena
+        // purchases rather than dropping the player back onto the query-param
+        // form (see the /pokemon-arena route above).
+        const selectionPath =
+            arena === 'pokemon'
+                ? `/pokemon-arena${layoutQuery ? `?${layoutQuery.replace(/^&/, '')}` : ''}`
+                : `/selection.html?arena=${encodeURIComponent(arena)}${layoutQuery}`;
+        const selectionQuerySeparator = selectionPath.includes('?') ? '&' : '?';
+        const returnUrl = `${baseUrl}${selectionPath}${selectionQuerySeparator}unlockPointsPayment=paypal`;
+        const cancelUrl = `${baseUrl}${selectionPath}${selectionQuerySeparator}unlockPointsPayment=paypal-cancelled`;
         const headers = await buildPayPalOrderHeaders();
         const response = await fetch(`${PAYPAL_API_BASE_URL}/v2/checkout/orders`, {
             method: 'POST',

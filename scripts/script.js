@@ -16,8 +16,26 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const pagePath = window.location.pathname.toLowerCase();
     const pageName = pagePath.split('/').pop() || 'index.html';
-    const isSelectionPage = pageName === 'selection.html' || pageName === 'selection';
+    // /pokemon-arena is a friendly, indexable alias server.js serves for
+    // selection.html (see server.js's POKEMON_ARENA_SELECTION_HTML) -- it must
+    // count as the selection page too, or none of the selection-page-specific
+    // logic below (roster, store, missions, etc.) would ever run there.
+    const isPokemonArenaFriendlyPath = pageName === 'pokemon-arena' || pageName === 'pokemon-arena.html';
+    const isSelectionPage = pageName === 'selection.html' || pageName === 'selection' || isPokemonArenaFriendlyPath;
     const isIngamePage = pageName === 'ingame.html' || pageName === 'ingame';
+    // Shared by every internal link/redirect that used to hardcode
+    // "selection.html?arena=pokemon" -- those should land back on the friendly
+    // /pokemon-arena URL instead of dropping the visitor back onto the query-param
+    // form. Comic Arena has no such alias, so it keeps the classic ?arena= form
+    // (also needed there since the default without an explicit arena falls back
+    // to whatever arena localStorage last remembered, not always comic).
+    const buildArenaSelectionUrl = (arena = 'comic', layoutQuery = '') => {
+        const normalizedLayoutQuery = typeof layoutQuery === 'string' ? layoutQuery.replace(/^&/, '') : '';
+        if (arena === 'pokemon') {
+            return normalizedLayoutQuery ? `pokemon-arena?${normalizedLayoutQuery}` : 'pokemon-arena';
+        }
+        return `selection.html?arena=${encodeURIComponent(arena)}${layoutQuery}`;
+    };
     let selectionExternalMirrorManifest = null;
     const resolveSelectionImageSource = (source = '') => {
         const original = typeof source === 'string' ? source.trim() : '';
@@ -1070,7 +1088,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const layoutQuery = ['classic', 'experimental'].includes(selectionReturnLayout)
                 ? `&layout=${encodeURIComponent(selectionReturnLayout)}`
                 : '';
-            window.location.href = `selection.html?arena=${encodeURIComponent(selectionReturnArena)}${layoutQuery}`;
+            window.location.href = buildArenaSelectionUrl(selectionReturnArena, layoutQuery);
         } catch (error) {
             console.error('Login failed:', error);
             setLoginStatus(error.message || 'Login failed. Please try again.', 'error');
@@ -1887,7 +1905,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         });
         experimentalClassicLink?.addEventListener('click', () => {
             const arena = document.body.classList.contains('arena-mode-pokemon') ? 'pokemon' : 'comic';
-            experimentalClassicLink.href = `selection.html?arena=${encodeURIComponent(arena)}&layout=classic`;
+            experimentalClassicLink.href = buildArenaSelectionUrl(arena, '&layout=classic');
         });
     }
 
@@ -2577,7 +2595,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         const layoutQuery = ['classic', 'experimental'].includes(requestedLayout)
             ? `&layout=${encodeURIComponent(requestedLayout)}`
             : '';
-        const targetUrl = `selection.html?arena=${encodeURIComponent(getLoginRedirectArena(arenaOverride))}${layoutQuery}`;
+        const targetUrl = buildArenaSelectionUrl(getLoginRedirectArena(arenaOverride), layoutQuery);
         if (replace) {
             window.location.replace(targetUrl);
             return;
@@ -2957,6 +2975,8 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             'profile.html': 'Comic Arena > Profile',
             'clanprofile.html': 'Comic Arena > Clan Profile',
             'selection.html': 'Comic Arena > Selection',
+            'pokemon-arena': 'Pokemon Arena > Selection',
+            'pokemon-arena.html': 'Pokemon Arena > Selection',
             'ingame.html': 'Comic Arena > In Game',
             'charactersandskills.html': 'Comic Arena > Characters and Skills',
             'pokemon-charactersandskills.html': 'Pokemon Arena > Characters and Skills',
