@@ -2,6 +2,14 @@
   "use strict";
 
   var path = (window.location.pathname.split("/").pop() || "index.html").toLowerCase();
+  // /pokemon is a friendly alias server.js serves for index.html (see
+  // server.js's POKEMON_HOME_HTML) -- treat it as index.html everywhere
+  // below. Without this, switching back to Comic Arena from /pokemon would
+  // build a same-page "?arena=comic" link, but that route always serves
+  // data-page-arena="pokemon" regardless of the query string, and
+  // resolveArena() below checks that attribute first -- a trap that could
+  // never actually reach Comic Arena.
+  if (path === "pokemon" || path === "pokemon.html") path = "index.html";
   var params = new URLSearchParams(window.location.search);
   var declaredArena = document.body && document.body.dataset
     ? String(document.body.dataset.pageArena || "").toLowerCase()
@@ -48,7 +56,16 @@
       return targetArena === "pokemon" ? "pokemon-charactersandskills.html" : "charactersandskills.html";
     }
     if (path === "ingame.html") {
-      return "index.html?arena=" + encodeURIComponent(targetArena);
+      return targetArena === "pokemon" ? "/pokemon" : "index.html";
+    }
+    // path is normalized to "index.html" above for both the real file and
+    // the /pokemon alias -- handle both switch directions explicitly here
+    // rather than falling through to the generic branch below, which
+    // rebuilds from the actual window.location.pathname (still literally
+    // "/pokemon" while there) and would produce a same-page "?arena=comic"
+    // link instead of actually leaving the alias.
+    if (path === "index.html") {
+      return targetArena === "pokemon" ? "/pokemon" : "index.html";
     }
     var url = new URL(window.location.href);
     url.searchParams.set("arena", targetArena);
@@ -100,7 +117,14 @@
 
   function keepSharedLinksInArena() {
     document.querySelectorAll('a[href="index.html"], a[href="events.html"], a[href="community.html"], a[href="profile.html"], a[href="manual.html"]').forEach(function (link) {
-      var url = new URL(link.getAttribute("href"), window.location.href);
+      var originalHref = link.getAttribute("href");
+      // /pokemon is the friendly alias server.js serves for index.html --
+      // land there instead of the query-param form.
+      if (originalHref === "index.html" && arena === "pokemon") {
+        link.href = "/pokemon";
+        return;
+      }
+      var url = new URL(originalHref, window.location.href);
       url.searchParams.set("arena", arena);
       link.href = (url.pathname.split("/").pop() || "index.html") + url.search + url.hash;
     });

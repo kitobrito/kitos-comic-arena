@@ -2809,6 +2809,8 @@
     var pageName = pathname.split("/").pop() || "index.html";
     var pageMap = {
       "index.html": "Comic Arena > Home",
+      "pokemon": "Pokemon Arena > Home",
+      "pokemon.html": "Pokemon Arena > Home",
       "profile.html": "Comic Arena > Profile",
       "clanprofile.html": "Comic Arena > Clan Profile",
       "selection.html": "Comic Arena > Selection",

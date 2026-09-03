@@ -19577,6 +19577,46 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// A dedicated, memorable URL for the Pokemon side of the home page --
+// previously only reachable as /?arena=pokemon. Same treatment as
+// /pokemon-arena above: swaps <title>/meta description/og tags for
+// Pokemon-specific copy, and sets data-page-arena="pokemon" on <body> so
+// the client (activeHomeArena in scripts/index.js, same mechanism
+// defaultArenaModeFromPage uses elsewhere) defaults to the Pokemon home
+// content without needing ?arena=pokemon at all.
+const POKEMON_HOME_HTML = (() => {
+    try {
+        const raw = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
+        return raw
+            .replace(
+                /<!-- SEO_TITLE_START -->[\s\S]*?<!-- SEO_TITLE_END -->/,
+                [
+                    '<!-- SEO_TITLE_START -->',
+                    '<title>Pokemon Arena Home</title>',
+                    '<meta name="description" content="Pokemon Arena is a free browser Pokemon fighting game. Build your team and become the champion.">',
+                    '<meta property="og:title" content="Pokemon Arena">',
+                    '<meta property="og:description" content="Pokemon Arena is a free browser Pokemon fighting game. Build your team and become the champion.">',
+                    '<meta property="og:type" content="website">',
+                    '<!-- SEO_TITLE_END -->',
+                ].join('\n  ')
+            )
+            .replace(
+                '<body class="home-classic-page">',
+                '<body class="home-classic-page" data-page-arena="pokemon">'
+            );
+    } catch (error) {
+        console.error('Failed to build the /pokemon home page from index.html:', error.message || error);
+        return null;
+    }
+})();
+
+app.get(['/pokemon', '/pokemon.html'], (req, res) => {
+    if (!POKEMON_HOME_HTML) {
+        return res.sendFile(path.join(__dirname, 'index.html'));
+    }
+    res.type('html').send(POKEMON_HOME_HTML);
+});
+
 app.get(['/selection-login', '/selection-login.html'], (req, res) => {
     res.sendFile(path.join(__dirname, 'selection-login.html'));
 });
