@@ -400,7 +400,17 @@
       if (updateUrl) {
         var url = new URL(window.location.href);
         url.searchParams.set("arena", activeHomeArena);
-        window.history.replaceState({}, "", url.pathname + url.search + url.hash);
+        // /pokemon always serves data-page-arena="pokemon" regardless of the
+        // query string (see server.js's POKEMON_HOME_HTML), and that
+        // attribute wins over ?arena= on the next load (activeHomeArena
+        // above, resolveArena in arena-navigation.js). Leaving the URL on
+        // /pokemon after switching to Comic here would mean a refresh snaps
+        // straight back to Pokemon despite the address bar saying
+        // ?arena=comic, so drop the alias when switching away from it.
+        var currentPathSegment = (url.pathname.split("/").pop() || "").toLowerCase();
+        var isPokemonAlias = currentPathSegment === "pokemon" || currentPathSegment === "pokemon.html";
+        var nextPath = isPokemonAlias && activeHomeArena !== "pokemon" ? "/" : url.pathname;
+        window.history.replaceState({}, "", nextPath + url.search + url.hash);
       }
     } catch (error) {}
     renderActiveHomeLeaderboards();
