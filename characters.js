@@ -36088,6 +36088,7 @@ const characters = [
                         "metadata": {
                             "harmful": false,
                             "overrideAllSkillsToAllRandom": true,
+                            "overrideAllSkillsToAllRandomReduction": 99,
                             "fullyBlind": true,
                             "onExpireEffects": [
                                 {

@@ -10614,6 +10614,11 @@ const sanitizeBoardForViewer = (board, viewerUsername) => {
                               : null,
                       alive: unit?.alive !== false,
                       hp: Number.isFinite(Number(unit?.hp)) ? Number(unit.hp) : 0,
+                      // Without these, the client falls back to its generic 100 default
+                      // for any unit whose real cap differs (e.g. Lance's 50 HP team) --
+                      // most visible as a dead unit reading "0/100" instead of "0/50".
+                      ...(Number.isFinite(Number(unit?.hpCap)) ? { hpCap: Number(unit.hpCap) } : {}),
+                      ...(Number.isFinite(Number(unit?.maxHp)) ? { maxHp: Number(unit.maxHp) } : {}),
                       state: sanitizeUnitStateForViewer({ unit, unitUsername, viewerUsername }),
                   }))
                 : [],
