@@ -35608,19 +35608,6 @@ const characters = [
         "facePicture": "assets/images/PokemonArena/darkrai/facepicture.jpg",
         "skills": [
             {
-                "id": "darkrai-nightmare-passive",
-                "name": "Passive: Nightmare!",
-                "skillimage": "assets/images/PokemonArena/darkrai/nightmare.jpg",
-                "skilldescription": "A character affected by Nightmare (only applied by Darkrai's other skills) is stunned for up to 5 turns. At the end of their turn, Nightmare has an escalating chance to be removed early: 0% turn 1, 20% turn 2, 40% turn 3, 60% turn 4, 80% turn 5.",
-                "description": "A character affected by Nightmare (only applied by Darkrai's other skills) is stunned for up to 5 turns. At the end of their turn, Nightmare has an escalating chance to be removed early: 0% turn 1, 20% turn 2, 40% turn 3, 60% turn 4, 80% turn 5.",
-                "energy": [],
-                "target": "",
-                "damage": 0,
-                "cooldown": 0,
-                "classes": ["Dark", "Strategic", "Passive", "Instant"],
-                "effects": []
-            },
-            {
                 "id": "darkrai-dark-void",
                 "name": "Dark Void",
                 "skillimage": "assets/images/PokemonArena/darkrai/darkvoid.jpg",
@@ -35704,6 +35691,19 @@ const characters = [
                 "actorCondition": { "missingStatusId": "darkrai_dark_portal_active" },
                 "classes": ["Dark", "Strategic", "Instant"],
                 "effects": [{ "type": "darkrai_dark_portal", "scope": "target" }]
+            },
+            {
+                "id": "darkrai-nightmare-passive",
+                "name": "Passive: Nightmare!",
+                "skillimage": "assets/images/PokemonArena/darkrai/nightmare.jpg",
+                "skilldescription": "A character affected by Nightmare (only applied by Darkrai's other skills) is stunned for up to 5 turns. At the end of their turn, Nightmare has an escalating chance to be removed early: 0% turn 1, 20% turn 2, 40% turn 3, 60% turn 4, 80% turn 5.",
+                "description": "A character affected by Nightmare (only applied by Darkrai's other skills) is stunned for up to 5 turns. At the end of their turn, Nightmare has an escalating chance to be removed early: 0% turn 1, 20% turn 2, 40% turn 3, 60% turn 4, 80% turn 5.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": ["Dark", "Strategic", "Passive", "Instant"],
+                "effects": []
             }
         ],
         "arena": "pokemon",
