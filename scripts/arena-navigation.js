@@ -69,6 +69,34 @@
     );
   }
 
+  // Comic-side pages that now have a dedicated, ground-up Pokemon Arena
+  // counterpart (see server.js's /pokemon-* routes) instead of the old
+  // "?arena=pokemon" query-string scheme. Keyed by the comic-side filename,
+  // value is where "Switch to Pokemon Arena" should actually land.
+  var POKEMON_PAGE_FOR = {
+    "missions.html": "/pokemon-missions",
+    "community.html": "/pokemon-community",
+    "events.html": "/pokemon-events",
+    "manual.html": "/pokemon-manual",
+    "profile.html": "pokemon-profile.html",
+    "changebackgrounds.html": "pokemon-changebackgrounds.html",
+    "resetaccount.html": "pokemon-resetaccount.html",
+    "clan panel.html": "pokemon-clanpanel.html",
+    "clan%20panel.html": "pokemon-clanpanel.html"
+  };
+  // Reverse of the map above, for switching back from a pokemon-*.html page
+  // (reached directly, e.g. a bookmark) to its comic-side counterpart.
+  var COMIC_PAGE_FOR = {
+    "pokemon-missions.html": "missions.html",
+    "pokemon-community.html": "community.html",
+    "pokemon-events.html": "events.html",
+    "pokemon-manual.html": "manual.html",
+    "pokemon-profile.html": "profile.html",
+    "pokemon-changebackgrounds.html": "changebackgrounds.html",
+    "pokemon-resetaccount.html": "resetaccount.html",
+    "pokemon-clanpanel.html": "clan%20panel.html"
+  };
+
   function destinationFor(targetArena) {
     if (path === "pokemon-charactersandskills.html" || path === "charactersandskills.html") {
       return targetArena === "pokemon" ? "pokemon-charactersandskills.html" : "charactersandskills.html";
@@ -84,6 +112,12 @@
     // link instead of actually leaving the alias.
     if (path === "index.html") {
       return targetArena === "pokemon" ? "/pokemon" : "index.html";
+    }
+    if (targetArena === "pokemon" && POKEMON_PAGE_FOR[path]) {
+      return POKEMON_PAGE_FOR[path];
+    }
+    if (targetArena === "comic" && COMIC_PAGE_FOR[path]) {
+      return COMIC_PAGE_FOR[path];
     }
     var url = new URL(window.location.href);
     url.searchParams.set("arena", targetArena);
