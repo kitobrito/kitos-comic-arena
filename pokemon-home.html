@@ -233,27 +233,68 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     }
 
     .pp-release-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      min-height: 178px;
+      padding: 12px 0 22px;
     }
     .pp-release-card {
       display: block;
-      text-align: center;
+      position: relative;
+      width: 118px;
+      flex: 0 0 auto;
+      transition: transform 200ms ease, filter 200ms ease;
     }
     .pp-release-card img {
       width: 100%;
-      aspect-ratio: 1;
-      object-fit: cover;
-      border-radius: var(--pp-radius);
-      border: 1px solid var(--pp-line);
-      background: var(--pp-bg);
-      margin-bottom: 8px;
+      height: 160px;
+      object-fit: contain;
+      object-position: bottom center;
+      display: block;
+      filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.55));
+    }
+    .pp-release-card:nth-child(1) {
+      z-index: 1;
+      margin-right: -30px;
+      transform: rotate(-7deg) translateY(10px);
+    }
+    .pp-release-card:nth-child(3) {
+      z-index: 1;
+      margin-left: -30px;
+      transform: rotate(7deg) translateY(10px);
+    }
+    .pp-release-card:nth-child(2) {
+      z-index: 2;
+      transform: scale(1.14) translateY(-8px);
+    }
+    .pp-release-card:nth-child(1):hover {
+      transform: rotate(-7deg) translateY(0px) scale(1.05);
+      z-index: 3;
+    }
+    .pp-release-card:nth-child(3):hover {
+      transform: rotate(7deg) translateY(0px) scale(1.05);
+      z-index: 3;
+    }
+    .pp-release-card:nth-child(2):hover {
+      transform: scale(1.2) translateY(-14px);
+      z-index: 3;
     }
     .pp-release-card .pp-release-label {
+      position: absolute;
+      left: 50%;
+      bottom: -20px;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 160ms ease;
+      pointer-events: none;
       font-size: 11.5px;
       font-weight: 700;
       color: var(--pp-ink-dim);
+    }
+    .pp-release-card:hover .pp-release-label {
+      opacity: 1;
     }
 
     .pp-why-grid {

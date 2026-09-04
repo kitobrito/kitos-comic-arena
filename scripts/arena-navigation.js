@@ -28,6 +28,11 @@
     if (params.get("arena") === "pokemon" || params.get("arena") === "comic") return params.get("arena");
     if (path === "pokemon-charactersandskills.html") return "pokemon";
     if (path === "charactersandskills.html") return "comic";
+    // The root domain is Comic Arena's own front door -- a visitor who just
+    // types comic-arena.net should always land on the comic side, never on
+    // whichever arena they (or someone on a shared machine) last switched to.
+    // Pokemon Arena's front door is the dedicated /pokemon page instead.
+    if (path === "index.html") return "comic";
     return storedArena();
   }
 

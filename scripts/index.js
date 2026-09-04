@@ -3810,6 +3810,72 @@
     }
   }
 
+  // Full-body "BIB" renders for the Pokemon Arena "Latest Releases" strip,
+  // used instead of the small square facePicture icon. Not every character
+  // has one yet (missing here just falls back to facePicture).
+  var POKEMON_RELEASE_BIB_RENDERS = {
+    "charmander": "Charmander.png",
+    "squirtle": "Pokémon_Squirtle_art.png",
+    "bulbasaur": "BULBASAUR.png",
+    "pikachu": "PIKACHU.png",
+    "butterfree": "Butterfree.png",
+    "pokemon-trainer": "POKEMONTRAINER.png",
+    "chansey": "CHANSEY.png",
+    "pidgey": "Pidgey.webp",
+    "koffing": "Koffing.webp",
+    "zubat": "ZUBAT.png",
+    "gastly": "Gastly.webp",
+    "abra": "ABRA.png",
+    "krabby": "KRABBY.png",
+    "scyther": "SCYTHER.png",
+    "eevee": "EEVEE.png",
+    "jolteon": "JOLTEON.png",
+    "flareon": "Flareon.webp",
+    "vaporeon": "VAPOREON.png",
+    "ekans": "0023-ekans (1).webp",
+    "machop": "MACHOP.png",
+    "magikarp": "MAGIKARP.png",
+    "mr-mime": "MRMIME.png",
+    "hitmonchan": "Hitmonchan.webp",
+    "hitmonlee": "106_hitmonlee__rb__by_hilsonity_dhf06vd-fullview.png",
+    "aerodactyl": "AERODACTYL.png",
+    "magnemite": "Magnemite.webp",
+    "onix": "ONIX.png",
+    "meowth": "Meowth.png",
+    "clefairy": "CLEFAIRY.png",
+    "jigglypuff": "JIGGLYPUFF.png",
+    "beedrill": "015BeedrillRB.webp",
+    "articuno": "ARTICUNO.png",
+    "moltres": "MOLTRES.png",
+    "zapdos": "ZAPDOS.png",
+    "mew": "Pokémon_Mew_art.png",
+    "mewtwo": "Mewtwo_Render.webp",
+    "dragonite": "Dragonite.png",
+    "cyndaquil": "cyndaquil.png",
+    "chikorita": "chikorita.png",
+    "totodile": "totodile.png",
+    "aegislash": "aegislashpassiveactive",
+    "ditto": "dittoflubberskin.png",
+    "dragapult": "dragapult.jpg",
+    "primeape": "primeape.jpg",
+    "marowak": "marowak.png",
+    "pinsir": "pinsir.webp",
+    "tauros": "tauros.webp",
+    "darkrai": "darkrai.png",
+    "lance": "lancepokemonchampion.webp",
+    "lance-dragonite-1": "Dragonite.png",
+    "lance-gyarados": "gyarados.png",
+    "lance-aerodactyl": "AERODACTYL.png"
+  };
+
+  function getPokemonReleaseBibRender(characterId, fallbackFacePicture) {
+    var fileName = characterId ? POKEMON_RELEASE_BIB_RENDERS[characterId] : "";
+    if (!fileName) {
+      return fallbackFacePicture;
+    }
+    return "assets/images/PokemonArena/BIB/" + encodeURIComponent(fileName);
+  }
+
   function updateReleasePreview(arena, index, releaseItem, facePicture) {
     var group = getLatestReleaseGroup(arena);
     var image = group && group.faces ? group.faces[index] : null;
@@ -3876,6 +3942,9 @@
       var releases = Array.isArray(releasesByArena[arena]) ? releasesByArena[arena] : [];
       releases.forEach(function (releaseItem, index) {
         var facePicture = releaseItem && releaseItem.facePicture ? releaseItem.facePicture : "";
+        if (arena === "pokemon" && releaseItem && releaseItem.characterId) {
+          facePicture = getPokemonReleaseBibRender(String(releaseItem.characterId), facePicture);
+        }
         updateReleasePreview(arena, index, releaseItem, facePicture);
       });
       getLatestReleaseGroup(arena).faces.forEach(function (_, index) {
