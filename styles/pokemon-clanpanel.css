@@ -1,0 +1,283 @@
+/* Pokemon Arena Clan Panel - page-specific styles (uses pp-* tokens from pokemon-portal.css) */
+
+.clan-shell {
+  display: grid;
+  gap: 18px;
+}
+
+.clan-summary {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+}
+
+.clan-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  border: 1px solid var(--pp-line-strong);
+  background: var(--pp-bg-panel);
+  object-fit: cover;
+}
+
+.clan-summary-copy {
+  font-size: 13px;
+  color: var(--pp-ink-faint);
+  line-height: 1.6;
+}
+
+.clan-summary-copy strong {
+  display: block;
+  font-family: var(--pp-font-display);
+  font-size: 16px;
+  color: var(--pp-ink);
+}
+
+.clan-summary-copy .rank {
+  display: inline-block;
+  color: var(--pp-accent-bright);
+  font-weight: 700;
+}
+
+.clan-divider {
+  height: 1px;
+  background: var(--pp-line);
+}
+
+.clan-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.clan-card {
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid var(--pp-line);
+  background: var(--pp-bg-panel);
+  display: grid;
+  gap: 10px;
+  align-content: space-between;
+}
+
+.clan-card[hidden] { display: none; }
+
+.clan-card p {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--pp-ink-dim);
+}
+
+.clan-card button {
+  justify-self: start;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--pp-line-strong);
+  background: var(--pp-bg-raised);
+  color: var(--pp-ink);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.clan-card button:hover {
+  border-color: var(--pp-accent);
+  color: var(--pp-accent-bright);
+}
+
+/* Overlays --------------------------------------------------------------- */
+
+.clan-register-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(4, 6, 9, 0.76);
+  backdrop-filter: blur(3px);
+}
+
+.clan-register-overlay.visible {
+  display: flex;
+}
+
+.clan-register-modal {
+  width: min(560px, 100%);
+  max-height: 88vh;
+  overflow-y: auto;
+  padding: 22px;
+  border-radius: 16px;
+  border: 1px solid var(--pp-line-strong);
+  background: var(--pp-bg-raised);
+  display: grid;
+  gap: 16px;
+}
+
+.clan-register-section + .clan-register-section {
+  padding-top: 16px;
+  border-top: 1px solid var(--pp-line);
+}
+
+.clan-register-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-family: var(--pp-font-display);
+  font-size: 15px;
+  color: var(--pp-ink);
+}
+
+.clan-register-star {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--pp-accent);
+  color: var(--pp-accent-ink);
+  font-size: 11px;
+  font-weight: 800;
+  flex: 0 0 auto;
+}
+
+.clan-register-copy {
+  margin: 0 0 8px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--pp-ink-dim);
+}
+
+.clan-register-row {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.clan-register-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--pp-ink-faint);
+}
+
+.clan-register-value {
+  font-size: 13px;
+  color: var(--pp-ink);
+}
+
+.clan-register-input,
+.clan-register-textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--pp-line-strong);
+  background: var(--pp-bg);
+  color: var(--pp-ink);
+  font: inherit;
+  font-size: 13px;
+  outline: none;
+}
+
+.clan-register-input:focus,
+.clan-register-textarea:focus {
+  border-color: var(--pp-accent);
+}
+
+.clan-register-textarea {
+  min-height: 76px;
+  resize: vertical;
+}
+
+.clan-register-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.clan-register-button {
+  padding: 9px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--pp-line-strong);
+  background: var(--pp-bg-panel);
+  color: var(--pp-ink);
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.clan-register-button:hover {
+  border-color: var(--pp-accent);
+  color: var(--pp-accent-bright);
+}
+
+.clan-register-button.primary {
+  background: var(--pp-accent);
+  border-color: var(--pp-accent);
+  color: var(--pp-accent-ink);
+}
+
+.clan-register-status {
+  min-height: 16px;
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--pp-ink-dim);
+}
+
+.quick-games-list {
+  display: grid;
+  gap: 8px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.quick-game-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--pp-line);
+  background: var(--pp-bg-panel);
+  font-size: 12.5px;
+}
+
+.quick-game-row a {
+  color: var(--pp-accent-bright);
+  text-decoration: none;
+}
+
+.quick-game-matchup { color: var(--pp-ink); }
+.quick-game-result,
+.quick-game-time {
+  color: var(--pp-ink-faint);
+  font-size: 11.5px;
+  white-space: nowrap;
+}
+
+.quick-game-empty {
+  padding: 14px;
+  border: 1px dashed var(--pp-line-strong);
+  border-radius: 10px;
+  color: var(--pp-ink-faint);
+  font-size: 12.5px;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .clan-summary { grid-template-columns: 1fr; }
+  .clan-register-modal { padding: 16px; }
+  .quick-game-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

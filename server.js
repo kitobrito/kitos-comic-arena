@@ -19616,6 +19616,25 @@ app.get(['/pokemon-manual', '/pokemon-manual.html'], (req, res) => {
     res.sendFile(path.join(__dirname, 'pokemon-manual.html'));
 });
 
+// Ground-up redesigns of the account-panel destination pages, so "View
+// Profile" / "Clan Panel" / "Custom Background" / "Reset Account" no longer
+// drop a Pokemon Arena session back into the old comic-styled layout.
+app.get(['/pokemon-resetaccount', '/pokemon-resetaccount.html'], (req, res) => {
+    res.sendFile(path.join(__dirname, 'pokemon-resetaccount.html'));
+});
+
+app.get(['/pokemon-changebackgrounds', '/pokemon-changebackgrounds.html'], (req, res) => {
+    res.sendFile(path.join(__dirname, 'pokemon-changebackgrounds.html'));
+});
+
+app.get(['/pokemon-clanpanel', '/pokemon-clanpanel.html'], (req, res) => {
+    res.sendFile(path.join(__dirname, 'pokemon-clanpanel.html'));
+});
+
+app.get(['/pokemon-profile', '/pokemon-profile.html'], (req, res) => {
+    res.sendFile(path.join(__dirname, 'pokemon-profile.html'));
+});
+
 app.get(['/selection-login', '/selection-login.html'], (req, res) => {
     res.sendFile(path.join(__dirname, 'selection-login.html'));
 });

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en" data-portal>
+<head>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-K64P68MT');</script>
+<!-- End Google Tag Manager -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pokemon Arena Reset Account</title>
+  <meta name="description" content="Reset your Pokemon Arena ranked progress while keeping your account and access intact." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="styles/pokemon-portal.css?v=ground-up-v5" />
+  <link rel="stylesheet" href="styles/pokemon-account-pages.css?v=ground-up-v1" />
+</head>
+<body class="pp-body pp-has-tabbar" data-page-arena="pokemon" data-portal-section="home">
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-K64P68MT"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+<div class="pp-shell">
+  <header class="pp-topbar">
+    <div class="pp-container pp-topbar-inner">
+      <a class="pp-brand" href="/pokemon">
+        <img src="assets/images/PokemonArena/pokemonarenalogo.png" alt="" />
+        <span class="pp-brand-mark">Pokemon<em>Arena</em></span>
+      </a>
+      <nav class="pp-nav" id="pp-nav" aria-label="Primary">
+        <a href="/pokemon">Home</a>
+        <a href="/pokemon-missions">Missions</a>
+        <a href="pokemon-charactersandskills.html">Characters</a>
+        <a href="/pokemon-community">Community</a>
+        <a href="/pokemon-events">Events</a>
+        <a href="/pokemon-manual">Manual</a>
+        <a class="pp-comic-switch pp-comic-switch-mobile" href="/">Comic Arena&nbsp;&rarr;</a>
+      </nav>
+      <div class="pp-topbar-actions">
+        <a class="pp-comic-switch" href="/">Comic Arena &rarr;</a>
+        <button class="pp-nav-toggle" id="pp-nav-toggle" type="button" aria-expanded="false" aria-controls="pp-nav" aria-label="Toggle menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="pp-container pp-account-layout">
+    <div>
+      <section class="pp-panel pp-account-headline">
+        <div class="pp-eyebrow">Account Reset</div>
+        <h1 class="pp-h1" style="font-size:26px;">Reset the record and start fresh</h1>
+        <p class="pp-lede" style="margin:8px 0 0;">Clear your ranked progress while keeping your account and access intact.</p>
+      </section>
+
+      <div class="pp-reset-stage">
+        <section class="pp-panel pp-reset-card">
+          <span class="pp-reset-kicker">Ranked Progress</span>
+          <h2 class="pp-panel-title" style="font-size:16px;margin:6px 0 0;">Clear Ranked Progress</h2>
+          <p class="pp-lede" style="margin:0;font-size:13px;">This only resets your Level, Rank, Experience Points, Ladder Rank, Wins, Losses, Win percentage, and current Streak.</p>
+          <div class="pp-reset-stats" aria-hidden="true">
+            <div class="pp-reset-stat"><span class="pp-reset-stat-label">Stats Affected</span><span class="pp-reset-stat-value">Level &middot; Rank &middot; XP</span></div>
+            <div class="pp-reset-stat"><span class="pp-reset-stat-label">Battle Record</span><span class="pp-reset-stat-value">Wins &middot; Losses &middot; Streak</span></div>
+          </div>
+          <div class="pp-reset-actions">
+            <button class="pp-btn pp-btn-primary" type="button" id="reset-account-trigger">Reset Account</button>
+          </div>
+          <div class="pp-reset-confirm" id="reset-account-confirm">
+            <p class="pp-lede" style="margin:0;font-size:13px;">Are you sure you want to reset these account fields?</p>
+            <div class="pp-reset-actions">
+              <button class="pp-btn pp-btn-primary" type="button" id="reset-account-confirm-button">Yes, Reset</button>
+              <button class="pp-btn pp-btn-ghost" type="button" id="reset-account-cancel-button">Cancel</button>
+            </div>
+          </div>
+          <p class="pp-status" id="reset-account-status" aria-live="polite"></p>
+        </section>
+
+        <aside class="pp-panel pp-detail-card">
+          <h2 class="pp-panel-title" style="font-size:14px;">What Changes</h2>
+          <ul class="pp-detail-list">
+            <li>Level and rank are set back.</li>
+            <li>Experience and ladder placement are cleared.</li>
+            <li>Wins, losses, win rate, and streak return to a fresh state.</li>
+          </ul>
+          <div class="pp-detail-note">Login details, account access, and the rest of your profile stay in place.</div>
+        </aside>
+      </div>
+
+      <div aria-hidden="true" style="display:none;">
+        <img id="release-face-1" alt="" />
+        <img id="release-face-2" alt="" />
+        <img id="release-face-3" alt="" />
+        <div id="release-label-1"></div>
+        <div id="release-label-2"></div>
+        <div id="release-label-3"></div>
+      </div>
+    </div>
+
+    <aside>
+      <section class="pp-panel" id="auth-panel">
+        <h2 class="pp-panel-title" id="auth-title">Account Access</h2>
+        <div id="guest-auth-view">
+          <p class="pp-lede" id="auth-description" style="font-size:13px;margin:0 0 14px;">Sign in with your Comic-Arena account.</p>
+          <form id="auth-form">
+            <input class="pp-field" type="text" name="username" placeholder="Username" autocomplete="username" required />
+            <input class="pp-field" type="password" name="password" placeholder="Password" autocomplete="current-password" required />
+            <input class="pp-field" type="password" name="confirmPassword" placeholder="Confirm Password" autocomplete="new-password" hidden />
+            <input class="pp-field" type="email" name="email" placeholder="Email" autocomplete="email" hidden />
+            <button class="pp-btn pp-btn-primary pp-btn-block" type="submit" id="auth-submit">Login</button>
+            <button class="pp-btn pp-btn-ghost pp-btn-block" type="button" id="auth-toggle" style="margin-top:8px;">Need an account? Register</button>
+            <p class="pp-status" id="auth-status" aria-live="polite"></p>
+          </form>
+        </div>
+        <div class="account-panel" id="account-panel" hidden>
+          <p style="margin:0 0 14px;font-size:14px;">Welcome back, <strong id="account-username">Player</strong>!</p>
+          <button class="pp-account-action" type="button" id="view-profile-button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.25" /><path d="M5 19c.9-3 3.6-4.5 7-4.5S18.1 16 19 19" /></svg>
+            <span>View Profile</span>
+          </button>
+          <button class="pp-account-action" type="button" id="change-avatar-button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v6" /><path d="M9 6h6" /><path d="M5 21c1.2-3.2 4-4.8 7-4.8s5.8 1.6 7 4.8" /></svg>
+            <span>Change Avatar</span>
+          </button>
+          <button class="pp-account-action" type="button" id="clan-panel-button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 18V6l8-3 8 3v12l-8 3z" /><path d="M8 10h8" /><path d="M8 14h5" /></svg>
+            <span>Clan Panel</span>
+          </button>
+          <button class="pp-account-action" type="button" id="change-backgrounds-button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="5" width="16" height="14" rx="2" /><path d="M4 14c2.5-3 5.5-4.5 8-4.5s5.5 1.5 8 4.5" /></svg>
+            <span>Custom Background</span>
+          </button>
+          <button class="pp-account-action active" type="button" id="reset-account-button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 7h14" /><path d="M8 7V5h8v2" /><path d="M9 11v5" /><path d="M15 11v5" /><path d="M7 7l1 12h8l1-12" /></svg>
+            <span>Reset Account</span>
+          </button>
+          <button class="pp-account-action" type="button" id="gen2-starter-reopen" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8" /><path d="M4 12h16" /><circle cx="12" cy="12" r="2.5" /></svg>
+            <span>Choose Gen 2 Starter</span>
+          </button>
+          <section id="admin-panel-section" hidden style="margin-top:14px;">
+            <h2 class="pp-panel-title" style="font-size:11.5px;">Admin Panel</h2>
+            <a class="pp-account-action" href="winrates.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 18h16" /><path d="M7 14V9" /><path d="M12 14V6" /><path d="M17 14v-3" /></svg><span>Winrates</span></a>
+            <a class="pp-account-action" href="charactereditor.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16" /><path d="M6 16 18 4" /><path d="m14 4 4 4" /></svg><span>Character Editor</span></a>
+            <a class="pp-account-action" href="editmission.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16" /><path d="M6 16 18 4" /><path d="M4 20l4-1" /><path d="M14 4l4 4" /></svg><span>Mission Editor</span></a>
+            <a class="pp-account-action" href="playeraccounts.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="2.5" /><circle cx="16.5" cy="9.5" r="2" /><path d="M4.5 18c.8-2.7 3-4 5.5-4s4.7 1.3 5.5 4" /><path d="M14 17c.5-1.7 1.8-2.8 3.8-2.8 1.5 0 2.9.8 3.7 2.3" /></svg><span>Player Accounts</span></a>
+            <a class="pp-account-action" href="newspost.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 6.5h14" /><path d="M5 11.5h14" /><path d="M5 16.5h9" /><rect x="4" y="4" width="16" height="16" rx="2" /></svg><span>News Post</span></a>
+          </section>
+          <button class="pp-account-action" type="button" id="logout-button" style="margin-top:14px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 17l5-5-5-5" /><path d="M15 12H4" /><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4" /></svg>
+            <span>Log Out</span>
+          </button>
+          <form id="change-avatar-form" style="margin-top:16px;">
+            <div class="pp-avatar-row" data-home-arena="comic" style="display:none;">
+              <img id="comic-avatar-current-image" src="/assets/images/external-mirror/i.postimg.cc/971bcdc8d3154d6d16a9.png" alt="Comic Arena avatar" />
+              <label>Comic Arena Avatar
+                <input class="pp-field" style="margin:0;" type="url" id="comic-avatar-url" placeholder="Direct image URL" autocomplete="off" />
+                <input type="file" id="comic-avatar-file" accept="image/*" />
+              </label>
+            </div>
+            <div class="pp-avatar-row" data-home-arena="pokemon">
+              <img id="pokemon-avatar-current-image" src="assets/images/PokemonArena/found-pokeball.png" alt="Pokemon Arena avatar" />
+              <label>Pokemon Arena Avatar
+                <input class="pp-field" style="margin:0;" type="url" id="pokemon-avatar-url" placeholder="Direct image URL" autocomplete="off" />
+                <input type="file" id="pokemon-avatar-file" accept="image/*" />
+              </label>
+            </div>
+            <button class="pp-btn pp-btn-primary pp-btn-block" type="submit" id="change-avatar-submit">Save Avatars</button>
+            <p class="pp-status" id="change-avatar-status" aria-live="polite"></p>
+          </form>
+          <p class="pp-status" id="account-status" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section class="pp-panel" aria-label="Top player levels">
+        <h2 class="pp-panel-title">Top Player Levels</h2>
+        <ol class="pp-lb-list" id="sidebar-top-player-levels"></ol>
+      </section>
+
+      <section class="pp-panel" aria-label="Top win streaks">
+        <h2 class="pp-panel-title">Current Win Streaks</h2>
+        <ol class="pp-lb-list" id="sidebar-top-current-streaks"></ol>
+      </section>
+
+      <section class="pp-panel" aria-label="Top wins">
+        <h2 class="pp-panel-title">Most Wins</h2>
+        <ol class="pp-lb-list" id="sidebar-top-wins"></ol>
+      </section>
+
+      <section class="pp-panel" aria-label="Highest win streaks">
+        <h2 class="pp-panel-title">Highest Win Streaks</h2>
+        <ol class="pp-lb-list" id="sidebar-top-highest-streaks"></ol>
+      </section>
+    </aside>
+  </main>
+
+  <footer class="pp-footer">
+    <div class="pp-container pp-footer-row">
+      <span>&copy; Comic-Arena &mdash; Pokemon Arena</span>
+      <div class="pp-footer-links">
+        <a href="/pokemon-manual">Manual</a>
+        <a href="https://discord.gg/dabZKRDkf7" target="_blank" rel="noopener noreferrer">Discord</a>
+        <a href="/">Comic Arena</a>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<nav class="pp-tabbar" aria-label="Primary">
+  <a href="/pokemon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11.5 12 4l8 7.5" /><path d="M6 10v9h12v-9" /></svg>
+    Home
+  </a>
+  <a href="/pokemon-missions">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 4h6l1 4H8z" /><path d="M6 8h12l1 12H5z" /></svg>
+    Missions
+  </a>
+  <a href="pokemon-charactersandskills.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9" /><path d="M3 12h18" /><circle cx="12" cy="12" r="3" /></svg>
+    Roster
+  </a>
+  <a href="/pokemon-community">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="2.5" /><circle cx="16.5" cy="9.5" r="2" /><path d="M4.5 18c.8-2.7 3-4 5.5-4s4.7 1.3 5.5 4" /></svg>
+    Community
+  </a>
+</nav>
+
+<script>
+  (function () {
+    var toggle = document.getElementById('pp-nav-toggle');
+    var nav = document.getElementById('pp-nav');
+    if (!toggle || !nav) return;
+    toggle.addEventListener('click', function () {
+      var open = nav.classList.toggle('pp-nav-open');
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  }());
+</script>
+<script src="./scripts/index.js?v=ground-up-v1&news-skill-image-fix-v1&home-switch-link-v1" defer></script>
+</body>
+</html>

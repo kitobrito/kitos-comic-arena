@@ -3020,9 +3020,9 @@
     return String(value || "").trim().slice(0, 64);
   }
 
-  function buildProfileHref(username) {
-    var safeUsername = sanitizeProfileRouteUsername(username);
-    return safeUsername ? "profile.html" : "profile.html";
+  function buildProfileHref() {
+    var pageArena = (document.body && document.body.dataset && document.body.dataset.pageArena) || "";
+    return pageArena === "pokemon" ? "pokemon-profile.html" : "profile.html";
   }
 
   function buildClanProfileHref(clanName) {
@@ -4121,7 +4121,16 @@
   }
 
   if (gen2StarterReopenButton) {
-    gen2StarterReopenButton.addEventListener("click", openGen2StarterChoice);
+    gen2StarterReopenButton.addEventListener("click", function () {
+      // The starter-choice overlay only exists on the Pokemon home page. On
+      // every other Pokemon page (Missions, Characters, account pages, etc.)
+      // send the player there instead of silently doing nothing.
+      if (!gen2StarterOverlay) {
+        window.location.href = "/pokemon";
+        return;
+      }
+      openGen2StarterChoice();
+    });
   }
   if (gen2StarterCloseButton) {
     gen2StarterCloseButton.addEventListener("click", closeGen2StarterChoice);
@@ -4447,7 +4456,7 @@
 
   if (viewProfileButton) {
     viewProfileButton.addEventListener("click", function () {
-      window.location.href = "profile.html";
+      window.location.href = buildProfileHref();
     });
   }
 
@@ -4474,19 +4483,22 @@
 
   if (clanPanelButton) {
     clanPanelButton.addEventListener("click", function () {
-      window.location.href = "clan%20panel.html";
+      var pageArena = (document.body && document.body.dataset && document.body.dataset.pageArena) || "";
+      window.location.href = pageArena === "pokemon" ? "pokemon-clanpanel.html" : "clan%20panel.html";
     });
   }
 
   if (changeBackgroundsButton) {
     changeBackgroundsButton.addEventListener("click", function () {
-      window.location.href = "changebackgrounds.html";
+      var pageArena = (document.body && document.body.dataset && document.body.dataset.pageArena) || "";
+      window.location.href = pageArena === "pokemon" ? "pokemon-changebackgrounds.html" : "changebackgrounds.html";
     });
   }
 
   if (resetAccountButton) {
     resetAccountButton.addEventListener("click", function () {
-      window.location.href = "resetaccount.html";
+      var pageArena = (document.body && document.body.dataset && document.body.dataset.pageArena) || "";
+      window.location.href = pageArena === "pokemon" ? "pokemon-resetaccount.html" : "resetaccount.html";
     });
   }
 

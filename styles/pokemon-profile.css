@@ -1,0 +1,162 @@
+/* Pokemon Arena Profile - page-specific styles (uses pp-* tokens from pokemon-portal.css) */
+
+.pp-panel-subtitle {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--pp-ink-faint);
+  text-transform: none;
+  margin-left: 6px;
+}
+
+.pp-info-table {
+  display: grid;
+  gap: 8px;
+}
+
+.pp-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--pp-line);
+  background: var(--pp-bg-panel);
+  font-size: 12.5px;
+}
+
+.pp-info-row span {
+  color: var(--pp-ink-faint);
+}
+
+.pp-info-row strong {
+  color: var(--pp-ink);
+  font-weight: 700;
+}
+
+.pp-clan-badge {
+  width: 64px;
+  height: 64px;
+  border-radius: 14px;
+  border: 1px solid var(--pp-line-strong);
+  background-color: var(--pp-bg-panel);
+  background-size: cover;
+  background-position: center;
+  display: grid;
+  place-items: center;
+  color: var(--pp-accent-bright);
+  font-family: var(--pp-font-display);
+  font-size: 12px;
+  text-align: center;
+  padding: 4px;
+}
+
+/* Level meter (used inside the Pokemon Arena Ladder stat card) */
+.level-meter {
+  position: relative;
+  width: 100%;
+  height: 26px;
+  overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid var(--pp-line-strong);
+  background: var(--pp-bg);
+  display: block;
+}
+
+.level-meter::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: var(--level-progress, 6%);
+  background: linear-gradient(90deg, var(--pp-accent) 0%, var(--pp-accent-bright) 100%);
+}
+
+.level-meter span {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  height: 100%;
+  color: var(--pp-ink);
+  font-size: 13px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.status-offline,
+.status-online {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+
+.status-offline::before,
+.status-online::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status-offline::before {
+  background: #e0555a;
+  box-shadow: 0 0 0 3px rgba(224, 85, 90, 0.2);
+}
+
+.status-online::before {
+  background: #35c46a;
+  box-shadow: 0 0 0 3px rgba(53, 196, 106, 0.2);
+}
+
+/* Recent-games rows (also used by the Clan Panel overlays) */
+.quick-games-list {
+  display: grid;
+  gap: 8px;
+}
+
+.quick-game-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--pp-line);
+  background: var(--pp-bg-panel);
+  font-size: 12.5px;
+  flex-wrap: wrap;
+}
+
+.quick-game-row a {
+  color: var(--pp-accent-bright);
+  text-decoration: none;
+}
+
+.quick-game-matchup { color: var(--pp-ink); }
+.quick-game-result,
+.quick-game-time {
+  color: var(--pp-ink-faint);
+  font-size: 11.5px;
+  white-space: nowrap;
+}
+
+.quick-game-empty {
+  padding: 14px;
+  border: 1px dashed var(--pp-line-strong);
+  border-radius: 10px;
+  color: var(--pp-ink-faint);
+  font-size: 12.5px;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .pp-info-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}

@@ -1,0 +1,393 @@
+/* Pokemon Arena account/settings pages (Reset Account, Custom Background, Clan Panel, Profile)
+   Shared layout on top of the pp-* tokens from pokemon-portal.css. */
+
+.pp-account-layout {
+  display: grid;
+  gap: 24px;
+  padding: 28px 0 20px;
+}
+
+@media (min-width: 980px) {
+  .pp-account-layout {
+    grid-template-columns: minmax(0, 1fr) 340px;
+    align-items: start;
+  }
+}
+
+@media (max-width: 979px) {
+  .pp-account-layout > aside { order: -1; }
+}
+
+.pp-account-layout > div {
+  display: grid;
+  gap: 18px;
+  align-content: start;
+}
+
+.pp-account-headline {
+  position: relative;
+  overflow: hidden;
+}
+
+.pp-account-headline::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 700px 260px at 90% -20%, var(--pp-accent-soft), transparent 60%);
+  pointer-events: none;
+}
+
+/* Auth / account panel avatar rows (shared markup with the other pp pages) */
+.pp-avatar-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.pp-avatar-row img {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--pp-accent);
+}
+
+.pp-avatar-row label {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 11.5px;
+  color: var(--pp-ink-faint);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pp-avatar-row input { margin: 0; }
+
+/* Reset Account -------------------------------------------------------- */
+
+.pp-reset-stage {
+  display: grid;
+  gap: 18px;
+}
+
+@media (min-width: 720px) {
+  .pp-reset-stage {
+    grid-template-columns: minmax(0, 1.2fr) minmax(240px, 0.8fr);
+  }
+}
+
+.pp-reset-card {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+.pp-reset-kicker {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  min-height: 26px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--pp-accent-soft);
+  color: var(--pp-accent-bright);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.pp-reset-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.pp-reset-stat {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--pp-line);
+  background: var(--pp-bg-panel);
+}
+
+.pp-reset-stat-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--pp-ink-faint);
+}
+
+.pp-reset-stat-value {
+  display: block;
+  font-family: var(--pp-font-display);
+  font-size: 13.5px;
+  color: var(--pp-ink);
+}
+
+.pp-reset-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.pp-reset-confirm {
+  display: none;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid var(--pp-accent);
+  background: var(--pp-accent-soft);
+}
+
+.pp-reset-confirm.visible {
+  display: grid;
+}
+
+.pp-detail-card {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+.pp-detail-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.pp-detail-list li {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--pp-line);
+  background: var(--pp-bg-panel);
+  color: var(--pp-ink-dim);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.pp-detail-note {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px dashed var(--pp-line-strong);
+  background: var(--pp-bg-raised);
+  color: var(--pp-ink-faint);
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+/* Custom Background ------------------------------------------------------ */
+
+.pp-background-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 14px;
+}
+
+.pp-background-option {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid var(--pp-line);
+  cursor: pointer;
+  aspect-ratio: 16 / 10;
+  background: var(--pp-bg-panel);
+  padding: 0;
+}
+
+.pp-background-option img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.pp-background-option:hover {
+  border-color: var(--pp-accent);
+}
+
+.pp-background-option.selected {
+  border-color: var(--pp-accent);
+  box-shadow: 0 0 0 2px var(--pp-accent-soft);
+}
+
+.pp-background-option-label {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 6px 8px;
+  background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.72));
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  text-align: left;
+}
+
+.pp-background-option.selected .pp-background-option-label::before {
+  content: "\2713  ";
+}
+
+/* Clan Panel ------------------------------------------------------------- */
+
+.pp-clan-summary {
+  display: grid;
+  gap: 14px;
+}
+
+@media (min-width: 640px) {
+  .pp-clan-summary {
+    grid-template-columns: 96px minmax(0, 1fr);
+    align-items: center;
+  }
+}
+
+.pp-clan-badge {
+  width: 88px;
+  height: 88px;
+  border-radius: 16px;
+  border: 1px solid var(--pp-line-strong);
+  background: var(--pp-bg-panel);
+  object-fit: cover;
+}
+
+.pp-clan-name {
+  margin: 0 0 4px;
+  font-family: var(--pp-font-display);
+  font-size: 19px;
+  color: var(--pp-ink);
+}
+
+.pp-clan-meta {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--pp-ink-faint);
+}
+
+.pp-clan-members {
+  display: grid;
+  gap: 8px;
+}
+
+.pp-clan-member-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--pp-line);
+  background: var(--pp-bg-panel);
+  font-size: 13px;
+}
+
+.pp-clan-member-row strong { color: var(--pp-ink); }
+.pp-clan-member-role {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--pp-accent-bright);
+}
+
+/* Profile ----------------------------------------------------------------- */
+
+.pp-profile-header {
+  display: grid;
+  gap: 14px;
+}
+
+@media (min-width: 640px) {
+  .pp-profile-header {
+    grid-template-columns: 96px minmax(0, 1fr);
+    align-items: center;
+  }
+}
+
+.pp-profile-avatar {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  border: 2px solid var(--pp-accent);
+  object-fit: cover;
+}
+
+.pp-profile-name {
+  margin: 0 0 4px;
+  font-family: var(--pp-font-display);
+  font-size: 22px;
+  color: var(--pp-ink);
+}
+
+.pp-profile-tagline {
+  margin: 0;
+  font-size: 13px;
+  color: var(--pp-ink-faint);
+}
+
+.pp-profile-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 10px;
+}
+
+.pp-profile-stat {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--pp-line);
+  background: var(--pp-bg-panel);
+  text-align: center;
+}
+
+.pp-profile-stat strong {
+  display: block;
+  font-family: var(--pp-font-display);
+  font-size: 18px;
+  color: var(--pp-accent-bright);
+  font-variant-numeric: tabular-nums;
+}
+
+.pp-profile-stat span {
+  display: block;
+  margin-top: 4px;
+  font-size: 10.5px;
+  color: var(--pp-ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pp-profile-history {
+  display: grid;
+  gap: 8px;
+}
+
+.pp-profile-match-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--pp-line);
+  background: var(--pp-bg-panel);
+  font-size: 12.5px;
+}
+
+.pp-profile-match-row.win { border-left: 3px solid #35c46a; }
+.pp-profile-match-row.loss { border-left: 3px solid var(--pp-accent-bright); }
+
+@media (max-width: 640px) {
+  .pp-reset-stats,
+  .pp-clan-summary,
+  .pp-profile-header {
+    grid-template-columns: 1fr;
+  }
+}

@@ -151,7 +151,10 @@
 
       var link = document.createElement("a");
       link.className = "player-link";
-      link.href = "profile.html?user=" + encodeURIComponent(user && user.username ? user.username : "");
+      var profilePage = document.body && document.body.dataset && document.body.dataset.pageArena === "pokemon"
+        ? "pokemon-profile.html"
+        : "profile.html";
+      link.href = profilePage + "?user=" + encodeURIComponent(user && user.username ? user.username : "");
       link.textContent = "Open Profile";
       content.appendChild(link);
 
