@@ -19,36 +19,142 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="styles/pokemon-portal.css?v=ground-up-v5" />
   <style>
-    :root { --pp-hero-bg: url('/assets/images/PokemonArena/Website/pokeballs.jpg'); }
     .pp-hero {
       position: relative;
       overflow: hidden;
       border-bottom: 1px solid var(--pp-line);
-    }
-    .pp-hero::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: var(--pp-hero-bg) center / cover no-repeat;
-      opacity: 0.34;
-      mask-image: linear-gradient(100deg, black 0%, black 30%, transparent 62%);
-      -webkit-mask-image: linear-gradient(100deg, black 0%, black 30%, transparent 62%);
+      background:
+        radial-gradient(ellipse 900px 500px at 50% -10%, var(--pp-accent-soft), transparent 60%),
+        var(--pp-bg);
     }
     .pp-hero-inner {
       position: relative;
       z-index: 1;
-      padding: 56px 0 44px;
+      padding: 22px 0 44px;
       display: grid;
-      gap: 28px;
+      gap: 26px;
     }
     @media (min-width: 760px) {
-      .pp-hero-inner { padding: 88px 0 64px; }
+      .pp-hero-inner { padding: 32px 0 64px; }
     }
+
+    /* Hero key-art banner ------------------------------------------------ */
+    .pp-hero-art-frame {
+      position: relative;
+      border-radius: calc(var(--pp-radius) + 6px);
+      overflow: hidden;
+      border: 1px solid var(--pp-line-strong);
+      box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(0, 0, 0, 0.2) inset;
+      animation: pp-hero-art-in 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .pp-hero-art-frame img {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1160 / 380;
+      object-fit: cover;
+      object-position: center 35%;
+    }
+    .pp-hero-art-frame::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 55%, rgba(6, 7, 9, 0.85) 100%);
+      pointer-events: none;
+    }
+    @keyframes pp-hero-art-in {
+      from { opacity: 0; transform: scale(1.04); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .pp-hero-art-frame { animation: none; }
+    }
+
+    .pp-hero-copy { display: grid; gap: 10px; }
+
     .pp-hero-actions {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 26px;
+      align-items: center;
+      gap: 14px;
+      margin-top: 22px;
+    }
+
+    /* Image-art buttons (Play Now etc.) ----------------------------------- */
+    .pp-btn-art {
+      display: inline-flex;
+      border: none;
+      background: none;
+      padding: 0;
+      cursor: pointer;
+      line-height: 0;
+      filter: drop-shadow(0 6px 18px rgba(255, 176, 32, 0.35));
+      transition: transform 160ms ease, filter 160ms ease;
+    }
+    .pp-btn-art img {
+      display: block;
+      height: 52px;
+      width: auto;
+    }
+    .pp-btn-art:hover,
+    .pp-btn-art:focus-visible {
+      transform: translateY(-2px) scale(1.035);
+      filter: drop-shadow(0 10px 24px rgba(255, 176, 32, 0.55)) brightness(1.08);
+    }
+    .pp-btn-art:active {
+      transform: translateY(0) scale(0.98);
+      filter: drop-shadow(0 4px 10px rgba(255, 176, 32, 0.35));
+    }
+
+    /* Clickable full-width promo banners ---------------------------------- */
+    .pp-promo-banner {
+      display: block;
+      position: relative;
+      border-radius: var(--pp-radius);
+      overflow: hidden;
+      border: 1px solid var(--pp-line);
+      transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+      cursor: pointer;
+      width: 100%;
+      padding: 0;
+      background: none;
+      text-align: left;
+      font: inherit;
+      color: inherit;
+    }
+    .pp-promo-banner img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .pp-promo-banner:hover,
+    .pp-promo-banner:focus-visible {
+      transform: translateY(-3px);
+      border-color: var(--pp-accent);
+      box-shadow: 0 16px 36px -14px rgba(0, 0, 0, 0.6);
+    }
+    .pp-promo-banner-row {
+      display: grid;
+      gap: 14px;
+      margin-top: 16px;
+    }
+    @media (min-width: 760px) {
+      .pp-promo-banner-row { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* Section header banner (News) ----------------------------------------- */
+    .pp-section-banner {
+      position: relative;
+      border-radius: var(--pp-radius) var(--pp-radius) 0 0;
+      overflow: hidden;
+      margin: -18px -18px 16px;
+    }
+    .pp-section-banner img {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 130px;
+      object-fit: cover;
     }
     .pp-stat-row {
       display: flex;
@@ -344,12 +450,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   <section class="pp-hero">
     <div class="pp-container pp-hero-inner">
-      <div>
+      <div class="pp-hero-art-frame">
+        <img src="assets/images/PokemonArena/homepage-art/hero-arena-standoff.png" alt="A shadow dragon and a blazing dragon face off across the Pokemon Arena stadium" />
+      </div>
+      <div class="pp-hero-copy">
         <div class="pp-eyebrow">Live Browser Battle Arena</div>
         <h1 class="pp-h1" id="home-arena-title">Build your team. Become the champion.</h1>
         <p class="pp-lede" id="home-arena-description">Pokemon Arena is a free tactical battler with its own roster, missions, skins, and ladder — queue up and fight in your browser, no download required.</p>
         <div class="pp-hero-actions">
-          <button class="pp-btn pp-btn-primary" type="button" data-play-arena="pokemon">Play Now</button>
+          <button class="pp-btn-art" type="button" data-play-arena="pokemon">
+            <img src="assets/images/PokemonArena/homepage-art/play-now-button.png" alt="Play Now" />
+          </button>
           <a class="pp-btn pp-btn-ghost" href="/pokemon-missions">Missions</a>
           <a class="pp-btn pp-btn-ghost" href="pokemon-charactersandskills.html">Roster &amp; Skills</a>
         </div>
@@ -373,7 +484,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   <main class="pp-container pp-layout">
     <div>
-      <section class="pp-panel" aria-label="Pokemon Ladder reward">
+      <div class="pp-promo-banner-row">
+        <a class="pp-promo-banner" href="pokemon-charactersandskills.html" aria-label="Build your ultimate team — browse the full roster">
+          <img src="assets/images/PokemonArena/homepage-art/build-your-team-banner.png" alt="Build your ultimate team" loading="lazy" />
+        </a>
+        <button class="pp-promo-banner" type="button" data-play-arena="pokemon" aria-label="Enter the PvP arena and prove your skills — play now">
+          <img src="assets/images/PokemonArena/homepage-art/pvp-arena-banner.png" alt="PvP Arena — prove your skills" loading="lazy" />
+        </button>
+      </div>
+
+      <section class="pp-panel" aria-label="Pokemon Ladder reward" style="margin-top:16px;">
         <h2 class="pp-panel-title">Ladder Reward</h2>
         <p style="margin:0 0 10px;font-size:14px;"><strong>Win 25 ranked games. Get 1,000 points.</strong></p>
         <p style="margin:0 0 14px;font-size:13px;color:var(--pp-ink-dim);">Wins against players or battle bots both count. Spend points on character unlocks, alternate skins, and additional Eevee evolutions.</p>
@@ -408,6 +528,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </section>
 
       <section class="pp-panel" id="news-feed" aria-label="Arena news" style="margin-top:16px;">
+        <div class="pp-section-banner">
+          <img src="assets/images/PokemonArena/homepage-art/news-banner.png" alt="" loading="lazy" />
+        </div>
         <div class="pp-news-head">
           <h2 class="pp-panel-title" style="margin:0;">News</h2>
           <div class="pp-news-nav">
