@@ -125,6 +125,7 @@ const MATCHES_COLLECTION = process.env.MONGODB_MATCHES_COLLECTION || 'matches';
 const APP_STATE_COLLECTION = process.env.MONGODB_APP_STATE_COLLECTION || 'app_state';
 const NEWS_POSTS_COLLECTION = process.env.MONGODB_NEWS_POSTS_COLLECTION || 'news_posts';
 const POINT_PURCHASES_COLLECTION = process.env.MONGODB_POINT_PURCHASES_COLLECTION || 'point_purchases';
+const DEMO_FEEDBACK_COLLECTION = process.env.MONGODB_DEMO_FEEDBACK_COLLECTION || 'demo_feedback';
 const STARTUP_MIGRATION_STATE_KEY = 'startup_data_migration';
 const STARTUP_MIGRATION_VERSION = '2026-07-29-audit-remediation-v1';
 const CHARACTERS_FILE_PATH = path.join(__dirname, 'characters.js');
@@ -2120,6 +2121,7 @@ let matchesCollection;
 let appStateCollection;
 let newsPostsCollection;
 let pointPurchasesCollection;
+let demoFeedbackCollection;
 let characterOverrideCache = new Map();
 const matchSocketRooms = new Map();
 const wsConnections = new Set();
@@ -10023,6 +10025,14 @@ const registerLimiter = rateLimit({
     message: { error: 'Too many registration attempts. Please wait a moment and try again.' },
 });
 
+const demoFeedbackLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Too many feedback submissions. Please wait a moment and try again.' },
+});
+
 
 const signSession = (user) =>
     jwt.sign(
@@ -14039,6 +14049,7 @@ async function initDb() {
     appStateCollection = db.collection(APP_STATE_COLLECTION);
     newsPostsCollection = db.collection(NEWS_POSTS_COLLECTION);
     pointPurchasesCollection = db.collection(POINT_PURCHASES_COLLECTION);
+    demoFeedbackCollection = db.collection(DEMO_FEEDBACK_COLLECTION);
     await Promise.all([
         usersCollection.createIndex({ username: 1 }, { unique: true }),
         usersCollection.createIndex({ usernameLower: 1 }),
@@ -14059,6 +14070,8 @@ async function initDb() {
         newsPostsCollection.createIndex({ createdAt: -1 }),
         pointPurchasesCollection.createIndex({ provider: 1, orderId: 1 }, { unique: true }),
         pointPurchasesCollection.createIndex({ username: 1, createdAt: -1 }),
+        demoFeedbackCollection.createIndex({ createdAt: -1 }),
+        demoFeedbackCollection.createIndex({ demoId: 1, createdAt: -1 }),
     ]);
     await hydrateCharactersDataFromStoredOverrides();
     const startupMigrationState = await appStateCollection.findOne(
@@ -17681,6 +17694,109 @@ app.delete('/api/admin/news/:id', requireSession, async (req, res) => {
     }
 });
 
+const DEMO_CATALOG = [
+    { id: 'vampire-rpg', name: 'Vampire RPG', path: '/prototypes/vampire-rpg/index.html' },
+];
+
+function isKnownDemoId(demoId) {
+    return DEMO_CATALOG.some((demo) => demo.id === demoId);
+}
+
+function serializeDemoFeedback(entry) {
+    return {
+        id: entry._id ? String(entry._id) : '',
+        demoId: entry.demoId || '',
+        message: entry.message || '',
+        username: entry.username || 'Guest',
+        createdAt: entry.createdAt ? new Date(entry.createdAt).toISOString() : null,
+    };
+}
+
+// Public: anyone (logged in or not) can leave short feedback on a prototype
+// demo. Only an admin can read these back (see /api/admin/demo-feedback).
+app.post('/api/demo-feedback', demoFeedbackLimiter, async (req, res) => {
+    const demoId = typeof req.body?.demoId === 'string' ? req.body.demoId.trim() : '';
+    const message = typeof req.body?.message === 'string' ? req.body.message.trim() : '';
+
+    if (!isKnownDemoId(demoId)) {
+        return res.status(400).json({ error: 'Unknown demo.' });
+    }
+    if (!message) {
+        return res.status(400).json({ error: 'Feedback message is required.' });
+    }
+    if (message.length > 2000) {
+        return res.status(400).json({ error: 'Feedback must be 2000 characters or fewer.' });
+    }
+
+    let username = 'Guest';
+    try {
+        const token = req.cookies?.[SESSION_COOKIE_NAME];
+        const authUser = token ? await getSessionUserFromToken(token) : null;
+        if (authUser?.username) {
+            username = authUser.username;
+        }
+    } catch (error) {
+        // Not logged in, or a stale/invalid session cookie -- feedback is
+        // still accepted, just attributed to "Guest".
+    }
+
+    try {
+        await demoFeedbackCollection.insertOne({
+            demoId,
+            message,
+            username,
+            createdAt: new Date(),
+        });
+        return res.status(201).json({ ok: true });
+    } catch (error) {
+        console.error('Demo feedback submit error:', error);
+        return res.status(500).json({ error: 'Unable to submit feedback right now.' });
+    }
+});
+
+app.get('/api/admin/demo-feedback', requireSession, async (req, res) => {
+    if (String(req.authUser?.role || '').trim().toLowerCase() !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required.' });
+    }
+
+    try {
+        const entries = await demoFeedbackCollection
+            .find({}, { sort: { createdAt: -1 } })
+            .limit(500)
+            .toArray();
+        return res.json({
+            ok: true,
+            demos: DEMO_CATALOG,
+            entries: entries.map(serializeDemoFeedback),
+        });
+    } catch (error) {
+        console.error('Admin demo feedback load error:', error);
+        return res.status(500).json({ error: 'Unable to load demo feedback.' });
+    }
+});
+
+app.delete('/api/admin/demo-feedback/:id', requireSession, async (req, res) => {
+    if (String(req.authUser?.role || '').trim().toLowerCase() !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required.' });
+    }
+
+    const id = typeof req.params?.id === 'string' ? req.params.id.trim() : '';
+    if (!ObjectId.isValid(id)) {
+        return res.status(400).json({ error: 'Invalid feedback id.' });
+    }
+
+    try {
+        const result = await demoFeedbackCollection.deleteOne({ _id: new ObjectId(id) });
+        if (!result.deletedCount) {
+            return res.status(404).json({ error: 'Feedback entry not found.' });
+        }
+        return res.json({ ok: true });
+    } catch (error) {
+        console.error('Admin demo feedback delete error:', error);
+        return res.status(500).json({ error: 'Unable to delete feedback entry.' });
+    }
+});
+
 app.get('/api/admin/users', requireSession, async (req, res) => {
     if (String(req.authUser?.role || '').trim().toLowerCase() !== 'admin') {
         return res.status(403).json({ error: 'Admin access required.' });
@@ -19633,6 +19749,10 @@ app.get(['/pokemon-clanpanel', '/pokemon-clanpanel.html'], (req, res) => {
 
 app.get(['/pokemon-profile', '/pokemon-profile.html'], (req, res) => {
     res.sendFile(path.join(__dirname, 'pokemon-profile.html'));
+});
+
+app.get(['/pokemon-demos', '/pokemon-demos.html'], (req, res) => {
+    res.sendFile(path.join(__dirname, 'pokemon-demos.html'));
 });
 
 app.get(['/selection-login', '/selection-login.html'], (req, res) => {

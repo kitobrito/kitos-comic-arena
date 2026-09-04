@@ -1,0 +1,91 @@
+/* Pokemon Arena Demos - page-specific styles (uses pp-* tokens from pokemon-portal.css) */
+
+.pp-hero {
+  border-bottom: 1px solid var(--pp-line);
+}
+
+.pp-hero-inner {
+  display: grid;
+  gap: 12px;
+}
+
+.pp-hero-compact .pp-hero-inner {
+  padding: 30px 0 26px;
+}
+
+@media (min-width: 760px) {
+  .pp-hero-compact .pp-hero-inner { padding: 44px 0 36px; }
+}
+
+.pp-demos-main {
+  display: grid;
+  gap: 20px;
+  padding: 36px 0 40px;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.pp-demos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.pp-demo-card {
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.pp-demo-card-art {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  display: block;
+  background: var(--pp-bg-panel);
+}
+
+.pp-demo-card-art-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--pp-ink-faint);
+  font-family: var(--pp-font-display);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.pp-demo-card.pp-demo-card-soon {
+  opacity: 0.72;
+}
+
+.pp-demo-card-body {
+  padding: 16px;
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+
+.pp-demo-card-title {
+  margin: 0;
+  font-family: var(--pp-font-display);
+  font-size: 16px;
+  color: var(--pp-ink);
+}
+
+.pp-demo-card-copy {
+  margin: 0 0 6px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--pp-ink-dim);
+}
+
+.pp-demo-card-body .pp-btn {
+  justify-self: start;
+}
+
+.pp-demo-feedback textarea.pp-field {
+  font-family: inherit;
+}
