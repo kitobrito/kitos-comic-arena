@@ -17,7 +17,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   <meta property="og:type" content="website" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="styles/pokemon-portal.css?v=ground-up-v2" />
+  <link rel="stylesheet" href="styles/pokemon-portal.css?v=ground-up-v3" />
   <style>
     :root { --pp-hero-bg: url('/assets/images/PokemonArena/Website/pokeballs.jpg'); }
     .pp-hero {
@@ -86,6 +86,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         grid-template-columns: minmax(0, 1fr) 340px;
         align-items: start;
       }
+    }
+    /* Below 980px this stacks to one column in DOM order (main content,
+       then the aside with login/leaderboards) -- pull the aside above it
+       instead, so account access never depends on scrolling past however
+       tall the main column happens to be. */
+    @media (max-width: 979px) {
+      .pp-layout > aside { order: -1; }
     }
 
     .pp-explore-grid a {

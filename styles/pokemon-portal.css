@@ -647,6 +647,106 @@ body.pp-body {
   margin: 10px 0;
 }
 
+/* Character/Skill Changes list -- these class names come from
+   renderNewsPost in scripts/index.js, same as the rest of #news-feed-content
+   above. Never styled before, so every skill-art image rendered at its full
+   natural size (some 800px+), which on a single-column mobile layout could
+   push the whole page past 10,000px tall before reaching anything below the
+   news feed (the login form included). */
+#news-feed-content .news-change-title {
+  font-family: var(--pp-font-display);
+  font-size: 14px;
+  font-weight: 700;
+  margin: 4px 0 12px;
+}
+#news-feed-content .news-change-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+#news-feed-content .news-change-group {
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  gap: 10px;
+}
+#news-feed-content .news-change-character {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--pp-line-strong);
+}
+#news-feed-content .news-change-character-name {
+  font-weight: 700;
+  font-size: 12.5px;
+  color: var(--pp-accent-bright);
+  margin-bottom: 6px;
+}
+#news-feed-content .news-change-item {
+  display: flex;
+  gap: 10px;
+  padding: 8px 0;
+  border-top: 1px solid var(--pp-line);
+}
+#news-feed-content .news-change-item:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
+#news-feed-content .news-change-art-frame {
+  flex: 0 0 auto;
+}
+#news-feed-content .news-change-art {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: var(--pp-radius);
+  border: 1px solid var(--pp-line-strong);
+}
+#news-feed-content .news-change-copy {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+#news-feed-content .news-change-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+#news-feed-content .news-change-type {
+  font-family: var(--pp-font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 2px 6px;
+  border-radius: var(--pp-radius);
+  background: var(--pp-accent);
+  color: var(--pp-accent-ink);
+}
+#news-feed-content .news-change-skill {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--pp-ink);
+}
+#news-feed-content .news-change-text {
+  font-size: 12.5px;
+  color: var(--pp-ink-dim);
+  margin: 0;
+}
+#news-feed-content .news-change-toggle {
+  font-family: var(--pp-font-body);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--pp-accent-bright);
+  background: none;
+  border: none;
+  padding: 4px 0;
+  cursor: pointer;
+}
+#news-feed-content .news-change-collapsible[hidden] {
+  display: none;
+}
+
 /* Utility ------------------------------------------------------------ */
 .pp-visually-hidden {
   position: absolute !important;
