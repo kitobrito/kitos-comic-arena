@@ -22,6 +22,31 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,500&family=JetBrains+Mono:wght@500;600&display=swap');
 
+/* Pokemon-specific flavor faces -- for accents only (brand wordmark, big
+   stat callouts), never body copy or long headings; none of the three
+   hold up as legible text at that scale. */
+@font-face {
+  font-family: 'Pocket Monk';
+  src: url('/assets/images/PokemonArena/font/PocketMonk-15ze.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Pokemon Solid';
+  src: url('/assets/images/PokemonArena/font/PokemonSolidNormal-xyWR.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Pokemon Hollow';
+  src: url('/assets/images/PokemonArena/font/PokemonHollowNormal-pyPZ.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   /* Ground */
   --pp-bg: #0e1013;
@@ -49,6 +74,9 @@
   --pp-font-display: 'Unbounded', 'Plus Jakarta Sans', system-ui, sans-serif;
   --pp-font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
   --pp-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --pp-font-flavor: 'Pocket Monk', var(--pp-font-display);
+  --pp-font-logo: 'Pokemon Solid', var(--pp-font-display);
+  --pp-font-logo-outline: 'Pokemon Hollow', var(--pp-font-display);
 }
 
 /* Per-page accent tokens ---------------------------------------------- */
@@ -168,10 +196,10 @@ body.pp-body {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-family: var(--pp-font-display);
-  font-weight: 700;
-  font-size: 16px;
-  letter-spacing: 0.01em;
+  font-family: var(--pp-font-logo);
+  font-weight: 400;
+  font-size: 19px;
+  letter-spacing: 0.03em;
   white-space: nowrap;
   flex-shrink: 0;
 }
