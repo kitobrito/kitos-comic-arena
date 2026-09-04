@@ -1,0 +1,653 @@
+/* ==========================================================================
+   Pokemon Arena Portal — shared design system
+   Used by: pokemon-home.html, pokemon-missions.html,
+   pokemon-charactersandskills.html, pokemon-community.html,
+   pokemon-events.html, pokemon-manual.html.
+
+   Ground-up rebuild, deliberately independent of style.css/portal-theme.css
+   (the Comic-Arena look). Selection (/pokemon-arena) and battle
+   (ingame.html) are untouched and do not load this file.
+
+   Concept: a dark competitive "battle portal" rather than a bright kids'
+   game skin. Each page gets its own accent pulled from a real in-game
+   Poke Ball tier (the game's own progression language doing double duty
+   as navigation color-coding) over a shared charcoal ground:
+     Home        -> Poke Ball red
+     Missions    -> Great Ball blue
+     Characters  -> Ultra Ball yellow
+     Community   -> Master Ball purple
+     Events      -> Safari Ball olive
+     Manual      -> Beast Ball violet-black
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,500&family=JetBrains+Mono:wght@500;600&display=swap');
+
+:root {
+  /* Ground */
+  --pp-bg: #0e1013;
+  --pp-bg-raised: #14171b;
+  --pp-bg-panel: #1a1e23;
+  --pp-line: rgba(232, 236, 240, 0.09);
+  --pp-line-strong: rgba(232, 236, 240, 0.16);
+  --pp-ink: #eef1f4;
+  --pp-ink-dim: #a7afb8;
+  --pp-ink-faint: #6b7280;
+
+  /* Global brand accent (Poke Ball red) -- used for primary CTAs / focus
+     rings regardless of which page-accent is active */
+  --pp-brand: #e8394a;
+  --pp-brand-bright: #ff5468;
+
+  /* Per-page accent, overridden per page via [data-portal-section] below */
+  --pp-accent: var(--pp-brand);
+  --pp-accent-bright: #ff5468;
+  --pp-accent-ink: #2a0508;
+  --pp-accent-soft: rgba(232, 57, 74, 0.14);
+
+  --pp-radius: 2px;
+  --pp-container: 1180px;
+  --pp-font-display: 'Unbounded', 'Plus Jakarta Sans', system-ui, sans-serif;
+  --pp-font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --pp-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+/* Per-page accent tokens ---------------------------------------------- */
+[data-portal-section="home"] {
+  --pp-accent: #e8394a;
+  --pp-accent-bright: #ff5468;
+  --pp-accent-ink: #2a0508;
+  --pp-accent-soft: rgba(232, 57, 74, 0.14);
+}
+[data-portal-section="missions"] {
+  --pp-accent: #2f7de0;
+  --pp-accent-bright: #5b9cf5;
+  --pp-accent-ink: #04101f;
+  --pp-accent-soft: rgba(47, 125, 224, 0.14);
+}
+[data-portal-section="characters"] {
+  --pp-accent: #f2c30f;
+  --pp-accent-bright: #ffd93f;
+  --pp-accent-ink: #241c00;
+  --pp-accent-soft: rgba(242, 195, 15, 0.14);
+}
+[data-portal-section="community"] {
+  --pp-accent: #9a4fe0;
+  --pp-accent-bright: #b877ff;
+  --pp-accent-ink: #180626;
+  --pp-accent-soft: rgba(154, 79, 224, 0.14);
+}
+[data-portal-section="events"] {
+  --pp-accent: #8a9a3c;
+  --pp-accent-bright: #b0c85a;
+  --pp-accent-ink: #10130a;
+  --pp-accent-soft: rgba(138, 154, 60, 0.14);
+}
+[data-portal-section="manual"] {
+  --pp-accent: #7a5cff;
+  --pp-accent-bright: #9d85ff;
+  --pp-accent-ink: #120a2e;
+  --pp-accent-soft: rgba(122, 92, 255, 0.14);
+}
+
+/* Reset ----------------------------------------------------------------- */
+html[data-portal] {
+  color-scheme: dark;
+}
+html[data-portal], html[data-portal] body {
+  margin: 0;
+  min-height: 100%;
+}
+html[data-portal] *, html[data-portal] *::before, html[data-portal] *::after {
+  box-sizing: border-box;
+}
+body.pp-body {
+  background: var(--pp-bg);
+  color: var(--pp-ink);
+  font-family: var(--pp-font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+.pp-body a {
+  color: inherit;
+  text-decoration: none;
+}
+.pp-body img {
+  max-width: 100%;
+  display: block;
+}
+.pp-body button, .pp-body input, .pp-body select, .pp-body textarea {
+  font-family: inherit;
+  color: inherit;
+}
+.pp-body :focus-visible {
+  outline: 2px solid var(--pp-accent-bright);
+  outline-offset: 2px;
+}
+
+/* Diagonal light-shard backdrop, echoes the Website ball renders' own
+   composition -- a fixed, low-opacity accent wash behind everything. */
+.pp-body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(115deg, transparent 40%, var(--pp-accent-soft) 55%, transparent 70%),
+    radial-gradient(ellipse 900px 500px at 85% -10%, var(--pp-accent-soft), transparent 60%);
+}
+.pp-shell {
+  position: relative;
+  z-index: 1;
+}
+
+/* Layout ------------------------------------------------------------- */
+.pp-container {
+  max-width: var(--pp-container);
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Top nav -------------------------------------------------------------- */
+.pp-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: rgba(14, 16, 19, 0.86);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--pp-line);
+}
+.pp-topbar-inner {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  height: 64px;
+}
+.pp-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--pp-font-display);
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.pp-brand img {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+.pp-brand-mark {
+  color: var(--pp-ink);
+}
+.pp-brand-mark em {
+  font-style: normal;
+  color: var(--pp-accent-bright);
+}
+.pp-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1 1 auto;
+}
+.pp-nav a {
+  padding: 9px 14px;
+  border-radius: var(--pp-radius);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--pp-ink-dim);
+  transition: color 120ms ease, background 120ms ease;
+}
+.pp-nav a:hover {
+  color: var(--pp-ink);
+  background: var(--pp-bg-panel);
+}
+.pp-nav a[aria-current="page"] {
+  color: var(--pp-bg);
+  background: var(--pp-accent);
+}
+.pp-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.pp-comic-switch {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--pp-ink-faint);
+  padding: 8px 12px;
+  border: 1px solid var(--pp-line-strong);
+  border-radius: var(--pp-radius);
+  transition: border-color 120ms ease, color 120ms ease;
+}
+.pp-comic-switch:hover {
+  color: var(--pp-ink);
+  border-color: var(--pp-ink-faint);
+}
+.pp-nav-toggle {
+  display: none;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--pp-line-strong);
+  border-radius: var(--pp-radius);
+  background: transparent;
+  color: var(--pp-ink);
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.pp-nav-toggle svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Mobile bottom tab bar -------------------------------------------------- */
+.pp-tabbar {
+  display: none;
+}
+
+@media (max-width: 860px) {
+  .pp-nav { display: none; }
+  .pp-nav-toggle { display: inline-flex; }
+  .pp-comic-switch { display: none; }
+
+  .pp-nav.pp-nav-open {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    inset: 64px 0 0 0;
+    background: var(--pp-bg);
+    padding: 12px;
+    gap: 2px;
+    z-index: 39;
+    overflow-y: auto;
+  }
+  .pp-nav.pp-nav-open a {
+    padding: 16px 14px;
+    font-size: 16px;
+    border-bottom: 1px solid var(--pp-line);
+    border-radius: 0;
+  }
+  .pp-nav.pp-nav-open .pp-comic-switch-mobile {
+    display: block;
+    margin-top: 8px;
+    text-align: center;
+  }
+
+  .pp-tabbar {
+    display: flex;
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 40;
+    background: rgba(14, 16, 19, 0.94);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid var(--pp-line);
+    padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+  }
+  .pp-tabbar a {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 6px 2px;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--pp-ink-faint);
+  }
+  .pp-tabbar a svg {
+    width: 20px;
+    height: 20px;
+  }
+  .pp-tabbar a[aria-current="page"] {
+    color: var(--pp-accent-bright);
+  }
+  body.pp-has-tabbar {
+    padding-bottom: 64px;
+  }
+}
+
+/* Section heading kit ---------------------------------------------------- */
+.pp-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--pp-font-mono);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--pp-accent-bright);
+  margin: 0 0 10px;
+}
+.pp-eyebrow::before {
+  content: "";
+  width: 18px;
+  height: 2px;
+  background: var(--pp-accent);
+}
+.pp-h1 {
+  font-family: var(--pp-font-display);
+  font-weight: 800;
+  font-size: clamp(32px, 5.4vw, 56px);
+  line-height: 1.04;
+  letter-spacing: -0.01em;
+  margin: 0 0 14px;
+  text-wrap: balance;
+}
+.pp-h2 {
+  font-family: var(--pp-font-display);
+  font-weight: 700;
+  font-size: clamp(22px, 3vw, 30px);
+  line-height: 1.12;
+  margin: 0 0 8px;
+  text-wrap: balance;
+}
+.pp-lede {
+  font-size: 16px;
+  color: var(--pp-ink-dim);
+  max-width: 56ch;
+  margin: 0;
+}
+
+/* Buttons ------------------------------------------------------------- */
+.pp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 22px;
+  border-radius: var(--pp-radius);
+  border: 1px solid transparent;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+  transition: transform 120ms ease, filter 120ms ease;
+}
+.pp-btn:active { transform: translateY(1px); }
+.pp-btn-primary {
+  background: var(--pp-accent);
+  color: var(--pp-accent-ink);
+}
+.pp-btn-primary:hover { filter: brightness(1.08); }
+.pp-btn-ghost {
+  background: transparent;
+  border-color: var(--pp-line-strong);
+  color: var(--pp-ink);
+  clip-path: none;
+  border-radius: var(--pp-radius);
+}
+.pp-btn-ghost:hover { border-color: var(--pp-ink-faint); }
+.pp-btn-block { width: 100%; }
+.pp-btn[disabled] { opacity: 0.5; cursor: default; }
+
+/* Card kit -------------------------------------------------------------- */
+.pp-card {
+  position: relative;
+  background: var(--pp-bg-panel);
+  border: 1px solid var(--pp-line);
+  border-radius: var(--pp-radius);
+  padding: 20px;
+}
+.pp-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--pp-accent);
+}
+.pp-card-tight { padding: 16px; }
+
+/* Panel / sidebar group -------------------------------------------------- */
+.pp-panel {
+  background: var(--pp-bg-raised);
+  border: 1px solid var(--pp-line);
+  border-radius: var(--pp-radius);
+  padding: 18px;
+}
+.pp-panel + .pp-panel { margin-top: 16px; }
+.pp-panel-title {
+  font-family: var(--pp-font-display);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--pp-ink);
+  margin: 0 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.pp-panel-title::before {
+  content: "";
+  width: 4px;
+  height: 14px;
+  background: var(--pp-accent);
+}
+
+/* Form fields ------------------------------------------------------------ */
+.pp-field {
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  background: var(--pp-bg);
+  border: 1px solid var(--pp-line-strong);
+  border-radius: var(--pp-radius);
+  color: var(--pp-ink);
+  font-size: 14px;
+}
+.pp-field::placeholder { color: var(--pp-ink-faint); }
+.pp-field:focus { border-color: var(--pp-accent); }
+.pp-status {
+  font-size: 12.5px;
+  color: var(--pp-ink-faint);
+  min-height: 1.4em;
+  margin: 6px 0 0;
+}
+.pp-status.is-error { color: #ff6b6b; }
+.pp-status.is-ok { color: #6fdc8c; }
+
+/* Account action buttons (list of icon rows) ----------------------------- */
+.pp-account-action {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 12px;
+  margin-bottom: 6px;
+  background: var(--pp-bg);
+  border: 1px solid var(--pp-line);
+  border-radius: var(--pp-radius);
+  color: var(--pp-ink);
+  font-size: 13.5px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+.pp-account-action:hover {
+  border-color: var(--pp-accent);
+  background: var(--pp-accent-soft);
+}
+.pp-account-action svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: var(--pp-accent-bright);
+}
+
+/* Leaderboard list -------------------------------------------------------- */
+.pp-lb-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.pp-lb-row {
+  display: grid;
+  grid-template-columns: 22px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+.pp-lb-rank {
+  font-family: var(--pp-font-mono);
+  font-weight: 700;
+  color: var(--pp-ink-faint);
+  text-align: center;
+}
+.pp-lb-row:nth-child(1) .pp-lb-rank,
+.pp-lb-row:nth-child(2) .pp-lb-rank,
+.pp-lb-row:nth-child(3) .pp-lb-rank {
+  color: var(--pp-accent-bright);
+}
+.pp-lb-name {
+  color: var(--pp-ink);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pp-lb-value {
+  font-family: var(--pp-font-mono);
+  font-size: 12.5px;
+  color: var(--pp-ink-dim);
+  font-variant-numeric: tabular-nums;
+}
+.pp-lb-bar-track {
+  grid-column: 1 / -1;
+  height: 4px;
+  background: var(--pp-bg);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: -2px;
+}
+.pp-lb-bar-fill {
+  height: 100%;
+  background: var(--pp-accent);
+}
+.pp-lb-empty {
+  color: var(--pp-ink-faint);
+  font-size: 12.5px;
+}
+
+/* News feed ---------------------------------------------------------- */
+.pp-news-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.pp-news-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.pp-news-btn {
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--pp-line-strong);
+  background: transparent;
+  color: var(--pp-ink);
+  border-radius: var(--pp-radius);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+}
+.pp-news-btn:hover { border-color: var(--pp-accent); }
+.pp-news-counter {
+  font-family: var(--pp-font-mono);
+  font-size: 11px;
+  color: var(--pp-ink-faint);
+}
+#news-feed-content .news-post {
+  display: block;
+}
+#news-feed-content .mainsection-kicker {
+  font-family: var(--pp-font-display);
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 6px;
+}
+#news-feed-content .mainsection-meta {
+  font-size: 11.5px;
+  color: var(--pp-ink-faint);
+  margin: 0 0 10px;
+}
+#news-feed-content .mainsection-meta .byline {
+  color: var(--pp-accent-bright);
+  font-weight: 600;
+}
+#news-feed-content .mainsection-body p {
+  font-size: 13px;
+  color: var(--pp-ink-dim);
+  margin: 0 0 8px;
+}
+#news-feed-content .news-divider {
+  border: none;
+  border-top: 1px solid var(--pp-line);
+  margin: 10px 0;
+}
+
+/* Utility ------------------------------------------------------------ */
+.pp-visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+.pp-grid {
+  display: grid;
+  gap: 16px;
+}
+@media (min-width: 640px) {
+  .pp-grid-2 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 900px) {
+  .pp-grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .pp-grid-4 { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* arena-navigation.js auto-injects a "Switch to X Arena" link when no
+   [data-home-arena-switch] element exists on the page, floating it in a
+   corner with its own inline styles if it can't find a ".brand" element to
+   anchor next to (this new markup intentionally has no ".brand" class).
+   We build our own comic-switch link in the topbar instead -- suppress the
+   injected one entirely rather than fight its inline colors. */
+.global-arena-switch-floating {
+  display: none !important;
+}
+
+/* Footer -------------------------------------------------------------- */
+.pp-footer {
+  border-top: 1px solid var(--pp-line);
+  padding: 28px 0 40px;
+  margin-top: 48px;
+}
+.pp-footer-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 28px;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--pp-ink-faint);
+  font-size: 12.5px;
+}
+.pp-footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.pp-footer-links a:hover { color: var(--pp-ink); }
