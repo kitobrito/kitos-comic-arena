@@ -89,7 +89,7 @@
         '<p class="news-meta">' + formatDate(post && (post.updatedAt || post.createdAt)) + " | " + (post && post.author ? post.author : "Unknown") + "</p>" +
         "<h3>" + (post && post.title ? post.title : "Untitled Post") + "</h3>" +
         "<p>" + toPreviewText(firstParagraph && firstParagraph.text ? firstParagraph.text : "No summary available yet.").slice(0, 180) + "</p>" +
-        '<a class="news-link" href="index.html?arena=' + encodeURIComponent(pageArena) + '">Open News Feed</a>';
+        '<a class="news-link" href="' + (pageArena === "pokemon" ? "/pokemon" : "index.html") + '">Open News Feed</a>';
       newsGrid.appendChild(article);
     });
   }

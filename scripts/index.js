@@ -5539,7 +5539,15 @@
   if (homeArenaSwitchButtons && homeArenaSwitchButtons.length) {
     homeArenaSwitchButtons.forEach(function (button) {
       button.addEventListener("click", function () {
-        setActiveHomeArena(button.getAttribute("data-home-arena-switch"), true);
+        var targetArena = button.getAttribute("data-home-arena-switch");
+        // Pokemon Arena is now its own ground-up page (see pokemon-home.html)
+        // rather than a same-page toggle here -- send this button there
+        // instead of just re-flavoring this Comic-Arena page in place.
+        if (targetArena === "pokemon") {
+          window.location.href = "/pokemon";
+          return;
+        }
+        setActiveHomeArena(targetArena, true);
       });
     });
   }
