@@ -19596,6 +19596,11 @@ app.get(['/pokemon', '/pokemon.html'], (req, res) => {
     res.sendFile(path.join(__dirname, 'pokemon-home.html'));
 });
 
+// Same ground-up redesign approach as /pokemon, but for the Missions page.
+app.get(['/pokemon-missions', '/pokemon-missions.html'], (req, res) => {
+    res.sendFile(path.join(__dirname, 'pokemon-missions.html'));
+});
+
 app.get(['/selection-login', '/selection-login.html'], (req, res) => {
     res.sendFile(path.join(__dirname, 'selection-login.html'));
 });

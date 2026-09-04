@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="en" data-portal>
+<head>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-K64P68MT');</script>
+<!-- End Google Tag Manager -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pokemon Arena Missions</title>
+  <meta name="description" content="Track Pokemon Arena missions, unlock characters, and earn ladder points." />
+  <meta property="og:title" content="Pokemon Arena Missions" />
+  <meta property="og:description" content="Track Pokemon Arena missions, unlock characters, and earn ladder points." />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="styles/pokemon-portal.css?v=ground-up-v5" />
+  <link rel="stylesheet" href="styles/pokemon-missions.css?v=ground-up-v1" />
+</head>
+<body class="pp-body pp-has-tabbar" data-page-arena="pokemon" data-portal-section="missions">
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-K64P68MT"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+<div class="pp-shell">
+  <header class="pp-topbar">
+    <div class="pp-container pp-topbar-inner">
+      <a class="pp-brand" href="/pokemon">
+        <img src="assets/images/PokemonArena/pokemonarenalogo.png" alt="" />
+        <span class="pp-brand-mark">Pokemon<em>Arena</em></span>
+      </a>
+      <nav class="pp-nav" id="pp-nav" aria-label="Primary">
+        <a href="/pokemon">Home</a>
+        <a href="/pokemon-missions" aria-current="page">Missions</a>
+        <a href="pokemon-charactersandskills.html">Characters</a>
+        <a href="/pokemon-community">Community</a>
+        <a href="/pokemon-events">Events</a>
+        <a href="/pokemon-manual">Manual</a>
+        <a class="pp-comic-switch pp-comic-switch-mobile" href="/">Comic Arena&nbsp;&rarr;</a>
+      </nav>
+      <div class="pp-topbar-actions">
+        <a class="pp-comic-switch" href="/">Comic Arena &rarr;</a>
+        <button class="pp-nav-toggle" id="pp-nav-toggle" type="button" aria-expanded="false" aria-controls="pp-nav" aria-label="Toggle menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="pp-hero pp-hero-compact">
+    <div class="pp-container pp-hero-inner">
+      <div>
+        <div class="pp-eyebrow">Track Your Progress</div>
+        <h1 class="pp-h1">Missions</h1>
+        <p class="pp-lede">Clear goals to unlock new Pokemon, earn ladder points, and climb toward the Champion Trial.</p>
+      </div>
+    </div>
+  </section>
+
+  <main class="pp-container pp-layout">
+    <div>
+      <aside class="pp-panel" id="pokemon-points-promo" hidden style="margin-bottom:16px;">
+        <p style="margin:0 0 8px;font-size:14px;"><strong>1,000 Points Are Waiting in Ladder</strong></p>
+        <p style="margin:0;font-size:13px;color:var(--pp-ink-dim);">Win 25 ranked games against players or battle bots. Use points to unlock Pokemon, buy alternate skins, and purchase additional Eevee evolutions.</p>
+      </aside>
+
+      <section class="pp-panel" aria-label="Missions">
+        <div class="pp-missions-toolbar">
+          <div class="pp-missions-search">
+            <label for="mission-search">Search Mission</label>
+            <input class="pp-field" id="mission-search" type="search" placeholder="Search for a mission..." aria-label="Search for a mission by name" style="margin:0;" />
+          </div>
+          <label class="pp-missions-availability" for="missions-available">
+            <input id="missions-available" type="checkbox" />
+            <span>Only show available</span>
+          </label>
+        </div>
+        <p class="pp-status" id="missions-status" aria-live="polite"></p>
+        <div class="pp-missions-grid" id="missions-grid"></div>
+      </section>
+    </div>
+
+    <aside>
+      <section class="pp-panel" id="auth-panel">
+        <h2 class="pp-panel-title" id="auth-title">Account Access</h2>
+        <div id="guest-auth-view">
+          <p class="pp-lede" id="auth-description" style="font-size:13px;margin:0 0 14px;">Sign in with your Comic-Arena account.</p>
+          <form id="auth-form">
+            <input class="pp-field" type="text" name="username" placeholder="Username" autocomplete="username" required />
+            <input class="pp-field" type="password" name="password" placeholder="Password" autocomplete="current-password" required />
+            <input class="pp-field" type="password" name="confirmPassword" placeholder="Confirm Password" autocomplete="new-password" hidden />
+            <input class="pp-field" type="email" name="email" placeholder="Email" autocomplete="email" hidden />
+            <button class="pp-btn pp-btn-primary pp-btn-block" type="submit" id="auth-submit">Login</button>
+            <button class="pp-btn pp-btn-ghost pp-btn-block" type="button" id="auth-toggle" style="margin-top:8px;">Need an account? Register</button>
+            <p class="pp-status" id="auth-status" aria-live="polite"></p>
+          </form>
+        </div>
+        <div class="account-panel" id="account-panel" hidden>
+          <p style="margin:0 0 14px;font-size:14px;">Welcome back, <strong id="account-username">Player</strong>!</p>
+          <button class="pp-account-action" type="button" id="view-profile-button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.25" /><path d="M5 19c.9-3 3.6-4.5 7-4.5S18.1 16 19 19" /></svg>
+            <span>View Profile</span>
+          </button>
+          <button class="pp-account-action" type="button" id="change-avatar-button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v6" /><path d="M9 6h6" /><path d="M5 21c1.2-3.2 4-4.8 7-4.8s5.8 1.6 7 4.8" /></svg>
+            <span>Change Avatar</span>
+          </button>
+          <button class="pp-account-action" type="button" id="clan-panel-button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 18V6l8-3 8 3v12l-8 3z" /><path d="M8 10h8" /><path d="M8 14h5" /></svg>
+            <span>Clan Panel</span>
+          </button>
+          <button class="pp-account-action" type="button" id="change-backgrounds-button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="5" width="16" height="14" rx="2" /><path d="M4 14c2.5-3 5.5-4.5 8-4.5s5.5 1.5 8 4.5" /></svg>
+            <span>Custom Background</span>
+          </button>
+          <button class="pp-account-action" type="button" id="reset-account-button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 7h14" /><path d="M8 7V5h8v2" /><path d="M9 11v5" /><path d="M15 11v5" /><path d="M7 7l1 12h8l1-12" /></svg>
+            <span>Reset Account</span>
+          </button>
+          <button class="pp-account-action" type="button" id="gen2-starter-reopen" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8" /><path d="M4 12h16" /><circle cx="12" cy="12" r="2.5" /></svg>
+            <span>Choose Gen 2 Starter</span>
+          </button>
+          <section id="admin-panel-section" hidden style="margin-top:14px;">
+            <h2 class="pp-panel-title" style="font-size:11.5px;">Admin Panel</h2>
+            <a class="pp-account-action" href="winrates.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 18h16" /><path d="M7 14V9" /><path d="M12 14V6" /><path d="M17 14v-3" /></svg><span>Winrates</span></a>
+            <a class="pp-account-action" href="charactereditor.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16" /><path d="M6 16 18 4" /><path d="m14 4 4 4" /></svg><span>Character Editor</span></a>
+            <a class="pp-account-action" href="editmission.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16" /><path d="M6 16 18 4" /><path d="M4 20l4-1" /><path d="M14 4l4 4" /></svg><span>Mission Editor</span></a>
+            <a class="pp-account-action" href="playeraccounts.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="2.5" /><circle cx="16.5" cy="9.5" r="2" /><path d="M4.5 18c.8-2.7 3-4 5.5-4s4.7 1.3 5.5 4" /><path d="M14 17c.5-1.7 1.8-2.8 3.8-2.8 1.5 0 2.9.8 3.7 2.3" /></svg><span>Player Accounts</span></a>
+            <a class="pp-account-action" href="newspost.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 6.5h14" /><path d="M5 11.5h14" /><path d="M5 16.5h9" /><rect x="4" y="4" width="16" height="16" rx="2" /></svg><span>News Post</span></a>
+          </section>
+          <button class="pp-account-action" type="button" id="logout-button" style="margin-top:14px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 17l5-5-5-5" /><path d="M15 12H4" /><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4" /></svg>
+            <span>Log Out</span>
+          </button>
+          <form id="change-avatar-form" style="margin-top:16px;">
+            <div class="pp-avatar-row" data-home-arena="comic" style="display:none;">
+              <img id="comic-avatar-current-image" src="/assets/images/external-mirror/i.postimg.cc/971bcdc8d3154d6d16a9.png" alt="Comic Arena avatar" />
+              <label>Comic Arena Avatar
+                <input class="pp-field" style="margin:0;" type="url" id="comic-avatar-url" placeholder="Direct image URL" autocomplete="off" />
+                <input type="file" id="comic-avatar-file" accept="image/*" />
+              </label>
+            </div>
+            <div class="pp-avatar-row" data-home-arena="pokemon">
+              <img id="pokemon-avatar-current-image" src="assets/images/PokemonArena/found-pokeball.png" alt="Pokemon Arena avatar" />
+              <label>Pokemon Arena Avatar
+                <input class="pp-field" style="margin:0;" type="url" id="pokemon-avatar-url" placeholder="Direct image URL" autocomplete="off" />
+                <input type="file" id="pokemon-avatar-file" accept="image/*" />
+              </label>
+            </div>
+            <button class="pp-btn pp-btn-primary pp-btn-block" type="submit" id="change-avatar-submit">Save Avatars</button>
+            <p class="pp-status" id="change-avatar-status" aria-live="polite"></p>
+          </form>
+          <p class="pp-status" id="account-status" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section class="pp-panel" aria-label="Top player levels">
+        <h2 class="pp-panel-title">Top Player Levels</h2>
+        <ol class="pp-lb-list" id="sidebar-top-player-levels"></ol>
+      </section>
+
+      <section class="pp-panel" aria-label="Top win streaks">
+        <h2 class="pp-panel-title">Current Win Streaks</h2>
+        <ol class="pp-lb-list" id="sidebar-top-current-streaks"></ol>
+      </section>
+
+      <section class="pp-panel" aria-label="Top wins">
+        <h2 class="pp-panel-title">Most Wins</h2>
+        <ol class="pp-lb-list" id="sidebar-top-wins"></ol>
+      </section>
+
+      <section class="pp-panel" aria-label="Highest win streaks">
+        <h2 class="pp-panel-title">Highest Win Streaks</h2>
+        <ol class="pp-lb-list" id="sidebar-top-highest-streaks"></ol>
+      </section>
+    </aside>
+  </main>
+
+  <footer class="pp-footer">
+    <div class="pp-container pp-footer-row">
+      <span>&copy; Comic-Arena &mdash; Pokemon Arena</span>
+      <div class="pp-footer-links">
+        <a href="/pokemon-manual">Manual</a>
+        <a href="https://discord.gg/dabZKRDkf7" target="_blank" rel="noopener noreferrer">Discord</a>
+        <a href="/">Comic Arena</a>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<nav class="pp-tabbar" aria-label="Primary">
+  <a href="/pokemon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11.5 12 4l8 7.5" /><path d="M6 10v9h12v-9" /></svg>
+    Home
+  </a>
+  <a href="/pokemon-missions" aria-current="page">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 4h6l1 4H8z" /><path d="M6 8h12l1 12H5z" /></svg>
+    Missions
+  </a>
+  <a href="pokemon-charactersandskills.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9" /><path d="M3 12h18" /><circle cx="12" cy="12" r="3" /></svg>
+    Roster
+  </a>
+  <a href="/pokemon-community">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="2.5" /><circle cx="16.5" cy="9.5" r="2" /><path d="M4.5 18c.8-2.7 3-4 5.5-4s4.7 1.3 5.5 4" /></svg>
+    Community
+  </a>
+</nav>
+
+<div class="mission-overlay" id="mission-overlay" hidden>
+  <section class="mission-sheet" id="mission-sheet" role="dialog" aria-modal="true" aria-labelledby="mission-sheet-name-line">
+    <button class="mission-sheet-close" id="mission-sheet-close" type="button" aria-label="Close mission details">&times;</button>
+    <div class="mission-sheet-header">
+      <img class="mission-sheet-image" id="mission-sheet-image" src="" alt="" />
+      <div>
+        <p class="mission-sheet-rank" id="mission-sheet-rank-line"></p>
+        <h2 class="mission-sheet-name" id="mission-sheet-name-line"></h2>
+      </div>
+    </div>
+    <div class="mission-sheet-character" id="mission-sheet-character-block">
+      <img class="mission-sheet-portrait" id="mission-sheet-portrait" src="" alt="" />
+      <span id="mission-sheet-character-name"></span>
+    </div>
+    <div class="mission-sheet-section">
+      <h3>Requirements</h3>
+      <div id="mission-sheet-requirements"></div>
+    </div>
+    <div class="mission-sheet-section">
+      <h3>Goals</h3>
+      <div id="mission-sheet-goals"></div>
+    </div>
+    <div class="mission-sheet-section">
+      <h3>Reward</h3>
+      <p id="mission-sheet-reward"></p>
+    </div>
+  </section>
+</div>
+
+<script>
+  (function () {
+    var toggle = document.getElementById('pp-nav-toggle');
+    var nav = document.getElementById('pp-nav');
+    if (!toggle || !nav) return;
+    toggle.addEventListener('click', function () {
+      var open = nav.classList.toggle('pp-nav-open');
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  }());
+</script>
+<script src="./scripts/index.js?v=ground-up-v1&news-skill-image-fix-v1&home-switch-link-v1" defer></script>
+<script>
+    (function () {
+      const defaultMissionCatalog = [
+        {
+          missionId: "adored-elder-sister",
+          title: "The Adored Elder Sister",
+          level_requirement: 1,
+          mode_restriction: { allowed_modes: ["quick", "ladder"] },
+          reward: 'Mission "The Adored Elder Sister" completion.',
+          image: "assets/images/ingamebgexample.png",
+          imageAlt: "The Adored Elder Sister mission artwork",
+          characterName: "Hyuuga Hanabi",
+          portrait: "assets/images/deadcharacter.png",
+          portraitAlt: "Hyuuga Hanabi portrait",
+          requirements: [],
+          goals: [
+            'Use Hyuuga Neji\'s "Gentle Fist" 8 times. (0/8)',
+            'Use Hyuuga Hinata\'s "Gentle Fist" 8 times. (0/8)'
+          ],
+          available: true,
+          sortOrder: 1
+        },
+        {
+          missionId: "yellow-flash",
+          title: "The Yellow Flash",
+          level_requirement: 16,
+          mode_restriction: { allowed_modes: ["quick", "ladder"] },
+          reward: 'Mission "The Yellow Flash" completion.',
+          image: "assets/images/ingamebgexample2.png",
+          imageAlt: "The Yellow Flash mission artwork",
+          characterName: "Minato Namikaze",
+          portrait: "assets/images/deadcharacter.png",
+          portraitAlt: "Minato Namikaze portrait",
+          requirements: [],
+          goals: [
+            "Win the battle against Minato.",
+            "Finish the mission to unlock its reward."
+          ],
+          available: true,
+          sortOrder: 2
+        },
+        {
+          missionId: "negan",
+          title: "Negan",
+          level_requirement: 16,
+          mode_restriction: { allowed_modes: ["quick", "ladder"] },
+          reward_character: "negan",
+          reward_character_name: "Negan",
+          reward: "Unlock Negan.",
+          image: "/assets/images/external-mirror/i.imgur.com/5a910b012994bee9b43f.png",
+          imageAlt: "Negan mission artwork",
+          characterName: "Rick Grimes",
+          portrait: "/assets/images/external-mirror/i.imgur.com/9d4fae4f41c186d0145e.png",
+          portraitAlt: "Rick Grimes portrait",
+          requirements: [],
+          goals: [
+            {
+              type: "win_streak",
+              character_id: "rick-grimes",
+              character_name: "Rick Grimes",
+              wins: 4
+            }
+          ],
+          available: true,
+          sortOrder: 3
+        },
+        {
+          missionId: "pikachu-starter-path",
+          title: "Pikachu Starter Path",
+          level_requirement: 1,
+          rank: "1",
+          reward_character: "pikachu",
+          reward_character_name: "Pikachu",
+          reward: "Unlock Pikachu.",
+          arena: "pokemon",
+          mode_restriction: { allowed_modes: ["quick", "ladder"] },
+          win_streak: { character_id: "", character_name: "", wins: 0 },
+          image: "assets/images/PokemonArena/missionpics/pikachu.jpeg",
+          imageAlt: "Pikachu starter mission artwork",
+          characterName: "Pikachu",
+          portrait: "assets/images/PokemonArena/Pikachu/pikachufp.jpeg",
+          portraitAlt: "Pikachu portrait",
+          requirements: [],
+          goals: [
+            { type: "win_matches", character_id: "pidgey", character_name: "Pidgey", wins: 16 }
+          ],
+          available: true,
+          sortOrder: 3
+        },
+        {
+          missionId: "scyther-trial",
+          title: "The Scyther Trial",
+          level_requirement: 6,
+          rank: "6",
+          reward_character: "scyther",
+          reward_character_name: "Scyther",
+          reward: "Unlock Scyther.",
+          arena: "pokemon",
+          mode_restriction: { allowed_modes: ["quick", "ladder"] },
+          win_streak: { character_id: "", character_name: "", wins: 0 },
+          image: "assets/images/PokemonArena/scyther/scythermissionpic.jpeg",
+          imageAlt: "Scyther mission artwork",
+          characterName: "Scyther",
+          portrait: "assets/images/PokemonArena/scyther/scytherfp.webp",
+          portraitAlt: "Scyther portrait",
+          requirements: [
+            "This trial is still a milestone, but it is a much lighter climb than the original version.",
+            "Clear a 3-win streak with Zubat and Gastly on the same team."
+          ],
+          goals: [
+            { type: "win_matches", character_id: "chansey", character_name: "Chansey", wins: 4 },
+            { type: "win_matches", character_id: "pidgey", character_name: "Pidgey", wins: 4 },
+            { type: "win_matches", character_id: "koffing", character_name: "Koffing", wins: 4 },
+            {
+              type: "win_streak_same_team",
+              character_ids: ["zubat", "gastly"],
+              character_names: ["Zubat", "Gastly"],
+              wins: 3
+            }
+          ],
+          available: true,
+          sortOrder: 5
+        },
+        {
+          missionId: "gastly-haunted-tower",
+          title: "The Haunted Tower",
+          level_requirement: 6,
+          rank: "6",
+          reward_character: "gastly",
+          reward_character_name: "Gastly",
+          reward: "Unlock Gastly.",
+          arena: "pokemon",
+          mode_restriction: { allowed_modes: ["quick", "ladder"] },
+          win_streak: { character_id: "", character_name: "", wins: 0 },
+          image: "assets/images/PokemonArena/gastley/gastleymissionpic.jpeg",
+          imageAlt: "Gastly mission artwork",
+          characterName: "Gastly",
+          portrait: "assets/images/PokemonArena/gastley/gastleyfp.webp",
+          portraitAlt: "Gastly portrait",
+          requirements: [
+            "A grindy early Pokemon mission that asks for patience before it pays out.",
+            "Clear a 4-win streak with Zubat and Abra on the same team."
+          ],
+          goals: [
+            { type: "win_matches", character_id: "chansey", character_name: "Chansey", wins: 8 },
+            { type: "win_matches", character_id: "koffing", character_name: "Koffing", wins: 8 },
+            {
+              type: "win_streak_same_team",
+              character_ids: ["zubat", "abra"],
+              character_names: ["Zubat", "Abra"],
+              wins: 4
+            }
+          ],
+          available: true,
+          sortOrder: 6
+        },
+        {
+          missionId: "aerodactyl-fossil-flight",
+          title: "Aerodactyl Fossil Flight",
+          level_requirement: 13,
+          rank: "13",
+          reward_character: "aerodactyl",
+          reward_character_name: "Aerodactyl",
+          reward: "Unlock Aerodactyl.",
+          arena: "pokemon",
+          mode_restriction: { allowed_modes: ["quick", "ladder"] },
+          win_streak: { character_id: "", character_name: "", wins: 0 },
+          image: "assets/images/PokemonArena/missionpics/aerodactyl.avif",
+          imageAlt: "Aerodactyl mission artwork",
+          characterName: "Aerodactyl",
+          portrait: "assets/images/PokemonArena/aerodactyl/fp.webp",
+          portraitAlt: "Aerodactyl portrait",
+          requirements: [
+            "Aerodactyl unlocks through a high-speed fossil trial built around recoil and fast finishes.",
+            "Clear a 4-win streak with Scyther and Hitmonlee on the same team."
+          ],
+          goals: [
+            { type: "win_matches", character_id: "scyther", character_name: "Scyther", wins: 10 },
+            { type: "win_matches", character_id: "hitmonlee", character_name: "Hitmonlee", wins: 10 },
+            {
+              type: "win_streak_same_team",
+              character_ids: ["scyther", "hitmonlee"],
+              character_names: ["Scyther", "Hitmonlee"],
+              wins: 4
+            }
+          ],
+          available: true,
+          sortOrder: 7
+        },
+        {
+          missionId: "parasite",
+          title: "Parasite",
+          level_requirement: 6,
+          mode_restriction: { allowed_modes: ["quick", "ladder"] },
+          reward_character: "parasite",
+          reward_character_name: "Parasite",
+          reward: "Unlock Parasite.",
+          image: "assets/images/parasitemission.png",
+          imageAlt: "Parasite mission artwork",
+          characterName: "Parasite",
+          portrait: "assets/images/parasiteFP.png",
+          portraitAlt: "Parasite portrait",
+          requirements: [],
+          goals: [
+            {
+              type: "reach_rank",
+              rank: 6
+            },
+            {
+              type: "win_matches",
+              character_id: "superman",
+              character_name: "Superman",
+              wins: 8
+            },
+            {
+              type: "win_matches_same_team",
+              character_ids: ["batman", "wonder-woman"],
+              character_names: ["Batman", "Wonder Woman"],
+              wins: 6
+            },
+            {
+              type: "win_matches_same_team",
+              character_ids: ["green-lantern-hal-jordan", "saint-walker"],
+              character_names: ["Green Lantern (Hal Jordan)", "Saint Walker"],
+              wins: 6
+            }
+          ],
+          available: true,
+          sortOrder: 5
+        },
+        {
+          missionId: "darth-vader",
+          title: "Dark Lord of the Sith",
+          level_requirement: 18,
+          mode_restriction: { allowed_modes: ["quick", "ladder"] },
+          reward_character: "darth-vader",
+          reward_character_name: "Darth Vader",
+          reward: "Unlock Darth Vader.",
+          image: "assets/images/darthvadermission.jpeg",
+          imageAlt: "Darth Vader mission artwork",
+          characterName: "Darth Vader",
+          portrait: "assets/images/darthvaderfp.webp",
+          portraitAlt: "Darth Vader portrait",
+          requirements: [],
+          goals: [
+            { type: "reach_rank", rank: 18 },
+            { type: "win_matches", character_id: "the-joker", character_name: "The Joker", wins: 8 }
+          ],
+          available: true,
+          sortOrder: 29
+        },
+        {
+          missionId: "boba-fett",
+          title: "Dead or Alive",
+          level_requirement: 10,
+          mode_restriction: { allowed_modes: ["quick", "ladder"] },
+          reward_character: "boba-fett",
+          reward_character_name: "Boba Fett",
+          reward: "Unlock Boba Fett.",
+          image: "assets/images/bobafettmission.avif",
+          imageAlt: "Boba Fett mission artwork",
+          characterName: "Boba Fett",
+          portrait: "assets/images/bobafettfp.webp",
+          portraitAlt: "Boba Fett portrait",
+          requirements: [],
+          goals: [
+            { type: "win_matches", character_id: "ghost-rider", character_name: "Ghost Rider", wins: 4 },
+            { type: "win_streak", character_id: "ghost-rider", character_name: "Ghost Rider", wins: 2 }
+          ],
+          available: true,
+          sortOrder: 30
+        },
+        {
+          missionId: "obi-wan-kenobi",
+          title: "The Negotiator",
+          level_requirement: 10,
+          mode_restriction: { allowed_modes: ["quick", "ladder"] },
+          reward_character: "obi-wan-kenobi",
+          reward_character_name: "Obi-Wan Kenobi",
+          reward: "Unlock Obi-Wan Kenobi.",
+          image: "assets/images/obiwankenobimission.jpg",
+          imageAlt: "Obi-Wan Kenobi mission artwork",
+          characterName: "Obi-Wan Kenobi",
+          portrait: "assets/images/obiwankenobifp.webp",
+          portraitAlt: "Obi-Wan Kenobi portrait",
+          requirements: [],
+          goals: [
+            { type: "win_matches", character_id: "wonder-woman", character_name: "Wonder Woman", wins: 4 },
+            { type: "win_streak", character_id: "wonder-woman", character_name: "Wonder Woman", wins: 2 }
+          ],
+          available: true,
+          sortOrder: 31
+        }
+      ];
+
+      const missionsGrid = document.getElementById("missions-grid");
+      const missionsStatus = document.getElementById("missions-status");
+      const missionSearch = document.getElementById("mission-search");
+      const missionsAvailable = document.getElementById("missions-available");
+      const overlay = document.getElementById("mission-overlay");
+      const sheet = document.getElementById("mission-sheet");
+      const closeButton = document.getElementById("mission-sheet-close");
+      const nameLine = document.getElementById("mission-sheet-name-line");
+      const rankLine = document.getElementById("mission-sheet-rank-line");
+      const requirementsEl = document.getElementById("mission-sheet-requirements");
+      const rewardLine = document.getElementById("mission-sheet-reward");
+      const imageEl = document.getElementById("mission-sheet-image");
+      const characterNameEl = document.getElementById("mission-sheet-character-name");
+      const portraitEl = document.getElementById("mission-sheet-portrait");
+      const goalsEl = document.getElementById("mission-sheet-goals");
+      const pageArena = "pokemon";
+      const pageMissionLabel = pageArena === "pokemon" ? "Pokemon Missions" : "Comic Missions";
+      const playNowButton = document.getElementById("play-now-button");
+      const pokemonPointsPromo = document.getElementById("pokemon-points-promo");
+
+      document.body.classList.toggle("arena-mode-pokemon", pageArena === "pokemon");
+      document.body.classList.toggle("arena-mode-comic", pageArena !== "pokemon");
+      if (pokemonPointsPromo) pokemonPointsPromo.hidden = pageArena !== "pokemon";
+
+      if (pageArena === "pokemon") {
+        var POKEMON_WEBSITE_BACKGROUNDS = [
+          "/assets/images/PokemonArena/Website/pokeballs.jpg",
+          "/assets/images/PokemonArena/Website/great-balls.jpg",
+          "/assets/images/PokemonArena/Website/ultra-balls.jpg",
+          "/assets/images/PokemonArena/Website/master-balls.jpg",
+          "/assets/images/PokemonArena/Website/safari-balls.jpg",
+          "/assets/images/PokemonArena/Website/beast-balls.jpg"
+        ];
+        var chosenBackground = POKEMON_WEBSITE_BACKGROUNDS[
+          Math.floor(Math.random() * POKEMON_WEBSITE_BACKGROUNDS.length)
+        ];
+        document.documentElement.style.setProperty(
+          "--pp-hero-bg",
+          "url('" + chosenBackground + "')"
+        );
+      }
+
+      document.title = pageArena === "pokemon" ? "Pokemon Arena Missions" : "Comic Arena Missions";
+      const activeMissionNavLink = document.querySelector('.nav-link.active[href="missions.html"]');
+      const comicCharactersLink = document.getElementById("comic-characters-link");
+      const pokemonCharactersLink = document.getElementById("pokemon-characters-link");
+      if (activeMissionNavLink) {
+        activeMissionNavLink.href = pageArena === "pokemon" ? "missions.html?arena=pokemon" : "missions.html";
+        const navLabel = activeMissionNavLink.querySelector("span");
+        if (navLabel) {
+          navLabel.textContent = pageMissionLabel;
+        }
+      }
+      if (comicCharactersLink) {
+        comicCharactersLink.href = "charactersandskills.html";
+      }
+      if (pokemonCharactersLink) {
+        pokemonCharactersLink.href = "pokemon-charactersandskills.html";
+      }
+      if (playNowButton) {
+        playNowButton.textContent = pageArena === "pokemon" ? "Pokemon Arena" : "Comic Arena";
+        playNowButton.addEventListener("click", function () {
+          window.location.href = pageArena === "pokemon"
+            ? "pokemon-arena"
+            : "selection.html?arena=comic";
+        });
+      }
+
+      let missionCatalog = [];
+      let missionMap = new Map();
+      let missionProgressByMissionId = {};
+
+      function normalizeMissionCatalog(missions) {
+        const list = Array.isArray(missions) ? missions : [];
+        return list
+          .map(function (mission, index) {
+            const source = mission && typeof mission === "object" ? mission : {};
+            const missionId = String(source.missionId || source.id || source.title || source.name || "")
+              .trim()
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, "-")
+              .replace(/^-+|-+$/g, "") || "mission-" + (index + 1);
+            const levelRequirement = Number(
+              source.level_requirement ??
+              source.levelRequirement ??
+              source.rank_requirement?.level ??
+              source.rankRequirement?.level ??
+              source.rank ??
+              0
+            ) || 0;
+            const allowedModes = Array.isArray(source.mode_restriction?.allowed_modes)
+              ? source.mode_restriction.allowed_modes
+              : Array.isArray(source.modeRestriction?.allowedModes)
+                ? source.modeRestriction.allowedModes
+                : ["quick", "ladder"];
+            const rewardCharacter = String(source.reward_character || source.rewardCharacter || "").trim();
+            const rewardCharacterName = String(source.reward_character_name || source.rewardCharacterName || "").trim();
+            const streakCharacter = String(source.win_streak?.character_id || source.winStreak?.characterId || "").trim();
+            const streakCharacterName = String(source.win_streak?.character_name || source.winStreak?.characterName || source.characterName || "").trim();
+            const streakWins = Number(source.win_streak?.wins || source.winStreak?.wins || 0) || 0;
+            const rawSpecialPve = source.special_pve || source.specialPve || source.pve_battle || source.pveBattle || {};
+            const specialPve = {
+              enabled: Boolean(rawSpecialPve.enabled),
+              buttonLabel: String(rawSpecialPve.buttonLabel || rawSpecialPve.button_label || "Start Fight").trim(),
+              botName: String(rawSpecialPve.botName || rawSpecialPve.bot_name || "Mission Bot").trim(),
+              botTeamCharacterId: String(rawSpecialPve.botTeamCharacterId || rawSpecialPve.bot_team_character_id || rawSpecialPve.characterId || "").trim(),
+              botTeamSize: Number(rawSpecialPve.botTeamSize || rawSpecialPve.bot_team_size || rawSpecialPve.teamSize || 3) || 3,
+              backgroundImage: String(rawSpecialPve.backgroundImage || rawSpecialPve.background_image || "").trim()
+            };
+            return {
+              missionId: missionId,
+              title: String(source.title || source.name || "Mission " + (index + 1)).trim(),
+              level_requirement: levelRequirement,
+              rank: levelRequirement ? String(levelRequirement) : "",
+              mode_restriction: { allowed_modes: allowedModes.filter(function (mode) {
+                return mode === "quick" || mode === "ladder";
+              }) },
+              reward_character: rewardCharacter,
+              reward_character_name: rewardCharacterName,
+              reward: String(source.reward || "").trim(),
+              reward_unlock_points: Math.max(0, Number(source.reward_unlock_points || source.rewardUnlockPoints || 0) || 0),
+              win_streak: {
+                character_id: streakCharacter,
+                character_name: streakCharacterName,
+                wins: streakWins
+              },
+              image: String(source.image || "").trim(),
+              imageAlt: String(source.imageAlt || source.imageAltText || (source.title || source.name || "Mission") + " mission artwork").trim(),
+              characterName: String(source.characterName || "").trim(),
+              portrait: String(source.portrait || "").trim(),
+              portraitAlt: String(source.portraitAlt || source.portraitAltText || (source.characterName || source.title || "Mission") + " portrait").trim(),
+              arena: String(source.arena || source.arenaMode || source.rewardArena || source.reward_arena || "comic").trim().toLowerCase(),
+              requirements: Array.isArray(source.requirements)
+                ? source.requirements.map(function (entry) { return String(entry || "").trim(); }).filter(Boolean)
+                : [],
+              goals: Array.isArray(source.goals)
+                ? source.goals
+                    .map(function (entry) { return normalizeMissionGoal(entry); })
+                    .filter(Boolean)
+                : [],
+              special_pve: specialPve,
+              available: source.available !== false,
+              sortOrder: Number.isFinite(Number(source.sortOrder)) ? Number(source.sortOrder) : index + 1
+            };
+          })
+          .filter(function (mission) {
+            return mission.missionId && mission.title;
+          })
+          .sort(function (a, b) {
+            var sortDelta = (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0);
+            if (sortDelta !== 0) {
+              return sortDelta;
+            }
+            return a.title.localeCompare(b.title);
+          });
+      }
+
+      function setMissionCatalog(missions) {
+        missionCatalog = normalizeMissionCatalog(missions);
+        missionMap = new Map();
+        missionCatalog.forEach(function (mission) {
+          missionMap.set(mission.missionId, mission);
+        });
+      }
+
+      function normalizeMissionGoalProgressEntry(entry) {
+        const source = entry && typeof entry === "object" ? entry : {};
+        const count = Math.max(0, Number(source.count ?? source.progress ?? 0) || 0);
+        return {
+          count: count,
+          progress: count,
+          completedAt:
+            source.completedAt instanceof Date || typeof source.completedAt === "string"
+              ? source.completedAt
+              : null,
+          updatedAt:
+            source.updatedAt instanceof Date || typeof source.updatedAt === "string"
+              ? source.updatedAt
+              : null,
+        };
+      }
+
+      function normalizeMissionProgressEntry(entry) {
+        const source = entry && typeof entry === "object" ? entry : {};
+        const rawGoalProgress =
+          source.goalProgressByIndex && typeof source.goalProgressByIndex === "object"
+            ? source.goalProgressByIndex
+            : source.goalProgress && typeof source.goalProgress === "object"
+              ? source.goalProgress
+              : {};
+        const goalProgressByIndex = {};
+        Object.keys(rawGoalProgress).forEach(function (goalIndex) {
+          const normalizedGoalIndex = String(parseInt(goalIndex, 10));
+          if (!normalizedGoalIndex || normalizedGoalIndex === "NaN") {
+            return;
+          }
+          goalProgressByIndex[normalizedGoalIndex] = normalizeMissionGoalProgressEntry(rawGoalProgress[goalIndex]);
+        });
+        return {
+          completedAt:
+            source.completedAt instanceof Date || typeof source.completedAt === "string"
+              ? source.completedAt
+              : null,
+          goalProgressByIndex: goalProgressByIndex,
+          goalProgress: goalProgressByIndex,
+        };
+      }
+
+      function setMissionProgress(progressByMissionId) {
+        const source = progressByMissionId && typeof progressByMissionId === "object" ? progressByMissionId : {};
+        const normalized = {};
+        Object.keys(source).forEach(function (missionId) {
+          normalized[missionId] = normalizeMissionProgressEntry(source[missionId]);
+        });
+        missionProgressByMissionId = normalized;
+      }
+
+      function getMissionGoalProgress(missionId, goalIndex) {
+        const missionProgress =
+          missionProgressByMissionId && typeof missionProgressByMissionId === "object"
+            ? missionProgressByMissionId[missionId]
+            : null;
+        const goalProgress =
+          missionProgress && missionProgress.goalProgressByIndex && typeof missionProgress.goalProgressByIndex === "object"
+            ? missionProgress.goalProgressByIndex[String(goalIndex)]
+            : null;
+        return normalizeMissionGoalProgressEntry(goalProgress || {});
+      }
+
+      function isMissionCompleted(missionId) {
+        const missionProgress =
+          missionProgressByMissionId && typeof missionProgressByMissionId === "object"
+            ? missionProgressByMissionId[missionId]
+            : null;
+        return Boolean(missionProgress && missionProgress.completedAt);
+      }
+
+      function escapeHtml(value) {
+        return String(value || "").replace(/[&<>"']/g, function (character) {
+          return ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+          })[character];
+        });
+      }
+
+      function setStatus(message, isError) {
+        if (!missionsStatus) {
+          return;
+        }
+        missionsStatus.textContent = message || "";
+        missionsStatus.style.color = isError ? "#c91717" : "";
+      }
+
+      function getLevelRequirementValue(mission) {
+        const value = Number(mission && mission.level_requirement ? mission.level_requirement : mission && mission.rank ? mission.rank : 0);
+        return Number.isFinite(value) && value > 0 ? value : 0;
+      }
+
+      function getModeRestrictionText(mission) {
+        const allowedModes = Array.isArray(mission && mission.mode_restriction && mission.mode_restriction.allowed_modes)
+          ? mission.mode_restriction.allowed_modes
+              .map(function (entry) { return String(entry || "").trim().toLowerCase(); })
+              .filter(Boolean)
+          : [];
+        if (!allowedModes.length) {
+          return "";
+        }
+        if (allowedModes.length === 2 && allowedModes.indexOf("quick") !== -1 && allowedModes.indexOf("ladder") !== -1) {
+          return "Mode: Quick games and ladder games only.";
+        }
+        return "Mode: " + allowedModes.map(function (entry) {
+          return entry.charAt(0).toUpperCase() + entry.slice(1);
+        }).join(", ") + ".";
+      }
+
+      function normalizeMissionGoal(goal) {
+        if (typeof goal === "string") {
+          const text = goal.trim();
+          if (!text) {
+            return null;
+          }
+
+          const reachRankMatch = text.match(/^Reach\s+rank\s+(\d+)(?:\.\s*\(0\/\d+\))?$/i);
+          if (reachRankMatch) {
+            return {
+              type: "reach_rank",
+              rank: Number(reachRankMatch[1]) || 0,
+            };
+          }
+
+          const winMatchesMatch = text.match(/^Win\s+(\d+)\s+matches?\s+with\s+(.+?)(?:\.\s*\(0\/\d+\))?$/i);
+          if (winMatchesMatch) {
+            const characterName = String(winMatchesMatch[2] || "").trim();
+            return {
+              type: "win_matches",
+              character_id: characterName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""),
+              character_name: characterName,
+              wins: Number(winMatchesMatch[1]) || 0,
+            };
+          }
+
+          const winSameTeamMatch = text.match(/^Win\s+(\d+)\s+games?\s+with\s+(.+?)\s+and\s+(.+?)\s+on\s+the\s+same\s+team(?:\.\s*\(0\/\d+\))?$/i);
+          if (winSameTeamMatch) {
+            const firstCharacterName = String(winSameTeamMatch[2] || "").trim();
+            const secondCharacterName = String(winSameTeamMatch[3] || "").trim();
+            return {
+              type: "win_matches_same_team",
+              character_ids: [
+                firstCharacterName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""),
+                secondCharacterName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""),
+              ].filter(Boolean),
+              character_names: [firstCharacterName, secondCharacterName],
+              wins: Number(winSameTeamMatch[1]) || 0,
+            };
+          }
+
+          const winStreakSameTeamMatch = text.match(/^Win\s+(\d+)\s+battles?\s+in\s+a\s+row\s+with\s+(.+?)\s+and\s+(.+?)\s+on\s+the\s+same\s+team(?:\.\s*\(0\/\d+\))?$/i);
+          if (winStreakSameTeamMatch) {
+            const firstCharacterName = String(winStreakSameTeamMatch[2] || "").trim();
+            const secondCharacterName = String(winStreakSameTeamMatch[3] || "").trim();
+            return {
+              type: "win_streak_same_team",
+              character_ids: [
+                firstCharacterName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""),
+                secondCharacterName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""),
+              ].filter(Boolean),
+              character_names: [firstCharacterName, secondCharacterName],
+              wins: Number(winStreakSameTeamMatch[1]) || 0,
+            };
+          }
+
+          const winStreakMatch = text.match(/^Win\s+(\d+)\s+battles?\s+in\s+a\s+row\s+with\s+(.+?)(?:\.\s*\(0\/\d+\))?$/i);
+          if (winStreakMatch) {
+            const characterName = String(winStreakMatch[2] || "").trim();
+            return {
+              type: "win_streak",
+              character_id: characterName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""),
+              character_name: characterName,
+              wins: Number(winStreakMatch[1]) || 0,
+            };
+          }
+
+          return {
+            type: "text",
+            text,
+          };
+        }
+
+        const source = goal && typeof goal === "object" ? goal : {};
+        const type = String(source.type || source.goalType || source.kind || "text").trim().toLowerCase();
+        const wins = Number(source.wins ?? source.count ?? source.target ?? 0) || 0;
+        const characterId = String(source.character_id || source.characterId || source.character || "").trim();
+        const characterName = String(source.character_name || source.characterName || characterId).trim();
+        const rank = Number(source.rank ?? source.level ?? source.target ?? source.goal ?? source.value ?? 0) || 0;
+        if (type === "win_ladder_matches" || type === "ladder_wins" || type === "ranked_wins") {
+          return wins ? { type: "win_ladder_matches", wins: wins } : null;
+        }
+        if (type === "reach_rank") {
+          if (!rank) {
+            return null;
+          }
+          return {
+            type: "reach_rank",
+            rank,
+          };
+        }
+        if (type === "win_matches_same_team") {
+          const characterIds = (
+            Array.isArray(source.character_ids)
+              ? source.character_ids
+              : [
+                  source.character_id || source.characterId || source.character || "",
+                  source.teammate_character_id || source.teammateCharacterId || source.character_two_id || source.characterTwoId || "",
+                ]
+          ).map(function (value) {
+            return String(value || "").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+          }).filter(Boolean);
+          const uniqueCharacterIds = Array.from(new Set(characterIds)).slice(0, 2);
+          const characterNames = (
+            Array.isArray(source.character_names)
+              ? source.character_names
+              : [
+                  source.character_name || source.characterName || uniqueCharacterIds[0] || "",
+                  source.teammate_character_name || source.teammateCharacterName || source.character_two_name || source.characterTwoName || uniqueCharacterIds[1] || "",
+                ]
+          ).map(function (value) {
+            return String(value || "").trim();
+          });
+          if (!wins || uniqueCharacterIds.length < 2) {
+            return null;
+          }
+          return {
+            type: "win_matches_same_team",
+            character_ids: uniqueCharacterIds,
+            character_names: [
+              characterNames[0] || uniqueCharacterIds[0],
+              characterNames[1] || uniqueCharacterIds[1],
+            ],
+            wins,
+          };
+        }
+        if (type === "win_streak_same_team") {
+          const characterIds = (
+            Array.isArray(source.character_ids)
+              ? source.character_ids
+              : [
+                  source.character_id || source.characterId || source.character || "",
+                  source.teammate_character_id || source.teammateCharacterId || source.character_two_id || source.characterTwoId || "",
+                ]
+          ).map(function (value) {
+            return String(value || "").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+          }).filter(Boolean);
+          const uniqueCharacterIds = Array.from(new Set(characterIds)).slice(0, 2);
+          const characterNames = (
+            Array.isArray(source.character_names)
+              ? source.character_names
+              : [
+                  source.character_name || source.characterName || uniqueCharacterIds[0] || "",
+                  source.teammate_character_name || source.teammateCharacterName || source.character_two_name || source.characterTwoName || uniqueCharacterIds[1] || "",
+                ]
+          ).map(function (value) {
+            return String(value || "").trim();
+          });
+          if (!wins || uniqueCharacterIds.length < 2) {
+            return null;
+          }
+          return {
+            type: "win_streak_same_team",
+            character_ids: uniqueCharacterIds,
+            character_names: [
+              characterNames[0] || uniqueCharacterIds[0],
+              characterNames[1] || uniqueCharacterIds[1],
+            ],
+            wins,
+          };
+        }
+        if (type === "win_matches" || type === "win_streak") {
+          if (!wins || !characterId) {
+            return null;
+          }
+          return {
+            type,
+            character_id: characterId,
+            character_name: characterName || characterId,
+            wins,
+          };
+        }
+
+        const text = String(source.text || source.value || source.label || source.description || "").trim();
+        if (!text) {
+          return null;
+        }
+        return {
+          type: "text",
+          text,
+        };
+      }
+
+      function formatMissionGoal(goal, progress) {
+        const normalized = normalizeMissionGoal(goal);
+        if (!normalized) {
+          return "";
+        }
+        const progressCount = Math.max(0, Number(progress && progress.count ? progress.count : 0) || 0);
+        if (normalized.type === "reach_rank") {
+          return "Reach rank " + normalized.rank + ". (" + Math.min(progressCount, normalized.rank) + "/" + normalized.rank + ")";
+        }
+        if (normalized.type === "win_ladder_matches") {
+          return "Win " + normalized.wins + " Pokemon Arena Ladder matches. Human and battle-bot wins both count. (" + Math.min(progressCount, normalized.wins) + "/" + normalized.wins + ")";
+        }
+        if (normalized.type === "win_matches") {
+          const characterName = normalized.character_name || normalized.character_id;
+          return "Win " + normalized.wins + " matches with " + characterName + ". (" + Math.min(progressCount, normalized.wins) + "/" + normalized.wins + ")";
+        }
+        if (normalized.type === "win_streak") {
+          const characterName = normalized.character_name || normalized.character_id;
+          return "Win " + normalized.wins + " battles in a row with " + characterName + ". (" + Math.min(progressCount, normalized.wins) + "/" + normalized.wins + ")";
+        }
+        if (normalized.type === "win_streak_same_team") {
+          const names = Array.isArray(normalized.character_names) ? normalized.character_names : normalized.character_ids;
+          return "Win " + normalized.wins + " battles in a row with " + (names[0] || normalized.character_ids[0]) + " and " + (names[1] || normalized.character_ids[1]) + " on the same team. (" + Math.min(progressCount, normalized.wins) + "/" + normalized.wins + ")";
+        }
+        if (normalized.type === "win_matches_same_team") {
+          const names = Array.isArray(normalized.character_names) ? normalized.character_names : normalized.character_ids;
+          return "Win " + normalized.wins + " games with " + (names[0] || normalized.character_ids[0]) + " and " + (names[1] || normalized.character_ids[1]) + " on the same team. (" + Math.min(progressCount, normalized.wins) + "/" + normalized.wins + ")";
+        }
+        return normalized.text || "";
+      }
+
+      function getRequirementLines(mission) {
+        const lines = [];
+        const modeText = getModeRestrictionText(mission);
+        if (modeText) {
+          lines.push(modeText);
+        }
+
+        const streak = mission && mission.win_streak ? mission.win_streak : null;
+        const streakWins = Number(streak && streak.wins ? streak.wins : 0) || 0;
+        const streakCharacterName = String(
+          streak && streak.character_name
+            ? streak.character_name
+            : streak && streak.character_id
+              ? streak.character_id
+              : usedCharacterName || usedCharacterId
+        ).trim();
+        if (streakWins > 0 && streakCharacterName) {
+          lines.push("Win streak: Win " + streakWins + " battles in a row with " + streakCharacterName + ".");
+        }
+        (Array.isArray(mission && mission.requirements) ? mission.requirements : []).forEach(function (requirement) {
+          if (requirement && lines.indexOf(requirement) === -1) {
+            lines.push(requirement);
+          }
+        });
+        return lines;
+      }
+
+      function getCardRequirementLines(mission) {
+        return [];
+      }
+
+      function getRewardText(mission) {
+        const pointReward = Math.max(0, Number(mission && mission.reward_unlock_points) || 0);
+        if (pointReward) {
+          return "Earn " + pointReward.toLocaleString() + " Pokemon Arena points.";
+        }
+        const rewardCharacterName = String(
+          mission && mission.reward_character_name
+            ? mission.reward_character_name
+            : mission && mission.reward_character
+              ? mission.reward_character
+              : ""
+        ).trim();
+        if (rewardCharacterName) {
+          return "Unlock " + rewardCharacterName + ".";
+        }
+        return String(mission && mission.reward ? mission.reward : "").trim();
+      }
+
+      function renderMissionCard(mission) {
+        const completed = isMissionCompleted(mission.missionId);
+        const article = document.createElement("article");
+        article.className = "mission-card" + (completed ? " completed" : "");
+        article.tabIndex = 0;
+        article.setAttribute("role", "button");
+        article.setAttribute("aria-label", "Open mission info for " + mission.title);
+        article.setAttribute("data-mission", mission.missionId);
+        if (mission.available === false) {
+          article.setAttribute("aria-disabled", "true");
+          article.style.opacity = "0.78";
+        }
+
+        const title = document.createElement("a");
+        title.className = "mission-title";
+        title.href = "#";
+        title.setAttribute("data-mission-open", "");
+        title.textContent = mission.title;
+
+        const image = document.createElement("img");
+        image.className = "mission-image";
+        image.src = mission.image || "assets/images/deadcharacter.png";
+        image.alt = mission.imageAlt || mission.title + " mission artwork";
+
+        const details = document.createElement("div");
+        details.className = "mission-details";
+
+        const requirementsTitle = document.createElement("div");
+        requirementsTitle.className = "mission-requirements-title";
+        requirementsTitle.textContent = "Requirements:";
+
+        const requirementsBox = document.createElement("div");
+        requirementsBox.className = "mission-requirements-box";
+
+        const rankLine = document.createElement("p");
+        rankLine.className = "mission-rank";
+        const rankLabel = document.createElement("span");
+        rankLabel.className = "mission-rank-label";
+        rankLabel.textContent = "Level requirement:";
+        rankLine.appendChild(rankLabel);
+        rankLine.appendChild(document.createTextNode(" At least "));
+        const rankValue = document.createElement("span");
+        rankValue.className = mission.available === false ? "mission-rank-unavailable" : "mission-rank-available";
+        rankValue.textContent = getLevelRequirementValue(mission) || "Any";
+        rankLine.appendChild(rankValue);
+        requirementsBox.appendChild(rankLine);
+
+        const requirementLines = getCardRequirementLines(mission);
+        requirementLines.forEach(function (requirement) {
+          const line = document.createElement("p");
+          line.className = "mission-note";
+          line.style.fontStyle = "normal";
+          line.style.color = "#111111";
+          line.textContent = requirement;
+          requirementsBox.appendChild(line);
+        });
+
+        const viewLine = document.createElement("p");
+        const viewLink = document.createElement("a");
+        viewLink.className = "mission-link";
+        viewLink.href = "#";
+        viewLink.setAttribute("data-mission-open", "");
+        viewLink.textContent = completed ? "Mission Completed" : "View this mission";
+        viewLine.appendChild(viewLink);
+        requirementsBox.appendChild(viewLine);
+
+        const specialPve = mission.special_pve || {};
+        if (specialPve.enabled) {
+          const fightLink = document.createElement("a");
+          fightLink.className = "mission-pve-action";
+          fightLink.href =
+            "selection.html?missions=open&missionId=" +
+            encodeURIComponent(mission.missionId) +
+            "&arena=" +
+            encodeURIComponent(pageArena);
+          fightLink.textContent = completed ? "Replay Fight" : specialPve.buttonLabel || "Start Fight";
+          fightLink.setAttribute("aria-label", "Select a team for " + mission.title);
+          fightLink.addEventListener("click", function (event) {
+            event.stopPropagation();
+          });
+          requirementsBox.appendChild(fightLink);
+        }
+
+        details.appendChild(requirementsTitle);
+        details.appendChild(requirementsBox);
+
+        article.appendChild(title);
+        article.appendChild(image);
+        article.appendChild(details);
+        return article;
+      }
+
+      function renderMissionCards() {
+        if (!missionsGrid) {
+          return;
+        }
+
+        const searchValue = String(missionSearch && missionSearch.value ? missionSearch.value : "").trim().toLowerCase();
+        const showAvailableOnly = Boolean(missionsAvailable && missionsAvailable.checked);
+        const filtered = missionCatalog.filter(function (mission) {
+          const missionArena = String(mission.arena || "comic").trim().toLowerCase();
+          if (missionArena !== pageArena) {
+            return false;
+          }
+          const levelRequirementText = String(getLevelRequirementValue(mission) || "");
+          const matchesSearch =
+            !searchValue ||
+            mission.title.toLowerCase().indexOf(searchValue) !== -1 ||
+            levelRequirementText.toLowerCase().indexOf(searchValue) !== -1 ||
+            mission.missionId.toLowerCase().indexOf(searchValue) !== -1;
+          const matchesAvailability = !showAvailableOnly || mission.available !== false;
+          return matchesSearch && matchesAvailability;
+        });
+
+        missionsGrid.innerHTML = "";
+        if (!filtered.length) {
+          setStatus("No missions match that search.", true);
+          return;
+        }
+
+        setStatus("");
+        filtered.forEach(function (mission) {
+          missionsGrid.appendChild(renderMissionCard(mission));
+        });
+
+        missionsGrid.querySelectorAll("[data-mission]").forEach(function (card) {
+          const key = card.getAttribute("data-mission");
+          const openTargets = card.querySelectorAll("[data-mission-open]");
+
+          card.addEventListener("click", function (event) {
+            const target = event.target;
+            if (target && target.closest && target.closest(".mission-link")) {
+              return;
+            }
+            event.preventDefault();
+            openMission(key);
+          });
+
+          card.addEventListener("keydown", function (event) {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              openMission(key);
+            }
+          });
+
+          openTargets.forEach(function (target) {
+            target.addEventListener("click", function (event) {
+              event.preventDefault();
+              event.stopPropagation();
+              openMission(key);
+            });
+          });
+        });
+      }
+
+      function openMission(key) {
+        const mission = missionMap.get(key);
+        if (!mission || !overlay) {
+          return;
+        }
+
+        nameLine.innerHTML = "&raquo; Mission Name: <span class=\"mission-sheet-link\">" + escapeHtml(mission.title) + "</span>";
+        rankLine.textContent = "✘ Level requirement: At least " + (getLevelRequirementValue(mission) || "Any");
+        rewardLine.textContent = getRewardText(mission);
+        imageEl.src = mission.image || "assets/images/deadcharacter.png";
+        imageEl.alt = mission.imageAlt || mission.title + " mission artwork";
+        characterNameEl.textContent = mission.characterName || "";
+        portraitEl.src = mission.portrait || "assets/images/deadcharacter.png";
+        portraitEl.alt = mission.portraitAlt || mission.characterName + " portrait";
+
+        requirementsEl.innerHTML = "";
+        getRequirementLines(mission).forEach(function (requirement) {
+          const line = document.createElement("p");
+          line.className = "mission-sheet-line";
+          line.textContent = requirement;
+          requirementsEl.appendChild(line);
+        });
+
+        goalsEl.innerHTML = "";
+        (Array.isArray(mission.goals) ? mission.goals : []).forEach(function (goal, goalIndex) {
+          const p = document.createElement("p");
+          p.className = "mission-sheet-goal";
+          p.textContent = formatMissionGoal(goal, getMissionGoalProgress(mission.missionId, goalIndex));
+          goalsEl.appendChild(p);
+        });
+
+        overlay.hidden = false;
+        document.body.style.overflow = "hidden";
+        closeButton.focus();
+      }
+
+      function closeMission() {
+        if (overlay) {
+          overlay.hidden = true;
+        }
+        document.body.style.overflow = "";
+      }
+
+      async function loadMissionCatalog() {
+        try {
+          setStatus("Loading missions...");
+          const response = await fetch("/api/missions?arena=" + encodeURIComponent(pageArena), {
+            credentials: "same-origin"
+          });
+          const data = await response.json().catch(function () {
+            return {};
+          });
+
+          if (!response.ok) {
+            throw new Error(data && data.error ? data.error : "Unable to load missions.");
+          }
+
+          setMissionCatalog(data && Array.isArray(data.missions) ? data.missions : []);
+          setMissionProgress(data && data.missionProgressByMissionId ? data.missionProgressByMissionId : {});
+          if (!missionCatalog.length) {
+            setMissionCatalog(defaultMissionCatalog);
+            setMissionProgress({});
+          }
+          renderMissionCards();
+        } catch (error) {
+          setMissionCatalog(defaultMissionCatalog);
+          setMissionProgress({});
+          renderMissionCards();
+          setStatus("Using local mission data while the server is unavailable.", true);
+        }
+      }
+
+      if (missionSearch) {
+        missionSearch.addEventListener("input", renderMissionCards);
+      }
+
+      if (missionsAvailable) {
+        missionsAvailable.addEventListener("change", renderMissionCards);
+      }
+
+      closeButton.addEventListener("click", closeMission);
+
+      overlay.addEventListener("click", function (event) {
+        if (event.target === overlay) {
+          closeMission();
+        }
+      });
+
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape" && !overlay.hidden) {
+          closeMission();
+        }
+      });
+
+      sheet.addEventListener("click", function (event) {
+        event.stopPropagation();
+      });
+
+      loadMissionCatalog();
+    }());
+
+</script>
+</body>
+</html>
