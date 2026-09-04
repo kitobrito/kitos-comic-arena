@@ -1,4 +1,7 @@
 (function () {
+  var pageArena = document.body && document.body.dataset && document.body.dataset.pageArena === "pokemon"
+    ? "pokemon"
+    : "comic";
   var grid = document.getElementById("community-grid");
   var status = document.getElementById("community-status");
   var searchInput = document.getElementById("community-search");
@@ -187,7 +190,7 @@
   async function loadCommunity() {
     setStatus("Loading players...");
     try {
-      var response = await fetch("/api/community/users?t=" + encodeURIComponent(String(Date.now())), {
+      var response = await fetch("/api/community/users?arena=" + encodeURIComponent(pageArena) + "&t=" + encodeURIComponent(String(Date.now())), {
         credentials: "same-origin",
         cache: "no-store"
       });

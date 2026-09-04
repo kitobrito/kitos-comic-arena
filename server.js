@@ -8132,17 +8132,18 @@ const buildBattleProfileSnapshot = (profile = {}, arena = DEFAULT_ARENA_MODE) =>
     };
 };
 
-const serializeCommunityUserSummary = (user = {}) => {
+const serializeCommunityUserSummary = (user = {}, arena = DEFAULT_ARENA_MODE) => {
     const profile = normalizeUserProfile(user);
-    const wins = Number(profile?.ladder?.wins) || 0;
-    const losses = Number(profile?.ladder?.losses) || 0;
+    const arenaState = getProfileArenaState(profile, arena);
+    const wins = Number(arenaState?.ladder?.wins) || 0;
+    const losses = Number(arenaState?.ladder?.losses) || 0;
     const totalGames = wins + losses;
     const winRate = totalGames > 0 ? Number(((wins / totalGames) * 100).toFixed(1)) : 0;
     return {
         username: typeof user.username === 'string' ? user.username : '',
         role: typeof user.role === 'string' ? user.role : 'player',
         createdAt: user.createdAt || null,
-        avatarUrl: profile?.avatarUrl || DEFAULT_PROFILE_AVATAR,
+        avatarUrl: arenaState?.avatarUrl || DEFAULT_PROFILE_AVATAR,
         clan: profile?.clan
             ? {
                   name: profile.clan.name || '',
@@ -8152,17 +8153,17 @@ const serializeCommunityUserSummary = (user = {}) => {
               }
             : null,
         ladder: {
-            level: Number(profile?.ladder?.level) || 1,
-            rank: profile?.ladder?.rank || 'Academy Student',
-            ladderRank: Number.isFinite(Number(profile?.ladder?.ladderRank))
-                ? Number(profile.ladder.ladderRank)
+            level: Number(arenaState?.ladder?.level) || 1,
+            rank: arenaState?.ladder?.rank || 'Academy Student',
+            ladderRank: Number.isFinite(Number(arenaState?.ladder?.ladderRank))
+                ? Number(arenaState.ladder.ladderRank)
                 : null,
             wins,
             losses,
             totalGames,
             winRate,
-            streak: Number(profile?.ladder?.streak) || 0,
-            highestStreak: Number(profile?.ladder?.highestStreak) || 0,
+            streak: Number(arenaState?.ladder?.streak) || 0,
+            highestStreak: Number(arenaState?.ladder?.highestStreak) || 0,
         },
     };
 };
@@ -18059,6 +18060,7 @@ app.get('/api/leaderboards/sidebar', async (req, res) => {
 app.get('/api/community/users', async (req, res) => {
     res.set('Cache-Control', 'no-store');
     try {
+        const arena = normalizeArenaMode(req.query?.arena || '');
         const users = await usersCollection
             .find(
                 {},
@@ -18076,7 +18078,7 @@ app.get('/api/community/users', async (req, res) => {
 
         const communityUsers = users
             .filter((user) => !isGameBotUsername(user?.username))
-            .map(serializeCommunityUserSummary)
+            .map((user) => serializeCommunityUserSummary(user, arena))
             .sort((left, right) => {
                 const rankDelta =
                     (Number(left?.ladder?.ladderRank) || Number.MAX_SAFE_INTEGER) -
@@ -18097,6 +18099,7 @@ app.get('/api/community/users', async (req, res) => {
 
         return res.json({
             ok: true,
+            arena,
             users: communityUsers,
             stats: {
                 totalRegisteredPlayers: communityUsers.length,
