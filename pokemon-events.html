@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en" data-portal>
+<head>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-K64P68MT');</script>
+<!-- End Google Tag Manager -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pokemon Arena Events</title>
+  <meta name="description" content="The Pokemon Arena event board: latest character releases, news spotlight, and featured missions." />
+  <meta property="og:title" content="Pokemon Arena Events" />
+  <meta property="og:description" content="The Pokemon Arena event board: latest character releases, news spotlight, and featured missions." />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="styles/pokemon-portal.css?v=ground-up-v5" />
+  <link rel="stylesheet" href="styles/pokemon-events.css?v=ground-up-v1" />
+</head>
+<body class="pp-body pp-has-tabbar" data-page-arena="pokemon" data-portal-section="events">
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-K64P68MT"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+<div class="pp-shell">
+  <header class="pp-topbar">
+    <div class="pp-container pp-topbar-inner">
+      <a class="pp-brand" href="/pokemon">
+        <img src="assets/images/PokemonArena/pokemonarenalogo.png" alt="" />
+        <span class="pp-brand-mark">Pokemon<em>Arena</em></span>
+      </a>
+      <nav class="pp-nav" id="pp-nav" aria-label="Primary">
+        <a href="/pokemon">Home</a>
+        <a href="/pokemon-missions">Missions</a>
+        <a href="pokemon-charactersandskills.html">Characters</a>
+        <a href="/pokemon-community">Community</a>
+        <a href="/pokemon-events" aria-current="page">Events</a>
+        <a href="/pokemon-manual">Manual</a>
+        <a class="pp-comic-switch pp-comic-switch-mobile" href="/">Comic Arena&nbsp;&rarr;</a>
+      </nav>
+      <div class="pp-topbar-actions">
+        <a class="pp-comic-switch" href="/">Comic Arena &rarr;</a>
+        <button class="pp-nav-toggle" id="pp-nav-toggle" type="button" aria-expanded="false" aria-controls="pp-nav" aria-label="Toggle menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="pp-hero pp-hero-compact">
+    <div class="pp-container pp-hero-inner">
+      <div>
+        <div class="pp-eyebrow">Live Site Activity</div>
+        <h1 class="pp-h1">Events</h1>
+        <p class="pp-lede">The event board pulls from real game data: new releases, latest news, and featured missions in one place.</p>
+      </div>
+    </div>
+  </section>
+
+  <main class="pp-container pp-events-main">
+    <section class="pp-panel">
+      <div class="pp-events-section-head">
+        <div>
+          <h2 class="pp-panel-title" style="margin:0 0 4px;">Latest Releases</h2>
+          <p class="pp-lede" style="margin:0;font-size:12.5px;">Newest roster additions pulled from the homepage release feed.</p>
+        </div>
+        <p class="pp-status" id="events-status" aria-live="polite"></p>
+      </div>
+      <div class="releases-grid" id="events-releases"></div>
+    </section>
+
+    <section class="pp-panel">
+      <div class="pp-events-section-head">
+        <div>
+          <h2 class="pp-panel-title" style="margin:0 0 4px;">News Spotlight</h2>
+          <p class="pp-lede" style="margin:0;font-size:12.5px;">Recent posts and patch notes from the live news system.</p>
+        </div>
+      </div>
+      <div class="news-grid" id="events-news"></div>
+    </section>
+
+    <section class="pp-panel">
+      <div class="pp-events-section-head">
+        <div>
+          <h2 class="pp-panel-title" style="margin:0 0 4px;">Mission Spotlight</h2>
+          <p class="pp-lede" style="margin:0;font-size:12.5px;">Featured missions and unlock paths currently available.</p>
+        </div>
+      </div>
+      <div class="missions-grid" id="events-missions"></div>
+    </section>
+  </main>
+
+  <footer class="pp-footer">
+    <div class="pp-container pp-footer-row">
+      <span>&copy; Comic-Arena &mdash; Pokemon Arena</span>
+      <div class="pp-footer-links">
+        <a href="/pokemon-manual">Manual</a>
+        <a href="https://discord.gg/dabZKRDkf7" target="_blank" rel="noopener noreferrer">Discord</a>
+        <a href="/">Comic Arena</a>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<nav class="pp-tabbar" aria-label="Primary">
+  <a href="/pokemon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11.5 12 4l8 7.5" /><path d="M6 10v9h12v-9" /></svg>
+    Home
+  </a>
+  <a href="/pokemon-missions">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 4h6l1 4H8z" /><path d="M6 8h12l1 12H5z" /></svg>
+    Missions
+  </a>
+  <a href="pokemon-charactersandskills.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9" /><path d="M3 12h18" /><circle cx="12" cy="12" r="3" /></svg>
+    Roster
+  </a>
+  <a href="/pokemon-community">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="2.5" /><circle cx="16.5" cy="9.5" r="2" /><path d="M4.5 18c.8-2.7 3-4 5.5-4s4.7 1.3 5.5 4" /></svg>
+    Community
+  </a>
+</nav>
+
+<script>
+  (function () {
+    var toggle = document.getElementById('pp-nav-toggle');
+    var nav = document.getElementById('pp-nav');
+    if (!toggle || !nav) return;
+    toggle.addEventListener('click', function () {
+      var open = nav.classList.toggle('pp-nav-open');
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  }());
+</script>
+<script>
+  (function () {
+    var pageArena = "pokemon";
+    var status = document.getElementById("events-status");
+    var releasesGrid = document.getElementById("events-releases");
+    var newsGrid = document.getElementById("events-news");
+    var missionsGrid = document.getElementById("events-missions");
+
+    function setStatus(message, state) {
+      if (!status) {
+        return;
+      }
+      status.textContent = message || "";
+      if (state) {
+        status.dataset.state = state;
+        return;
+      }
+      delete status.dataset.state;
+    }
+
+    function clearChildren(node) {
+      while (node && node.firstChild) {
+        node.removeChild(node.firstChild);
+      }
+    }
+
+    function formatDate(value) {
+      if (!value) {
+        return "Unknown";
+      }
+      var date = new Date(value);
+      if (Number.isNaN(date.getTime())) {
+        return "Unknown";
+      }
+      return date.toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "numeric"
+      });
+    }
+
+    function toPreviewText(value) {
+      return String(value || "").replace(/\s+/g, " ").trim();
+    }
+
+    function renderReleases(releases, characterCatalog) {
+      if (!releasesGrid) {
+        return;
+      }
+      clearChildren(releasesGrid);
+      if (!releases.length) {
+        releasesGrid.innerHTML = '<p class="pp-events-empty">No recent releases yet.</p>';
+        return;
+      }
+      releases.forEach(function (entry) {
+        var character = characterCatalog.find(function (item) {
+          return item && item.characterId === entry.characterId;
+        }) || null;
+
+        var card = document.createElement("article");
+        card.className = "release-card";
+        card.innerHTML =
+          '<img class="release-face" src="' + (character && character.facePicture ? character.facePicture : "assets/images/deadcharacter.png") + '" alt="' + (character && character.name ? character.name : "Release") + '">' +
+          "<h3>" + (entry && entry.label ? entry.label : character && character.name ? character.name : "Unknown") + "</h3>" +
+          "<p>" + (character && character.name ? character.name : "New roster release") + "</p>" +
+          '<a class="news-link" href="pokemon-charactersandskills.html' + (character && character.characterId ? "?characterId=" + encodeURIComponent(character.characterId) : "") + '">View Character</a>';
+        releasesGrid.appendChild(card);
+      });
+    }
+
+    function renderNews(posts) {
+      if (!newsGrid) {
+        return;
+      }
+      clearChildren(newsGrid);
+      if (!posts.length) {
+        newsGrid.innerHTML = '<p class="pp-events-empty">No news posts yet.</p>';
+        return;
+      }
+      posts.slice(0, 4).forEach(function (post) {
+        var article = document.createElement("article");
+        article.className = "news-card";
+        var blocks = Array.isArray(post && post.blocks) ? post.blocks : [];
+        var firstParagraph = blocks.find(function (block) {
+          return block && block.type === "paragraph" && block.text;
+        });
+        article.innerHTML =
+          '<p class="news-meta">' + formatDate(post && (post.updatedAt || post.createdAt)) + " &middot; " + (post && post.author ? post.author : "Unknown") + "</p>" +
+          "<h3>" + (post && post.title ? post.title : "Untitled Post") + "</h3>" +
+          "<p>" + toPreviewText(firstParagraph && firstParagraph.text ? firstParagraph.text : "No summary available yet.").slice(0, 180) + "</p>" +
+          '<a class="news-link" href="/pokemon">Open News Feed</a>';
+        newsGrid.appendChild(article);
+      });
+    }
+
+    function renderMissions(missions) {
+      if (!missionsGrid) {
+        return;
+      }
+      clearChildren(missionsGrid);
+      if (!missions.length) {
+        missionsGrid.innerHTML = '<p class="pp-events-empty">No featured missions right now.</p>';
+        return;
+      }
+      missions.slice(0, 4).forEach(function (mission) {
+        var goals = Array.isArray(mission && mission.goals) ? mission.goals : [];
+        var firstGoal = goals[0];
+        var goalText = typeof firstGoal === "string"
+          ? firstGoal
+          : firstGoal && firstGoal.character_name && firstGoal.wins
+            ? "Win with " + firstGoal.character_name + " " + firstGoal.wins + " times."
+            : "Clear the mission objectives to unlock rewards.";
+        var article = document.createElement("article");
+        article.className = "mission-card";
+        article.innerHTML =
+          '<p class="mission-meta">Level ' + (mission && mission.level_requirement ? mission.level_requirement : 1) + " Required</p>" +
+          "<h3>" + (mission && mission.title ? mission.title : "Mission") + "</h3>" +
+          "<p>" + toPreviewText(goalText) + "</p>" +
+          '<a class="mission-link" href="/pokemon-missions">Open Missions</a>';
+        missionsGrid.appendChild(article);
+      });
+    }
+
+    async function loadEventsBoard() {
+      setStatus("Loading board...");
+      try {
+        var responses = await Promise.all([
+          fetch("/api/latest-releases?arena=" + encodeURIComponent(pageArena), { credentials: "same-origin" }),
+          fetch("/api/characters/catalog?arena=" + encodeURIComponent(pageArena), { credentials: "same-origin" }),
+          fetch("/api/news?arena=" + encodeURIComponent(pageArena), { credentials: "same-origin" }),
+          fetch("/api/missions?arena=" + encodeURIComponent(pageArena), { credentials: "same-origin" })
+        ]);
+        var payloads = await Promise.all(responses.map(function (response) {
+          return response.json().catch(function () {
+            return {};
+          });
+        }));
+
+        if (responses.some(function (response) { return !response.ok; })) {
+          setStatus("Unable to load event data.", "error");
+          return;
+        }
+
+        renderReleases(payloads[0] && Array.isArray(payloads[0].releases) ? payloads[0].releases : [], payloads[1] && Array.isArray(payloads[1].characters) ? payloads[1].characters : []);
+        renderNews(payloads[2] && Array.isArray(payloads[2].posts) ? payloads[2].posts : []);
+        renderMissions(payloads[3] && Array.isArray(payloads[3].missions) ? payloads[3].missions : []);
+        setStatus("");
+      } catch (error) {
+        setStatus("Unable to reach the server.", "error");
+      }
+    }
+
+    loadEventsBoard();
+  }());
+</script>
+</body>
+</html>

@@ -1,0 +1,227 @@
+/* Pokemon Arena Community - page-specific styles (uses pp-* tokens from pokemon-portal.css) */
+
+:root { --pp-hero-bg: url('/assets/images/PokemonArena/Website/master-balls.jpg'); }
+
+.pp-hero {
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--pp-line);
+}
+
+.pp-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--pp-hero-bg) center / cover no-repeat;
+  opacity: 0.34;
+  mask-image: linear-gradient(100deg, black 0%, black 30%, transparent 62%);
+  -webkit-mask-image: linear-gradient(100deg, black 0%, black 30%, transparent 62%);
+}
+
+.pp-hero-inner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 12px;
+}
+
+.pp-hero-compact .pp-hero-inner {
+  padding: 30px 0 26px;
+}
+
+@media (min-width: 760px) {
+  .pp-hero-compact .pp-hero-inner { padding: 44px 0 36px; }
+}
+
+.pp-community-main {
+  display: grid;
+  gap: 18px;
+  padding: 36px 0 20px;
+}
+
+.pp-community-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.pp-stat-card {
+  text-align: center;
+}
+
+.pp-stat-card-value {
+  margin: 0 0 6px;
+  font-family: var(--pp-font-flavor);
+  font-weight: 400;
+  font-size: 30px;
+  color: var(--pp-accent-bright);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.pp-stat-card-label {
+  margin: 0;
+  font-size: 11.5px;
+  color: var(--pp-ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.pp-community-toolbar-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.pp-community-filters {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 160px 160px;
+  gap: 10px;
+}
+
+.players-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.player-card {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 12px;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid var(--pp-line);
+  background: var(--pp-bg-raised);
+}
+
+.player-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 12px;
+  border: 1px solid var(--pp-line-strong);
+  background: var(--pp-bg-panel);
+  object-fit: cover;
+}
+
+.player-name-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.player-name {
+  font-family: var(--pp-font-display);
+  font-size: 15px;
+  color: var(--pp-ink);
+}
+
+.role-badge,
+.ladder-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 20px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.role-badge {
+  background: var(--pp-bg-panel);
+  border: 1px solid var(--pp-line-strong);
+  color: var(--pp-ink-dim);
+}
+
+.ladder-badge {
+  background: var(--pp-accent);
+  color: var(--pp-accent-ink);
+}
+
+.player-meta {
+  display: grid;
+  gap: 3px;
+  margin-bottom: 10px;
+  color: var(--pp-ink-faint);
+  font-size: 11.5px;
+}
+
+.player-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.player-stat {
+  padding: 6px;
+  border-radius: 8px;
+  border: 1px solid var(--pp-line);
+  background: var(--pp-bg-panel);
+  text-align: center;
+}
+
+.player-stat strong {
+  display: block;
+  color: var(--pp-accent-bright);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.player-stat span {
+  display: block;
+  color: var(--pp-ink);
+  font-size: 13.5px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.player-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  margin-top: 10px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--pp-line-strong);
+  color: var(--pp-ink);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.player-link:hover {
+  border-color: var(--pp-accent);
+  color: var(--pp-accent-bright);
+}
+
+@media (max-width: 640px) {
+  .pp-community-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .pp-community-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .player-card {
+    grid-template-columns: 1fr;
+  }
+
+  .player-avatar {
+    width: 100%;
+    height: 140px;
+  }
+
+  .player-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

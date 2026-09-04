@@ -19601,6 +19601,21 @@ app.get(['/pokemon-missions', '/pokemon-missions.html'], (req, res) => {
     res.sendFile(path.join(__dirname, 'pokemon-missions.html'));
 });
 
+// Same ground-up redesign approach as /pokemon, but for the Community page.
+app.get(['/pokemon-community', '/pokemon-community.html'], (req, res) => {
+    res.sendFile(path.join(__dirname, 'pokemon-community.html'));
+});
+
+// Same ground-up redesign approach as /pokemon, but for the Events page.
+app.get(['/pokemon-events', '/pokemon-events.html'], (req, res) => {
+    res.sendFile(path.join(__dirname, 'pokemon-events.html'));
+});
+
+// Same ground-up redesign approach as /pokemon, but for the Manual page.
+app.get(['/pokemon-manual', '/pokemon-manual.html'], (req, res) => {
+    res.sendFile(path.join(__dirname, 'pokemon-manual.html'));
+});
+
 app.get(['/selection-login', '/selection-login.html'], (req, res) => {
     res.sendFile(path.join(__dirname, 'selection-login.html'));
 });
