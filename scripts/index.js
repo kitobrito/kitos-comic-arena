@@ -3811,69 +3811,30 @@
   }
 
   // Full-body "BIB" renders for the Pokemon Arena "Latest Releases" strip,
-  // used instead of the small square facePicture icon. Not every character
-  // has one yet (missing here just falls back to facePicture).
-  var POKEMON_RELEASE_BIB_RENDERS = {
-    "charmander": "Charmander.png",
-    "squirtle": "Pokémon_Squirtle_art.png",
-    "bulbasaur": "BULBASAUR.png",
-    "pikachu": "PIKACHU.png",
-    "butterfree": "Butterfree.png",
-    "pokemon-trainer": "POKEMONTRAINER.png",
-    "chansey": "CHANSEY.png",
-    "pidgey": "Pidgey.webp",
-    "koffing": "Koffing.webp",
-    "zubat": "ZUBAT.png",
-    "gastly": "Gastly.webp",
-    "abra": "ABRA.png",
-    "krabby": "KRABBY.png",
-    "scyther": "SCYTHER.png",
-    "eevee": "EEVEE.png",
-    "jolteon": "JOLTEON.png",
-    "flareon": "Flareon.webp",
-    "vaporeon": "VAPOREON.png",
-    "ekans": "0023-ekans (1).webp",
-    "machop": "MACHOP.png",
-    "magikarp": "MAGIKARP.png",
-    "mr-mime": "MRMIME.png",
-    "hitmonchan": "Hitmonchan.webp",
-    "hitmonlee": "106_hitmonlee__rb__by_hilsonity_dhf06vd-fullview.png",
-    "aerodactyl": "AERODACTYL.png",
-    "magnemite": "Magnemite.webp",
-    "onix": "ONIX.png",
-    "meowth": "Meowth.png",
-    "clefairy": "CLEFAIRY.png",
-    "jigglypuff": "JIGGLYPUFF.png",
-    "beedrill": "015BeedrillRB.webp",
-    "articuno": "ARTICUNO.png",
-    "moltres": "MOLTRES.png",
-    "zapdos": "ZAPDOS.png",
-    "mew": "Pokémon_Mew_art.png",
-    "mewtwo": "Mewtwo_Render.webp",
-    "dragonite": "Dragonite.png",
-    "cyndaquil": "cyndaquil.png",
-    "chikorita": "chikorita.png",
-    "totodile": "totodile.png",
-    "aegislash": "aegislashpassiveactive",
-    "ditto": "dittoflubberskin.png",
-    "dragapult": "dragapult.jpg",
-    "primeape": "primeape.jpg",
-    "marowak": "marowak.png",
-    "pinsir": "pinsir.webp",
-    "tauros": "tauros.webp",
-    "darkrai": "darkrai.png",
-    "lance": "lancepokemonchampion.webp",
-    "lance-dragonite-1": "Dragonite.png",
-    "lance-gyarados": "gyarados.png",
-    "lance-aerodactyl": "AERODACTYL.png"
+  // used instead of the small square facePicture icon. Pre-cut to transparent
+  // PNGs at build time (see assets/images/PokemonArena/BIB/cutout/) so they
+  // read as floating character art rather than square photo cards. Not every
+  // character has one yet (missing here just falls back to facePicture).
+  var POKEMON_RELEASE_BIB_CHARACTER_IDS = {
+    "charmander": true, "squirtle": true, "bulbasaur": true, "pikachu": true,
+    "butterfree": true, "pokemon-trainer": true, "chansey": true, "pidgey": true,
+    "koffing": true, "zubat": true, "gastly": true, "abra": true, "krabby": true,
+    "scyther": true, "eevee": true, "jolteon": true, "flareon": true, "vaporeon": true,
+    "ekans": true, "machop": true, "magikarp": true, "mr-mime": true, "hitmonchan": true,
+    "hitmonlee": true, "aerodactyl": true, "magnemite": true, "onix": true, "meowth": true,
+    "clefairy": true, "jigglypuff": true, "beedrill": true, "articuno": true, "moltres": true,
+    "zapdos": true, "mew": true, "mewtwo": true, "dragonite": true, "cyndaquil": true,
+    "chikorita": true, "totodile": true, "aegislash": true, "ditto": true, "dragapult": true,
+    "primeape": true, "marowak": true, "pinsir": true, "tauros": true, "darkrai": true,
+    "lance": true, "lance-dragonite-1": true, "lance-gyarados": true, "lance-aerodactyl": true,
+    "nincada": true
   };
 
   function getPokemonReleaseBibRender(characterId, fallbackFacePicture) {
-    var fileName = characterId ? POKEMON_RELEASE_BIB_RENDERS[characterId] : "";
-    if (!fileName) {
+    if (!characterId || !POKEMON_RELEASE_BIB_CHARACTER_IDS[characterId]) {
       return fallbackFacePicture;
     }
-    return "assets/images/PokemonArena/BIB/" + encodeURIComponent(fileName);
+    return "assets/images/PokemonArena/BIB/cutout/" + encodeURIComponent(characterId) + ".png";
   }
 
   function updateReleasePreview(arena, index, releaseItem, facePicture) {
