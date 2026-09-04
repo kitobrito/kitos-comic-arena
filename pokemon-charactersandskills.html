@@ -1,6 +1,5 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-portal>
 <head>
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -12,596 +11,235 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pokemon Arena Character Files</title>
+  <meta name="description" content="Browse every Pokemon Arena character, their roles, and their full skill kits." />
+  <meta property="og:title" content="Pokemon Arena Character Files" />
+  <meta property="og:description" content="Browse every Pokemon Arena character, their roles, and their full skill kits." />
+  <meta property="og:type" content="website" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Barlow+Condensed:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <style>
-    :root { --bg: #f4e7c9; --panel: #fff7de; --panel-strong: #fffdf6; --line: #16120d; --ink: #15110b; --text: #21180f; --muted: #65584b; --accent: #ff5b2e; --accent-2: #ffd43a; --accent-3: #1f75ff; }
-    * { box-sizing: border-box; }
-    body { margin: 0; min-height: 100vh; background: radial-gradient(circle at 20% 20%, rgba(255, 212, 58, 0.85), transparent 0 18%), radial-gradient(circle at 80% 14%, rgba(31, 117, 255, 0.3), transparent 0 16%), radial-gradient(circle, rgba(21, 17, 11, 0.18) 1px, transparent 1.2px) 0 0 / 11px 11px, linear-gradient(180deg, #fff4cd 0%, #f5dd9e 34%, #f7b44a 100%); color: var(--text); font-family: "Barlow Condensed", system-ui, sans-serif; position: relative; }
-    /* One of the Website renders, set by the script below. A pseudo-element
-       rather than body's own background-image so the gradient above still
-       shows underneath (transparent background-image) during the brief gap
-       before that script runs, instead of being overridden to "none". */
-    body::before { content: ""; position: fixed; inset: 0; z-index: -1; background-image: var(--pokemon-website-background); background-size: cover; background-position: center; background-repeat: no-repeat; }
-    a { color: inherit; text-decoration: none; }
-    .app { width: min(1560px, 100%); min-height: 100vh; margin: 0 auto; display: grid; grid-template-columns: 235px minmax(0, 1fr) 270px; gap: 18px; padding: 18px; }
-    .sidebar, .aside { padding: 18px 20px; background: var(--panel); border: 4px solid var(--line); box-shadow: 8px 8px 0 rgba(0,0,0,.95); }
-    .sidebar { position: relative; overflow: hidden; }
-    .sidebar::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,91,46,.08), transparent 30%, rgba(21,17,11,.08) 100%), radial-gradient(circle at top left, rgba(255,212,58,.36), transparent 28%); pointer-events: none; }
-    .sidebar > * { position: relative; z-index: 1; }
-    .aside { background: radial-gradient(circle at top right, rgba(255,212,58,.28), transparent 22%), var(--panel); }
-    .brand { display: grid; justify-items: center; gap: 10px; margin-bottom: 34px; padding-bottom: 18px; border-bottom: 4px solid var(--line); }
-    .brand-mark { width: 54px; max-height: 42px; display: block; object-fit: contain; }
-    .brand-name { font-family: "Bangers", cursive; font-size: 34px; font-weight: 400; letter-spacing: .06em; line-height: 1; text-shadow: 3px 3px 0 var(--accent-2); }
-    .brand-copy { display: grid; gap: 4px; justify-items: center; text-align: center; }
-    .brand-tagline { font-size: 14px; line-height: 1.2; color: var(--muted); font-weight: 600; text-transform: uppercase; }
-    .group { margin-bottom: 28px; }
-    .group-title { margin: 0 0 14px; color: var(--ink); font-family: "Bangers", cursive; font-size: 27px; font-weight: 400; letter-spacing: .06em; }
-    .nav { display: grid; gap: 6px; }
-    .nav-link, .account-action { display: flex; align-items: center; gap: 14px; position: relative; text-transform: uppercase; }
-    .nav-link { padding: 10px 12px; color: var(--ink); font-size: 19px; font-weight: 700; border: 3px solid transparent; }
-    .nav-link:hover { color: var(--ink); border-color: var(--line); background: var(--accent-2); }
-    .nav-link svg, .account-action svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; flex: 0 0 auto; }
-    .nav-link.active { color: #fff; background: var(--accent); border-color: var(--line); transform: translate(-4px,-4px); box-shadow: 4px 4px 0 rgba(0,0,0,1); }
-    .nav-link.active::before { content: "!"; position: absolute; right: 10px; top: 50%; transform: translateY(-50%) rotate(-8deg); width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; background: var(--accent-2); color: var(--line); font-family: "Bangers", cursive; font-size: 18px; }
-    .play-launches { display: grid; gap: 10px; margin-bottom: 10px; }
-    .play-now { width: 100%; min-height: 52px; border: 4px solid var(--line); background: linear-gradient(180deg, #ffeb67 0%, #ff9e1b 100%); color: #101010; font: inherit; font-size: 22px; font-weight: 800; text-transform: uppercase; cursor: pointer; box-shadow: 0 6px 0 rgba(0,0,0,.95); transform: rotate(-1.5deg); }
-    .play-now.comic { background: linear-gradient(180deg, #ffd56a 0%, #ff7a30 100%); }
-    .play-now:hover { transform: translateY(2px) rotate(-1.5deg); box-shadow: 0 4px 0 rgba(0,0,0,.95); }
-    .auth-form { display: grid; gap: 10px; margin-top: 14px; }
-    .auth-description { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.4; font-weight: 600; }
-    .auth-input, .character-search-input { border: 3px solid var(--line); background: var(--panel-strong); color: var(--ink); font: inherit; outline: none; }
-    .auth-input { width: 100%; height: 42px; padding: 0 12px; font-size: 18px; font-weight: 600; }
-    .auth-input::placeholder, .character-search-input::placeholder { color: #806d5b; }
-    .auth-input:focus, .character-search-input:focus { border-color: var(--accent-3); box-shadow: 0 0 0 4px rgba(31,117,255,.15); }
-    .auth-button { width: 100%; height: 44px; border: 3px solid var(--line); background: linear-gradient(180deg, #ff673d 0%, #ef2e00 100%); color: #fff; font: inherit; font-size: 20px; font-weight: 800; text-transform: uppercase; cursor: pointer; box-shadow: 0 5px 0 rgba(0,0,0,.95); }
-    .auth-switch { border: 0; padding: 0; background: transparent; color: var(--accent-3); font: inherit; font-size: 15px; font-weight: 700; text-align: left; cursor: pointer; text-transform: uppercase; }
-    .auth-status { min-height: 18px; margin: 0; color: var(--text); font-size: 14px; line-height: 1.4; font-weight: 600; }
-    .auth-status[data-state="error"] { color: #b90f0f; }
-    .auth-status[data-state="success"] { color: #166e27; }
-    .account-panel[hidden] { display: none; }
-    .account-greeting { margin: 0; color: var(--ink); font-size: 19px; line-height: 1.45; font-weight: 700; text-transform: uppercase; }
-    .account-name { color: var(--accent); font-weight: 800; }
-    .account-actions { display: grid; gap: 6px; margin-top: 14px; }
-    .account-action { width: 100%; min-height: 42px; border: 3px solid transparent; background: transparent; color: var(--ink); padding: 8px 10px; font: inherit; font-size: 18px; font-weight: 700; text-align: left; cursor: pointer; }
-    .account-action:hover { color: var(--ink); background: var(--accent-2); border-color: var(--line); }
-    .account-action.active { color: #fff; background: var(--accent-3); border-color: var(--line); }
-    .account-action.active::before { display: none; }
-    .main { padding: 0; display: grid; gap: 18px; align-content: start; }
-    .release-panel, .mainsection, .ladder, .stats-panel { border: 4px solid var(--line); box-shadow: 8px 8px 0 rgba(0,0,0,.95); }
-    .release-panel { padding: 24px; background: linear-gradient(135deg, rgba(31,117,255,.18), transparent 42%), radial-gradient(circle at right top, rgba(255,212,58,.55), transparent 18%), linear-gradient(180deg, #fffdfa 0%, #ffe6b4 100%); position: relative; overflow: hidden; }
-    .release-panel::before { content: "Roster Spotlight"; position: absolute; top: 18px; right: 20px; padding: 6px 12px; border: 3px solid var(--line); background: var(--accent); color: #fff; font-family: "Bangers", cursive; font-size: 24px; letter-spacing: .05em; transform: rotate(3deg); }
-    .release-title { margin: 0 0 10px; max-width: 700px; font-family: "Bangers", cursive; font-size: 45px; font-weight: 400; line-height: .95; letter-spacing: .05em; text-transform: uppercase; text-shadow: 4px 4px 0 var(--accent-2); }
-    .release-copy { margin: 0 0 20px; max-width: 760px; color: var(--muted); font-size: 22px; line-height: 1.1; font-weight: 700; text-transform: uppercase; }
-    .release-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
-    .release-card { display: grid; gap: 12px; justify-items: center; padding: 18px 14px; border: 4px solid var(--line); background: radial-gradient(circle at center, rgba(255,212,58,.3), transparent 45%), var(--panel-strong); box-shadow: 6px 6px 0 rgba(0,0,0,.95); transform: rotate(calc(var(--tilt, 0) * 1deg)); }
-    .release-card:nth-child(1) { --tilt: -2; }
-    .release-card:nth-child(2) { --tilt: 1; }
-    .release-card:nth-child(3) { --tilt: -1; }
-    .release-face, .character-row-image, .character-modal-image, .character-skill-image { object-fit: cover; background: #111; border: 3px solid var(--line); box-shadow: 4px 4px 0 rgba(0,0,0,.9); }
-    .release-face { width: 88px; height: 88px; }
-    .release-label { color: var(--ink); font-size: 18px; text-align: center; font-weight: 800; text-transform: uppercase; }
-    .mainsection { padding: 24px; background: linear-gradient(145deg, rgba(255,255,255,.46), rgba(255,241,209,.94)), var(--panel); }
-    .character-directory { display: grid; gap: 18px; }
-    .character-directory-header { display: grid; gap: 10px; padding-bottom: 16px; border-bottom: 3px solid var(--line); }
-    .character-search-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-    .character-search-label { margin: 0; color: var(--ink); font-family: "Bangers", cursive; font-size: 36px; font-weight: 400; letter-spacing: .05em; text-transform: uppercase; text-shadow: 3px 3px 0 var(--accent-2); }
-    .character-search-input { width: min(100%, 380px); height: 48px; padding: 0 14px; font-size: 18px; font-weight: 700; box-shadow: 4px 4px 0 rgba(0,0,0,.9); }
-    .character-directory-copy { margin: 0; color: var(--muted); font-size: 20px; line-height: 1.2; max-width: 920px; font-weight: 700; text-transform: uppercase; }
-    .character-directory-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 20px; }
-    .character-portrait-card {
-        position: relative;
-        cursor: pointer;
-        border: 4px solid var(--line);
-        background: #111;
-        aspect-ratio: 1/1;
-        box-shadow: 6px 6px 0 rgba(0,0,0,.95);
-        transition: transform 0.1s, box-shadow 0.1s;
-    }
-    .character-portrait-card:hover {
-        transform: translate(-2px, -2px);
-        box-shadow: 8px 8px 0 rgba(0,0,0,.95);
-        z-index: 100;
-    }
-    .character-portrait-img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-    }
-    .character-portrait-card.has-evolution { overflow: visible; }
-    .character-evolution-preview {
-        position: absolute;
-        top: -9%;
-        right: -9%;
-        width: 82%;
-        height: 82%;
-        object-fit: cover;
-        border: 3px solid #a61926;
-        opacity: .9;
-        z-index: 0;
-    }
-    .character-portrait-card.has-evolution .character-portrait-img {
-        position: absolute;
-        left: 0;
-        bottom: 0;
-        width: 88%;
-        height: 88%;
-        border-top: 3px solid var(--line);
-        border-right: 3px solid var(--line);
-        z-index: 1;
-    }
-    .character-portrait-tooltip {
-        position: absolute;
-        top: 115%;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 240px;
-        padding: 12px;
-        background: linear-gradient(180deg, #ffffff, #fff7de);
-        border: 3px solid var(--line);
-        color: var(--text);
-        font-size: 15px;
-        line-height: 1.3;
-        font-weight: 700;
-        text-transform: none;
-        pointer-events: none;
-        opacity: 0;
-        visibility: hidden;
-        transition: opacity 0.2s, visibility 0.2s;
-        box-shadow: 6px 6px 0 rgba(0,0,0,0.85);
-        z-index: 200;
-        text-align: center;
-    }
-    .character-portrait-tooltip::after {
-        content: "";
-        position: absolute;
-        bottom: 100%;
-        left: 50%;
-        margin-left: -8px;
-        border-width: 8px;
-        border-style: solid;
-        border-color: transparent transparent var(--line) transparent;
-    }
-    .character-portrait-name {
-        display: block;
-        margin-bottom: 4px;
-        color: var(--ink);
-        font-family: "Bangers", cursive;
-        font-size: 22px;
-        letter-spacing: 0.05em;
-    }
-    .character-portrait-role {
-        display: block;
-        color: #d63031;
-        font-size: 14px;
-        font-weight: 800;
-        text-transform: uppercase;
-        margin-bottom: 8px;
-        border-bottom: 2px solid var(--line);
-        padding-bottom: 4px;
-    }
-    .character-portrait-card:hover .character-portrait-tooltip {
-        opacity: 1;
-        visibility: visible;
-    }
-    .role-filters {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 16px;
-        flex-wrap: wrap;
-    }
-    .role-tab, .universe-tab {
-        padding: 8px 16px;
-        border: 3px solid var(--line);
-        background: var(--panel-strong);
-        color: var(--ink);
-        font-family: "Bangers", cursive;
-        font-size: 18px;
-        letter-spacing: 0.05em;
-        cursor: pointer;
-        text-transform: uppercase;
-        box-shadow: 4px 4px 0 rgba(0,0,0,.9);
-        transition: transform 0.1s, box-shadow 0.1s;
-    }
-    .role-tab:hover, .universe-tab:hover {
-        background: var(--accent-2);
-    }
-    .role-tab.active, .universe-tab.active {
-        background: var(--accent);
-        color: #fff;
-        transform: translate(-2px, -2px);
-        box-shadow: 6px 6px 0 rgba(0,0,0,1);
-    }
-    .character-directory-empty, .character-modal-empty { color: var(--muted); font-size: 18px; line-height: 1.5; font-weight: 700; text-transform: uppercase; }
-    .character-directory-empty { padding: 18px; border: 3px dashed rgba(21,17,11,.45); background: rgba(255,255,255,.45); }
-    .character-modal-backdrop { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; padding: 24px; background: rgba(19,12,6,.74); z-index: 1000; }
-    .character-modal-backdrop.visible { display: flex; }
-    .character-modal {
-      width: min(1040px, 100%);
-      max-height: min(88vh, 900px);
-      overflow: auto;
-      padding: 18px 18px 22px;
-      border: 4px solid #cfcfcf;
-      background: linear-gradient(180deg, #fdfdfd 0%, #f7f7f7 100%);
-      box-shadow: 10px 10px 0 rgba(0,0,0,.95);
-    }
-    .character-modal-close-row { display: flex; justify-content: flex-end; margin-bottom: 8px; }
-    .character-modal-close {
-      padding: 8px 14px;
-      border: 2px solid #7b7b7b;
-      background: #f1f1f1;
-      color: #202020;
-      font-size: 15px;
-      font-weight: 700;
-      text-transform: uppercase;
-      box-shadow: none;
-    }
-    .character-modal-header {
-      display: grid;
-      gap: 10px;
-      padding-bottom: 10px;
-      margin-bottom: 10px;
-      border-bottom: 1px dashed #b7b7b7;
-    }
-    .character-modal-template-name {
-      margin: 0;
-      color: #2b1d8f;
-      font-size: 34px;
-      font-weight: 800;
-      line-height: 1;
-    }
-    .character-modal-summary {
-      display: grid;
-      grid-template-columns: 92px minmax(0, 1fr);
-      gap: 12px;
-      align-items: start;
-    }
-    .character-modal-image {
-      width: 74px;
-      height: 74px;
-      border: 1px solid #666;
-      box-shadow: none;
-    }
-    .character-modal-description-label,
-    .character-modal-meta-row,
-    .character-skill-classes {
-      color: #6f6f6f;
-      font-size: 15px;
-      font-weight: 500;
-    }
-    .character-modal-description-label {
-      margin: 0 0 6px;
-      text-transform: none;
-    }
-    .character-modal-description {
-      margin: 0;
-      color: #2a2a2a;
-      font-size: 18px;
-      line-height: 1.45;
-      font-weight: 500;
-    }
-    .character-modal-stats {
-      display: grid;
-      gap: 6px;
-      padding-top: 8px;
-      margin-top: 4px;
-      border-top: 1px dashed #b7b7b7;
-    }
-    .character-modal-meta-row {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      gap: 10px 18px;
-      align-items: baseline;
-      color: #202020;
-      font-size: 16px;
-    }
-    .character-modal-meta-row strong {
-      color: #222;
-      font-weight: 800;
-    }
-    .character-modal-unlock {
-      margin: 0;
-      color: #202020;
-      font-size: 16px;
-      font-weight: 600;
-      text-transform: none;
-    }
-    .character-modal-skill-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 18px; }
-    .character-skill-card {
-      padding: 0 0 10px;
-      border: 0;
-      border-top: 1px dashed #b7b7b7;
-      border-bottom: 1px dashed #b7b7b7;
-      background: transparent;
-      box-shadow: none;
-    }
-    .character-skill-title {
-      margin: 10px 0 8px;
-      color: #ff9400;
-      font-size: 31px;
-      font-weight: 800;
-      line-height: 1;
-      text-transform: none;
-    }
-    .character-skill-name { color: inherit; font-weight: inherit; }
-    .character-skill-body {
-      display: grid;
-      grid-template-columns: 82px minmax(0, 1fr);
-      gap: 10px;
-      align-items: start;
-    }
-    .character-skill-image {
-      width: 74px;
-      height: 74px;
-      border: 1px solid #666;
-      box-shadow: none;
-    }
-    .character-evolution-toggle {
-      width: 100%;
-      padding: 12px;
-      border: 2px solid #a61926;
-      background: linear-gradient(180deg, #fff 0%, #ffe9eb 100%);
-      color: #7f101b;
-      cursor: pointer;
-      text-align: center;
-    }
-    .character-evolution-toggle img {
-      width: 96px;
-      height: 96px;
-      display: block;
-      margin: 0 auto 8px;
-      border: 2px solid #a61926;
-      object-fit: cover;
-    }
-    .character-evolution-toggle strong { display: block; font-size: 22px; }
-    .character-evolution-toggle span { display: block; margin-top: 4px; font-weight: 700; }
-    .character-evolution-skills { grid-column: 1 / -1; }
-    .character-evolution-skills[hidden] { display: none; }
-    .character-modal-tabs { display: flex; gap: 8px; margin: 0 0 14px; }
-    .character-modal-tab {
-      padding: 9px 16px;
-      border: 2px solid #a61926;
-      background: #fff;
-      color: #8b121e;
-      font-weight: 800;
-      cursor: pointer;
-    }
-    .character-modal-tab.active { background: #b51f2e; color: #fff; }
-    .character-modal-view[hidden] { display: none; }
-    .character-skin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
-    .character-skin-card { border: 2px solid #a61926; background: #fff5f5; padding: 12px; text-align: center; }
-    .character-skin-portrait { width: 120px; height: 120px; object-fit: cover; border: 2px solid #a61926; cursor: pointer; }
-    .character-skin-card h3 { margin: 8px 0 4px; color: #7f101b; font-size: 22px; }
-    .character-skin-price { margin: 0 0 6px; color: #b51f2e; font-size: 18px; font-weight: 900; }
-    .character-skin-description { margin: 0; color: #351010; line-height: 1.35; }
-    .character-skin-prompt { margin: 8px 0 0; color: #8b121e; font-weight: 800; }
-    .character-skin-gallery { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #c44650; }
-    .character-skin-gallery[hidden] { display: none; }
-    .character-skin-skill { margin: 0; }
-    .character-skin-skill img { width: 76px; height: 76px; object-fit: cover; border: 1px solid #a61926; }
-    .character-skin-skill figcaption { margin-top: 3px; color: #351010; font-size: 12px; font-weight: 700; }
-    .character-skill-description {
-      margin: 0;
-      color: #2a2a2a;
-      font-size: 17px;
-      line-height: 1.45;
-      font-weight: 500;
-    }
-    .character-skill-meta {
-      display: grid;
-      gap: 3px;
-      margin-top: 8px;
-      color: #2a2a2a;
-      font-size: 15px;
-      line-height: 1.35;
-      font-weight: 500;
-    }
-    .character-skill-meta-row {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      gap: 8px 16px;
-      align-items: center;
-    }
-    .character-skill-meta strong { color: #2a2a2a; font-weight: 500; text-decoration: underline; text-underline-offset: 2px; }
-    .character-skill-classes { text-align: left; }
-    .character-energy-pips { display: inline-flex; align-items: center; gap: 4px; vertical-align: middle; margin-left: 8px; }
-    .character-energy-pip { width: 12px; height: 12px; border: 2px solid var(--line); display: inline-block; }
-    .character-energy-pip.taijutsu { background: #4caf50; }
-    .character-energy-pip.ninjutsu { background: #3498db; }
-    .character-energy-pip.bloodline { background: #e74c3c; }
-    .character-energy-pip.genjutsu { background: #e0b100; }
-    .character-energy-pip.random { background: #000000; }
-    .ladder, .stats-panel { margin-bottom: 16px; padding: 14px; background: linear-gradient(180deg, rgba(255,255,255,.45) 0%, rgba(255,241,202,.95) 100%), var(--panel); }
-    .ladder-title, .stats-title { margin: 0 0 12px; padding-bottom: 8px; border-bottom: 3px solid var(--line); font-size: 18px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: var(--accent); }
-    .ladder-list, .stats-list { display: grid; gap: 8px; }
-    .ladder-row { display: grid; grid-template-columns: 28px 1fr; gap: 10px; align-items: center; padding: 8px 8px 8px 0; border-bottom: 2px dashed rgba(21,17,11,.35); }
-    .ladder-row:last-child { border-bottom: 0; padding-bottom: 0; }
-    .ladder-rank { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 999px; background: var(--accent-2); border: 2px solid var(--line); color: var(--line); font-size: 11px; font-weight: 700; }
-    .ladder-name { color: var(--ink); font-size: 16px; font-weight: 800; margin-bottom: 6px; text-transform: uppercase; }
-    .ladder-name a, .ladder-name a:visited { color: inherit; text-decoration: none; }
-    .ladder-name a:hover, .ladder-name a:focus-visible { color: var(--accent); }
-    .ladder-bar { position: relative; height: 18px; background: rgba(255, 255, 255, 0.14); border: 2px solid rgb(0, 0, 0); overflow: hidden; }
-    .ladder-fill { height: 100%; background: linear-gradient(90deg, var(--accent) 0%, var(--accent-2) 100%); }
-    .ladder-score {
-      position: absolute;
-      inset: 0;
-      display: grid;
-      place-items: center;
-      font-size: 10px;
-      font-weight: 800;
-      color: #000000;
-      letter-spacing: 0.03em;
-      text-shadow: none;
-    }    .stats-group + .stats-group { margin-top: 18px; }
-    .stats-list { margin: 0; padding-left: 18px; }
-    .stats-list li { padding: 7px 8px; background: var(--panel-strong); border: 2px solid rgba(21,17,11,.4); color: var(--text); font-size: 15px; line-height: 1.45; font-weight: 700; }
-    @media (max-width: 1180px) { .app { grid-template-columns: 220px minmax(0, 1fr); padding: 14px; } .aside { display: none; } }
-    @media (max-width: 860px) { .app { grid-template-columns: 1fr; } .sidebar { border-bottom-width: 4px; } .release-grid, .character-modal-skill-grid { grid-template-columns: 1fr; } }
-    @media (max-width: 560px) { .main, .sidebar { padding-left: 14px; padding-right: 14px; } .release-title, .character-search-label { font-size: 30px; } .character-directory-copy { font-size: 17px; } .character-row-body, .character-modal-summary, .character-skill-body { grid-template-columns: 1fr; } .character-row-link { justify-self: start; } }
-  </style>
-  <link rel="stylesheet" href="styles/portal-theme.css?v=na-portal-v3" />
+  <link rel="stylesheet" href="styles/pokemon-portal.css?v=ground-up-v5" />
+  <link rel="stylesheet" href="styles/pokemon-characters.css?v=ground-up-v1" />
 </head>
-<body data-page-arena="pokemon">
+<body class="pp-body pp-has-tabbar" data-page-arena="pokemon" data-portal-section="characters">
 <!-- Google Tag Manager (noscript) -->
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-K64P68MT"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
-  <div class="app">
-    <aside class="sidebar">
-      <div class="brand">
-        <img class="brand-mark" src="assets/images/sitelogo.png" alt="Comic-Arena logo" />
-        <div class="brand-copy">
-          <div class="brand-name">Comic-ARENA</div>
-          <div class="brand-tagline">Your #1 Comic Online Multiplayer Game</div>
-        </div>
+
+<div class="pp-shell">
+  <header class="pp-topbar">
+    <div class="pp-container pp-topbar-inner">
+      <a class="pp-brand" href="/pokemon">
+        <img src="assets/images/PokemonArena/pokemonarenalogo.png" alt="" />
+        <span class="pp-brand-mark">Pokemon<em>Arena</em></span>
+      </a>
+      <nav class="pp-nav" id="pp-nav" aria-label="Primary">
+        <a href="/pokemon">Home</a>
+        <a href="/pokemon-missions">Missions</a>
+        <a href="pokemon-charactersandskills.html" aria-current="page">Characters</a>
+        <a href="/pokemon-community">Community</a>
+        <a href="/pokemon-events">Events</a>
+        <a href="/pokemon-manual">Manual</a>
+        <a class="pp-comic-switch pp-comic-switch-mobile" href="/">Comic Arena&nbsp;&rarr;</a>
+      </nav>
+      <div class="pp-topbar-actions">
+        <a class="pp-comic-switch" href="/">Comic Arena &rarr;</a>
+        <button class="pp-nav-toggle" id="pp-nav-toggle" type="button" aria-expanded="false" aria-controls="pp-nav" aria-label="Toggle menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
       </div>
-      <section class="group">
-        <h2 class="group-title">Home Menu</h2>
-        <nav class="nav">
-          <div class="play-launches">
-            <button class="play-now comic" type="button" data-play-arena="comic">Play Comic-Arena</button>
-            <button class="play-now pokemon" type="button" data-play-arena="pokemon">Play Pokemon-Arena</button>
-          </div>
-          <a class="nav-link" href="index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z" /></svg><span>Home</span></a>
-          <a class="nav-link" href="community.html"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="2.5" /><circle cx="16.5" cy="9.5" r="2" /><path d="M4.5 18c.8-2.7 3-4 5.5-4s4.7 1.3 5.5 4" /><path d="M14 17c.5-1.7 1.8-2.8 3.8-2.8 1.5 0 2.9.8 3.7 2.3" /></svg><span>Community</span></a>
-          <a class="nav-link" href="events.html"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6" /><rect x="14" y="4" width="6" height="6" /><rect x="4" y="14" width="6" height="6" /><rect x="14" y="14" width="6" height="6" /></svg><span>Events</span></a>
-          <a class="nav-link" href="missions.html?arena=pokemon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.1 2.8 7.9 7 9 4.2-1.1 7-4.9 7-9V6z" /><path d="M9 12h6" /><path d="M12 9v6" /></svg><span>Pokemon Missions</span></a>
-          <a class="nav-link" href="manual.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4.5A2.5 2.5 0 0 1 8.5 2H20v16H8.5A2.5 2.5 0 0 0 6 20.5z" /><path d="M6 4.5V22" /><path d="M9.5 7H16" /><path d="M9.5 11H17" /></svg><span>Game Manual</span></a>
-          <a class="nav-link active" href="pokemon-charactersandskills.html"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" /><path d="M4 12h16" /><circle cx="12" cy="12" r="2.2" /></svg><span>Pokemon Characters</span></a>
-          <a class="nav-link" href="charactersandskills.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5h16" /><path d="M7.5 4v16" /><rect x="4" y="4" width="16" height="16" rx="2" /></svg><span>Comic Characters</span></a>
-        </nav>
+    </div>
+  </header>
+
+  <section class="pp-hero pp-hero-compact">
+    <div class="pp-container pp-hero-inner">
+      <div>
+        <div class="pp-eyebrow">Full Roster</div>
+        <h1 class="pp-h1">Character Files</h1>
+        <p class="pp-lede">Browse every Pokemon, their role on a team, and every skill in their kit.</p>
+      </div>
+    </div>
+  </section>
+
+  <main class="pp-container pp-layout">
+    <div>
+      <section class="pp-panel" aria-label="Character directory">
+        <div class="pp-character-toolbar">
+          <h2 class="pp-panel-title" style="margin:0;">Roster</h2>
+          <input class="pp-field" id="character-search-input" type="text" placeholder="Search characters..." autocomplete="off" style="margin:0;max-width:260px;" />
+        </div>
+        <div class="role-filters" id="role-filters">
+          <button class="role-tab active" data-role="all">All Roles</button>
+          <button class="role-tab" data-role="tank">Tank</button>
+          <button class="role-tab" data-role="dot-dps">DOT DPS</button>
+          <button class="role-tab" data-role="aoe-dps">AOE DPS</button>
+          <button class="role-tab" data-role="fast-dps">Fast DPS</button>
+          <button class="role-tab" data-role="spike-dps">Spike DPS</button>
+          <button class="role-tab" data-role="damage-support">Damage Support</button>
+          <button class="role-tab" data-role="utility-support">Utility Support</button>
+          <button class="role-tab" data-role="heal-support">Heal Support</button>
+          <button class="role-tab" data-role="shield-support">Shield Support</button>
+          <button class="role-tab" data-role="controller">Controller</button>
+          <button class="role-tab" data-role="hybrid">Hybrid</button>
+          <button class="role-tab" data-role="disruptor">Disruptor</button>
+          <button class="role-tab" data-role="assassin">Assassin</button>
+          <button class="role-tab" data-role="bruiser">Bruiser</button>
+          <button class="role-tab" data-role="specialist">Specialist</button>
+        </div>
+        <div class="character-directory-list" id="character-directory-list"><div class="character-directory-empty">Loading characters...</div></div>
       </section>
-      <section class="group" id="auth-panel">
-        <h2 class="group-title" id="auth-title">Login</h2>
+    </div>
+
+    <aside>
+      <section class="pp-panel" id="auth-panel">
+        <h2 class="pp-panel-title" id="auth-title">Account Access</h2>
         <div id="guest-auth-view">
-          <p class="auth-description" id="auth-description">Sign in with your Naruto-Arena account.</p>
-          <form class="auth-form" id="auth-form">
-            <input class="auth-input" type="text" name="username" placeholder="Username" autocomplete="username" required />
-            <input class="auth-input" type="password" name="password" placeholder="Password" autocomplete="current-password" required />
-            <input class="auth-input" type="password" name="confirmPassword" placeholder="Confirm Password" autocomplete="new-password" hidden />
-            <input class="auth-input" type="email" name="email" placeholder="Email" autocomplete="email" hidden />
-            <button class="auth-button" type="submit" id="auth-submit">Login</button>
-            <button class="auth-switch" type="button" id="auth-toggle">Need an account? Register</button>
-            <p class="auth-status" id="auth-status" aria-live="polite"></p>
+          <p class="pp-lede" id="auth-description" style="font-size:13px;margin:0 0 14px;">Sign in with your Comic-Arena account.</p>
+          <form id="auth-form">
+            <input class="pp-field" type="text" name="username" placeholder="Username" autocomplete="username" required />
+            <input class="pp-field" type="password" name="password" placeholder="Password" autocomplete="current-password" required />
+            <input class="pp-field" type="password" name="confirmPassword" placeholder="Confirm Password" autocomplete="new-password" hidden />
+            <input class="pp-field" type="email" name="email" placeholder="Email" autocomplete="email" hidden />
+            <button class="pp-btn pp-btn-primary pp-btn-block" type="submit" id="auth-submit">Login</button>
+            <button class="pp-btn pp-btn-ghost pp-btn-block" type="button" id="auth-toggle" style="margin-top:8px;">Need an account? Register</button>
+            <p class="pp-status" id="auth-status" aria-live="polite"></p>
           </form>
         </div>
         <div class="account-panel" id="account-panel" hidden>
-          <p class="account-greeting">Welcome back, <span class="account-name" id="account-username">Player</span>!</p>
-          <div class="account-actions">
-            <button class="account-action" type="button" id="view-profile-button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.25" /><path d="M5 19c.9-3 3.6-4.5 7-4.5S18.1 16 19 19" /></svg><span>View Profile</span></button>
-            <button class="account-action" type="button" id="change-avatar-button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v6" /><path d="M9 6h6" /><path d="M5 21c1.2-3.2 4-4.8 7-4.8s5.8 1.6 7 4.8" /></svg><span>Change Avatar</span></button>
-            <button class="account-action" type="button" id="clan-panel-button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18V6l8-3 8 3v12l-8 3z" /><path d="M8 10h8" /><path d="M8 14h5" /></svg><span>Clan Panel</span></button>
-            <button class="account-action" type="button" id="change-backgrounds-button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="14" rx="2" /><path d="M4 14c2.5-3 5.5-4.5 8-4.5s5.5 1.5 8 4.5" /></svg><span>Custom Background</span></button>
-            <button class="account-action" type="button" id="reset-account-button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14" /><path d="M8 7V5h8v2" /><path d="M9 11v5" /><path d="M15 11v5" /><path d="M7 7l1 12h8l1-12" /></svg><span>Reset Account</span></button>
-            <section class="group" id="admin-panel-section" hidden>
-              <h2 class="group-title">Admin Panel</h2>
-              <nav class="nav">
-                <a class="nav-link" href="winrates.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18h16" /><path d="M7 14V9" /><path d="M12 14V6" /><path d="M17 14v-3" /></svg><span>Winrates</span></a>
-                <a class="nav-link" href="charactereditor.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16" /><path d="M6 16 18 4" /><path d="m14 4 4 4" /><path d="M6 16l-1 4 4-1" /></svg><span>Character Editor</span></a>
-                <a class="nav-link" href="editmission.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16" /><path d="M7 16l10-10" /><path d="M14 6l4 4" /><path d="M6 18l1-4 4-1" /></svg><span>Mission Editor</span></a>
-                <a class="nav-link" href="playeraccounts.html"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="2.5" /><circle cx="16.5" cy="9.5" r="2" /><path d="M4.5 18c.8-2.7 3-4 5.5-4s4.7 1.3 5.5 4" /><path d="M14 17c.5-1.7 1.8-2.8 3.8-2.8 1.5 0 2.9.8 3.7 2.3" /></svg><span>Player Accounts</span></a>
-                <a class="nav-link" href="newspost.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6.5h14" /><path d="M5 11.5h14" /><path d="M5 16.5h9" /><rect x="4" y="4" width="16" height="16" rx="2" /></svg><span>News Post</span></a>
-              </nav>
-            </section>
-            <button class="account-action" type="button" id="logout-button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17l5-5-5-5" /><path d="M15 12H4" /><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4" /></svg><span>Log Out</span></button>
-          </div>
-          <p class="auth-status" id="account-status" aria-live="polite"></p>
+          <p style="margin:0 0 14px;font-size:14px;">Welcome back, <strong id="account-username">Player</strong>!</p>
+          <button class="pp-account-action" type="button" id="view-profile-button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.25" /><path d="M5 19c.9-3 3.6-4.5 7-4.5S18.1 16 19 19" /></svg>
+            <span>View Profile</span>
+          </button>
+          <button class="pp-account-action" type="button" id="change-avatar-button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v6" /><path d="M9 6h6" /><path d="M5 21c1.2-3.2 4-4.8 7-4.8s5.8 1.6 7 4.8" /></svg>
+            <span>Change Avatar</span>
+          </button>
+          <button class="pp-account-action" type="button" id="clan-panel-button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 18V6l8-3 8 3v12l-8 3z" /><path d="M8 10h8" /><path d="M8 14h5" /></svg>
+            <span>Clan Panel</span>
+          </button>
+          <button class="pp-account-action" type="button" id="change-backgrounds-button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="5" width="16" height="14" rx="2" /><path d="M4 14c2.5-3 5.5-4.5 8-4.5s5.5 1.5 8 4.5" /></svg>
+            <span>Custom Background</span>
+          </button>
+          <button class="pp-account-action" type="button" id="reset-account-button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 7h14" /><path d="M8 7V5h8v2" /><path d="M9 11v5" /><path d="M15 11v5" /><path d="M7 7l1 12h8l1-12" /></svg>
+            <span>Reset Account</span>
+          </button>
+          <button class="pp-account-action" type="button" id="gen2-starter-reopen" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8" /><path d="M4 12h16" /><circle cx="12" cy="12" r="2.5" /></svg>
+            <span>Choose Gen 2 Starter</span>
+          </button>
+          <section id="admin-panel-section" hidden style="margin-top:14px;">
+            <h2 class="pp-panel-title" style="font-size:11.5px;">Admin Panel</h2>
+            <a class="pp-account-action" href="winrates.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 18h16" /><path d="M7 14V9" /><path d="M12 14V6" /><path d="M17 14v-3" /></svg><span>Winrates</span></a>
+            <a class="pp-account-action" href="charactereditor.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16" /><path d="M6 16 18 4" /><path d="m14 4 4 4" /></svg><span>Character Editor</span></a>
+            <a class="pp-account-action" href="editmission.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16" /><path d="M6 16 18 4" /><path d="M4 20l4-1" /><path d="M14 4l4 4" /></svg><span>Mission Editor</span></a>
+            <a class="pp-account-action" href="playeraccounts.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="2.5" /><circle cx="16.5" cy="9.5" r="2" /><path d="M4.5 18c.8-2.7 3-4 5.5-4s4.7 1.3 5.5 4" /><path d="M14 17c.5-1.7 1.8-2.8 3.8-2.8 1.5 0 2.9.8 3.7 2.3" /></svg><span>Player Accounts</span></a>
+            <a class="pp-account-action" href="newspost.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 6.5h14" /><path d="M5 11.5h14" /><path d="M5 16.5h9" /><rect x="4" y="4" width="16" height="16" rx="2" /></svg><span>News Post</span></a>
+          </section>
+          <button class="pp-account-action" type="button" id="logout-button" style="margin-top:14px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 17l5-5-5-5" /><path d="M15 12H4" /><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4" /></svg>
+            <span>Log Out</span>
+          </button>
+          <form id="change-avatar-form" style="margin-top:16px;">
+            <div class="pp-avatar-row" data-home-arena="comic" style="display:none;">
+              <img id="comic-avatar-current-image" src="/assets/images/external-mirror/i.postimg.cc/971bcdc8d3154d6d16a9.png" alt="Comic Arena avatar" />
+              <label>Comic Arena Avatar
+                <input class="pp-field" style="margin:0;" type="url" id="comic-avatar-url" placeholder="Direct image URL" autocomplete="off" />
+                <input type="file" id="comic-avatar-file" accept="image/*" />
+              </label>
+            </div>
+            <div class="pp-avatar-row" data-home-arena="pokemon">
+              <img id="pokemon-avatar-current-image" src="assets/images/PokemonArena/found-pokeball.png" alt="Pokemon Arena avatar" />
+              <label>Pokemon Arena Avatar
+                <input class="pp-field" style="margin:0;" type="url" id="pokemon-avatar-url" placeholder="Direct image URL" autocomplete="off" />
+                <input type="file" id="pokemon-avatar-file" accept="image/*" />
+              </label>
+            </div>
+            <button class="pp-btn pp-btn-primary pp-btn-block" type="submit" id="change-avatar-submit">Save Avatars</button>
+            <p class="pp-status" id="change-avatar-status" aria-live="polite"></p>
+          </form>
+          <p class="pp-status" id="account-status" aria-live="polite"></p>
         </div>
+      </section>
+
+      <section class="pp-panel" aria-label="Top player levels">
+        <h2 class="pp-panel-title">Top Player Levels</h2>
+        <ol class="pp-lb-list" id="sidebar-top-player-levels"></ol>
+      </section>
+
+      <section class="pp-panel" aria-label="Top win streaks">
+        <h2 class="pp-panel-title">Current Win Streaks</h2>
+        <ol class="pp-lb-list" id="sidebar-top-current-streaks"></ol>
+      </section>
+
+      <section class="pp-panel" aria-label="Top wins">
+        <h2 class="pp-panel-title">Most Wins</h2>
+        <ol class="pp-lb-list" id="sidebar-top-wins"></ol>
+      </section>
+
+      <section class="pp-panel" aria-label="Highest win streaks">
+        <h2 class="pp-panel-title">Highest Win Streaks</h2>
+        <ol class="pp-lb-list" id="sidebar-top-highest-streaks"></ol>
       </section>
     </aside>
-    <main class="main">
-      <section class="mainsection">
-        <div class="character-directory">
-          <div class="character-directory-header">
-            <div class="role-filters" id="role-filters">
-              <button class="role-tab active" data-role="all">All Roles</button>
-              <button class="role-tab" data-role="tank">Tank</button>
-              <button class="role-tab" data-role="dot-dps">DOT DPS</button>
-              <button class="role-tab" data-role="aoe-dps">AOE DPS</button>
-              <button class="role-tab" data-role="fast-dps">Fast DPS</button>
-              <button class="role-tab" data-role="spike-dps">Spike DPS</button>
-              <button class="role-tab" data-role="damage-support">Damage Support</button>
-              <button class="role-tab" data-role="utility-support">Utility Support</button>
-              <button class="role-tab" data-role="heal-support">Heal Support</button>
-              <button class="role-tab" data-role="shield-support">Shield Support</button>
-              <button class="role-tab" data-role="controller">Controller</button>
-              <button class="role-tab" data-role="hybrid">Hybrid</button>
-              <button class="role-tab" data-role="disruptor">Disruptor</button>
-              <button class="role-tab" data-role="assassin">Assassin</button>
-              <button class="role-tab" data-role="bruiser">Bruiser</button>
-              <button class="role-tab" data-role="specialist">Specialist</button>
-            </div>
-            <div class="role-filters" id="universe-filters" style="margin-top: 10px;">
-              <button class="universe-tab active" data-universe="all">All Comics</button>
-              <button class="universe-tab" data-universe="marvel">Marvel</button>
-              <button class="universe-tab" data-universe="dc">DC</button>
-              <button class="universe-tab" data-universe="image">Image</button>
-              <button class="universe-tab" data-universe="the-boys">The Boys</button>
-              <button class="universe-tab" data-universe="aliens-vs-predator">Aliens vs Predator</button>
-              <button class="universe-tab" data-universe="star-wars">Star Wars</button>
-              <button class="universe-tab" data-universe="other">Other</button>
-            </div>
-            <div class="character-search-row">
-              <h1 class="character-search-label">Character Files</h1>
-              <input class="character-search-input" id="character-search-input" type="text" placeholder="Search characters..." autocomplete="off" />
-            </div>
-          </div>
-          <div class="character-directory-list" id="character-directory-list"><div class="character-directory-empty">Loading characters...</div></div>
-        </div>
-      </section>
-    </main>
-    <div class="character-modal-backdrop" id="character-modal-backdrop">
-      <div class="character-modal">
-        <div class="character-modal-close-row"><button class="character-modal-close" id="character-modal-close" type="button">Close</button></div>
-        <div id="character-modal-content"></div>
+  </main>
+
+  <footer class="pp-footer">
+    <div class="pp-container pp-footer-row">
+      <span>&copy; Comic-Arena &mdash; Pokemon Arena</span>
+      <div class="pp-footer-links">
+        <a href="/pokemon-manual">Manual</a>
+        <a href="https://discord.gg/dabZKRDkf7" target="_blank" rel="noopener noreferrer">Discord</a>
+        <a href="/">Comic Arena</a>
       </div>
     </div>
-    <aside class="aside">
-      <section class="ladder">
-        <h3 class="ladder-title">Top 10 Player Levels</h3>
-        <div class="ladder-list" id="sidebar-top-player-levels">
-          <div class="ladder-row"><div class="ladder-rank">01</div><div><div class="ladder-name">Rafa</div><div class="ladder-bar"><div class="ladder-fill" style="width: 57%;"></div><div class="ladder-score">57</div></div></div></div>
-          <div class="ladder-row"><div class="ladder-rank">02</div><div><div class="ladder-name">nejihyuuga</div><div class="ladder-bar"><div class="ladder-fill" style="width: 56%;"></div><div class="ladder-score">56</div></div></div></div>
-          <div class="ladder-row"><div class="ladder-rank">03</div><div><div class="ladder-name">ichi404</div><div class="ladder-bar"><div class="ladder-fill" style="width: 55%;"></div><div class="ladder-score">55</div></div></div></div>
-          <div class="ladder-row"><div class="ladder-rank">04</div><div><div class="ladder-name">Shar</div><div class="ladder-bar"><div class="ladder-fill" style="width: 53%;"></div><div class="ladder-score">53</div></div></div></div>
-          <div class="ladder-row"><div class="ladder-rank">05</div><div><div class="ladder-name">HalfDead-</div><div class="ladder-bar"><div class="ladder-fill" style="width: 52%;"></div><div class="ladder-score">52</div></div></div></div>
-          <div class="ladder-row"><div class="ladder-rank">06</div><div><div class="ladder-name">ShikamaruN</div><div class="ladder-bar"><div class="ladder-fill" style="width: 51%;"></div><div class="ladder-score">51</div></div></div></div>
-          <div class="ladder-row"><div class="ladder-rank">07</div><div><div class="ladder-name">Josh</div><div class="ladder-bar"><div class="ladder-fill" style="width: 51%;"></div><div class="ladder-score">51</div></div></div></div>
-          <div class="ladder-row"><div class="ladder-rank">08</div><div><div class="ladder-name">robz</div><div class="ladder-bar"><div class="ladder-fill" style="width: 51%;"></div><div class="ladder-score">51</div></div></div></div>
-          <div class="ladder-row"><div class="ladder-rank">09</div><div><div class="ladder-name">Shari</div><div class="ladder-bar"><div class="ladder-fill" style="width: 50%;"></div><div class="ladder-score">50</div></div></div></div>
-          <div class="ladder-row"><div class="ladder-rank">10</div><div><div class="ladder-name">xinef</div><div class="ladder-bar"><div class="ladder-fill" style="width: 50%;"></div><div class="ladder-score">50</div></div></div></div>
-        </div>
-      </section>
-      <section class="ladder">
-        <h3 class="ladder-title">Top 10 Alliance Levels</h3>
-        <div class="ladder-list" id="sidebar-top-clan-levels">
-          <div class="ladder-row"><div class="ladder-rank">01</div><div><div class="ladder-name">Akatsuki</div><div class="ladder-bar"><div class="ladder-fill" style="width: 92%;"></div><div class="ladder-score">92</div></div></div></div>
-          <div class="ladder-row"><div class="ladder-rank">02</div><div><div class="ladder-name">Konoha</div><div class="ladder-bar"><div class="ladder-fill" style="width: 89%;"></div><div class="ladder-score">89</div></div></div></div>
-          <div class="ladder-row"><div class="ladder-rank">03</div><div><div class="ladder-name">Sand</div><div class="ladder-bar"><div class="ladder-fill" style="width: 85%;"></div><div class="ladder-score">85</div></div></div></div>
-          <div class="ladder-row"><div class="ladder-rank">04</div><div><div class="ladder-name">Mist</div><div class="ladder-bar"><div class="ladder-fill" style="width: 81%;"></div><div class="ladder-score">81</div></div></div></div>
-          <div class="ladder-row"><div class="ladder-rank">05</div><div><div class="ladder-name">Cloud</div><div class="ladder-bar"><div class="ladder-fill" style="width: 78%;"></div><div class="ladder-score">78</div></div></div></div>
-          <div class="ladder-row"><div class="ladder-rank">06</div><div><div class="ladder-name">LeafForce</div><div class="ladder-bar"><div class="ladder-fill" style="width: 74%;"></div><div class="ladder-score">74</div></div></div></div>
-          <div class="ladder-row"><div class="ladder-rank">07</div><div><div class="ladder-name">Anbu</div><div class="ladder-bar"><div class="ladder-fill" style="width: 71%;"></div><div class="ladder-score">71</div></div></div></div>
-          <div class="ladder-row"><div class="ladder-rank">08</div><div><div class="ladder-name">Uchiha</div><div class="ladder-bar"><div class="ladder-fill" style="width: 67%;"></div><div class="ladder-score">67</div></div></div></div>
-          <div class="ladder-row"><div class="ladder-rank">09</div><div><div class="ladder-name">Sannin</div><div class="ladder-bar"><div class="ladder-fill" style="width: 63%;"></div><div class="ladder-score">63</div></div></div></div>
-          <div class="ladder-row"><div class="ladder-rank">10</div><div><div class="ladder-name">Hyuga</div><div class="ladder-bar"><div class="ladder-fill" style="width: 60%;"></div><div class="ladder-score">60</div></div></div></div>
-        </div>
-      </section>
-      <section class="stats-panel">
-        <div class="stats-group"><h3 class="stats-title">Top 10 Winstreak</h3><ol class="stats-list" id="sidebar-top-current-streaks"><li>Douglasschanu +25 streak</li><li>madara +22 streak</li><li>topreactor +21 streak</li><li>ComodoroTeach +20</li><li>Clanles +20 streak</li><li>Vy +20 streak</li><li>vanns +20 streak</li><li>Cleezus888 +19 streak</li><li>yase-forfun +16 streak</li><li>TheusTop +15 streak</li></ol></div>
-        <div class="stats-group"><h3 class="stats-title">Top 10 Wins</h3><ol class="stats-list" id="sidebar-top-wins"><li>juicewrld999 +8255 wins</li><li>GoodySan +7216 wins</li><li>rogerindopend +6558 wins</li><li>One_ib +6463 wins</li><li>Sirup +4921 wins</li><li>gravidadeTAUBATE +4586 wins</li><li>leohyua25 +4342 wins</li><li>newmimproved +4282 wins</li><li>beluxe +4281 wins</li><li>julu0612 +4188 wins</li></ol></div>
-        <div class="stats-group"><h3 class="stats-title">Top 20 Highest Win Streak</h3><ol class="stats-list" id="sidebar-top-highest-streaks"><li>Buffy +80 streak</li><li>_hoshigama- +76 streak</li><li>Cloudprince +76 streak</li><li>GodEneru +74 streak</li><li>AkatsKonan +73 streak</li><li>HalfDead- +72 streak</li><li>_Shark +67 streak</li><li>gabooo +66 streak</li><li>Cersak +65 streak</li><li>Demon +65 streak</li><li>Dan +63 streak</li><li>mrChans +61 streak</li><li>itachi_killer25 +61 streak</li><li>Sakura +60 streak</li><li>Rafa +60 streak</li><li>videogame33 +60 streak</li><li>Myotismon +60 streak</li><li>Sasuke +60 streak</li><li>Bolts +59 streak</li><li>Douglasschanu +57 streak</li></ol></div>
-      </section>
-    </aside>
+  </footer>
+</div>
+
+<nav class="pp-tabbar" aria-label="Primary">
+  <a href="/pokemon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11.5 12 4l8 7.5" /><path d="M6 10v9h12v-9" /></svg>
+    Home
+  </a>
+  <a href="/pokemon-missions">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 4h6l1 4H8z" /><path d="M6 8h12l1 12H5z" /></svg>
+    Missions
+  </a>
+  <a href="pokemon-charactersandskills.html" aria-current="page">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9" /><path d="M3 12h18" /><circle cx="12" cy="12" r="3" /></svg>
+    Roster
+  </a>
+  <a href="/pokemon-community">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="2.5" /><circle cx="16.5" cy="9.5" r="2" /><path d="M4.5 18c.8-2.7 3-4 5.5-4s4.7 1.3 5.5 4" /></svg>
+    Community
+  </a>
+</nav>
+
+<div class="character-modal-backdrop" id="character-modal-backdrop">
+  <div class="character-modal" role="dialog" aria-modal="true">
+    <div class="character-modal-close-row"><button class="character-modal-close" id="character-modal-close" type="button">Close</button></div>
+    <div id="character-modal-content"></div>
   </div>
-  <script src="./characters.js?v=pokemon-balance-v3&gen2-starters-v1&mewtwo-combos-v1&aegislash-special-classes-v1&ditto-community-v1&chikorita-affliction-cycle-v1&scraggy-community-v1&scraggy-balance-v2&dragapult-community-v2&nincada-community-v1&primeape-release-v1&jigglypuff-nincada-balance-v3&johto-evo-energy-v1&articuno-blizzard-snowstorm-v1&moltres-wildfire-firespin-v1&zapdos-flight-wildfire-grass-bug-v1"></script>
-  <script src="./pokemon-wave-2-live.js?v=pokemon-balance-v3&aegislash-special-classes-v1&ditto-community-v1&jigglypuff-perish-v3"></script>
-  <script src="./scripts/index.js?v=pokemon-wave-2-launch-v1&pokemon-home-link-v2&news-skill-image-fix-v1&home-switch-link-v1" defer></script>
-  <script>
+</div>
+
+<script>
+  (function () {
+    var toggle = document.getElementById('pp-nav-toggle');
+    var nav = document.getElementById('pp-nav');
+    if (!toggle || !nav) return;
+    toggle.addEventListener('click', function () {
+      var open = nav.classList.toggle('pp-nav-open');
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  }());
+</script>
+<script src="./characters.js?v=pokemon-balance-v3&gen2-starters-v1&mewtwo-combos-v1&aegislash-special-classes-v1&ditto-community-v1&chikorita-affliction-cycle-v1&scraggy-community-v1&scraggy-balance-v2&dragapult-community-v2&nincada-community-v1&primeape-release-v1&jigglypuff-nincada-balance-v3&johto-evo-energy-v1&articuno-blizzard-snowstorm-v1&moltres-wildfire-firespin-v1&zapdos-flight-wildfire-grass-bug-v1"></script>
+<script src="./pokemon-wave-2-live.js?v=pokemon-balance-v3&aegislash-special-classes-v1&ditto-community-v1&jigglypuff-perish-v3"></script>
+<script src="./scripts/index.js?v=ground-up-v1&news-skill-image-fix-v1&home-switch-link-v1" defer></script>
+<script>
     (function () {
       // One of the Poke Ball-tier renders (assets/images/PokemonArena/Website),
       // picked at random per page load. This page is Pokemon-only, so no
@@ -617,8 +255,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       var chosenBackground = POKEMON_WEBSITE_BACKGROUNDS[
         Math.floor(Math.random() * POKEMON_WEBSITE_BACKGROUNDS.length)
       ];
-      document.body.style.setProperty(
-        "--pokemon-website-background",
+      document.documentElement.style.setProperty(
+        "--pp-hero-bg",
         "url('" + chosenBackground + "')"
       );
 
@@ -1411,7 +1049,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       renderCharacters("");
       openRequestedCharacterFromQuery();
     }());
-  </script>
-  <script src="./scripts/arena-navigation.js?v=pokemon-sidebar-v4&pokemon-logo-v1&pokemon-home-link-v1&pokemon-page-bg-v1" defer></script>
+
+</script>
 </body>
 </html>

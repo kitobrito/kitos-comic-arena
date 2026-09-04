@@ -1,0 +1,617 @@
+/* Pokemon Arena Character Files - page-specific styles (uses pp-* tokens from pokemon-portal.css) */
+
+:root { --pp-hero-bg: url('/assets/images/PokemonArena/Website/pokeballs.jpg'); }
+
+.pp-hero {
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--pp-line);
+}
+
+.pp-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--pp-hero-bg) center / cover no-repeat;
+  opacity: 0.34;
+  mask-image: linear-gradient(100deg, black 0%, black 30%, transparent 62%);
+  -webkit-mask-image: linear-gradient(100deg, black 0%, black 30%, transparent 62%);
+}
+
+.pp-hero-inner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 12px;
+}
+
+.pp-hero-compact .pp-hero-inner {
+  padding: 30px 0 26px;
+}
+
+@media (min-width: 760px) {
+  .pp-hero-compact .pp-hero-inner { padding: 44px 0 36px; }
+}
+
+.pp-layout {
+  display: grid;
+  gap: 24px;
+  padding: 36px 0 20px;
+}
+
+@media (min-width: 980px) {
+  .pp-layout {
+    grid-template-columns: minmax(0, 1fr) 340px;
+    align-items: start;
+  }
+}
+
+@media (max-width: 979px) {
+  .pp-layout > aside { order: -1; }
+}
+
+/* Auth / account panel avatar rows (shared markup with the other pp pages) */
+.pp-avatar-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.pp-avatar-row img {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--pp-accent);
+}
+
+.pp-avatar-row label {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 11.5px;
+  color: var(--pp-ink-faint);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pp-avatar-row input { margin: 0; }
+
+/* Role filters + search toolbar ------------------------------------- */
+
+.role-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.role-tab {
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--pp-line-strong);
+  background: var(--pp-bg-panel);
+  color: var(--pp-ink-dim);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.12s ease, color 0.12s ease, background 0.12s ease;
+}
+
+.role-tab:hover {
+  border-color: var(--pp-accent);
+  color: var(--pp-ink);
+}
+
+.role-tab.active {
+  background: var(--pp-accent);
+  border-color: var(--pp-accent);
+  color: var(--pp-accent-ink);
+}
+
+.pp-character-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding-bottom: 14px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--pp-line);
+}
+
+/* Character portrait grid ------------------------------------------- */
+
+.character-directory-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 14px;
+}
+
+.character-directory-empty {
+  grid-column: 1 / -1;
+  padding: 20px;
+  border: 1px dashed var(--pp-line-strong);
+  border-radius: 12px;
+  color: var(--pp-ink-faint);
+  font-size: 13.5px;
+  text-align: center;
+}
+
+.character-portrait-card {
+  position: relative;
+  cursor: pointer;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--pp-line);
+  background: var(--pp-bg-panel);
+  aspect-ratio: 1 / 1;
+  transition: transform 0.12s ease, border-color 0.12s ease;
+}
+
+.character-portrait-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--pp-accent);
+  z-index: 20;
+}
+
+.character-portrait-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.character-portrait-card.has-evolution { overflow: visible; }
+
+.character-evolution-preview {
+  position: absolute;
+  top: -9%;
+  right: -9%;
+  width: 80%;
+  height: 80%;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 2px solid var(--pp-accent-bright);
+  opacity: 0.92;
+  z-index: 0;
+}
+
+.character-portrait-card.has-evolution .character-portrait-img {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 86%;
+  height: 86%;
+  border-radius: 10px 0 10px 0;
+  border-top: 2px solid var(--pp-line-strong);
+  border-right: 2px solid var(--pp-line-strong);
+  z-index: 1;
+}
+
+.character-portrait-tooltip {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 220px;
+  padding: 12px;
+  border-radius: 10px;
+  background: var(--pp-bg-raised);
+  border: 1px solid var(--pp-line-strong);
+  color: var(--pp-ink-dim);
+  font-size: 12.5px;
+  line-height: 1.4;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s ease, visibility 0.15s ease;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+  z-index: 200;
+  text-align: left;
+}
+
+.character-portrait-card:hover .character-portrait-tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+.character-portrait-name {
+  display: block;
+  margin-bottom: 4px;
+  font-family: var(--pp-font-display);
+  font-size: 14px;
+  color: var(--pp-ink);
+}
+
+.character-portrait-role {
+  display: block;
+  color: var(--pp-accent-bright);
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--pp-line);
+}
+
+/* Character detail modal -------------------------------------------- */
+
+.character-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(4, 6, 9, 0.76);
+  backdrop-filter: blur(3px);
+}
+
+.character-modal-backdrop.visible { display: flex; }
+
+.character-modal {
+  width: min(880px, 100%);
+  max-height: 88vh;
+  overflow-y: auto;
+  padding: 22px 22px 26px;
+  border-radius: 16px;
+  border: 1px solid var(--pp-line-strong);
+  background: var(--pp-bg-raised);
+}
+
+.character-modal-close-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 4px;
+}
+
+.character-modal-close {
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--pp-line-strong);
+  background: var(--pp-bg-panel);
+  color: var(--pp-ink);
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.character-modal-close:hover {
+  border-color: var(--pp-accent);
+  color: var(--pp-accent-bright);
+}
+
+.character-modal-header {
+  display: grid;
+  gap: 12px;
+  padding-bottom: 14px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--pp-line);
+}
+
+.character-modal-template-name {
+  margin: 0;
+  font-family: var(--pp-font-display);
+  font-size: 24px;
+  color: var(--pp-ink);
+}
+
+.character-modal-summary {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.character-modal-image,
+.character-skill-image {
+  border-radius: 10px;
+  border: 1px solid var(--pp-line);
+  background: var(--pp-bg-panel);
+  object-fit: cover;
+}
+
+.character-modal-image {
+  width: 76px;
+  height: 76px;
+}
+
+.character-modal-description-label {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--pp-ink-faint);
+}
+
+.character-modal-description {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--pp-ink-dim);
+}
+
+.character-modal-stats {
+  display: grid;
+  gap: 6px;
+  padding-top: 10px;
+  margin-top: 10px;
+  border-top: 1px dashed var(--pp-line);
+}
+
+.character-modal-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 16px;
+  font-size: 13px;
+  color: var(--pp-ink-dim);
+}
+
+.character-modal-meta-row strong { color: var(--pp-ink); }
+
+.character-modal-unlock {
+  margin: 0;
+  font-size: 13px;
+  color: var(--pp-ink-dim);
+}
+
+.character-modal-unlock strong { color: var(--pp-ink); }
+
+.character-modal-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 14px;
+}
+
+.character-modal-tab {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--pp-line-strong);
+  background: var(--pp-bg-panel);
+  color: var(--pp-ink-dim);
+  font-weight: 700;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.character-modal-tab.active {
+  background: var(--pp-accent);
+  border-color: var(--pp-accent);
+  color: var(--pp-accent-ink);
+}
+
+.character-modal-view[hidden] { display: none; }
+
+.character-modal-skill-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 18px;
+}
+
+@media (max-width: 600px) {
+  .character-modal-summary,
+  .character-skill-body,
+  .character-modal-skill-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.character-skill-card {
+  padding: 12px 0;
+  border-top: 1px solid var(--pp-line);
+}
+
+.character-skill-title {
+  margin: 0 0 8px;
+  font-family: var(--pp-font-display);
+  font-size: 15px;
+  color: var(--pp-accent-bright);
+}
+
+.character-skill-body {
+  display: grid;
+  grid-template-columns: 74px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+}
+
+.character-skill-image {
+  width: 68px;
+  height: 68px;
+}
+
+.character-skill-description {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--pp-ink-dim);
+}
+
+.character-skill-meta {
+  display: grid;
+  gap: 4px;
+  margin-top: 8px;
+  font-size: 12.5px;
+  color: var(--pp-ink-dim);
+}
+
+.character-skill-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 6px 14px;
+}
+
+.character-skill-meta strong {
+  color: var(--pp-ink);
+  font-weight: 700;
+}
+
+.character-skill-classes { color: var(--pp-ink-faint); }
+
+.character-energy-pips {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  vertical-align: middle;
+  margin-left: 6px;
+}
+
+.character-energy-pip {
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+  border: 1px solid var(--pp-line-strong);
+  display: inline-block;
+}
+
+.character-energy-pip.taijutsu { background: #4caf50; }
+.character-energy-pip.ninjutsu { background: #3498db; }
+.character-energy-pip.bloodline { background: #e74c3c; }
+.character-energy-pip.genjutsu { background: #ffdd00; }
+.character-energy-pip.random { background: #9aa3ad; }
+
+.character-evolution-toggle {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--pp-accent-bright);
+  background: var(--pp-accent-soft);
+  color: var(--pp-ink);
+  cursor: pointer;
+  text-align: center;
+}
+
+.character-evolution-toggle img {
+  width: 84px;
+  height: 84px;
+  display: block;
+  margin: 0 auto 8px;
+  border-radius: 10px;
+  border: 1px solid var(--pp-accent-bright);
+  object-fit: cover;
+}
+
+.character-evolution-toggle strong {
+  display: block;
+  font-family: var(--pp-font-display);
+  font-size: 15px;
+  color: var(--pp-ink);
+}
+
+.character-evolution-toggle span {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--pp-accent-bright);
+  font-weight: 600;
+}
+
+.character-evolution-skills { grid-column: 1 / -1; }
+.character-evolution-skills[hidden] { display: none; }
+
+.character-modal-empty {
+  color: var(--pp-ink-faint);
+  font-size: 13.5px;
+  padding: 16px 0;
+}
+
+/* Skins tab ----------------------------------------------------------- */
+
+.character-skin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+}
+
+.character-skin-card {
+  border-radius: 12px;
+  border: 1px solid var(--pp-line-strong);
+  background: var(--pp-bg-panel);
+  padding: 12px;
+  text-align: center;
+}
+
+.character-skin-portrait {
+  width: 108px;
+  height: 108px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid var(--pp-line-strong);
+  cursor: pointer;
+}
+
+.character-skin-card h3 {
+  margin: 8px 0 4px;
+  font-family: var(--pp-font-display);
+  font-size: 14px;
+  color: var(--pp-ink);
+}
+
+.character-skin-price {
+  margin: 0 0 6px;
+  color: var(--pp-accent-bright);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.character-skin-description {
+  margin: 0;
+  color: var(--pp-ink-dim);
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+
+.character-skin-prompt {
+  margin: 8px 0 0;
+  color: var(--pp-ink-faint);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.character-skin-gallery {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--pp-line);
+}
+
+.character-skin-gallery[hidden] { display: none; }
+
+.character-skin-skill { margin: 0; }
+
+.character-skin-skill img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--pp-line-strong);
+}
+
+.character-skin-skill figcaption {
+  margin-top: 4px;
+  color: var(--pp-ink-faint);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+@media (max-width: 520px) {
+  .character-directory-list {
+    grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+  }
+
+  .character-modal {
+    padding: 16px;
+  }
+}
