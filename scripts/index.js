@@ -1031,13 +1031,9 @@
           if (entry && (entry.skillName || entry.skillimage)) {
             var skillBadge = document.createElement("span");
             skillBadge.className = "news-change-skill";
-            if (entry.skillimage) {
-              var skillImage = document.createElement("img");
-              skillImage.className = "news-change-skill-image";
-              skillImage.src = String(entry.skillimage);
-              skillImage.alt = entry && entry.skillName ? String(entry.skillName) : "Skill";
-              skillBadge.appendChild(skillImage);
-            }
+            // The skill's art already shows above as the large
+            // .news-change-art-frame image when entry.skillimage is set --
+            // no need for a second, smaller copy of the same image here too.
             if (entry.skillName) {
               var skillName = document.createElement("span");
               skillName.textContent = String(entry.skillName);
