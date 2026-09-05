@@ -1,0 +1,333 @@
+/* Pokemon Arena Mission Editor (admin) - page-specific styles (uses pp-* tokens
+   from pokemon-portal.css). The markup and its inline <script> at the bottom
+   of pokemon-editmission.html are ported from editmission.html unchanged --
+   these class names are read/created by that script, not ours to rename. */
+
+.mission-editor-shell {
+  display: grid;
+  gap: 18px;
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  .mission-editor-shell {
+    grid-template-columns: minmax(280px, 0.9fr) minmax(0, 1.1fr);
+  }
+}
+
+.mission-panel {
+  padding: 18px;
+  background: var(--pp-bg-raised);
+  border: 1px solid var(--pp-line);
+  border-radius: var(--pp-radius);
+}
+
+.mission-panel-title {
+  margin: 0 0 4px;
+  font-family: var(--pp-font-display);
+  font-size: 16px;
+  color: var(--pp-ink);
+}
+
+.mission-panel-copy {
+  margin: 0 0 14px;
+  font-size: 12.5px;
+  color: var(--pp-ink-dim);
+  line-height: 1.45;
+}
+
+.mission-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.mission-button {
+  min-height: 38px;
+  padding: 0 16px;
+  border: 1px solid var(--pp-line-strong);
+  border-radius: var(--pp-radius);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  background: var(--pp-bg-panel);
+  color: var(--pp-ink);
+}
+
+.mission-button:hover { border-color: var(--pp-ink-faint); }
+
+.mission-button.primary {
+  background: var(--pp-accent);
+  color: var(--pp-accent-ink);
+  border-color: transparent;
+}
+
+.mission-button.primary:hover { filter: brightness(1.08); }
+
+.mission-search {
+  width: 100%;
+  height: 40px;
+  margin: 0 0 12px;
+  padding: 0 12px;
+  border: 1px solid var(--pp-line-strong);
+  border-radius: var(--pp-radius);
+  background: var(--pp-bg);
+  color: var(--pp-ink);
+  font: inherit;
+  font-size: 13.5px;
+  outline: none;
+}
+
+.mission-search:focus { border-color: var(--pp-accent); }
+
+.mission-list {
+  display: grid;
+  gap: 8px;
+  max-height: 560px;
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.mission-list-item {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--pp-line);
+  border-radius: 10px;
+  background: var(--pp-bg-panel);
+  color: var(--pp-ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.mission-list-item:hover { border-color: var(--pp-ink-faint); }
+
+.mission-list-item.active {
+  border-color: var(--pp-accent);
+  background: var(--pp-accent-soft);
+}
+
+.mission-list-title {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--pp-ink);
+}
+
+.mission-list-meta {
+  display: block;
+  margin-top: 4px;
+  font-size: 11.5px;
+  color: var(--pp-ink-faint);
+}
+
+.mission-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 560px) {
+  .mission-grid { grid-template-columns: 1fr; }
+}
+
+.mission-field {
+  display: grid;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--pp-ink-faint);
+}
+
+.mission-field-help {
+  font-size: 11.5px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--pp-ink-faint);
+}
+
+.mission-field input,
+.mission-field select {
+  width: 100%;
+  height: 38px;
+  padding: 0 10px;
+  border: 1px solid var(--pp-line-strong);
+  border-radius: var(--pp-radius);
+  background: var(--pp-bg);
+  color: var(--pp-ink);
+  font: 13px/1.2 var(--pp-font-body);
+  outline: none;
+}
+
+.mission-field input:focus,
+.mission-field select:focus {
+  border-color: var(--pp-accent);
+}
+
+.mission-section {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--pp-line);
+}
+
+.mission-section-heading {
+  margin: 0 0 8px;
+  font-family: var(--pp-font-display);
+  font-size: 13.5px;
+  color: var(--pp-accent-bright);
+}
+
+.mission-section-copy {
+  margin: 0 0 10px;
+  font-size: 12px;
+  color: var(--pp-ink-dim);
+  line-height: 1.4;
+}
+
+.mission-toggle-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.mission-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--pp-line-strong);
+  border-radius: 999px;
+  background: var(--pp-bg-panel);
+  color: var(--pp-ink);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.mission-toggle input {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  accent-color: var(--pp-accent);
+}
+
+.goal-list {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.goal-card {
+  display: grid;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--pp-line);
+  border-radius: 10px;
+  background: var(--pp-bg-panel);
+}
+
+.goal-card-summary {
+  margin: 0;
+  font-size: 13px;
+  color: var(--pp-ink);
+  line-height: 1.4;
+}
+
+.goal-card-meta {
+  margin: 0;
+  font-size: 11px;
+  color: var(--pp-ink-faint);
+}
+
+.goal-card-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.goal-card-button {
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--pp-line-strong);
+  border-radius: var(--pp-radius);
+  background: var(--pp-bg);
+  color: var(--pp-ink);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.goal-card-button.delete {
+  border-color: var(--pp-accent);
+  color: var(--pp-accent-bright);
+}
+
+.goal-card-button:hover { border-color: var(--pp-ink-faint); }
+.goal-card-button.delete:hover { border-color: var(--pp-accent-bright); }
+
+.goal-popup {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(4, 6, 9, 0.72);
+  backdrop-filter: blur(3px);
+}
+
+.goal-popup.visible { display: flex; }
+
+.goal-popup-card {
+  width: min(560px, 100%);
+  max-height: 88vh;
+  overflow-y: auto;
+  padding: 20px;
+  border: 1px solid var(--pp-line-strong);
+  border-radius: 16px;
+  background: var(--pp-bg-raised);
+}
+
+.goal-popup-title {
+  margin: 0 0 6px;
+  font-family: var(--pp-font-display);
+  font-size: 17px;
+  color: var(--pp-ink);
+}
+
+.goal-popup-copy {
+  margin: 0 0 14px;
+  font-size: 12.5px;
+  color: var(--pp-ink-dim);
+  line-height: 1.45;
+}
+
+.goal-popup-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.goal-popup-grid .mission-field { margin: 0; }
+
+.goal-popup-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.mission-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
