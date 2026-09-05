@@ -872,6 +872,10 @@
   function renderNewsPost(post) {
     var article = document.createElement("section");
     article.className = "news-post";
+    var newsPostArena = post && post.arena ? (post.arena === "pokemon" ? "pokemon" : "comic") : activeHomeArena;
+    var newsRosterPage = newsPostArena === "pokemon"
+      ? "pokemon-charactersandskills.html"
+      : "charactersandskills.html";
 
     var title = document.createElement("h1");
     title.className = "mainsection-kicker";
@@ -942,6 +946,7 @@
           key: groupKey,
           facePicture: entry && entry.facePicture ? String(entry.facePicture) : "",
           characterName: entry && (entry.groupName || entry.characterName) ? String(entry.groupName || entry.characterName) : "",
+          characterId: entry && entry.characterId ? String(entry.characterId) : "",
           collapsible: !!(entry && (entry.collapsible || (entry.groupName && /\sSkin$/i.test(String(entry.groupName))))),
           entries: [entry]
         });
@@ -966,9 +971,15 @@
         groupCopy.className = "news-change-group-list";
 
         if (group.characterName) {
-          var groupName = document.createElement("div");
+          var groupName = group.characterId
+            ? document.createElement("a")
+            : document.createElement("div");
           groupName.className = "news-change-character-name";
           groupName.textContent = group.characterName;
+          if (group.characterId) {
+            groupName.href = newsRosterPage + "?characterId=" + encodeURIComponent(group.characterId);
+            groupName.title = "Open " + group.characterName + " character page";
+          }
           groupCopy.appendChild(groupName);
         }
 
