@@ -10,14 +10,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <!-- End Google Tag Manager -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pokemon Arena Player Accounts</title>
-  <meta name="description" content="Admin dashboard for Pokemon Arena player accounts." />
+  <title>Pokemon Arena News Post</title>
+  <meta name="description" content="Admin dashboard for publishing Pokemon Arena news posts." />
   <meta name="robots" content="noindex, nofollow" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="styles/pokemon-portal.css?v=ground-up-v8" />
   <link rel="stylesheet" href="styles/pokemon-account-pages.css?v=ground-up-v1" />
-  <link rel="stylesheet" href="styles/pokemon-playeraccounts.css?v=ground-up-v1" />
+  <link rel="stylesheet" href="styles/pokemon-newspost.css?v=ground-up-v1" />
 </head>
 <body class="pp-body pp-has-tabbar" data-page-arena="pokemon" data-portal-section="home">
 <!-- Google Tag Manager (noscript) -->
@@ -54,17 +54,89 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div>
       <section class="pp-panel pp-account-headline">
         <div class="pp-eyebrow">Admin Dashboard</div>
-        <h1 class="pp-h1" style="font-size:24px;">Player Accounts</h1>
-        <p class="pp-lede" style="margin:8px 0 0;">Direct account edits, and rank checks.</p>
+        <h1 class="pp-h1" style="font-size:24px;">News Post Command Center</h1>
+        <p class="pp-lede" style="margin:8px 0 0;">Publish homepage updates, patch notes, and balance changes; pick the Latest Releases; and toggle maintenance mode.</p>
       </section>
 
-      <section class="pp-panel">
-        <h2 class="pp-panel-title" style="margin:0 0 6px;">Edit Account</h2>
-        <p class="pp-lede" style="font-size:13px;margin:0 0 14px;">Search by username or role, open the account record, review rank and ladder ratio, then save from the editor overlay.</p>
-        <p class="pp-status" id="player-accounts-status" aria-live="polite"></p>
-        <input class="pp-field" style="margin:0 0 14px;" type="search" id="player-accounts-search" placeholder="Search usernames or roles" />
-        <div class="player-accounts-list" id="player-accounts-list"></div>
-      </section>
+      <div class="news-admin-layout">
+        <section class="pp-panel">
+          <h2 class="pp-panel-title" style="margin:0 0 6px;">Post Editor</h2>
+          <p class="pp-lede" style="font-size:13px;margin:0 0 14px;">Build the headline, story text, and balance notes here.</p>
+          <form id="news-admin-form">
+            <input type="hidden" id="news-post-id" />
+            <label class="pp-newspost-field" for="news-title">
+              Title
+              <input class="pp-field" style="margin-top:6px;" type="text" id="news-title" maxlength="120" required />
+            </label>
+            <label class="pp-newspost-field" for="news-arena">
+              Arena
+              <select class="pp-field" style="margin-top:6px;" id="news-arena">
+                <option value="comic">Comic Arena</option>
+                <option value="pokemon">Pokemon Arena</option>
+              </select>
+            </label>
+            <label class="pp-newspost-field" for="news-content">
+              News Content
+              <textarea class="pp-field" style="margin-top:6px;" id="news-content" placeholder="Write the announcement here. Use a line with --- to insert a divider."></textarea>
+            </label>
+            <p class="pp-status" style="margin:-6px 0 12px;">Use <code>---</code> on its own line to insert a divider inside the post.</p>
+            <label class="pp-newspost-field" for="news-changes">
+              Character and Skill Changes
+              <textarea class="pp-field" style="margin-top:6px;" id="news-changes" placeholder="One change per line. Example: Naruto's Rasengan now deals 30 damage instead of 50."></textarea>
+            </label>
+            <p class="pp-status" style="margin:-6px 0 12px;">Use one line per change in this format: <code>Buff|Nerf | Character Name | Skill Name | Change text</code>. Use <code>\n</code> inside the change text for a line break.</p>
+            <p class="pp-status" id="news-admin-status" aria-live="polite"></p>
+            <div class="news-admin-actions">
+              <button class="pp-btn pp-btn-ghost" type="button" id="news-reset-button">New Post</button>
+              <button class="pp-btn pp-btn-primary" type="submit" id="news-save-button">Save Post</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="pp-panel">
+          <h2 class="pp-panel-title" style="margin:0 0 6px;">Existing Posts</h2>
+          <p class="pp-lede" style="font-size:13px;margin:0 0 14px;">Open any saved item to load it back into the editor and update it without leaving the page.</p>
+          <p class="pp-status" id="news-post-list-status" aria-live="polite"></p>
+          <div class="news-post-list" id="news-post-list"></div>
+        </section>
+
+        <section class="pp-panel">
+          <h2 class="pp-panel-title" style="margin:0 0 6px;" id="latest-releases-arena-title">Latest Comic Character Releases</h2>
+          <p class="pp-lede" style="font-size:13px;margin:0 0 14px;">Choose which three characters appear in the homepage release strip.</p>
+          <div class="news-arena-switch" aria-label="Choose release editor arena">
+            <button class="pp-btn pp-btn-ghost news-arena-switch-btn" type="button" id="latest-releases-arena-comic">Comic Arena</button>
+            <button class="pp-btn pp-btn-ghost news-arena-switch-btn" type="button" id="latest-releases-arena-pokemon">Pokemon Arena</button>
+          </div>
+          <form id="latest-releases-form">
+            <label class="pp-newspost-field" for="latest-release-1">
+              Release Slot 1
+              <select class="pp-field" style="margin-top:6px;" id="latest-release-1"></select>
+            </label>
+            <label class="pp-newspost-field" for="latest-release-2">
+              Release Slot 2
+              <select class="pp-field" style="margin-top:6px;" id="latest-release-2"></select>
+            </label>
+            <label class="pp-newspost-field" for="latest-release-3">
+              Release Slot 3
+              <select class="pp-field" style="margin-top:6px;" id="latest-release-3"></select>
+            </label>
+            <p class="pp-status" id="latest-releases-status" aria-live="polite"></p>
+            <div class="news-admin-actions">
+              <button class="pp-btn pp-btn-ghost" type="button" id="latest-releases-reset-button">Reload</button>
+              <button class="pp-btn pp-btn-primary" type="submit" id="latest-releases-save-button">Save Releases</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="pp-panel">
+          <h2 class="pp-panel-title" style="margin:0 0 6px;">Maintenance Mode</h2>
+          <p class="pp-lede" style="font-size:13px;margin:0 0 14px;">When enabled, normal players will only see a maintenance message until you turn it back off.</p>
+          <p class="pp-status" id="maintenance-mode-status" aria-live="polite"></p>
+          <div class="news-admin-actions">
+            <button class="pp-btn pp-btn-primary" type="button" id="maintenance-mode-toggle-button">Maintenance Mode</button>
+          </div>
+        </section>
+      </div>
     </div>
 
     <aside>
@@ -117,8 +189,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <a class="pp-account-action" href="pokemon-winrates.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 18h16" /><path d="M7 14V9" /><path d="M12 14V6" /><path d="M17 14v-3" /></svg><span>Winrates</span></a>
             <a class="pp-account-action" href="pokemon-charactereditor.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16" /><path d="M6 16 18 4" /><path d="m14 4 4 4" /></svg><span>Character Editor</span></a>
             <a class="pp-account-action" href="pokemon-editmission.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16" /><path d="M6 16 18 4" /><path d="M4 20l4-1" /><path d="M14 4l4 4" /></svg><span>Mission Editor</span></a>
-            <a class="pp-account-action active" href="pokemon-playeraccounts.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="2.5" /><circle cx="16.5" cy="9.5" r="2" /><path d="M4.5 18c.8-2.7 3-4 5.5-4s4.7 1.3 5.5 4" /><path d="M14 17c.5-1.7 1.8-2.8 3.8-2.8 1.5 0 2.9.8 3.7 2.3" /></svg><span>Player Accounts</span></a>
-            <a class="pp-account-action" href="pokemon-newspost.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 6.5h14" /><path d="M5 11.5h14" /><path d="M5 16.5h9" /><rect x="4" y="4" width="16" height="16" rx="2" /></svg><span>News Post</span></a>
+            <a class="pp-account-action" href="pokemon-playeraccounts.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="2.5" /><circle cx="16.5" cy="9.5" r="2" /><path d="M4.5 18c.8-2.7 3-4 5.5-4s4.7 1.3 5.5 4" /><path d="M14 17c.5-1.7 1.8-2.8 3.8-2.8 1.5 0 2.9.8 3.7 2.3" /></svg><span>Player Accounts</span></a>
+            <a class="pp-account-action active" href="pokemon-newspost.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 6.5h14" /><path d="M5 11.5h14" /><path d="M5 16.5h9" /><rect x="4" y="4" width="16" height="16" rx="2" /></svg><span>News Post</span></a>
             <a class="pp-account-action" href="demofeedback.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v11H8l-4 4z" /></svg><span>Demo Feedback</span></a>
           </section>
           <button class="pp-account-action" type="button" id="logout-button" style="margin-top:14px;">
@@ -204,31 +276,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     Community
   </a>
 </nav>
-
-<div class="player-account-overlay" id="player-account-overlay">
-  <div class="player-account-modal">
-    <div class="player-account-summary">
-      <div class="player-account-summary-card">
-        <p class="player-account-summary-label">Username</p>
-        <p class="player-account-summary-value" id="player-account-username">-</p>
-      </div>
-      <div class="player-account-summary-card">
-        <p class="player-account-summary-label">Site Rank</p>
-        <p class="player-account-summary-value" id="player-account-role">-</p>
-      </div>
-      <div class="player-account-summary-card">
-        <p class="player-account-summary-label">Ladder Ratio</p>
-        <p class="player-account-summary-value" id="player-account-ladder-ratio">-</p>
-      </div>
-    </div>
-    <p class="pp-status" id="player-account-status" aria-live="polite"></p>
-    <textarea class="player-account-editor" id="player-account-editor" spellcheck="false"></textarea>
-    <div class="player-account-actions">
-      <button class="pp-btn pp-btn-ghost" type="button" id="player-account-close">Close</button>
-      <button class="pp-btn pp-btn-primary" type="button" id="player-account-save">Save Changes</button>
-    </div>
-  </div>
-</div>
 
 <script>
   (function () {
