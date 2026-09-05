@@ -10,12 +10,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <!-- End Google Tag Manager -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pokemon Arena Reset Account</title>
-  <meta name="description" content="Reset your Pokemon Arena ranked progress while keeping your account and access intact." />
+  <title>Pokemon Arena Player Accounts</title>
+  <meta name="description" content="Admin dashboard for Pokemon Arena player accounts." />
+  <meta name="robots" content="noindex, nofollow" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="styles/pokemon-portal.css?v=ground-up-v8" />
   <link rel="stylesheet" href="styles/pokemon-account-pages.css?v=ground-up-v1" />
+  <link rel="stylesheet" href="styles/pokemon-playeraccounts.css?v=ground-up-v1" />
 </head>
 <body class="pp-body pp-has-tabbar" data-page-arena="pokemon" data-portal-section="home">
 <!-- Google Tag Manager (noscript) -->
@@ -51,52 +53,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <main class="pp-container pp-account-layout">
     <div>
       <section class="pp-panel pp-account-headline">
-        <div class="pp-eyebrow">Account Reset</div>
-        <h1 class="pp-h1" style="font-size:26px;">Reset the record and start fresh</h1>
-        <p class="pp-lede" style="margin:8px 0 0;">Clear your ranked progress while keeping your account and access intact.</p>
+        <div class="pp-eyebrow">Admin Dashboard</div>
+        <h1 class="pp-h1" style="font-size:24px;">Player Accounts</h1>
+        <p class="pp-lede" style="margin:8px 0 0;">Direct account edits, and rank checks.</p>
       </section>
 
-      <div class="pp-reset-stage">
-        <section class="pp-panel pp-reset-card">
-          <span class="pp-reset-kicker">Ranked Progress</span>
-          <h2 class="pp-panel-title" style="font-size:16px;margin:6px 0 0;">Clear Ranked Progress</h2>
-          <p class="pp-lede" style="margin:0;font-size:13px;">This only resets your Level, Rank, Experience Points, Ladder Rank, Wins, Losses, Win percentage, and current Streak.</p>
-          <div class="pp-reset-stats" aria-hidden="true">
-            <div class="pp-reset-stat"><span class="pp-reset-stat-label">Stats Affected</span><span class="pp-reset-stat-value">Level &middot; Rank &middot; XP</span></div>
-            <div class="pp-reset-stat"><span class="pp-reset-stat-label">Battle Record</span><span class="pp-reset-stat-value">Wins &middot; Losses &middot; Streak</span></div>
-          </div>
-          <div class="pp-reset-actions">
-            <button class="pp-btn pp-btn-primary" type="button" id="reset-account-trigger">Reset Account</button>
-          </div>
-          <div class="pp-reset-confirm" id="reset-account-confirm">
-            <p class="pp-lede" style="margin:0;font-size:13px;">Are you sure you want to reset these account fields?</p>
-            <div class="pp-reset-actions">
-              <button class="pp-btn pp-btn-primary" type="button" id="reset-account-confirm-button">Yes, Reset</button>
-              <button class="pp-btn pp-btn-ghost" type="button" id="reset-account-cancel-button">Cancel</button>
-            </div>
-          </div>
-          <p class="pp-status" id="reset-account-status" aria-live="polite"></p>
-        </section>
-
-        <aside class="pp-panel pp-detail-card">
-          <h2 class="pp-panel-title" style="font-size:14px;">What Changes</h2>
-          <ul class="pp-detail-list">
-            <li>Level and rank are set back.</li>
-            <li>Experience and ladder placement are cleared.</li>
-            <li>Wins, losses, win rate, and streak return to a fresh state.</li>
-          </ul>
-          <div class="pp-detail-note">Login details, account access, and the rest of your profile stay in place.</div>
-        </aside>
-      </div>
-
-      <div aria-hidden="true" style="display:none;">
-        <img id="release-face-1" alt="" />
-        <img id="release-face-2" alt="" />
-        <img id="release-face-3" alt="" />
-        <div id="release-label-1"></div>
-        <div id="release-label-2"></div>
-        <div id="release-label-3"></div>
-      </div>
+      <section class="pp-panel">
+        <h2 class="pp-panel-title" style="margin:0 0 6px;">Edit Account</h2>
+        <p class="pp-lede" style="font-size:13px;margin:0 0 14px;">Search by username or role, open the account record, review rank and ladder ratio, then save from the editor overlay.</p>
+        <p class="pp-status" id="player-accounts-status" aria-live="polite"></p>
+        <input class="pp-field" style="margin:0 0 14px;" type="search" id="player-accounts-search" placeholder="Search usernames or roles" />
+        <div class="player-accounts-list" id="player-accounts-list"></div>
+      </section>
     </div>
 
     <aside>
@@ -132,7 +100,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="5" width="16" height="14" rx="2" /><path d="M4 14c2.5-3 5.5-4.5 8-4.5s5.5 1.5 8 4.5" /></svg>
             <span>Custom Background</span>
           </button>
-          <button class="pp-account-action active" type="button" id="reset-account-button">
+          <button class="pp-account-action" type="button" id="reset-account-button">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 7h14" /><path d="M8 7V5h8v2" /><path d="M9 11v5" /><path d="M15 11v5" /><path d="M7 7l1 12h8l1-12" /></svg>
             <span>Reset Account</span>
           </button>
@@ -149,7 +117,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <a class="pp-account-action" href="pokemon-winrates.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 18h16" /><path d="M7 14V9" /><path d="M12 14V6" /><path d="M17 14v-3" /></svg><span>Winrates</span></a>
             <a class="pp-account-action" href="pokemon-charactereditor.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16" /><path d="M6 16 18 4" /><path d="m14 4 4 4" /></svg><span>Character Editor</span></a>
             <a class="pp-account-action" href="pokemon-editmission.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16" /><path d="M6 16 18 4" /><path d="M4 20l4-1" /><path d="M14 4l4 4" /></svg><span>Mission Editor</span></a>
-            <a class="pp-account-action" href="pokemon-playeraccounts.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="2.5" /><circle cx="16.5" cy="9.5" r="2" /><path d="M4.5 18c.8-2.7 3-4 5.5-4s4.7 1.3 5.5 4" /><path d="M14 17c.5-1.7 1.8-2.8 3.8-2.8 1.5 0 2.9.8 3.7 2.3" /></svg><span>Player Accounts</span></a>
+            <a class="pp-account-action active" href="pokemon-playeraccounts.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="2.5" /><circle cx="16.5" cy="9.5" r="2" /><path d="M4.5 18c.8-2.7 3-4 5.5-4s4.7 1.3 5.5 4" /><path d="M14 17c.5-1.7 1.8-2.8 3.8-2.8 1.5 0 2.9.8 3.7 2.3" /></svg><span>Player Accounts</span></a>
             <a class="pp-account-action" href="newspost.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 6.5h14" /><path d="M5 11.5h14" /><path d="M5 16.5h9" /><rect x="4" y="4" width="16" height="16" rx="2" /></svg><span>News Post</span></a>
             <a class="pp-account-action" href="demofeedback.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v11H8l-4 4z" /></svg><span>Demo Feedback</span></a>
           </section>
@@ -182,6 +150,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <section class="pp-panel" aria-label="Top player levels">
         <h2 class="pp-panel-title">Top Player Levels</h2>
         <ol class="pp-lb-list" id="sidebar-top-player-levels"></ol>
+      </section>
+
+      <section class="pp-panel" aria-label="Top Alliance levels">
+        <h2 class="pp-panel-title">Top Alliance Levels</h2>
+        <ol class="pp-lb-list" id="sidebar-top-clan-levels"></ol>
       </section>
 
       <section class="pp-panel" aria-label="Top win streaks">
@@ -231,6 +204,31 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     Community
   </a>
 </nav>
+
+<div class="player-account-overlay" id="player-account-overlay">
+  <div class="player-account-modal">
+    <div class="player-account-summary">
+      <div class="player-account-summary-card">
+        <p class="player-account-summary-label">Username</p>
+        <p class="player-account-summary-value" id="player-account-username">-</p>
+      </div>
+      <div class="player-account-summary-card">
+        <p class="player-account-summary-label">Site Rank</p>
+        <p class="player-account-summary-value" id="player-account-role">-</p>
+      </div>
+      <div class="player-account-summary-card">
+        <p class="player-account-summary-label">Ladder Ratio</p>
+        <p class="player-account-summary-value" id="player-account-ladder-ratio">-</p>
+      </div>
+    </div>
+    <p class="pp-status" id="player-account-status" aria-live="polite"></p>
+    <textarea class="player-account-editor" id="player-account-editor" spellcheck="false"></textarea>
+    <div class="player-account-actions">
+      <button class="pp-btn pp-btn-ghost" type="button" id="player-account-close">Close</button>
+      <button class="pp-btn pp-btn-primary" type="button" id="player-account-save">Save Changes</button>
+    </div>
+  </div>
+</div>
 
 <script>
   (function () {
