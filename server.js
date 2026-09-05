@@ -17402,6 +17402,7 @@ app.post('/api/missions/:missionId/pve/start', requireSession, async (req, res) 
         });
         botPlayer.displayName = botName;
         if (missionId === 'trainer-red') {
+            botPlayer.profile.avatarUrl = 'assets/images/PokemonArena/red/facepicture.png';
             botPlayer.profile.skins.equippedSkinByCharacterId = {
                 bulbasaur: 'bulbasaur-mega-venusaur',
                 charmander: 'charmander-mega-charizard',
