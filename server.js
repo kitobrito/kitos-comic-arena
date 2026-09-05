@@ -3381,14 +3381,14 @@ const POKEMON_SKIN_CATALOG = [
     buildStagedPokemonEvolutionSkin({
         skinId: 'charmander-mega-charizard',
         characterId: 'charmander',
-        name: 'Mega Charizard Y',
+        name: 'Mega Charizard X',
         description:
-            'Begins battle as Charizard and becomes Mega Charizard Y when its two-stack evolution activates.',
+            'Begins battle as Charizard and becomes Mega Charizard X when its two-stack evolution activates.',
         baseFormName: 'Charizard',
-        evolvedFormName: 'Mega Charizard Y',
+        evolvedFormName: 'Mega Charizard X',
         replacedFormNames: ['Charmander', 'Charmeleon'],
         baseFacePicture: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardfp.jpg',
-        evolvedFacePicture: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardYFP.webp',
+        evolvedFacePicture: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardXFP.webp',
         pokemonTypes: ['Fire', 'Flying'],
         baseSkillImagesBySkillId: {
             'charmander-ember': 'assets/images/PokemonArena/Charmander/skins/charizard/charizardskill1.webp',
@@ -3397,16 +3397,16 @@ const POKEMON_SKIN_CATALOG = [
             'charmander-rage': 'assets/images/PokemonArena/Charmander/skins/charizard/charizardskill4.webp',
         },
         evolvedSkillImagesBySkillId: {
-            'charmander-fire-punch': 'assets/images/PokemonArena/Charmander/skins/charizard/charizardYskill1.webp',
-            'charmander-dragon-claw': 'assets/images/PokemonArena/Charmander/skins/charizard/charizardYskill2.webp',
-            'charmander-charmeleon-flamethrower': 'assets/images/PokemonArena/Charmander/skins/charizard/charizardYskill3.webp',
-            'charmander-charmeleon-rage': 'assets/images/PokemonArena/Charmander/skins/charizard/charizardYskill4.webp',
+            'charmander-fire-punch': 'assets/images/PokemonArena/Charmander/skins/charizard/charizardXSkill1.webp',
+            'charmander-dragon-claw': 'assets/images/PokemonArena/Charmander/skins/charizard/charizardXskill2.webp',
+            'charmander-charmeleon-flamethrower': 'assets/images/PokemonArena/Charmander/skins/charizard/charizardXskill3.webp',
+            'charmander-charmeleon-rage': 'assets/images/PokemonArena/Charmander/skins/charizard/charizardXskill4.webp',
         },
         evolutionStatusIds: ['charmander_charmeleon_evolution'],
         passiveSkillId: 'charmander-passive-evolution-charmeleon',
-        passiveSkillImage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardYpassive.webp',
+        passiveSkillImage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardXpassive.webp',
         passiveDescription:
-            'Charizard evolves into Mega Charizard Y after critically striking or burning an enemy twice, healing 10 health.',
+            'Charizard evolves into Mega Charizard X after critically striking or burning an enemy twice, healing 10 health.',
     }),
 ];
 
