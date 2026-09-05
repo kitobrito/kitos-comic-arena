@@ -3378,6 +3378,36 @@ const POKEMON_SKIN_CATALOG = [
         passiveDescription:
             'After Charizard critically strikes or burns an enemy twice, it evolves into Gigantamax Charizard and all four skills gain their improved effects.',
     }),
+    buildStagedPokemonEvolutionSkin({
+        skinId: 'charmander-mega-charizard',
+        characterId: 'charmander',
+        name: 'Mega Charizard Y',
+        description:
+            'Begins battle as Charizard and becomes Mega Charizard Y when its two-stack evolution activates.',
+        baseFormName: 'Charizard',
+        evolvedFormName: 'Mega Charizard Y',
+        replacedFormNames: ['Charmander', 'Charmeleon'],
+        baseFacePicture: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardfp.jpg',
+        evolvedFacePicture: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardYFP.webp',
+        pokemonTypes: ['Fire', 'Flying'],
+        baseSkillImagesBySkillId: {
+            'charmander-ember': 'assets/images/PokemonArena/Charmander/skins/charizard/charizardskill1.webp',
+            'charmander-scratch': 'assets/images/PokemonArena/Charmander/skins/charizard/charizardskill2.webp',
+            'charmander-flamethrower': 'assets/images/PokemonArena/Charmander/skins/charizard/charizardskill3.webp',
+            'charmander-rage': 'assets/images/PokemonArena/Charmander/skins/charizard/charizardskill4.webp',
+        },
+        evolvedSkillImagesBySkillId: {
+            'charmander-fire-punch': 'assets/images/PokemonArena/Charmander/skins/charizard/charizardYskill1.webp',
+            'charmander-dragon-claw': 'assets/images/PokemonArena/Charmander/skins/charizard/charizardYskill2.webp',
+            'charmander-charmeleon-flamethrower': 'assets/images/PokemonArena/Charmander/skins/charizard/charizardYskill3.webp',
+            'charmander-charmeleon-rage': 'assets/images/PokemonArena/Charmander/skins/charizard/charizardYskill4.webp',
+        },
+        evolutionStatusIds: ['charmander_charmeleon_evolution'],
+        passiveSkillId: 'charmander-passive-evolution-charmeleon',
+        passiveSkillImage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardYpassive.webp',
+        passiveDescription:
+            'Charizard evolves into Mega Charizard Y after critically striking or burning an enemy twice, healing 10 health.',
+    }),
 ];
 
 // Discounted multi-skin bundles. Each grants every skin in `skinIds` for one
@@ -4328,6 +4358,17 @@ const normalizeMissionSpecialPve = (source = {}, rewardCharacterId = '') => {
             raw.character_id ??
             defaults.botTeamCharacterId
     );
+    const rawBotTeamCharacterIds = Array.isArray(raw.botTeamCharacterIds)
+        ? raw.botTeamCharacterIds
+        : Array.isArray(raw.bot_team_character_ids)
+            ? raw.bot_team_character_ids
+            : Array.isArray(defaults.botTeamCharacterIds)
+                ? defaults.botTeamCharacterIds
+                : [];
+    const botTeamCharacterIds = rawBotTeamCharacterIds
+        .map((entry) => normalizeCharacterId(entry))
+        .filter(Boolean)
+        .slice(0, 6);
     const botTeamSize = Math.max(
         1,
         Math.min(
@@ -4384,6 +4425,7 @@ const normalizeMissionSpecialPve = (source = {}, rewardCharacterId = '') => {
                     ? raw.bot_name.trim()
                     : defaults.botName,
         botTeamCharacterId,
+        botTeamCharacterIds,
         botTeamSize,
         botMaxQueuedSkillsPerTurn,
         backgroundImage,
@@ -11672,7 +11714,19 @@ const initializeEconomyState = (players, currentTurn, aliveLookup = {}) => {
 
 const buildMatch = (players, aliveLookup = {}, options = {}) => {
     const arena = normalizeArenaMode(options.arena);
-    const { turnOrder, currentTurn } = pickInitialTurn(players);
+    const forcedFirstTurnUsername =
+        options.forcedFirstTurnUsername && players.includes(options.forcedFirstTurnUsername)
+            ? options.forcedFirstTurnUsername
+            : null;
+    const { turnOrder, currentTurn } = forcedFirstTurnUsername
+        ? {
+              turnOrder: [
+                  forcedFirstTurnUsername,
+                  players.find((player) => player !== forcedFirstTurnUsername) || null,
+              ].filter(Boolean),
+              currentTurn: forcedFirstTurnUsername,
+          }
+        : pickInitialTurn(players);
     const matchId = options.matchId || `match-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const matchStartsAt = new Date(Date.now() + MATCH_FOUND_HOLD_MS);
     const { chakraPools, economy, turnExpiresAt } = initializeEconomyState(
@@ -11911,7 +11965,14 @@ const buildBattleBotMatch = async ({ username, team, mode, arena, playerProfile 
     return matchDocument;
 };
 
-const createMatchDocumentFromTeams = async ({ mode, arena, players, botMatch = null, extraFields = null }) => {
+const createMatchDocumentFromTeams = async ({
+    mode,
+    arena,
+    players,
+    botMatch = null,
+    extraFields = null,
+    forcedFirstTurnUsername = null,
+}) => {
     const normalizedArena = normalizeArenaMode(arena);
     const aliveLookup = Object.fromEntries(
         players.map((player) => [
@@ -11921,6 +11982,7 @@ const createMatchDocumentFromTeams = async ({ mode, arena, players, botMatch = n
     );
     const built = buildMatch(players.map((player) => player.username), aliveLookup, {
         arena: normalizedArena,
+        forcedFirstTurnUsername,
     });
     const playerDocs = players.map((player) => ({
         ...player,
@@ -12921,7 +12983,14 @@ const scoreBattleBotSkillCandidate = ({
         score += Math.min(80, 25 + persistentDamageEstimate * 6);
     }
     if (defensive && (recentDamage.slotDamage >= 30 || actorHp <= 45)) score += 25;
-    if (/all-enemy/.test(targetType)) score += Math.max(15, damageEstimate) + Math.max(0, enemyAliveCount - 1) * 18;
+    if (/all-enemy/.test(targetType)) {
+        score += Math.max(15, damageEstimate) + Math.max(0, enemyAliveCount - 1) * 18;
+        // Trainer Red is scripted to favor sweeping team-wide attacks
+        // whenever one is available, beyond the baseline AOE bonus above.
+        if (slugifyMissionId(match?.specialPveMissionId || '') === 'trainer-red') {
+            score += 60;
+        }
+    }
     if (/self|ally|allies/.test(targetType)) score += healingEstimate > 0 ? healingEstimate : 12;
     if (controlSkill) score += 18;
     if (selectedEnemyKillCount > 0) score += 140 * selectedEnemyKillCount;
@@ -13038,6 +13107,77 @@ const chooseBattleBotSkillCandidate = ({ match, username, actorSlot, actorUnit, 
         : candidates;
     pool.sort((a, b) => b.score - a.score);
     return pool[0] || null;
+};
+
+// Scripted openings for named PvE bosses, keyed by specialPveMissionId and
+// turn number. Returns a skill id to force for this actor's turn, or null to
+// fall back to the normal heuristic (chooseBattleBotSkillCandidate).
+const getForcedBattleBotSkillIdForActor = ({ match, character }) => {
+    const pveMissionId = slugifyMissionId(match?.specialPveMissionId || '');
+    if (pveMissionId === 'trainer-red' && Number(match?.turnNumber) === 1) {
+        const characterId = normalizeCharacterId(character?.characterId || character?.id || '');
+        if (characterId === 'charmander') {
+            return 'charmander-flamethrower';
+        }
+    }
+    return null;
+};
+
+// Builds a bot turn-plan candidate for one specific, forced skill id instead
+// of scoring every skill the actor knows. Mirrors chooseBattleBotSkillCandidate's
+// targeting/affordability checks so a forced opener still respects the same
+// rules as a normally-chosen skill; returns null (falling back to the normal
+// heuristic) if the forced skill can't actually be used right now.
+const buildForcedBattleBotSkillCandidate = ({ match, username, actorSlot, actorUnit, actorState, character, skillId }) => {
+    const skills = Array.isArray(character?.skills) ? character.skills : [];
+    const skillIndex = skills.findIndex((entry) => entry?.id === skillId);
+    if (skillIndex < 0) {
+        return null;
+    }
+    const options = battleLogic.computeTargetOptions({
+        match,
+        actingUsername: username,
+        actorSlot,
+        skillIndex,
+        characters: charactersData,
+    });
+    if (!options?.targetType || options.mode === 'unknown' || !Array.isArray(options.targets) || !options.targets.length) {
+        return null;
+    }
+    const skill = battleLogic.resolveEffectiveSkill({
+        characters: charactersData,
+        rosterIndex: actorUnit.rosterIndex,
+        skillIndex,
+        actorState,
+    });
+    if (!botCanAffordSkill({ match, username, skill, actorState })) {
+        return null;
+    }
+    const damageEstimate = estimateBattleBotSkillDamage(skill);
+    const healingEstimate = estimateBattleBotSkillHealing(skill);
+    const targetSelection = chooseBattleBotTargetSelection(options, {
+        match,
+        username,
+        actorSlot,
+        skill,
+        damageEstimate,
+        healingEstimate,
+    });
+    if (!targetSelection) {
+        return null;
+    }
+    const classChoiceOptions = Array.isArray(skill?.classChoiceOptions)
+        ? skill.classChoiceOptions.map((entry) => normalizeClassChoice(entry)).filter(Boolean)
+        : [];
+    const absorptionChoiceKeys = getAbsorptionChoiceKeysForSkill(skill);
+    return {
+        skillIndex,
+        targetSelection,
+        classChoice: classChoiceOptions.length ? classChoiceOptions[0] : null,
+        absorptionChoice: absorptionChoiceKeys.length ? absorptionChoiceKeys[0] : null,
+        score: Number.POSITIVE_INFINITY,
+        defensive: false,
+    };
 };
 
 const snapshotBattleHpByUsername = (match) => {
@@ -13261,13 +13401,23 @@ const runBattleBotTurnUnlocked = async (matchId) => {
                 if (!actorUnit || actorUnit.alive === false) return null;
                 const actorState = battleLogic.getUnitState(hydrated, username, actorSlot);
                 if (battleLogic.isActorUnableToUseSkills(actorState)) return null;
-                const candidate = chooseBattleBotSkillCandidate({
+                const character = charactersData?.[actorUnit.rosterIndex];
+                const forcedSkillId = getForcedBattleBotSkillIdForActor({ match: hydrated, character });
+                const candidate = (forcedSkillId && buildForcedBattleBotSkillCandidate({
                     match: hydrated,
                     username,
                     actorSlot,
                     actorUnit,
                     actorState,
-                    character: charactersData?.[actorUnit.rosterIndex],
+                    character,
+                    skillId: forcedSkillId,
+                })) || chooseBattleBotSkillCandidate({
+                    match: hydrated,
+                    username,
+                    actorSlot,
+                    actorUnit,
+                    actorState,
+                    character,
                 });
                 return candidate ? { actorSlot, candidate } : null;
             }).filter(Boolean).sort((left, right) => right.candidate.score - left.candidate.score);
@@ -17224,12 +17374,25 @@ app.post('/api/missions/:missionId/pve/start', requireSession, async (req, res) 
             : [];
         await assertTeamCanBeUsed(profile, team, user.role, arena);
 
-        const botRosterIndex = getRosterIndexByCharacterId(specialPve.botTeamCharacterId);
-        if (!Number.isInteger(botRosterIndex) || botRosterIndex < 0) {
-            return res.status(400).json({ error: 'Mission PvE bot character is not in the roster.' });
-        }
         const botTeamSize = Math.max(1, Math.min(6, Number(specialPve.botTeamSize) || 3));
-        const botTeam = Array.from({ length: botTeamSize }, () => botRosterIndex);
+        let botTeam;
+        if (Array.isArray(specialPve.botTeamCharacterIds) && specialPve.botTeamCharacterIds.length) {
+            const teamCharacterIds = specialPve.botTeamCharacterIds;
+            botTeam = Array.from({ length: botTeamSize }, (_, index) =>
+                getRosterIndexByCharacterId(
+                    teamCharacterIds[index] || teamCharacterIds[teamCharacterIds.length - 1]
+                )
+            );
+            if (botTeam.some((rosterIndex) => !Number.isInteger(rosterIndex) || rosterIndex < 0)) {
+                return res.status(400).json({ error: 'Mission PvE bot team includes a character that is not in the roster.' });
+            }
+        } else {
+            const botRosterIndex = getRosterIndexByCharacterId(specialPve.botTeamCharacterId);
+            if (!Number.isInteger(botRosterIndex) || botRosterIndex < 0) {
+                return res.status(400).json({ error: 'Mission PvE bot character is not in the roster.' });
+            }
+            botTeam = Array.from({ length: botTeamSize }, () => botRosterIndex);
+        }
         const botName = specialPve.botName || 'Mission Bot';
         const botPlayer = createBattleBotPlayer({
             matchId: `${missionId}-${Date.now()}`,
@@ -17238,6 +17401,13 @@ app.post('/api/missions/:missionId/pve/start', requireSession, async (req, res) 
             arena,
         });
         botPlayer.displayName = botName;
+        if (missionId === 'trainer-red') {
+            botPlayer.profile.skins.equippedSkinByCharacterId = {
+                bulbasaur: 'bulbasaur-mega-venusaur',
+                charmander: 'charmander-mega-charizard',
+                squirtle: 'squirtle-mega-blastoise',
+            };
+        }
 
         const matchDocument = await createMatchDocumentFromTeams({
             mode: 'pve',
@@ -17267,6 +17437,11 @@ app.post('/api/missions/:missionId/pve/start', requireSession, async (req, res) 
                     ),
                 },
             },
+            // Trainer Red's fight is designed around the player striking
+            // first (see getForcedBattleBotSkillIdForActor) so he opens
+            // with a scripted Flamethrower on his first turn instead of
+            // the usual coin-flip turn order.
+            forcedFirstTurnUsername: missionId === 'trainer-red' ? username : null,
         });
         userToMatch.set(username, {
             matchId: matchDocument.matchId,

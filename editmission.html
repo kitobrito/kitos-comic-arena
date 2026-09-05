@@ -2027,6 +2027,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <span class="mission-field-help">Player must be at least this ladder level.</span>
               </label>
               <label class="mission-field">
+                Arena
+                <select id="mission-arena">
+                  <option value="comic">Comic Arena</option>
+                  <option value="pokemon">Pokemon Arena</option>
+                </select>
+                <span class="mission-field-help">Which side of the site shows this mission.</span>
+              </label>
+              <label class="mission-field">
                 Reward Text
                 <input type="text" id="mission-reward" placeholder="Unlock Negan." />
                 <span class="mission-field-help">Short text shown in the mission popup.</span>
@@ -2035,6 +2043,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 Reward Character ID
                 <select id="mission-reward-character"></select>
                 <span class="mission-field-help">Character unlocked when the mission is completed.</span>
+              </label>
+              <label class="mission-field">
+                Reward Points
+                <input type="number" id="mission-reward-points" min="0" step="1" placeholder="500" />
+                <span class="mission-field-help">Grants this many Pokemon Arena points. Can be used instead of, or alongside, a character unlock.</span>
               </label>
               <label class="mission-field">
                 Image URL
@@ -2088,7 +2101,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <label class="mission-field">
                   Bot Character
                   <select id="mission-special-pve-character"></select>
-                  <span class="mission-field-help">The bot team repeats this character.</span>
+                  <span class="mission-field-help">The bot team repeats this character unless Bot Character 2/3 are set below.</span>
+                </label>
+                <label class="mission-field">
+                  Bot Character 2 (optional)
+                  <select id="mission-special-pve-character-2"></select>
+                  <span class="mission-field-help">Second bot team slot, for a mixed team instead of a repeated character.</span>
+                </label>
+                <label class="mission-field">
+                  Bot Character 3 (optional)
+                  <select id="mission-special-pve-character-3"></select>
+                  <span class="mission-field-help">Third bot team slot, for a mixed team instead of a repeated character.</span>
                 </label>
                 <label class="mission-field">
                   Bot Team Size
@@ -2397,8 +2420,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         missionId: document.getElementById("mission-id"),
         title: document.getElementById("mission-title"),
         levelRequirement: document.getElementById("mission-level-requirement"),
+        arena: document.getElementById("mission-arena"),
         reward: document.getElementById("mission-reward"),
         rewardCharacter: document.getElementById("mission-reward-character"),
+        rewardPoints: document.getElementById("mission-reward-points"),
         modeQuick: document.getElementById("mission-mode-quick"),
         modeLadder: document.getElementById("mission-mode-ladder"),
         image: document.getElementById("mission-image"),
@@ -2411,6 +2436,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         specialPveButton: document.getElementById("mission-special-pve-button"),
         specialPveBotName: document.getElementById("mission-special-pve-bot-name"),
         specialPveCharacter: document.getElementById("mission-special-pve-character"),
+        specialPveCharacter2: document.getElementById("mission-special-pve-character-2"),
+        specialPveCharacter3: document.getElementById("mission-special-pve-character-3"),
         specialPveTeamSize: document.getElementById("mission-special-pve-team-size"),
         specialPveBackground: document.getElementById("mission-special-pve-background"),
       };
@@ -2795,6 +2822,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       function refreshCharacterSelects(mission) {
         populateCharacterSelect(fields.rewardCharacter, mission && mission.reward_character ? mission.reward_character : "");
         populateCharacterSelect(fields.specialPveCharacter, mission && mission.special_pve ? mission.special_pve.botTeamCharacterId : "");
+        const specialPveTeamIds = mission && mission.special_pve && Array.isArray(mission.special_pve.botTeamCharacterIds) ? mission.special_pve.botTeamCharacterIds : [];
+        populateCharacterSelect(fields.specialPveCharacter2, specialPveTeamIds[1] || "");
+        populateCharacterSelect(fields.specialPveCharacter3, specialPveTeamIds[2] || "");
         populateCharacterSelect(goalCharacterField, "batman");
         populateCharacterSelect(goalCharacterTwoField, "");
       }
@@ -2819,6 +2849,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           buttonLabel: String(rawSpecialPve.buttonLabel || rawSpecialPve.button_label || (isXenomorphReward ? "Enter the Nest" : "Start Fight")).trim(),
           botName: String(rawSpecialPve.botName || rawSpecialPve.bot_name || (isXenomorphReward ? "Xenomorph Nest" : "Mission Bot")).trim(),
           botTeamCharacterId: normalizeCharacterId(rawSpecialPve.botTeamCharacterId || rawSpecialPve.bot_team_character_id || rawSpecialPve.characterId || (isXenomorphReward ? "xenomorph-drone" : "")),
+          botTeamCharacterIds: (Array.isArray(rawSpecialPve.botTeamCharacterIds) ? rawSpecialPve.botTeamCharacterIds : []).map(normalizeCharacterId).filter(Boolean),
           botTeamSize: Math.max(1, Math.min(6, Number(rawSpecialPve.botTeamSize || rawSpecialPve.bot_team_size || 3) || 3)),
           backgroundImage: String(rawSpecialPve.backgroundImage || rawSpecialPve.background_image || (isXenomorphReward ? "assets/images/xenonest.png" : "")).trim(),
         };
@@ -2827,8 +2858,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           title: finalTitle,
           level_requirement: isXenomorphReward ? Math.max(21, levelRequirement) : levelRequirement,
           rank: isXenomorphReward ? String(Math.max(21, levelRequirement)) : levelRequirement ? String(levelRequirement) : "",
+          arena: m.arena === "pokemon" ? "pokemon" : "comic",
           reward: String(m.reward || "").trim(),
           reward_character: rewardCharacter,
+          reward_unlock_points: Math.max(0, Math.floor(Number(m.reward_unlock_points || m.rewardUnlockPoints || 0) || 0)),
           win_streak: {
             character_id: streakCharacter,
             wins: Number(winStreak.wins || 0) || 0,
@@ -2862,7 +2895,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         fields.missionId.value = m.missionId || "";
         fields.title.value = m.title || "";
         fields.levelRequirement.value = String(m.level_requirement || "");
+        fields.arena.value = m.arena === "pokemon" ? "pokemon" : "comic";
         fields.reward.value = m.reward || "";
+        fields.rewardPoints.value = String(m.reward_unlock_points || "");
         refreshCharacterSelects(m);
         const allowedModes = Array.isArray(m.mode_restriction && m.mode_restriction.allowed_modes)
           ? m.mode_restriction.allowed_modes
@@ -2880,6 +2915,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         fields.specialPveButton.value = specialPve.buttonLabel || "";
         fields.specialPveBotName.value = specialPve.botName || "";
         fields.specialPveCharacter.value = normalizeCharacterId(specialPve.botTeamCharacterId || "");
+        const specialPveTeamIdsForEditor = Array.isArray(specialPve.botTeamCharacterIds) ? specialPve.botTeamCharacterIds : [];
+        fields.specialPveCharacter2.value = normalizeCharacterId(specialPveTeamIdsForEditor[1] || "");
+        fields.specialPveCharacter3.value = normalizeCharacterId(specialPveTeamIdsForEditor[2] || "");
         fields.specialPveTeamSize.value = String(specialPve.botTeamSize || "");
         fields.specialPveBackground.value = specialPve.backgroundImage || "";
         goalItems = normalizeGoals(m.goals, m.win_streak);
@@ -2892,8 +2930,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           missionId: fields.missionId.value,
           title: fields.title.value,
           level_requirement: Number(fields.levelRequirement.value) || 0,
+          arena: fields.arena.value,
           reward: fields.reward.value,
           reward_character: fields.rewardCharacter.value,
+          reward_unlock_points: Number(fields.rewardPoints.value) || 0,
           win_streak: {
             character_id: String(winStreakGoal && winStreakGoal.character_id ? winStreakGoal.character_id : "").trim(),
             wins: Number(winStreakGoal && winStreakGoal.wins ? winStreakGoal.wins : 0) || 0,
@@ -2911,6 +2951,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             buttonLabel: fields.specialPveButton.value,
             botName: fields.specialPveBotName.value,
             botTeamCharacterId: fields.specialPveCharacter.value,
+            botTeamCharacterIds: [fields.specialPveCharacter2.value, fields.specialPveCharacter3.value].some(Boolean)
+              ? [fields.specialPveCharacter.value, fields.specialPveCharacter2.value, fields.specialPveCharacter3.value].filter(Boolean)
+              : [],
             botTeamSize: Number(fields.specialPveTeamSize.value) || 3,
             backgroundImage: fields.specialPveBackground.value,
           },
