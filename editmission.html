@@ -2119,6 +2119,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                   <span class="mission-field-help">Use 3 for the Xenomorph Drone fight.</span>
                 </label>
                 <label class="mission-field">
+                  Bot Skills Per Turn
+                  <input type="number" id="mission-special-pve-max-queued-skills" min="1" max="3" step="1" placeholder="1" />
+                  <span class="mission-field-help">How many of the bot's Pokemon act each turn (1-3). Use 3 so a full team fights back every turn.</span>
+                </label>
+                <label class="mission-field">
                   Fight Background
                   <input type="text" id="mission-special-pve-background" placeholder="assets/images/xenonest.png" />
                   <span class="mission-field-help">Background used during the special PvE fight.</span>
@@ -2439,6 +2444,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         specialPveCharacter2: document.getElementById("mission-special-pve-character-2"),
         specialPveCharacter3: document.getElementById("mission-special-pve-character-3"),
         specialPveTeamSize: document.getElementById("mission-special-pve-team-size"),
+        specialPveMaxQueuedSkills: document.getElementById("mission-special-pve-max-queued-skills"),
         specialPveBackground: document.getElementById("mission-special-pve-background"),
       };
       const goalBox = document.getElementById("mission-goals");
@@ -2851,6 +2857,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           botTeamCharacterId: normalizeCharacterId(rawSpecialPve.botTeamCharacterId || rawSpecialPve.bot_team_character_id || rawSpecialPve.characterId || (isXenomorphReward ? "xenomorph-drone" : "")),
           botTeamCharacterIds: (Array.isArray(rawSpecialPve.botTeamCharacterIds) ? rawSpecialPve.botTeamCharacterIds : []).map(normalizeCharacterId).filter(Boolean),
           botTeamSize: Math.max(1, Math.min(6, Number(rawSpecialPve.botTeamSize || rawSpecialPve.bot_team_size || 3) || 3)),
+          botMaxQueuedSkillsPerTurn: Math.max(1, Math.min(3, Number(rawSpecialPve.botMaxQueuedSkillsPerTurn || rawSpecialPve.bot_max_queued_skills_per_turn || (isXenomorphReward ? 2 : 1)) || 1)),
           backgroundImage: String(rawSpecialPve.backgroundImage || rawSpecialPve.background_image || (isXenomorphReward ? "assets/images/xenonest.png" : "")).trim(),
         };
         return {
@@ -2919,6 +2926,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         fields.specialPveCharacter2.value = normalizeCharacterId(specialPveTeamIdsForEditor[1] || "");
         fields.specialPveCharacter3.value = normalizeCharacterId(specialPveTeamIdsForEditor[2] || "");
         fields.specialPveTeamSize.value = String(specialPve.botTeamSize || "");
+        fields.specialPveMaxQueuedSkills.value = String(specialPve.botMaxQueuedSkillsPerTurn || "");
         fields.specialPveBackground.value = specialPve.backgroundImage || "";
         goalItems = normalizeGoals(m.goals, m.win_streak);
         renderGoalList();
@@ -2955,6 +2963,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               ? [fields.specialPveCharacter.value, fields.specialPveCharacter2.value, fields.specialPveCharacter3.value].filter(Boolean)
               : [],
             botTeamSize: Number(fields.specialPveTeamSize.value) || 3,
+            botMaxQueuedSkillsPerTurn: Number(fields.specialPveMaxQueuedSkills.value) || 1,
             backgroundImage: fields.specialPveBackground.value,
           },
           available: true,
