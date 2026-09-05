@@ -1256,6 +1256,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     const matchIncludesLance = (data) =>
         teamIncludesLance(data?.player?.team) || teamIncludesLance(data?.opponent?.team);
 
+    // Trainer Red's boss fight also plays Lance's champion theme (borrowed,
+    // not because Red's team includes any of Lance's Pokemon -- see the
+    // currentMatchHasLance assignments below, the only place this is read).
+    const matchIsTrainerRedFight = (data) =>
+        String(data?.pveBattle?.missionId || data?.specialPveMissionId || '').trim().toLowerCase() === 'trainer-red';
+    const matchUsesLanceBattleTheme = (data) => matchIncludesLance(data) || matchIsTrainerRedFight(data);
+
     // Standing champion render shown beside whichever side's team includes
     // Lance -- mirrors the mission/store BIB art (LANCE_CHAMPION_PREVIEW_RENDER_URL)
     // but positioned in the battle-experimental combat lanes instead of a menu.
@@ -13294,7 +13301,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             }
             setIngameArenaUiAssets(currentMatchArena);
             syncEnergyNameLabels();
-            currentMatchHasLance = currentMatchArena === 'pokemon' && matchIncludesLance(data);
+            currentMatchHasLance = currentMatchArena === 'pokemon' && matchUsesLanceBattleTheme(data);
             updateLanceTeamIdentityRender(data);
             resumeIngameBattleMusic(currentMatchArena);
             if (data.player?.profile) {
@@ -13931,7 +13938,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             if (hasPlayedBattleIntro || !battleIntroOverlayEl) return;
             hasPlayedBattleIntro = true;
             const lanceIntroArena = data?.arena || currentMatchArena;
-            currentMatchHasLance = lanceIntroArena === 'pokemon' && matchIncludesLance(data);
+            currentMatchHasLance = lanceIntroArena === 'pokemon' && matchUsesLanceBattleTheme(data);
             updateLanceTeamIdentityRender(data);
             if (!uiSettings.battleIntro) {
                 resumeIngameBattleMusic(lanceIntroArena);
