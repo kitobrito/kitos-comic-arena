@@ -786,11 +786,16 @@
         });
         if (parts.length >= 4) {
           var type = parts[0].toLowerCase();
-          var character = findCatalogCharacterByName(parts[1]);
+          // Several characters share a display name (e.g. Lance's own
+          // "Dragonite" vs. the standalone Dragonite release) -- a plain
+          // name lookup can't tell them apart. Let the admin type the
+          // exact characterId in this column to disambiguate, falling
+          // back to the old by-name match for the common case.
+          var character = findCatalogCharacterById(parts[1]) || findCatalogCharacterByName(parts[1]);
           var skill = findCatalogSkillByName(character, parts[2]);
           return {
             text: parts.slice(3).join(" | "),
-            changeType: type === "buff" || type === "nerf" ? type : "",
+            changeType: type === "buff" || type === "nerf" || type === "new" ? type : "",
             characterId: character && character.characterId ? String(character.characterId) : "",
             characterName: character && character.name ? String(character.name) : parts[1],
             skillId: skill && skill.id ? String(skill.id) : "",
