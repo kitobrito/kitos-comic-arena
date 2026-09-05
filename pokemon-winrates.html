@@ -10,13 +10,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <!-- End Google Tag Manager -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pokemon Arena Profile</title>
-  <meta name="description" content="View a Pokemon Arena player profile: ladder stats, Alliance info, and recent games." />
+  <title>Pokemon Arena Winrates</title>
+  <meta name="description" content="Admin dashboard for Pokemon Arena character winrates." />
+  <meta name="robots" content="noindex, nofollow" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="styles/pokemon-portal.css?v=ground-up-v7" />
   <link rel="stylesheet" href="styles/pokemon-account-pages.css?v=ground-up-v1" />
-  <link rel="stylesheet" href="styles/pokemon-profile.css?v=ground-up-v1" />
+  <link rel="stylesheet" href="styles/pokemon-winrates.css?v=ground-up-v1" />
 </head>
 <body class="pp-body pp-has-tabbar" data-page-arena="pokemon" data-portal-section="home">
 <!-- Google Tag Manager (noscript) -->
@@ -51,93 +52,23 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   <main class="pp-container pp-account-layout">
     <div>
-      <section class="pp-panel">
-        <h2 class="pp-panel-title" style="margin:0 0 10px;">Player Search</h2>
-        <form id="profile-search-form" style="display:flex;gap:10px;flex-wrap:wrap;">
-          <input class="pp-field" style="margin:0;flex:1;min-width:180px;" id="profile-search-input" type="text" name="username" maxlength="64" placeholder="Search username" autocomplete="off" />
-          <button class="pp-btn pp-btn-primary" type="submit">Search</button>
-        </form>
-        <p class="pp-status" id="profile-search-status" aria-live="polite"></p>
+      <section class="pp-panel pp-account-headline">
+        <div class="pp-eyebrow">Admin Dashboard</div>
+        <h1 class="pp-h1" id="winrates-page-title" style="font-size:24px;">Character Winrates</h1>
+        <p class="pp-lede" style="margin:8px 0 0;">Track who is taking over the ladder and reset the numbers.</p>
       </section>
 
       <section class="pp-panel">
-        <div class="pp-profile-header">
-          <img class="pp-profile-avatar" id="profile-avatar-image" src="/assets/images/external-mirror/i.postimg.cc/971bcdc8d3154d6d16a9.png" alt="Profile avatar" />
+        <div class="pp-winrates-toolbar">
           <div>
-            <h1 class="pp-profile-name" id="profile-username">placeholder_trainer</h1>
-            <p class="pp-profile-tagline"><span id="profile-site-rank">Member</span> &middot; <span id="profile-posts">0</span> posts &middot; Registered <span id="profile-registered-on">Unknown</span></p>
+            <h2 class="pp-panel-title" id="winrates-board-title" style="margin:0 0 4px;">Battle Board</h2>
+            <p class="pp-winrates-meta">&raquo; Ladder games only</p>
           </div>
+          <button class="pp-btn pp-btn-primary" type="button" id="reset-winrates-button">Reset Winrates</button>
         </div>
+        <p class="pp-status" id="winrates-status" aria-live="polite"></p>
+        <div class="pp-winrates-grid" id="winrates-grid"></div>
       </section>
-
-      <section class="pp-panel">
-        <h2 class="pp-panel-title" style="margin:0 0 12px;">Alliance Information</h2>
-        <div class="pp-clan-summary">
-          <div class="pp-clan-badge" id="profile-clan-badge">NO CLAN</div>
-          <div class="pp-info-table">
-            <div class="pp-info-row"><span>Alliance Name</span><strong id="profile-clan-name">No clan</strong></div>
-            <div class="pp-info-row"><span>Abbreviation</span><strong id="profile-clan-abbreviation">-</strong></div>
-            <div class="pp-info-row"><span>Rank in Alliance</span><strong id="profile-clan-rank">-</strong></div>
-            <div class="pp-info-row"><span>Joined On</span><strong id="profile-clan-joined-on">-</strong></div>
-          </div>
-        </div>
-      </section>
-
-      <section class="pp-panel">
-        <h2 class="pp-panel-title" style="margin:0 0 12px;">Pokemon Arena Ladder</h2>
-        <div class="pp-profile-stats">
-          <div class="pp-profile-stat"><strong><span class="level-meter" id="pokemon-profile-level-meter"><span id="pokemon-profile-level">1</span></span></strong><span>Level</span></div>
-          <div class="pp-profile-stat"><strong id="pokemon-profile-rank">Sparkstrike</strong><span>Rank</span></div>
-          <div class="pp-profile-stat"><strong id="pokemon-profile-experience-points">0 xp</strong><span>Experience</span></div>
-          <div class="pp-profile-stat"><strong id="pokemon-profile-ladder-rank">Unranked</strong><span>Ladder Rank</span></div>
-          <div class="pp-profile-stat"><strong id="pokemon-profile-wins">0</strong><span>Wins</span></div>
-          <div class="pp-profile-stat"><strong id="pokemon-profile-losses">0</strong><span>Losses</span></div>
-          <div class="pp-profile-stat"><strong id="pokemon-profile-win-percentage">0.00 %</strong><span>Win Rate</span></div>
-          <div class="pp-profile-stat"><strong id="pokemon-profile-streak">0</strong><span>Streak</span></div>
-          <div class="pp-profile-stat"><strong id="pokemon-profile-highest-streak">0</strong><span>Best Streak</span></div>
-          <div class="pp-profile-stat"><strong id="pokemon-profile-highest-level">Level 1</strong><span>Highest Level</span></div>
-          <div class="pp-profile-stat"><strong id="pokemon-profile-fame-points">0</strong><span>Fame Points</span></div>
-        </div>
-      </section>
-
-      <section class="pp-panel">
-        <h2 class="pp-panel-title" style="margin:0 0 12px;">Site Activity</h2>
-        <div class="pp-info-table">
-          <div class="pp-info-row"><span>Status</span><strong><span class="status-offline" id="profile-status">offline</span></strong></div>
-          <div class="pp-info-row"><span>Current Online Activity</span><strong id="profile-current-activity">Not available</strong></div>
-          <div class="pp-info-row"><span>Current Page Activity</span><strong id="profile-current-page">Not available</strong></div>
-        </div>
-      </section>
-
-      <section class="pp-panel">
-        <h2 class="pp-panel-title" style="margin:0 0 12px;">Pokemon Arena Ladder Games <span class="pp-panel-subtitle">Last 24 Hours</span></h2>
-        <div class="quick-games-list" id="pokemon-profile-ladder-games-list">
-          <div class="quick-game-empty" id="pokemon-profile-ladder-games-empty">No Pokemon Arena ladder games in the last 24 hours.</div>
-        </div>
-      </section>
-
-      <section class="pp-panel">
-        <h2 class="pp-panel-title" style="margin:0 0 12px;">Quick Games <span class="pp-panel-subtitle">Last 24 Hours</span></h2>
-        <div class="quick-games-list" id="profile-quick-games-list">
-          <div class="quick-game-empty" id="profile-quick-games-empty">No quick games in the last 24 hours.</div>
-        </div>
-      </section>
-
-      <section class="pp-panel">
-        <h2 class="pp-panel-title" style="margin:0 0 12px;">Private Games <span class="pp-panel-subtitle">Last 24 Hours</span></h2>
-        <div class="quick-games-list" id="profile-private-games-list">
-          <div class="quick-game-empty" id="profile-private-games-empty">No private games in the last 24 hours.</div>
-        </div>
-      </section>
-
-      <div aria-hidden="true" style="display:none;">
-        <img id="release-face-1" alt="" />
-        <img id="release-face-2" alt="" />
-        <img id="release-face-3" alt="" />
-        <div id="release-label-1"></div>
-        <div id="release-label-2"></div>
-        <div id="release-label-3"></div>
-      </div>
     </div>
 
     <aside>
@@ -157,7 +88,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
         <div class="account-panel" id="account-panel" hidden>
           <p style="margin:0 0 14px;font-size:14px;">Welcome back, <strong id="account-username">Player</strong>!</p>
-          <button class="pp-account-action active" type="button" id="view-profile-button">
+          <button class="pp-account-action" type="button" id="view-profile-button">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.25" /><path d="M5 19c.9-3 3.6-4.5 7-4.5S18.1 16 19 19" /></svg>
             <span>View Profile</span>
           </button>
@@ -187,7 +118,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           </a>
           <section id="admin-panel-section" hidden style="margin-top:14px;">
             <h2 class="pp-panel-title" style="font-size:11.5px;">Admin Panel</h2>
-            <a class="pp-account-action" href="pokemon-winrates.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 18h16" /><path d="M7 14V9" /><path d="M12 14V6" /><path d="M17 14v-3" /></svg><span>Winrates</span></a>
+            <a class="pp-account-action active" href="pokemon-winrates.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 18h16" /><path d="M7 14V9" /><path d="M12 14V6" /><path d="M17 14v-3" /></svg><span>Winrates</span></a>
             <a class="pp-account-action" href="charactereditor.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16" /><path d="M6 16 18 4" /><path d="m14 4 4 4" /></svg><span>Character Editor</span></a>
             <a class="pp-account-action" href="editmission.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16" /><path d="M6 16 18 4" /><path d="M4 20l4-1" /><path d="M14 4l4 4" /></svg><span>Mission Editor</span></a>
             <a class="pp-account-action" href="playeraccounts.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="2.5" /><circle cx="16.5" cy="9.5" r="2" /><path d="M4.5 18c.8-2.7 3-4 5.5-4s4.7 1.3 5.5 4" /><path d="M14 17c.5-1.7 1.8-2.8 3.8-2.8 1.5 0 2.9.8 3.7 2.3" /></svg><span>Player Accounts</span></a>
@@ -223,6 +154,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <section class="pp-panel" aria-label="Top player levels">
         <h2 class="pp-panel-title">Top Player Levels</h2>
         <ol class="pp-lb-list" id="sidebar-top-player-levels"></ol>
+      </section>
+
+      <section class="pp-panel" aria-label="Top Alliance levels">
+        <h2 class="pp-panel-title">Top Alliance Levels</h2>
+        <ol class="pp-lb-list" id="sidebar-top-clan-levels"></ol>
       </section>
 
       <section class="pp-panel" aria-label="Top win streaks">
@@ -284,6 +220,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     });
   }());
 </script>
-<script src="./scripts/index.js?v=ground-up-v1&news-skill-image-fix-v1&home-switch-link-v1&pokemon-profile-link-v1&news-name-link-v1" defer></script>
+<script src="./scripts/index.js?v=ground-up-v1&news-skill-image-fix-v1&home-switch-link-v1&news-name-link-v1" defer></script>
 </body>
 </html>

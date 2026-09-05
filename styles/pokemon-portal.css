@@ -521,6 +521,7 @@ body.pp-body {
    renderSidebarStatList (Win Streaks / Wins / Highest Streaks) appends
    plain <li> entries with no wrapper classes, styled generically below. */
 #sidebar-top-player-levels,
+#sidebar-top-clan-levels,
 #sidebar-top-current-streaks,
 #sidebar-top-wins,
 #sidebar-top-highest-streaks {
