@@ -481,6 +481,11 @@ body.pp-body {
 }
 .pp-status.is-error { color: #ff6b6b; }
 .pp-status.is-ok { color: #6fdc8c; }
+/* Several admin/account status lines are driven by scripts/index.js
+   setters that toggle a data-state attribute (not a class) -- keep the
+   same colors available through that attribute too. */
+.pp-status[data-state="error"] { color: #ff6b6b; }
+.pp-status[data-state="success"] { color: #6fdc8c; }
 
 /* Account action buttons (list of icon rows) ----------------------------- */
 .pp-account-action {

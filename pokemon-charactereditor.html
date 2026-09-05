@@ -10,14 +10,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <!-- End Google Tag Manager -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pokemon Arena Winrates</title>
-  <meta name="description" content="Admin dashboard for Pokemon Arena character winrates." />
+  <title>Pokemon Arena Character Editor</title>
+  <meta name="description" content="Admin dashboard for editing Pokemon Arena characters." />
   <meta name="robots" content="noindex, nofollow" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="styles/pokemon-portal.css?v=ground-up-v8" />
   <link rel="stylesheet" href="styles/pokemon-account-pages.css?v=ground-up-v1" />
-  <link rel="stylesheet" href="styles/pokemon-winrates.css?v=ground-up-v1" />
+  <link rel="stylesheet" href="styles/pokemon-charactereditor.css?v=ground-up-v1" />
 </head>
 <body class="pp-body pp-has-tabbar" data-page-arena="pokemon" data-portal-section="home">
 <!-- Google Tag Manager (noscript) -->
@@ -54,20 +54,20 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div>
       <section class="pp-panel pp-account-headline">
         <div class="pp-eyebrow">Admin Dashboard</div>
-        <h1 class="pp-h1" id="winrates-page-title" style="font-size:24px;">Character Winrates</h1>
-        <p class="pp-lede" style="margin:8px 0 0;">Track who is taking over the ladder and reset the numbers.</p>
+        <h1 class="pp-h1" style="font-size:24px;">Character Editor</h1>
+        <p class="pp-lede" style="margin:8px 0 0;">Search the roster, open the data, and push balance updates.</p>
       </section>
 
       <section class="pp-panel">
-        <div class="pp-winrates-toolbar">
-          <div>
-            <h2 class="pp-panel-title" id="winrates-board-title" style="margin:0 0 4px;">Battle Board</h2>
-            <p class="pp-winrates-meta">&raquo; Ladder games only</p>
-          </div>
-          <button class="pp-btn pp-btn-primary" type="button" id="reset-winrates-button">Reset Winrates</button>
+        <h2 class="pp-panel-title" style="margin:0 0 6px;">Quick Pass</h2>
+        <p class="pp-lede" style="font-size:13px;margin:0 0 14px;">Filter by name or id, jump into a record, and keep the existing game logic connected to the same editor controls.</p>
+        <div class="pp-charactereditor-toolbar">
+          <button class="pp-btn pp-btn-ghost" type="button" id="character-editor-export">Export All characters.js</button>
+          <button class="pp-btn pp-btn-ghost" type="button" id="character-editor-sync-github" title="Commit and push character changes to GitHub">Sync to GitHub</button>
         </div>
-        <p class="pp-status" id="winrates-status" aria-live="polite"></p>
-        <div class="pp-winrates-grid" id="winrates-grid"></div>
+        <p class="pp-status" id="character-editor-status" aria-live="polite"></p>
+        <input class="pp-field" style="margin:0 0 14px;" type="search" id="character-editor-search" placeholder="Search by character name or id" autocomplete="off" />
+        <div class="character-editor-grid" id="character-editor-grid"></div>
       </section>
     </div>
 
@@ -118,8 +118,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           </a>
           <section id="admin-panel-section" hidden style="margin-top:14px;">
             <h2 class="pp-panel-title" style="font-size:11.5px;">Admin Panel</h2>
-            <a class="pp-account-action active" href="pokemon-winrates.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 18h16" /><path d="M7 14V9" /><path d="M12 14V6" /><path d="M17 14v-3" /></svg><span>Winrates</span></a>
-            <a class="pp-account-action" href="pokemon-charactereditor.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16" /><path d="M6 16 18 4" /><path d="m14 4 4 4" /></svg><span>Character Editor</span></a>
+            <a class="pp-account-action" href="pokemon-winrates.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 18h16" /><path d="M7 14V9" /><path d="M12 14V6" /><path d="M17 14v-3" /></svg><span>Winrates</span></a>
+            <a class="pp-account-action active" href="pokemon-charactereditor.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16" /><path d="M6 16 18 4" /><path d="m14 4 4 4" /></svg><span>Character Editor</span></a>
             <a class="pp-account-action" href="editmission.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16" /><path d="M6 16 18 4" /><path d="M4 20l4-1" /><path d="M14 4l4 4" /></svg><span>Mission Editor</span></a>
             <a class="pp-account-action" href="playeraccounts.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="2.5" /><circle cx="16.5" cy="9.5" r="2" /><path d="M4.5 18c.8-2.7 3-4 5.5-4s4.7 1.3 5.5 4" /><path d="M14 17c.5-1.7 1.8-2.8 3.8-2.8 1.5 0 2.9.8 3.7 2.3" /></svg><span>Player Accounts</span></a>
             <a class="pp-account-action" href="newspost.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 6.5h14" /><path d="M5 11.5h14" /><path d="M5 16.5h9" /><rect x="4" y="4" width="16" height="16" rx="2" /></svg><span>News Post</span></a>
@@ -209,6 +209,28 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </a>
 </nav>
 
+<div class="character-editor-overlay" id="character-editor-overlay" aria-hidden="true">
+  <div class="character-editor-modal" role="dialog" aria-modal="true" aria-labelledby="character-editor-name">
+    <div class="character-editor-summary">
+      <img class="character-editor-face" id="character-editor-face" alt="Character face" />
+      <div>
+        <h2 class="character-editor-name" id="character-editor-name">Character</h2>
+        <p class="character-editor-id" id="character-editor-id"></p>
+      </div>
+    </div>
+    <p class="pp-status" id="character-editor-modal-status" aria-live="polite"></p>
+    <label class="pp-charactereditor-field" for="character-editor-role">
+      Role
+      <input class="pp-field" style="margin-top:6px;" id="character-editor-role" type="text" autocomplete="off" placeholder="Tank, Damage, Support, Controller..." />
+    </label>
+    <textarea class="character-editor-json" id="character-editor-json" spellcheck="false"></textarea>
+    <div class="pp-charactereditor-actions">
+      <button class="pp-btn pp-btn-ghost" type="button" id="character-editor-close">Close</button>
+      <button class="pp-btn pp-btn-primary" type="button" id="character-editor-save">Save Character</button>
+    </div>
+  </div>
+</div>
+
 <script>
   (function () {
     var toggle = document.getElementById('pp-nav-toggle');
@@ -220,6 +242,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     });
   }());
 </script>
+<script src="./characters.js?v=pokemon-balance-v3&aegislash-special-classes-v1&ditto-community-v1&chikorita-affliction-cycle-v1&scraggy-community-v1&scraggy-balance-v2&johto-evo-energy-v1&articuno-blizzard-snowstorm-v1&moltres-wildfire-firespin-v1&zapdos-flight-wildfire-grass-bug-v1"></script>
+<script src="./pokemon-wave-2-live.js?v=pokemon-balance-v3&aegislash-special-classes-v1&ditto-community-v1"></script>
 <script src="./scripts/index.js?v=ground-up-v1&news-skill-image-fix-v1&home-switch-link-v1&news-name-link-v1" defer></script>
 </body>
 </html>
