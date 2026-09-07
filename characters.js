@@ -20953,7 +20953,7 @@ const characters = [
                         "metadata": {
                             "infiniteDuration": true,
                             "unremovable": true,
-                            "facePictureOverride": "assets/images/PokemonArena/ekans/arbokfp.png",
+                            "facePictureOverride": "assets/images/PokemonArena/ekans/arbokfp.jpg",
                             "skillReplacements": {
                                 "ekans-poison-fang": "arbok-poison-fang",
                                 "ekans-toxic": "arbok-toxic",
@@ -26357,13 +26357,13 @@ const characters = [
         "id": "ekans",
         "characterId": "ekans",
         "name": "Ekans",
-        "facePicture": "assets/images/PokemonArena/ekans/ekansfp.png",
-        "characterdeescription": "A venom-focused Pokemon that ramps poison pressure, punishes enemies for acting, and evolves into Arbok after landing a Crunch execution.",
+        "facePicture": "assets/images/PokemonArena/ekans/ekansfp.jpg",
+        "characterdeescription": "A venom-focused Pokemon that ramps poison pressure, punishes enemies for acting, and evolves into Arbok after landing a Constrict execution.",
         "skills": [
             {
                 "id": "ekans-poison-fang",
-                "name": "Poison Fang",
-                "skillimage": "assets/images/PokemonArena/ekans/ekansvenomfang.png",
+                "name": "Bite",
+                "skillimage": "assets/images/PokemonArena/ekans/skill1.jpg",
                 "skilldescription": "Deals 10 physical damage and 15 affliction damage to one enemy. If the target is Badly Poisoned, they also take 3 permanent affliction damage. This effect stacks.",
                 "energy": [
                     "Bloodline",
@@ -26414,8 +26414,8 @@ const characters = [
                             "mergeNumericAddKeys": [
                                 "turnEndDamage"
                             ],
-                            "statusIconUrl": "assets/images/PokemonArena/ekans/ekansvenomfang.png",
-                            "tooltipTextTemplate": "This character takes {turnEndDamage} permanent affliction damage each turn from Poison Fang."
+                            "statusIconUrl": "assets/images/PokemonArena/ekans/skill1.jpg",
+                            "tooltipTextTemplate": "This character takes {turnEndDamage} permanent affliction damage each turn from Bite."
                         }
                     }
                 ]
@@ -26423,7 +26423,7 @@ const characters = [
             {
                 "id": "ekans-toxic",
                 "name": "Toxic",
-                "skillimage": "assets/images/PokemonArena/ekans/ekanstoxic.png",
+                "skillimage": "assets/images/PokemonArena/ekans/skill2.jpg",
                 "skilldescription": "Badly poisons one enemy, dealing 2 affliction damage. Whenever that enemy uses a new skill, this damage doubles. Each enemy may only have 1 stack of Badly Poison.",
                 "energy": [
                     "Bloodline"
@@ -26474,7 +26474,7 @@ const characters = [
                                     ]
                                 }
                             },
-                            "statusIconUrl": "assets/images/PokemonArena/ekans/ekanstoxic.png",
+                            "statusIconUrl": "assets/images/PokemonArena/ekans/skill2.jpg",
                             "tooltipTextTemplate": "This character takes {turnEndDamage} affliction damage each turn from Badly Poison."
                         }
                     }
@@ -26482,8 +26482,8 @@ const characters = [
             },
             {
                 "id": "ekans-shed-skin",
-                "name": "Shed Skin",
-                "skillimage": "assets/images/PokemonArena/ekans/ekansshedskin.png",
+                "name": "Dig",
+                "skillimage": "assets/images/PokemonArena/ekans/skill3.jpg",
                 "skilldescription": "Removes all enemy affliction skills from Ekans and heals 15 HP each turn for 2 turns.",
                 "energy": [
                     "Random",
@@ -26512,16 +26512,16 @@ const characters = [
                         "metadata": {
                             "turnEndHealFlat": 15,
                             "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/ekans/ekansshedskin.png",
-                            "tooltipTextTemplate": "Ekans heals {turnEndHealFlat} HP each turn from Shed Skin."
+                            "statusIconUrl": "assets/images/PokemonArena/ekans/skill3.jpg",
+                            "tooltipTextTemplate": "Ekans heals {turnEndHealFlat} HP each turn from Dig."
                         }
                     }
                 ]
             },
             {
                 "id": "ekans-crunch",
-                "name": "Crunch",
-                "skillimage": "assets/images/PokemonArena/ekans/ekanscrunch.png",
+                "name": "Constrict",
+                "skillimage": "assets/images/PokemonArena/ekans/skill4.jpg",
                 "skilldescription": "One enemy takes 10 additional damage from affliction-only damage this turn. If that enemy has 25 HP or less, they are executed.",
                 "energy": [
                     "Bloodline"
@@ -26546,7 +26546,7 @@ const characters = [
                             "harmful": true,
                             "afflictionDamageTakenBonusFlat": 10,
                             "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/ekans/ekanscrunch.png",
+                            "statusIconUrl": "assets/images/PokemonArena/ekans/skill4.jpg",
                             "tooltipText": "This character takes 10 additional damage from affliction-only damage."
                         }
                     },
@@ -26566,7 +26566,7 @@ const characters = [
                                 "duration": 999,
                                 "metadata": {
                                     "infiniteDuration": true,
-                                    "facePictureOverride": "assets/images/PokemonArena/ekans/arbokfp.png",
+                                    "facePictureOverride": "assets/images/PokemonArena/ekans/arbokfp.jpg",
                                     "skillReplacements": {
                                         "ekans-poison-fang": "arbok-poison-fang",
                                         "ekans-toxic": "arbok-toxic",
@@ -26584,8 +26584,8 @@ const characters = [
             {
                 "id": "ekans-passive-evolution-arbok",
                 "name": "Evolution - Arbok",
-                "skillimage": "assets/images/PokemonArena/ekans/evolutionarbok.png",
-                "skilldescription": "After Ekans executes an enemy with Crunch, it evolves into Arbok. Arbok's skills are improved.",
+                "skillimage": "assets/images/PokemonArena/ekans/ekansevolution.png",
+                "skilldescription": "After Ekans executes an enemy with Constrict, it evolves into Arbok. Arbok's skills are improved.",
                 "energy": [],
                 "target": "",
                 "damage": 0,
@@ -26598,11 +26598,11 @@ const characters = [
             },
             {
                 "id": "arbok-poison-fang",
-                "name": "Poison Fang",
+                "name": "Poison Sting",
                 "actorCondition": {
                     "statusId": "ekans_arbok_evolution"
                 },
-                "skillimage": "assets/images/PokemonArena/ekans/arbokvenomfang.png",
+                "skillimage": "assets/images/PokemonArena/ekans/arbokskill1.jpg",
                 "skilldescription": "Deals 25 physical damage and 20 affliction damage to one enemy instead. If the target is Badly Poisoned, they also take 6 permanent affliction damage instead. This effect stacks.",
                 "energy": [
                     "Bloodline",
@@ -26654,8 +26654,8 @@ const characters = [
                             "mergeNumericAddKeys": [
                                 "turnEndDamage"
                             ],
-                            "statusIconUrl": "assets/images/PokemonArena/ekans/arbokvenomfang.png",
-                            "tooltipTextTemplate": "This character takes {turnEndDamage} permanent affliction damage each turn from Poison Fang."
+                            "statusIconUrl": "assets/images/PokemonArena/ekans/arbokskill1.jpg",
+                            "tooltipTextTemplate": "This character takes {turnEndDamage} permanent affliction damage each turn from Poison Sting."
                         }
                     }
                 ]
@@ -26666,7 +26666,7 @@ const characters = [
                 "actorCondition": {
                     "statusId": "ekans_arbok_evolution"
                 },
-                "skillimage": "assets/images/PokemonArena/ekans/arboktoxic.png",
+                "skillimage": "assets/images/PokemonArena/ekans/arbokskill2.jpg",
                 "skilldescription": "Badly poisons one enemy, dealing 2 affliction damage. Whenever that enemy uses a new skill, this damage doubles. Each enemy may have up to 2 stacks of Badly Poison instead.",
                 "energy": [
                     "Bloodline"
@@ -26717,7 +26717,7 @@ const characters = [
                                     ]
                                 }
                             },
-                            "statusIconUrl": "assets/images/PokemonArena/ekans/arboktoxic.png",
+                            "statusIconUrl": "assets/images/PokemonArena/ekans/arbokskill2.jpg",
                             "tooltipTextTemplate": "This character takes {turnEndDamage} affliction damage each turn from Badly Poison."
                         }
                     },
@@ -26748,7 +26748,7 @@ const characters = [
                                     ]
                                 }
                             },
-                            "statusIconUrl": "assets/images/PokemonArena/ekans/arboktoxic.png",
+                            "statusIconUrl": "assets/images/PokemonArena/ekans/arbokskill2.jpg",
                             "tooltipTextTemplate": "This character takes {turnEndDamage} affliction damage each turn from Badly Poison."
                         }
                     }
@@ -26756,11 +26756,11 @@ const characters = [
             },
             {
                 "id": "arbok-shed-skin",
-                "name": "Shed Skin",
+                "name": "Dig",
                 "actorCondition": {
                     "statusId": "ekans_arbok_evolution"
                 },
-                "skillimage": "assets/images/PokemonArena/ekans/arbokshedskin.png",
+                "skillimage": "assets/images/PokemonArena/ekans/arbokskill3.jpg",
                 "skilldescription": "Removes all enemy affliction skills from Arbok and heals 25 HP each turn for 2 turns instead.",
                 "energy": [
                     "Random",
@@ -26789,19 +26789,19 @@ const characters = [
                         "metadata": {
                             "turnEndHealFlat": 25,
                             "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/ekans/arbokshedskin.png",
-                            "tooltipTextTemplate": "Arbok heals {turnEndHealFlat} HP each turn from Shed Skin."
+                            "statusIconUrl": "assets/images/PokemonArena/ekans/arbokskill3.jpg",
+                            "tooltipTextTemplate": "Arbok heals {turnEndHealFlat} HP each turn from Dig."
                         }
                     }
                 ]
             },
             {
                 "id": "arbok-crunch",
-                "name": "Crunch",
+                "name": "Constrict",
                 "actorCondition": {
                     "statusId": "ekans_arbok_evolution"
                 },
-                "skillimage": "assets/images/PokemonArena/ekans/arbokcrunch.png",
+                "skillimage": "assets/images/PokemonArena/ekans/arbokskill4.jpg",
                 "skilldescription": "One enemy takes 15 additional damage from affliction-only damage this turn instead. If that enemy has 35 HP or less, they are executed.",
                 "energy": [
                     "Bloodline"
@@ -26826,7 +26826,7 @@ const characters = [
                             "harmful": true,
                             "afflictionDamageTakenBonusFlat": 15,
                             "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/ekans/arbokcrunch.png",
+                            "statusIconUrl": "assets/images/PokemonArena/ekans/arbokskill4.jpg",
                             "tooltipText": "This character takes 15 additional damage from affliction-only damage."
                         }
                     },
@@ -26850,8 +26850,8 @@ const characters = [
         "universe": "pokemon",
         "arena": "pokemon",
         "roleCategory": "Assassin",
-        "description": "A venom-focused Pokemon that ramps poison pressure, punishes enemies for acting, and evolves into Arbok after landing a Crunch execution.",
-        "descriptionHtml": "A venom-focused Pokemon that ramps poison pressure, punishes enemies for acting, and evolves into Arbok after landing a Crunch execution.",
+        "description": "A venom-focused Pokemon that ramps poison pressure, punishes enemies for acting, and evolves into Arbok after landing a Constrict execution.",
+        "descriptionHtml": "A venom-focused Pokemon that ramps poison pressure, punishes enemies for acting, and evolves into Arbok after landing a Constrict execution.",
         "startStatuses": [],
         "pokemonTypes": [
             "Poison"
