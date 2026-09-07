@@ -8587,14 +8587,14 @@ const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonical
             'lance-gyarados-outrage': ['energy', 'effects'],
         },
         ekans: {
-            'ekans-poison-fang': ['name', 'skillimage', 'effects'],
+            'ekans-poison-fang': ['name', 'skillimage', 'energy', 'effects'],
             'ekans-toxic': ['skillimage', 'effects'],
-            'ekans-shed-skin': ['name', 'skillimage', 'effects'],
+            'ekans-shed-skin': ['name', 'skillimage', 'energy', 'skilldescription', 'effects'],
             'ekans-crunch': ['name', 'skillimage', 'effects'],
             'ekans-passive-evolution-arbok': ['skillimage', 'skilldescription'],
-            'arbok-poison-fang': ['name', 'skillimage', 'effects'],
+            'arbok-poison-fang': ['name', 'skillimage', 'energy', 'effects'],
             'arbok-toxic': ['skillimage', 'effects'],
-            'arbok-shed-skin': ['name', 'skillimage', 'effects'],
+            'arbok-shed-skin': ['name', 'skillimage', 'skilldescription', 'effects'],
             'arbok-crunch': ['name', 'skillimage', 'effects'],
         },
     };
