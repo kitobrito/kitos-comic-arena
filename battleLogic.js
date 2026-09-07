@@ -12887,6 +12887,25 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         percentMitigationStateMap: percentMitigationStateByRecipient,
                         percentMitigationStateKey: mitigationBudgetKey,
                     });
+            // Trainer Red counter-strategy memory: tally how much damage the
+            // human player's Pokemon deal to Red's units across the match,
+            // so it can be folded into his cross-match "most dangerous
+            // opponent" memory once the match ends (see
+            // recordTrainerRedBotMemory in server.js). Bot-vs-bot damage and
+            // self-inflicted damage are irrelevant here.
+            if (
+                dealt > 0 &&
+                match?.specialPveMissionId === 'trainer-red' &&
+                entry.recipient.username !== actingUsername &&
+                !String(actingUsername || '').startsWith('__game_bot__:') &&
+                entry.sourceCharacterId
+            ) {
+                if (!match.trainerRedDamageByCharacterId || typeof match.trainerRedDamageByCharacterId !== 'object') {
+                    match.trainerRedDamageByCharacterId = {};
+                }
+                match.trainerRedDamageByCharacterId[entry.sourceCharacterId] =
+                    (Number(match.trainerRedDamageByCharacterId[entry.sourceCharacterId]) || 0) + dealt;
+            }
             if (dealt > 0 && (wasSuperEffective || Boolean(entry.criticalHit))) {
                 const reactiveStatuses = (Array.isArray(targetState.statuses) ? targetState.statuses : [])
                     .filter((status) => {

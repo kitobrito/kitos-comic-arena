@@ -166,6 +166,7 @@ const DEFAULT_PROFILE_AVATAR = '/assets/images/external-mirror/i.postimg.cc/971b
 const LEGACY_DEFAULT_PROFILE_AVATAR = 'https://i.postimg.cc/zG3W1w6K/itachi.png';
 const MISSION_CATALOG_STATE_KEY = 'missions';
 const BOT_TEAMS_STATE_KEY = 'bot_teams';
+const TRAINER_RED_BOT_MEMORY_STATE_KEY = 'trainer_red_bot_memory';
 const POKEMON_STARTER_SELECTION_VERSION = 3;
 const POKEMON_GEN2_STARTER_SELECTION_VERSION = 1;
 const POKEMON_GEN2_STARTER_UNLOCK_POINT_COST = 500;
@@ -8073,6 +8074,41 @@ const applyMatchCompletionRewards = async (match, winnerUsername, endedAt) => {
     return results;
 };
 
+// Trainer Red's cross-match "counter-strategy" memory: how much cumulative
+// damage each player characterId has ever dealt to his bot team, across
+// every match anyone has fought against him. Read once per bot turn (see
+// runBattleBotTurnUnlocked) and folded into scoreBattleBotTarget's scoring
+// so he gradually learns to prioritize whichever Pokemon has historically
+// hurt him the most, instead of only ever reacting within a single match.
+const loadTrainerRedBotMemory = async () => {
+    const doc = await appStateCollection.findOne({ key: TRAINER_RED_BOT_MEMORY_STATE_KEY });
+    return doc && doc.damageDealtToRedByCharacterId && typeof doc.damageDealtToRedByCharacterId === 'object'
+        ? doc.damageDealtToRedByCharacterId
+        : {};
+};
+
+const recordTrainerRedBotMemory = async (matchDamageByCharacterId = {}) => {
+    const incFields = {};
+    Object.entries(matchDamageByCharacterId).forEach(([characterId, amount]) => {
+        const normalizedCharacterId = normalizeCharacterId(characterId);
+        const normalizedAmount = Math.max(0, Math.round(Number(amount) || 0));
+        if (normalizedCharacterId && normalizedAmount > 0) {
+            incFields[`damageDealtToRedByCharacterId.${normalizedCharacterId}`] = normalizedAmount;
+        }
+    });
+    if (!Object.keys(incFields).length) {
+        return;
+    }
+    await appStateCollection.updateOne(
+        { key: TRAINER_RED_BOT_MEMORY_STATE_KEY },
+        {
+            $inc: incFields,
+            $set: { key: TRAINER_RED_BOT_MEMORY_STATE_KEY, updatedAt: new Date() },
+        },
+        { upsert: true }
+    );
+};
+
 const applyRewardsToPersistedMatch = async (match) => {
     if (!match || match.status !== 'ended') {
         throw new Error('Match rewards require a persisted ended match.');
@@ -8092,6 +8128,17 @@ const applyRewardsToPersistedMatch = async (match) => {
         ladderResults: match.ladderResults,
         rewardsAppliedAt,
     });
+    if (
+        slugifyMissionId(match.specialPveMissionId || '') === 'trainer-red' &&
+        match.trainerRedDamageByCharacterId &&
+        typeof match.trainerRedDamageByCharacterId === 'object'
+    ) {
+        try {
+            await recordTrainerRedBotMemory(match.trainerRedDamageByCharacterId);
+        } catch (error) {
+            console.error('Trainer Red bot-memory update error:', error);
+        }
+    }
     return ladderResults;
 };
 
@@ -12897,6 +12944,21 @@ const scoreBattleBotTarget = ({ match, username, actorSlot, skill, target, damag
     score += scoreBattleBotDamageCoordination({ hp, projectedDamage, candidateDamage: damageEstimate });
     if (isControlSkill && hp > damageEstimate) score += 18;
     if (duplicateStatusCount > 0 && damageEstimate <= 0) score -= duplicateStatusCount * 18;
+    // Trainer Red's counter-strategy memory: across every match anyone has
+    // fought him, prioritize whichever of the player's Pokemon has
+    // historically dealt him the most cumulative damage. Log-scaled so the
+    // bonus stays bounded as the lifetime damage total grows into the
+    // thousands rather than dominating scoring outright.
+    if (match?._trainerRedBotMemory) {
+        const targetCharacter = charactersData?.[unit.rosterIndex];
+        const targetCharacterId = normalizeCharacterId(
+            targetCharacter?.characterId || targetCharacter?.id || ''
+        );
+        const historicalDamage = Number(match._trainerRedBotMemory[targetCharacterId]) || 0;
+        if (historicalDamage > 0) {
+            score += Math.min(60, Math.log10(historicalDamage + 1) * 12);
+        }
+    }
     return score;
 };
 
@@ -13386,6 +13448,14 @@ const runBattleBotTurnUnlocked = async (matchId) => {
                     username,
                     choiceKey: choice.key,
                 });
+            }
+        }
+
+        if (slugifyMissionId(hydrated.specialPveMissionId || '') === 'trainer-red') {
+            try {
+                hydrated._trainerRedBotMemory = await loadTrainerRedBotMemory();
+            } catch (error) {
+                console.error('Trainer Red bot-memory load error:', error);
             }
         }
 
@@ -13990,6 +14060,7 @@ const finalizeTurn = async (match, username, options = {}) => {
                 turnStartedAt: null,
                 turnExpiresAt: null,
                 expiredTurnCountsByUsername: match.expiredTurnCountsByUsername,
+                trainerRedDamageByCharacterId: match.trainerRedDamageByCharacterId,
             },
             { incrementTurn: true }
         );
@@ -14089,6 +14160,7 @@ const finalizeTurn = async (match, username, options = {}) => {
                     economy: match.economy,
                     pendingTurns: match.pendingTurns,
                     lastTurnDamageByUsername: match.lastTurnDamageByUsername,
+                    trainerRedDamageByCharacterId: match.trainerRedDamageByCharacterId,
             },
             { incrementTurn: true }
         );
@@ -14159,6 +14231,7 @@ const finalizeTurn = async (match, username, options = {}) => {
                 expiredTurnCountsByUsername: match.expiredTurnCountsByUsername,
                 turnStartedAt: match.turnStartedAt,
                 turnExpiresAt: match.turnExpiresAt,
+                trainerRedDamageByCharacterId: match.trainerRedDamageByCharacterId,
         },
         { incrementTurn: true }
     );
