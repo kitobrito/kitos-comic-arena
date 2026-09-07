@@ -8531,6 +8531,7 @@ const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonical
             'pokemon-trainer-potion': ['skilldescription', 'energy', 'cooldown', 'maxUses', 'effects'],
             'pokemon-trainer-x-stats': ['skilldescription', 'effects'],
             'pokemon-trainer-revive': ['skilldescription', 'target', 'effects'],
+            'pokemon-trainer-rare-candy': ['effects'],
         },
         machop: {
             'machop-brick-break': ['skilldescription', 'energy', 'target', 'cooldown', 'classes', 'effects'],
@@ -8579,13 +8580,15 @@ const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonical
             'lance-gyarados-outrage': ['energy', 'effects'],
         },
         ekans: {
-            'ekans-poison-fang': ['name', 'effects'],
-            'ekans-shed-skin': ['name', 'effects'],
-            'ekans-crunch': ['name'],
-            'ekans-passive-evolution-arbok': ['skilldescription'],
-            'arbok-poison-fang': ['name', 'effects'],
-            'arbok-shed-skin': ['name', 'effects'],
-            'arbok-crunch': ['name'],
+            'ekans-poison-fang': ['name', 'skillimage', 'effects'],
+            'ekans-toxic': ['skillimage', 'effects'],
+            'ekans-shed-skin': ['name', 'skillimage', 'effects'],
+            'ekans-crunch': ['name', 'skillimage', 'effects'],
+            'ekans-passive-evolution-arbok': ['skillimage', 'skilldescription'],
+            'arbok-poison-fang': ['name', 'skillimage', 'effects'],
+            'arbok-toxic': ['skillimage', 'effects'],
+            'arbok-shed-skin': ['name', 'skillimage', 'effects'],
+            'arbok-crunch': ['name', 'skillimage', 'effects'],
         },
     };
     // Character-level (not skill-level) fields that must always come from
@@ -8593,7 +8596,7 @@ const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonical
     // snapshot -- same problem as requiredFieldsByCharacterAndSkill above,
     // just for fields that live on the character record itself.
     const requiredCharacterFieldsByCharacterId = {
-        ekans: ['description', 'descriptionHtml', 'characterdeescription'],
+        ekans: ['description', 'descriptionHtml', 'characterdeescription', 'facePicture'],
     };
     const canonicalById = new Map(
         (Array.isArray(canonicalCharacters) ? canonicalCharacters : []).map((character) => [
