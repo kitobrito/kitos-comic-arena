@@ -8578,6 +8578,22 @@ const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonical
         'lance-gyarados': {
             'lance-gyarados-outrage': ['energy', 'effects'],
         },
+        ekans: {
+            'ekans-poison-fang': ['name', 'effects'],
+            'ekans-shed-skin': ['name', 'effects'],
+            'ekans-crunch': ['name'],
+            'ekans-passive-evolution-arbok': ['skilldescription'],
+            'arbok-poison-fang': ['name', 'effects'],
+            'arbok-shed-skin': ['name', 'effects'],
+            'arbok-crunch': ['name'],
+        },
+    };
+    // Character-level (not skill-level) fields that must always come from
+    // the canonical characters.js file rather than a stale stored override
+    // snapshot -- same problem as requiredFieldsByCharacterAndSkill above,
+    // just for fields that live on the character record itself.
+    const requiredCharacterFieldsByCharacterId = {
+        ekans: ['description', 'descriptionHtml', 'characterdeescription'],
     };
     const canonicalById = new Map(
         (Array.isArray(canonicalCharacters) ? canonicalCharacters : []).map((character) => [
@@ -8588,8 +8604,16 @@ const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonical
     return (Array.isArray(mergedCharacters) ? mergedCharacters : []).map((character) => {
         const characterId = getCharacterRecordId(character);
         const requiredSkillFields = requiredFieldsByCharacterAndSkill[characterId];
+        const requiredCharacterFields = requiredCharacterFieldsByCharacterId[characterId];
         const canonicalCharacter = canonicalById.get(characterId);
-        if (!requiredSkillFields || !canonicalCharacter) return character;
+        if ((!requiredSkillFields && !requiredCharacterFields) || !canonicalCharacter) return character;
+        if (!requiredSkillFields) {
+            const characterOnlyCorrection = { ...character };
+            requiredCharacterFields.forEach((field) => {
+                if (canonicalCharacter[field] !== undefined) characterOnlyCorrection[field] = canonicalCharacter[field];
+            });
+            return characterOnlyCorrection;
+        }
         const canonicalSkillById = new Map(
             (Array.isArray(canonicalCharacter.skills) ? canonicalCharacter.skills : []).map((skill) => [skill?.id, skill])
         );
@@ -8847,6 +8871,11 @@ const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonical
                 return corrected;
             };
             correctedCharacter.skills = correctNestedEvolutionTrackers(correctedCharacter.skills);
+        }
+        if (requiredCharacterFields) {
+            requiredCharacterFields.forEach((field) => {
+                if (canonicalCharacter[field] !== undefined) correctedCharacter[field] = canonicalCharacter[field];
+            });
         }
         return correctedCharacter;
     });
