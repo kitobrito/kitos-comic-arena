@@ -24902,7 +24902,7 @@ const characters = [
         "characterId": "krabby",
         "name": "Krabby",
         "facePicture": "assets/images/PokemonArena/Krabby/krabbyfp.png",
-        "characterdeescription": "A rugged Water-type Pokemon that stacks permanent armor, softens enemies for physical follow-up, and grows into Kingler after enough time behind Harden.",
+        "characterdeescription": "A rugged Water-type Pokemon that stacks permanent armor, softens enemies for physical follow-up, and grows into Kingler after enough time behind Swim.",
         "startStatuses": [
             {
                 "statusId": "krabby_harden_turn_tracker",
@@ -24913,16 +24913,16 @@ const characters = [
                     "krabbyHardenTurns": 0,
                     "stackMetadataKey": "krabbyHardenTurns",
                     "stackMax": 3,
-                    "statusIconUrl": "assets/images/PokemonArena/Krabby/evolutionkingler.png",
-                    "tooltipTextTemplate": "Krabby has spent {krabbyHardenTurns}/3 turns with Harden defense and will evolve into Kingler at 3."
+                    "statusIconUrl": "assets/images/PokemonArena/Krabby/kinglerevolution.jpg",
+                    "tooltipTextTemplate": "Krabby has spent {krabbyHardenTurns}/3 turns with Swim defense and will evolve into Kingler at 3."
                 }
             }
         ],
         "skills": [
             {
                 "id": "krabby-metal-claw",
-                "name": "Metal Claw",
-                "skillimage": "assets/images/PokemonArena/Krabby/krabbymetalclaw.png",
+                "name": "Vice Grip",
+                "skillimage": "assets/images/PokemonArena/Krabby/krabbyskill1.jpg",
                 "skilldescription": "Deals 20 piercing damage to one enemy. This skill has a 30% chance to permanently increase the non-affliction damage of Krabby's skills by 5. This effect stacks.",
                 "energy": [
                     "Taijutsu"
@@ -24956,8 +24956,8 @@ const characters = [
                             "mergeNumericAddKeys": [
                                 "nonAfflictionDamageBonusFlat"
                             ],
-                            "statusIconUrl": "assets/images/PokemonArena/Krabby/krabbymetalclaw.png",
-                            "tooltipTextTemplate": "This character deals {nonAfflictionDamageBonusFlat} additional non-affliction damage from Metal Claw."
+                            "statusIconUrl": "assets/images/PokemonArena/Krabby/krabbyskill1.jpg",
+                            "tooltipTextTemplate": "This character deals {nonAfflictionDamageBonusFlat} additional non-affliction damage from Vice Grip."
                         }
                     }
                 ]
@@ -25011,8 +25011,8 @@ const characters = [
             },
             {
                 "id": "krabby-crabhammer",
-                "name": "Crabhammer",
-                "skillimage": "assets/images/PokemonArena/Krabby/krabbycrabhammer.jpg",
+                "name": "Stomp",
+                "skillimage": "assets/images/PokemonArena/Krabby/krabbyskill3.jpg",
                 "skilldescription": "Deals 25 damage to one enemy and stuns their skills for 1 turn. This skill has a 30% chance to critically strike, dealing 15 additional damage.",
                 "energy": [
                     "Bloodline",
@@ -25040,7 +25040,7 @@ const characters = [
                         "metadata": {
                             "harmful": true,
                             "cannotUseSkills": true,
-                            "statusIconUrl": "assets/images/PokemonArena/Krabby/krabbycrabhammer.jpg",
+                            "statusIconUrl": "assets/images/PokemonArena/Krabby/krabbyskill3.jpg",
                             "tooltipText": "This character's skills are stunned."
                         }
                     },
@@ -25054,8 +25054,8 @@ const characters = [
             },
             {
                 "id": "krabby-harden",
-                "name": "Harden",
-                "skillimage": "assets/images/PokemonArena/Krabby/krabbyharden.png",
+                "name": "Swim",
+                "skillimage": "assets/images/PokemonArena/Krabby/krabbyskill4.jpg",
                 "skilldescription": "Krabby gains 20 permanent Shield and 25% damage reduction for 2 turns.",
                 "energy": [
                     "Random"
@@ -25111,12 +25111,12 @@ const characters = [
                                             "healOnApplyFlat": 10
                                         }
                                     },
-                                    "statusIconUrl": "assets/images/PokemonArena/Krabby/evolutionkingler.png",
-                                    "tooltipTextTemplate": "Krabby has spent {krabbyHardenTurns}/3 turns with Harden Shield and will evolve into Kingler at 3."
+                                    "statusIconUrl": "assets/images/PokemonArena/Krabby/kinglerevolution.jpg",
+                                    "tooltipTextTemplate": "Krabby has spent {krabbyHardenTurns}/3 turns with Swim Shield and will evolve into Kingler at 3."
                                 }
                             },
-                            "statusIconUrl": "assets/images/PokemonArena/Krabby/krabbyharden.png",
-                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} permanent Shield from Harden."
+                            "statusIconUrl": "assets/images/PokemonArena/Krabby/krabbyskill4.jpg",
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} permanent Shield from Swim."
                         }
                     },
                     {
@@ -25127,7 +25127,7 @@ const characters = [
                         "metadata": {
                             "damageReductionPercent": 25,
                             "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/Krabby/krabbyharden.png",
+                            "statusIconUrl": "assets/images/PokemonArena/Krabby/krabbyskill4.jpg",
                             "tooltipText": "This character has 25% damage reduction."
                         }
                     }
@@ -25136,8 +25136,8 @@ const characters = [
             {
                 "id": "krabby-passive-evolution-kingler",
                 "name": "Evolution - Kingler",
-                "skillimage": "assets/images/PokemonArena/Krabby/evolutionkingler.png",
-                "skilldescription": "After Krabby has spent 3 turns with Shield granted by Harden, it evolves into Kingler. Kingler's skills are improved.",
+                "skillimage": "assets/images/PokemonArena/Krabby/kinglerevolution.jpg",
+                "skilldescription": "After Krabby has spent 3 turns with Shield granted by Swim, it evolves into Kingler. Kingler's skills are improved.",
                 "energy": [],
                 "target": "",
                 "damage": 0,
@@ -25150,11 +25150,11 @@ const characters = [
             },
             {
                 "id": "kingler-metal-claw",
-                "name": "Metal Claw",
+                "name": "Vice Grip",
                 "actorCondition": {
                     "statusId": "krabby_kingler_evolution"
                 },
-                "skillimage": "assets/images/PokemonArena/Krabby/kinglermetalclaw.png",
+                "skillimage": "assets/images/PokemonArena/Krabby/kinglerskill1.jpg",
                 "skilldescription": "Deals 30 piercing damage to one enemy instead. This skill has a 30% chance to permanently increase the non-affliction damage of Kingler's skills by 10 instead. This effect stacks.",
                 "energy": [
                     "Taijutsu",
@@ -25189,8 +25189,8 @@ const characters = [
                             "mergeNumericAddKeys": [
                                 "nonAfflictionDamageBonusFlat"
                             ],
-                            "statusIconUrl": "assets/images/PokemonArena/Krabby/kinglermetalclaw.png",
-                            "tooltipTextTemplate": "This character deals {nonAfflictionDamageBonusFlat} additional non-affliction damage from Metal Claw."
+                            "statusIconUrl": "assets/images/PokemonArena/Krabby/kinglerskill1.jpg",
+                            "tooltipTextTemplate": "This character deals {nonAfflictionDamageBonusFlat} additional non-affliction damage from Vice Grip."
                         }
                     }
                 ]
@@ -25252,11 +25252,11 @@ const characters = [
             },
             {
                 "id": "kingler-crabhammer",
-                "name": "Crabhammer",
+                "name": "Hyper Beam",
                 "actorCondition": {
                     "statusId": "krabby_kingler_evolution"
                 },
-                "skillimage": "assets/images/PokemonArena/Krabby/kinglercrabhammer.jpg",
+                "skillimage": "assets/images/PokemonArena/Krabby/kinglerskill3.jpg",
                 "skilldescription": "Deals 40 damage to one enemy instead and stuns their skills for 1 turn. This skill still has a 30% chance to critically strike, dealing 15 additional damage.",
                 "energy": [
                     "Bloodline",
@@ -25284,7 +25284,7 @@ const characters = [
                         "metadata": {
                             "harmful": true,
                             "cannotUseSkills": true,
-                            "statusIconUrl": "assets/images/PokemonArena/Krabby/kinglercrabhammer.jpg",
+                            "statusIconUrl": "assets/images/PokemonArena/Krabby/kinglerskill3.jpg",
                             "tooltipText": "This character's skills are stunned."
                         }
                     },
@@ -25298,11 +25298,11 @@ const characters = [
             },
             {
                 "id": "kingler-harden",
-                "name": "Harden",
+                "name": "Swim",
                 "actorCondition": {
                     "statusId": "krabby_kingler_evolution"
                 },
-                "skillimage": "assets/images/PokemonArena/Krabby/kinglerharden.png",
+                "skillimage": "assets/images/PokemonArena/Krabby/kinglerskill4.jpg",
                 "skilldescription": "Kingler gains 30 permanent Shield and 50% damage reduction for 2 turns instead.",
                 "energy": [
                     "Random",
@@ -25328,8 +25328,8 @@ const characters = [
                             "mergeNumericAddKeys": [
                                 "destructibleDefensePoints"
                             ],
-                            "statusIconUrl": "assets/images/PokemonArena/Krabby/kinglerharden.png",
-                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} permanent Shield from Harden."
+                            "statusIconUrl": "assets/images/PokemonArena/Krabby/kinglerskill4.jpg",
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} permanent Shield from Swim."
                         }
                     },
                     {
@@ -25340,7 +25340,7 @@ const characters = [
                         "metadata": {
                             "damageReductionPercent": 50,
                             "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/Krabby/kinglerharden.png",
+                            "statusIconUrl": "assets/images/PokemonArena/Krabby/kinglerskill4.jpg",
                             "tooltipText": "This character has 50% damage reduction."
                         }
                     }
@@ -25351,8 +25351,8 @@ const characters = [
         "universe": "pokemon",
         "arena": "pokemon",
         "roleCategory": "bruiser",
-        "description": "A rugged Water-type Pokemon that stacks permanent armor, softens enemies for physical follow-up, and grows into Kingler after enough time behind Harden.",
-        "descriptionHtml": "A rugged Water-type Pokemon that stacks permanent armor, softens enemies for physical follow-up, and grows into Kingler after enough time behind Harden.",
+        "description": "A rugged Water-type Pokemon that stacks permanent armor, softens enemies for physical follow-up, and grows into Kingler after enough time behind Swim.",
+        "descriptionHtml": "A rugged Water-type Pokemon that stacks permanent armor, softens enemies for physical follow-up, and grows into Kingler after enough time behind Swim.",
         "pokemonTypes": [
             "Water"
         ]
@@ -26366,8 +26366,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/ekans/skill1.jpg",
                 "skilldescription": "Deals 10 physical damage and 15 affliction damage to one enemy. If the target is Badly Poisoned, they also take 3 permanent affliction damage. This effect stacks.",
                 "energy": [
-                    "Bloodline",
-                    "Random"
+                    "Bloodline"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -26484,9 +26483,8 @@ const characters = [
                 "id": "ekans-shed-skin",
                 "name": "Dig",
                 "skillimage": "assets/images/PokemonArena/ekans/skill3.jpg",
-                "skilldescription": "Removes all enemy affliction skills from Ekans and heals 15 HP each turn for 2 turns.",
+                "skilldescription": "Removes all enemy affliction skills from Ekans and heals 15 HP each turn for 2 turns. Ekans is invulnerable during the first of those turns.",
                 "energy": [
-                    "Random",
                     "Random"
                 ],
                 "target": "self",
@@ -26514,6 +26512,18 @@ const characters = [
                             "turnDurationAnchor": "source_turn",
                             "statusIconUrl": "assets/images/PokemonArena/ekans/skill3.jpg",
                             "tooltipTextTemplate": "Ekans heals {turnEndHealFlat} HP each turn from Dig."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "ekans_shed_skin_invulnerable",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "invulnerable": true,
+                            "turnDurationAnchor": "source_turn",
+                            "statusIconUrl": "assets/images/PokemonArena/ekans/skill3.jpg",
+                            "tooltipText": "Ekans is invulnerable from Dig."
                         }
                     }
                 ]
@@ -26606,8 +26616,7 @@ const characters = [
                 "skilldescription": "Deals 25 physical damage and 20 affliction damage to one enemy instead. If the target is Badly Poisoned, they also take 6 permanent affliction damage instead. This effect stacks.",
                 "energy": [
                     "Bloodline",
-                    "Random",
-                    "Random"
+                    "Bloodline"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -26761,7 +26770,7 @@ const characters = [
                     "statusId": "ekans_arbok_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/ekans/arbokskill3.jpg",
-                "skilldescription": "Removes all enemy affliction skills from Arbok and heals 25 HP each turn for 2 turns instead.",
+                "skilldescription": "Removes all enemy affliction skills from Arbok and heals 25 HP each turn for 2 turns instead. Arbok is invulnerable during the first of those turns.",
                 "energy": [
                     "Random",
                     "Random"
@@ -26791,6 +26800,18 @@ const characters = [
                             "turnDurationAnchor": "source_turn",
                             "statusIconUrl": "assets/images/PokemonArena/ekans/arbokskill3.jpg",
                             "tooltipTextTemplate": "Arbok heals {turnEndHealFlat} HP each turn from Dig."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "ekans_shed_skin_invulnerable",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "invulnerable": true,
+                            "turnDurationAnchor": "source_turn",
+                            "statusIconUrl": "assets/images/PokemonArena/ekans/arbokskill3.jpg",
+                            "tooltipText": "Arbok is invulnerable from Dig."
                         }
                     }
                 ]

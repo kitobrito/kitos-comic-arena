@@ -8553,6 +8553,13 @@ const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonical
         krabby: {
             'krabby-leer': ['skilldescription'],
             'kingler-leer': ['skilldescription'],
+            'krabby-metal-claw': ['name', 'skillimage', 'effects'],
+            'krabby-crabhammer': ['name', 'skillimage', 'effects'],
+            'krabby-harden': ['name', 'skillimage', 'effects'],
+            'krabby-passive-evolution-kingler': ['skillimage', 'skilldescription'],
+            'kingler-metal-claw': ['name', 'skillimage', 'effects'],
+            'kingler-crabhammer': ['name', 'skillimage', 'effects'],
+            'kingler-harden': ['name', 'skillimage', 'effects'],
         },
         jolteon: {
             'jolteon-pin-missile': ['skilldescription'],
@@ -8597,6 +8604,7 @@ const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonical
     // just for fields that live on the character record itself.
     const requiredCharacterFieldsByCharacterId = {
         ekans: ['description', 'descriptionHtml', 'characterdeescription', 'facePicture'],
+        krabby: ['description', 'descriptionHtml', 'characterdeescription', 'startStatuses'],
     };
     const canonicalById = new Map(
         (Array.isArray(canonicalCharacters) ? canonicalCharacters : []).map((character) => [
