@@ -103,7 +103,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         width: 100%;
         height: 100%;
         object-fit: cover;
-        object-position: top center;
         display: block;
     }
     .character-portrait-tooltip {
@@ -228,47 +227,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     }
     .character-modal-summary {
       display: grid;
-      grid-template-columns: 180px minmax(0, 1fr);
-      gap: 16px;
+      grid-template-columns: 92px minmax(0, 1fr);
+      gap: 12px;
       align-items: start;
     }
     .character-modal-image {
-      width: 180px;
-      height: 240px;
-      object-fit: contain;
-      object-position: top center;
+      width: 74px;
+      height: 74px;
       border: 1px solid #666;
       box-shadow: none;
-    }
-    /* portal-theme.css forces these small with !important; a two-class
-       selector + !important wins on specificity for the comic overview. */
-    .character-modal .character-modal-summary {
-      grid-template-columns: 180px minmax(0, 1fr) !important;
-      gap: 16px !important;
-    }
-    .character-modal .character-modal-image {
-      width: 180px !important;
-      height: 240px !important;
-      object-fit: contain !important;
-      object-position: top center !important;
-    }
-    @media (max-width: 620px) {
-      .character-modal .character-modal-summary {
-        grid-template-columns: 120px minmax(0, 1fr) !important;
-      }
-      .character-modal .character-modal-image {
-        width: 120px !important;
-        height: 170px !important;
-      }
-    }
-    @media (max-width: 560px) {
-      .character-modal .character-modal-summary {
-        grid-template-columns: 1fr !important;
-      }
-      .character-modal .character-modal-image {
-        width: 160px !important;
-        height: 220px !important;
-      }
     }
     .character-modal-description-label,
     .character-modal-meta-row,
@@ -716,78 +683,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         return role || "None";
       }
 
-      // Full-body renders for the character overview (grid card + detail modal).
-      // Falls back to facePicture for anyone not listed here.
-      var COMIC_CHARACTER_RENDERS = {
-        "andrea": "assets/images/BIB/comic/andrea.png",
-        "angstrom-levy": "assets/images/BIB/comic/angstrom-levy.png",
-        "aquaman": "assets/images/BIB/comic/aquaman.png",
-        "atom-eve": "assets/images/BIB/comic/atom-eve.png",
-        "atrocitus": "assets/images/BIB/comic/atrocitus.png",
-        "billy-butcher": "assets/images/BIB/comic/billy-butcher.webp",
-        "boba-fett": "assets/images/BIB/comic/boba-fett.png",
-        "captain-america": "assets/images/BIB/comic/captain-america.png",
-        "carnage": "assets/images/BIB/comic/carnage.png",
-        "darth-maul": "assets/images/BIB/comic/darth-maul.png",
-        "darth-sidious": "assets/images/BIB/comic/darth-sidious.png",
-        "darth-vader": "assets/images/BIB/comic/darth-vader.png",
-        "doctor-doom": "assets/images/BIB/comic/doctor-doom.png",
-        "doctor-fate": "assets/images/BIB/comic/doctor-fate.png",
-        "doctor-octopus": "assets/images/BIB/comic/doctor-octopus.png",
-        "doctor-strange": "assets/images/BIB/comic/doctor-strange.webp",
-        "general-grievous": "assets/images/BIB/comic/general-grievous.png",
-        "ghost-rider": "assets/images/BIB/comic/ghost-rider.webp",
-        "grand-master-yoda": "assets/images/BIB/comic/grand-master-yoda.png",
-        "green-lantern-hal-jordan": "assets/images/BIB/comic/green-lantern-hal-jordan.png",
-        "hershel-greene": "assets/images/BIB/comic/hershel-greene.png",
-        "homelander": "assets/images/BIB/comic/homelander.webp",
-        "indigo-1": "assets/images/BIB/comic/indigo-1.webp",
-        "invincible": "assets/images/BIB/comic/invincible.webp",
-        "iron-man": "assets/images/BIB/comic/iron-man.png",
-        "john-stewart": "assets/images/BIB/comic/john-stewart.png",
-        "mysterio": "assets/images/BIB/comic/mysterio.webp",
-        "negan": "assets/images/BIB/comic/negan.png",
-        "obi-wan-kenobi": "assets/images/BIB/comic/obi-wan-kenobi.png",
-        "omni-man": "assets/images/BIB/comic/omni-man.webp",
-        "parasite": "assets/images/BIB/comic/parasite.png",
-        "poison-ivy": "assets/images/BIB/comic/poison-ivy.png",
-        "predalien": "assets/images/BIB/comic/predalien.png",
-        "predator-stalker": "assets/images/BIB/comic/predator-stalker.png",
-        "rage-infected": "assets/images/BIB/comic/rage-infected.png",
-        "rex-splode": "assets/images/BIB/comic/rex-splode.webp",
-        "rick-grimes": "assets/images/BIB/comic/rick-grimes.gif",
-        "saint-walker": "assets/images/BIB/comic/saint-walker.png",
-        "sandman": "assets/images/BIB/comic/sandman.webp",
-        "scorpion": "assets/images/BIB/comic/scorpion.png",
-        "sinestro": "assets/images/BIB/comic/sinestro.png",
-        "sorrow": "assets/images/BIB/comic/sorrow.png",
-        "spider-man": "assets/images/BIB/comic/spider-man.png",
-        "storm": "assets/images/BIB/comic/storm.png",
-        "superman": "assets/images/BIB/comic/superman.png",
-        "the-flash-barry-allen": "assets/images/BIB/comic/the-flash-barry-allen.png",
-        "the-green-goblin": "assets/images/BIB/comic/the-green-goblin.png",
-        "the-hulk": "assets/images/BIB/comic/the-hulk.png",
-        "the-joker": "assets/images/BIB/comic/the-joker.png",
-        "venom": "assets/images/BIB/comic/venom.png",
-        "walker": "assets/images/BIB/comic/walker.png",
-        "wolverine": "assets/images/BIB/comic/wolverine.webp",
-        "wonder-woman": "assets/images/BIB/comic/wonder-woman.webp",
-        "xenomorph-drone": "assets/images/BIB/comic/xenomorph-drone.png"
-      };
-
-      function getCharacterOverviewImage(character) {
-        if (!character || typeof character !== "object") {
-          return "";
-        }
-        var id = typeof character.characterId === "string" && character.characterId
-          ? character.characterId
-          : (typeof character.id === "string" ? character.id : "");
-        if (id && COMIC_CHARACTER_RENDERS[id]) {
-          return COMIC_CHARACTER_RENDERS[id];
-        }
-        return character.facePicture ? String(character.facePicture) : "";
-      }
-
       function getCharacterMaxHealth(character) {
         var numericHealth = Number(character && (character.maxHealth || character.health || character.hp));
         return Number.isFinite(numericHealth) && numericHealth > 0 ? numericHealth : 100;
@@ -873,7 +768,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         var image = document.createElement("img");
         image.className = "character-modal-image";
-        image.src = getCharacterOverviewImage(character);
+        image.src = character.facePicture ? String(character.facePicture) : "";
         image.alt = character.name ? String(character.name) : "Character portrait";
 
         var info = document.createElement("div");
@@ -1004,7 +899,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         var image = document.createElement("img");
         image.className = "character-portrait-img";
-        image.src = getCharacterOverviewImage(character);
+        image.src = character && character.facePicture ? String(character.facePicture) : "";
         image.alt = character && character.name ? String(character.name) : "Character portrait";
 
         var tooltip = document.createElement("div");

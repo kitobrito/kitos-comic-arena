@@ -1673,6 +1673,66 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         zapdos: 'ZAPDOS.png.webp',
         zubat: 'ZUBAT.png.webp',
     });
+    // Comic Arena featured renders for the selection screen's Character
+    // Overview panel. Values are full repo-relative paths (getSelectionRenderSource
+    // passes anything containing a "/" through verbatim). No render yet for
+    // batman or the three space-marine characters -- they fall back to facePicture.
+    const COMIC_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
+        'andrea': 'assets/images/BIB/comic/andrea.png',
+        'angstrom-levy': 'assets/images/BIB/comic/angstrom-levy.png',
+        'aquaman': 'assets/images/BIB/comic/aquaman.png',
+        'atom-eve': 'assets/images/BIB/comic/atom-eve.png',
+        'atrocitus': 'assets/images/BIB/comic/atrocitus.png',
+        'billy-butcher': 'assets/images/BIB/comic/billy-butcher.webp',
+        'boba-fett': 'assets/images/BIB/comic/boba-fett.png',
+        'captain-america': 'assets/images/BIB/comic/captain-america.png',
+        'carnage': 'assets/images/BIB/comic/carnage.png',
+        'darth-maul': 'assets/images/BIB/comic/darth-maul.png',
+        'darth-sidious': 'assets/images/BIB/comic/darth-sidious.png',
+        'darth-vader': 'assets/images/BIB/comic/darth-vader.png',
+        'doctor-doom': 'assets/images/BIB/comic/doctor-doom.png',
+        'doctor-fate': 'assets/images/BIB/comic/doctor-fate.png',
+        'doctor-octopus': 'assets/images/BIB/comic/doctor-octopus.png',
+        'doctor-strange': 'assets/images/BIB/comic/doctor-strange.webp',
+        'general-grievous': 'assets/images/BIB/comic/general-grievous.png',
+        'ghost-rider': 'assets/images/BIB/comic/ghost-rider.webp',
+        'grand-master-yoda': 'assets/images/BIB/comic/grand-master-yoda.png',
+        'green-lantern-hal-jordan': 'assets/images/BIB/comic/green-lantern-hal-jordan.png',
+        'hershel-greene': 'assets/images/BIB/comic/hershel-greene.png',
+        'homelander': 'assets/images/BIB/comic/homelander.webp',
+        'indigo-1': 'assets/images/BIB/comic/indigo-1.webp',
+        'invincible': 'assets/images/BIB/comic/invincible.webp',
+        'iron-man': 'assets/images/BIB/comic/iron-man.png',
+        'john-stewart': 'assets/images/BIB/comic/john-stewart.png',
+        'mysterio': 'assets/images/BIB/comic/mysterio.webp',
+        'negan': 'assets/images/BIB/comic/negan.png',
+        'obi-wan-kenobi': 'assets/images/BIB/comic/obi-wan-kenobi.png',
+        'omni-man': 'assets/images/BIB/comic/omni-man.webp',
+        'parasite': 'assets/images/BIB/comic/parasite.png',
+        'poison-ivy': 'assets/images/BIB/comic/poison-ivy.png',
+        'predalien': 'assets/images/BIB/comic/predalien.png',
+        'predator-stalker': 'assets/images/BIB/comic/predator-stalker.png',
+        'rage-infected': 'assets/images/BIB/comic/rage-infected.png',
+        'rex-splode': 'assets/images/BIB/comic/rex-splode.webp',
+        'rick-grimes': 'assets/images/BIB/comic/rick-grimes.gif',
+        'saint-walker': 'assets/images/BIB/comic/saint-walker.png',
+        'sandman': 'assets/images/BIB/comic/sandman.webp',
+        'scorpion': 'assets/images/BIB/comic/scorpion.png',
+        'sinestro': 'assets/images/BIB/comic/sinestro.png',
+        'sorrow': 'assets/images/BIB/comic/sorrow.png',
+        'spider-man': 'assets/images/BIB/comic/spider-man.png',
+        'storm': 'assets/images/BIB/comic/storm.png',
+        'superman': 'assets/images/BIB/comic/superman.png',
+        'the-flash-barry-allen': 'assets/images/BIB/comic/the-flash-barry-allen.png',
+        'the-green-goblin': 'assets/images/BIB/comic/the-green-goblin.png',
+        'the-hulk': 'assets/images/BIB/comic/the-hulk.png',
+        'the-joker': 'assets/images/BIB/comic/the-joker.png',
+        'venom': 'assets/images/BIB/comic/venom.png',
+        'walker': 'assets/images/BIB/comic/walker.png',
+        'wolverine': 'assets/images/BIB/comic/wolverine.webp',
+        'wonder-woman': 'assets/images/BIB/comic/wonder-woman.webp',
+        'xenomorph-drone': 'assets/images/BIB/comic/xenomorph-drone.png',
+    });
     const POKEMON_SELECTION_EVOLUTION_RENDER_BY_ID = Object.freeze({
         aegislash: { name: 'Blade Stance', filename: 'aegislashnopassive.webp', label: 'Blade Stance' },
         abra: { name: 'Kadabra', filename: 'kadabra.png.webp' },
@@ -1851,10 +1911,14 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             { id: 'base', label: 'Crobat', name: 'Crobat', filename: 'crobatrendernewui.png' },
         ],
     });
-    const getSelectionRenderSource = (filename = '') =>
-        filename
-            ? `${encodeURI(`/assets/images/selection-featured/PokemonArena/BIB/${filename}`)}?v=kanto-skins-renders-v1`
-            : '';
+    const getSelectionRenderSource = (filename = '') => {
+        if (!filename) return '';
+        // Comic featured renders are stored as full repo-relative paths.
+        if (filename.indexOf('/') !== -1) {
+            return `${encodeURI(filename)}?v=comic-selection-renders-v1`;
+        }
+        return `${encodeURI(`/assets/images/selection-featured/PokemonArena/BIB/${filename}`)}?v=kanto-skins-renders-v1`;
+    };
     const getSelectionCharacterId = (character) =>
         String(character?.characterId || character?.id || '').trim().toLowerCase();
     const getSelectionEquippedSkinId = (character) => {
@@ -1867,12 +1931,18 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
     };
     const getSelectionCharacterRenderForms = (character) => {
         if (!document.documentElement.classList.contains('selection-experimental')) return [];
+        const characterId = getSelectionCharacterId(character);
+        if (activeArenaMode !== 'pokemon') {
+            const comicFilename = COMIC_SELECTION_FEATURED_RENDER_BY_ID[characterId];
+            return comicFilename
+                ? [{ id: 'base', label: 'Base', name: character?.name, filename: comicFilename }]
+                : [];
+        }
         const equippedSkinId = getSelectionEquippedSkinId(character);
         const skinForms = POKEMON_SELECTION_SKIN_RENDER_FORMS_BY_ID[equippedSkinId];
         if (Array.isArray(skinForms) && skinForms.length) {
             return skinForms;
         }
-        const characterId = getSelectionCharacterId(character);
         const baseFilename = POKEMON_SELECTION_FEATURED_RENDER_BY_ID[characterId];
         const evolution = POKEMON_SELECTION_EVOLUTION_RENDER_BY_ID[characterId];
         const battleForms = Array.isArray(POKEMON_SELECTION_BATTLE_FORM_RENDERS_BY_ID[characterId])
