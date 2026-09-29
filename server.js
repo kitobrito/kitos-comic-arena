@@ -10086,11 +10086,25 @@ const PUBLIC_ROOT_JAVASCRIPT_FILES = new Set([
     '/pokemonDittoTransformationFaces.js',
     '/pokemon-wave-2-live.js',
 ]);
+// scripts/ mixes browser-loaded bundles with server-only ops tooling
+// (Mongo migration/backfill scripts, image mirroring tools, etc.). Only the
+// bundles the client actually <script src>'s may be served from it.
+const PUBLIC_SCRIPTS_FILES = new Set([
+    '/scripts/index.js',
+    '/scripts/events.js',
+    '/scripts/register.js',
+    '/scripts/community.js',
+    '/scripts/arena-navigation.js',
+    '/scripts/script.js',
+]);
 const isPrivateStaticSourcePath = (requestPath = '') => {
     const normalizedPath = String(requestPath || '')
         .replace(/\\/g, '/')
         .replace(/\/+/g, '/');
     const lowerPath = normalizedPath.toLowerCase();
+    if (lowerPath.startsWith('/scripts/')) {
+        return !PUBLIC_SCRIPTS_FILES.has(normalizedPath);
+    }
     if (
         lowerPath === '/package.json' ||
         lowerPath === '/package-lock.json' ||
@@ -10101,6 +10115,9 @@ const isPrivateStaticSourcePath = (requestPath = '') => {
         lowerPath === '/debug.log' ||
         lowerPath.startsWith('/test/') ||
         lowerPath.startsWith('/test-results/') ||
+        lowerPath.startsWith('/tools/') ||
+        lowerPath.startsWith('/node_modules/') ||
+        lowerPath.startsWith('/mongodb/') ||
         lowerPath.startsWith('/.git/') ||
         lowerPath.startsWith('/.codex/')
     ) {

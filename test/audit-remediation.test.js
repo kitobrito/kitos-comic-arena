@@ -39,6 +39,12 @@ test('private backend and deployment sources cannot be served by the root static
         '/sync_pokemon_ditto_release.js',
         '/test/match-stability.test.js',
         '/.env.new.save',
+        '/scripts/copy-mongo-data.js',
+        '/scripts/verify-hosted-mongo.js',
+        '/scripts/pokemon-override-tool.js',
+        '/scripts/lib/runtime-toolkit.js',
+        '/tools/close_port_40001.bat',
+        '/node_modules/express/package.json',
     ].forEach((requestPath) => {
         assert.equal(isPrivateStaticSourcePath(requestPath), true, requestPath);
     });
