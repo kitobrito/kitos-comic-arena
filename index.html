@@ -2545,6 +2545,42 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-K64P68MT"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
+  <a class="sr-promo" href="https://fadeawaytoday.itch.io/shattered-realms-tcg" target="_blank" rel="noopener noreferrer" aria-label="Play Shattered Realms, our new card game, free on itch.io">
+    <span class="sr-promo-bg" aria-hidden="true"></span>
+    <span class="sr-promo-new">NEW GAME</span>
+    <img class="sr-promo-logo" src="assets/images/shatteredrealmslogo.png" alt="Shattered Realms">
+    <span class="sr-promo-copy">
+      <b>Our new card game is out!</b>
+      <span>16 realms, fused heroes, a growing pile of expansions. Free to play in your browser and on Android.</span>
+    </span>
+    <span class="sr-promo-cta">Play free now ▸</span>
+  </a>
+  <style>
+    .sr-promo { position: relative; display: flex; align-items: center; justify-content: center; gap: clamp(10px, 2.5vw, 34px); flex-wrap: wrap;
+      padding: clamp(14px, 2.4vw, 26px) clamp(14px, 3vw, 40px); overflow: hidden; text-decoration: none; color: #fff;
+      border-bottom: 4px solid #e7b552; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45); background: #120a24; }
+    .sr-promo-bg { position: absolute; inset: 0; background: url("assets/images/shattered-banner-bg.jpg") center / cover;
+      filter: brightness(0.55) saturate(1.2); transition: transform 6s ease; }
+    .sr-promo::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+      background: linear-gradient(110deg, transparent 30%, rgba(255, 240, 190, 0.18) 48%, transparent 66%) -150% 0 / 250% 100% no-repeat;
+      animation: sr-promo-shine 5s ease-in-out infinite; }
+    @keyframes sr-promo-shine { 0%, 60% { background-position: -150% 0; } 100% { background-position: 250% 0; } }
+    .sr-promo:hover .sr-promo-bg { transform: scale(1.06); }
+    .sr-promo > *:not(.sr-promo-bg) { position: relative; z-index: 1; }
+    .sr-promo-new { font-family: "Bangers", sans-serif; letter-spacing: 0.08em; font-size: clamp(14px, 1.6vw, 20px); color: #2a1a00;
+      background: #ffd25a; padding: 4px 12px; border-radius: 999px; transform: rotate(-4deg); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5); }
+    .sr-promo-logo { height: clamp(54px, 9vw, 110px); width: auto; filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.7)); }
+    .sr-promo-copy { display: flex; flex-direction: column; max-width: 460px; text-shadow: 0 2px 6px #000; }
+    .sr-promo-copy b { font-family: "Bangers", sans-serif; font-size: clamp(20px, 2.6vw, 34px); letter-spacing: 0.04em; font-weight: 400; color: #ffe8a8; }
+    .sr-promo-copy span { font-family: "Barlow Condensed", sans-serif; font-size: clamp(14px, 1.5vw, 18px); font-weight: 600; }
+    .sr-promo-cta { font-family: "Bangers", sans-serif; font-size: clamp(20px, 2.4vw, 30px); letter-spacing: 0.06em; color: #2a1404;
+      padding: 10px 26px; border-radius: 14px; background: linear-gradient(180deg, #fbe7ae, #e4b964 40%, #b9822f); border: 3px solid #1a0c04;
+      box-shadow: 0 4px 0 #4a2a0c, 0 8px 18px rgba(0, 0, 0, 0.6); animation: sr-promo-pulse 1.8s ease-in-out infinite; white-space: nowrap; }
+    .sr-promo:hover .sr-promo-cta { filter: brightness(1.1); transform: translateY(-2px); }
+    @keyframes sr-promo-pulse { 50% { box-shadow: 0 4px 0 #4a2a0c, 0 0 26px #ffd25a, 0 8px 18px rgba(0, 0, 0, 0.6); } }
+    @media (max-width: 640px) { .sr-promo-copy span { display: none; } .sr-promo-copy { text-align: center; } }
+    @media (prefers-reduced-motion: reduce) { .sr-promo::after, .sr-promo-cta { animation: none; } }
+  </style>
   <div class="app">
     <aside class="sidebar panel">
         <div class="brand" data-home-arena="comic">
