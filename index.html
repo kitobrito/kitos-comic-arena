@@ -312,6 +312,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       background: linear-gradient(180deg, #f8f1a4 0%, #58a9ff 100%);
     }
 
+    .play-now.shattered {
+      background: linear-gradient(180deg, #e6cfff 0%, #8a4fd6 100%);
+    }
+
     .play-now:hover {
       transform: translateY(2px) rotate(-1deg);
       box-shadow: 0 4px 0 rgba(0, 0, 0, 0.95);
@@ -2537,7 +2541,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       }
     }
   </style>
-  <link rel="stylesheet" href="styles/portal-theme.css?v=na-portal-v3" />
+  <link rel="stylesheet" href="styles/portal-theme.css?v=na-portal-v3&shattered-play-v1" />
   <link rel="stylesheet" href="styles/gen2-starter-choice.css?v=gen2-starter-choice-v1" />
 </head>
 <body class="home-classic-page">
@@ -2615,6 +2619,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <button class="nav-link play-now pokemon" type="button" data-play-arena="pokemon" data-home-arena="pokemon" aria-label="Play Pokemon-Arena">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5 18 12 8 18.5z" /></svg>
             <span>Play Pokemon-Arena</span>
+          </button>
+          <button class="nav-link play-now shattered" type="button" data-play-arena="shattered" aria-label="Play Shattered Realms">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5 18 12 8 18.5z" /></svg>
+            <span>Play Shattered Realms</span>
           </button>
           <a class="nav-link" href="community.html">
             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="2.5" /><circle cx="16.5" cy="9.5" r="2" /><path d="M4.5 18c.8-2.7 3-4 5.5-4s4.7 1.3 5.5 4" /><path d="M14 17c.5-1.7 1.8-2.8 3.8-2.8 1.5 0 2.9.8 3.7 2.3" /></svg>
@@ -3250,7 +3258,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </div>
     </section>
   </div>
-  <script src="./scripts/index.js?v=gen2-starter-choice-v1&pokemon-arena-link-v1&pokemon-home-link-v2&news-skill-image-fix-v1&home-switch-link-v1&news-name-link-v1&news-changes-id-lookup-v1" defer></script>
+  <script src="./scripts/index.js?v=gen2-starter-choice-v1&shattered-play-v1&pokemon-arena-link-v1&pokemon-home-link-v2&news-skill-image-fix-v1&home-switch-link-v1&news-name-link-v1&news-changes-id-lookup-v1" defer></script>
   <script src="./scripts/arena-navigation.js?v=pokemon-sidebar-v4&pokemon-logo-v1&pokemon-home-link-v1&pokemon-page-bg-v1&pokemon-page-switch-fix-v1&comic-root-default-v1" defer></script>
 </body>
 </html>

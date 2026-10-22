@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-K64P68MT');</script>
+<!-- End Google Tag Manager -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shattered Realms | Comic-Arena</title>
+  <meta name="description" content="Play Shattered Realms, a free fantasy card game, right here on Comic-Arena.">
+  <meta property="og:title" content="Shattered Realms">
+  <meta property="og:description" content="Play Shattered Realms, a free fantasy card game, right here on Comic-Arena.">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* Shattered Realms inside Comic-Arena: the game (served by its own server on Render, always
+       the latest build) fills the window under a slim bar for switching back to the other arenas. */
+    html, body { margin: 0; height: 100%; background: #07040a; overflow: hidden; }
+    body { display: flex; flex-direction: column; font: 700 12px 'Libre Franklin', Arial, sans-serif; }
+    .sr-bar { flex: 0 0 auto; display: flex; align-items: center; gap: 6px; height: 34px; padding: 0 8px;
+      background: linear-gradient(180deg, #1c1024 0%, #0b0610 100%); border-bottom: 1px solid #4a2a5e; box-shadow: 0 2px 8px #000a; }
+    .sr-bar img { height: 26px; width: auto; margin-right: auto; filter: drop-shadow(0 0 6px #b06bff66); }
+    .sr-bar a { display: inline-flex; align-items: center; min-height: 24px; padding: 2px 10px; border: 2px solid #1b120b;
+      background: #f1d79b; color: #1b120b; box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.72); text-decoration: none; text-transform: uppercase; font-size: 10px; }
+    .sr-bar a[hidden] { display: none; }
+    .sr-bar a:hover { background: #ffe9b4; }
+    .sr-bar a.sr-current { background: #111; color: #d9b8ff; border-color: #8a5ab8; pointer-events: none; }
+    .sr-stage { position: relative; flex: 1 1 auto; min-height: 0; }
+    .sr-stage iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #07040a; }
+    .sr-loading { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 14px; color: #d9c6ee;
+      background: radial-gradient(circle at 50% 45%, #2a1440 0%, #07040a 70%); transition: opacity 0.4s; z-index: 1; }
+    .sr-loading img { width: min(320px, 60vw); filter: drop-shadow(0 0 18px #b06bff88); animation: sr-pulse 1.6s ease-in-out infinite alternate; }
+    .sr-loading.done { opacity: 0; pointer-events: none; }
+    @keyframes sr-pulse { from { transform: scale(0.97); opacity: 0.85; } to { transform: scale(1.02); opacity: 1; } }
+    @media (max-width: 420px) { .sr-bar a { padding: 2px 6px; font-size: 9px; } .sr-bar img { height: 20px; } }
+  </style>
+</head>
+<body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-K64P68MT"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+  <nav class="sr-bar" aria-label="Switch game">
+    <img src="assets/images/shatteredrealmslogo.png" alt="Shattered Realms">
+    <a href="selection.html?arena=comic" data-sr-switch>Comic Arena</a>
+    <a href="pokemon-arena" data-sr-switch>Pokemon Arena</a>
+    <a class="sr-current" aria-current="page">Shattered Realms</a>
+    <a href="index.html" class="sr-home" hidden>Home</a>
+  </nav>
+  <main class="sr-stage">
+    <div class="sr-loading" aria-live="polite">
+      <img src="assets/images/shatteredrealmslogo.png" alt="">
+      <span>Opening the realms...</span>
+    </div>
+    <iframe src="https://shattered-realms.onrender.com/" title="Shattered Realms" allow="autoplay; fullscreen; clipboard-write" allowfullscreen></iframe>
+  </main>
+  <script>
+    (function () {
+      var frame = document.querySelector('.sr-stage iframe');
+      var loading = document.querySelector('.sr-loading');
+      frame.addEventListener('load', function () { loading.classList.add('done'); });
+
+      // The Play buttons open the arenas in a small pop-up window (760x580, see scripts/index.js).
+      // A card game wants more room: grow the pop-up while Shattered Realms is open, and shrink it
+      // back when switching to Comic or Pokemon Arena. Outside a pop-up there's a Home link instead.
+      var popup = !!window.opener;
+      if (!popup) document.querySelector('.sr-home').hidden = false;
+      var resizeInner = function (w, h) {
+        try {
+          var cw = Math.max(0, window.outerWidth - window.innerWidth);
+          var ch = Math.max(0, window.outerHeight - window.innerHeight);
+          var ow = Math.min(w + cw, screen.availWidth);
+          var oh = Math.min(h + ch, screen.availHeight);
+          window.resizeTo(ow, oh);
+          window.moveTo(Math.max(0, Math.round((screen.availWidth - ow) / 2)), Math.max(0, Math.round((screen.availHeight - oh) / 2)));
+        } catch (error) {}
+      };
+      if (popup && window.innerWidth < 1100) resizeInner(1200, 760);
+      document.querySelectorAll('[data-sr-switch]').forEach(function (link) {
+        link.addEventListener('click', function () { if (popup) resizeInner(760, 580); });
+      });
+    })();
+  </script>
+</body>
+</html>

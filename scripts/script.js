@@ -16786,7 +16786,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
 
     const syncArenaModeButtons = () => {
         arenaModeButtons.forEach((button) => {
-            const mode = button.dataset.arenaMode === 'pokemon' ? 'pokemon' : 'comic';
+            const mode = button.dataset.arenaMode;
             const active = mode === activeArenaMode;
             button.classList.toggle('active', active);
             button.setAttribute('aria-pressed', active ? 'true' : 'false');
@@ -21254,6 +21254,11 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
 
     arenaModeButtons.forEach((button) => {
         button.addEventListener('click', () => {
+            // Shattered Realms is a different game: switch this window over to it.
+            if (button.dataset.arenaMode === 'shattered') {
+                window.location.href = 'shattered-realms.html';
+                return;
+            }
             setArenaMode(button.dataset.arenaMode);
         });
     });
