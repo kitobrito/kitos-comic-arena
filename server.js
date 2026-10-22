@@ -2142,6 +2142,7 @@ let turnSweepTimer = null;
 let turnSweepInFlight = false;
 let turnSweepStartedAtMs = 0;
 let abandonedMatchCleanupTimer = null;
+let finishedMatchCompactionTimer = null;
 let abandonedMatchCleanupInFlight = false;
 let abandonedMatchCleanupStartedAtMs = 0;
 const activeBattleBotTurns = new Set();
@@ -11095,6 +11096,60 @@ const runAbandonedMatchCleanup = async (now = new Date()) => {
     } finally {
         abandonedMatchCleanupInFlight = false;
         abandonedMatchCleanupStartedAtMs = 0;
+    }
+};
+
+// Finished matches are only read back for win-rate / pick statistics, which need just
+// the usernames, picks and winner. Strip the bulky battle state (board, turn queues,
+// economy, ...) once a match is a few days old so the database stays small enough for
+// a free tier, without losing any statistics.
+const FINISHED_MATCH_COMPACT_AFTER_MS = 3 * 24 * 60 * 60 * 1000;
+const FINISHED_MATCH_COMPACT_INTERVAL_MS = 6 * 60 * 60 * 1000;
+const FINISHED_MATCH_COMPACT_FIELDS = [
+    'board',
+    'pendingTurns',
+    'economy',
+    'chakraPools',
+    'lastTurnDamageByUsername',
+    'turnOrder',
+    'trainerRedDamageByCharacterId',
+];
+let finishedMatchCompactionInFlight = false;
+
+const compactFinishedMatches = async (now = new Date()) => {
+    if (!matchesCollection || typeof matchesCollection.updateMany !== 'function') return null;
+    if (finishedMatchCompactionInFlight) return null;
+    finishedMatchCompactionInFlight = true;
+    try {
+        const cutoff = new Date(now.getTime() - FINISHED_MATCH_COMPACT_AFTER_MS);
+        const result = await matchesCollection.updateMany(
+            { status: 'ended', endedAt: { $lt: cutoff }, compactedAt: { $exists: false } },
+            [
+                {
+                    $set: {
+                        compactedAt: now,
+                        players: {
+                            $map: {
+                                input: { $ifNull: ['$players', []] },
+                                as: 'player',
+                                in: {
+                                    username: '$$player.username',
+                                    isBot: '$$player.isBot',
+                                    team: '$$player.team',
+                                },
+                            },
+                        },
+                    },
+                },
+                { $unset: FINISHED_MATCH_COMPACT_FIELDS },
+            ]
+        );
+        if (result?.modifiedCount) {
+            console.log(`Compacted ${result.modifiedCount} finished match(es) older than 3 days.`);
+        }
+        return result;
+    } finally {
+        finishedMatchCompactionInFlight = false;
     }
 };
 
@@ -20218,6 +20273,14 @@ const startServer = async () => {
             });
         }, ABANDONED_MATCH_CLEANUP_INTERVAL_MS);
     }
+    if (!finishedMatchCompactionTimer) {
+        const runCompaction = () =>
+            compactFinishedMatches(new Date()).catch((error) => {
+                console.error('Failed to compact finished matches:', error);
+            });
+        setTimeout(runCompaction, 60 * 1000).unref?.();
+        finishedMatchCompactionTimer = setInterval(runCompaction, FINISHED_MATCH_COMPACT_INTERVAL_MS);
+    }
 
     let shutdownStarted = false;
     const shutdownServer = async (signal, exitCode = 0) => {
@@ -20231,6 +20294,10 @@ const startServer = async () => {
         if (abandonedMatchCleanupTimer) {
             clearInterval(abandonedMatchCleanupTimer);
             abandonedMatchCleanupTimer = null;
+        }
+        if (finishedMatchCompactionTimer) {
+            clearInterval(finishedMatchCompactionTimer);
+            finishedMatchCompactionTimer = null;
         }
         wsConnections.forEach((ws) => {
             try {
@@ -20297,6 +20364,8 @@ const resetMatchmakingStateForTests = () => {
 
 const getUserMatchForTests = (username) => userToMatch.get(username) || null;
 
+const compactFinishedMatchesForTests = (now) => compactFinishedMatches(now);
+
 const setPersistenceCollectionsForTests = ({ matches = null, users = null } = {}) => {
     matchesCollection = matches;
     usersCollection = users;
@@ -20310,6 +20379,7 @@ if (require.main === module) {
 } else {
     module.exports = {
         app,
+        compactFinishedMatchesForTests,
         normalizeArenaMode,
         correctCanonicalNewsChangeText,
         applyRequiredCanonicalSkillCorrections,
