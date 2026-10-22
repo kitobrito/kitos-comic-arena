@@ -5555,11 +5555,15 @@
   if (playArenaButtons && playArenaButtons.length) {
     playArenaButtons.forEach(function (button) {
       button.addEventListener("click", function () {
-        var arena = button.getAttribute("data-play-arena") === "pokemon" ? "pokemon" : "comic";
+        var requested = button.getAttribute("data-play-arena");
+        var arena = requested === "pokemon" || requested === "shattered" ? requested : "comic";
         // /pokemon-arena is the friendly, indexable URL for Pokemon Arena's
         // selection page (see server.js's POKEMON_ARENA_SELECTION_HTML) --
         // land there instead of the query-param form when already logged in.
-        var destination = accountPanel.hidden
+        // Shattered Realms has its own accounts, so it needs no Comic-Arena login.
+        var destination = arena === "shattered"
+          ? "shattered-realms.html"
+          : accountPanel.hidden
           ? "selection-login.html?arena=" + encodeURIComponent(arena)
           : arena === "pokemon"
           ? "pokemon-arena"

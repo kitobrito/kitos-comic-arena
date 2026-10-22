@@ -179,6 +179,10 @@ input[type="submit"] {
   background: linear-gradient(180deg, #ffcf63 0%, #2f7dd2 100%) !important;
 }
 
+.play-now.shattered {
+  background: linear-gradient(180deg, #b77cff 0%, #5a2a9a 100%) !important;
+}
+
 .nav-link:hover,
 .account-action:hover,
 .play-now:hover,

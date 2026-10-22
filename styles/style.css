@@ -17547,3 +17547,8 @@ body.ui-disable-skill-cast-animations .pokemon-trainer-capture-ball {
         animation-duration: 1ms !important;
     }
 }
+
+/* Shattered Realms: switches this window over to the card game (shattered-realms.html). */
+.arena-mode-button.shattered {
+    background: linear-gradient(180deg, #e6cfff 0%, #b98af0 100%);
+}

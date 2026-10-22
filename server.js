@@ -10018,7 +10018,7 @@ app.use(
                     'https://region1.google-analytics.com',
                 ],
                 objectSrc: ["'none'"],
-                frameSrc: ["'self'", 'https://www.googletagmanager.com'],
+                frameSrc: ["'self'", 'https://www.googletagmanager.com', 'https://shattered-realms.onrender.com'],
                 frameAncestors: ["'self'"],
                 baseUri: ["'self'"],
                 formAction: ["'self'"],
