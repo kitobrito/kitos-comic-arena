@@ -1594,3 +1594,68 @@ html.selection-mockup .as-skill-backdrop .skillpage::after,
 html.selection-mockup .as-skill-backdrop .skill-images::before {
     display: none !important;
 }
+
+/* portrait: roster pager -- one row of 5, arrows flip to the next 5,
+   "Show all" opens the whole grid */
+html.selection-mockup .as-rpage,
+html.selection-mockup .as-rpage-bar {
+    display: none;
+}
+html.selection-mockup.as-portrait .as-shell.as-roster-paged .as-roster:not(.is-expanded) .as-roster-scroll {
+    height: var(--as-roster-row-h, 72px);
+    max-height: none;
+    margin: 2px 40px 0;
+    overflow: hidden;
+}
+html.selection-mockup.as-portrait .as-shell.as-roster-paged .as-roster:not(.is-expanded) .as-rpage {
+    display: grid;
+    top: 52px;
+    bottom: auto;
+    width: 32px;
+    height: var(--as-roster-row-h, 72px);
+    transform: none;
+}
+html.selection-mockup.as-portrait .as-shell.as-roster-paged .as-rpage:active {
+    transform: scale(0.94);
+}
+html.selection-mockup.as-portrait .as-rpage-prev { left: 0; }
+html.selection-mockup.as-portrait .as-rpage-next { right: 0; }
+html.selection-mockup.as-portrait .as-shell.as-roster-paged .as-rpage-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin: 8px 0 0;
+}
+html.selection-mockup.as-portrait .as-roster.is-expanded .as-rpage-count {
+    display: none;
+}
+html.selection-mockup .as-rpage-count {
+    font: 700 15px/1 'Arena Condensed', 'Roboto Condensed', sans-serif;
+    letter-spacing: 0.6px;
+    color: var(--as-dim);
+}
+html.selection-mockup .as-roster-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 34px;
+    padding: 0 16px;
+    border-radius: 17px;
+    border: 1.5px solid rgba(255, 80, 98, 0.8);
+    background: linear-gradient(180deg, #24222c, #0f0e14);
+    box-shadow: 0 0 10px rgba(227, 25, 45, 0.45);
+    color: #fff;
+    font: 700 14px/1 'Arena Condensed', 'Roboto Condensed', sans-serif;
+    letter-spacing: 0.4px;
+    cursor: pointer;
+}
+html.selection-mockup .as-roster-toggle svg {
+    width: 16px;
+    height: 16px;
+    transform: rotate(90deg);
+    transition: transform 0.2s;
+}
+html.selection-mockup .as-roster.is-expanded .as-roster-toggle svg {
+    transform: rotate(-90deg);
+}

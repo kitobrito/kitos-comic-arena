@@ -78,6 +78,10 @@
         '  <section class="as-panel as-roster">',
         '    <h2 class="as-heading"><span><span class="as-only-pokemon">YOUR POK&Eacute;MON</span><span class="as-only-comic">YOUR CHARACTERS</span></span></h2>',
         '    <div class="as-roster-scroll"></div>',
+        '    <button type="button" class="as-arrow as-rpage as-rpage-prev" aria-label="Previous 5">' + ICONS.chevL + '</button>',
+        '    <button type="button" class="as-arrow as-rpage as-rpage-next" aria-label="Next 5">' + ICONS.chevR + '</button>',
+        '    <div class="as-rpage-bar"><span class="as-rpage-count" aria-live="polite"></span>',
+        '      <button type="button" class="as-roster-toggle" aria-expanded="false"><span>SHOW ALL</span>' + ICONS.chevR + '</button></div>',
         '  </section>',
         '  <section class="as-panel as-team">',
         '    <h2 class="as-heading"><span>YOUR TEAM</span></h2>',
@@ -343,10 +347,91 @@
     skillBackdrop.addEventListener('click', function (event) { if (event.target === skillBackdrop) closeSkills(); });
     $('.as-skills-btn', shell).addEventListener('click', openSkills);
 
+    /* ------------------------------------------- portrait roster pager */
+    // On phones the roster shows one row of 5 at a time; the arrows (or a
+    // sideways swipe) flip to the next / previous 5. Landscape keeps the
+    // scrolling grid.
+    var rosterBox = $('.as-roster-scroll', shell);
+    var pageCount = $('.as-rpage-count', shell);
+    var PER_PAGE = 5;
+    var rosterPanel = $('.as-roster', shell);
+    var rosterToggle = $('.as-roster-toggle', shell);
+    var rosterExpanded = store.get('arenaSelectRosterExpanded') === '1';
+    var isPortrait = function () { return root.classList.contains('as-portrait'); };
+    var isPaging = function () { return isPortrait() && !rosterExpanded && shell.classList.contains('as-roster-paged'); };
+    var rowStep = function () {
+        var tile = $('.slot-list .slot-item:not([data-index=""])', shell);
+        if (!tile) return 0;
+        return tile.offsetHeight + (parseFloat(getComputedStyle(slotList).rowGap) || 0);
+    };
+    var totalPages = function () { return Math.max(1, Math.ceil(liveTiles().length / PER_PAGE)); };
+    var currentPage = function () {
+        var step = rowStep();
+        return step ? Math.round(rosterBox.scrollTop / step) : 0;
+    };
+    var syncPager = function () {
+        if (!isPaging()) return;
+        pageCount.textContent = (currentPage() + 1) + ' / ' + totalPages();
+    };
+    var goPage = function (page, smooth) {
+        var total = totalPages();
+        page = ((page % total) + total) % total;
+        rosterBox.scrollTo({ top: page * rowStep(), behavior: smooth === false ? 'auto' : 'smooth' });
+        window.setTimeout(syncPager, 320);
+        pageCount.textContent = (page + 1) + ' / ' + total;
+    };
+    $('.as-rpage-prev', shell).addEventListener('click', function () { goPage(currentPage() - 1); });
+    $('.as-rpage-next', shell).addEventListener('click', function () { goPage(currentPage() + 1); });
+    var swipeX = null;
+    var swipeY = null;
+    rosterBox.addEventListener('touchstart', function (event) {
+        if (!isPaging()) return;
+        swipeX = event.touches[0].clientX;
+        swipeY = event.touches[0].clientY;
+    }, { passive: true });
+    rosterBox.addEventListener('touchend', function (event) {
+        if (!isPaging() || swipeX == null) return;
+        var dx = event.changedTouches[0].clientX - swipeX;
+        var dy = event.changedTouches[0].clientY - swipeY;
+        swipeX = null;
+        if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.4) goPage(currentPage() + (dx < 0 ? 1 : -1));
+    }, { passive: true });
+    rosterBox.addEventListener('scroll', function () { window.clearTimeout(rosterBox._t); rosterBox._t = window.setTimeout(syncPager, 80); });
+    var syncRosterToggle = function () {
+        rosterPanel.classList.toggle('is-expanded', rosterExpanded);
+        rosterToggle.setAttribute('aria-expanded', String(rosterExpanded));
+        rosterToggle.querySelector('span').textContent = rosterExpanded ? 'SHOW 5 AT A TIME' : 'SHOW ALL';
+    };
+    rosterToggle.addEventListener('click', function () {
+        rosterExpanded = !rosterExpanded;
+        store.set('arenaSelectRosterExpanded', rosterExpanded ? '1' : '0');
+        syncRosterToggle();
+        if (!rosterExpanded) {
+            // Back to 5 at a time, on the page with the highlighted character.
+            var hi = $('.slot-list .slot-item.keyboard-highlighted', shell);
+            var pos = liveTiles().indexOf(hi);
+            rosterBox.scrollTop = Math.max(0, Math.floor(pos / PER_PAGE)) * rowStep();
+            rosterPanel.scrollIntoView({ block: 'nearest' });
+        }
+        lastRowStep = 0;
+        window.requestAnimationFrame(fit);
+    });
+    syncRosterToggle();
+    // Keep the page showing the highlighted character (big arrows, keyboard).
+    var showTile = function (li) {
+        if (!li || !isPaging()) return;
+        var tiles = liveTiles();
+        var pos = tiles.indexOf(li);
+        if (pos >= 0 && Math.floor(pos / PER_PAGE) !== currentPage()) goPage(Math.floor(pos / PER_PAGE));
+    };
+
     /* ------------------------------------------------- featured character */
     var currentIndex = function () {
         var hi = $('.slot-list .slot-item.keyboard-highlighted:not(.slot-empty)');
         return hi ? hi.dataset.index : null;
+    };
+    var liveTiles = function () {
+        return $$('.slot-list .slot-item').filter(function (li) { return li.dataset.index !== ''; });
     };
     var liveItems = function () {
         return $$('.slot-list .slot-item').filter(function (li) {
@@ -360,7 +445,13 @@
         var pos = items.findIndex(function (li) { return li.dataset.index === cur; });
         var next = items[(pos + dir + items.length) % items.length];
         next.click();
-        next.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+        if (isPaging()) { showTile(next); return; }
+        var box = rosterBox;
+        if (box.scrollHeight > box.clientHeight + 1) {
+            var top = next.offsetTop - box.offsetTop;
+            if (top < box.scrollTop) box.scrollTop = top - 4;
+            else if (top + next.offsetHeight > box.scrollTop + box.clientHeight) box.scrollTop = top + next.offsetHeight - box.clientHeight + 4;
+        }
     };
     $('.as-prev', shell).addEventListener('click', function () { step(-1); });
     $('.as-next', shell).addEventListener('click', function () { step(1); });
@@ -502,6 +593,22 @@
     // to the screen, so it looks identical on every device.
     var LAND = { w: 1002, h: 930 };
     var PORT = { w: 412 };
+    var lastRowStep = 0;
+    var sizeRoster = function () {
+        var step = rowStep();
+        if (!step) return;
+        var gap = parseFloat(getComputedStyle(slotList).rowGap) || 0;
+        shell.style.setProperty('--as-roster-row-h', (step - gap) + 'px');
+        shell.classList.toggle('as-roster-paged', totalPages() > 1);
+        if (isPaging()) {
+            if (Math.abs(step - lastRowStep) > 0.5) {
+                var page = lastRowStep ? Math.round(rosterBox.scrollTop / lastRowStep) : 0;
+                rosterBox.scrollTop = Math.min(page, totalPages() - 1) * step;
+            }
+            syncPager();
+        }
+        lastRowStep = step;
+    };
     var fit = function () {
         var vw = window.innerWidth;
         var vh = window.innerHeight;
@@ -516,6 +623,7 @@
             scale = Math.min(scale, (vw - 24) / LAND.w, 1.5);
         }
         shell.style.setProperty('--as-scale', String(scale));
+        sizeRoster();
         var natural = frame.offsetHeight;
         shell.style.height = Math.ceil(natural * scale + (portraitMode ? 12 : 24)) + 'px';
         var scaledW = (portraitMode ? PORT.w : LAND.w) * scale;
