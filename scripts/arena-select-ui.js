@@ -574,8 +574,10 @@
 
     /* ------------------------------------------------------- arena changes */
     var lastArena = null;
+    var titleA = $('.as-title-a', shell);
     var syncArena = function () {
         syncHome();
+        titleA.textContent = isPokemon() ? 'POK\u00c9MON-' : 'COMIC-';
         shell.classList.toggle('is-pokemon', isPokemon());
         var arena = isPokemon() ? 'pokemon' : 'comic';
         if (lastArena && lastArena !== arena) {

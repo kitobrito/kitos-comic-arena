@@ -1659,3 +1659,11 @@ html.selection-mockup .as-roster-toggle svg {
 html.selection-mockup .as-roster.is-expanded .as-roster-toggle svg {
     transform: rotate(-90deg);
 }
+
+/* Pokemon Arena title is longer: keep it clear of the nav / menu button */
+html.selection-mockup .as-shell.is-pokemon .as-title {
+    font-size: 54px;
+}
+html.selection-mockup.as-portrait .as-shell.is-pokemon .as-title {
+    font-size: 34px;
+}
