@@ -1,0 +1,1596 @@
+/* Arena select screen (Comic Arena + Pokemon Arena) -- see scripts/arena-select-ui.js.
+   Everything is scoped to html.selection-mockup so ?layout=experimental and
+   ?layout=classic keep their old look untouched. */
+
+@font-face {
+    font-family: 'Arena Brush';
+    src: url('../assets/fonts/caveat-brush.woff2') format('woff2');
+    font-weight: 400;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Arena Condensed';
+    src: url('../assets/fonts/roboto-condensed-400.woff2') format('woff2');
+    font-weight: 400;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Arena Condensed';
+    src: url('../assets/fonts/roboto-condensed-500.woff2') format('woff2');
+    font-weight: 500;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Arena Condensed';
+    src: url('../assets/fonts/roboto-condensed-700.woff2') format('woff2');
+    font-weight: 700;
+    font-display: swap;
+}
+
+html.selection-mockup {
+    --as-red: #e3192d;
+    --as-red-hot: #ff2d43;
+    --as-red-deep: #8e0716;
+    --as-ink: #0b0a10;
+    --as-panel: rgba(13, 12, 19, 0.9);
+    --as-line: rgba(235, 230, 245, 0.42);
+    --as-text: #f4f2f7;
+    --as-dim: #b9b5c4;
+    --as-ball: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='r' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23ff4a55'/%3E%3Cstop offset='1' stop-color='%23c3101f'/%3E%3C/linearGradient%3E%3ClinearGradient id='w' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23ffffff'/%3E%3Cstop offset='1' stop-color='%23d9dae2'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='50' cy='50' r='46' fill='url(%23w)'/%3E%3Cpath d='M4 50a46 46 0 0 1 92 0z' fill='url(%23r)'/%3E%3Cpath d='M4 46h92v8H4z' fill='%23141218'/%3E%3Ccircle cx='50' cy='50' r='46' fill='none' stroke='%23141218' stroke-width='4'/%3E%3Ccircle cx='50' cy='50' r='16' fill='%23141218'/%3E%3Ccircle cx='50' cy='50' r='10' fill='%23fff'/%3E%3Cellipse cx='33' cy='24' rx='12' ry='6' fill='%23fff' opacity='.35' transform='rotate(-25 33 24)'/%3E%3C/svg%3E");
+    --as-brush: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 60' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' x2='1'%3E%3Cstop offset='0' stop-color='%23ff2b3f' stop-opacity='.95'/%3E%3Cstop offset='.55' stop-color='%23c30d20' stop-opacity='.9'/%3E%3Cstop offset='1' stop-color='%23700510' stop-opacity='0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M6 22 L40 12 L120 9 L210 6 L300 9 L360 4 L398 10 L372 18 L396 24 L350 30 L392 38 L330 42 L360 50 L250 52 L150 55 L60 54 L18 50 L34 42 L2 38 L26 30z' fill='url(%23g)'/%3E%3Cpath d='M60 18 L260 12 L380 14 L250 20z M90 46 L300 44 L210 50z' fill='%23ffffff' opacity='.12'/%3E%3C/svg%3E");
+}
+
+/* ------------------------------------------------------------------ page */
+html.selection-mockup,
+html.selection-mockup body {
+    background: #07060b !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    height: auto !important;
+    min-height: 100% !important;
+}
+html.selection-mockup body {
+    margin: 0;
+}
+html.selection-mockup .background {
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    min-height: 100vh !important;
+    height: auto !important;
+    overflow: visible !important;
+    background: none !important;
+    transform: none !important;
+}
+html.selection-mockup .background::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(ellipse at 50% 120%, rgba(0, 0, 0, 0.55), transparent 60%),
+        url('../assets/images/arena-select-bg.jpg') center 18% / cover no-repeat,
+        #07060b;
+    filter: none;
+    opacity: 1;
+    animation: none;
+}
+html.selection-mockup.as-portrait .background::before {
+    background:
+        linear-gradient(180deg, rgba(5, 5, 9, 0.15), rgba(5, 5, 9, 0.6)),
+        url('../assets/images/arena-select-bg.jpg') 72% 0 / auto 100vh no-repeat,
+        #07060b;
+}
+html.selection-mockup .background::after {
+    display: none !important;
+}
+
+/* old chrome that the new screen replaces (kept in the DOM, driven from here) */
+html.selection-mockup .selectionscroll,
+html.selection-mockup .nextpage,
+html.selection-mockup .lastpage,
+html.selection-mockup .player-card,
+html.selection-mockup .button-container,
+html.selection-mockup .experimental-toolbar,
+html.selection-mockup .classic-new-ui-button,
+html.selection-mockup #ingame-news-toggle,
+html.selection-mockup .pokemon-ladder-incentive,
+html.selection-mockup .selection-mode-controls,
+html.selection-mockup .selection-team-status,
+html.selection-mockup .pokemon-arena-selection-logo {
+    display: none !important;
+}
+html.selection-mockup .selectionpage {
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    transform: none !important;
+}
+
+/* ----------------------------------------------------------------- shell */
+html.selection-mockup .as-shell {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    font-family: 'Arena Condensed', 'Roboto Condensed', 'Arial Narrow', sans-serif;
+    color: var(--as-text);
+    -webkit-font-smoothing: antialiased;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+html.selection-mockup body.as-ready .as-shell {
+    opacity: 1;
+}
+html.selection-mockup .as-shell *,
+html.selection-mockup .as-shell *::before,
+html.selection-mockup .as-shell *::after {
+    box-sizing: border-box;
+}
+html.selection-mockup .as-frame {
+    position: absolute;
+    top: 12px;
+    left: var(--as-left, 12px);
+    transform: scale(var(--as-scale, 1));
+    transform-origin: 0 0;
+    border-radius: 22px;
+    background: linear-gradient(180deg, rgba(20, 18, 28, 0.55), rgba(10, 9, 15, 0.7));
+    border: 2px solid rgba(225, 220, 238, 0.55);
+    box-shadow:
+        0 0 0 1px rgba(0, 0, 0, 0.6),
+        inset 0 0 0 1px rgba(0, 0, 0, 0.5),
+        0 0 26px rgba(205, 24, 48, 0.22),
+        0 20px 60px rgba(0, 0, 0, 0.6);
+}
+html.selection-mockup.as-portrait .as-frame {
+    top: 6px;
+}
+
+/* Landscape: fixed 1002 x 930 design, laid out like the mockup. */
+html.selection-mockup.as-landscape .as-frame {
+    width: 1002px;
+    height: 930px;
+    display: grid;
+    grid-template-columns: 510px 470px;
+    grid-template-rows: 96px 548px 254px;
+    column-gap: 10px;
+    row-gap: 8px;
+    padding: 0 11px 18px;
+    grid-template-areas:
+        'header header'
+        'select roster'
+        'team   bottom';
+}
+html.selection-mockup.as-landscape .as-header { grid-area: header; }
+html.selection-mockup.as-landscape .as-select { grid-area: select; }
+html.selection-mockup.as-landscape .as-roster { grid-area: roster; }
+html.selection-mockup.as-landscape .as-team { grid-area: team; margin-top: 6px; }
+html.selection-mockup.as-landscape .as-options {
+    grid-area: bottom;
+    width: 244px;
+    align-self: start;
+    margin-top: 16px;
+    height: 236px;
+}
+html.selection-mockup.as-landscape .as-start {
+    grid-area: bottom;
+    justify-self: end;
+    align-self: start;
+    margin-top: 66px;
+    margin-right: 6px;
+    width: 206px;
+    height: 160px;
+}
+
+/* Portrait: 412px wide design, stacked like the mockup, page scrolls. */
+html.selection-mockup.as-portrait .as-frame {
+    width: 412px;
+    display: flex;
+    flex-direction: column;
+    padding: 0 10px 14px;
+    gap: 8px;
+}
+html.selection-mockup.as-portrait .as-header { order: 0; }
+html.selection-mockup.as-portrait .as-select { order: 1; }
+html.selection-mockup.as-portrait .as-roster { order: 2; }
+html.selection-mockup.as-portrait .as-team { order: 3; }
+html.selection-mockup.as-portrait .as-start { order: 4; }
+html.selection-mockup.as-portrait .as-options { order: 5; }
+
+/* ---------------------------------------------------------------- header */
+html.selection-mockup .as-header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 0 -11px;
+    padding: 0 22px 0 26px;
+    height: 96px;
+    border-radius: 20px 20px 0 0;
+    background:
+        linear-gradient(180deg, rgba(8, 7, 12, 0.92), rgba(16, 13, 22, 0.86));
+    border-bottom: 2px solid rgba(255, 70, 90, 0.6);
+    box-shadow: 0 2px 14px rgba(227, 25, 45, 0.45), 0 1px 0 rgba(255, 255, 255, 0.08) inset;
+}
+html.selection-mockup.as-portrait .as-header {
+    margin: 0 -10px;
+    height: 98px;
+    padding: 0 14px 0 18px;
+    border-bottom-color: rgba(255, 255, 255, 0.18);
+    box-shadow: none;
+}
+html.selection-mockup .as-brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-decoration: none;
+    color: inherit;
+    min-width: 0;
+}
+html.selection-mockup .as-ball {
+    display: inline-block;
+    flex: none;
+    background: var(--as-ball) center / contain no-repeat;
+}
+html.selection-mockup .as-ball-logo {
+    width: 76px;
+    height: 76px;
+    filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.6));
+}
+html.selection-mockup.as-portrait .as-ball-logo {
+    width: 68px;
+    height: 68px;
+}
+html.selection-mockup .as-title {
+    position: relative;
+    font-family: 'Arena Brush', 'Caveat Brush', cursive;
+    font-size: 62px;
+    line-height: 1;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    display: inline-block;
+    transform: skewX(-12deg);
+    padding-bottom: 4px;
+}
+html.selection-mockup.as-portrait .as-title {
+    font-size: 42px;
+}
+html.selection-mockup.as-portrait .as-brand {
+    gap: 10px;
+}
+html.selection-mockup .as-title-a {
+    color: #f1f0f6;
+    background: linear-gradient(180deg, #ffffff 30%, #b9b7c6);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.6));
+}
+html.selection-mockup .as-title-b {
+    position: relative;
+    color: var(--as-red);
+    -webkit-text-fill-color: var(--as-red);
+    text-shadow: 0 0 10px rgba(227, 25, 45, 0.55), 0 2px 0 rgba(0, 0, 0, 0.6);
+}
+html.selection-mockup .as-title-b::after {
+    content: '';
+    position: absolute;
+    left: -6%;
+    right: -4%;
+    bottom: -9px;
+    height: 13px;
+    background: var(--as-brush) center / 100% 100% no-repeat;
+    transform: rotate(-3deg);
+    opacity: 0.95;
+}
+html.selection-mockup .as-nav {
+    margin-left: auto;
+    display: flex;
+    gap: 9px;
+}
+html.selection-mockup.as-portrait .as-nav {
+    display: none;
+}
+html.selection-mockup .as-navbtn,
+html.selection-mockup .as-burger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    height: 54px;
+    padding: 0 14px;
+    border-radius: 9px;
+    border: 1.5px solid rgba(225, 222, 235, 0.55);
+    background: linear-gradient(180deg, #23212b, #0d0c12);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 3px 8px rgba(0, 0, 0, 0.5);
+    color: #fff;
+    font: 700 16px/1 'Arena Condensed', 'Roboto Condensed', sans-serif;
+    letter-spacing: 0.3px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+}
+html.selection-mockup .as-navbtn svg {
+    width: 22px;
+    height: 22px;
+    flex: none;
+}
+html.selection-mockup .as-navbtn:hover,
+html.selection-mockup .as-navbtn.active,
+html.selection-mockup .as-burger:hover,
+html.selection-mockup .as-burger.active {
+    border-color: rgba(255, 80, 98, 0.95);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 0 12px rgba(227, 25, 45, 0.55);
+}
+html.selection-mockup .as-navbtn:active,
+html.selection-mockup .as-burger:active {
+    transform: translateY(1px);
+}
+html.selection-mockup .as-burger {
+    display: none;
+    margin-left: auto;
+    width: 62px;
+    height: 58px;
+    padding: 0;
+}
+html.selection-mockup .as-burger svg {
+    width: 36px;
+    height: 36px;
+}
+html.selection-mockup.as-portrait .as-burger {
+    display: inline-flex;
+}
+
+/* ---------------------------------------------------------------- panels */
+html.selection-mockup .as-panel {
+    position: relative;
+    border-radius: 14px;
+    background: var(--as-panel);
+    border: 1.5px solid var(--as-line);
+    box-shadow:
+        inset 0 0 0 1px rgba(0, 0, 0, 0.6),
+        inset 0 0 22px rgba(170, 14, 32, 0.25),
+        0 0 10px rgba(227, 25, 45, 0.3),
+        0 8px 20px rgba(0, 0, 0, 0.45);
+    min-width: 0;
+}
+html.selection-mockup .as-heading {
+    position: relative;
+    margin: 0;
+    height: 62px;
+    display: flex;
+    align-items: center;
+    padding-left: 40px;
+    font: 400 38px/1 'Arena Brush', 'Caveat Brush', cursive;
+    letter-spacing: 0.5px;
+    color: #fff;
+    text-shadow: 0 2px 0 rgba(0, 0, 0, 0.7), 0 0 8px rgba(0, 0, 0, 0.6);
+}
+html.selection-mockup .as-heading > span {
+    position: relative;
+    z-index: 1;
+    display: inline-block;
+    transform: skewX(-12deg);
+    white-space: nowrap;
+}
+html.selection-mockup .as-heading::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    right: 0;
+    top: 10px;
+    height: 46px;
+    background: var(--as-brush) left center / 100% 100% no-repeat;
+    opacity: 0.92;
+    filter: drop-shadow(0 0 6px rgba(227, 25, 45, 0.45));
+}
+html.selection-mockup .as-select .as-heading::before { right: 22px; }
+html.selection-mockup .as-roster .as-heading::before { right: 70px; }
+html.selection-mockup .as-team .as-heading::before { right: 230px; }
+html.selection-mockup .as-only-comic { display: none; }
+html.selection-mockup .as-shell:not(.is-pokemon) .as-only-comic { display: inline; }
+html.selection-mockup .as-shell:not(.is-pokemon) .as-only-pokemon { display: none; }
+
+/* ------------------------------------------------------- feature (select) */
+html.selection-mockup .as-feature {
+    position: relative;
+    margin: 6px 7px 0;
+    height: 466px;
+    border-radius: 16px;
+    border: 1.5px solid rgba(226, 222, 236, 0.4);
+    background:
+        radial-gradient(circle at 38% 52%, rgba(196, 18, 42, 0.62), rgba(110, 8, 22, 0.35) 30%, transparent 58%),
+        radial-gradient(circle at 38% 52%, transparent 0 128px, rgba(255, 255, 255, 0.05) 129px 131px, transparent 132px 172px, rgba(255, 255, 255, 0.04) 173px 175px, transparent 176px),
+        linear-gradient(180deg, #19141d, #0c0a10);
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.6), 0 0 12px rgba(227, 25, 45, 0.35);
+    overflow: hidden;
+}
+html.selection-mockup .as-stage {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 64%;
+    height: 100%;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+}
+html.selection-mockup .as-stage-glow {
+    position: absolute;
+    left: 50%;
+    top: 52%;
+    width: 330px;
+    height: 330px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 60, 80, 0.25), transparent 65%);
+    pointer-events: none;
+}
+html.selection-mockup .as-stage #character-portrait {
+    position: relative !important;
+    inset: auto !important;
+    z-index: 2;
+    display: block !important;
+    width: 88% !important;
+    height: 74% !important;
+    max-width: none !important;
+    max-height: none !important;
+    margin: 0 !important;
+    object-fit: contain !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: none !important;
+    box-shadow: none !important;
+    filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.6)) !important;
+    transform: none;
+    opacity: 1 !important;
+    animation: as-breathe 4.2s ease-in-out infinite;
+}
+html.selection-mockup .as-stage #character-portrait:not(.uses-featured-render) {
+    width: 62% !important;
+    height: 62% !important;
+    border-radius: 14px !important;
+    object-fit: cover !important;
+}
+html.selection-mockup .as-stage #character-portrait[src=''],
+html.selection-mockup .as-stage #character-portrait:not([src]) {
+    visibility: hidden;
+}
+html.selection-mockup .as-stage #character-portrait.form-swapping {
+    animation: as-swap 0.28s ease-out;
+}
+html.selection-mockup .as-stage #character-portrait.portrait-confirm-pop {
+    animation: as-pop 0.42s ease-out;
+}
+html.selection-mockup .as-stage #character-evolution-shadow {
+    display: none !important;
+}
+@keyframes as-breathe {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-5px) scale(1.015); }
+}
+@keyframes as-swap {
+    from { opacity: 0.2; transform: scale(0.94); }
+    to { opacity: 1; transform: scale(1); }
+}
+@keyframes as-pop {
+    40% { transform: scale(1.08); filter: drop-shadow(0 0 22px rgba(255, 70, 90, 0.9)); }
+}
+html.selection-mockup .as-info {
+    position: absolute;
+    right: 18px;
+    top: 26px;
+    width: 172px;
+    z-index: 3;
+}
+html.selection-mockup .as-player {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 10px -8px;
+    padding: 6px 10px 6px 8px;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.35);
+    min-width: 0;
+}
+html.selection-mockup .as-avatar {
+    flex: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--as-ball) center / contain no-repeat;
+}
+html.selection-mockup .as-avatar .player-avatar {
+    position: static !important;
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    border: 0 !important;
+    border-radius: 50% !important;
+    object-fit: cover;
+    box-shadow: none !important;
+}
+html.selection-mockup .as-player-name {
+    min-width: 0;
+}
+html.selection-mockup .as-player-name .player-nameselection {
+    position: static !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font: 500 30px/1.1 'Arena Condensed', 'Roboto Condensed', sans-serif !important;
+    color: #fff !important;
+    text-shadow: none !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background: none !important;
+    border: 0 !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+}
+html.selection-mockup .as-stats {
+    margin: 0;
+    display: block !important;
+    position: static !important;
+    background: none !important;
+    border: 0 !important;
+    padding: 0 !important;
+    width: auto !important;
+}
+html.selection-mockup .as-stats .player-stat {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    gap: 2px !important;
+    margin: 0 !important;
+    padding: 8px 0 9px !important;
+    border: 0 !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.14) !important;
+    background: none !important;
+    min-height: 0 !important;
+    position: static !important;
+}
+html.selection-mockup .as-stats .player-stat span {
+    font: 700 17px/1.05 'Arena Condensed', 'Roboto Condensed', sans-serif !important;
+    color: var(--as-dim) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.3px !important;
+}
+html.selection-mockup .as-stats .player-stat strong {
+    font: 700 21px/1.1 'Arena Condensed', 'Roboto Condensed', sans-serif !important;
+    color: #fff !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.2px !important;
+    text-shadow: none !important;
+    white-space: nowrap;
+}
+html.selection-mockup .as-shell .as-stats .player-stat.positive strong,
+html.selection-mockup .as-shell .as-stats .player-stat.negative strong,
+html.selection-mockup .as-shell .player-infoselection .player-stat.negative strong,
+html.selection-mockup body .as-shell .as-stats .player-stat[data-player-stat="streak"].negative strong,
+html.selection-mockup body .as-shell .as-stats .player-stat[data-player-stat="streak"].positive strong {
+    color: #fff !important;
+}
+html.selection-mockup .as-arrow {
+    position: absolute;
+    z-index: 4;
+    bottom: 22px;
+    width: 40px;
+    height: 54px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border-radius: 10px;
+    border: 1.5px solid rgba(255, 255, 255, 0.55);
+    background: linear-gradient(180deg, #a10d1e, #5a0610);
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(227, 25, 45, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transition: transform 0.1s, box-shadow 0.15s;
+}
+html.selection-mockup .as-arrow svg {
+    width: 30px;
+    height: 30px;
+}
+html.selection-mockup .as-arrow:hover {
+    box-shadow: 0 0 16px rgba(255, 45, 67, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+html.selection-mockup .as-arrow:active {
+    transform: scale(0.94);
+}
+html.selection-mockup.as-landscape .as-prev { left: 18px; }
+html.selection-mockup.as-landscape .as-next { left: calc(64% - 58px); }
+html.selection-mockup .as-dots {
+    position: absolute;
+    z-index: 4;
+    bottom: 38px;
+    left: 32%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+}
+html.selection-mockup .as-dot {
+    width: 13px;
+    height: 13px;
+    padding: 0;
+    border-radius: 50%;
+    border: 0;
+    background: #3d3a45;
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.7);
+    cursor: pointer;
+}
+html.selection-mockup .as-dot.active {
+    background: var(--as-red-hot);
+    box-shadow: 0 0 8px rgba(255, 45, 67, 0.9);
+}
+html.selection-mockup .as-skills-btn {
+    position: absolute;
+    z-index: 4;
+    left: 14px;
+    top: 14px;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    border: 0;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.55);
+    cursor: pointer;
+}
+html.selection-mockup .as-skills-btn svg {
+    width: 28px;
+    height: 28px;
+}
+html.selection-mockup .as-skills-btn:hover {
+    color: #fff;
+}
+
+/* ----------------------------------------------------------------- roster */
+html.selection-mockup .as-roster-scroll {
+    position: relative;
+    margin: 6px 10px 0;
+    height: 464px;
+    padding: 6px 12px 6px 6px;
+    border-radius: 10px;
+    border: 1.5px solid rgba(226, 222, 236, 0.35);
+    background: rgba(5, 5, 8, 0.55);
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.7) rgba(255, 255, 255, 0.08);
+}
+html.selection-mockup .as-roster-scroll::-webkit-scrollbar { width: 8px; }
+html.selection-mockup .as-roster-scroll::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.06); border-radius: 4px; }
+html.selection-mockup .as-roster-scroll::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.75); border-radius: 4px; }
+html.selection-mockup .as-roster .slot-list {
+    position: static !important;
+    inset: auto !important;
+    transform: none !important;
+    width: auto !important;
+    height: auto !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    list-style: none !important;
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    grid-auto-rows: auto !important;
+    gap: 8px !important;
+    background: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    perspective: none !important;
+}
+html.selection-mockup.as-portrait .as-roster .slot-list {
+    grid-template-columns: repeat(5, 1fr) !important;
+    gap: 5px !important;
+}
+html.selection-mockup .as-roster .slot-item {
+    position: relative !important;
+    inset: auto !important;
+    width: auto !important;
+    height: auto !important;
+    aspect-ratio: 1 / 1;
+    margin: 0 !important;
+    padding: 0 !important;
+    border-radius: 8px !important;
+    border: 2px solid rgba(225, 222, 235, 0.32) !important;
+    background: #15131b !important;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.55) !important;
+    overflow: hidden !important;
+    cursor: pointer;
+    grid-column: auto !important;
+    grid-row: auto !important;
+    transform: none !important;
+    clip-path: none !important;
+    animation: none !important;
+    transition: border-color 0.12s, box-shadow 0.12s, transform 0.12s !important;
+}
+html.selection-mockup .as-roster .slot-item::before,
+html.selection-mockup .as-roster .slot-item::after {
+    display: none !important;
+}
+html.selection-mockup .as-roster .slot-item:hover {
+    border-color: rgba(255, 255, 255, 0.75) !important;
+    transform: translateY(-1px) !important;
+}
+html.selection-mockup .as-roster .slot-item.keyboard-highlighted:not(.slot-empty) {
+    border-color: #ff3d55 !important;
+    box-shadow: 0 0 0 1px #ff8796, 0 0 14px rgba(255, 45, 67, 0.95), inset 0 0 10px rgba(255, 45, 67, 0.45) !important;
+}
+html.selection-mockup .as-roster .slot-item.slot-empty[data-index=''] {
+    display: none !important;
+}
+html.selection-mockup .as-roster .slot-item.slot-empty {
+    opacity: 0.28;
+    cursor: default;
+    background:
+        var(--as-ball) center / 46% no-repeat,
+        #121017 !important;
+    filter: grayscale(1);
+}
+html.selection-mockup .as-roster .slot-image {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    object-fit: cover !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    transform: none !important;
+    clip-path: none !important;
+    filter: none !important;
+    box-shadow: none !important;
+}
+html.selection-mockup .as-roster .slot-image.slot-locked {
+    filter: grayscale(0.85) brightness(0.55) !important;
+}
+html.selection-mockup .as-roster .selection-roster-lock {
+    position: absolute !important;
+    right: 4px !important;
+    bottom: 3px !important;
+    left: auto !important;
+    top: auto !important;
+    font-size: 15px !important;
+    transform: none !important;
+}
+
+/* ------------------------------------------------------------------- team */
+html.selection-mockup .as-team-slots .selected-character-slot-list {
+    position: static !important;
+    inset: auto !important;
+    transform: none !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 4px 14px 0 !important;
+    padding: 0 !important;
+    list-style: none !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 12px !important;
+    background: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+html.selection-mockup .as-team-slots .selected-character-slot-list::before,
+html.selection-mockup .as-team-slots .selected-character-slot-list::after {
+    display: none !important;
+    content: none !important;
+}
+html.selection-mockup .as-team-slots .selected-character-slot {
+    position: relative !important;
+    inset: auto !important;
+    width: auto !important;
+    height: 150px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: grid !important;
+    place-items: center !important;
+    border-radius: 8px !important;
+    border: 2px solid rgba(255, 60, 80, 0.75) !important;
+    background:
+        radial-gradient(circle at 50% 50%, rgba(160, 14, 32, 0.32), transparent 70%),
+        linear-gradient(180deg, #120f16, #07060a) !important;
+    box-shadow: 0 0 12px rgba(227, 25, 45, 0.6), inset 0 0 14px rgba(227, 25, 45, 0.35) !important;
+    overflow: hidden !important;
+    transform: none !important;
+    clip-path: none !important;
+    animation: none !important;
+}
+html.selection-mockup .as-team-slots .selected-character-slot::before {
+    content: '' !important;
+    display: block !important;
+    position: absolute !important;
+    inset: auto !important;
+    left: 50% !important;
+    top: 50% !important;
+    margin: calc(var(--as-slot-ball, 96px) / -2) 0 0 calc(var(--as-slot-ball, 96px) / -2) !important;
+    width: var(--as-slot-ball, 96px) !important;
+    height: var(--as-slot-ball, 96px) !important;
+    background: var(--as-ball) center / contain no-repeat !important;
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.6));
+    opacity: 1 !important;
+    transform: none !important;
+    border: 0 !important;
+}
+html.selection-mockup .as-team-slots .selected-character-slot:has(.selected-slot-image)::before {
+    display: none !important;
+}
+html.selection-mockup .as-team-slots .selected-character-slot::after {
+    display: none !important;
+}
+html.selection-mockup .as-team-slots .selected-character-slot.lance-bundle-collapsed {
+    display: grid !important;
+}
+html.selection-mockup .as-team-slots .selected-slot-placeholder-image {
+    display: none !important;
+}
+html.selection-mockup .as-team-slots .selected-slot-image {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    object-fit: cover !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    transform: none !important;
+    clip-path: none !important;
+    z-index: 1;
+}
+html.selection-mockup .as-team-slots .selected-character-slot.drag-over,
+html.selection-mockup .as-team-slots .selected-character-slot.keyboard-highlighted {
+    border-color: #fff !important;
+    box-shadow: 0 0 18px rgba(255, 45, 67, 1), inset 0 0 14px rgba(227, 25, 45, 0.5) !important;
+}
+html.selection-mockup .as-team-status {
+    margin: 6px 16px 0;
+    min-height: 16px;
+    font: 500 14px/1.2 'Arena Condensed', 'Roboto Condensed', sans-serif;
+    color: var(--as-dim);
+    text-align: center;
+}
+html.selection-mockup .as-team-status:empty {
+    visibility: hidden;
+}
+html.selection-mockup .as-team-status.flash {
+    animation: as-flash 0.9s ease;
+}
+@keyframes as-flash {
+    0%, 60% { color: #fff; text-shadow: 0 0 10px rgba(255, 45, 67, 0.95); }
+}
+
+/* -------------------------------------------------------- match options */
+html.selection-mockup .as-subheading {
+    margin: 0;
+    height: 52px;
+    display: grid;
+    place-items: center;
+    font: 400 28px/1 'Arena Brush', 'Caveat Brush', cursive;
+    color: #fff;
+    letter-spacing: 0.4px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+html.selection-mockup .as-subheading,
+html.selection-mockup .as-start span {
+    font-style: normal;
+}
+html.selection-mockup .as-option-list {
+    display: grid;
+    gap: 8px;
+    padding: 9px 10px 10px;
+}
+html.selection-mockup .as-option {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: 50px;
+    padding: 0 12px 0 46px;
+    border-radius: 8px;
+    border: 1.5px solid rgba(225, 222, 235, 0.42);
+    background: linear-gradient(180deg, #24222c, #0f0e14);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 2px 6px rgba(0, 0, 0, 0.5);
+    color: #fff;
+    font: 700 17px/1 'Arena Condensed', 'Roboto Condensed', sans-serif;
+    letter-spacing: 0.2px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+html.selection-mockup .as-option svg {
+    position: absolute;
+    left: 14px;
+    width: 26px;
+    height: 26px;
+}
+html.selection-mockup .as-option:hover {
+    border-color: rgba(255, 255, 255, 0.75);
+}
+html.selection-mockup .as-option.active {
+    border-color: rgba(255, 120, 132, 0.9);
+    background: linear-gradient(180deg, #e3192d, #9c0a19);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 0 14px rgba(227, 25, 45, 0.75);
+}
+
+/* ------------------------------------------------------------ start match */
+html.selection-mockup .as-start {
+    position: relative;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: #fff;
+    cursor: pointer;
+    font: 400 52px/0.92 'Arena Brush', 'Caveat Brush', cursive;
+    letter-spacing: 0.5px;
+    text-shadow: 0 3px 0 rgba(80, 0, 10, 0.75);
+    transition: transform 0.1s, filter 0.15s;
+}
+html.selection-mockup .as-start::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 8px;
+    background: linear-gradient(180deg, #ff2a3e 0%, #d0101f 55%, #9e0816 100%);
+    border: 2px solid rgba(255, 150, 160, 0.8);
+    box-shadow: 0 0 22px rgba(255, 30, 55, 0.85), inset 0 2px 0 rgba(255, 255, 255, 0.35), inset 0 -6px 14px rgba(80, 0, 10, 0.5);
+    transform: skewX(-8deg);
+}
+html.selection-mockup .as-start span {
+    position: relative;
+    display: inline-block;
+    width: 70%;
+    text-align: center;
+    transform: skewX(-12deg) rotate(-4deg);
+}
+html.selection-mockup .as-start:hover {
+    filter: brightness(1.1);
+}
+html.selection-mockup .as-start:active {
+    transform: scale(0.97);
+}
+html.selection-mockup .as-start.not-ready {
+    filter: saturate(0.75) brightness(0.88);
+}
+html.selection-mockup .as-start.nudge {
+    animation: as-nudge 0.4s ease;
+}
+@keyframes as-nudge {
+    20% { transform: translateX(-7px); }
+    45% { transform: translateX(6px); }
+    70% { transform: translateX(-3px); }
+}
+
+/* ------------------------------------------------------- portrait sizing */
+html.selection-mockup.as-portrait .as-heading {
+    height: 50px;
+    font-size: 32px;
+    padding-left: 30px;
+    justify-content: flex-start;
+}
+html.selection-mockup.as-portrait .as-heading::before {
+    top: 8px;
+    height: 38px;
+}
+html.selection-mockup.as-portrait .as-select,
+html.selection-mockup.as-portrait .as-roster {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+}
+html.selection-mockup.as-portrait .as-select .as-heading::before { left: 0; right: 10px; }
+html.selection-mockup.as-portrait .as-roster .as-heading { justify-content: center; padding-left: 0; }
+html.selection-mockup.as-portrait .as-roster .as-heading::before { left: 60px; right: 40px; }
+html.selection-mockup.as-portrait .as-feature {
+    margin: 4px 0 0;
+    height: 304px;
+    background:
+        radial-gradient(circle at 66% 50%, rgba(196, 18, 42, 0.6), rgba(110, 8, 22, 0.32) 30%, transparent 60%),
+        radial-gradient(circle at 66% 50%, transparent 0 96px, rgba(255, 255, 255, 0.05) 97px 99px, transparent 100px),
+        linear-gradient(180deg, #19141d, #0c0a10);
+}
+html.selection-mockup.as-portrait .as-stage {
+    left: auto;
+    right: 0;
+    width: 66%;
+}
+html.selection-mockup.as-portrait .as-stage #character-portrait {
+    width: 96% !important;
+    height: 70% !important;
+}
+html.selection-mockup.as-portrait .as-stage-glow {
+    width: 220px;
+    height: 220px;
+}
+html.selection-mockup.as-portrait .as-info {
+    left: 14px;
+    right: auto;
+    top: 12px;
+    width: 120px;
+}
+html.selection-mockup.as-portrait .as-player {
+    margin: 0 0 4px -6px;
+    padding: 4px 8px 4px 6px;
+    gap: 8px;
+    width: 150px;
+}
+html.selection-mockup.as-portrait .as-avatar {
+    width: 32px;
+    height: 32px;
+}
+html.selection-mockup.as-portrait .as-player-name .player-nameselection {
+    font-size: 23px !important;
+}
+html.selection-mockup.as-portrait .as-stats .player-stat {
+    padding: 4px 0 5px !important;
+}
+html.selection-mockup.as-portrait .as-stats .player-stat span {
+    font-size: 13px !important;
+}
+html.selection-mockup.as-portrait .as-stats .player-stat strong {
+    font-size: 15px !important;
+}
+html.selection-mockup.as-portrait .as-arrow {
+    top: 50%;
+    bottom: auto;
+    width: 30px;
+    height: 46px;
+    transform: translateY(-50%);
+}
+html.selection-mockup.as-portrait .as-arrow:active {
+    transform: translateY(-50%) scale(0.94);
+}
+html.selection-mockup.as-portrait .as-prev { left: 4px; }
+html.selection-mockup.as-portrait .as-next { right: 4px; }
+html.selection-mockup.as-portrait .as-arrow svg { width: 24px; height: 24px; }
+html.selection-mockup.as-portrait .as-info { left: 40px; }
+html.selection-mockup.as-portrait .as-dots {
+    left: 50%;
+    bottom: 4px;
+    padding: 6px 14px;
+    border-radius: 12px 12px 0 0;
+    background: rgba(0, 0, 0, 0.55);
+    gap: 9px;
+}
+html.selection-mockup.as-portrait .as-dot { width: 11px; height: 11px; }
+html.selection-mockup.as-portrait .as-skills-btn {
+    left: auto;
+    right: 40px;
+    top: 10px;
+}
+html.selection-mockup.as-portrait .as-roster-scroll {
+    margin: 2px -4px 0;
+    height: auto;
+    max-height: none;
+    padding: 0;
+    border: 0;
+    background: none;
+    overflow: visible;
+}
+html.selection-mockup.as-portrait .as-team {
+    margin-top: 6px;
+    padding-bottom: 10px;
+    border-radius: 18px;
+}
+html.selection-mockup.as-portrait .as-team .as-heading {
+    justify-content: center;
+    padding-left: 0;
+    height: 50px;
+    font-size: 30px;
+}
+html.selection-mockup.as-portrait .as-team .as-heading::before {
+    display: none;
+}
+html.selection-mockup.as-portrait .as-team::before {
+    content: '';
+    position: absolute;
+    left: 30px;
+    right: 30px;
+    top: -2px;
+    height: 46px;
+    border-radius: 0 0 14px 14px;
+    border: 1.5px solid rgba(255, 70, 90, 0.5);
+    border-top: 0;
+    pointer-events: none;
+}
+html.selection-mockup.as-portrait .as-team-slots .selected-character-slot-list {
+    margin: 2px 12px 0 !important;
+    gap: 9px !important;
+}
+html.selection-mockup.as-portrait .as-team-slots .selected-character-slot {
+    height: 108px !important;
+    --as-slot-ball: 70px;
+}
+html.selection-mockup.as-portrait .as-start {
+    height: 66px;
+    margin: 2px 4px 0;
+    font-size: 34px;
+}
+html.selection-mockup.as-portrait .as-start::before {
+    transform: none;
+    border-radius: 14px;
+}
+html.selection-mockup.as-portrait .as-start span {
+    width: auto;
+    transform: skewX(-10deg);
+}
+html.selection-mockup.as-portrait .as-options {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+}
+html.selection-mockup.as-portrait .as-subheading {
+    display: none;
+}
+html.selection-mockup.as-portrait .as-option-list {
+    padding: 0 4px;
+    gap: 9px;
+}
+html.selection-mockup.as-portrait .as-option {
+    height: 48px;
+    font-size: 18px;
+    background: linear-gradient(180deg, #1d1b24, #0b0a10);
+}
+html.selection-mockup.as-portrait .as-option svg {
+    left: 46px;
+}
+html.selection-mockup.as-portrait .as-option.active {
+    background: linear-gradient(180deg, #2c1016, #14070b);
+    border-color: rgba(255, 70, 90, 0.95);
+    box-shadow: inset 0 0 10px rgba(227, 25, 45, 0.45), 0 0 10px rgba(227, 25, 45, 0.6);
+}
+
+/* --------------------------------------------------------------- popovers */
+html.selection-mockup .as-pop {
+    position: absolute;
+    z-index: 30;
+    right: 18px;
+    top: 86px;
+    width: 330px;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1.5px solid rgba(255, 90, 105, 0.75);
+    background: linear-gradient(180deg, rgba(24, 21, 31, 0.98), rgba(10, 9, 14, 0.98));
+    box-shadow: 0 0 18px rgba(227, 25, 45, 0.45), 0 16px 36px rgba(0, 0, 0, 0.7);
+}
+html.selection-mockup .as-pop[hidden] {
+    display: none;
+}
+html.selection-mockup.as-portrait .as-pop {
+    right: 10px;
+    top: 92px;
+    width: 300px;
+}
+html.selection-mockup .as-pop-title {
+    margin: 0 0 10px;
+    font: 400 26px/1 'Arena Brush', 'Caveat Brush', cursive;
+    color: #fff;
+    text-align: center;
+    letter-spacing: 0.4px;
+}
+html.selection-mockup .as-set-row {
+    margin-bottom: 10px;
+}
+html.selection-mockup .as-settings .sound-controller {
+    position: static !important;
+    inset: auto !important;
+    transform: none !important;
+    display: flex !important;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 10px !important;
+    border-radius: 8px !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    background: rgba(0, 0, 0, 0.35) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    box-shadow: none !important;
+}
+html.selection-mockup .as-settings .sound-volume {
+    flex: 1 1 100%;
+    width: 100% !important;
+    accent-color: var(--as-red);
+    position: static !important;
+    margin: 0 !important;
+}
+html.selection-mockup .as-settings .mute-button,
+html.selection-mockup .as-settings .effects-mute-button {
+    position: static !important;
+    flex: 1 1 0;
+    min-width: 0 !important;
+    width: auto !important;
+    margin: 0 !important;
+    transform: none !important;
+}
+html.selection-mockup .as-settings .draft-mode-check-wrap {
+    position: static !important;
+    transform: none !important;
+    margin: 0 !important;
+    width: auto !important;
+}
+html.selection-mockup .as-settings .draft-mode-check {
+    position: static !important;
+    width: 100% !important;
+    margin: 0 !important;
+    transform: none !important;
+}
+html.selection-mockup .as-set-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+html.selection-mockup .as-set-grid > *,
+html.selection-mockup .as-games .arena-mode-button {
+    position: static !important;
+    inset: auto !important;
+    transform: none !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: auto !important;
+    height: 44px !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 10px !important;
+    border-radius: 8px !important;
+    border: 1.5px solid rgba(225, 222, 235, 0.45) !important;
+    background: linear-gradient(180deg, #24222c, #0f0e14) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+    color: #fff !important;
+    font: 700 15px/1 'Arena Condensed', 'Roboto Condensed', sans-serif !important;
+    letter-spacing: 0.3px !important;
+    text-transform: uppercase !important;
+    text-decoration: none !important;
+    text-shadow: none !important;
+    cursor: pointer;
+    opacity: 1 !important;
+    visibility: visible !important;
+    clip-path: none !important;
+}
+html.selection-mockup .as-set-grid > *:hover,
+html.selection-mockup .as-set-grid > .active,
+html.selection-mockup .as-games .arena-mode-button:hover {
+    border-color: rgba(255, 80, 98, 0.95) !important;
+    box-shadow: 0 0 10px rgba(227, 25, 45, 0.55) !important;
+}
+html.selection-mockup .as-set-grid > .as-set-logout {
+    grid-column: 1 / -1;
+    border-color: rgba(255, 80, 98, 0.6) !important;
+}
+html.selection-mockup .as-games .arena-mode-switch {
+    position: static !important;
+    transform: none !important;
+    display: grid !important;
+    gap: 8px !important;
+    width: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+html.selection-mockup .as-games .arena-mode-button {
+    height: 52px !important;
+    font-size: 18px !important;
+}
+html.selection-mockup .as-games .arena-mode-button.active {
+    border-color: rgba(255, 120, 132, 0.9) !important;
+    background: linear-gradient(180deg, #e3192d, #9c0a19) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 0 12px rgba(227, 25, 45, 0.7) !important;
+}
+html.selection-mockup .as-menu {
+    width: 240px;
+    display: grid;
+    gap: 8px;
+}
+html.selection-mockup .as-menu .as-navbtn {
+    justify-content: flex-start;
+    height: 52px;
+    font-size: 18px;
+}
+
+/* the filters panel (opened from Settings) floats above everything */
+html.selection-mockup .roster-filter-panel {
+    position: fixed !important;
+    z-index: 2147482000 !important;
+    left: 50% !important;
+    right: auto !important;
+    top: 12vh !important;
+    bottom: auto !important;
+    width: min(560px, calc(100vw - 24px)) !important;
+    transform: translate(-50%, -8px) !important;
+    border: 1.5px solid rgba(255, 90, 105, 0.75) !important;
+    background: rgba(14, 12, 19, 0.97) !important;
+    box-shadow: 0 0 18px rgba(227, 25, 45, 0.45), 0 16px 36px rgba(0, 0, 0, 0.7) !important;
+}
+html.selection-mockup body.experimental-controls-open .roster-filter-panel {
+    transform: translate(-50%, 0) !important;
+}
+
+/* ---------------------------------------------------------------- modals */
+html.selection-mockup .as-modal,
+html.selection-mockup .as-skill-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 2147482500;
+    display: grid;
+    place-items: center;
+    padding: 16px;
+    background: rgba(4, 3, 7, 0.72);
+    backdrop-filter: blur(2px);
+}
+html.selection-mockup .as-modal[hidden] {
+    display: none;
+}
+html.selection-mockup .as-modal-card {
+    position: relative;
+    width: min(720px, 100%);
+    max-height: calc(100vh - 32px);
+    overflow: auto;
+    border-radius: 16px;
+    border: 1.5px solid rgba(225, 222, 235, 0.5);
+    background: linear-gradient(180deg, rgba(22, 19, 28, 0.98), rgba(10, 9, 14, 0.98));
+    box-shadow: 0 0 22px rgba(227, 25, 45, 0.45), 0 20px 50px rgba(0, 0, 0, 0.7);
+    color: var(--as-text);
+    font-family: 'Arena Condensed', 'Roboto Condensed', sans-serif;
+    padding: 6px 18px 18px;
+}
+html.selection-mockup .as-modal-head {
+    display: flex;
+    align-items: center;
+}
+html.selection-mockup .as-modal-head .as-heading {
+    flex: 1;
+    padding-left: 24px;
+}
+html.selection-mockup .as-modal-head .as-heading::before {
+    right: 40%;
+}
+html.selection-mockup .as-modal-close {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255, 255, 255, 0.5);
+    background: #1c1a22;
+    color: #fff;
+    font-size: 26px;
+    line-height: 1;
+    cursor: pointer;
+}
+html.selection-mockup .as-rank-body {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-top: 8px;
+}
+html.selection-mockup .as-rank-msg {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: var(--as-dim);
+    font-size: 17px;
+}
+html.selection-mockup .as-rank-board {
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(0, 0, 0, 0.35);
+    padding: 10px 12px;
+}
+html.selection-mockup .as-rank-board h3 {
+    margin: 0 0 6px;
+    font: 700 16px/1.2 'Arena Condensed', 'Roboto Condensed', sans-serif;
+    text-transform: uppercase;
+    color: var(--as-red-hot);
+    letter-spacing: 0.4px;
+}
+html.selection-mockup .as-rank-board ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+html.selection-mockup .as-rank-board li {
+    display: flex;
+    gap: 10px;
+    padding: 5px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 16px;
+}
+html.selection-mockup .as-rank-board li b {
+    color: var(--as-dim);
+    width: 22px;
+}
+html.selection-mockup .as-rank-board li span {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+html.selection-mockup .as-rank-board li em {
+    font-style: normal;
+    font-weight: 700;
+}
+
+/* skill details: the original skill card, shown as a popup */
+html.selection-mockup .as-skill-backdrop {
+    display: none;
+}
+html.selection-mockup body.as-skills-open .as-skill-backdrop {
+    display: grid;
+}
+html.selection-mockup .as-skill-backdrop .skillviewer,
+html.selection-mockup .as-skill-backdrop .skillviewer.collapsed {
+    position: relative !important;
+    inset: auto !important;
+    left: auto !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    width: min(640px, 100%) !important;
+    height: auto !important;
+    max-height: calc(100vh - 32px) !important;
+    overflow: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    border-radius: 16px !important;
+    border: 1.5px solid rgba(255, 90, 105, 0.7) !important;
+    background: linear-gradient(180deg, #19161f, #0b0a0f) !important;
+    box-shadow: 0 0 22px rgba(227, 25, 45, 0.45), 0 20px 50px rgba(0, 0, 0, 0.7) !important;
+    clip-path: none !important;
+    animation: none !important;
+}
+html.selection-mockup .as-skill-backdrop .skillscroll {
+    display: none !important;
+}
+html.selection-mockup .as-skill-backdrop .skillpage {
+    position: static !important;
+    inset: auto !important;
+    transform: none !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 18px !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    overflow: visible !important;
+}
+html.selection-mockup .as-skill-backdrop .skill-card {
+    position: static !important;
+    inset: auto !important;
+    transform: none !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    min-height: 0 !important;
+}
+html.selection-mockup .as-skill-backdrop .skill-header {
+    position: static !important;
+    display: flex !important;
+    flex-wrap: wrap;
+    gap: 12px;
+    height: auto !important;
+}
+html.selection-mockup .as-skill-backdrop .character-info {
+    position: static !important;
+    height: auto !important;
+    width: auto !important;
+    flex: 1 1 200px;
+    padding-right: 40px;
+}
+html.selection-mockup .as-skill-backdrop .skill-images {
+    position: static !important;
+    display: flex !important;
+    flex-wrap: wrap;
+    gap: 8px !important;
+    width: auto !important;
+    height: auto !important;
+    transform: none !important;
+}
+html.selection-mockup .as-skill-backdrop .skill-image {
+    position: static !important;
+    width: 64px !important;
+    height: 64px !important;
+    transform: none !important;
+}
+html.selection-mockup .as-skill-backdrop .skill-title-bar,
+html.selection-mockup .as-skill-backdrop .skill-description,
+html.selection-mockup .as-skill-backdrop .skill-footer {
+    position: static !important;
+    transform: none !important;
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+}
+html.selection-mockup .as-skill-backdrop .skill-description {
+    margin: 10px 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    font-size: 16px !important;
+    line-height: 1.4 !important;
+}
+html.selection-mockup .as-skill-backdrop .character-form-toggle {
+    position: static !important;
+    transform: none !important;
+    margin-top: 8px !important;
+}
+html.selection-mockup .as-skill-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 5;
+}
+
+/* searching / private / draft / store overlays sit above the new screen */
+html.selection-mockup .searching-backdrop,
+html.selection-mockup .private-match-backdrop,
+html.selection-mockup .draft-backdrop,
+html.selection-mockup .selection-unlock-confirm-backdrop,
+html.selection-mockup .ingame-news-backdrop,
+html.selection-mockup .selection-missions {
+    z-index: 2147482600 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html.selection-mockup .as-stage #character-portrait {
+        animation: none;
+    }
+}
+
+/* store + missions: a centred popup over the new screen */
+html.selection-mockup .selection-missions {
+    position: fixed !important;
+    left: 50% !important;
+    right: auto !important;
+    top: 50% !important;
+    bottom: auto !important;
+    width: min(920px, calc(100vw - 24px)) !important;
+    height: min(640px, calc(100vh - 32px)) !important;
+    transform: translate(-50%, -50%) !important;
+}
+html.selection-mockup .selection-missions.collapsed {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+html.selection-mockup .selection-missions-panel {
+    border-color: rgba(255, 90, 105, 0.75) !important;
+    box-shadow: 0 0 22px rgba(227, 25, 45, 0.45), 0 20px 50px rgba(0, 0, 0, 0.75) !important;
+}
+html.selection-mockup body.experimental-store-open .slot-list,
+html.selection-mockup body.experimental-store-open .selected-character-slot-list {
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+}
+html.selection-mockup body.experimental-store-open .as-shell::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    background: rgba(4, 3, 7, 0.6);
+}
+html.selection-mockup .as-skill-backdrop .skillpage::before,
+html.selection-mockup .as-skill-backdrop .skillpage::after,
+html.selection-mockup .as-skill-backdrop .skill-images::before {
+    display: none !important;
+}

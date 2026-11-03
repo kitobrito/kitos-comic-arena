@@ -10096,6 +10096,7 @@ const PUBLIC_SCRIPTS_FILES = new Set([
     '/scripts/register.js',
     '/scripts/community.js',
     '/scripts/arena-navigation.js',
+    '/scripts/arena-select-ui.js',
     '/scripts/script.js',
 ]);
 const isPrivateStaticSourcePath = (requestPath = '') => {
