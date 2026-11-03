@@ -19108,7 +19108,10 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         return ordered;
     };
 
-    const CHARACTERS_PER_PAGE = document.documentElement.classList.contains('selection-experimental') ? 30 : 21;
+    // The arena select screen shows the whole roster in one scrolling grid.
+    const CHARACTERS_PER_PAGE = document.documentElement.classList.contains('selection-mockup')
+        ? 150
+        : document.documentElement.classList.contains('selection-experimental') ? 30 : 21;
     let rosterDisplayIndices = getBaseRosterDisplayIndices();
     let totalPages = Math.max(1, Math.ceil(Math.max(rosterDisplayIndices.length, CHARACTERS_PER_PAGE) / CHARACTERS_PER_PAGE));
     let currentRosterPage = 0;
@@ -21247,7 +21250,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                         if (selectionMissionsEl && !selectionMissionsEl.classList.contains('collapsed')) {
                             loadSelectionMissions();
                         }
-                        maybePromptPokemonStarterChoice();
+                        if (typeof maybePromptPokemonStarterChoice === 'function') maybePromptPokemonStarterChoice();
                     });
             });
     };

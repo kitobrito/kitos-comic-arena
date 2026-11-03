@@ -13,11 +13,19 @@ const experimentalStyles = fs.readFileSync(
 const server = fs.readFileSync(path.join(root, 'server.js'), 'utf8');
 
 test('selection starts in the new UI unless classic is explicitly requested', () => {
-    assert.match(html, /get\('layout'\) !== 'classic'/);
+    assert.match(html, /selectionLayout !== 'classic'/);
     assert.match(html, /class="experimental-classic-link" href="selection\.html\?layout=classic"/);
     assert.match(html, /class="classic-new-ui-button"[^>]*>New UI<\/button>/);
     assert.match(script, /nextUrl\.searchParams\.set\('layout', 'experimental'\)/);
     assert.match(script, /nextUrl\.searchParams\.set\('arena', arena\)/);
+});
+
+test('the arena select screen is the default layout and keeps the older ones reachable', () => {
+    assert.match(html, /selectionLayout !== 'classic' && selectionLayout !== 'experimental'/);
+    assert.match(html, /classList\.add\('selection-mockup'\)/);
+    assert.match(html, /styles\/arena-select\.css/);
+    assert.match(html, /scripts\/arena-select-ui\.js/);
+    assert.match(script, /classList\.contains\('selection-mockup'\)\s*\?\s*150/);
 });
 
 test('experimental selection exposes a three-section store in the roster area', () => {
