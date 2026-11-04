@@ -20312,6 +20312,16 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         persistTeamSelection();
     };
 
+    // Phones: the slot armed by a first tap (see handleSelectedSlotClick).
+    const TEAM_DOUBLE_TAP_MS = 900;
+    let armedTeamTap = null;
+    const disarmTeamTap = () => {
+        if (!armedTeamTap) return;
+        clearTimeout(armedTeamTap.timer);
+        selectedSlots[armedTeamTap.slot]?.classList.remove('remove-armed');
+        armedTeamTap = null;
+    };
+
     const handleSelectedSlotClick = (slotIndex) => {
         const assignment = selectedAssignments[slotIndex];
         if (!assignment) return;
@@ -20319,7 +20329,28 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             document.documentElement.classList.contains('selection-experimental') &&
             window.matchMedia('(max-width: 700px) and (pointer: coarse)').matches;
         if (isMobileTeamTap) {
-            handleSelectedSlotDoubleClick(slotIndex);
+            // Phones: removing takes a double tap. The first tap arms the slot (it glows red and the
+            // status line says so); a second tap on the same slot soon after removes the character.
+            const now = Date.now();
+            if (armedTeamTap && armedTeamTap.slot === slotIndex && now - armedTeamTap.time < TEAM_DOUBLE_TAP_MS) {
+                disarmTeamTap();
+                handleSelectedSlotDoubleClick(slotIndex);
+                return;
+            }
+            disarmTeamTap();
+            const slotEl = selectedSlots[slotIndex];
+            slotEl?.classList.add('remove-armed');
+            armedTeamTap = {
+                slot: slotIndex,
+                time: now,
+                timer: setTimeout(() => { disarmTeamTap(); updateGameButtons(); }, TEAM_DOUBLE_TAP_MS),
+            };
+            const armedCharacter = roster[assignment.characterIndex];
+            if (selectionTeamStatusEl) {
+                selectionTeamStatusEl.textContent = isLanceBundleCharacter(armedCharacter)
+                    ? `Tap again to remove Lance's whole team.`
+                    : `Tap ${armedCharacter?.name || 'them'} again to remove them from your team.`;
+            }
             return;
         }
         const character = roster[assignment.characterIndex];

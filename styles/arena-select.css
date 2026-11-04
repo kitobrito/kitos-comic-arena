@@ -1816,3 +1816,17 @@ html.selection-mockup .as-shell.is-pokemon .as-roster-toggle {
 html.selection-mockup.as-portrait .as-shell.is-pokemon .as-team::before {
     border-color: rgba(61, 187, 108, 0.6);
 }
+
+/* Phones: a first tap on a team member arms it for removal; a second tap removes it. */
+.selected-character-slot.remove-armed,
+.as-shell .selected-character-slot.remove-armed {
+    outline: 3px solid #ff3b3b !important;
+    outline-offset: 2px;
+    border-color: #ff3b3b !important;
+    box-shadow: 0 0 0 2px #ff3b3b, 0 0 18px rgba(255, 59, 59, 0.9) !important;
+    animation: as-remove-armed 0.45s ease-in-out infinite alternate !important;
+}
+@keyframes as-remove-armed {
+    from { filter: brightness(1); }
+    to { filter: brightness(0.75) saturate(1.3); }
+}
