@@ -1673,3 +1673,11 @@ html.selection-mockup .as-shell.is-pokemon .as-title {
 html.selection-mockup.as-portrait .as-shell.is-pokemon .as-title {
     font-size: 34px;
 }
+
+/* Comic Arena: Spider-Man head instead of the Pokeball */
+html.selection-mockup .as-shell:not(.is-pokemon) {
+    --as-ball: url('../assets/images/comic-arena-spidey.svg');
+}
+html.selection-mockup .as-shell:not(.is-pokemon) .as-team-slots .selected-character-slot::before {
+    background-image: url('../assets/images/comic-arena-spidey.svg') !important;
+}
