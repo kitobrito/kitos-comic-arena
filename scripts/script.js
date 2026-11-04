@@ -20156,6 +20156,13 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         });
     };
 
+    // Phones use tap rules on the select screen (tap to preview, tap again to add, double tap to
+    // remove) in both orientations: an upright phone is narrow, a sideways phone is short.
+    const PHONE_SELECTION_MEDIA = '(max-width: 700px), (max-height: 540px)';
+    function isPhoneTouchSelection() {
+        return window.matchMedia('(pointer: coarse)').matches && window.matchMedia(PHONE_SELECTION_MEDIA).matches;
+    }
+
     const setSelectedSlot = (slotIndex, assignment, options = {}) => {
         const slotElement = selectedSlots[slotIndex];
         if (!slotElement) return;
@@ -20188,13 +20195,13 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             : character;
         const isMobileTeamTap =
             document.documentElement.classList.contains('selection-experimental') &&
-            window.matchMedia('(max-width: 700px) and (pointer: coarse)').matches;
+            isPhoneTouchSelection();
         slotElement.title = isMobileTeamTap
-            ? `Tap ${displayCharacter?.name || 'this character'} to remove them from your team.`
+            ? `Double-tap ${displayCharacter?.name || 'this character'} to remove them from your team.`
             : `Double-click ${displayCharacter?.name || 'this character'} to remove them from your team.`;
         slotElement.setAttribute(
             'aria-label',
-            `${displayCharacter?.name || 'Selected character'}; ${isMobileTeamTap ? 'tap' : 'double-click'} to remove`
+            `${displayCharacter?.name || 'Selected character'}; ${isMobileTeamTap ? 'double-tap' : 'double-click'} to remove`
         );
         const img = document.createElement('img');
         setSelectionThumbnailWithFallback(img, displayCharacter?.facePicture || '');
@@ -20327,7 +20334,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         if (!assignment) return;
         const isMobileTeamTap =
             document.documentElement.classList.contains('selection-experimental') &&
-            window.matchMedia('(max-width: 700px) and (pointer: coarse)').matches;
+            isPhoneTouchSelection();
         if (isMobileTeamTap) {
             // Phones: removing takes a double tap. The first tap arms the slot (it glows red and the
             // status line says so); a second tap on the same slot soon after removes the character.
@@ -20537,7 +20544,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         const isTouchFirstMobileSelection =
             event.pointerType !== 'mouse' &&
             document.documentElement.classList.contains('selection-experimental') &&
-            window.matchMedia('(max-width: 700px)').matches;
+            window.matchMedia(PHONE_SELECTION_MEDIA).matches;
         // On phones, a swipe that begins over a portrait must remain a page
         // scroll. Characters are selected with the normal tap/click handler.
         if (isTouchFirstMobileSelection) return;
@@ -20952,7 +20959,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                     const character = roster[rosterIndex];
                     const isTouchFirstMobileSelection =
                         document.documentElement.classList.contains('selection-experimental') &&
-                        window.matchMedia('(max-width: 700px) and (pointer: coarse)').matches;
+                        isPhoneTouchSelection();
                     if (
                         document.documentElement.classList.contains('selection-experimental') &&
                         isCharacterLocked(character)
@@ -20976,7 +20983,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 cancelSelectionPreview();
                 if (
                     document.documentElement.classList.contains('selection-experimental') &&
-                    window.matchMedia('(max-width: 700px) and (pointer: coarse)').matches
+                    isPhoneTouchSelection()
                 ) {
                     return;
                 }
