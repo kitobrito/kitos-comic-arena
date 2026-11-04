@@ -43,6 +43,8 @@
         burger: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v2.4H4zm0 4.8h16v2.4H4zm0 4.8h16V18H4z" fill="currentColor"/></svg>',
         chevL: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 4 7.5 12l8 8 1.9-1.9-6.1-6.1 6.1-6.1z" fill="currentColor"/></svg>',
         chevR: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 4 6.6 5.9l6.1 6.1-6.1 6.1L8.5 20l8-8z" fill="currentColor"/></svg>',
+        store: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7V6a5 5 0 0 1 10 0v1h3.5l-1.3 14.5H4.8L3.5 7zm2 0h6V6a3 3 0 0 0-6 0zm-1 3.2a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4zm8 0a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4z" fill="currentColor"/></svg>',
+        missions: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 2h2v1.2c3.2-1.4 5.6.9 8.7-.2l1.3-.5v10.9l-.6.3c-3.7 1.6-6.3-.8-9.4.4V22H5zm2 3.4v6.4c3-.9 5.5 1 8 .3V5.4c-2.6.6-5-1.2-8 0z" fill="currentColor"/></svg>',
         info: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1.2 15h-2.4v-6.5h2.4zM12 8.9a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z" fill="currentColor"/></svg>',
     };
 
@@ -242,6 +244,22 @@
             });
         }
         menu.appendChild(item);
+        // Store and Missions sit right after Rankings in the phone menu.
+        if (key === 'rankings') {
+            [['store', 'STORE', ICONS.store, '.experimental-store-toggle'],
+                ['missions', 'MISSIONS', ICONS.missions, '.experimental-missions-toggle']].forEach(function (entry) {
+                var extra = el('button', 'as-navbtn as-menu-item', entry[2] + '<span>' + entry[1] + '</span>');
+                extra.type = 'button';
+                extra.dataset.asNav = entry[0];
+                extra.addEventListener('click', function (event) {
+                    event.stopPropagation();
+                    setPop(null);
+                    var target = $(entry[3]);
+                    if (target) target.click();
+                });
+                menu.appendChild(extra);
+            });
+        }
     });
     document.addEventListener('click', function (event) {
         if (!openPop) return;
