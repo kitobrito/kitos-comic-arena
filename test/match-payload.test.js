@@ -658,7 +658,7 @@ test('buildMatchPayloadForUser preserves pokemon arena and hides opponent cooldo
     assert.equal(payload.board.gary[0].state.cooldowns, undefined);
     assert.equal(
         payload.backgroundOverride,
-        'assets/images/PokemonArena/backgrounds%20and%20weather/Default%20Background.jpg'
+        'assets/images/PokemonArena/battle-bg-pokemon.jpg'
     );
 });
 
