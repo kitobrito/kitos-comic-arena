@@ -1681,3 +1681,138 @@ html.selection-mockup .as-shell:not(.is-pokemon) {
 html.selection-mockup .as-shell:not(.is-pokemon) .as-team-slots .selected-character-slot::before {
     background-image: url('../assets/images/comic-arena-spidey.svg') !important;
 }
+
+
+/* ================================================================ POKEMON ARENA COLOURS
+   The original starters instead of Comic Arena's red: Bulbasaur green, Squirtle blue,
+   Charmander orange, with Pikachu yellow for highlights. */
+html.selection-mockup .as-shell.is-pokemon {
+    --as-red: #f5781e;
+    --as-red-hot: #ffcb05;
+    --pk-green: #3dbb6c;
+    --pk-blue: #2f8fe0;
+    --pk-orange: #f5781e;
+    --pk-yellow: #ffcb05;
+    --as-panel: rgba(9, 18, 30, 0.9);
+    --as-brush: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 60' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' x2='1'%3E%3Cstop offset='0' stop-color='%233dbb6c' stop-opacity='.95'/%3E%3Cstop offset='.4' stop-color='%232f8fe0' stop-opacity='.92'/%3E%3Cstop offset='.78' stop-color='%23f5781e' stop-opacity='.9'/%3E%3Cstop offset='1' stop-color='%23ffcb05' stop-opacity='0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M6 22 L40 12 L120 9 L210 6 L300 9 L360 4 L398 10 L372 18 L396 24 L350 30 L392 38 L330 42 L360 50 L250 52 L150 55 L60 54 L18 50 L34 42 L2 38 L26 30z' fill='url(%23g)'/%3E%3Cpath d='M60 18 L260 12 L380 14 L250 20z M90 46 L300 44 L210 50z' fill='%23ffffff' opacity='.15'/%3E%3C/svg%3E");
+}
+html.selection-mockup body.arena-mode-pokemon .background::before {
+    background:
+        linear-gradient(180deg, rgba(10, 40, 70, 0.35), rgba(8, 28, 40, 0.5)),
+        radial-gradient(ellipse at 50% 120%, rgba(0, 0, 0, 0.55), transparent 60%),
+        url('../assets/images/arena-select-bg.jpg') center 18% / cover no-repeat,
+        #06101a;
+    filter: hue-rotate(-150deg) saturate(0.8);
+}
+html.selection-mockup .as-shell.is-pokemon .as-frame {
+    border-color: rgba(200, 235, 255, 0.55);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(0, 0, 0, 0.5),
+        0 0 26px rgba(47, 143, 224, 0.28), 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+html.selection-mockup .as-shell.is-pokemon .as-header {
+    border-bottom: 3px solid transparent;
+    border-image: linear-gradient(90deg, var(--pk-green), var(--pk-blue), var(--pk-orange), var(--pk-yellow)) 1;
+    box-shadow: 0 2px 14px rgba(47, 143, 224, 0.4), 0 1px 0 rgba(255, 255, 255, 0.08) inset;
+}
+html.selection-mockup .as-shell.is-pokemon .as-title-b {
+    background: linear-gradient(180deg, #ffd84a 15%, #f5781e 90%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: none;
+    filter: drop-shadow(0 0 8px rgba(245, 120, 30, 0.5)) drop-shadow(0 2px 0 rgba(0, 0, 0, 0.6));
+}
+html.selection-mockup .as-shell.is-pokemon .as-navbtn:hover, html.selection-mockup .as-shell.is-pokemon .as-navbtn.active, html.selection-mockup .as-shell.is-pokemon .as-burger:hover, html.selection-mockup .as-shell.is-pokemon .as-burger.active {
+    border-color: var(--pk-yellow);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 0 12px rgba(255, 203, 5, 0.55);
+}
+html.selection-mockup .as-shell.is-pokemon .as-panel {
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.6), inset 0 0 22px rgba(47, 143, 224, 0.22),
+        0 0 10px rgba(61, 187, 108, 0.28), 0 8px 20px rgba(0, 0, 0, 0.45);
+}
+html.selection-mockup .as-shell.is-pokemon .as-heading::before { filter: drop-shadow(0 0 6px rgba(47, 143, 224, 0.45)); }
+html.selection-mockup .as-shell.is-pokemon .as-feature {
+    background:
+        radial-gradient(circle at 38% 52%, rgba(47, 143, 224, 0.55), rgba(61, 187, 108, 0.25) 32%, transparent 60%),
+        radial-gradient(circle at 38% 52%, transparent 0 128px, rgba(255, 255, 255, 0.06) 129px 131px, transparent 132px 172px, rgba(255, 255, 255, 0.05) 173px 175px, transparent 176px),
+        linear-gradient(180deg, #0f1a26, #080e16);
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.6), 0 0 12px rgba(47, 143, 224, 0.35);
+}
+html.selection-mockup.as-portrait .as-shell.is-pokemon .as-feature {
+    background:
+        radial-gradient(circle at 66% 50%, rgba(47, 143, 224, 0.55), rgba(61, 187, 108, 0.25) 32%, transparent 60%),
+        linear-gradient(180deg, #0f1a26, #080e16);
+}
+html.selection-mockup .as-shell.is-pokemon .as-stage-glow { background: radial-gradient(circle, rgba(255, 203, 5, 0.22), transparent 65%); }
+html.selection-mockup .as-shell.is-pokemon .as-arrow {
+    background: linear-gradient(180deg, #2f8fe0, #135290);
+    box-shadow: 0 0 10px rgba(47, 143, 224, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+html.selection-mockup .as-shell.is-pokemon .as-arrow:hover { box-shadow: 0 0 16px rgba(47, 143, 224, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.25); }
+html.selection-mockup .as-shell.is-pokemon .as-dot.active { background: var(--pk-yellow); box-shadow: 0 0 8px rgba(255, 203, 5, 0.9); }
+html.selection-mockup .as-shell.is-pokemon .as-roster .slot-item.keyboard-highlighted:not(.slot-empty) {
+    border-color: var(--pk-yellow) !important;
+    box-shadow: 0 0 0 1px #fff3b0, 0 0 14px rgba(255, 203, 5, 0.95), inset 0 0 10px rgba(255, 203, 5, 0.4) !important;
+}
+html.selection-mockup .as-shell.is-pokemon .as-team-slots .selected-character-slot {
+    border-color: rgba(61, 187, 108, 0.85) !important;
+    background:
+        radial-gradient(circle at 50% 50%, rgba(47, 143, 224, 0.28), transparent 70%),
+        linear-gradient(180deg, #0c1622, #060b12) !important;
+    box-shadow: 0 0 12px rgba(61, 187, 108, 0.55), inset 0 0 14px rgba(47, 143, 224, 0.35) !important;
+}
+html.selection-mockup .as-shell.is-pokemon .as-team-slots .selected-character-slot.drag-over,
+html.selection-mockup .as-shell.is-pokemon .as-team-slots .selected-character-slot.keyboard-highlighted {
+    border-color: var(--pk-yellow) !important;
+    box-shadow: 0 0 18px rgba(255, 203, 5, 0.9), inset 0 0 14px rgba(47, 143, 224, 0.5) !important;
+}
+html.selection-mockup .as-shell.is-pokemon .as-team-status.flash { animation-name: pk-flash; }
+@keyframes pk-flash { 0%, 60% { color: #fff; text-shadow: 0 0 10px rgba(255, 203, 5, 0.95); } }
+html.selection-mockup .as-shell.is-pokemon .as-option.active {
+    border-color: rgba(160, 240, 190, 0.9);
+    background: linear-gradient(180deg, #3dbb6c, #1d7a40);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 0 14px rgba(61, 187, 108, 0.7);
+}
+html.selection-mockup.as-portrait .as-shell.is-pokemon .as-option.active {
+    background: linear-gradient(180deg, #123a24, #0a1f14);
+    border-color: var(--pk-green);
+    box-shadow: inset 0 0 10px rgba(61, 187, 108, 0.45), 0 0 10px rgba(61, 187, 108, 0.6);
+}
+html.selection-mockup .as-shell.is-pokemon .as-start { text-shadow: 0 3px 0 rgba(120, 50, 0, 0.75); }
+html.selection-mockup .as-shell.is-pokemon .as-start::before {
+    background: linear-gradient(180deg, #ffd23a 0%, #f5961e 50%, #e0601a 100%);
+    border-color: rgba(255, 236, 160, 0.9);
+    box-shadow: 0 0 22px rgba(245, 120, 30, 0.8), inset 0 2px 0 rgba(255, 255, 255, 0.45), inset 0 -6px 14px rgba(140, 50, 0, 0.45);
+}
+html.selection-mockup .as-shell.is-pokemon .as-pop, html.selection-mockup body.arena-mode-pokemon .as-modal-card {
+    border-color: rgba(47, 143, 224, 0.8);
+    box-shadow: 0 0 18px rgba(47, 143, 224, 0.45), 0 16px 36px rgba(0, 0, 0, 0.7);
+}
+html.selection-mockup .as-shell.is-pokemon .as-settings .sound-volume { accent-color: var(--pk-orange); }
+html.selection-mockup .as-shell.is-pokemon .as-set-grid > *:hover, html.selection-mockup .as-shell.is-pokemon .as-set-grid > .active, html.selection-mockup .as-shell.is-pokemon .as-games .arena-mode-button:hover {
+    border-color: var(--pk-yellow) !important;
+    box-shadow: 0 0 10px rgba(255, 203, 5, 0.5) !important;
+}
+html.selection-mockup .as-shell.is-pokemon .as-set-grid > .as-set-logout { border-color: rgba(245, 120, 30, 0.7) !important; }
+html.selection-mockup .as-shell.is-pokemon .as-games .arena-mode-button.active {
+    border-color: rgba(160, 240, 190, 0.9) !important;
+    background: linear-gradient(180deg, #3dbb6c, #1d7a40) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 0 12px rgba(61, 187, 108, 0.7) !important;
+}
+html.selection-mockup body.arena-mode-pokemon .as-rank-board h3 { color: var(--pk-yellow, #ffcb05); }
+html.selection-mockup body.arena-mode-pokemon .roster-filter-panel, html.selection-mockup body.arena-mode-pokemon .selection-missions-panel {
+    border-color: rgba(47, 143, 224, 0.8) !important;
+    box-shadow: 0 0 18px rgba(47, 143, 224, 0.45), 0 16px 36px rgba(0, 0, 0, 0.7) !important;
+}
+html.selection-mockup body.arena-mode-pokemon .as-skill-backdrop .skillviewer {
+    border-color: rgba(47, 143, 224, 0.75) !important;
+    background: linear-gradient(180deg, #111c28, #090f17) !important;
+    box-shadow: 0 0 22px rgba(47, 143, 224, 0.45), 0 20px 50px rgba(0, 0, 0, 0.7) !important;
+}
+html.selection-mockup .as-shell.is-pokemon .as-roster-toggle {
+    border-color: rgba(47, 143, 224, 0.85);
+    box-shadow: 0 0 10px rgba(47, 143, 224, 0.45);
+}
+html.selection-mockup.as-portrait .as-shell.is-pokemon .as-team::before {
+    border-color: rgba(61, 187, 108, 0.6);
+}
