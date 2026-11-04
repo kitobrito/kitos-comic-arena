@@ -1683,6 +1683,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         'aquaman': 'assets/images/BIB/comic/aquaman.png',
         'atom-eve': 'assets/images/BIB/comic/atom-eve.png',
         'atrocitus': 'assets/images/BIB/comic/atrocitus.png',
+        'batman': 'assets/images/BIB/comic/batman.webp',
         'billy-butcher': 'assets/images/BIB/comic/billy-butcher.webp',
         'boba-fett': 'assets/images/BIB/comic/boba-fett.png',
         'captain-america': 'assets/images/BIB/comic/captain-america.png',
