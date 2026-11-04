@@ -63,10 +63,10 @@ test('Pokemon status rendering falls back to the source skill description, not i
     );
 });
 
-test('desktop keeps double-click removal while mobile team portraits remove with one tap', () => {
+test('desktop keeps double-click removal while mobile team portraits remove with a double tap', () => {
     assert.match(
         script,
-        /const handleSelectedSlotClick = \(slotIndex\) => \{[\s\S]*?\(max-width: 700px\) and \(pointer: coarse\)[\s\S]*?handleSelectedSlotDoubleClick\(slotIndex\);[\s\S]*?handleCharacterSelect\(assignment\.characterIndex, \{\s*openViewer: true,/
+        /const handleSelectedSlotClick = \(slotIndex\) => \{[\s\S]*?isPhoneTouchSelection\(\)[\s\S]*?armedTeamTap\.slot === slotIndex[\s\S]*?handleSelectedSlotDoubleClick\(slotIndex\);[\s\S]*?handleCharacterSelect\(assignment\.characterIndex, \{\s*openViewer: true,/
     );
     assert.match(
         script,

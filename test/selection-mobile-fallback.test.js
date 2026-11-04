@@ -76,7 +76,9 @@ test('small desktop windows use non-overlapping compact selection rails', () => 
 test('mobile portrait swipes remain native vertical page scrolling', () => {
     assert.match(script, /const isTouchFirstMobileSelection =\s*event\.pointerType !== 'mouse'/);
     assert.match(script, /if \(isTouchFirstMobileSelection\) return/);
-    assert.match(script, /window\.matchMedia\('\(max-width: 700px\) and \(pointer: coarse\)'\)\.matches/);
+    // Phones in either orientation: narrow when upright, short when sideways.
+    assert.match(script, /const PHONE_SELECTION_MEDIA = '\(max-width: 700px\), \(max-height: 540px\)'/);
+    assert.match(script, /function isPhoneTouchSelection\(\) \{\s*return window\.matchMedia\('\(pointer: coarse\)'\)\.matches && window\.matchMedia\(PHONE_SELECTION_MEDIA\)\.matches;/);
     assert.match(experimentalStyles, /\.slot-list[^}]*touch-action:\s*pan-y pinch-zoom/s);
     assert.match(experimentalStyles, /background-attachment:\s*scroll/);
     assert.match(experimentalStyles, /-webkit-overflow-scrolling:\s*touch/);
