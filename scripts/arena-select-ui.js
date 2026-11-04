@@ -365,7 +365,11 @@
         return tile.offsetHeight + (parseFloat(getComputedStyle(slotList).rowGap) || 0);
     };
     var totalPages = function () { return Math.max(1, Math.ceil(liveTiles().length / PER_PAGE)); };
+    var pagerTarget = null;
+    var pagerTargetAt = 0;
     var currentPage = function () {
+        // While a page flip is still sliding, the page we're heading to counts.
+        if (pagerTarget != null && Date.now() - pagerTargetAt < 450) return pagerTarget;
         var step = rowStep();
         return step ? Math.round(rosterBox.scrollTop / step) : 0;
     };
@@ -376,6 +380,8 @@
     var goPage = function (page, smooth) {
         var total = totalPages();
         page = ((page % total) + total) % total;
+        pagerTarget = page;
+        pagerTargetAt = Date.now();
         rosterBox.scrollTo({ top: page * rowStep(), behavior: smooth === false ? 'auto' : 'smooth' });
         window.setTimeout(syncPager, 320);
         pageCount.textContent = (page + 1) + ' / ' + total;
@@ -574,8 +580,10 @@
 
     /* ------------------------------------------------------- arena changes */
     var lastArena = null;
+    var titleA = $('.as-title-a', shell);
     var syncArena = function () {
         syncHome();
+        titleA.textContent = isPokemon() ? 'POK\u00c9MON-' : 'COMIC-';
         shell.classList.toggle('is-pokemon', isPokemon());
         var arena = isPokemon() ? 'pokemon' : 'comic';
         if (lastArena && lastArena !== arena) {

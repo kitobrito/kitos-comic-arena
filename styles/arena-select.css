@@ -695,11 +695,17 @@ html.selection-mockup.as-portrait .as-roster .slot-list {
 html.selection-mockup .as-roster .slot-item {
     position: relative !important;
     inset: auto !important;
-    width: auto !important;
-    height: auto !important;
-    aspect-ratio: 1 / 1;
+    /* Square tiles via the padding trick: works the same in Safari, where a
+       grid item sized only by aspect-ratio collapses to 0 x 0. */
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    justify-self: stretch !important;
+    align-self: start !important;
     margin: 0 !important;
-    padding: 0 !important;
+    padding: 0 0 calc(100% - 4px) 0 !important;
     border-radius: 8px !important;
     border: 2px solid rgba(225, 222, 235, 0.32) !important;
     background: #15131b !important;
@@ -1658,4 +1664,12 @@ html.selection-mockup .as-roster-toggle svg {
 }
 html.selection-mockup .as-roster.is-expanded .as-roster-toggle svg {
     transform: rotate(-90deg);
+}
+
+/* Pokemon Arena title is longer: keep it clear of the nav / menu button */
+html.selection-mockup .as-shell.is-pokemon .as-title {
+    font-size: 54px;
+}
+html.selection-mockup.as-portrait .as-shell.is-pokemon .as-title {
+    font-size: 34px;
 }
