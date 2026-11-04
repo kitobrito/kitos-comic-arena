@@ -333,15 +333,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         const toggle = document.getElementById('ingame-sound-controller-toggle');
         const controller = document.getElementById('ingame-sound-controller');
         if (!toggle || !controller) return;
-        toggle.addEventListener('click', () => {
-            const isOpen = controller.classList.toggle('ingame-sound-controller-open');
+        // The bottom-row Settings button (widescreen battle screen) opens the same panel.
+        const settingsButton = document.getElementById('battle-settings-button');
+        const setOpen = (isOpen) => {
+            controller.classList.toggle('ingame-sound-controller-open', isOpen);
             toggle.setAttribute('aria-expanded', String(isOpen));
-        });
+            settingsButton?.setAttribute('aria-expanded', String(isOpen));
+            settingsButton?.classList.toggle('active', isOpen);
+        };
+        toggle.addEventListener('click', () => setOpen(!controller.classList.contains('ingame-sound-controller-open')));
+        settingsButton?.addEventListener('click', () => setOpen(!controller.classList.contains('ingame-sound-controller-open')));
         document.addEventListener('click', (event) => {
             if (!controller.classList.contains('ingame-sound-controller-open')) return;
-            if (controller.contains(event.target) || toggle.contains(event.target)) return;
-            controller.classList.remove('ingame-sound-controller-open');
-            toggle.setAttribute('aria-expanded', 'false');
+            if (controller.contains(event.target) || toggle.contains(event.target) || settingsButton?.contains(event.target)) return;
+            setOpen(false);
         });
     };
     applyUiSettings();
@@ -1127,9 +1132,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         POKEMON_SELECTION_BACKGROUND_URLS[
             Math.floor(Math.random() * POKEMON_SELECTION_BACKGROUND_URLS.length)
         ] || 'assets/images/PokemonArena/characterselectbgpokemonarena.png';
-    const COMIC_INGAME_BACKGROUND_URL = 'assets/images/newingamebgCA.png';
-    const POKEMON_INGAME_BACKGROUND_URL =
-        'assets/images/PokemonArena/backgrounds%20and%20weather/Default%20Background.jpg';
+    const COMIC_INGAME_BACKGROUND_URL = 'assets/images/battle-bg-comic.jpg';
+    const POKEMON_INGAME_BACKGROUND_URL = 'assets/images/PokemonArena/battle-bg-pokemon.jpg';
+    // Matches created before the widescreen battle screen still name the old default
+    // backgrounds; show the new widescreen art for those instead.
+    const LEGACY_DEFAULT_BATTLE_BACKGROUNDS = {
+        'assets/images/newingamebgca.png': COMIC_INGAME_BACKGROUND_URL,
+        'assets/images/defaultbgca.png': COMIC_INGAME_BACKGROUND_URL,
+        'assets/images/pokemonarena/newingamebgpa.png': POKEMON_INGAME_BACKGROUND_URL,
+        'assets/images/pokemonarena/backgrounds%20and%20weather/default%20background.jpg': POKEMON_INGAME_BACKGROUND_URL,
+        'assets/images/pokemonarena/backgrounds and weather/default background.jpg': POKEMON_INGAME_BACKGROUND_URL,
+    };
+    const normalizeBattleBackgroundUrl = (url = '') => {
+        const trimmed = String(url || '').trim();
+        const key = trimmed.replace(/^\/+/, '').toLowerCase();
+        return LEGACY_DEFAULT_BATTLE_BACKGROUNDS[key] || trimmed;
+    };
     // Lets players without skill-cast animations enabled still see weather visually, by swapping
     // the arena background to match whatever weather is currently active.
     const POKEMON_WEATHER_BACKGROUND_URLS = {
@@ -3482,15 +3500,23 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 window.innerHeight,
                 window.visualViewport?.height || window.innerHeight
             );
-            // The board is designed at a fixed 770x560 canvas and scaled to fit. Capping
+            // The board is designed at a fixed 996x560 (widescreen) canvas and scaled to fit. Capping
             // at 1 meant it never grew past its native size, so a maximized desktop
             // window left it looking small in a sea of black background (players had to
             // zoom the browser itself to compensate). Let it scale up too, bounded so
             // raster art doesn't get upscaled past a soft-looking point.
+            // Upright phones get the tall portrait layout (480x800 canvas, see
+            // ingame-arena-skin.css html.battle-portrait); everything else the widescreen one.
+            const portrait = viewportHeight > viewportWidth * 1.15;
+            document.documentElement.classList.toggle('battle-portrait', portrait);
+            const canvasW = portrait ? 480 : 996;
+            // Portrait: as tall as the phone allows (800-1100), so the screen is filled top to bottom.
+            const canvasH = portrait ? Math.round(Math.min(1100, Math.max(800, (480 * viewportHeight) / viewportWidth))) : 560;
+            experimentalBattleRoot.style.setProperty('--battle-canvas-h', `${canvasH}px`);
             const scale = Math.min(
                 EXPERIMENTAL_BATTLE_MAX_SCALE,
-                Math.max(0.3, (viewportWidth - 12) / 770),
-                Math.max(0.3, (viewportHeight - 12) / 560)
+                Math.max(0.3, (viewportWidth - (portrait ? 0 : 12)) / canvasW),
+                Math.max(0.3, (viewportHeight - (portrait ? 0 : 12)) / canvasH)
             );
             experimentalBattleRoot.style.setProperty('--experimental-battle-scale', scale.toFixed(4));
         };
@@ -13368,7 +13394,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             }
             writeCachedMatchArena(matchIdFromUrl || data.matchId, currentMatchArena);
             if (typeof data.backgroundOverride === 'string' && data.backgroundOverride.trim()) {
-                currentMatchBackgroundUrl = data.backgroundOverride.trim();
+                currentMatchBackgroundUrl = normalizeBattleBackgroundUrl(data.backgroundOverride);
             }
             setIngameArenaUiAssets(currentMatchArena);
             syncEnergyNameLabels();
@@ -13414,6 +13440,11 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                         ? POKEMON_INGAME_BACKGROUND_URL
                         : COMIC_INGAME_BACKGROUND_URL);
                 setBackgroundImage(backgroundEl, fallbackUrl, currentMatchArena === 'pokemon');
+                // The default arena art has a tall version for upright phones (styles/ingame-arena-skin.css).
+                document.body.classList.toggle(
+                    'battle-default-bg',
+                    fallbackUrl === POKEMON_INGAME_BACKGROUND_URL || fallbackUrl === COMIC_INGAME_BACKGROUND_URL
+                );
             }
             const activePokemonWeather = currentMatchArena === 'pokemon' ? data?.weather : null;
             renderWeatherBanner(activePokemonWeather);
@@ -14087,7 +14118,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                     ? 'pokemon'
                     : 'comic';
             const introBackgroundUrl =
-                (typeof data?.backgroundOverride === 'string' && data.backgroundOverride.trim()) ||
+                (typeof data?.backgroundOverride === 'string' && normalizeBattleBackgroundUrl(data.backgroundOverride)) ||
                 currentMatchBackgroundUrl ||
                 (introArena === 'pokemon'
                     ? POKEMON_INGAME_BACKGROUND_URL

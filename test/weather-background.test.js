@@ -8,6 +8,9 @@ const root = path.join(__dirname, '..');
 test('every referenced weather/default arena background file exists locally', () => {
     const backgroundFiles = [
         'assets/images/PokemonArena/backgrounds and weather/Default Background.jpg',
+        'assets/images/PokemonArena/battle-bg-pokemon.jpg',
+        'assets/images/battle-bg-comic.jpg',
+        'assets/images/battle-bg-comic-portrait.jpg',
         'assets/images/PokemonArena/backgrounds and weather/Snowstorm.jpg',
         'assets/images/PokemonArena/backgrounds and weather/Wildfire.jpg',
         'assets/images/PokemonArena/backgrounds and weather/Lightning Storm.jpg',
@@ -22,7 +25,7 @@ test('client maps each active weather key to its background image and swaps the 
     const script = fs.readFileSync(path.join(root, 'scripts', 'script.js'), 'utf8');
     assert.match(
         script,
-        /POKEMON_INGAME_BACKGROUND_URL\s*=\s*\n?\s*'assets\/images\/PokemonArena\/backgrounds%20and%20weather\/Default%20Background\.jpg'/
+        /POKEMON_INGAME_BACKGROUND_URL\s*=\s*\n?\s*'assets\/images\/PokemonArena\/battle-bg-pokemon\.jpg'/
     );
     assert.match(script, /POKEMON_WEATHER_BACKGROUND_URLS\s*=\s*\{/);
     assert.match(script, /snowstorm:\s*'assets\/images\/PokemonArena\/backgrounds%20and%20weather\/Snowstorm\.jpg'/);
