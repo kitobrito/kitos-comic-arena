@@ -8611,8 +8611,8 @@ const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonical
             'koffing-weezing-self-destruct': ['useBaseSkillCooldown'],
         },
         abra: {
-            'abra-teleport': ['target'],
-            'kadabra-teleport': ['target'],
+            'abra-teleport': ['target', 'skilldescription'],
+            'kadabra-teleport': ['target', 'skilldescription'],
         },
         squirtle: {
             'wartortle-shell-guard': ['target', 'skilldescription'],

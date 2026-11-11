@@ -24626,12 +24626,12 @@ const characters = [
                 "id": "abra-teleport",
                 "name": "Teleport",
                 "skillimage": "assets/images/PokemonArena/abra/teleport.webp",
-                "skilldescription": "Abra and one selected ally become invulnerable for 1 turn.",
+                "skilldescription": "Abra and one selected ally become invulnerable for 1 turn. If Abra is alone, he can target himself.",
                 "energy": [
                     "Random",
                     "Random"
                 ],
-                "target": "single-ally",
+                "target": "self-or-single-ally",
                 "damage": 0,
                 "cooldown": 4,
                 "classes": [
@@ -24827,12 +24827,12 @@ const characters = [
                     "statusId": "abra_kadabra_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/abra/Kadabrateleport.webp",
-                "skilldescription": "Kadabra and one selected ally become invulnerable for 1 turn, and all enemy skills currently affecting them are removed.",
+                "skilldescription": "Kadabra and one selected ally become invulnerable for 1 turn, and all enemy skills currently affecting them are removed. If Kadabra is alone, he can target himself.",
                 "energy": [
                     "Random",
                     "Random"
                 ],
-                "target": "single-ally",
+                "target": "self-or-single-ally",
                 "damage": 0,
                 "cooldown": 4,
                 "classes": [
