@@ -59,6 +59,7 @@ const { syncPokemonAegislashRelease } = require('./sync_pokemon_aegislash_releas
 const { syncPokemonDittoRelease } = require('./sync_pokemon_ditto_release');
 const { syncPokemonDragapultRelease } = require('./sync_pokemon_dragapult_release');
 const { syncPokemonNincadaRelease } = require('./sync_pokemon_nincada_release');
+const { syncArenaPortalUpdateNews } = require('./sync_arena_portal_update_news');
 const {
     EVENT_DURATION_MS: PRIMEAPE_EVENT_DURATION_MS,
     syncPokemonPrimeapeRelease,
@@ -5500,6 +5501,53 @@ const POKEMON_ONIX_MISSION_ENTRY = {
     sortOrder: 16,
 };
 
+const POKEMON_BLAZIKEN_MISSION_ENTRY = {
+    missionId: 'blaziken-blazing-kick-trial',
+    title: 'Blaziken Blazing Kick Trial',
+    level_requirement: 10,
+    rank: '10',
+    reward_character: 'blaziken',
+    reward_character_name: 'Blaziken',
+    reward: 'Unlock Blaziken.',
+    unlock_point_cost: 300,
+    arena: 'pokemon',
+    mode_restriction: {
+        allowed_modes: ['quick', 'ladder'],
+    },
+    win_streak: {
+        character_id: '',
+        character_name: '',
+        wins: 0,
+    },
+    image: 'assets/images/PokemonArena/missionpics/blaziken.webp',
+    imageAlt: 'Blaziken mission artwork',
+    characterName: 'Blaziken',
+    portrait: 'assets/images/PokemonArena/blaziken/blazikenfp.webp',
+    portraitAlt: 'Blaziken portrait',
+    requirements: [
+        'Master the flames of two Fire starters.',
+        'Win 10 Quick or Ladder matches with Charmander and win 4 in a row with Charmander.',
+        'Win 10 Quick or Ladder matches with Cyndaquil and win 4 in a row with Cyndaquil.',
+        'Bot and human opponents both count.',
+    ],
+    goals: [
+        { type: 'win_matches', character_id: 'charmander', character_name: 'Charmander', wins: 10 },
+        { type: 'win_streak', character_id: 'charmander', character_name: 'Charmander', wins: 4 },
+        { type: 'win_matches', character_id: 'cyndaquil', character_name: 'Cyndaquil', wins: 10 },
+        { type: 'win_streak', character_id: 'cyndaquil', character_name: 'Cyndaquil', wins: 4 },
+    ],
+    special_pve: {
+        enabled: false,
+        buttonLabel: 'Start Fight',
+        botName: 'Mission Bot',
+        botTeamCharacterId: '',
+        botTeamSize: 3,
+        backgroundImage: '',
+        playerTeamCharacterIds: [],
+    },
+    sortOrder: 234,
+};
+
 const POKEMON_AEGISLASH_MISSION_ENTRY = {
     missionId: 'aegislash-kings-shield-trial',
     title: "Aegislash King's Shield Trial",
@@ -6311,6 +6359,7 @@ const ensureRequiredMissionCatalogEntries = (missions = []) => {
     upsertRequiredMission(POKEMON_AERODACTYL_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'aerodactyl');
     upsertRequiredMission(POKEMON_ONIX_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'onix');
     upsertRequiredMission(POKEMON_AEGISLASH_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'aegislash');
+    upsertRequiredMission(POKEMON_BLAZIKEN_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'blaziken');
     upsertRequiredMission(POKEMON_DITTO_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'ditto');
     upsertRequiredMission(POKEMON_SCRAGGY_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'scraggy');
     upsertRequiredMission(POKEMON_DRAGAPULT_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'dragapult');
@@ -9285,13 +9334,25 @@ const normalizeNewsChanges = (value) =>
         .filter(Boolean)
         .slice(0, 200);
 
+// Links in news posts may only point inside the site ("/missions.html", "/pokemon-missions").
+const NEWS_LINK_HREF_RE = /^\/(?!\/)[A-Za-z0-9\-._~/?=&#%]*$/;
 const normalizeNewsBlocks = (value) =>
     (Array.isArray(value) ? value : [])
-        .map((entry) => ({
-            type: typeof entry?.type === 'string' ? entry.type.trim().toLowerCase() : 'paragraph',
-            text: typeof entry?.text === 'string' ? entry.text.trim() : '',
-        }))
-        .filter((entry) => entry.type === 'divider' || (entry.type === 'paragraph' && entry.text))
+        .map((entry) => {
+            const type = typeof entry?.type === 'string' ? entry.type.trim().toLowerCase() : 'paragraph';
+            const block = { type, text: typeof entry?.text === 'string' ? entry.text.trim() : '' };
+            if (type === 'link') {
+                const href = typeof entry?.href === 'string' ? entry.href.trim() : '';
+                block.href = NEWS_LINK_HREF_RE.test(href) ? href : '';
+            }
+            return block;
+        })
+        .filter(
+            (entry) =>
+                entry.type === 'divider' ||
+                (entry.type === 'paragraph' && entry.text) ||
+                (entry.type === 'link' && entry.text && entry.href)
+        )
         .slice(0, 200);
 
 const normalizeNewsArena = (post = {}) => {
@@ -14538,6 +14599,9 @@ async function initDb() {
     if (primeapeReleaseSync.migrated) {
         console.log('Published the Primeape and Annihilape seven-day release.');
     }
+    // After the Primeape sync above, which also rewrites Latest Releases on every start.
+    await syncArenaPortalUpdateNews(db);
+    console.log('Synced the Arena Portal update news posts (Deadpool, Blaziken).');
     const compensationSync = await syncPokemonCompensationGrant(db);
     if (compensationSync.migrated) {
         console.log(

@@ -2867,7 +2867,13 @@ const resolveEffectDamageAmount = ({
             Number(effect?.metadata?.bonusDamageIfActorHasDestructibleDefense) || 0
         );
     }
-    const effectiveSkillClasses = Array.isArray(skillClasses) ? [...skillClasses] : [];
+    // A damage effect can name its own classes (e.g. the physical half of a mixed skill), the same
+    // way the damage queue below reads effect.metadata.skillClasses.
+    const effectiveSkillClasses = Array.isArray(effect?.metadata?.skillClasses)
+        ? [...effect.metadata.skillClasses]
+        : Array.isArray(skillClasses)
+        ? [...skillClasses]
+        : [];
     if (Boolean(effect?.metadata?.afflictionDamage) && !hasSkillClass(effectiveSkillClasses, 'affliction')) {
         effectiveSkillClasses.push('affliction');
     }
@@ -3997,6 +4003,17 @@ const maybeTriggerReactiveDefenses = ({
         const remaining = Number(status?.remainingTurns) || 0;
         const metadata = status?.metadata || {};
         if (Boolean(metadata?.triggerOnOwnerHarmfulSkillOnly) && !isSelfTrapTrigger) return false;
+        // A counter a character put on itself or an ally (Sky Uppercut, Whirling Blades, Sith
+        // Brutality) waits for the ENEMY's skill: its owner's own harmful skill never sets it off.
+        // Traps an enemy placed on the caster (Omni-Guard, Sneaky Portal) still trigger here.
+        if (
+            isSelfTrapTrigger &&
+            !Boolean(metadata?.triggerOnOwnerHarmfulSkillOnly) &&
+            status?.sourceUsername &&
+            status.sourceUsername === actingUsername
+        ) {
+            return false;
+        }
         if (
             (Boolean(metadata?.triggerOnEnemyHarmfulNonMental) ||
                 Boolean(metadata?.triggerOnEnemyHarmfulSkill)) &&
@@ -7067,6 +7084,53 @@ const refundReservedChakraForSkippedAction = ({ match, username, pending, entry 
     match.chakraPools[username] = pool;
 };
 
+// "Its next harmful skill deals X additional affliction damage" (Blaziken's Fiery Roar / Blaze Kick).
+// A status on the caster with nextHarmfulSkillAfflictionBonus adds one extra affliction hit to the
+// next harmful skill(s) the owner uses, aimed like that skill's first damaging effect. Each harmful
+// skill uses one charge (nextHarmfulSkillBonusUses, default 1); the status goes when they run out.
+// nextHarmfulSkillBonusOnDealtApplyStatusToOwner is given to the owner the first time the bonus
+// actually lands, unless the owner already has it (Blaziken's Mega Evolution).
+const withNextHarmfulSkillBonus = ({ actorState, skill, effects }) => {
+    if (!actorState || !skill || !Array.isArray(effects) || !skillHasHarmfulEffects(skill)) return effects;
+    const statuses = Array.isArray(actorState.statuses) ? actorState.statuses : [];
+    const bonusStatus = statuses.find(
+        (status) =>
+            (Number(status?.remainingTurns) || 0) > 0 &&
+            Math.max(0, Number(status?.metadata?.nextHarmfulSkillAfflictionBonus) || 0) > 0
+    );
+    if (!bonusStatus) return effects;
+    const metadata = bonusStatus.metadata;
+    const amount = Math.max(0, Number(metadata.nextHarmfulSkillAfflictionBonus) || 0);
+    const firstDamage = effects.find(
+        (effect) =>
+            (effect?.type === 'damage' || effect?.type === 'health_steal_damage') &&
+            effect?.scope !== 'self' &&
+            effect?.scope !== 'all-allies'
+    );
+    const usesLeft = Math.max(1, Number(metadata.nextHarmfulSkillBonusUses) || 1) - 1;
+    if (usesLeft > 0) {
+        metadata.nextHarmfulSkillBonusUses = usesLeft;
+    } else {
+        actorState.statuses = statuses.filter((status) => status !== bonusStatus);
+    }
+    if (!firstDamage) return effects;
+    const onDealt = metadata.nextHarmfulSkillBonusOnDealtApplyStatusToOwner;
+    const grantOnDealt = onDealt?.statusId && !hasStatus(actorState, onDealt.statusId) ? onDealt : null;
+    return [
+        ...effects,
+        {
+            type: 'damage',
+            amount,
+            scope: firstDamage.scope || 'target',
+            metadata: {
+                afflictionDamage: true,
+                nextHarmfulSkillBonusDamage: true,
+                ...(grantOnDealt ? { onSuccessfulDamageApplyStatusToOwner: grantOnDealt } : {}),
+            },
+        },
+    ];
+};
+
 const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
     if (!match || !actingUsername) return;
     const pending = match.pendingTurns?.[actingUsername];
@@ -7707,14 +7771,15 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
             skillIsMental,
         });
 
-        const effects = Array.isArray(skill.effects) ? skill.effects : [];
-        if (!effects.length) continue;
+        const baseEffects = Array.isArray(skill.effects) ? skill.effects : [];
+        if (!baseEffects.length) continue;
         if (
             !doesActorSatisfySkillCondition(actorUnit, actorState, skill, {
                 characters,
                 ignoreMaxUses: true,
             })
         ) continue;
+        const effects = withNextHarmfulSkillBonus({ actorState, skill, effects: baseEffects });
         const skillCannotBeCountered =
             Boolean(skill?.cannotBeCountered) || hasSkillClass(skill?.classes || [], 'uncounterable');
         const actingCharacterId = normalizeBattleCharacterId(actorCharacter) || null;
@@ -13023,6 +13088,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     }
                     applyStatus({
                         targetState: actorState,
+                        targetUnit: actorUnit,
                         statusId: applyStatusToOwner.statusId,
                         duration: applyStatusToOwner.duration,
                         sourceSkillId: skill.id || null,

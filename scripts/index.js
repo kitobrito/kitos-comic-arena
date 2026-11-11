@@ -911,6 +911,17 @@
         body.appendChild(divider);
         return;
       }
+      if (block && block.type === "link" && block.text && /^\/(?!\/)/.test(String(block.href || ""))) {
+        var linkParagraph = document.createElement("p");
+        linkParagraph.className = "news-link-row";
+        var newsLink = document.createElement("a");
+        newsLink.className = "news-link";
+        newsLink.href = String(block.href);
+        newsLink.textContent = String(block.text);
+        linkParagraph.appendChild(newsLink);
+        body.appendChild(linkParagraph);
+        return;
+      }
       if (block && block.text) {
         var paragraph = document.createElement("p");
         paragraph.textContent = String(block.text);

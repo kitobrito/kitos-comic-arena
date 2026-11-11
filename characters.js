@@ -36490,6 +36490,7 @@ const characters = [
         "id": "deadpool",
         "characterId": "deadpool",
         "name": "Deadpool",
+        "unlockRequirement": "Complete the mission Maximum Effort: win 10 games and 4 in a row with Wolverine.",
         "facePicture": "assets/images/deadpool/deadpoolfp.webp",
         "characterdeescription": "Wade Wilson: mercenary, mouth, and the only one here who knows he's in a game. Two katanas, too many guns, and a healing factor that turns every mistake into a punchline.",
         "description": "Wade Wilson: mercenary, mouth, and the only one here who knows he's in a game. Two katanas, too many guns, and a healing factor that turns every mistake into a punchline.",
@@ -36719,6 +36720,281 @@ const characters = [
                 "classes": [
                     "Passive",
                     "Instant"
+                ]
+            }
+        ]
+    },
+    {
+        "id": "blaziken",
+        "characterId": "blaziken",
+        "name": "Blaziken",
+        "unlockRequirement": "Complete the Blaziken Blazing Kick Trial: win 10 games and 4 in a row with Charmander, and with Cyndaquil.",
+        "facePicture": "assets/images/PokemonArena/blaziken/blazikenfp.webp",
+        "characterdeescription": "A blazing Fire/Fighting martial artist whose kicks grow hotter with every exchange. Once Blaziken lands a supercharged strike it Mega Evolves, trading Fiery Roar for the devastating Blaze Kick.",
+        "description": "A blazing Fire/Fighting martial artist whose kicks grow hotter with every exchange. Once Blaziken lands a supercharged strike it Mega Evolves, trading Fiery Roar for the devastating Blaze Kick.",
+        "descriptionHtml": "A blazing Fire/Fighting martial artist whose kicks grow hotter with every exchange. Once Blaziken lands a supercharged strike it Mega Evolves, trading Fiery Roar for the devastating Blaze Kick.",
+        "role": "DOT DPS",
+        "roleCategory": "dot-dps",
+        "universe": "pokemon",
+        "arena": "pokemon",
+        "category": "Pokemon Arena",
+        "hidden": false,
+        "hiddenFromSelection": false,
+        "pokemonTypes": [
+            "Fire",
+            "Fighting"
+        ],
+        "startStatuses": [],
+        "skills": [
+            {
+                "id": "blaziken-smoldering-roundhouse",
+                "name": "Smoldering Roundhouse",
+                "skillimage": "assets/images/PokemonArena/blaziken/smoldering-roundhouse.webp",
+                "skilldescription": "Deals 15 physical and 5 affliction damage to one enemy. Every time this is used, Blaziken permanently deals 5 more affliction damage with all of its skills.",
+                "energy": [
+                    "Bloodline"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Fire",
+                    "Physical",
+                    "Affliction",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "metadata": {
+                            "skillClasses": [
+                                "Fire",
+                                "Physical",
+                                "Instant"
+                            ]
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 5,
+                        "scope": "target",
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "onSuccessfulDamageApplyStatusToOwner": {
+                                "statusId": "blaziken_smoldering_heat",
+                                "duration": 999,
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "damageBonusBySkillClass": {
+                                        "Affliction": 5
+                                    },
+                                    "blazikenHeat": 5,
+                                    "mergeNumericAddKeys": [
+                                        "blazikenHeat"
+                                    ],
+                                    "mergeObjectNumericAddKeys": [
+                                        "damageBonusBySkillClass"
+                                    ],
+                                    "statusIconUrl": "assets/images/PokemonArena/blaziken/smoldering-roundhouse.webp",
+                                    "tooltipTextTemplate": "Blaziken deals {blazikenHeat} additional affliction damage with all of its skills."
+                                }
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "blaziken-sky-uppercut",
+                "name": "Sky Uppercut",
+                "skillimage": "assets/images/PokemonArena/blaziken/sky-uppercut.webp",
+                "skilldescription": "Deals 30 damage to one enemy. For 1 turn, the first new enemy skill that targets Blaziken is countered.",
+                "energy": [
+                    "Genjutsu",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Fighting",
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 30,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "blaziken_sky_uppercut_counter",
+                        "duration": 1,
+                        "sourceSkillId": "blaziken-sky-uppercut",
+                        "scope": "self",
+                        "metadata": {
+                            "triggerOnEnemyHarmfulSkill": true,
+                            "counterCancelsSkill": true,
+                            "statusIconUrl": "assets/images/PokemonArena/blaziken/sky-uppercut.webp",
+                            "tooltipText": "The first new enemy skill that targets Blaziken is countered."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "blaziken-fiery-roar",
+                "name": "Fiery Roar",
+                "skillimage": "assets/images/PokemonArena/blaziken/fiery-roar.webp",
+                "skilldescription": "Blaziken supercharges its heat, dealing 0 affliction damage to the enemy team and making its next harmful skill deal 30 additional affliction damage. This may not be used while active.",
+                "energy": [
+                    "Bloodline",
+                    "Random"
+                ],
+                "target": "all-enemy",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Fire",
+                    "Special",
+                    "Affliction",
+                    "Instant"
+                ],
+                "actorCondition": {
+                    "missingStatusId": "blaziken_fiery_roar_charge"
+                },
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 0,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "afflictionDamage": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "blaziken_fiery_roar_charge",
+                        "duration": 999,
+                        "sourceSkillId": "blaziken-fiery-roar",
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "nextHarmfulSkillAfflictionBonus": 30,
+                            "nextHarmfulSkillBonusUses": 1,
+                            "nextHarmfulSkillBonusOnDealtApplyStatusToOwner": {
+                                "statusId": "blaziken_mega_evolution",
+                                "duration": 999,
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "unremovable": true,
+                                    "healOnApplyFlat": 10,
+                                    "facePictureOverride": "assets/images/PokemonArena/blaziken/megablazikenfp.webp",
+                                    "skillReplacements": {
+                                        "blaziken-fiery-roar": "blaziken-blaze-kick"
+                                    },
+                                    "statusIconUrl": "assets/images/PokemonArena/blaziken/megablazikenfp.webp",
+                                    "tooltipText": "Blaziken has evolved into Mega Blaziken. Fiery Roar is replaced by Blaze Kick."
+                                }
+                            },
+                            "statusIconUrl": "assets/images/PokemonArena/blaziken/fiery-roar.webp",
+                            "tooltipText": "Blaziken's next harmful skill deals 30 additional affliction damage."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "blaziken-arm-guard",
+                "name": "Arm Guard",
+                "skillimage": "assets/images/PokemonArena/blaziken/arm-guard.webp",
+                "skilldescription": "This skill makes Blaziken invulnerable for 1 turn.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 4,
+                "classes": [
+                    "Fighting",
+                    "Strategic",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "blaziken_arm_guard",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "invulnerable": true,
+                            "statusIconUrl": "assets/images/PokemonArena/blaziken/arm-guard.webp",
+                            "tooltipText": "Blaziken is invulnerable to enemy skills."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "blaziken-passive-mega-blaziken",
+                "name": "Passive: Mega Blaziken",
+                "skillimage": "assets/images/PokemonArena/blaziken/megablazikenfp.webp",
+                "skilldescription": "Once Blaziken has dealt the bonus damage granted by Fiery Roar to an enemy, it Mega Evolves into Mega Blaziken and heals 10 HP. While Mega Evolved, Fiery Roar becomes Blaze Kick.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Fire",
+                    "Passive",
+                    "Instant"
+                ]
+            },
+            {
+                "id": "blaziken-blaze-kick",
+                "name": "Blaze Kick",
+                "skillimage": "assets/images/PokemonArena/blaziken/blaze-kick.webp",
+                "skilldescription": "Blaziken deals 5 affliction damage to the enemy team and makes its next 2 harmful skills deal 35 additional affliction damage. This may not be used while active.",
+                "energy": [
+                    "Bloodline",
+                    "Bloodline"
+                ],
+                "target": "all-enemy",
+                "damage": 0,
+                "cooldown": 3,
+                "useBaseSkillCooldown": true,
+                "hiddenFromSelectionViewer": true,
+                "classes": [
+                    "Fire",
+                    "Physical",
+                    "Affliction",
+                    "Instant"
+                ],
+                "actorCondition": {
+                    "missingStatusId": "blaziken_blaze_kick_charge"
+                },
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 5,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "afflictionDamage": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "blaziken_blaze_kick_charge",
+                        "duration": 999,
+                        "sourceSkillId": "blaziken-blaze-kick",
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "nextHarmfulSkillAfflictionBonus": 35,
+                            "nextHarmfulSkillBonusUses": 2,
+                            "statusIconUrl": "assets/images/PokemonArena/blaziken/blaze-kick.webp",
+                            "tooltipTextTemplate": "Blaziken's next {nextHarmfulSkillBonusUses} harmful skill(s) deal 35 additional affliction damage."
+                        }
+                    }
                 ]
             }
         ]
