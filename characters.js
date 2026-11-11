@@ -36519,7 +36519,7 @@ const characters = [
                 "id": "deadpool-katana-slice",
                 "name": "Katana Slice",
                 "skillimage": "assets/images/deadpool/katana-slice.webp",
-                "skilldescription": "Deadpool deals 25 piercing damage to one enemy. For 1 turn, Deadpool deals 10 additional damage with his skills.",
+                "skilldescription": "Deadpool deals 20 piercing damage to one enemy. For 1 turn, Deadpool deals 10 additional damage with his skills.",
                 "energy": [
                     "Taijutsu"
                 ],
@@ -36534,7 +36534,7 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 25,
+                        "amount": 20,
                         "scope": "target",
                         "metadata": {
                             "ignoreDamageReduction": true
@@ -36561,7 +36561,7 @@ const characters = [
                 "id": "deadpool-gun-play",
                 "name": "Gun Play",
                 "skillimage": "assets/images/deadpool/gun-play.webp",
-                "skilldescription": "Deadpool deals 20 piercing damage to one enemy and 10 piercing damage to another random enemy. For 1 turn, Deadpool deals 5 additional damage with his skills.",
+                "skilldescription": "Deadpool deals 15 piercing damage to one enemy and 10 piercing damage to another random enemy. For 1 turn, Deadpool deals 5 additional damage with his skills.",
                 "energy": [
                     "Bloodline"
                 ],
@@ -36576,7 +36576,7 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 20,
+                        "amount": 15,
                         "scope": "target",
                         "metadata": {
                             "ignoreDamageReduction": true
@@ -36640,7 +36640,7 @@ const characters = [
                             "onOwnerTargetedBySkillTrigger": true,
                             "onOwnerTargetedByEnemyOnly": true,
                             "onOwnerTargetedBySkillOncePerSourceDuringStatus": true,
-                            "onOwnerTargetedBySkillDamageToSourceAmount": 25,
+                            "onOwnerTargetedBySkillDamageToSourceAmount": 20,
                             "onOwnerTargetedBySkillDamageToSourceIgnoreDamageReduction": true,
                             "onOwnerTargetedBySkillDamageToSourceIgnoreDestructibleDefense": false,
                             "onOwnerTargetedBySkillDamageToSourceSkillClasses": [
@@ -36962,8 +36962,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "useBaseSkillCooldown": true,
-                "hiddenFromSelectionViewer": true,
-                "classes": [
+                    "classes": [
                     "Fire",
                     "Physical",
                     "Affliction",
