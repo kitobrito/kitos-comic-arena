@@ -78,26 +78,26 @@ test('kit matches the design: costs and cooldowns', () => {
     assert.ok(byName['Passive: Cancer Factor'].classes.includes('Passive'));
 });
 
-test('Katana Slice: 25 piercing, then +10 on his next turn only', () => {
+test('Katana Slice: 20 piercing, then +10 on his next turn only', () => {
     const g = game();
     applyStatus({ targetState: g.foes[0].state, targetUnit: g.foes[0], statusId: 'armor', duration: 9, metadata: { damageReductionFlat: 10 } });
     g.use('wade', 0, skill('deadpool-katana-slice'), 'foe', 0); g.resolve('wade');
-    assert.equal(g.foes[0].hp, 75, 'piercing ignores damage reduction');
+    assert.equal(g.foes[0].hp, 80, 'piercing ignores damage reduction');
     g.pass('wade'); g.pass('foe');
     g.use('wade', 0, skill('deadpool-katana-slice'), 'foe', 1); g.resolve('wade');
-    assert.equal(g.foes[1].hp, 65, '25 + 10');
+    assert.equal(g.foes[1].hp, 70, '20 + 10');
     g.pass('wade'); g.pass('foe'); g.pass('wade'); g.pass('foe');
     assert.equal(has(g.wade, 'deadpool_katana_slice_bonus'), false, 'bonus wears off');
 });
 
-test('Gun Play: 20 piercing to the target, 10 piercing to another random enemy, then +5', () => {
+test('Gun Play: 15 piercing to the target, 10 piercing to another random enemy, then +5', () => {
     const g = game();
     g.use('wade', 0, skill('deadpool-gun-play'), 'foe', 0); g.resolve('wade');
-    assert.equal(g.foes[0].hp, 80);
+    assert.equal(g.foes[0].hp, 85);
     assert.deepEqual(g.foes.slice(1).map((f) => f.hp).sort(), [100, 90]);
     g.pass('wade'); g.pass('foe');
     g.use('wade', 0, skill('deadpool-katana-slice'), 'foe', 0); g.resolve('wade');
-    assert.equal(g.foes[0].hp, 50, '25 + 5');
+    assert.equal(g.foes[0].hp, 60, '20 + 5');
 });
 
 test("Katana Slash n' Hack: ignores physical skills; a new skill on him gets Katana Slice back, once", () => {
@@ -108,14 +108,14 @@ test("Katana Slash n' Hack: ignores physical skills; a new skill on him gets Kat
     g.pass('wade');
     g.use('foe', 0, 0, 'wade'); g.use('foe', 1, 1, 'wade'); g.resolve('foe');
     assert.equal(g.wade.hp, 85, 'the physical Punch is ignored; the energy Blast lands');
-    assert.equal(g.foes[0].hp, 75, 'Punch user gets Katana Slice');
-    assert.equal(g.foes[1].hp, 75, 'Blast user gets Katana Slice');
+    assert.equal(g.foes[0].hp, 80, 'Punch user gets Katana Slice');
+    assert.equal(g.foes[1].hp, 80, 'Blast user gets Katana Slice');
     g.use('foe', 0, 0, 'wade'); g.resolve('foe');
-    assert.equal(g.foes[0].hp, 75, 'only once per enemy');
+    assert.equal(g.foes[0].hp, 80, 'only once per enemy');
     assert.ok(has(g.wade, 'deadpool_katana_slice_bonus'), 'Deadpool gains the Katana Slice bonus');
     g.pass('foe');
     g.use('wade', 0, skill('deadpool-katana-slice'), 'foe', 2); g.resolve('wade');
-    assert.equal(g.foes[2].hp, 65);
+    assert.equal(g.foes[2].hp, 70);
     g.pass('wade');
     g.use('foe', 0, 0, 'wade'); g.resolve('foe');
     assert.equal(g.wade.hp, 65, 'lasts 1 turn');
@@ -129,7 +129,7 @@ test("Katana Slash n' Hack also punishes a skill the enemy already used earlier 
     g.use('wade', 0, skill('deadpool-katana-slash-n-hack'), 'wade', 0); g.resolve('wade');
     g.pass('wade');
     g.use('foe', 0, 1, 'wade'); g.resolve('foe');
-    assert.equal(g.foes[0].hp, 75, 'a repeat Blast still gets Katana Slice back');
+    assert.equal(g.foes[0].hp, 80, 'a repeat Blast still gets Katana Slice back');
 });
 
 test("4th-Wall Break: the whole enemy team skips its next turn, invulnerable or not", () => {
