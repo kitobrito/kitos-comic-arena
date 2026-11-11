@@ -1,7 +1,7 @@
 'use strict';
 
-// Deadpool is prepared in staging/deadpool.js but not live. These tests play his kit through the
-// real battle engine and check the release script, so releasing him is a single command.
+// Deadpool (Comic Arena): his kit played through the real battle engine, his unlock mission, and
+// the release script that moved him from staging/ into the game.
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -15,7 +15,9 @@ const {
     resolvePendingTurnSkills,
     tickStatusesForTurnEnd,
 } = require('../battleLogic');
-const { character: deadpool, mission } = require('../staging/deadpool');
+const deadpool = require('../characters').find((c) => c.characterId === 'deadpool');
+const IMG = 'assets/images/deadpool';
+const mission = { image: `${IMG}/mission.webp`, portrait: `${IMG}/deadpoolfp.webp` };
 const { isPrivateStaticSourcePath } = require('../server');
 const { releaseCharacter } = require('../scripts/release-staged-character');
 
@@ -47,11 +49,13 @@ function game() {
 }
 const has = (unit, id) => unit.state.statuses.some((s) => s.id === id);
 
-test('Deadpool is staged, not live', () => {
-    const live = require('../characters');
-    assert.equal(live.some((c) => c.characterId === 'deadpool'), false, 'not in characters.js');
-    assert.equal(fs.readFileSync(path.join(root, 'server.js'), 'utf8').includes("missionId: 'deadpool'"), false, 'mission not in the catalog');
-    assert.equal(isPrivateStaticSourcePath('/staging/deadpool.js'), true, 'staging is never served');
+test('Deadpool is live: in the roster, with his mission in the catalog and a selection render', () => {
+    assert.ok(deadpool, 'in characters.js');
+    const server = fs.readFileSync(path.join(root, 'server.js'), 'utf8');
+    assert.match(server, /missionId: 'deadpool',[\s\S]*?type: 'win_matches',\s*character_id: 'wolverine',\s*character_name: 'Wolverine',\s*wins: 10[\s\S]*?type: 'win_streak',\s*character_id: 'wolverine',\s*character_name: 'Wolverine',\s*wins: 4/);
+    assert.match(fs.readFileSync(path.join(root, 'scripts', 'script.js'), 'utf8'), /'deadpool': 'assets\/images\/BIB\/comic\/deadpool\.webp'/);
+    assert.ok(fs.existsSync(path.join(root, 'assets/images/BIB/comic/deadpool.webp')));
+    assert.equal(isPrivateStaticSourcePath('/staging/anything.js'), true, 'staging is never served');
 });
 
 test('Deadpool art is all present', () => {
@@ -60,7 +64,7 @@ test('Deadpool art is all present', () => {
     });
 });
 
-test('kit matches the design: costs, cooldowns, mission', () => {
+test('kit matches the design: costs and cooldowns', () => {
     const byName = Object.fromEntries(deadpool.skills.map((s) => [s.name, s]));
     assert.deepEqual(byName['Katana Slice'].energy, ['Taijutsu']);
     assert.equal(byName['Katana Slice'].cooldown, 0);
@@ -72,11 +76,6 @@ test('kit matches the design: costs, cooldowns, mission', () => {
     assert.deepEqual(byName['4th-Wall Break'].energy, ['Taijutsu', 'Bloodline', 'Ninjutsu', 'Genjutsu', 'Random']);
     assert.equal(byName['4th-Wall Break'].cooldown, 8);
     assert.ok(byName['Passive: Cancer Factor'].classes.includes('Passive'));
-    assert.deepEqual(mission.goals, [
-        { type: 'win_matches', character_id: 'wolverine', character_name: 'Wolverine', wins: 10 },
-        { type: 'win_streak', character_id: 'wolverine', character_name: 'Wolverine', wins: 4 },
-    ]);
-    assert.equal(mission.reward_character, 'deadpool');
 });
 
 test('Katana Slice: 25 piercing, then +10 on his next turn only', () => {
@@ -163,25 +162,24 @@ test('Cancer Factor: 12, 9, 6, 4, 4 on undamaged turns; enemy damage resets it',
     assert.deepEqual(heals, [0, 12, 9, 6, 4, 4, 0, 12, 9]);
 });
 
-test('the release script adds Deadpool and his mission and the result loads', () => {
+test('the release script adds a staged character and its mission, once', () => {
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'release-'));
     fs.mkdirSync(path.join(tmp, 'staging'));
-    fs.copyFileSync(path.join(root, 'staging', 'deadpool.js'), path.join(tmp, 'staging', 'deadpool.js'));
+    const clone = JSON.parse(JSON.stringify(deadpool));
+    clone.id = clone.characterId = 'test-hero';
+    const stagedMission = { missionId: 'test-hero', title: 'Test', reward_character: 'test-hero', goals: [{ type: 'win_matches', character_id: 'wolverine', character_name: 'Wolverine', wins: 3 }] };
+    fs.writeFileSync(path.join(tmp, 'staging', 'test-hero.js'), `module.exports = ${JSON.stringify({ character: clone, mission: stagedMission })};`);
     fs.copyFileSync(path.join(root, 'characters.js'), path.join(tmp, 'characters.js'));
-    // characters.js loads a few sibling modules.
     for (const dep of fs.readFileSync(path.join(root, 'characters.js'), 'utf8').matchAll(/require\('\.\/([^']+)'\)/g)) {
         const file = dep[1].endsWith('.js') ? dep[1] : `${dep[1]}.js`;
         fs.copyFileSync(path.join(root, file), path.join(tmp, file));
     }
     fs.copyFileSync(path.join(root, 'server.js'), path.join(tmp, 'server.js'));
-    releaseCharacter('deadpool', { root: tmp });
-    delete require.cache[path.join(tmp, 'characters.js')];
+    releaseCharacter('test-hero', { root: tmp });
     const released = require(path.join(tmp, 'characters.js'));
-    const live = require('../characters');
-    assert.equal(released.length, live.length + 1);
-    assert.deepEqual(released.at(-1), JSON.parse(JSON.stringify(deadpool)));
+    assert.equal(released.at(-1).characterId, 'test-hero');
     const server = fs.readFileSync(path.join(tmp, 'server.js'), 'utf8');
-    assert.match(server, /missionId: 'deadpool',[\s\S]*?type: 'win_matches',\s*character_id: 'wolverine',\s*character_name: 'Wolverine',\s*wins: 10[\s\S]*?type: 'win_streak',\s*character_id: 'wolverine',\s*character_name: 'Wolverine',\s*wins: 4/);
+    assert.match(server, /missionId: 'test-hero'/);
     assert.doesNotThrow(() => new Function(server.replace(/^#!.*\n/, '')), 'server.js still parses');
-    assert.throws(() => releaseCharacter('deadpool', { root: tmp }), /already/);
+    assert.throws(() => releaseCharacter('test-hero', { root: tmp }), /already/);
 });

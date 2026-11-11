@@ -1998,6 +1998,59 @@ const DEFAULT_MISSION_CATALOG = [
             playerTeamCharacterIds: []
         },
         sortOrder: 31
+    },
+    {
+        missionId: 'deadpool',
+        title: 'Maximum Effort',
+        level_requirement: 1,
+        rank: '1',
+        reward_character: 'deadpool',
+        reward_character_name: 'Deadpool',
+        reward: 'Unlock Deadpool',
+        mode_restriction: {
+            allowed_modes: [
+                'quick',
+                'ladder'
+            ]
+        },
+        win_streak: {
+            character_id: '',
+            character_name: '',
+            wins: 0
+        },
+        image: 'assets/images/deadpool/mission.webp',
+        imageAlt: 'Deadpool mission artwork',
+        characterName: 'Deadpool',
+        portrait: 'assets/images/deadpool/deadpoolfp.webp',
+        portraitAlt: 'Deadpool portrait',
+        requirements: [
+            'Win 10 Quick or Ladder matches with Wolverine.',
+            'Win 4 Quick or Ladder matches in a row with Wolverine.'
+        ],
+        goals: [
+            {
+                type: 'win_matches',
+                character_id: 'wolverine',
+                character_name: 'Wolverine',
+                wins: 10
+            },
+            {
+                type: 'win_streak',
+                character_id: 'wolverine',
+                character_name: 'Wolverine',
+                wins: 4
+            }
+        ],
+        special_pve: {
+            enabled: false,
+            buttonLabel: 'Start Fight',
+            botName: 'Mission Bot',
+            botTeamCharacterId: '',
+            botTeamSize: 3,
+            backgroundImage: '',
+            playerTeamCharacterIds: []
+        },
+        sortOrder: 32
     }
 ];
 
