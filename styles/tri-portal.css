@@ -204,41 +204,7 @@ html.tp-on ::selection { background: rgba(var(--tp-accent-rgb), 0.35); color: #f
 html.tp-on :focus-visible { outline: 2px solid var(--tp-accent) !important; outline-offset: 2px; }
 html.tp-on a { transition: var(--tp-transition); }
 
-/* The old in-page Shattered Realms banner: the shell's promo bar replaces it. */
-html.tp-on .sr-promo { display: none !important; }
-
-/* ---------- 3. Shell: promo bar + universe header ------------------------- */
-.tp-promo {
-  position: relative; z-index: 60; display: flex; align-items: center; justify-content: center; gap: 14px;
-  min-height: 46px; padding: 6px 16px; overflow: hidden; isolation: isolate;
-  background: linear-gradient(90deg, #12081f 0%, #1d0f33 45%, #12081f 100%);
-  border-bottom: 1px solid rgba(234, 179, 8, 0.45);
-  font: 600 13px/1.25 var(--tp-font-body); color: #e9d8ff; text-decoration: none;
-}
-.tp-promo::before {
-  content: ""; position: absolute; inset: 0; z-index: -1; opacity: 0.4;
-  background: url('/assets/images/shattered-banner-bg.jpg') center 40% / cover no-repeat;
-}
-.tp-promo::after {
-  content: ""; position: absolute; inset: 0; z-index: -1;
-  background: linear-gradient(110deg, transparent 35%, rgba(253, 230, 138, 0.16) 50%, transparent 65%);
-  background-size: 250% 100%; animation: tp-sheen 6s linear infinite;
-}
-.tp-promo img { height: 30px; width: auto; filter: drop-shadow(0 0 8px rgba(176, 107, 255, 0.6)); }
-.tp-promo-copy b { color: #fde68a; font-weight: 800; }
-.tp-promo-copy span { color: #d8c8f0; }
-.tp-promo-cta {
-  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px;
-  font: 700 13px/1 'Cinzel', Georgia, serif; letter-spacing: 0.08em; color: #1c1203 !important; text-decoration: none !important;
-  background: linear-gradient(180deg, #fde68a 0%, #eab308 45%, #a16207 100%);
-  border: 1px solid #fef3c7; border-radius: 4px;
-  box-shadow: 0 0 0 2px #3b2405, 0 0 16px rgba(234, 179, 8, 0.55);
-  animation: tp-cta-pulse 2.4s ease-in-out infinite;
-}
-.tp-promo-cta:hover { filter: brightness(1.08); transform: translateY(-1px); }
-@keyframes tp-sheen { from { background-position: 150% 0; } to { background-position: -150% 0; } }
-@keyframes tp-cta-pulse { 0%, 100% { box-shadow: 0 0 0 2px #3b2405, 0 0 10px rgba(234, 179, 8, 0.4); } 50% { box-shadow: 0 0 0 2px #3b2405, 0 0 22px rgba(234, 179, 8, 0.85); } }
-
+/* ---------- 3. Shell: universe header ------------------------------------ */
 .tp-header {
   position: sticky; top: 0; z-index: 59;
   display: flex; align-items: center; gap: 14px; min-height: 56px; padding: 8px max(16px, calc((100vw - 1320px) / 2));
@@ -781,10 +747,6 @@ html.tp-on .pp-tabbar { background: rgba(6, 12, 26, 0.92) !important; border-top
   html.tp-on .pp-topbar { top: 98px !important; }
 }
 @media (max-width: 560px) {
-  .tp-promo { gap: 10px; padding: 6px 10px; justify-content: space-between; }
-  .tp-promo img { height: 24px; }
-  .tp-promo-copy span { display: none; }
-  .tp-promo-cta { padding: 7px 10px; font-size: 11px; }
   .tp-brand-name small { display: none; }
   .tp-account { padding: 7px 9px; }
   .tp-account span { display: inline-block; max-width: 86px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle; }
@@ -799,7 +761,7 @@ html.tp-on .pp-tabbar { background: rgba(6, 12, 26, 0.92) !important; border-top
   .tp-split > section { padding: 22px 14px 16px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .tp-promo::after, .tp-promo-cta, .tp-eyebrow::before, .tp-xp i { animation: none !important; }
+  .tp-eyebrow::before, .tp-xp i { animation: none !important; }
   .tp-ob, .tp-ob-box, .tp-ob-msg, .tp-ob-choice { animation: none !important; }
   html.tp-on *, html.tp-on *::before, html.tp-on *::after { transition-duration: 0.01ms !important; }
 }

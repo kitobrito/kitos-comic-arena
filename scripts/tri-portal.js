@@ -2,8 +2,7 @@
  *
  * Loaded (not deferred) in the <head> of every portal page, so the active
  * game's theme is on <html data-theme> before the first paint. Then, once
- * the page is parsed, it adds the shared shell (Shattered Realms promo bar
- * and the universe header with the Comic / Split / Pokémon / Shattered
+ * the page is parsed, it adds the shared shell (the universe header with the Comic / Split / Pokémon / Shattered
  * switcher), the account chip, and the first-visit welcome flow.
  *
  * Persistence:
@@ -180,10 +179,6 @@
 
   function buildShell() {
     if (doc.querySelector(".tp-header")) return;
-    var promo = el("div", { "class": "tp-promo", role: "region", "aria-label": "Shattered Realms" },
-      '<img src="/assets/images/shatteredrealmslogo.png" alt="Shattered Realms">' +
-      '<span class="tp-promo-copy"><b>Shattered Realms</b> <span>· 22 realms, fused heroes, ranked ladder. Free in your browser and on Android.</span></span>' +
-      '<a class="tp-promo-cta" href="/shattered-play" data-tp-game="shattered">PLAY FREE NOW &#9656;</a>');
     var header = el("header", { "class": "tp-header" },
       '<a class="tp-brand" href="/split" aria-label="Arena Portal home: all three games"><span class="tp-brand-mark">' + MARK + '</span>' +
         '<span class="tp-brand-name">Arena Portal<small>Comic · Pokémon · Shattered</small></span></a>' +
@@ -193,13 +188,11 @@
         '<a class="tp-account" href="' + routeFor(game === "split" ? "comic" : game, "login") + '" data-tp-account>' + icon("user").replace("<svg", '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"') + "<span>Sign in</span></a>" +
       "</div>");
     doc.body.insertBefore(header, doc.body.firstChild);
-    doc.body.insertBefore(promo, header);
 
     header.addEventListener("click", function (e) {
       var a = e.target.closest("a.tp-mode");
       if (a) rememberGame(a.getAttribute("data-mode"), true);
     });
-    promo.querySelector(".tp-promo-cta").addEventListener("click", function () { rememberGame("shattered", true); });
     header.querySelector("[data-tp-guide]").addEventListener("click", function () { openOnboarding(true); });
     refreshAccountChip();
   }
@@ -442,7 +435,7 @@
     return false;
   }
   function adaptTree(scope) {
-    if (!scope || scope.nodeType !== 1 || scope.closest(".tp-header, .tp-promo, .tp-ob, .tp-native, .tp-toast")) return;
+    if (!scope || scope.nodeType !== 1 || scope.closest(".tp-header, .tp-ob, .tp-native, .tp-toast")) return;
     var nodes = [scope].concat(Array.prototype.slice.call(scope.querySelectorAll("*")));
     bgCache = new WeakMap();
     // Pass 1: light panels become the theme's card surface.
@@ -459,7 +452,7 @@
     // Pass 1b: buttons and frames still wearing the other game's colours (blue on Comic, red on
     // Pokémon) take this game's accent instead.
     nodes.forEach(function (n) {
-      if (SKIP_TAGS[n.tagName.toUpperCase()] || n.closest("svg") || n.hasAttribute("data-tp-keep") || n.closest(".tp-header, .tp-promo")) return;
+      if (SKIP_TAGS[n.tagName.toUpperCase()] || n.closest("svg") || n.hasAttribute("data-tp-keep") || n.closest(".tp-header")) return;
       var cs = getComputedStyle(n);
       var clickable = n.tagName === "A" || n.tagName === "BUTTON" || n.getAttribute("role") === "button";
       if (clickable && !n.classList.contains("play-now")) {
@@ -495,7 +488,7 @@
   }
   var adaptTimer = null, adaptQueue = [];
   function watchLegacy() {
-    var scopes = doc.querySelectorAll("body > *:not(.tp-header):not(.tp-promo):not(.tp-ob):not(.tp-toast):not(script):not(style)");
+    var scopes = doc.querySelectorAll("body > *:not(.tp-header):not(.tp-ob):not(.tp-toast):not(script):not(style)");
     Array.prototype.forEach.call(scopes, adaptTree);
     if (!window.MutationObserver) return;
     new MutationObserver(function (list) {
@@ -523,7 +516,7 @@
     try { popup = !!window.opener && window.innerWidth < 900; } catch (e) {}
     if (!popup) buildShell();
     focusAuthPanel();
-    if (!doc.body.classList.contains("tp-native")) { watchLegacy(); window.addEventListener("load", function () { watchLegacy.done || (watchLegacy.done = 1, Array.prototype.forEach.call(doc.querySelectorAll("body > *:not(.tp-header):not(.tp-promo)"), adaptTree)); }); }
+    if (!doc.body.classList.contains("tp-native")) { watchLegacy(); window.addEventListener("load", function () { watchLegacy.done || (watchLegacy.done = 1, Array.prototype.forEach.call(doc.querySelectorAll("body > *:not(.tp-header)"), adaptTree)); }); }
     var hub = section === "home" || section === "split";
     if (params.has("guide") || (!popup && hub && !store.get("tri-onboarded") && !params.has("noguide") && !navigator.webdriver)) setTimeout(openOnboarding, 600);
   }
