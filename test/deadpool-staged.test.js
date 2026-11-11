@@ -72,7 +72,10 @@ test('kit matches the design: costs, cooldowns, mission', () => {
     assert.deepEqual(byName['4th-Wall Break'].energy, ['Taijutsu', 'Bloodline', 'Ninjutsu', 'Genjutsu', 'Random']);
     assert.equal(byName['4th-Wall Break'].cooldown, 8);
     assert.ok(byName['Passive: Cancer Factor'].classes.includes('Passive'));
-    assert.deepEqual(mission.goals, [{ type: 'win_matches', character_id: '', character_name: '', wins: 10 }]);
+    assert.deepEqual(mission.goals, [
+        { type: 'win_matches', character_id: 'wolverine', character_name: 'Wolverine', wins: 10 },
+        { type: 'win_streak', character_id: 'wolverine', character_name: 'Wolverine', wins: 4 },
+    ]);
     assert.equal(mission.reward_character, 'deadpool');
 });
 
@@ -178,7 +181,7 @@ test('the release script adds Deadpool and his mission and the result loads', ()
     assert.equal(released.length, live.length + 1);
     assert.deepEqual(released.at(-1), JSON.parse(JSON.stringify(deadpool)));
     const server = fs.readFileSync(path.join(tmp, 'server.js'), 'utf8');
-    assert.match(server, /missionId: 'deadpool',[\s\S]*?type: 'win_matches',\s*character_id: '',\s*character_name: '',\s*wins: 10/);
+    assert.match(server, /missionId: 'deadpool',[\s\S]*?type: 'win_matches',\s*character_id: 'wolverine',\s*character_name: 'Wolverine',\s*wins: 10[\s\S]*?type: 'win_streak',\s*character_id: 'wolverine',\s*character_name: 'Wolverine',\s*wins: 4/);
     assert.doesNotThrow(() => new Function(server.replace(/^#!.*\n/, '')), 'server.js still parses');
     assert.throws(() => releaseCharacter('deadpool', { root: tmp }), /already/);
 });

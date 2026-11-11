@@ -213,8 +213,14 @@ const mission = {
     characterName: 'Deadpool',
     portrait: `${IMG}/deadpoolfp.webp`,
     portraitAlt: 'Deadpool portrait',
-    requirements: [],
-    goals: [{ type: 'win_matches', character_id: '', character_name: '', wins: 10 }],
+    requirements: [
+        'Win 10 Quick or Ladder matches with Wolverine.',
+        'Win 4 Quick or Ladder matches in a row with Wolverine.',
+    ],
+    goals: [
+        { type: 'win_matches', character_id: 'wolverine', character_name: 'Wolverine', wins: 10 },
+        { type: 'win_streak', character_id: 'wolverine', character_name: 'Wolverine', wins: 4 },
+    ],
 };
 
 module.exports = { character, mission };
