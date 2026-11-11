@@ -10118,6 +10118,7 @@ const isPrivateStaticSourcePath = (requestPath = '') => {
         lowerPath.startsWith('/test/') ||
         lowerPath.startsWith('/test-results/') ||
         lowerPath.startsWith('/tools/') ||
+        lowerPath.startsWith('/staging/') ||
         lowerPath.startsWith('/node_modules/') ||
         lowerPath.startsWith('/mongodb/') ||
         lowerPath.startsWith('/.git/') ||
