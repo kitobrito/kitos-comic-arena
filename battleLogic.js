@@ -1030,11 +1030,16 @@ const recordDamageDealtForUnit = ({ match, sourceUnit, sourceUsername, amount })
     state._damageDealtThisTurn += dealt;
 };
 
-const recordDamageTakenForUnit = ({ match, targetUnit, targetUsername, amount }) => {
+const recordDamageTakenForUnit = ({ match, targetUnit, targetUsername, amount, sourceUsername = null }) => {
     if (!match || !targetUnit || !targetUsername) return;
     const dealt = Math.max(0, Number(amount) || 0);
     if (dealt <= 0) return;
     const state = ensureUnitStateShape(targetUnit);
+    // Enemy damage since this unit's own last turn start (read and reset by the
+    // turnStartHealIfNoEnemyDamage passive, e.g. Deadpool's Cancer Factor).
+    if (sourceUsername && sourceUsername !== targetUsername) {
+        state._enemyDamageSinceOwnTurnStart = Math.max(0, Number(state._enemyDamageSinceOwnTurnStart) || 0) + dealt;
+    }
     const turnCount = getTurnCountForUsername(match, targetUsername);
     if (Number(state._damageTakenThisTurnTurnCount) !== turnCount) {
         state._damageTakenThisTurnTurnCount = turnCount;
@@ -5045,6 +5050,7 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
             targetUnit: unit,
             targetUsername: context.targetUsername,
             amount: dealt,
+            sourceUsername: context.sourceUsername,
         });
     }
     if (dealt > 0 && context?.match && context?.sourceUsername && context?.targetUsername) {
@@ -6230,6 +6236,27 @@ const processTurnStartStatusEffects = ({ match, startingUsername }) => {
             const turnStartHeal = Math.max(0, Number(status?.metadata?.turnStartHeal) || 0);
             if (turnStartHeal > 0) {
                 applyHealToUnit(unit, turnStartHeal);
+            }
+            // Heal at turn start only if no enemy damage landed since the owner's previous turn
+            // start. Each consecutive heal is smaller by the step, down to the minimum; taking
+            // enemy damage resets the streak. (Deadpool's Cancer Factor: 12, 9, 6, 4, 4, ...)
+            const noDamageHealStart = Math.max(0, Number(status?.metadata?.turnStartHealIfNoEnemyDamage) || 0);
+            if (noDamageHealStart > 0 && status.metadata) {
+                const tookEnemyDamage = Math.max(0, Number(state._enemyDamageSinceOwnTurnStart) || 0) > 0;
+                const firstOwnTurn = !Boolean(status.metadata._noDamageHealPrimed);
+                status.metadata._noDamageHealPrimed = true;
+                if (tookEnemyDamage || firstOwnTurn) {
+                    status.metadata.noDamageHealStreak = 0;
+                } else {
+                    const step = Math.max(0, Number(status.metadata.turnStartHealIfNoEnemyDamageStep) || 0);
+                    const minimum = Math.max(0, Number(status.metadata.turnStartHealIfNoEnemyDamageMin) || 0);
+                    const streak = Math.max(0, Number(status.metadata.noDamageHealStreak) || 0);
+                    const amount = Math.max(minimum, noDamageHealStart - step * streak);
+                    applyHealToUnit(unit, amount);
+                    status.metadata.noDamageHealLastAmount = amount;
+                    status.metadata.noDamageHealStreak = streak + 1;
+                }
+                state._enemyDamageSinceOwnTurnStart = 0;
             }
             const turnStartGainHeat = Math.max(0, Number(status?.metadata?.turnStartGainHeat) || 0);
             if (turnStartGainHeat > 0) {
