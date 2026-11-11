@@ -36962,8 +36962,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 3,
                 "useBaseSkillCooldown": true,
-                "hiddenFromSelectionViewer": true,
-                "classes": [
+                    "classes": [
                     "Fire",
                     "Physical",
                     "Affliction",

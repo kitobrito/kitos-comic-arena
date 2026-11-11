@@ -17,7 +17,7 @@ const blaziken = find('blaziken');
 
 const skillChanges = (character, groupName) =>
     (character?.skills || [])
-        .filter((skill) => !skill.hiddenFromSelectionViewer || skill.id === 'blaziken-blaze-kick')
+        .filter((skill) => !skill.hiddenFromSelectionViewer)
         .map((skill) => ({
             groupKey: `release:${character.characterId}`,
             groupName,
