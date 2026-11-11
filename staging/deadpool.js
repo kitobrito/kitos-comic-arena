@@ -132,7 +132,6 @@ const character = {
                         hideTooltipFromEnemy: true,
                         onOwnerTargetedBySkillTrigger: true,
                         onOwnerTargetedByEnemyOnly: true,
-                        onOwnerTargetedByRequireNewSkill: true,
                         onOwnerTargetedBySkillOncePerSourceDuringStatus: true,
                         // "Katana Slice is cast on them": its 25 piercing damage, and Deadpool gets its bonus.
                         onOwnerTargetedBySkillDamageToSourceAmount: 25,

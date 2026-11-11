@@ -119,6 +119,17 @@ test("Katana Slash n' Hack: ignores physical skills; a new skill on him gets Kat
     assert.equal(g.wade.hp, 65, 'lasts 1 turn');
 });
 
+test("Katana Slash n' Hack also punishes a skill the enemy already used earlier in the match", () => {
+    const g = game();
+    g.pass('wade');
+    g.use('foe', 0, 1, 'wade'); g.resolve('foe');
+    g.pass('foe');
+    g.use('wade', 0, skill('deadpool-katana-slash-n-hack'), 'wade', 0); g.resolve('wade');
+    g.pass('wade');
+    g.use('foe', 0, 1, 'wade'); g.resolve('foe');
+    assert.equal(g.foes[0].hp, 75, 'a repeat Blast still gets Katana Slice back');
+});
+
 test("4th-Wall Break: the whole enemy team skips its next turn, invulnerable or not", () => {
     const g = game();
     applyStatus({ targetState: g.foes[2].state, targetUnit: g.foes[2], statusId: 'inv', duration: 3, metadata: { invulnerable: true } });
