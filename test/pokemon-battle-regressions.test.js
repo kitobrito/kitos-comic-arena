@@ -6,6 +6,7 @@ const path = require('node:path');
 const characters = require('../characters');
 const {
     buildInitialBoard,
+    computeTargetOptions,
     resolvePendingTurnSkills,
     tickStatusesForTurnEnd,
 } = require('../battleLogic');
@@ -98,6 +99,27 @@ test('Abra Teleport protects Abra and the selected ally', () => {
 
     assert.ok(match.board.Ash[0].state.statuses.some((status) => status.id === 'abra_teleport_cover'));
     assert.ok(match.board.Ash[1].state.statuses.some((status) => status.id === 'abra_teleport_cover'));
+});
+
+test('Abra Teleport works when Abra is the last one standing: he can target himself', () => {
+    const abraIndex = characters.findIndex((character) => character.id === 'abra');
+    const allyIndex = characters.findIndex((character) => character.id === 'pikachu');
+    const enemyIndex = characters.findIndex((character) => character.id === 'charmander');
+    const abra = characters[abraIndex];
+    const teleportIndex = abra.skills.findIndex((skill) => skill.id === 'abra-teleport');
+    assert.equal(abra.skills[teleportIndex].target, 'self-or-single-ally');
+    const players = [{ username: 'Ash', team: [abraIndex, allyIndex] }, { username: 'Gary', team: [enemyIndex] }];
+    const match = makeMatch(players);
+    match.board.Ash[1].alive = false;
+    match.board.Ash[1].hp = 0;
+    const options = computeTargetOptions({ match, actingUsername: 'Ash', actorSlot: 0, skillIndex: teleportIndex, characters });
+    assert.ok(options.targets.some((t) => t.username === 'Ash' && t.slot === 0), 'Abra is a valid target for himself');
+    match.pendingTurns.Ash = {
+        queueOrder: ['0'],
+        queuedByActorSlot: { 0: { skillIndex: teleportIndex, targetSelection: [{ username: 'Ash', slot: 0 }] } },
+    };
+    resolvePendingTurnSkills({ match, actingUsername: 'Ash', characters });
+    assert.ok(match.board.Ash[0].state.statuses.some((status) => status.id === 'abra_teleport_cover'));
 });
 
 test('Kadabra Teleport protects and cleanses Kadabra and the selected ally', () => {
@@ -333,7 +355,8 @@ test('stored Abra overrides keep custom fields while canonical two-target Telepo
         customCharacterOverride: true,
         skills: [{
             id: 'abra-teleport',
-            target: 'self-or-single-ally',
+            target: 'single-ally',
+            skilldescription: 'Old stored text.',
             customSkillOverride: true,
             effects: [{
                 type: 'apply_status',
@@ -350,7 +373,9 @@ test('stored Abra overrides keep custom fields while canonical two-target Telepo
 
     assert.equal(corrected.customCharacterOverride, true);
     assert.equal(teleport.customSkillOverride, true);
-    assert.equal(teleport.target, 'single-ally');
+    // The canonical target (Abra or one ally, so he can still use it when alone) and text always win.
+    assert.equal(teleport.target, 'self-or-single-ally');
+    assert.match(teleport.skilldescription, /If Abra is alone, he can target himself/);
     assert.deepEqual(teleport.effects.map((effect) => effect.scope), ['self', 'target']);
     teleport.effects.forEach((effect) => assert.equal(effect.metadata.customStatusOverride, true));
 });
