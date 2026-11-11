@@ -1,0 +1,196 @@
+{
+  "_comment": "Hand-tuned animation identity per character. 'element' is the character's signature look (used for energy/ranged skills and as the fallback); 'skills' pins a specific skill to an element or effect profile. Elements are defined in scripts/build-battle-fx-characters.js (ELEMENTS). Pokemon default to their move types and only need entries here to override them.",
+  "characters": {
+    "iron-man": {
+      "element": "repulsor"
+    },
+    "spider-man": {
+      "element": "web"
+    },
+    "captain-america": {
+      "element": "strike"
+    },
+    "superman": {
+      "element": "solar",
+      "skills": {
+        "superman-frost-breath": "ice",
+        "superman-frost-breath-empowered": "ice"
+      }
+    },
+    "batman": {
+      "element": "gadget"
+    },
+    "the-flash-barry-allen": {
+      "element": "lightning"
+    },
+    "wonder-woman": {
+      "element": "divine"
+    },
+    "aquaman": {
+      "element": "water"
+    },
+    "storm": {
+      "element": "lightning"
+    },
+    "venom": {
+      "element": "symbiote"
+    },
+    "the-joker": {
+      "element": "explosive"
+    },
+    "poison-ivy": {
+      "element": "toxin"
+    },
+    "negan": {
+      "element": "blunt"
+    },
+    "rick-grimes": {
+      "element": "gunfire"
+    },
+    "andrea": {
+      "element": "gunfire"
+    },
+    "walker": {
+      "element": "blood"
+    },
+    "hershel-greene": {
+      "element": "strike"
+    },
+    "invincible": {
+      "element": "strike"
+    },
+    "rex-splode": {
+      "element": "explosive"
+    },
+    "atom-eve": {
+      "element": "arcane"
+    },
+    "omni-man": {
+      "element": "strike"
+    },
+    "angstrom-levy": {
+      "element": "portal"
+    },
+    "billy-butcher": {
+      "element": "laser"
+    },
+    "doctor-octopus": {
+      "element": "gadget"
+    },
+    "carnage": {
+      "element": "blood"
+    },
+    "the-green-goblin": {
+      "element": "explosive"
+    },
+    "sandman": {
+      "element": "sand"
+    },
+    "mysterio": {
+      "element": "illusion"
+    },
+    "scorpion": {
+      "element": "toxin"
+    },
+    "green-lantern-hal-jordan": {
+      "element": "willpower"
+    },
+    "doctor-fate": {
+      "element": "arcane"
+    },
+    "homelander": {
+      "element": "laser"
+    },
+    "xenomorph-drone": {
+      "element": "acid"
+    },
+    "predalien": {
+      "element": "acid"
+    },
+    "rage-infected": {
+      "element": "blood"
+    },
+    "space-marine-infantry": {
+      "element": "gunfire"
+    },
+    "space-marine-medic": {
+      "element": "gunfire"
+    },
+    "space-marine-smartgunner": {
+      "element": "gunfire"
+    },
+    "predator-stalker": {
+      "element": "gadget"
+    },
+    "sinestro": {
+      "element": "fear"
+    },
+    "atrocitus": {
+      "element": "rage"
+    },
+    "saint-walker": {
+      "element": "hope"
+    },
+    "indigo-1": {
+      "element": "arcane"
+    },
+    "john-stewart": {
+      "element": "willpower"
+    },
+    "sorrow": {
+      "element": "shadow"
+    },
+    "parasite": {
+      "element": "drain"
+    },
+    "ghost-rider": {
+      "element": "hellfire"
+    },
+    "doctor-strange": {
+      "element": "arcane"
+    },
+    "doctor-doom": {
+      "element": "arcane"
+    },
+    "the-hulk": {
+      "element": "smash"
+    },
+    "wolverine": {
+      "element": "blade"
+    },
+    "darth-vader": {
+      "element": "dark-force",
+      "skills": {
+        "darth-vader-force-choke": "force-choke"
+      }
+    },
+    "darth-maul": {
+      "element": "blade",
+      "skills": {
+        "darth-maul-force-choke": "force-choke"
+      }
+    },
+    "boba-fett": {
+      "element": "gunfire"
+    },
+    "obi-wan-kenobi": {
+      "element": "force"
+    },
+    "grand-master-yoda": {
+      "element": "force"
+    },
+    "darth-sidious": {
+      "element": "dark-force"
+    },
+    "general-grievous": {
+      "element": "blade"
+    },
+    "deadpool": {
+      "element": "blade",
+      "skills": {
+        "deadpool-gun-play": "gunfire",
+        "deadpool-fourth-wall-break": "fourth-wall"
+      }
+    }
+  }
+}

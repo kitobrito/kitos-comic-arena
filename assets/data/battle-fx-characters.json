@@ -1,0 +1,6797 @@
+{
+ "version": 1,
+ "characters": {
+  "iron-man": {
+   "arena": "comic",
+   "element": "repulsor",
+   "entry": "sci-fi/scifi_charge_up_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "boom",
+   "skills": {
+    "iron-man-repulsor-blast": {
+     "delivery": "projectile",
+     "element": "repulsor",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": "impacts/directional_impact_001",
+     "impact": "impacts/symmetrical_impact_002",
+     "kill": "boom"
+    },
+    "iron-man-overcharge": {
+     "delivery": "support",
+     "element": "repulsor",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    },
+    "iron-man-armor-upgrade": {
+     "delivery": "support",
+     "element": "repulsor",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "iron-man-iron-suit-mobility": {
+     "delivery": "self",
+     "element": "repulsor",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "iron-man-proton-cannon": {
+     "delivery": "projectile",
+     "element": "repulsor",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": "impacts/directional_impact_001",
+     "impact": "impacts/symmetrical_impact_002",
+     "kill": "boom"
+    },
+    "iron-man-energy-burst": {
+     "delivery": "area",
+     "element": "repulsor",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": null,
+     "impact": "impacts/symmetrical_impact_002",
+     "kill": "boom"
+    }
+   }
+  },
+  "spider-man": {
+   "arena": "comic",
+   "element": "web",
+   "entry": "magic-bursts/round_light_burst_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "cocoon",
+   "skills": {
+    "spider-man-spider-strike": {
+     "delivery": "melee",
+     "element": "gunfire",
+     "windup": "sci-fi/scifi_muzzle_flash_001",
+     "travel": null,
+     "impact": "impacts/directional_impact_004",
+     "kill": "riddled"
+    },
+    "spider-man-web-shot": {
+     "delivery": "projectile",
+     "element": "gunfire",
+     "windup": "sci-fi/scifi_muzzle_flash_001",
+     "travel": "impacts/directional_impact_004",
+     "impact": "impacts/directional_impact_004",
+     "kill": "riddled"
+    },
+    "spider-man-web-wrap": {
+     "delivery": "projectile",
+     "element": "web",
+     "windup": null,
+     "travel": "impacts/directional_impact_002",
+     "impact": "impacts/symmetrical_impact_004",
+     "kill": "cocoon"
+    },
+    "spider-man-web-slinging": {
+     "delivery": "self",
+     "element": "web",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    },
+    "spider-man-passive-spider-senses": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "captain-america": {
+   "arena": "comic",
+   "element": "strike",
+   "entry": "magic-bursts/round_light_burst_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "shatter",
+   "skills": {
+    "captain-america-shield-throw": {
+     "delivery": "projectile",
+     "element": "strike",
+     "windup": null,
+     "travel": "impacts/directional_impact_002",
+     "impact": "impacts/directional_impact_002",
+     "kill": "shatter"
+    },
+    "captain-america-shield-bash": {
+     "delivery": "melee",
+     "element": "strike",
+     "windup": null,
+     "travel": null,
+     "impact": "impacts/directional_impact_002",
+     "kill": "shatter"
+    },
+    "captain-america-patriot-s-flag": {
+     "delivery": "support",
+     "element": "strike",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_heal_001",
+     "kill": null
+    },
+    "captain-america-vibranium-ricochet": {
+     "delivery": "support",
+     "element": "strike",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    },
+    "captain_america_america_shield_passive2": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "superman": {
+   "arena": "comic",
+   "element": "solar",
+   "entry": "magic-bursts/round_light_burst_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "laser",
+   "laser": "red",
+   "skills": {
+    "superman-laser-eyes": {
+     "delivery": "projectile",
+     "element": "laser",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": "impacts/directional_impact_004",
+     "impact": "explosions/stylized_explosion_001",
+     "kill": "laser"
+    },
+    "superman-frost-breath": {
+     "delivery": "projectile",
+     "element": "ice",
+     "windup": null,
+     "travel": "type/ice",
+     "impact": "type/ice",
+     "kill": "freeze"
+    },
+    "superman-solar-flare": {
+     "delivery": "area",
+     "element": "solar",
+     "windup": "magic-bursts/round_light_burst_001",
+     "travel": null,
+     "impact": "explosions/epic_explosion_002",
+     "kill": "laser"
+    },
+    "superman-super-powered-flight": {
+     "delivery": "melee",
+     "element": "solar",
+     "windup": "magic-bursts/round_light_burst_001",
+     "travel": null,
+     "impact": "explosions/epic_explosion_002",
+     "kill": "laser"
+    },
+    "superman-passive-the-man-of-steel": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    },
+    "superman-laser-eyes-empowered": {
+     "delivery": "projectile",
+     "element": "laser",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": "impacts/directional_impact_004",
+     "impact": "explosions/stylized_explosion_001",
+     "kill": "laser"
+    },
+    "superman-frost-breath-empowered": {
+     "delivery": "projectile",
+     "element": "ice",
+     "windup": null,
+     "travel": "type/ice",
+     "impact": "type/ice",
+     "kill": "freeze"
+    }
+   }
+  },
+  "batman": {
+   "arena": "comic",
+   "element": "gadget",
+   "entry": "magic-bursts/round_light_burst_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "vanish",
+   "skills": {
+    "batman-explosive-batarangs": {
+     "delivery": "area",
+     "element": "explosive",
+     "windup": null,
+     "travel": null,
+     "impact": "explosions/epic_explosion_002",
+     "kill": "boom"
+    },
+    "batman-pocket-emp": {
+     "delivery": "area",
+     "element": "lightning",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": null,
+     "impact": "lightning/lightning_strike_001",
+     "kill": "electrocute"
+    },
+    "batman-grappling-hook": {
+     "delivery": "projectile",
+     "element": "gunfire",
+     "windup": "sci-fi/scifi_muzzle_flash_001",
+     "travel": "impacts/directional_impact_004",
+     "impact": "impacts/directional_impact_004",
+     "kill": "riddled"
+    },
+    "batman-batmobile": {
+     "delivery": "self",
+     "element": "gadget",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "batman-batmobile-active": {
+     "delivery": "melee",
+     "element": "gadget",
+     "windup": null,
+     "travel": null,
+     "impact": "sci-fi/scifi_spark_burst_001",
+     "kill": "vanish"
+    },
+    "batman_batmobile_broken_swap": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    },
+    "batman-bullet-deflecting-cape": {
+     "delivery": "self",
+     "element": "gunfire",
+     "windup": "sci-fi/scifi_muzzle_flash_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    },
+    "batman-smoke-bomb": {
+     "delivery": "area",
+     "element": "explosive",
+     "windup": null,
+     "travel": null,
+     "impact": "explosions/epic_explosion_002",
+     "kill": "boom"
+    },
+    "batman-bat-kick": {
+     "delivery": "melee",
+     "element": "gadget",
+     "windup": null,
+     "travel": null,
+     "impact": "sci-fi/scifi_spark_burst_001",
+     "kill": "vanish"
+    },
+    "batman-passive-bat-signal": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    },
+    "batman-explosive-batarangs-empowered": {
+     "delivery": "projectile",
+     "element": "explosive",
+     "windup": null,
+     "travel": "explosions/symmetrical_explosion_001",
+     "impact": "explosions/epic_explosion_002",
+     "kill": "boom"
+    }
+   }
+  },
+  "the-flash-barry-allen": {
+   "arena": "comic",
+   "element": "lightning",
+   "entry": "sci-fi/scifi_charge_up_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "electrocute",
+   "skills": {
+    "the-flash-barry-allen-infinite-mass-punch": {
+     "delivery": "melee",
+     "element": "lightning",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": null,
+     "impact": "lightning/lightning_strike_001",
+     "kill": "electrocute"
+    },
+    "the-flash-barry-allen-lightning-rush": {
+     "delivery": "melee",
+     "element": "lightning",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": null,
+     "impact": "lightning/lightning_strike_001",
+     "kill": "electrocute"
+    },
+    "the-flash-barry-allen-speed-steal": {
+     "delivery": "self",
+     "element": "lightning",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    },
+    "the-flash-barry-allen-phase-shift": {
+     "delivery": "self",
+     "element": "lightning",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    },
+    "the-flash-barry-allen-flashpoint-surge": {
+     "delivery": "support",
+     "element": "lightning",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_heal_001",
+     "kill": null
+    },
+    "the-flash-barry-allen-infinite-mass-punch-speed-up": {
+     "delivery": "melee",
+     "element": "lightning",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": null,
+     "impact": "lightning/lightning_strike_001",
+     "kill": "electrocute"
+    }
+   }
+  },
+  "wonder-woman": {
+   "arena": "comic",
+   "element": "divine",
+   "entry": "magic-bursts/round_light_burst_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "sparkle",
+   "skills": {
+    "wonder-woman-spear-thrust": {
+     "delivery": "melee",
+     "element": "blade",
+     "windup": null,
+     "travel": null,
+     "impact": "splatters/directional_splatter_001",
+     "kill": "slice"
+    },
+    "wonder-woman-brace-of-submission": {
+     "delivery": "self",
+     "element": "divine",
+     "windup": "magic-bursts/round_light_burst_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    },
+    "wonder-woman-lasso-of-truth": {
+     "delivery": "projectile",
+     "element": "divine",
+     "windup": "magic-bursts/round_light_burst_001",
+     "travel": "magic-bursts/round_light_burst_001",
+     "impact": "impacts/symmetrical_impact_001",
+     "kill": "sparkle"
+    },
+    "wonder-woman-amazonian-guard": {
+     "delivery": "support",
+     "element": "divine",
+     "windup": "magic-bursts/round_light_burst_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "wonder-woman-warriors-strike": {
+     "delivery": "melee",
+     "element": "divine",
+     "windup": "magic-bursts/round_light_burst_001",
+     "travel": null,
+     "impact": "impacts/symmetrical_impact_001",
+     "kill": "sparkle"
+    }
+   }
+  },
+  "aquaman": {
+   "arena": "comic",
+   "element": "water",
+   "entry": "magic-bursts/round_light_burst_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "wave",
+   "skills": {
+    "aquaman-trident-strike": {
+     "delivery": "melee",
+     "element": "water",
+     "windup": null,
+     "travel": null,
+     "impact": "type/water",
+     "kill": "wave"
+    },
+    "aquaman-drown": {
+     "delivery": "melee",
+     "element": "water",
+     "windup": null,
+     "travel": null,
+     "impact": "type/water",
+     "kill": "wave"
+    },
+    "aquaman-tidal-wave": {
+     "delivery": "area",
+     "element": "water",
+     "windup": null,
+     "travel": null,
+     "impact": "type/water",
+     "kill": "wave"
+    },
+    "aquaman-water-jet": {
+     "delivery": "area",
+     "element": "water",
+     "windup": null,
+     "travel": null,
+     "impact": "type/water",
+     "kill": "wave"
+    },
+    "aquaman-sea-sharks": {
+     "delivery": "self",
+     "element": "water",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    }
+   }
+  },
+  "storm": {
+   "arena": "comic",
+   "element": "lightning",
+   "entry": "sci-fi/scifi_charge_up_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "electrocute",
+   "skills": {
+    "storm-lightning-strike": {
+     "delivery": "projectile",
+     "element": "lightning",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": "lightning/lightning_burst_001",
+     "impact": "lightning/lightning_strike_001",
+     "kill": "electrocute"
+    },
+    "storm-wind-funnel": {
+     "delivery": "support",
+     "element": "lightning",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    },
+    "storm-rainstorm": {
+     "delivery": "support",
+     "element": "lightning",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_heal_001",
+     "kill": null
+    },
+    "storm-ice-barrier": {
+     "delivery": "support",
+     "element": "ice",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    },
+    "storm-hailstorm": {
+     "delivery": "area",
+     "element": "lightning",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": null,
+     "impact": "lightning/lightning_strike_001",
+     "kill": "electrocute"
+    },
+    "storm-lightning-strike-rainstorm": {
+     "delivery": "projectile",
+     "element": "lightning",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": "lightning/lightning_burst_001",
+     "impact": "lightning/lightning_strike_001",
+     "kill": "electrocute"
+    },
+    "storm-wind-funnel-rainstorm": {
+     "delivery": "melee",
+     "element": "lightning",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": null,
+     "impact": "lightning/lightning_strike_001",
+     "kill": "electrocute"
+    }
+   }
+  },
+  "venom": {
+   "arena": "comic",
+   "element": "symbiote",
+   "entry": "magic-bursts/round_light_burst_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "devour",
+   "skills": {
+    "venom-ravenous-bite": {
+     "delivery": "melee",
+     "element": "blood",
+     "windup": null,
+     "travel": null,
+     "impact": "splatters/burst_splatter_001",
+     "kill": "devour"
+    },
+    "venom-pulling-tendrils": {
+     "delivery": "area",
+     "element": "toxin",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_poison_001",
+     "kill": "dissolve"
+    },
+    "venom-venom-web-wrap": {
+     "delivery": "projectile",
+     "element": "toxin",
+     "windup": null,
+     "travel": "type/poison",
+     "impact": "fantasy-spells/spell_poison_001",
+     "kill": "dissolve"
+    },
+    "venom-ally-symbiosis": {
+     "delivery": "support",
+     "element": "toxin",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    },
+    "venom-passive-symbiote-vigor": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    },
+    "venom-ravenous-bite-empowered": {
+     "delivery": "melee",
+     "element": "blood",
+     "windup": null,
+     "travel": null,
+     "impact": "splatters/burst_splatter_001",
+     "kill": "devour"
+    }
+   }
+  },
+  "the-joker": {
+   "arena": "comic",
+   "element": "explosive",
+   "entry": "magic-bursts/round_light_burst_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "boom",
+   "skills": {
+    "the-joker-hand-buzzer": {
+     "delivery": "melee",
+     "element": "toxin",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_poison_001",
+     "kill": "dissolve"
+    },
+    "the-joker-crowbar": {
+     "delivery": "melee",
+     "element": "explosive",
+     "windup": null,
+     "travel": null,
+     "impact": "explosions/epic_explosion_002",
+     "kill": "boom"
+    },
+    "the-joker-joker-venom": {
+     "delivery": "melee",
+     "element": "toxin",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_poison_001",
+     "kill": "dissolve"
+    },
+    "the-joker-bang": {
+     "delivery": "self",
+     "element": "explosive",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "the-joker-acid-flower": {
+     "delivery": "projectile",
+     "element": "toxin",
+     "windup": null,
+     "travel": "type/poison",
+     "impact": "fantasy-spells/spell_poison_001",
+     "kill": "dissolve"
+    },
+    "the-joker-chattering-teeth": {
+     "delivery": "area",
+     "element": "explosive",
+     "windup": null,
+     "travel": null,
+     "impact": "explosions/epic_explosion_002",
+     "kill": "boom"
+    },
+    "the-joker-remote-bomb": {
+     "delivery": "projectile",
+     "element": "explosive",
+     "windup": null,
+     "travel": "explosions/symmetrical_explosion_001",
+     "impact": "explosions/epic_explosion_002",
+     "kill": "boom"
+    }
+   }
+  },
+  "poison-ivy": {
+   "arena": "comic",
+   "element": "toxin",
+   "entry": "magic-bursts/round_light_burst_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "dissolve",
+   "skills": {
+    "poison-ivy-vine-forest-growth": {
+     "delivery": "self",
+     "element": "toxin",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    },
+    "poison-ivy-lashing-thorns": {
+     "delivery": "area",
+     "element": "toxin",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_poison_001",
+     "kill": "dissolve"
+    },
+    "poison-ivy-vine-entanglement": {
+     "delivery": "projectile",
+     "element": "toxin",
+     "windup": null,
+     "travel": "type/poison",
+     "impact": "fantasy-spells/spell_poison_001",
+     "kill": "dissolve"
+    },
+    "poison-ivy-vine-entanglement-all": {
+     "delivery": "area",
+     "element": "toxin",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_poison_001",
+     "kill": "dissolve"
+    },
+    "poison-ivy-plant-doubles": {
+     "delivery": "support",
+     "element": "toxin",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "poison-ivy-grasping-vines": {
+     "delivery": "area",
+     "element": "toxin",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_poison_001",
+     "kill": "dissolve"
+    },
+    "poison-ivy-carnivorous-plant": {
+     "delivery": "projectile",
+     "element": "toxin",
+     "windup": null,
+     "travel": "type/poison",
+     "impact": "fantasy-spells/spell_poison_001",
+     "kill": "dissolve"
+    },
+    "poison-ivy-carnivorous-plant-steal": {
+     "delivery": "projectile",
+     "element": "toxin",
+     "windup": null,
+     "travel": "type/poison",
+     "impact": "fantasy-spells/spell_poison_001",
+     "kill": "dissolve"
+    },
+    "poison-ivy-branch-entanglement": {
+     "delivery": "projectile",
+     "element": "toxin",
+     "windup": null,
+     "travel": "type/poison",
+     "impact": "fantasy-spells/spell_poison_001",
+     "kill": "dissolve"
+    },
+    "poison-ivy-passive-healing-fruit": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "negan": {
+   "arena": "comic",
+   "element": "blunt",
+   "entry": "magic-bursts/round_light_burst_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "lucille",
+   "skills": {
+    "negan-you-re-already-fucked": {
+     "delivery": "melee",
+     "element": "blunt",
+     "windup": null,
+     "travel": null,
+     "impact": "impacts/symmetrical_impact_003",
+     "kill": "lucille"
+    },
+    "negan-you-got-no-guts": {
+     "delivery": "melee",
+     "element": "blade",
+     "windup": null,
+     "travel": null,
+     "impact": "splatters/directional_splatter_001",
+     "kill": "slice"
+    },
+    "negan-the-iron": {
+     "delivery": "melee",
+     "element": "blunt",
+     "windup": null,
+     "travel": null,
+     "impact": "impacts/symmetrical_impact_003",
+     "kill": "lucille"
+    },
+    "negan-bat-smashes-knives": {
+     "delivery": "self",
+     "element": "blunt",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "negan-passive-tainted-weapons": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "rick-grimes": {
+   "arena": "comic",
+   "element": "gunfire",
+   "entry": "sci-fi/scifi_muzzle_flash_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "riddled",
+   "skills": {
+    "rick-grimes-357-revolver": {
+     "delivery": "projectile",
+     "element": "gunfire",
+     "windup": "sci-fi/scifi_muzzle_flash_001",
+     "travel": "impacts/directional_impact_004",
+     "impact": "impacts/directional_impact_004",
+     "kill": "riddled"
+    },
+    "rick-grimes-throat-slit": {
+     "delivery": "melee",
+     "element": "gunfire",
+     "windup": "sci-fi/scifi_muzzle_flash_001",
+     "travel": null,
+     "impact": "impacts/directional_impact_004",
+     "kill": "riddled"
+    },
+    "rick-grimes-desperation": {
+     "delivery": "melee",
+     "element": "gunfire",
+     "windup": "sci-fi/scifi_muzzle_flash_001",
+     "travel": null,
+     "impact": "impacts/directional_impact_004",
+     "kill": "riddled"
+    },
+    "rick-grimes-arm-guard": {
+     "delivery": "self",
+     "element": "gunfire",
+     "windup": "sci-fi/scifi_muzzle_flash_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "rick-grimes-headshot": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "andrea": {
+   "arena": "comic",
+   "element": "gunfire",
+   "entry": "sci-fi/scifi_muzzle_flash_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "riddled",
+   "skills": {
+    "andrea-quick-shot": {
+     "delivery": "projectile",
+     "element": "gunfire",
+     "windup": "sci-fi/scifi_muzzle_flash_001",
+     "travel": "impacts/directional_impact_004",
+     "impact": "impacts/directional_impact_004",
+     "kill": "riddled"
+    },
+    "andrea-sniper-tower": {
+     "delivery": "self",
+     "element": "gunfire",
+     "windup": "sci-fi/scifi_muzzle_flash_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    },
+    "andrea-snipe": {
+     "delivery": "projectile",
+     "element": "gunfire",
+     "windup": "sci-fi/scifi_muzzle_flash_001",
+     "travel": "impacts/directional_impact_004",
+     "impact": "impacts/directional_impact_004",
+     "kill": "riddled"
+    },
+    "andrea-horse-escape": {
+     "delivery": "support",
+     "element": "gunfire",
+     "windup": "sci-fi/scifi_muzzle_flash_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "andrea-passive-locked-on": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "walker": {
+   "arena": "comic",
+   "element": "blood",
+   "entry": "magic-bursts/round_light_burst_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "devour",
+   "skills": {
+    "walker-infected-horde": {
+     "delivery": "area",
+     "element": "blood",
+     "windup": null,
+     "travel": null,
+     "impact": "splatters/burst_splatter_001",
+     "kill": "devour"
+    },
+    "walker-surprise-chomp": {
+     "delivery": "melee",
+     "element": "blood",
+     "windup": null,
+     "travel": null,
+     "impact": "splatters/burst_splatter_001",
+     "kill": "devour"
+    },
+    "walker-overpower": {
+     "delivery": "melee",
+     "element": "blood",
+     "windup": null,
+     "travel": null,
+     "impact": "splatters/burst_splatter_001",
+     "kill": "devour"
+    },
+    "walker-group-banquet": {
+     "delivery": "self",
+     "element": "blood",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_heal_001",
+     "kill": null
+    },
+    "walker-passive-infected-bite": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    },
+    "walker-overpower-all": {
+     "delivery": "area",
+     "element": "blood",
+     "windup": null,
+     "travel": null,
+     "impact": "splatters/burst_splatter_001",
+     "kill": "devour"
+    },
+    "walker-surprise-chomp-all": {
+     "delivery": "area",
+     "element": "blood",
+     "windup": null,
+     "travel": null,
+     "impact": "splatters/burst_splatter_001",
+     "kill": "devour"
+    },
+    "walker-group-banquet-all": {
+     "delivery": "self",
+     "element": "blood",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_heal_001",
+     "kill": null
+    }
+   }
+  },
+  "hershel-greene": {
+   "arena": "comic",
+   "element": "strike",
+   "entry": "magic-bursts/round_light_burst_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "shatter",
+   "skills": {
+    "hershel-greene-reluctant-bullet": {
+     "delivery": "projectile",
+     "element": "gunfire",
+     "windup": "sci-fi/scifi_muzzle_flash_001",
+     "travel": "impacts/directional_impact_004",
+     "impact": "impacts/directional_impact_004",
+     "kill": "riddled"
+    },
+    "hershel-greene-tending-the-crops": {
+     "delivery": "self",
+     "element": "strike",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_heal_001",
+     "kill": null
+    },
+    "hershel-greene-morphine-shot": {
+     "delivery": "support",
+     "element": "gunfire",
+     "windup": "sci-fi/scifi_muzzle_flash_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "hershel-greene-doctor-s-bag": {
+     "delivery": "support",
+     "element": "strike",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    },
+    "hershel-greene-doctor-s-bag-transformed": {
+     "delivery": "support",
+     "element": "strike",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_heal_001",
+     "kill": null
+    },
+    "hershel-greene-antibiotics": {
+     "delivery": "support",
+     "element": "gunfire",
+     "windup": "sci-fi/scifi_muzzle_flash_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_heal_001",
+     "kill": null
+    }
+   }
+  },
+  "invincible": {
+   "arena": "comic",
+   "element": "strike",
+   "entry": "magic-bursts/round_light_burst_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "shatter",
+   "skills": {
+    "invincible-invincible-punch": {
+     "delivery": "melee",
+     "element": "strike",
+     "windup": null,
+     "travel": null,
+     "impact": "impacts/directional_impact_002",
+     "kill": "shatter"
+    },
+    "invincible-to-the-rescue": {
+     "delivery": "support",
+     "element": "strike",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "invincible-desperate-bite": {
+     "delivery": "melee",
+     "element": "blood",
+     "windup": null,
+     "travel": null,
+     "impact": "splatters/burst_splatter_001",
+     "kill": "devour"
+    },
+    "invincible-viltrumite-flight": {
+     "delivery": "self",
+     "element": "strike",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "invincible-head-smash": {
+     "delivery": "melee",
+     "element": "strike",
+     "windup": null,
+     "travel": null,
+     "impact": "impacts/directional_impact_002",
+     "kill": "shatter"
+    },
+    "invincible-passive-something-to-fight-for": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "rex-splode": {
+   "arena": "comic",
+   "element": "explosive",
+   "entry": "magic-bursts/round_light_burst_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "boom",
+   "skills": {
+    "rex-splode-explosive-baton": {
+     "delivery": "projectile",
+     "element": "explosive",
+     "windup": null,
+     "travel": "explosions/symmetrical_explosion_001",
+     "impact": "explosions/epic_explosion_002",
+     "kill": "boom"
+    },
+    "rex-splode-explosive-pocket-change": {
+     "delivery": "projectile",
+     "element": "explosive",
+     "windup": null,
+     "travel": "explosions/symmetrical_explosion_001",
+     "impact": "explosions/epic_explosion_002",
+     "kill": "boom"
+    },
+    "rex-splode-floor-detonation": {
+     "delivery": "area",
+     "element": "explosive",
+     "windup": null,
+     "travel": null,
+     "impact": "explosions/epic_explosion_002",
+     "kill": "boom"
+    },
+    "rex-splode-smoke-screen": {
+     "delivery": "self",
+     "element": "explosive",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "rex-splode-explosive-debris": {
+     "delivery": "projectile",
+     "element": "explosive",
+     "windup": null,
+     "travel": "explosions/symmetrical_explosion_001",
+     "impact": "explosions/epic_explosion_002",
+     "kill": "boom"
+    }
+   }
+  },
+  "atom-eve": {
+   "arena": "comic",
+   "element": "arcane",
+   "entry": "sci-fi/scifi_warp_003",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "warp",
+   "skills": {
+    "atom-eve-molecule-crush": {
+     "delivery": "projectile",
+     "element": "arcane",
+     "windup": "sci-fi/scifi_warp_003",
+     "travel": "magic-bursts/round_sparkle_burst_001",
+     "impact": "sci-fi/scifi_warp_003",
+     "kill": "warp"
+    },
+    "atom-eve-molecule-helmet": {
+     "delivery": "projectile",
+     "element": "arcane",
+     "windup": "sci-fi/scifi_warp_003",
+     "travel": "magic-bursts/round_sparkle_burst_001",
+     "impact": "sci-fi/scifi_warp_003",
+     "kill": "warp"
+    },
+    "atom-eve-molecule-shield": {
+     "delivery": "support",
+     "element": "arcane",
+     "windup": "sci-fi/scifi_warp_003",
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "atom-eve-molecule-battle-armor": {
+     "delivery": "support",
+     "element": "arcane",
+     "windup": "sci-fi/scifi_warp_003",
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "atom-eve-passive-near-death-awakening": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    },
+    "atom-eve-molecular-deconstruction-beam": {
+     "delivery": "projectile",
+     "element": "laser",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": "impacts/directional_impact_004",
+     "impact": "explosions/stylized_explosion_001",
+     "kill": "laser"
+    }
+   }
+  },
+  "omni-man": {
+   "arena": "comic",
+   "element": "strike",
+   "entry": "magic-bursts/round_light_burst_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "shatter",
+   "skills": {
+    "omni-man-omni-headbutt": {
+     "delivery": "melee",
+     "element": "strike",
+     "windup": null,
+     "travel": null,
+     "impact": "impacts/directional_impact_002",
+     "kill": "shatter"
+    },
+    "omni-man-omni-bisect": {
+     "delivery": "melee",
+     "element": "blood",
+     "windup": null,
+     "travel": null,
+     "impact": "splatters/burst_splatter_001",
+     "kill": "devour"
+    },
+    "omni-man-omni-rush": {
+     "delivery": "melee",
+     "element": "strike",
+     "windup": null,
+     "travel": null,
+     "impact": "impacts/directional_impact_002",
+     "kill": "shatter"
+    },
+    "omni-man-omni-guard": {
+     "delivery": "support",
+     "element": "strike",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    },
+    "omni-man-passive-omni-rage": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "angstrom-levy": {
+   "arena": "comic",
+   "element": "portal",
+   "entry": "sci-fi/scifi_warp_003",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "warp",
+   "skills": {
+    "angstrom-levy-spy-drones": {
+     "delivery": "projectile",
+     "element": "portal",
+     "windup": "sci-fi/scifi_warp_003",
+     "travel": "sci-fi/scifi_warp_003",
+     "impact": "sci-fi/scifi_warp_003",
+     "kill": "warp"
+    },
+    "angstrom-levy-sneaky-portal": {
+     "delivery": "projectile",
+     "element": "portal",
+     "windup": "sci-fi/scifi_warp_003",
+     "travel": "sci-fi/scifi_warp_003",
+     "impact": "sci-fi/scifi_warp_003",
+     "kill": "warp"
+    },
+    "angstrom-levy-multi-dimensional-rifts": {
+     "delivery": "self",
+     "element": "portal",
+     "windup": "sci-fi/scifi_warp_003",
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    },
+    "angstrom-levy-portal-save": {
+     "delivery": "support",
+     "element": "portal",
+     "windup": "sci-fi/scifi_warp_003",
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "angstrom-levy-dimension-abandon": {
+     "delivery": "projectile",
+     "element": "portal",
+     "windup": "sci-fi/scifi_warp_003",
+     "travel": "sci-fi/scifi_warp_003",
+     "impact": "sci-fi/scifi_warp_003",
+     "kill": "warp"
+    },
+    "angstrom-levy-spy-drones-rifts": {
+     "delivery": "projectile",
+     "element": "portal",
+     "windup": "sci-fi/scifi_warp_003",
+     "travel": "sci-fi/scifi_warp_003",
+     "impact": "sci-fi/scifi_warp_003",
+     "kill": "warp"
+    }
+   }
+  },
+  "billy-butcher": {
+   "arena": "comic",
+   "element": "laser",
+   "entry": "sci-fi/scifi_charge_up_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "laser",
+   "laser": "yellow",
+   "skills": {
+    "billy-butcher-crowbar-maim": {
+     "delivery": "melee",
+     "element": "blood",
+     "windup": null,
+     "travel": null,
+     "impact": "splatters/burst_splatter_001",
+     "kill": "devour"
+    },
+    "billy-butcher-v24": {
+     "delivery": "self",
+     "element": "laser",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "billy-butcher-cancerous-tentacles": {
+     "delivery": "projectile",
+     "element": "laser",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": "impacts/directional_impact_004",
+     "impact": "explosions/stylized_explosion_001",
+     "kill": "laser"
+    },
+    "billy-butcher-escape": {
+     "delivery": "self",
+     "element": "laser",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "billy-butcher-yellow-death-lasers": {
+     "delivery": "projectile",
+     "element": "laser",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": "impacts/directional_impact_004",
+     "impact": "explosions/stylized_explosion_001",
+     "kill": "laser"
+    }
+   }
+  },
+  "doctor-octopus": {
+   "arena": "comic",
+   "element": "gadget",
+   "entry": "magic-bursts/round_light_burst_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "shatter",
+   "skills": {
+    "doctor-octopus-tentacle-assault": {
+     "delivery": "projectile",
+     "element": "gadget",
+     "windup": null,
+     "travel": "impacts/directional_impact_002",
+     "impact": "sci-fi/scifi_spark_burst_001",
+     "kill": "shatter"
+    },
+    "doctor-octopus-tentacle-manipulation": {
+     "delivery": "area",
+     "element": "gadget",
+     "windup": null,
+     "travel": null,
+     "impact": "sci-fi/scifi_spark_burst_001",
+     "kill": "shatter"
+    },
+    "doctor-octopus-tentacle-strangulation": {
+     "delivery": "area",
+     "element": "gadget",
+     "windup": null,
+     "travel": null,
+     "impact": "sci-fi/scifi_spark_burst_001",
+     "kill": "shatter"
+    },
+    "doctor-octopus-tentacle-parry": {
+     "delivery": "support",
+     "element": "gadget",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    },
+    "doctor-octopus-passive-mechanical-tentacles": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "carnage": {
+   "arena": "comic",
+   "element": "blood",
+   "entry": "magic-bursts/round_light_burst_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "devour",
+   "skills": {
+    "carnage-blood-slash": {
+     "delivery": "melee",
+     "element": "blade",
+     "windup": null,
+     "travel": null,
+     "impact": "splatters/directional_splatter_001",
+     "kill": "slice"
+    },
+    "carnage-wide-area-cutting": {
+     "delivery": "area",
+     "element": "blade",
+     "windup": null,
+     "travel": null,
+     "impact": "splatters/directional_splatter_001",
+     "kill": "slice"
+    },
+    "carnage-brain-devour": {
+     "delivery": "melee",
+     "element": "blood",
+     "windup": null,
+     "travel": null,
+     "impact": "splatters/burst_splatter_001",
+     "kill": "devour"
+    },
+    "carnage-blood-slinging": {
+     "delivery": "self",
+     "element": "blood",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "carnage-passive-blood-bonded": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "the-green-goblin": {
+   "arena": "comic",
+   "element": "explosive",
+   "entry": "magic-bursts/round_light_burst_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "boom",
+   "skills": {
+    "the-green-goblin-pumpkin-bomb": {
+     "delivery": "projectile",
+     "element": "explosive",
+     "windup": null,
+     "travel": "explosions/symmetrical_explosion_001",
+     "impact": "explosions/epic_explosion_002",
+     "kill": "boom"
+    },
+    "the-green-goblin-carpet-bombing": {
+     "delivery": "area",
+     "element": "explosive",
+     "windup": null,
+     "travel": null,
+     "impact": "explosions/epic_explosion_002",
+     "kill": "boom"
+    },
+    "the-green-goblin-glider-impale": {
+     "delivery": "projectile",
+     "element": "explosive",
+     "windup": null,
+     "travel": "explosions/symmetrical_explosion_001",
+     "impact": "explosions/epic_explosion_002",
+     "kill": "boom"
+    },
+    "the-green-goblin-glider-flight": {
+     "delivery": "self",
+     "element": "explosive",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "the-green-goblin-passive-mad-bomber": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "sandman": {
+   "arena": "comic",
+   "element": "sand",
+   "entry": "magic-bursts/round_light_burst_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "gust",
+   "skills": {
+    "sandman-sand-body-enter": {
+     "delivery": "melee",
+     "element": "sand",
+     "windup": null,
+     "travel": null,
+     "impact": "smoke-bursts/symmetrical_smoke_burst_001",
+     "kill": "gust"
+    },
+    "sandman-sand-clone-counter": {
+     "delivery": "support",
+     "element": "sand",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "sandman-sand-smothering": {
+     "delivery": "melee",
+     "element": "sand",
+     "windup": null,
+     "travel": null,
+     "impact": "smoke-bursts/symmetrical_smoke_burst_001",
+     "kill": "gust"
+    },
+    "sandman-body-of-sand": {
+     "delivery": "self",
+     "element": "sand",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    },
+    "sandman-sand-body-exit": {
+     "delivery": "melee",
+     "element": "sand",
+     "windup": null,
+     "travel": null,
+     "impact": "smoke-bursts/symmetrical_smoke_burst_001",
+     "kill": "gust"
+    }
+   }
+  },
+  "mysterio": {
+   "arena": "comic",
+   "element": "illusion",
+   "entry": "smoke-bursts/directional_smoke_burst_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "warp",
+   "skills": {
+    "mysterio-illusion-of-choice": {
+     "delivery": "support",
+     "element": "illusion",
+     "windup": "smoke-bursts/directional_smoke_burst_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    },
+    "mysterio-script-rewrite": {
+     "delivery": "projectile",
+     "element": "illusion",
+     "windup": "smoke-bursts/directional_smoke_burst_001",
+     "travel": "magic-bursts/round_sparkle_burst_002",
+     "impact": "sci-fi/scifi_warp_001",
+     "kill": "warp"
+    },
+    "mysterio-hall-of-mirrors": {
+     "delivery": "support",
+     "element": "illusion",
+     "windup": "smoke-bursts/directional_smoke_burst_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    },
+    "mysterio-grand-illusion": {
+     "delivery": "projectile",
+     "element": "illusion",
+     "windup": "smoke-bursts/directional_smoke_burst_001",
+     "travel": "magic-bursts/round_sparkle_burst_002",
+     "impact": "sci-fi/scifi_warp_001",
+     "kill": "warp"
+    }
+   }
+  },
+  "scorpion": {
+   "arena": "comic",
+   "element": "toxin",
+   "entry": "magic-bursts/round_light_burst_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "dissolve",
+   "skills": {
+    "scorpion-scorpion-sting": {
+     "delivery": "projectile",
+     "element": "toxin",
+     "windup": null,
+     "travel": "type/poison",
+     "impact": "fantasy-spells/spell_poison_001",
+     "kill": "dissolve"
+    },
+    "scorpion-tail-laser": {
+     "delivery": "projectile",
+     "element": "laser",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": "impacts/directional_impact_004",
+     "impact": "explosions/stylized_explosion_001",
+     "kill": "laser"
+    },
+    "scorpion-neck-constriction": {
+     "delivery": "support",
+     "element": "toxin",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    },
+    "scorpion-scorpion-crawl": {
+     "delivery": "self",
+     "element": "toxin",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "scorpion-passive-scorpion-venom": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "green-lantern-hal-jordan": {
+   "arena": "comic",
+   "element": "willpower",
+   "entry": "sci-fi/scifi_warp_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "sparkle",
+   "skills": {
+    "green-lantern-hal-jordan-willpower-blast": {
+     "delivery": "projectile",
+     "element": "willpower",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": "magic-bursts/round_sparkle_burst_002",
+     "impact": "impacts/symmetrical_impact_001",
+     "kill": "sparkle"
+    },
+    "green-lantern-hal-jordan-willpower-shackles": {
+     "delivery": "projectile",
+     "element": "willpower",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": "magic-bursts/round_sparkle_burst_002",
+     "impact": "impacts/symmetrical_impact_001",
+     "kill": "sparkle"
+    },
+    "green-lantern-hal-jordan-willpower-minigun": {
+     "delivery": "area",
+     "element": "willpower",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": null,
+     "impact": "impacts/symmetrical_impact_001",
+     "kill": "sparkle"
+    },
+    "green-lantern-hal-jordan-willpower-truck": {
+     "delivery": "support",
+     "element": "willpower",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "green-lantern-hal-jordan-willpower-torpedo": {
+     "delivery": "projectile",
+     "element": "willpower",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": "magic-bursts/round_sparkle_burst_002",
+     "impact": "impacts/symmetrical_impact_001",
+     "kill": "sparkle"
+    },
+    "green-lantern-hal-jordan-willpower-train": {
+     "delivery": "projectile",
+     "element": "willpower",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": "magic-bursts/round_sparkle_burst_002",
+     "impact": "impacts/symmetrical_impact_001",
+     "kill": "sparkle"
+    },
+    "green-lantern-hal-jordan-passive-green-lantern-ring": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "doctor-fate": {
+   "arena": "comic",
+   "element": "arcane",
+   "entry": "sci-fi/scifi_warp_003",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "warp",
+   "skills": {
+    "doctor-fate-judgment-of-nabu": {
+     "delivery": "projectile",
+     "element": "arcane",
+     "windup": "sci-fi/scifi_warp_003",
+     "travel": "magic-bursts/round_sparkle_burst_001",
+     "impact": "sci-fi/scifi_warp_003",
+     "kill": "warp"
+    },
+    "doctor-fate-seal-of-order": {
+     "delivery": "projectile",
+     "element": "arcane",
+     "windup": "sci-fi/scifi_warp_003",
+     "travel": "magic-bursts/round_sparkle_burst_001",
+     "impact": "sci-fi/scifi_warp_003",
+     "kill": "warp"
+    },
+    "doctor-fate-ankh-of-protection": {
+     "delivery": "support",
+     "element": "arcane",
+     "windup": "sci-fi/scifi_warp_003",
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "doctor-fate-verdict-of-nabu": {
+     "delivery": "area",
+     "element": "arcane",
+     "windup": "sci-fi/scifi_warp_003",
+     "travel": null,
+     "impact": "sci-fi/scifi_warp_003",
+     "kill": "warp"
+    }
+   }
+  },
+  "homelander": {
+   "arena": "comic",
+   "element": "laser",
+   "entry": "sci-fi/scifi_charge_up_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "laser",
+   "laser": "red",
+   "skills": {
+    "homelander-laser-death-beam": {
+     "delivery": "projectile",
+     "element": "laser",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": "impacts/directional_impact_004",
+     "impact": "explosions/stylized_explosion_001",
+     "kill": "laser"
+    },
+    "homelander-flying-assault": {
+     "delivery": "melee",
+     "element": "laser",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": null,
+     "impact": "explosions/stylized_explosion_001",
+     "kill": "laser"
+    },
+    "homelander-god-s-fist": {
+     "delivery": "melee",
+     "element": "laser",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": null,
+     "impact": "explosions/stylized_explosion_001",
+     "kill": "laser"
+    },
+    "homelander-unbreakable-body": {
+     "delivery": "self",
+     "element": "laser",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "homelander-passive-finish-the-weak": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    },
+    "homelander-laser-death-beam-empowered": {
+     "delivery": "projectile",
+     "element": "laser",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": "impacts/directional_impact_004",
+     "impact": "explosions/stylized_explosion_001",
+     "kill": "laser"
+    }
+   }
+  },
+  "xenomorph-drone": {
+   "arena": "comic",
+   "element": "acid",
+   "entry": "magic-bursts/round_light_burst_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "dissolve",
+   "skills": {
+    "xenomorph-drone-inner-jaw-strike": {
+     "delivery": "melee",
+     "element": "acid",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_poison_001",
+     "kill": "dissolve"
+    },
+    "xenomorph-drone-cystic-acid-spit": {
+     "delivery": "projectile",
+     "element": "toxin",
+     "windup": null,
+     "travel": "type/poison",
+     "impact": "fantasy-spells/spell_poison_001",
+     "kill": "dissolve"
+    },
+    "xenomorph-drone-facehugger": {
+     "delivery": "projectile",
+     "element": "acid",
+     "windup": null,
+     "travel": "type/poison",
+     "impact": "fantasy-spells/spell_poison_001",
+     "kill": "dissolve"
+    },
+    "xenomorph-drone-xeno-stealth": {
+     "delivery": "self",
+     "element": "acid",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_heal_001",
+     "kill": null
+    },
+    "xenomorph-drone-passive-acid-blood": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    },
+    "xenomorph-drone-passive-the-hive": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "predalien": {
+   "arena": "comic",
+   "element": "acid",
+   "entry": "magic-bursts/round_light_burst_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "dissolve",
+   "skills": {
+    "predalien-tail-ravage": {
+     "delivery": "melee",
+     "element": "acid",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_poison_001",
+     "kill": "dissolve"
+    },
+    "predalien-predalien-screech": {
+     "delivery": "area",
+     "element": "acid",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_poison_001",
+     "kill": "dissolve"
+    },
+    "predalien-plated-armor": {
+     "delivery": "self",
+     "element": "acid",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "predalien-predalien-nest": {
+     "delivery": "self",
+     "element": "acid",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    }
+   }
+  },
+  "rage-infected": {
+   "arena": "comic",
+   "element": "blood",
+   "entry": "magic-bursts/round_light_burst_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "devour",
+   "skills": {
+    "rage-infected-blood-vomit": {
+     "delivery": "projectile",
+     "element": "blood",
+     "windup": null,
+     "travel": "splatters/burst_splatter_001",
+     "impact": "splatters/burst_splatter_001",
+     "kill": "devour"
+    },
+    "rage-infected-eye-gouge": {
+     "delivery": "melee",
+     "element": "blood",
+     "windup": null,
+     "travel": null,
+     "impact": "splatters/burst_splatter_001",
+     "kill": "devour"
+    },
+    "rage-infected-murderous-rage": {
+     "delivery": "projectile",
+     "element": "blood",
+     "windup": null,
+     "travel": "splatters/burst_splatter_001",
+     "impact": "splatters/burst_splatter_001",
+     "kill": "devour"
+    },
+    "rage-infected-relentless-pursuit": {
+     "delivery": "self",
+     "element": "blood",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    },
+    "rage-infected-murderous-rage-active": {
+     "delivery": "self",
+     "element": "blood",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    }
+   }
+  },
+  "space-marine-infantry": {
+   "arena": "comic",
+   "element": "gunfire",
+   "entry": "sci-fi/scifi_muzzle_flash_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "riddled",
+   "skills": {
+    "space-marine-infantry-m41a-pulse-rifle": {
+     "delivery": "projectile",
+     "element": "gunfire",
+     "windup": "sci-fi/scifi_muzzle_flash_001",
+     "travel": "impacts/directional_impact_004",
+     "impact": "impacts/directional_impact_004",
+     "kill": "riddled"
+    },
+    "space-marine-infantry-grenade-launcher": {
+     "delivery": "projectile",
+     "element": "explosive",
+     "windup": null,
+     "travel": "explosions/symmetrical_explosion_001",
+     "impact": "explosions/epic_explosion_002",
+     "kill": "boom"
+    },
+    "space-marine-infantry-flamethrower": {
+     "delivery": "projectile",
+     "element": "hellfire",
+     "windup": "type/fire",
+     "travel": "type/fire",
+     "impact": "explosions/epic_explosion_001",
+     "kill": "burn"
+    },
+    "space-marine-infantry-drop-ship": {
+     "delivery": "support",
+     "element": "gunfire",
+     "windup": "sci-fi/scifi_muzzle_flash_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    }
+   }
+  },
+  "space-marine-medic": {
+   "arena": "comic",
+   "element": "gunfire",
+   "entry": "sci-fi/scifi_muzzle_flash_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "riddled",
+   "skills": {
+    "space-marine-medic-pump-shotgun": {
+     "delivery": "projectile",
+     "element": "gunfire",
+     "windup": "sci-fi/scifi_muzzle_flash_001",
+     "travel": "impacts/directional_impact_004",
+     "impact": "impacts/directional_impact_004",
+     "kill": "riddled"
+    },
+    "space-marine-medic-marking-flares": {
+     "delivery": "projectile",
+     "element": "gunfire",
+     "windup": "sci-fi/scifi_muzzle_flash_001",
+     "travel": "impacts/directional_impact_004",
+     "impact": "impacts/directional_impact_004",
+     "kill": "riddled"
+    },
+    "space-marine-medic-emergency-medical-station": {
+     "delivery": "support",
+     "element": "gunfire",
+     "windup": "sci-fi/scifi_muzzle_flash_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_heal_001",
+     "kill": null
+    },
+    "space-marine-medic-motion-tracker": {
+     "delivery": "area",
+     "element": "gunfire",
+     "windup": "sci-fi/scifi_muzzle_flash_001",
+     "travel": null,
+     "impact": "impacts/directional_impact_004",
+     "kill": "riddled"
+    },
+    "space-marine-medic-passive-battlefield-triage": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "space-marine-smartgunner": {
+   "arena": "comic",
+   "element": "gunfire",
+   "entry": "sci-fi/scifi_muzzle_flash_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "riddled",
+   "skills": {
+    "space-marine-smartgunner-smartgun-lock-on": {
+     "delivery": "self",
+     "element": "gunfire",
+     "windup": "sci-fi/scifi_muzzle_flash_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    },
+    "space-marine-smartgunner-smartgunner-spray": {
+     "delivery": "self",
+     "element": "gunfire",
+     "windup": "sci-fi/scifi_muzzle_flash_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    },
+    "space-marine-smartgunner-flashlight-attachment": {
+     "delivery": "area",
+     "element": "gunfire",
+     "windup": "sci-fi/scifi_muzzle_flash_001",
+     "travel": null,
+     "impact": "impacts/directional_impact_004",
+     "kill": "riddled"
+    },
+    "space-marine-smartgunner-smartgun-block": {
+     "delivery": "self",
+     "element": "gunfire",
+     "windup": "sci-fi/scifi_muzzle_flash_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    }
+   }
+  },
+  "predator-stalker": {
+   "arena": "comic",
+   "element": "gadget",
+   "entry": "magic-bursts/round_light_burst_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "riddled",
+   "skills": {
+    "predator-stalker-yautja-shuriken": {
+     "delivery": "projectile",
+     "element": "blade",
+     "windup": null,
+     "travel": "splatters/directional_splatter_001",
+     "impact": "splatters/directional_splatter_001",
+     "kill": "slice"
+    },
+    "predator-stalker-bleeder-spear": {
+     "delivery": "projectile",
+     "element": "blade",
+     "windup": null,
+     "travel": "splatters/directional_splatter_001",
+     "impact": "splatters/directional_splatter_001",
+     "kill": "slice"
+    },
+    "predator-stalker-cloaking-assassination": {
+     "delivery": "melee",
+     "element": "gadget",
+     "windup": null,
+     "travel": null,
+     "impact": "sci-fi/scifi_spark_burst_001",
+     "kill": "riddled"
+    },
+    "predator-stalker-cloaking-tech": {
+     "delivery": "self",
+     "element": "gadget",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    },
+    "predator-stalker-passive-trophy-hunter": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "sinestro": {
+   "arena": "comic",
+   "element": "fear",
+   "entry": "fantasy-spells/spell_death_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "shadow",
+   "skills": {
+    "sinestro-terrifying-crash": {
+     "delivery": "projectile",
+     "element": "fear",
+     "windup": "fantasy-spells/spell_death_001",
+     "travel": "magic-bursts/round_light_burst_001",
+     "impact": "fantasy-spells/spell_death_001",
+     "kill": "shadow"
+    },
+    "sinestro-dreadful-scorpion": {
+     "delivery": "projectile",
+     "element": "fear",
+     "windup": "fantasy-spells/spell_death_001",
+     "travel": "magic-bursts/round_light_burst_001",
+     "impact": "fantasy-spells/spell_death_001",
+     "kill": "shadow"
+    },
+    "sinestro-scary-dragon": {
+     "delivery": "area",
+     "element": "fear",
+     "windup": "fantasy-spells/spell_death_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_death_001",
+     "kill": "shadow"
+    },
+    "sinestro-fear-the-reaper": {
+     "delivery": "projectile",
+     "element": "fear",
+     "windup": "fantasy-spells/spell_death_001",
+     "travel": "magic-bursts/round_light_burst_001",
+     "impact": "fantasy-spells/spell_death_001",
+     "kill": "shadow"
+    },
+    "sinestro-passive-yellow-lantern-ring": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "atrocitus": {
+   "arena": "comic",
+   "element": "rage",
+   "entry": "fantasy-spells/spell_attack_up_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "burn",
+   "skills": {
+    "atrocitus-rage-of-ysmault": {
+     "delivery": "self",
+     "element": "rage",
+     "windup": "fantasy-spells/spell_attack_up_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "atrocitus-napalm-blood-vomit": {
+     "delivery": "projectile",
+     "element": "blood",
+     "windup": null,
+     "travel": "splatters/burst_splatter_001",
+     "impact": "splatters/burst_splatter_001",
+     "kill": "devour"
+    },
+    "atrocitus-blood-magic-of-the-butcher": {
+     "delivery": "projectile",
+     "element": "blood",
+     "windup": null,
+     "travel": "splatters/burst_splatter_001",
+     "impact": "splatters/burst_splatter_001",
+     "kill": "devour"
+    },
+    "atrocitus-red-lantern-execution": {
+     "delivery": "melee",
+     "element": "blood",
+     "windup": null,
+     "travel": null,
+     "impact": "splatters/burst_splatter_001",
+     "kill": "devour"
+    },
+    "atrocitus-passive-red-lantern-ring": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "saint-walker": {
+   "arena": "comic",
+   "element": "hope",
+   "entry": "magic-bursts/round_sparkle_burst_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "sparkle",
+   "skills": {
+    "saint-walker-fist-of-hope": {
+     "delivery": "melee",
+     "element": "hope",
+     "windup": "magic-bursts/round_sparkle_burst_001",
+     "travel": null,
+     "impact": "magic-bursts/round_light_burst_001",
+     "kill": "sparkle"
+    },
+    "saint-walker-radiant-hope": {
+     "delivery": "self",
+     "element": "hope",
+     "windup": "magic-bursts/round_sparkle_burst_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    },
+    "saint-walker-emotional-aura-attunement": {
+     "delivery": "self",
+     "element": "hope",
+     "windup": "magic-bursts/round_sparkle_burst_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    },
+    "saint-walker-hope-shield": {
+     "delivery": "support",
+     "element": "hope",
+     "windup": "magic-bursts/round_sparkle_burst_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "saint-walker-phoenix-of-hope": {
+     "delivery": "support",
+     "element": "hope",
+     "windup": "magic-bursts/round_sparkle_burst_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "saint-walker-passive-blue-lantern-ring": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "indigo-1": {
+   "arena": "comic",
+   "element": "arcane",
+   "entry": "sci-fi/scifi_warp_003",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "warp",
+   "skills": {
+    "indigo-1-compassion-staff": {
+     "delivery": "projectile",
+     "element": "arcane",
+     "windup": "sci-fi/scifi_warp_003",
+     "travel": "magic-bursts/round_sparkle_burst_001",
+     "impact": "sci-fi/scifi_warp_003",
+     "kill": "warp"
+    },
+    "indigo-1-influx-of-empathy": {
+     "delivery": "projectile",
+     "element": "arcane",
+     "windup": "sci-fi/scifi_warp_003",
+     "travel": "magic-bursts/round_sparkle_burst_001",
+     "impact": "sci-fi/scifi_warp_003",
+     "kill": "warp"
+    },
+    "indigo-1-purge": {
+     "delivery": "melee",
+     "element": "arcane",
+     "windup": "sci-fi/scifi_warp_003",
+     "travel": null,
+     "impact": "sci-fi/scifi_warp_003",
+     "kill": "warp"
+    },
+    "indigo-1-compassion-shield": {
+     "delivery": "support",
+     "element": "arcane",
+     "windup": "sci-fi/scifi_warp_003",
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "indigo-1-passive-indigo-lantern-ring": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "john-stewart": {
+   "arena": "comic",
+   "element": "willpower",
+   "entry": "sci-fi/scifi_warp_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "sparkle",
+   "skills": {
+    "john-stewart-dark-constructs": {
+     "delivery": "area",
+     "element": "willpower",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": null,
+     "impact": "impacts/symmetrical_impact_001",
+     "kill": "sparkle"
+    },
+    "john-stewart-giant-dark-construct": {
+     "delivery": "projectile",
+     "element": "willpower",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": "magic-bursts/round_sparkle_burst_002",
+     "impact": "impacts/symmetrical_impact_001",
+     "kill": "sparkle"
+    },
+    "john-stewart-mind-manipulation": {
+     "delivery": "projectile",
+     "element": "willpower",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": "magic-bursts/round_sparkle_burst_002",
+     "impact": "impacts/symmetrical_impact_001",
+     "kill": "sparkle"
+    },
+    "john-stewart-unseen-guard": {
+     "delivery": "self",
+     "element": "willpower",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "john-stewart-passive-ultraviolet-lantern-ring": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    },
+    "john-stewart-emotional-possession": {
+     "delivery": "self",
+     "element": "willpower",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    }
+   }
+  },
+  "sorrow": {
+   "arena": "comic",
+   "element": "shadow",
+   "entry": "smoke-bursts/stylized_skull_smoke_burst_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "shadow",
+   "skills": {
+    "sorrow-mourning-claw": {
+     "delivery": "projectile",
+     "element": "blade",
+     "windup": null,
+     "travel": "splatters/directional_splatter_001",
+     "impact": "splatters/directional_splatter_001",
+     "kill": "slice"
+    },
+    "sorrow-sorrow-spikes": {
+     "delivery": "projectile",
+     "element": "shadow",
+     "windup": "smoke-bursts/stylized_skull_smoke_burst_001",
+     "travel": "type/dark",
+     "impact": "fantasy-spells/spell_death_001",
+     "kill": "shadow"
+    },
+    "sorrow-depression-orb": {
+     "delivery": "projectile",
+     "element": "shadow",
+     "windup": "smoke-bursts/stylized_skull_smoke_burst_001",
+     "travel": "type/dark",
+     "impact": "fantasy-spells/spell_death_001",
+     "kill": "shadow"
+    },
+    "sorrow-tornado-of-grief": {
+     "delivery": "projectile",
+     "element": "shadow",
+     "windup": "smoke-bursts/stylized_skull_smoke_burst_001",
+     "travel": "type/dark",
+     "impact": "fantasy-spells/spell_death_001",
+     "kill": "shadow"
+    },
+    "sorrow-passive-grey-lantern-ring": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    },
+    "sorrow-stack-of-sorrow": {
+     "delivery": "self",
+     "element": "shadow",
+     "windup": "smoke-bursts/stylized_skull_smoke_burst_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    }
+   }
+  },
+  "parasite": {
+   "arena": "comic",
+   "element": "drain",
+   "entry": "fantasy-spells/spell_absorb_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "drain",
+   "skills": {
+    "parasite-life-leech": {
+     "delivery": "projectile",
+     "element": "drain",
+     "windup": "fantasy-spells/spell_absorb_001",
+     "travel": "fantasy-spells/spell_absorb_001",
+     "impact": "fantasy-spells/spell_absorb_001",
+     "kill": "drain"
+    },
+    "parasite-metabolic-collapse": {
+     "delivery": "support",
+     "element": "drain",
+     "windup": "fantasy-spells/spell_absorb_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    },
+    "parasite-energy-transfer": {
+     "delivery": "support",
+     "element": "drain",
+     "windup": "fantasy-spells/spell_absorb_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    },
+    "parasite-host-mutation": {
+     "delivery": "self",
+     "element": "drain",
+     "windup": "fantasy-spells/spell_absorb_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "parasite-predatory-overload": {
+     "delivery": "area",
+     "element": "drain",
+     "windup": "fantasy-spells/spell_absorb_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_absorb_001",
+     "kill": "drain"
+    },
+    "parasite-passive-absorption-states": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "ghost-rider": {
+   "arena": "comic",
+   "element": "hellfire",
+   "entry": "type/fire",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "burn",
+   "skills": {
+    "ghost-rider-hellfire-chains": {
+     "delivery": "area",
+     "element": "hellfire",
+     "windup": "type/fire",
+     "travel": null,
+     "impact": "explosions/epic_explosion_001",
+     "kill": "burn"
+    },
+    "ghost-rider-penance-stare": {
+     "delivery": "projectile",
+     "element": "hellfire",
+     "windup": "type/fire",
+     "travel": "type/fire",
+     "impact": "explosions/epic_explosion_001",
+     "kill": "burn"
+    },
+    "ghost-rider-soul-consumption": {
+     "delivery": "melee",
+     "element": "hellfire",
+     "windup": "type/fire",
+     "travel": null,
+     "impact": "explosions/epic_explosion_001",
+     "kill": "burn"
+    },
+    "ghost-rider-infernal-ride": {
+     "delivery": "melee",
+     "element": "hellfire",
+     "windup": "type/fire",
+     "travel": null,
+     "impact": "explosions/epic_explosion_001",
+     "kill": "burn"
+    },
+    "ghost-rider-passive-spirit-of-vengeance": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "doctor-strange": {
+   "arena": "comic",
+   "element": "arcane",
+   "entry": "sci-fi/scifi_warp_003",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "warp",
+   "skills": {
+    "doctor-strange-eldritch-manifestation": {
+     "delivery": "projectile",
+     "element": "arcane",
+     "windup": "sci-fi/scifi_warp_003",
+     "travel": "magic-bursts/round_sparkle_burst_001",
+     "impact": "sci-fi/scifi_warp_003",
+     "kill": "warp"
+    },
+    "doctor-strange-shield-of-the-seraphim": {
+     "delivery": "projectile",
+     "element": "arcane",
+     "windup": "sci-fi/scifi_warp_003",
+     "travel": "magic-bursts/round_sparkle_burst_001",
+     "impact": "sci-fi/scifi_warp_003",
+     "kill": "warp"
+    },
+    "doctor-strange-bolts-of-balthakk": {
+     "delivery": "area",
+     "element": "hellfire",
+     "windup": "type/fire",
+     "travel": null,
+     "impact": "explosions/epic_explosion_001",
+     "kill": "burn"
+    },
+    "doctor-strange-channel-zom": {
+     "delivery": "self",
+     "element": "arcane",
+     "windup": "sci-fi/scifi_warp_003",
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    },
+    "doctor-strange-zoms-wrath": {
+     "delivery": "self",
+     "element": "arcane",
+     "windup": "sci-fi/scifi_warp_003",
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    },
+    "doctor-strange-eldritch-manifestation-improved": {
+     "delivery": "projectile",
+     "element": "arcane",
+     "windup": "sci-fi/scifi_warp_003",
+     "travel": "magic-bursts/round_sparkle_burst_001",
+     "impact": "sci-fi/scifi_warp_003",
+     "kill": "warp"
+    },
+    "doctor-strange-shield-of-the-seraphim-improved": {
+     "delivery": "projectile",
+     "element": "arcane",
+     "windup": "sci-fi/scifi_warp_003",
+     "travel": "magic-bursts/round_sparkle_burst_001",
+     "impact": "sci-fi/scifi_warp_003",
+     "kill": "warp"
+    },
+    "doctor-strange-bolts-of-balthakk-improved": {
+     "delivery": "area",
+     "element": "hellfire",
+     "windup": "type/fire",
+     "travel": null,
+     "impact": "explosions/epic_explosion_001",
+     "kill": "burn"
+    },
+    "doctor-strange-passive-vishanti-ready": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "doctor-doom": {
+   "arena": "comic",
+   "element": "arcane",
+   "entry": "sci-fi/scifi_warp_003",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "warp",
+   "skills": {
+    "doctor-doom-doombot-decoy": {
+     "delivery": "area",
+     "element": "arcane",
+     "windup": "sci-fi/scifi_warp_003",
+     "travel": null,
+     "impact": "sci-fi/scifi_warp_003",
+     "kill": "warp"
+    },
+    "doctor-doom-arcane-tech-blast": {
+     "delivery": "projectile",
+     "element": "arcane",
+     "windup": "sci-fi/scifi_warp_003",
+     "travel": "magic-bursts/round_sparkle_burst_001",
+     "impact": "sci-fi/scifi_warp_003",
+     "kill": "warp"
+    },
+    "doctor-doom-latverian-lockdown": {
+     "delivery": "projectile",
+     "element": "arcane",
+     "windup": "sci-fi/scifi_warp_003",
+     "travel": "magic-bursts/round_sparkle_burst_001",
+     "impact": "sci-fi/scifi_warp_003",
+     "kill": "warp"
+    },
+    "doctor-doom-dooms-command": {
+     "delivery": "area",
+     "element": "arcane",
+     "windup": "sci-fi/scifi_warp_003",
+     "travel": null,
+     "impact": "sci-fi/scifi_warp_003",
+     "kill": "warp"
+    }
+   }
+  },
+  "the-hulk": {
+   "arena": "comic",
+   "element": "smash",
+   "entry": "magic-bursts/round_light_burst_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "crush",
+   "skills": {
+    "the-hulk-hulk-smash": {
+     "delivery": "melee",
+     "element": "smash",
+     "windup": null,
+     "travel": null,
+     "impact": "impacts/symmetrical_impact_006",
+     "kill": "crush"
+    },
+    "the-hulk-thunder-clap": {
+     "delivery": "area",
+     "element": "lightning",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": null,
+     "impact": "lightning/lightning_strike_001",
+     "kill": "electrocute"
+    },
+    "the-hulk-debris-catapult": {
+     "delivery": "melee",
+     "element": "smash",
+     "windup": null,
+     "travel": null,
+     "impact": "impacts/symmetrical_impact_006",
+     "kill": "crush"
+    },
+    "the-hulk-hulk-leap": {
+     "delivery": "melee",
+     "element": "smash",
+     "windup": null,
+     "travel": null,
+     "impact": "impacts/symmetrical_impact_006",
+     "kill": "crush"
+    },
+    "the-hulk-passive-anger-management": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    },
+    "the-hulk-passive-worldbreaker": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    },
+    "the-hulk-world-break": {
+     "delivery": "area",
+     "element": "smash",
+     "windup": null,
+     "travel": null,
+     "impact": "impacts/symmetrical_impact_006",
+     "kill": "crush"
+    }
+   }
+  },
+  "wolverine": {
+   "arena": "comic",
+   "element": "blade",
+   "entry": "magic-bursts/round_light_burst_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "claw-triple",
+   "skills": {
+    "wolverine-adamantium-claws": {
+     "delivery": "melee",
+     "element": "blade",
+     "windup": null,
+     "travel": null,
+     "impact": "splatters/directional_splatter_001",
+     "kill": "claw-triple"
+    },
+    "wolverine-hot-claws": {
+     "delivery": "self",
+     "element": "blade",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    },
+    "wolverine-berserker-rage": {
+     "delivery": "self",
+     "element": "blade",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_heal_001",
+     "kill": null
+    },
+    "wolverine-healing-factor": {
+     "delivery": "self",
+     "element": "blade",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_heal_001",
+     "kill": null
+    },
+    "wolverine-passive-adamantium-skeleton": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "darth-vader": {
+   "arena": "comic",
+   "element": "dark-force",
+   "entry": "fantasy-spells/spell_death_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "saber",
+   "sabers": [
+    "red"
+   ],
+   "skills": {
+    "darth-vader-saber-strike-down": {
+     "delivery": "melee",
+     "element": "blade",
+     "windup": null,
+     "travel": null,
+     "impact": "splatters/directional_splatter_001",
+     "kill": "saber",
+     "sabers": [
+      "red"
+     ]
+    },
+    "darth-vader-force-choke": {
+     "delivery": "projectile",
+     "element": "force-choke",
+     "windup": "fantasy-spells/spell_death_001",
+     "travel": "fantasy-spells/spell_death_001",
+     "impact": "fantasy-spells/spell_death_001",
+     "kill": "crush"
+    },
+    "darth-vader-sith-brutality": {
+     "delivery": "support",
+     "element": "blade",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    },
+    "darth-vader-force-parry": {
+     "delivery": "self",
+     "element": "dark-force",
+     "windup": "fantasy-spells/spell_death_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    }
+   }
+  },
+  "darth-maul": {
+   "arena": "comic",
+   "element": "blade",
+   "entry": "magic-bursts/round_light_burst_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "saber",
+   "sabers": [
+    "red",
+    "red"
+   ],
+   "skills": {
+    "darth-maul-force-choke": {
+     "delivery": "projectile",
+     "element": "force-choke",
+     "windup": "fantasy-spells/spell_death_001",
+     "travel": "fantasy-spells/spell_death_001",
+     "impact": "fantasy-spells/spell_death_001",
+     "kill": "crush"
+    },
+    "darth-maul-dual-sided-saber": {
+     "delivery": "melee",
+     "element": "blade",
+     "windup": null,
+     "travel": null,
+     "impact": "splatters/directional_splatter_001",
+     "kill": "saber",
+     "sabers": [
+      "red",
+      "red"
+     ]
+    },
+    "darth-maul-sith-code": {
+     "delivery": "support",
+     "element": "blade",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    },
+    "darth-maul-parry": {
+     "delivery": "self",
+     "element": "blood",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "darth-maul-passive-hatred": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "boba-fett": {
+   "arena": "comic",
+   "element": "gunfire",
+   "entry": "sci-fi/scifi_muzzle_flash_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "riddled",
+   "skills": {
+    "boba-fett-bounty-hunter-blaster": {
+     "delivery": "projectile",
+     "element": "gunfire",
+     "windup": "sci-fi/scifi_muzzle_flash_001",
+     "travel": "impacts/directional_impact_004",
+     "impact": "impacts/directional_impact_004",
+     "kill": "riddled"
+    },
+    "boba-fett-wrist-flamethrower": {
+     "delivery": "projectile",
+     "element": "hellfire",
+     "windup": "type/fire",
+     "travel": "type/fire",
+     "impact": "explosions/epic_explosion_001",
+     "kill": "burn"
+    },
+    "boba-fett-missile-backpack": {
+     "delivery": "projectile",
+     "element": "explosive",
+     "windup": null,
+     "travel": "explosions/symmetrical_explosion_001",
+     "impact": "explosions/epic_explosion_002",
+     "kill": "boom"
+    },
+    "boba-fett-mandalorian-armor-jetpack": {
+     "delivery": "self",
+     "element": "gunfire",
+     "windup": "sci-fi/scifi_muzzle_flash_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "boba-fett-looted-lightsaber": {
+     "delivery": "melee",
+     "element": "blade",
+     "windup": null,
+     "travel": null,
+     "impact": "splatters/directional_splatter_001",
+     "kill": "slice"
+    },
+    "boba-fett-bounty-hunter-blaster-upgraded": {
+     "delivery": "projectile",
+     "element": "gunfire",
+     "windup": "sci-fi/scifi_muzzle_flash_001",
+     "travel": "impacts/directional_impact_004",
+     "impact": "impacts/directional_impact_004",
+     "kill": "riddled"
+    },
+    "boba-fett-wrist-flamethrower-upgraded": {
+     "delivery": "projectile",
+     "element": "hellfire",
+     "windup": "type/fire",
+     "travel": "type/fire",
+     "impact": "explosions/epic_explosion_001",
+     "kill": "burn"
+    },
+    "boba-fett-missile-backpack-upgraded": {
+     "delivery": "projectile",
+     "element": "explosive",
+     "windup": null,
+     "travel": "explosions/symmetrical_explosion_001",
+     "impact": "explosions/epic_explosion_002",
+     "kill": "boom"
+    },
+    "boba-fett-mandalorian-armor-jetpack-upgraded": {
+     "delivery": "self",
+     "element": "gunfire",
+     "windup": "sci-fi/scifi_muzzle_flash_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "boba-fett-looted-lightsaber-upgraded": {
+     "delivery": "melee",
+     "element": "blade",
+     "windup": null,
+     "travel": null,
+     "impact": "splatters/directional_splatter_001",
+     "kill": "slice"
+    }
+   }
+  },
+  "obi-wan-kenobi": {
+   "arena": "comic",
+   "element": "force",
+   "entry": "magic-bursts/round_light_burst_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "saber",
+   "sabers": [
+    "blue"
+   ],
+   "skills": {
+    "obi-wan-kenobi-soresu-style-cut": {
+     "delivery": "melee",
+     "element": "blade",
+     "windup": null,
+     "travel": null,
+     "impact": "splatters/directional_splatter_001",
+     "kill": "saber",
+     "sabers": [
+      "blue"
+     ]
+    },
+    "obi-wan-kenobi-saber-deflect": {
+     "delivery": "support",
+     "element": "blade",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    },
+    "obi-wan-kenobi-force-push": {
+     "delivery": "projectile",
+     "element": "force",
+     "windup": "magic-bursts/round_light_burst_001",
+     "travel": "smoke-bursts/directional_smoke_burst_001",
+     "impact": "impacts/symmetrical_impact_002",
+     "kill": "gust"
+    },
+    "obi-wan-kenobi-jedi-maneuver": {
+     "delivery": "support",
+     "element": "force",
+     "windup": "magic-bursts/round_light_burst_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    },
+    "obi-wan-kenobi-jedi-guardian": {
+     "delivery": "support",
+     "element": "force",
+     "windup": "magic-bursts/round_light_burst_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    }
+   }
+  },
+  "grand-master-yoda": {
+   "arena": "comic",
+   "element": "force",
+   "entry": "magic-bursts/round_light_burst_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "saber",
+   "sabers": [
+    "green"
+   ],
+   "skills": {
+    "grand-master-yoda-ataru-strike": {
+     "delivery": "melee",
+     "element": "blade",
+     "windup": null,
+     "travel": null,
+     "impact": "splatters/directional_splatter_001",
+     "kill": "saber",
+     "sabers": [
+      "green"
+     ]
+    },
+    "grand-master-yoda-grand-masters-wisdom": {
+     "delivery": "support",
+     "element": "force",
+     "windup": "magic-bursts/round_light_burst_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    },
+    "grand-master-yoda-force-barrier": {
+     "delivery": "support",
+     "element": "force",
+     "windup": "magic-bursts/round_light_burst_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "grand-master-yoda-master-of-the-force": {
+     "delivery": "melee",
+     "element": "force",
+     "windup": "magic-bursts/round_light_burst_001",
+     "travel": null,
+     "impact": "impacts/symmetrical_impact_002",
+     "kill": "gust"
+    },
+    "grand-master-yoda-passive-harmony": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "darth-sidious": {
+   "arena": "comic",
+   "element": "dark-force",
+   "entry": "fantasy-spells/spell_death_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "saber",
+   "sabers": [
+    "red"
+   ],
+   "skills": {
+    "darth-sidious-force-lightning": {
+     "delivery": "projectile",
+     "element": "lightning",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": "lightning/lightning_burst_001",
+     "impact": "lightning/lightning_strike_001",
+     "kill": "electrocute"
+    },
+    "darth-sidious-dark-manipulation": {
+     "delivery": "projectile",
+     "element": "dark-force",
+     "windup": "fantasy-spells/spell_death_001",
+     "travel": "lightning/lightning_burst_002",
+     "impact": "lightning/lightning_strike_001",
+     "kill": "force-lightning"
+    },
+    "darth-sidious-rule-of-two": {
+     "delivery": "support",
+     "element": "dark-force",
+     "windup": "fantasy-spells/spell_death_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    },
+    "darth-sidious-crimson-force-lightning": {
+     "delivery": "area",
+     "element": "lightning",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": null,
+     "impact": "lightning/lightning_strike_001",
+     "kill": "electrocute"
+    },
+    "darth-sidious-passive-corruption": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "general-grievous": {
+   "arena": "comic",
+   "element": "blade",
+   "entry": "magic-bursts/round_light_burst_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "saber",
+   "sabers": [
+    "green",
+    "blue",
+    "violet",
+    "yellow"
+   ],
+   "skills": {
+    "general-grievous-four-armed-assault": {
+     "delivery": "melee",
+     "element": "blade",
+     "windup": null,
+     "travel": null,
+     "impact": "splatters/directional_splatter_001",
+     "kill": "saber",
+     "sabers": [
+      "green",
+      "blue",
+      "violet",
+      "yellow"
+     ]
+    },
+    "general-grievous-jedi-hunter": {
+     "delivery": "melee",
+     "element": "blade",
+     "windup": null,
+     "travel": null,
+     "impact": "splatters/directional_splatter_001",
+     "kill": "saber",
+     "sabers": [
+      "green",
+      "blue",
+      "violet",
+      "yellow"
+     ]
+    },
+    "general-grievous-whirling-blades": {
+     "delivery": "self",
+     "element": "blade",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    },
+    "general-grievous-trophy-execution": {
+     "delivery": "melee",
+     "element": "blade",
+     "windup": null,
+     "travel": null,
+     "impact": "splatters/directional_splatter_001",
+     "kill": "saber",
+     "sabers": [
+      "green",
+      "blue",
+      "violet",
+      "yellow"
+     ]
+    },
+    "general-grievous-passive-collected-lightsabers": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "charmander": {
+   "arena": "pokemon",
+   "element": "fire",
+   "entry": "type/fire",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "burn",
+   "skills": {
+    "charmander-ember": {
+     "delivery": "projectile",
+     "element": "fire",
+     "windup": "type/fire",
+     "travel": "type/fire",
+     "impact": "explosions/epic_explosion_001",
+     "kill": "burn"
+    },
+    "charmander-scratch": {
+     "delivery": "melee",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "charmander-flamethrower": {
+     "delivery": "area",
+     "element": "fire",
+     "windup": "type/fire",
+     "travel": null,
+     "impact": "explosions/epic_explosion_001",
+     "kill": "burn"
+    },
+    "charmander-rage": {
+     "delivery": "self",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "charmander-passive-evolution-charmeleon": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    },
+    "charmander-fire-punch": {
+     "delivery": "melee",
+     "element": "fire",
+     "windup": "type/fire",
+     "travel": null,
+     "impact": "explosions/epic_explosion_001",
+     "kill": "burn"
+    },
+    "charmander-dragon-claw": {
+     "delivery": "melee",
+     "element": "dragon",
+     "windup": null,
+     "travel": null,
+     "impact": "type/dragon",
+     "kill": "dragon-claw"
+    },
+    "charmander-charmeleon-flamethrower": {
+     "delivery": "area",
+     "element": "fire",
+     "windup": "type/fire",
+     "travel": null,
+     "impact": "explosions/epic_explosion_001",
+     "kill": "burn"
+    },
+    "charmander-charmeleon-rage": {
+     "delivery": "self",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "charmander-charizard-x-fire-punch": {
+     "delivery": "melee",
+     "element": "fire",
+     "windup": "type/fire",
+     "travel": null,
+     "impact": "explosions/epic_explosion_001",
+     "kill": "burn"
+    },
+    "charmander-charizard-x-dragon-claw": {
+     "delivery": "melee",
+     "element": "dragon",
+     "windup": null,
+     "travel": null,
+     "impact": "type/dragon",
+     "kill": "dragon-claw"
+    },
+    "charmander-charizard-x-flamethrower": {
+     "delivery": "area",
+     "element": "fire",
+     "windup": "type/fire",
+     "travel": null,
+     "impact": "explosions/epic_explosion_001",
+     "kill": "burn"
+    },
+    "charmander-charizard-x-rage": {
+     "delivery": "self",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "charmander-charizard-y-fire-punch": {
+     "delivery": "melee",
+     "element": "fire",
+     "windup": "type/fire",
+     "travel": null,
+     "impact": "explosions/epic_explosion_001",
+     "kill": "burn"
+    },
+    "charmander-charizard-y-dragon-claw": {
+     "delivery": "melee",
+     "element": "dragon",
+     "windup": null,
+     "travel": null,
+     "impact": "type/dragon",
+     "kill": "dragon-claw"
+    },
+    "charmander-charizard-y-flamethrower": {
+     "delivery": "area",
+     "element": "fire",
+     "windup": "type/fire",
+     "travel": null,
+     "impact": "explosions/epic_explosion_001",
+     "kill": "burn"
+    },
+    "charmander-charizard-y-rage": {
+     "delivery": "self",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    }
+   }
+  },
+  "squirtle": {
+   "arena": "pokemon",
+   "element": "water",
+   "entry": "type/water",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "wave",
+   "skills": {
+    "squirtle-water-gun": {
+     "delivery": "projectile",
+     "element": "water",
+     "windup": null,
+     "travel": "type/water",
+     "impact": "type/water",
+     "kill": "wave"
+    },
+    "squirtle-withdraw": {
+     "delivery": "projectile",
+     "element": "water",
+     "windup": null,
+     "travel": "type/water",
+     "impact": "type/water",
+     "kill": "wave"
+    },
+    "squirtle-bubble": {
+     "delivery": "projectile",
+     "element": "water",
+     "windup": null,
+     "travel": "type/water",
+     "impact": "type/water",
+     "kill": "wave"
+    },
+    "squirtle-rapid-spin": {
+     "delivery": "area",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "squirtle-passive-evolution-wartortle": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    },
+    "wartortle-shell-guard": {
+     "delivery": "support",
+     "element": "water",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "wartortle-hydro-pump": {
+     "delivery": "projectile",
+     "element": "water",
+     "windup": null,
+     "travel": "type/water",
+     "impact": "type/water",
+     "kill": "wave"
+    },
+    "wartortle-bubblebeam": {
+     "delivery": "area",
+     "element": "water",
+     "windup": null,
+     "travel": null,
+     "impact": "type/water",
+     "kill": "wave"
+    },
+    "wartortle-aqua-spin": {
+     "delivery": "area",
+     "element": "water",
+     "windup": null,
+     "travel": null,
+     "impact": "type/water",
+     "kill": "wave"
+    }
+   }
+  },
+  "bulbasaur": {
+   "arena": "pokemon",
+   "element": "grass",
+   "entry": "type/grass",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "vines",
+   "skills": {
+    "bulbasaur-leech-seed": {
+     "delivery": "melee",
+     "element": "grass",
+     "windup": null,
+     "travel": null,
+     "impact": "type/grass",
+     "kill": "vines"
+    },
+    "bulbasaur-vine-whip": {
+     "delivery": "melee",
+     "element": "grass",
+     "windup": null,
+     "travel": null,
+     "impact": "type/grass",
+     "kill": "vines"
+    },
+    "bulbasaur-razor-leaf": {
+     "delivery": "area",
+     "element": "grass",
+     "windup": null,
+     "travel": null,
+     "impact": "type/grass",
+     "kill": "vines"
+    },
+    "bulbasaur-solar-beam": {
+     "delivery": "projectile",
+     "element": "grass",
+     "windup": null,
+     "travel": "type/grass",
+     "impact": "type/grass",
+     "kill": "vines"
+    },
+    "bulbasaur-passive-evolution-ivysaur": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    },
+    "ivysaur-leech-seed": {
+     "delivery": "melee",
+     "element": "grass",
+     "windup": null,
+     "travel": null,
+     "impact": "type/grass",
+     "kill": "vines"
+    },
+    "ivysaur-vine-whip": {
+     "delivery": "melee",
+     "element": "grass",
+     "windup": null,
+     "travel": null,
+     "impact": "type/grass",
+     "kill": "vines"
+    },
+    "ivysaur-razor-leaf": {
+     "delivery": "area",
+     "element": "grass",
+     "windup": null,
+     "travel": null,
+     "impact": "type/grass",
+     "kill": "vines"
+    },
+    "ivysaur-solar-beam": {
+     "delivery": "projectile",
+     "element": "grass",
+     "windup": null,
+     "travel": "type/grass",
+     "impact": "type/grass",
+     "kill": "vines"
+    }
+   }
+  },
+  "pikachu": {
+   "arena": "pokemon",
+   "element": "electric",
+   "entry": "type/electric",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "electrocute",
+   "skills": {
+    "pikachu-thundershock": {
+     "delivery": "projectile",
+     "element": "electric",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": "type/electric",
+     "impact": "type/electric",
+     "kill": "electrocute"
+    },
+    "pikachu-volt-tackle": {
+     "delivery": "projectile",
+     "element": "electric",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": "type/electric",
+     "impact": "type/electric",
+     "kill": "electrocute"
+    },
+    "pikachu-thunder": {
+     "delivery": "projectile",
+     "element": "electric",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": "type/electric",
+     "impact": "type/electric",
+     "kill": "electrocute"
+    },
+    "pikachu-agility": {
+     "delivery": "self",
+     "element": "psychic",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "pikachu-passive-static": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "butterfree": {
+   "arena": "pokemon",
+   "element": "bug",
+   "entry": "type/bug",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "swarm",
+   "skills": {
+    "butterfree-confusion": {
+     "delivery": "projectile",
+     "element": "psychic",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": "type/psychic",
+     "impact": "type/psychic",
+     "kill": "warp"
+    },
+    "butterfree-psybeam": {
+     "delivery": "projectile",
+     "element": "psychic",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": "type/psychic",
+     "impact": "type/psychic",
+     "kill": "warp"
+    },
+    "butterfree-stun-spore": {
+     "delivery": "melee",
+     "element": "grass",
+     "windup": null,
+     "travel": null,
+     "impact": "type/grass",
+     "kill": "vines"
+    },
+    "butterfree-whirlwind": {
+     "delivery": "support",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "butterfree-sleep-powder": {
+     "delivery": "melee",
+     "element": "grass",
+     "windup": null,
+     "travel": null,
+     "impact": "type/grass",
+     "kill": "vines"
+    }
+   }
+  },
+  "pokemon-trainer": {
+   "arena": "pokemon",
+   "element": "normal",
+   "entry": "type/normal",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "shatter",
+   "skills": {
+    "pokemon-trainer-pokeball": {
+     "delivery": "melee",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "pokemon-trainer-potion": {
+     "delivery": "support",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_heal_001",
+     "kill": null
+    },
+    "pokemon-trainer-x-stats": {
+     "delivery": "support",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "pokemon-trainer-rare-candy": {
+     "delivery": "support",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_heal_001",
+     "kill": null
+    },
+    "pokemon-trainer-great-ball": {
+     "delivery": "melee",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "pokemon-trainer-ultra-ball": {
+     "delivery": "melee",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "pokemon-trainer-master-ball": {
+     "delivery": "melee",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "pokemon-trainer-revive": {
+     "delivery": "support",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    }
+   }
+  },
+  "chansey": {
+   "arena": "pokemon",
+   "element": "normal",
+   "entry": "type/normal",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "shatter",
+   "skills": {
+    "chansey-eggbomb": {
+     "delivery": "projectile",
+     "element": "normal",
+     "windup": null,
+     "travel": "type/normal",
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "chansey-pokemon-center-healing": {
+     "delivery": "support",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_heal_001",
+     "kill": null
+    },
+    "chansey-softboil": {
+     "delivery": "support",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_heal_001",
+     "kill": null
+    },
+    "chansey-emergency-life-support": {
+     "delivery": "support",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_heal_001",
+     "kill": null
+    },
+    "chansey-passive-evolution-blissey": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    },
+    "blissey-eggbomb": {
+     "delivery": "projectile",
+     "element": "normal",
+     "windup": null,
+     "travel": "type/normal",
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "blissey-pokemon-center-healing": {
+     "delivery": "support",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_heal_001",
+     "kill": null
+    },
+    "blissey-softboil": {
+     "delivery": "support",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_heal_001",
+     "kill": null
+    },
+    "blissey-emergency-life-support": {
+     "delivery": "support",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_heal_001",
+     "kill": null
+    }
+   }
+  },
+  "pidgey": {
+   "arena": "pokemon",
+   "element": "normal",
+   "entry": "type/normal",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "shatter",
+   "skills": {
+    "pidgey-gust": {
+     "delivery": "melee",
+     "element": "flying",
+     "windup": null,
+     "travel": null,
+     "impact": "type/flying",
+     "kill": "gust"
+    },
+    "pidgey-whirlwind": {
+     "delivery": "self",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "pidgey-peck": {
+     "delivery": "melee",
+     "element": "flying",
+     "windup": null,
+     "travel": null,
+     "impact": "type/flying",
+     "kill": "gust"
+    },
+    "pidgey-sand-attack": {
+     "delivery": "melee",
+     "element": "ground",
+     "windup": null,
+     "travel": null,
+     "impact": "type/ground",
+     "kill": "fissure"
+    },
+    "pidgey-passive-evolution-pidgeotto": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    },
+    "pidgeotto-gust": {
+     "delivery": "melee",
+     "element": "flying",
+     "windup": null,
+     "travel": null,
+     "impact": "type/flying",
+     "kill": "gust"
+    },
+    "pidgeotto-whirlwind": {
+     "delivery": "self",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "pidgeotto-peck": {
+     "delivery": "melee",
+     "element": "flying",
+     "windup": null,
+     "travel": null,
+     "impact": "type/flying",
+     "kill": "gust"
+    },
+    "pidgeotto-sand-attack": {
+     "delivery": "melee",
+     "element": "ground",
+     "windup": null,
+     "travel": null,
+     "impact": "type/ground",
+     "kill": "fissure"
+    }
+   }
+  },
+  "koffing": {
+   "arena": "pokemon",
+   "element": "poison",
+   "entry": "type/poison",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "dissolve",
+   "skills": {
+    "koffing-smog": {
+     "delivery": "area",
+     "element": "poison",
+     "windup": null,
+     "travel": null,
+     "impact": "type/poison",
+     "kill": "dissolve"
+    },
+    "koffing-haze": {
+     "delivery": "support",
+     "element": "ice",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "koffing-self-destruct": {
+     "delivery": "area",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "koffing-smokescreen": {
+     "delivery": "self",
+     "element": "poison",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "koffing-passive-poison-gas": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    },
+    "koffing-passive-evolution-weezing": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    },
+    "koffing-weezing-passive-poison-gas": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    },
+    "koffing-weezing-smog": {
+     "delivery": "area",
+     "element": "poison",
+     "windup": null,
+     "travel": null,
+     "impact": "type/poison",
+     "kill": "dissolve"
+    },
+    "koffing-weezing-haze": {
+     "delivery": "support",
+     "element": "ice",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "koffing-weezing-self-destruct": {
+     "delivery": "area",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "koffing-weezing-smokescreen": {
+     "delivery": "self",
+     "element": "poison",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    }
+   }
+  },
+  "zubat": {
+   "arena": "pokemon",
+   "element": "poison",
+   "entry": "type/poison",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "dissolve",
+   "skills": {
+    "zubat-leech-life": {
+     "delivery": "melee",
+     "element": "bug",
+     "windup": null,
+     "travel": null,
+     "impact": "type/bug",
+     "kill": "swarm"
+    },
+    "zubat-supersonic": {
+     "delivery": "projectile",
+     "element": "normal",
+     "windup": null,
+     "travel": "type/normal",
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "zubat-bite": {
+     "delivery": "melee",
+     "element": "dark",
+     "windup": null,
+     "travel": null,
+     "impact": "type/dark",
+     "kill": "shadow"
+    },
+    "zubat-draining-fangs": {
+     "delivery": "self",
+     "element": "dark",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "zubat-passive-evolution-golbat": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    },
+    "golbat-leech-life": {
+     "delivery": "melee",
+     "element": "bug",
+     "windup": null,
+     "travel": null,
+     "impact": "type/bug",
+     "kill": "swarm"
+    },
+    "golbat-supersonic": {
+     "delivery": "projectile",
+     "element": "normal",
+     "windup": null,
+     "travel": "type/normal",
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "golbat-bite": {
+     "delivery": "melee",
+     "element": "dark",
+     "windup": null,
+     "travel": null,
+     "impact": "type/dark",
+     "kill": "shadow"
+    },
+    "golbat-draining-fangs": {
+     "delivery": "self",
+     "element": "dark",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    }
+   }
+  },
+  "gastly": {
+   "arena": "pokemon",
+   "element": "ghost",
+   "entry": "type/ghost",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "haunt",
+   "skills": {
+    "gastly-lick": {
+     "delivery": "projectile",
+     "element": "ghost",
+     "windup": null,
+     "travel": "type/ghost",
+     "impact": "type/ghost",
+     "kill": "haunt"
+    },
+    "gastly-curse": {
+     "delivery": "projectile",
+     "element": "ghost",
+     "windup": null,
+     "travel": "type/ghost",
+     "impact": "type/ghost",
+     "kill": "haunt"
+    },
+    "gastly-spite": {
+     "delivery": "projectile",
+     "element": "ghost",
+     "windup": null,
+     "travel": "type/ghost",
+     "impact": "type/ghost",
+     "kill": "haunt"
+    },
+    "gastly-glare": {
+     "delivery": "projectile",
+     "element": "normal",
+     "windup": null,
+     "travel": "type/normal",
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "gastly-passive-evolution-haunter": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    },
+    "haunter-lick": {
+     "delivery": "projectile",
+     "element": "ghost",
+     "windup": null,
+     "travel": "type/ghost",
+     "impact": "type/ghost",
+     "kill": "haunt"
+    },
+    "haunter-curse": {
+     "delivery": "projectile",
+     "element": "ghost",
+     "windup": null,
+     "travel": "type/ghost",
+     "impact": "type/ghost",
+     "kill": "haunt"
+    },
+    "haunter-spite": {
+     "delivery": "projectile",
+     "element": "ghost",
+     "windup": null,
+     "travel": "type/ghost",
+     "impact": "type/ghost",
+     "kill": "haunt"
+    },
+    "haunter-glare": {
+     "delivery": "projectile",
+     "element": "normal",
+     "windup": null,
+     "travel": "type/normal",
+     "impact": "type/normal",
+     "kill": "shatter"
+    }
+   }
+  },
+  "abra": {
+   "arena": "pokemon",
+   "element": "psychic",
+   "entry": "type/psychic",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "warp",
+   "skills": {
+    "abra-future-sight": {
+     "delivery": "projectile",
+     "element": "psychic",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": "type/psychic",
+     "impact": "type/psychic",
+     "kill": "warp"
+    },
+    "abra-psychic": {
+     "delivery": "projectile",
+     "element": "psychic",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": "type/psychic",
+     "impact": "type/psychic",
+     "kill": "warp"
+    },
+    "abra-calm-mind": {
+     "delivery": "self",
+     "element": "psychic",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "abra-teleport": {
+     "delivery": "support",
+     "element": "psychic",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "abra-passive-evolution-kadabra": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    },
+    "kadabra-future-sight": {
+     "delivery": "projectile",
+     "element": "psychic",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": "type/psychic",
+     "impact": "type/psychic",
+     "kill": "warp"
+    },
+    "kadabra-psychic": {
+     "delivery": "projectile",
+     "element": "psychic",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": "type/psychic",
+     "impact": "type/psychic",
+     "kill": "warp"
+    },
+    "kadabra-calm-mind": {
+     "delivery": "self",
+     "element": "psychic",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "kadabra-teleport": {
+     "delivery": "support",
+     "element": "psychic",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    }
+   }
+  },
+  "krabby": {
+   "arena": "pokemon",
+   "element": "water",
+   "entry": "type/water",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "wave",
+   "skills": {
+    "krabby-metal-claw": {
+     "delivery": "melee",
+     "element": "steel",
+     "windup": null,
+     "travel": null,
+     "impact": "type/steel",
+     "kill": "slice"
+    },
+    "krabby-leer": {
+     "delivery": "projectile",
+     "element": "water",
+     "windup": null,
+     "travel": "type/water",
+     "impact": "type/water",
+     "kill": "wave"
+    },
+    "krabby-crabhammer": {
+     "delivery": "melee",
+     "element": "water",
+     "windup": null,
+     "travel": null,
+     "impact": "type/water",
+     "kill": "wave"
+    },
+    "krabby-harden": {
+     "delivery": "self",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "krabby-passive-evolution-kingler": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    },
+    "kingler-metal-claw": {
+     "delivery": "melee",
+     "element": "steel",
+     "windup": null,
+     "travel": null,
+     "impact": "type/steel",
+     "kill": "slice"
+    },
+    "kingler-leer": {
+     "delivery": "projectile",
+     "element": "water",
+     "windup": null,
+     "travel": "type/water",
+     "impact": "type/water",
+     "kill": "wave"
+    },
+    "kingler-crabhammer": {
+     "delivery": "melee",
+     "element": "water",
+     "windup": null,
+     "travel": null,
+     "impact": "type/water",
+     "kill": "wave"
+    },
+    "kingler-harden": {
+     "delivery": "self",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    }
+   }
+  },
+  "scyther": {
+   "arena": "pokemon",
+   "element": "bug",
+   "entry": "type/bug",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "swarm",
+   "skills": {
+    "scyther-fury-cutter": {
+     "delivery": "melee",
+     "element": "bug",
+     "windup": null,
+     "travel": null,
+     "impact": "type/bug",
+     "kill": "swarm"
+    },
+    "scyther-swords-dance": {
+     "delivery": "self",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "scyther-x-cutter": {
+     "delivery": "melee",
+     "element": "bug",
+     "windup": null,
+     "travel": null,
+     "impact": "type/bug",
+     "kill": "swarm"
+    },
+    "scyther-double-team": {
+     "delivery": "self",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    }
+   }
+  },
+  "eevee": {
+   "arena": "pokemon",
+   "element": "normal",
+   "entry": "type/normal",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "shatter",
+   "skills": {
+    "eevee-dig": {
+     "delivery": "melee",
+     "element": "ground",
+     "windup": null,
+     "travel": null,
+     "impact": "type/ground",
+     "kill": "fissure"
+    },
+    "eevee-swift": {
+     "delivery": "area",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "eevee-hidden-power": {
+     "delivery": "projectile",
+     "element": "normal",
+     "windup": null,
+     "travel": "type/normal",
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "eevee-protect": {
+     "delivery": "support",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    }
+   }
+  },
+  "jolteon": {
+   "arena": "pokemon",
+   "element": "electric",
+   "entry": "type/electric",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "electrocute",
+   "skills": {
+    "jolteon-pin-missile": {
+     "delivery": "area",
+     "element": "bug",
+     "windup": null,
+     "travel": null,
+     "impact": "type/bug",
+     "kill": "swarm"
+    },
+    "jolteon-thunderbolt": {
+     "delivery": "projectile",
+     "element": "electric",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": "type/electric",
+     "impact": "type/electric",
+     "kill": "electrocute"
+    },
+    "jolteon-thunder-fang": {
+     "delivery": "projectile",
+     "element": "electric",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": "type/electric",
+     "impact": "type/electric",
+     "kill": "electrocute"
+    },
+    "jolteon-charge": {
+     "delivery": "self",
+     "element": "electric",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    }
+   }
+  },
+  "flareon": {
+   "arena": "pokemon",
+   "element": "fire",
+   "entry": "type/fire",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "burn",
+   "skills": {
+    "flareon-heating-up": {
+     "delivery": "self",
+     "element": "fire",
+     "windup": "type/fire",
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "flareon-fire-spin": {
+     "delivery": "support",
+     "element": "fire",
+     "windup": "type/fire",
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "flareon-fire-blast": {
+     "delivery": "projectile",
+     "element": "fire",
+     "windup": "type/fire",
+     "travel": "type/fire",
+     "impact": "explosions/epic_explosion_001",
+     "kill": "burn"
+    },
+    "flareon-double-team": {
+     "delivery": "self",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    }
+   }
+  },
+  "vaporeon": {
+   "arena": "pokemon",
+   "element": "water",
+   "entry": "type/water",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "wave",
+   "skills": {
+    "vaporeon-aurora-beam": {
+     "delivery": "projectile",
+     "element": "ice",
+     "windup": null,
+     "travel": "type/ice",
+     "impact": "type/ice",
+     "kill": "freeze"
+    },
+    "vaporeon-sand-attack": {
+     "delivery": "support",
+     "element": "ground",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "vaporeon-hydro-pump": {
+     "delivery": "melee",
+     "element": "water",
+     "windup": null,
+     "travel": null,
+     "impact": "type/water",
+     "kill": "wave"
+    },
+    "vaporeon-acid-armor": {
+     "delivery": "self",
+     "element": "poison",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    }
+   }
+  },
+  "ekans": {
+   "arena": "pokemon",
+   "element": "poison",
+   "entry": "type/poison",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "dissolve",
+   "skills": {
+    "ekans-poison-fang": {
+     "delivery": "melee",
+     "element": "poison",
+     "windup": null,
+     "travel": null,
+     "impact": "type/poison",
+     "kill": "dissolve"
+    },
+    "ekans-toxic": {
+     "delivery": "projectile",
+     "element": "poison",
+     "windup": null,
+     "travel": "type/poison",
+     "impact": "type/poison",
+     "kill": "dissolve"
+    },
+    "ekans-shed-skin": {
+     "delivery": "self",
+     "element": "poison",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_heal_001",
+     "kill": null
+    },
+    "ekans-crunch": {
+     "delivery": "projectile",
+     "element": "dark",
+     "windup": null,
+     "travel": "type/dark",
+     "impact": "type/dark",
+     "kill": "shadow"
+    },
+    "ekans-passive-evolution-arbok": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    },
+    "arbok-poison-fang": {
+     "delivery": "melee",
+     "element": "poison",
+     "windup": null,
+     "travel": null,
+     "impact": "type/poison",
+     "kill": "dissolve"
+    },
+    "arbok-toxic": {
+     "delivery": "projectile",
+     "element": "poison",
+     "windup": null,
+     "travel": "type/poison",
+     "impact": "type/poison",
+     "kill": "dissolve"
+    },
+    "arbok-shed-skin": {
+     "delivery": "self",
+     "element": "poison",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_heal_001",
+     "kill": null
+    },
+    "arbok-crunch": {
+     "delivery": "projectile",
+     "element": "dark",
+     "windup": null,
+     "travel": "type/dark",
+     "impact": "type/dark",
+     "kill": "shadow"
+    }
+   }
+  },
+  "machop": {
+   "arena": "pokemon",
+   "element": "fighting",
+   "entry": "type/fighting",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "pummel",
+   "skills": {
+    "machop-brick-break": {
+     "delivery": "melee",
+     "element": "fighting",
+     "windup": null,
+     "travel": null,
+     "impact": "type/fighting",
+     "kill": "pummel"
+    },
+    "machop-counter": {
+     "delivery": "melee",
+     "element": "fighting",
+     "windup": null,
+     "travel": null,
+     "impact": "type/fighting",
+     "kill": "pummel"
+    },
+    "machop-bulk-up": {
+     "delivery": "self",
+     "element": "fighting",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "machop-taunt": {
+     "delivery": "projectile",
+     "element": "dark",
+     "windup": null,
+     "travel": "type/dark",
+     "impact": "type/dark",
+     "kill": "shadow"
+    },
+    "machop-passive-evolution-machoke": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    },
+    "machoke-brick-break": {
+     "delivery": "melee",
+     "element": "fighting",
+     "windup": null,
+     "travel": null,
+     "impact": "type/fighting",
+     "kill": "pummel"
+    },
+    "machoke-counter": {
+     "delivery": "melee",
+     "element": "fighting",
+     "windup": null,
+     "travel": null,
+     "impact": "type/fighting",
+     "kill": "pummel"
+    },
+    "machoke-bulk-up": {
+     "delivery": "self",
+     "element": "fighting",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "machoke-taunt": {
+     "delivery": "projectile",
+     "element": "dark",
+     "windup": null,
+     "travel": "type/dark",
+     "impact": "type/dark",
+     "kill": "shadow"
+    }
+   }
+  },
+  "magikarp": {
+   "arena": "pokemon",
+   "element": "water",
+   "entry": "type/water",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "wave",
+   "skills": {
+    "magikarp-tackle": {
+     "delivery": "melee",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "magikarp-splash": {
+     "delivery": "self",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "magikarp-flail": {
+     "delivery": "melee",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "magikarp-struggle": {
+     "delivery": "melee",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "magikarp-passive-evolution-gyarados": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    },
+    "gyarados-hyper-beam": {
+     "delivery": "projectile",
+     "element": "normal",
+     "windup": null,
+     "travel": "type/normal",
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "gyarados-hyper-beam-affliction": {
+     "delivery": "projectile",
+     "element": "normal",
+     "windup": null,
+     "travel": "type/normal",
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "gyarados-dragon-rage": {
+     "delivery": "projectile",
+     "element": "dragon",
+     "windup": null,
+     "travel": "type/dragon",
+     "impact": "type/dragon",
+     "kill": "dragon-claw"
+    },
+    "gyarados-ice-fang": {
+     "delivery": "melee",
+     "element": "ice",
+     "windup": null,
+     "travel": null,
+     "impact": "type/ice",
+     "kill": "freeze"
+    },
+    "gyarados-hydro-pump": {
+     "delivery": "melee",
+     "element": "water",
+     "windup": null,
+     "travel": null,
+     "impact": "type/water",
+     "kill": "wave"
+    }
+   }
+  },
+  "mr-mime": {
+   "arena": "pokemon",
+   "element": "psychic",
+   "entry": "type/psychic",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "warp",
+   "skills": {
+    "mr-mime-dazzling-gleam": {
+     "delivery": "projectile",
+     "element": "fairy",
+     "windup": null,
+     "travel": "type/fairy",
+     "impact": "type/fairy",
+     "kill": "sparkle"
+    },
+    "mr-mime-forcefield": {
+     "delivery": "support",
+     "element": "psychic",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "mr-mime-light-screen": {
+     "delivery": "support",
+     "element": "psychic",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "mr-mime-safeguard": {
+     "delivery": "support",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    }
+   }
+  },
+  "hitmonchan": {
+   "arena": "pokemon",
+   "element": "fighting",
+   "entry": "type/fighting",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "pummel",
+   "skills": {
+    "hitmonchan-thunder-punch": {
+     "delivery": "melee",
+     "element": "electric",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": null,
+     "impact": "type/electric",
+     "kill": "electrocute"
+    },
+    "hitmonchan-fire-punch": {
+     "delivery": "melee",
+     "element": "fire",
+     "windup": "type/fire",
+     "travel": null,
+     "impact": "explosions/epic_explosion_001",
+     "kill": "burn"
+    },
+    "hitmonchan-ice-punch": {
+     "delivery": "melee",
+     "element": "ice",
+     "windup": null,
+     "travel": null,
+     "impact": "type/ice",
+     "kill": "freeze"
+    },
+    "hitmonchan-mega-punch": {
+     "delivery": "melee",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/normal",
+     "kill": "shatter"
+    }
+   }
+  },
+  "hitmonlee": {
+   "arena": "pokemon",
+   "element": "fighting",
+   "entry": "type/fighting",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "pummel",
+   "skills": {
+    "hitmonlee-double-kick": {
+     "delivery": "melee",
+     "element": "fighting",
+     "windup": null,
+     "travel": null,
+     "impact": "type/fighting",
+     "kill": "pummel"
+    },
+    "hitmonlee-focus-energy": {
+     "delivery": "self",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "hitmonlee-mega-kick": {
+     "delivery": "melee",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "hitmonlee-high-jump-kick": {
+     "delivery": "melee",
+     "element": "fighting",
+     "windup": null,
+     "travel": null,
+     "impact": "type/fighting",
+     "kill": "pummel"
+    },
+    "hitmonlee-low-kick": {
+     "delivery": "melee",
+     "element": "fighting",
+     "windup": null,
+     "travel": null,
+     "impact": "type/fighting",
+     "kill": "pummel"
+    }
+   }
+  },
+  "aerodactyl": {
+   "arena": "pokemon",
+   "element": "rock",
+   "entry": "type/rock",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "crush",
+   "skills": {
+    "aerodactyl-take-down": {
+     "delivery": "melee",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "aerodactyl-rock-slide": {
+     "delivery": "area",
+     "element": "rock",
+     "windup": null,
+     "travel": null,
+     "impact": "type/rock",
+     "kill": "crush"
+    },
+    "aerodactyl-double-edge": {
+     "delivery": "melee",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "aerodactyl-stone-edge": {
+     "delivery": "melee",
+     "element": "rock",
+     "windup": null,
+     "travel": null,
+     "impact": "type/rock",
+     "kill": "crush"
+    },
+    "aerodactyl-passive-tough-head": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "magnemite": {
+   "arena": "pokemon",
+   "element": "electric",
+   "entry": "type/electric",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "electrocute",
+   "skills": {
+    "magnemite-spark": {
+     "delivery": "projectile",
+     "element": "electric",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": "type/electric",
+     "impact": "type/electric",
+     "kill": "electrocute"
+    },
+    "magnemite-thunder-wave": {
+     "delivery": "projectile",
+     "element": "electric",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": "type/electric",
+     "impact": "type/electric",
+     "kill": "electrocute"
+    },
+    "magnemite-swift": {
+     "delivery": "projectile",
+     "element": "normal",
+     "windup": null,
+     "travel": "type/normal",
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "magnemite-magnet-rise": {
+     "delivery": "self",
+     "element": "electric",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "magnemite-passive-evolution-magneton": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    },
+    "magneton-spark": {
+     "delivery": "projectile",
+     "element": "electric",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": "type/electric",
+     "impact": "type/electric",
+     "kill": "electrocute"
+    },
+    "magneton-thunder-wave": {
+     "delivery": "area",
+     "element": "electric",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": null,
+     "impact": "type/electric",
+     "kill": "electrocute"
+    },
+    "magneton-flash-cannon": {
+     "delivery": "projectile",
+     "element": "steel",
+     "windup": null,
+     "travel": "type/steel",
+     "impact": "type/steel",
+     "kill": "slice"
+    },
+    "magneton-magnet-rise": {
+     "delivery": "self",
+     "element": "electric",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    }
+   }
+  },
+  "onix": {
+   "arena": "pokemon",
+   "element": "rock",
+   "entry": "type/rock",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "crush",
+   "skills": {
+    "onix-rock-throw": {
+     "delivery": "area",
+     "element": "rock",
+     "windup": null,
+     "travel": null,
+     "impact": "type/rock",
+     "kill": "crush"
+    },
+    "onix-iron-tail": {
+     "delivery": "melee",
+     "element": "steel",
+     "windup": null,
+     "travel": null,
+     "impact": "type/steel",
+     "kill": "slice"
+    },
+    "onix-stealth-rock": {
+     "delivery": "area",
+     "element": "rock",
+     "windup": null,
+     "travel": null,
+     "impact": "type/rock",
+     "kill": "crush"
+    },
+    "onix-harden": {
+     "delivery": "area",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "onix-passive-sturdy": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "meowth": {
+   "arena": "pokemon",
+   "element": "normal",
+   "entry": "type/normal",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "shatter",
+   "skills": {
+    "meowth-pay-day": {
+     "delivery": "melee",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "meowth-fury-swipes": {
+     "delivery": "area",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "meowth-fake-out": {
+     "delivery": "melee",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "meowth-night-slash": {
+     "delivery": "melee",
+     "element": "dark",
+     "windup": null,
+     "travel": null,
+     "impact": "type/dark",
+     "kill": "shadow"
+    },
+    "meowth-passive-evolution-persian": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    },
+    "persian-pay-day": {
+     "delivery": "melee",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "persian-fury-swipes": {
+     "delivery": "area",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "persian-fake-out": {
+     "delivery": "melee",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "persian-night-slash": {
+     "delivery": "melee",
+     "element": "dark",
+     "windup": null,
+     "travel": null,
+     "impact": "type/dark",
+     "kill": "shadow"
+    }
+   }
+  },
+  "clefairy": {
+   "arena": "pokemon",
+   "element": "fairy",
+   "entry": "type/fairy",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "sparkle",
+   "skills": {
+    "clefairy-metronome": {
+     "delivery": "support",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "clefairy-double-slap": {
+     "delivery": "melee",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "clefairy-disarming-voice": {
+     "delivery": "area",
+     "element": "fairy",
+     "windup": null,
+     "travel": null,
+     "impact": "type/fairy",
+     "kill": "sparkle"
+    },
+    "clefairy-moonlight": {
+     "delivery": "support",
+     "element": "fairy",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "clefairy-evolution-clefable": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "jigglypuff": {
+   "arena": "pokemon",
+   "element": "normal",
+   "entry": "type/normal",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "shatter",
+   "skills": {
+    "jigglypuff-perish-song": {
+     "delivery": "projectile",
+     "element": "normal",
+     "windup": null,
+     "travel": "type/normal",
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "jigglypuff-sing": {
+     "delivery": "projectile",
+     "element": "normal",
+     "windup": null,
+     "travel": "type/normal",
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "jigglypuff-wish": {
+     "delivery": "support",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "jigglypuff-humiliate": {
+     "delivery": "melee",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "jigglypuff-evolution-wigglytuff": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "beedrill": {
+   "arena": "pokemon",
+   "element": "bug",
+   "entry": "type/bug",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "swarm",
+   "skills": {
+    "beedrill-poison-sting": {
+     "delivery": "projectile",
+     "element": "poison",
+     "windup": null,
+     "travel": "type/poison",
+     "impact": "type/poison",
+     "kill": "dissolve"
+    },
+    "beedrill-twinneedle": {
+     "delivery": "melee",
+     "element": "bug",
+     "windup": null,
+     "travel": null,
+     "impact": "type/bug",
+     "kill": "swarm"
+    },
+    "beedrill-envenom": {
+     "delivery": "area",
+     "element": "poison",
+     "windup": null,
+     "travel": null,
+     "impact": "type/poison",
+     "kill": "dissolve"
+    },
+    "beedrill-hive-swarm": {
+     "delivery": "self",
+     "element": "bug",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "beedrill-hive-sting": {
+     "delivery": "area",
+     "element": "bug",
+     "windup": null,
+     "travel": null,
+     "impact": "type/bug",
+     "kill": "swarm"
+    },
+    "beedrill-evolution-mega": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "articuno": {
+   "arena": "pokemon",
+   "element": "ice",
+   "entry": "type/ice",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "freeze",
+   "skills": {
+    "articuno-blizzard": {
+     "delivery": "support",
+     "element": "ice",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "articuno-ice-beam": {
+     "delivery": "projectile",
+     "element": "ice",
+     "windup": null,
+     "travel": "type/ice",
+     "impact": "type/ice",
+     "kill": "freeze"
+    },
+    "articuno-sheer-cold": {
+     "delivery": "support",
+     "element": "ice",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "articuno-snowstorm": {
+     "delivery": "self",
+     "element": "ice",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    }
+   }
+  },
+  "moltres": {
+   "arena": "pokemon",
+   "element": "fire",
+   "entry": "type/fire",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "burn",
+   "skills": {
+    "moltres-fire-spin": {
+     "delivery": "self",
+     "element": "fire",
+     "windup": "type/fire",
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "moltres-sunny-day": {
+     "delivery": "self",
+     "element": "fire",
+     "windup": "type/fire",
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "moltres-heat-wave": {
+     "delivery": "projectile",
+     "element": "fire",
+     "windup": "type/fire",
+     "travel": "type/fire",
+     "impact": "explosions/epic_explosion_001",
+     "kill": "burn"
+    },
+    "moltres-overheat": {
+     "delivery": "support",
+     "element": "fire",
+     "windup": "type/fire",
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "moltres-heat": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "zapdos": {
+   "arena": "pokemon",
+   "element": "electric",
+   "entry": "type/electric",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "electrocute",
+   "skills": {
+    "zapdos-charge": {
+     "delivery": "self",
+     "element": "electric",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "zapdos-thunderbolt": {
+     "delivery": "self",
+     "element": "electric",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "zapdos-zap-cannon": {
+     "delivery": "support",
+     "element": "electric",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "zapdos-flight": {
+     "delivery": "self",
+     "element": "flying",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    }
+   }
+  },
+  "mew": {
+   "arena": "pokemon",
+   "element": "psychic",
+   "entry": "type/psychic",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "warp",
+   "skills": {
+    "mew-psychic-barrier": {
+     "delivery": "support",
+     "element": "psychic",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "mew-psychic": {
+     "delivery": "projectile",
+     "element": "psychic",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": "type/psychic",
+     "impact": "type/psychic",
+     "kill": "warp"
+    },
+    "mew-pink-bubble": {
+     "delivery": "support",
+     "element": "psychic",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "mew-life-dew": {
+     "delivery": "support",
+     "element": "water",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    }
+   }
+  },
+  "mewtwo": {
+   "arena": "pokemon",
+   "element": "psychic",
+   "entry": "type/psychic",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "warp",
+   "skills": {
+    "mewtwo-psychic": {
+     "delivery": "projectile",
+     "element": "psychic",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": "type/psychic",
+     "impact": "type/psychic",
+     "kill": "warp"
+    },
+    "mewtwo-shadow-ball": {
+     "delivery": "projectile",
+     "element": "ghost",
+     "windup": null,
+     "travel": "type/ghost",
+     "impact": "type/ghost",
+     "kill": "haunt"
+    },
+    "mewtwo-drain-punch": {
+     "delivery": "melee",
+     "element": "fighting",
+     "windup": null,
+     "travel": null,
+     "impact": "type/fighting",
+     "kill": "pummel"
+    },
+    "mewtwo-recover": {
+     "delivery": "self",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    }
+   }
+  },
+  "dragonite": {
+   "arena": "pokemon",
+   "element": "dragon",
+   "entry": "type/dragon",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "dragon-claw",
+   "skills": {
+    "dragonite-dragon-claw": {
+     "delivery": "melee",
+     "element": "dragon",
+     "windup": null,
+     "travel": null,
+     "impact": "type/dragon",
+     "kill": "dragon-claw"
+    },
+    "dragonite-hyper-beam": {
+     "delivery": "projectile",
+     "element": "normal",
+     "windup": null,
+     "travel": "type/normal",
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "dragonite-draco-meteor": {
+     "delivery": "area",
+     "element": "dragon",
+     "windup": null,
+     "travel": null,
+     "impact": "type/dragon",
+     "kill": "dragon-claw"
+    },
+    "dragonite-dragon-boost": {
+     "delivery": "self",
+     "element": "dragon",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "dragonite-pressure": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "cyndaquil": {
+   "arena": "pokemon",
+   "element": "fire",
+   "entry": "type/fire",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "burn",
+   "skills": {
+    "cyndaquil-aerial-tackle": {
+     "delivery": "melee",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "cyndaquil-aerial-flamethrower": {
+     "delivery": "support",
+     "element": "fire",
+     "windup": "type/fire",
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "cyndaquil-cynda-smokescreen": {
+     "delivery": "area",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "cyndaquil-skyward-leap": {
+     "delivery": "self",
+     "element": "fire",
+     "windup": "type/fire",
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "cyndaquil-warming-up": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    },
+    "cyndaquil-quilava-flame-wheel": {
+     "delivery": "support",
+     "element": "fire",
+     "windup": "type/fire",
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "cyndaquil-typhlosion-flame-wheel": {
+     "delivery": "support",
+     "element": "fire",
+     "windup": "type/fire",
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    }
+   }
+  },
+  "chikorita": {
+   "arena": "pokemon",
+   "element": "grass",
+   "entry": "type/grass",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "vines",
+   "skills": {
+    "chikorita-aerial-razor-leaf": {
+     "delivery": "support",
+     "element": "grass",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "chikorita-light-screen": {
+     "delivery": "support",
+     "element": "psychic",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "chikorita-chikorita-solar-beam": {
+     "delivery": "support",
+     "element": "grass",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "chikorita-vine-defense": {
+     "delivery": "self",
+     "element": "grass",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "chikorita-sweet-scent": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    },
+    "chikorita-bayleaf-magical-leaf": {
+     "delivery": "melee",
+     "element": "grass",
+     "windup": null,
+     "travel": null,
+     "impact": "type/grass",
+     "kill": "vines"
+    },
+    "chikorita-meganium-magical-leaf": {
+     "delivery": "melee",
+     "element": "grass",
+     "windup": null,
+     "travel": null,
+     "impact": "type/grass",
+     "kill": "vines"
+    }
+   }
+  },
+  "totodile": {
+   "arena": "pokemon",
+   "element": "water",
+   "entry": "type/water",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "wave",
+   "skills": {
+    "totodile-aerial-water-gun": {
+     "delivery": "support",
+     "element": "water",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "totodile-scary-face": {
+     "delivery": "projectile",
+     "element": "normal",
+     "windup": null,
+     "travel": "type/normal",
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "totodile-aqua-tail": {
+     "delivery": "support",
+     "element": "water",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "totodile-superpower": {
+     "delivery": "self",
+     "element": "fighting",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "totodile-water-rings": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    },
+    "totodile-croconaw-bite": {
+     "delivery": "melee",
+     "element": "water",
+     "windup": null,
+     "travel": null,
+     "impact": "type/water",
+     "kill": "wave"
+    },
+    "totodile-feraligatr-dragon-claw": {
+     "delivery": "melee",
+     "element": "dragon",
+     "windup": null,
+     "travel": null,
+     "impact": "type/dragon",
+     "kill": "dragon-claw"
+    }
+   }
+  },
+  "drowzee": {
+   "arena": "pokemon",
+   "element": "psychic",
+   "entry": "type/psychic",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "warp",
+   "skills": {
+    "drowzee-hypnosis": {
+     "delivery": "projectile",
+     "element": "psychic",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": "type/psychic",
+     "impact": "type/psychic",
+     "kill": "warp"
+    },
+    "drowzee-nightmare": {
+     "delivery": "support",
+     "element": "ghost",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "drowzee-dream-eater": {
+     "delivery": "support",
+     "element": "psychic",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "drowzee-disable": {
+     "delivery": "support",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "drowzee-evolution": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    },
+    "hypno-hypnosis": {
+     "delivery": "projectile",
+     "element": "psychic",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": "type/psychic",
+     "impact": "type/psychic",
+     "kill": "warp"
+    },
+    "hypno-nightmare": {
+     "delivery": "support",
+     "element": "ghost",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "hypno-dream-eater": {
+     "delivery": "support",
+     "element": "psychic",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "hypno-disable": {
+     "delivery": "support",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    }
+   }
+  },
+  "aegislash": {
+   "arena": "pokemon",
+   "element": "steel",
+   "entry": "type/steel",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "slice",
+   "skills": {
+    "aegislash-slash": {
+     "delivery": "melee",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "aegislash-swords-dance": {
+     "delivery": "self",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "aegislash-kings-shield": {
+     "delivery": "self",
+     "element": "steel",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "aegislash-sacred-sword": {
+     "delivery": "melee",
+     "element": "fighting",
+     "windup": null,
+     "travel": null,
+     "impact": "type/fighting",
+     "kill": "pummel"
+    },
+    "aegislash-stance-change": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "ditto": {
+   "arena": "pokemon",
+   "element": "normal",
+   "entry": "type/normal",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "shatter",
+   "skills": {
+    "ditto-transform-1": {
+     "delivery": "support",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "ditto-transform-2": {
+     "delivery": "support",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "ditto-transform-3": {
+     "delivery": "support",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "ditto-transform-4": {
+     "delivery": "support",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "ditto-passive-transform": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "scraggy": {
+   "arena": "pokemon",
+   "element": "dark",
+   "entry": "type/dark",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "shadow",
+   "skills": {
+    "scraggy-headbutt": {
+     "delivery": "melee",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "scraggy-leer": {
+     "delivery": "melee",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "scraggy-hi-jump-kick": {
+     "delivery": "melee",
+     "element": "fighting",
+     "windup": null,
+     "travel": null,
+     "impact": "type/fighting",
+     "kill": "pummel"
+    },
+    "scraggy-focus-blast": {
+     "delivery": "projectile",
+     "element": "fighting",
+     "windup": null,
+     "travel": "type/fighting",
+     "impact": "type/fighting",
+     "kill": "pummel"
+    },
+    "scraggy-focus-energy": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "dragapult": {
+   "arena": "pokemon",
+   "element": "dragon",
+   "entry": "type/dragon",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "dragon-claw",
+   "skills": {
+    "dragapult-dragon-darts": {
+     "delivery": "projectile",
+     "element": "dragon",
+     "windup": null,
+     "travel": "type/dragon",
+     "impact": "type/dragon",
+     "kill": "dragon-claw"
+    },
+    "dragapult-ten-thousand-volt-thunderbolt": {
+     "delivery": "projectile",
+     "element": "electric",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": "type/electric",
+     "impact": "type/electric",
+     "kill": "electrocute"
+    },
+    "dragapult-dragon-tail": {
+     "delivery": "melee",
+     "element": "dragon",
+     "windup": null,
+     "travel": null,
+     "impact": "type/dragon",
+     "kill": "dragon-claw"
+    },
+    "dragapult-dragon-rush": {
+     "delivery": "melee",
+     "element": "dragon",
+     "windup": null,
+     "travel": null,
+     "impact": "type/dragon",
+     "kill": "dragon-claw"
+    }
+   }
+  },
+  "nincada": {
+   "arena": "pokemon",
+   "element": "bug",
+   "entry": "type/bug",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "swarm",
+   "skills": {
+    "nincada-metal-claw": {
+     "delivery": "melee",
+     "element": "steel",
+     "windup": null,
+     "travel": null,
+     "impact": "type/steel",
+     "kill": "slice"
+    },
+    "nincada-struggle-bug": {
+     "delivery": "self",
+     "element": "bug",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "nincada-hidden-power": {
+     "delivery": "projectile",
+     "element": "normal",
+     "windup": null,
+     "travel": "type/normal",
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "nincada-evolve": {
+     "delivery": "self",
+     "element": "ground",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    }
+   }
+  },
+  "ninjask": {
+   "arena": "pokemon",
+   "element": "bug",
+   "entry": "type/bug",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "swarm",
+   "skills": {
+    "ninjask-skitter-smack": {
+     "delivery": "melee",
+     "element": "bug",
+     "windup": null,
+     "travel": null,
+     "impact": "type/bug",
+     "kill": "swarm"
+    },
+    "ninjask-shadow-ball": {
+     "delivery": "area",
+     "element": "ghost",
+     "windup": null,
+     "travel": null,
+     "impact": "type/ghost",
+     "kill": "haunt"
+    },
+    "ninjask-extreme-speed": {
+     "delivery": "melee",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "ninjask-double-team": {
+     "delivery": "self",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "ninjask-speed-boost": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "shedinja": {
+   "arena": "pokemon",
+   "element": "bug",
+   "entry": "type/bug",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "swarm",
+   "skills": {
+    "shedinja-bug-buzz": {
+     "delivery": "melee",
+     "element": "bug",
+     "windup": null,
+     "travel": null,
+     "impact": "type/bug",
+     "kill": "swarm"
+    },
+    "shedinja-feint-attack": {
+     "delivery": "melee",
+     "element": "dark",
+     "windup": null,
+     "travel": null,
+     "impact": "type/dark",
+     "kill": "shadow"
+    },
+    "shedinja-solar-beam": {
+     "delivery": "area",
+     "element": "grass",
+     "windup": null,
+     "travel": null,
+     "impact": "type/grass",
+     "kill": "vines"
+    },
+    "shedinja-hex": {
+     "delivery": "area",
+     "element": "ghost",
+     "windup": null,
+     "travel": null,
+     "impact": "type/ghost",
+     "kill": "haunt"
+    },
+    "shedinja-wonder-guard": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "primeape": {
+   "arena": "pokemon",
+   "element": "fighting",
+   "entry": "type/fighting",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "pummel",
+   "skills": {
+    "primeape-rock-smash": {
+     "delivery": "melee",
+     "element": "fighting",
+     "windup": null,
+     "travel": null,
+     "impact": "type/fighting",
+     "kill": "pummel"
+    },
+    "primeape-knock-off": {
+     "delivery": "melee",
+     "element": "dark",
+     "windup": null,
+     "travel": null,
+     "impact": "type/dark",
+     "kill": "shadow"
+    },
+    "primeape-rage-fist": {
+     "delivery": "melee",
+     "element": "ghost",
+     "windup": null,
+     "travel": null,
+     "impact": "type/ghost",
+     "kill": "haunt"
+    },
+    "primeape-close-combat": {
+     "delivery": "melee",
+     "element": "fighting",
+     "windup": null,
+     "travel": null,
+     "impact": "type/fighting",
+     "kill": "pummel"
+    },
+    "primeape-passive-anger-point": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "marowak": {
+   "arena": "pokemon",
+   "element": "ground",
+   "entry": "type/ground",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "fissure",
+   "skills": {
+    "marowak-bone-club": {
+     "delivery": "self",
+     "element": "ground",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "marowak-bone-rush": {
+     "delivery": "support",
+     "element": "ground",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "marowak-bonemerang": {
+     "delivery": "support",
+     "element": "ground",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "marowak-bone-guard": {
+     "delivery": "self",
+     "element": "ground",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    }
+   }
+  },
+  "pinsir": {
+   "arena": "pokemon",
+   "element": "bug",
+   "entry": "type/bug",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "swarm",
+   "skills": {
+    "pinsir-vice-grip": {
+     "delivery": "melee",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "pinsir-seismic-toss": {
+     "delivery": "support",
+     "element": "fighting",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "pinsir-x-scissor": {
+     "delivery": "support",
+     "element": "bug",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "pinsir-rock-tomb": {
+     "delivery": "self",
+     "element": "rock",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "pinsir-guillotine": {
+     "delivery": "support",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "pinsir-mega-pinsir-passive": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    },
+    "pinsir-struggle-bug": {
+     "delivery": "melee",
+     "element": "bug",
+     "windup": null,
+     "travel": null,
+     "impact": "type/bug",
+     "kill": "swarm"
+    }
+   }
+  },
+  "tauros": {
+   "arena": "pokemon",
+   "element": "normal",
+   "entry": "type/normal",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "shatter",
+   "skills": {
+    "tauros-horn-attack": {
+     "delivery": "support",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "tauros-take-down": {
+     "delivery": "self",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "tauros-earthquake": {
+     "delivery": "self",
+     "element": "ground",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "tauros-stampede": {
+     "delivery": "support",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    }
+   }
+  },
+  "darkrai": {
+   "arena": "pokemon",
+   "element": "dark",
+   "entry": "type/dark",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "shadow",
+   "skills": {
+    "darkrai-dark-void": {
+     "delivery": "projectile",
+     "element": "dark",
+     "windup": null,
+     "travel": "type/dark",
+     "impact": "type/dark",
+     "kill": "shadow"
+    },
+    "darkrai-bad-dreams": {
+     "delivery": "self",
+     "element": "dark",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "darkrai-shadow-sneak": {
+     "delivery": "support",
+     "element": "ghost",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "darkrai-dark-portal": {
+     "delivery": "projectile",
+     "element": "dark",
+     "windup": null,
+     "travel": "type/dark",
+     "impact": "type/dark",
+     "kill": "shadow"
+    },
+    "darkrai-nightmare-passive": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "lance": {
+   "arena": "pokemon",
+   "element": "dragon",
+   "entry": "type/dragon",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "dragon-claw",
+   "skills": {
+    "lance-champions-six-passive": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "lance-dragonite-1": {
+   "arena": "pokemon",
+   "element": "dragon",
+   "entry": "type/dragon",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "dragon-claw",
+   "skills": {
+    "lance-dragonite-1-dragon-claw": {
+     "delivery": "melee",
+     "element": "dragon",
+     "windup": null,
+     "travel": null,
+     "impact": "type/dragon",
+     "kill": "dragon-claw"
+    },
+    "lance-dragonite-1-dragon-dance": {
+     "delivery": "self",
+     "element": "dragon",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "lance-dragonite-1-hyper-beam": {
+     "delivery": "projectile",
+     "element": "normal",
+     "windup": null,
+     "travel": "type/normal",
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "lance-dragonite-1-roost": {
+     "delivery": "self",
+     "element": "flying",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_heal_001",
+     "kill": null
+    }
+   }
+  },
+  "lance-charizard": {
+   "arena": "pokemon",
+   "element": "fire",
+   "entry": "type/fire",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "burn",
+   "skills": {
+    "lance-charizard-flamethrower": {
+     "delivery": "projectile",
+     "element": "fire",
+     "windup": "type/fire",
+     "travel": "type/fire",
+     "impact": "explosions/epic_explosion_001",
+     "kill": "burn"
+    },
+    "lance-charizard-dragon-pulse": {
+     "delivery": "support",
+     "element": "dragon",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "lance-charizard-air-slash": {
+     "delivery": "projectile",
+     "element": "flying",
+     "windup": null,
+     "travel": "type/flying",
+     "impact": "type/flying",
+     "kill": "gust"
+    },
+    "lance-charizard-overheat": {
+     "delivery": "projectile",
+     "element": "fire",
+     "windup": "type/fire",
+     "travel": "type/fire",
+     "impact": "explosions/epic_explosion_001",
+     "kill": "burn"
+    }
+   }
+  },
+  "lance-gyarados": {
+   "arena": "pokemon",
+   "element": "water",
+   "entry": "type/water",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "wave",
+   "skills": {
+    "lance-gyarados-aqua-tail": {
+     "delivery": "support",
+     "element": "water",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "lance-gyarados-crunch": {
+     "delivery": "melee",
+     "element": "dark",
+     "windup": null,
+     "travel": null,
+     "impact": "type/dark",
+     "kill": "shadow"
+    },
+    "lance-gyarados-outrage": {
+     "delivery": "self",
+     "element": "dragon",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "lance-gyarados-waterfall": {
+     "delivery": "support",
+     "element": "water",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    }
+   }
+  },
+  "lance-kingdra": {
+   "arena": "pokemon",
+   "element": "water",
+   "entry": "type/water",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "wave",
+   "skills": {
+    "lance-kingdra-hydro-pump": {
+     "delivery": "projectile",
+     "element": "water",
+     "windup": null,
+     "travel": "type/water",
+     "impact": "type/water",
+     "kill": "wave"
+    },
+    "lance-kingdra-dragon-pulse": {
+     "delivery": "projectile",
+     "element": "dragon",
+     "windup": null,
+     "travel": "type/dragon",
+     "impact": "type/dragon",
+     "kill": "dragon-claw"
+    },
+    "lance-kingdra-smokescreen": {
+     "delivery": "area",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "lance-kingdra-rain-dance": {
+     "delivery": "self",
+     "element": "water",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    }
+   }
+  },
+  "lance-aerodactyl": {
+   "arena": "pokemon",
+   "element": "rock",
+   "entry": "type/rock",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "crush",
+   "skills": {
+    "lance-aerodactyl-rock-slide": {
+     "delivery": "support",
+     "element": "rock",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "lance-aerodactyl-aerial-ace": {
+     "delivery": "support",
+     "element": "flying",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "lance-aerodactyl-taunt": {
+     "delivery": "support",
+     "element": "dark",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "lance-aerodactyl-ancient-power": {
+     "delivery": "support",
+     "element": "rock",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    }
+   }
+  },
+  "lance-dragonite-2": {
+   "arena": "pokemon",
+   "element": "dragon",
+   "entry": "type/dragon",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "dragon-claw",
+   "skills": {
+    "lance-dragonite-2-extreme-speed": {
+     "delivery": "melee",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "lance-dragonite-2-dragon-rush": {
+     "delivery": "support",
+     "element": "dragon",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "lance-dragonite-2-safeguard": {
+     "delivery": "support",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "lance-dragonite-2-draco-meteor": {
+     "delivery": "projectile",
+     "element": "dragon",
+     "windup": null,
+     "travel": "type/dragon",
+     "impact": "type/dragon",
+     "kill": "dragon-claw"
+    }
+   }
+  },
+  "deadpool": {
+   "arena": "comic",
+   "element": "blade",
+   "entry": "magic-bursts/round_light_burst_001",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "smoke-bursts/symmetrical_smoke_burst_001",
+   "kill": "slice",
+   "skills": {
+    "deadpool-katana-slice": {
+     "delivery": "melee",
+     "element": "blade",
+     "windup": null,
+     "travel": null,
+     "impact": "splatters/directional_splatter_001",
+     "kill": "slice"
+    },
+    "deadpool-gun-play": {
+     "delivery": "projectile",
+     "element": "gunfire",
+     "windup": "sci-fi/scifi_muzzle_flash_001",
+     "travel": "impacts/directional_impact_004",
+     "impact": "impacts/directional_impact_004",
+     "kill": "riddled"
+    },
+    "deadpool-katana-slash-n-hack": {
+     "delivery": "self",
+     "element": "blade",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_attack_up_001",
+     "kill": null
+    },
+    "deadpool-fourth-wall-break": {
+     "delivery": "area",
+     "element": "fourth-wall",
+     "windup": "symbols/symbol_wow_text_001",
+     "travel": null,
+     "impact": "symbols/symbol_alert_text_001",
+     "kill": "shatter"
+    },
+    "deadpool-passive-cancer-factor": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    }
+   }
+  },
+  "blaziken": {
+   "arena": "pokemon",
+   "element": "fire",
+   "entry": "type/fire",
+   "victory": "magic-bursts/round_sparkle_burst_001",
+   "defeat": "type/faint",
+   "kill": "burn",
+   "skills": {
+    "blaziken-smoldering-roundhouse": {
+     "delivery": "melee",
+     "element": "fire",
+     "windup": "type/fire",
+     "travel": null,
+     "impact": "explosions/epic_explosion_001",
+     "kill": "burn"
+    },
+    "blaziken-sky-uppercut": {
+     "delivery": "melee",
+     "element": "fighting",
+     "windup": null,
+     "travel": null,
+     "impact": "type/fighting",
+     "kill": "pummel"
+    },
+    "blaziken-fiery-roar": {
+     "delivery": "area",
+     "element": "fire",
+     "windup": "type/fire",
+     "travel": null,
+     "impact": "explosions/epic_explosion_001",
+     "kill": "burn"
+    },
+    "blaziken-arm-guard": {
+     "delivery": "self",
+     "element": "fighting",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "blaziken-passive-mega-blaziken": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    },
+    "blaziken-blaze-kick": {
+     "delivery": "area",
+     "element": "fire",
+     "windup": "type/fire",
+     "travel": null,
+     "impact": "explosions/epic_explosion_001",
+     "kill": "burn"
+    }
+   }
+  }
+ }
+}

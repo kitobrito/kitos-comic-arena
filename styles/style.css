@@ -583,8 +583,6 @@ html.selection-experimental .ingame-news-toggle {
 }
 
 body.skill-effects-muted .skill-cast-projectile,
-body.skill-effects-muted .pokemon-sprite-burst,
-body.skill-effects-muted .pokemon-sprite-projectile,
 body.skill-effects-muted .status-apply-burst,
 body.skill-effects-muted .combat-energy-beam,
 body.skill-effects-muted .damage-impact,
@@ -1255,7 +1253,6 @@ html:not(.battle-experimental) .match-chat-panel {
     cursor: pointer;
 }
 
-
 .ok-buttonendturn {
     position: absolute;
     top: 230px;
@@ -1309,8 +1306,6 @@ html:not(.battle-experimental) .match-chat-panel {
 .end-turn-status.is-info {
     color: #7a4b00;
 }
-
-
 
 .ok-button:focus {
     outline: none;
@@ -1665,7 +1660,6 @@ body.arena-mode-pokemon .selectionscroll {
     z-index: 5;
 }
 
-
 .player-avatar {
     width: 75px;
     height: 75px;
@@ -1691,7 +1685,6 @@ body.arena-mode-pokemon .selectionscroll {
     left: -4px;
     top: 1px;
 }
-
 
 .player-stat {
     margin-bottom: 2px;
@@ -3113,7 +3106,6 @@ body.arena-mode-pokemon .searchingscroll::after {
     left: 1px;
 }
 
-
 .player-name.red {
     color: #c41e3a;
 }
@@ -3940,8 +3932,6 @@ body.ui-disable-queued-target-markers .skilltooltipimage.dynamic-queued-target-i
 body.ui-disable-skill-cast-animations .skill-cast-pulse,
 body.ui-disable-skill-cast-animations .skill-queue-trail,
 body.ui-disable-skill-cast-animations .skill-cast-projectile,
-body.ui-disable-skill-cast-animations .pokemon-sprite-burst,
-body.ui-disable-skill-cast-animations .pokemon-sprite-projectile,
 body.ui-disable-skill-cast-animations .status-apply-burst,
 body.ui-disable-skill-cast-animations .combat-energy-beam,
 body.ui-disable-skill-cast-animations .superman-solar-flare-screen-fx,
@@ -4051,150 +4041,8 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
     animation: none !important;
 }
 
-body.ui-disable-death-animations .character-card.death-crack .character-face,
-body.ui-disable-death-animations .character-card.death-crack::after,
-body.ui-disable-death-animations .character-death-shatter,
-body.ui-disable-death-animations .ghost-rider-death-fire,
-body.ui-disable-death-animations .predator-hunted-overlay,
-body.ui-disable-death-animations .lasered-overlay,
-body.ui-disable-death-animations .sabered-overlay,
-body.ui-disable-death-animations .special-kill-overlay {
-    display: none !important;
-    animation: none !important;
-}
-
 .character-card.character-defeated .character-face {
     filter: grayscale(1) brightness(0.58);
-}
-
-.character-card.death-crack .character-face {
-    animation: death-crack 620ms cubic-bezier(0.22, 0.85, 0.28, 1) both;
-}
-
-.character-card.death-crack::after {
-    content: "";
-    position: absolute;
-    left: -4px;
-    top: -4px;
-    width: 84px;
-    height: 84px;
-    z-index: 42;
-    pointer-events: none;
-    background:
-        linear-gradient(34deg, transparent 0 43%, rgba(255, 255, 255, 0.92) 44% 46%, transparent 47% 100%),
-        linear-gradient(118deg, transparent 0 49%, rgba(20, 20, 20, 0.86) 50% 52%, transparent 53% 100%),
-        linear-gradient(74deg, transparent 0 58%, rgba(255, 255, 255, 0.78) 59% 60%, transparent 61% 100%);
-    animation: death-shatter-flash 640ms ease-out both;
-}
-
-.character-death-shatter {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 75px;
-    height: 75px;
-    z-index: 90;
-    pointer-events: none;
-    perspective: 320px;
-    contain: layout paint;
-}
-
-.character-death-shatter::before {
-    content: "";
-    position: absolute;
-    left: -6px;
-    top: -6px;
-    width: 87px;
-    height: 87px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(255, 248, 178, 0.82) 0 12%, rgba(255, 51, 38, 0.45) 13% 38%, transparent 70%);
-    filter: blur(1px);
-    animation: death-impact-ring 2100ms ease-out both;
-}
-
-.death-slice {
-    position: absolute;
-    top: 0;
-    width: 38px;
-    height: 75px;
-    border: 1px solid rgba(255, 255, 255, 0.72);
-    background-size: 75px 75px;
-    background-repeat: no-repeat;
-    box-shadow: 0 0 12px rgba(255, 38, 28, 0.75), 0 4px 12px rgba(0, 0, 0, 0.85);
-    overflow: hidden;
-}
-
-.death-slice-left {
-    left: 0;
-    background-position: left top;
-    clip-path: polygon(0 0, 100% 0, 74% 100%, 0 100%);
-    animation: death-slice-left 2250ms cubic-bezier(0.16, 0.8, 0.22, 1) both;
-}
-
-.death-slice-right {
-    left: 37px;
-    background-position: right top;
-    clip-path: polygon(25% 0, 100% 0, 100% 100%, 0 100%);
-    animation: death-slice-right 2250ms cubic-bezier(0.16, 0.8, 0.22, 1) both;
-}
-
-.death-shards {
-    position: absolute;
-    inset: 0;
-}
-
-.death-shards span {
-    position: absolute;
-    left: 37px;
-    top: 37px;
-    width: 18px;
-    height: 18px;
-    background-size: 75px 75px;
-    background-repeat: no-repeat;
-    border: 1px solid rgba(255, 238, 188, 0.58);
-    box-shadow: 0 0 8px rgba(255, 42, 30, 0.52);
-    opacity: 0;
-    animation: death-shard-scatter 2300ms cubic-bezier(0.12, 0.8, 0.2, 1) both;
-    animation-delay: calc(120ms + var(--piece) * 26ms);
-}
-
-.death-shards span:nth-child(1) { --x: -42px; --y: -50px; --r: -62deg; background-position: 0 0; }
-.death-shards span:nth-child(2) { --x: -16px; --y: -62px; --r: 34deg; background-position: -18px 0; }
-.death-shards span:nth-child(3) { --x: 34px; --y: -52px; --r: 74deg; background-position: -36px 0; }
-.death-shards span:nth-child(4) { --x: -54px; --y: -6px; --r: 28deg; background-position: 0 -26px; }
-.death-shards span:nth-child(5) { --x: 0px; --y: -18px; --r: 128deg; background-position: -28px -26px; }
-.death-shards span:nth-child(6) { --x: 48px; --y: -2px; --r: -45deg; background-position: -52px -26px; }
-.death-shards span:nth-child(7) { --x: -38px; --y: 34px; --r: -132deg; background-position: 0 -52px; }
-.death-shards span:nth-child(8) { --x: 12px; --y: 48px; --r: 58deg; background-position: -28px -52px; }
-.death-shards span:nth-child(9) { --x: 54px; --y: 31px; --r: 142deg; background-position: -52px -52px; }
-.death-shards span:nth-child(10) { --x: -60px; --y: -38px; --r: 96deg; background-position: -8px -8px; }
-.death-shards span:nth-child(11) { --x: -30px; --y: -74px; --r: -118deg; background-position: -30px -8px; }
-.death-shards span:nth-child(12) { --x: 8px; --y: -82px; --r: 172deg; background-position: -48px -8px; }
-.death-shards span:nth-child(13) { --x: 62px; --y: -40px; --r: -96deg; background-position: -56px -10px; }
-.death-shards span:nth-child(14) { --x: -68px; --y: 18px; --r: 154deg; background-position: -8px -34px; }
-.death-shards span:nth-child(15) { --x: -18px; --y: 16px; --r: -176deg; background-position: -34px -34px; }
-.death-shards span:nth-child(16) { --x: 32px; --y: 18px; --r: 112deg; background-position: -50px -34px; }
-.death-shards span:nth-child(17) { --x: -18px; --y: 66px; --r: 204deg; background-position: -20px -56px; }
-.death-shards span:nth-child(18) { --x: 68px; --y: 58px; --r: -164deg; background-position: -50px -56px; }
-
-.death-kill-label {
-    position: absolute;
-    left: 50%;
-    top: -5px;
-    transform: translateX(-50%);
-    min-width: 86px;
-    color: #ffe27a;
-    font-family: 'Pedra', 'Libre Franklin', serif;
-    font-size: 27px;
-    line-height: 1;
-    text-align: center;
-    letter-spacing: 0;
-    text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 0 0 8px rgba(255, 32, 20, 0.95);
-    animation: death-kill-label 2200ms ease-out both;
-}
-
-.enemy-characters .death-kill-label {
-    transform: translateX(-50%) scaleX(-1);
 }
 
 @keyframes low-hp-danger-pulse {
@@ -4203,43 +4051,6 @@ body.ui-disable-death-animations .special-kill-overlay {
     }
     50% {
         box-shadow: 0 0 12px rgba(255, 40, 28, 0.95);
-    }
-}
-
-@keyframes death-crack {
-    0% {
-        transform: translate(0, 0) rotate(0deg);
-        filter: grayscale(0) brightness(1);
-    }
-    18% {
-        transform: translate(-4px, 2px) rotate(-2deg);
-        filter: grayscale(0.3) brightness(1.25);
-    }
-    36% {
-        transform: translate(4px, -2px) rotate(2deg);
-    }
-    72% {
-        transform: translate(0, 0) rotate(0deg);
-        filter: grayscale(1) brightness(0.72);
-    }
-    100% {
-        transform: translate(0, 0) rotate(0deg);
-        filter: grayscale(1) brightness(0.58);
-    }
-}
-
-@keyframes death-shatter-flash {
-    0% {
-        opacity: 0;
-        transform: scale(0.72) rotate(-6deg);
-    }
-    22% {
-        opacity: 1;
-        transform: scale(1.04) rotate(2deg);
-    }
-    100% {
-        opacity: 0;
-        transform: scale(1.18) rotate(7deg);
     }
 }
 
@@ -4881,35 +4692,6 @@ body.weather-fx-lightning-active #weather-fx-lightning-static {
     font-weight: 600;
     color: rgba(255, 255, 255, 0.72);
     white-space: nowrap;
-}
-
-.pokemon-sprite-burst {
-    position: fixed;
-    width: 140px;
-    height: 140px;
-    margin-left: -70px;
-    margin-top: -70px;
-    z-index: 410;
-    pointer-events: none;
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: contain;
-    image-rendering: pixelated;
-}
-
-.pokemon-sprite-projectile {
-    position: fixed;
-    width: 72px;
-    height: 72px;
-    margin-left: -36px;
-    margin-top: -36px;
-    z-index: 405;
-    pointer-events: none;
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: contain;
-    image-rendering: pixelated;
-    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.35));
 }
 
 .combat-energy-beam {
@@ -7794,7 +7576,6 @@ body.weather-fx-lightning-active #weather-fx-lightning-static {
     }
 }
 
-
 .skillscrollingame.not-turn {
     clip-path: inset(0 0 0 80px);
     left: -56px;
@@ -7844,7 +7625,6 @@ body.weather-fx-lightning-active #weather-fx-lightning-static {
     transform: scaleX(-1);
     left: 661px;
 }
-
 
 .enemy-characters .health-text {
     transform: scaleX(-1);
@@ -7954,7 +7734,6 @@ body.weather-fx-lightning-active #weather-fx-lightning-static {
     overflow-y: auto;
 }
 
-
 .energytext {
     position: absolute;
     display: flex;
@@ -7968,7 +7747,6 @@ body.weather-fx-lightning-active #weather-fx-lightning-static {
 .energytext .chakra-box {
     margin-top: -2px;
 }
-
 
 .ingameclasses {
         position: absolute;
@@ -8031,7 +7809,6 @@ body.weather-fx-lightning-active #weather-fx-lightning-static {
     top: 200px;
     max-width: 600px;
 }
-
 
 .class-choice-popup-title {
     margin: 0 0 10px;
@@ -8222,7 +7999,6 @@ body.arena-mode-pokemon .chakra-box.white {
     margin-left: 15px;
 }
 
-
 .minus-button,
 .plus-button {
     background-color: transparent;
@@ -8246,7 +8022,6 @@ body.arena-mode-pokemon .chakra-box.white {
 .plus-button:hover {
     opacity: 0.7;
 }
-
 
 .ChakraChooseEndTurn {
     z-index: 5999;
@@ -8458,7 +8233,6 @@ body.end-turn-modal-open .global-status-tooltip {
     align-items: center;
 }
 
-
 .skillpreview {
     width: 34px;
     height: 34px;
@@ -8522,7 +8296,6 @@ body.end-turn-modal-open .global-status-tooltip {
     position: absolute;
     visibility: hidden;
 }
-
 
 .surrender-confirm-title {
     top: 35px;
@@ -8662,8 +8435,6 @@ body.end-turn-modal-open .global-status-tooltip {
     position: absolute;
     top: 100px;
 }
-
-
 
 .battle-end-continue:focus {
     outline: none;
@@ -9128,124 +8899,6 @@ body.end-turn-modal-open .global-status-tooltip {
     100% {
         opacity: 0;
         transform: translateY(42px) scaleY(0.72) scaleX(0.72);
-    }
-}
-
-@keyframes death-impact-ring {
-    0% {
-        opacity: 0;
-        transform: scale(0.38);
-    }
-    14% {
-        opacity: 1;
-        transform: scale(1.08);
-    }
-    100% {
-        opacity: 0;
-        transform: scale(1.78);
-    }
-}
-
-@keyframes death-slice-left {
-    0% {
-        opacity: 1;
-        transform: translate(0, 0) rotate(0deg) scale(1);
-        filter: saturate(1) brightness(1);
-    }
-    20% {
-        transform: translate(-5px, -18px) rotate(-8deg) scale(1.08);
-        filter: saturate(1.5) brightness(1.22);
-    }
-    58% {
-        opacity: 1;
-        transform: translate(-16px, -56px) rotate(-19deg) scale(1.1);
-    }
-    100% {
-        opacity: 0;
-        transform: translate(-42px, -112px) rotate(-48deg) scale(0.68);
-        filter: saturate(0.4) brightness(0.25);
-    }
-}
-
-@keyframes death-slice-right {
-    0% {
-        opacity: 1;
-        transform: translate(0, 0) rotate(0deg) scale(1);
-        filter: saturate(1) brightness(1);
-    }
-    20% {
-        transform: translate(6px, -19px) rotate(9deg) scale(1.08);
-        filter: saturate(1.5) brightness(1.22);
-    }
-    58% {
-        opacity: 1;
-        transform: translate(18px, -55px) rotate(20deg) scale(1.1);
-    }
-    100% {
-        opacity: 0;
-        transform: translate(46px, -110px) rotate(51deg) scale(0.68);
-        filter: saturate(0.4) brightness(0.25);
-    }
-}
-
-@keyframes death-shard-scatter {
-    0%, 14% {
-        opacity: 0;
-        transform: translate(0, 0) rotate(0deg) scale(0.25);
-    }
-    28% {
-        opacity: 1;
-        transform: translate(calc(var(--x) * 0.42), calc(var(--y) * 0.42 - 26px)) rotate(calc(var(--r) * 0.34)) scale(1.12);
-    }
-    74% {
-        opacity: 0.92;
-        transform: translate(var(--x), calc(var(--y) - 58px)) rotate(var(--r)) scale(0.9);
-    }
-    100% {
-        opacity: 0;
-        transform: translate(calc(var(--x) * 1.48), calc(var(--y) - 112px)) rotate(calc(var(--r) * 1.75)) scale(0.2);
-    }
-}
-
-@keyframes death-kill-label {
-    0% {
-        opacity: 0;
-        transform: translateX(-50%) translateY(18px) scale(0.7);
-    }
-    16% {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0) scale(1.18);
-    }
-    58% {
-        opacity: 1;
-        transform: translateX(-50%) translateY(-12px) scale(1);
-    }
-    100% {
-        opacity: 0;
-        transform: translateX(-50%) translateY(-48px) scale(0.72);
-    }
-}
-
-.enemy-characters .death-kill-label {
-    animation-name: death-kill-label-enemy;
-}
-
-@keyframes death-kill-label-enemy {
-    0% {
-        opacity: 0;
-        transform: translateX(-50%) translateY(18px) scale(0.7) scaleX(-1);
-    }
-    16% {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0) scale(1.18) scaleX(-1);
-    }
-    58% {
-        opacity: 1;
-        transform: translateX(-50%) translateY(-12px) scale(1) scaleX(-1);
-    }
-    100% {
-        opacity: 0;
-        transform: translateX(-50%) translateY(-48px) scale(0.72) scaleX(-1);
     }
 }
 
@@ -13706,11 +13359,6 @@ body.end-turn-modal-open .global-status-tooltip {
 .hp-delta-popup,
 .status-apply-burst,
 .evade-slash-overlay,
-.character-death-shatter,
-.ghost-rider-death-fire,
-.predator-hunted-overlay,
-.lasered-overlay,
-.sabered-overlay,
 .blood-splatter-enhanced,
 .explosion-enhanced,
 .muzzle-flash-enhanced,
@@ -13817,7 +13465,6 @@ body.end-turn-modal-open .global-status-tooltip {
     left: -33px;
     z-index: 10;
 }
-
 
 .nextpage {
     position: absolute;
@@ -14528,185 +14175,183 @@ body.end-turn-modal-open .global-status-tooltip {
     }
 
     .skilltooltipimage.status-icon-turn-pop,
-    .skilltooltipimage.passive-trigger-flash,
-    .goblin-bomb-marker,
-    .goblin-bomb-marker.fresh,
-    .goblin-bomb-lob,
-    .goblin-bomb-spark,
-    .character-card.has-lantern-aura::before,
-    .character-card.has-lantern-aura::after,
-    .lantern-trigger-burst,
-    .lantern-trigger-burst.lantern-grey-smoke span,
-    .lantern-energy-link,
-    .hp-delta-popup,
-    .combat-impact-burst,
-    .status-apply-burst,
-    .pixel-impact-fx,
-    .pixel-portal-fx,
-    .pixel-status-fx,
-    .character-face.damage-impact,
-    .character-face.heal-impact,
-    .character-face.skill-caster-surge,
-    .character-card.low-hp-danger .character-face,
-    .character-card.death-crack .character-face,
-    .character-card.death-crack::after,
-    .target-lock-marker,
-    .skill-cast-projectile,
-    .skillimage.skill-cast-pulse,
-    .skillimage.skill-blocked-shake,
-    .skillimage.skill-ready-glow,
-    .weather-fx-start-burst.weather-fx-start-burst-active,
-    .weather-fx-start-burst.weather-fx-start-burst-active .weather-fx-start-burst-label,
-    .skill-cooldown-badge.cooldown-tick-pop,
-    .player-characters.turn-start-sweep::after,
-    .enemy-characters.turn-start-sweep::after,
-    .skillpreview.skillpreview-added,
-    .seraphina-med-plus-overlay span,
-    .seraphina-buckshot-impact-fx,
-    .seraphina-buckshot-impact-fx .seraphina-buckshot-pellet,
-    .seraphina-road-flare .flare-flame,
-    .seraphina-road-flare .flare-glow,
-    .seraphina-road-flare .flare-smoke,
-    .smartgun-lock-cast-fx,
-    .character-card.smartgun-lock-fx::after,
-    .predator-bleeder-spears::after,
-    .predator-bleeder-spear-projectile,
-    .carnage-blood-tendril,
-    .carnage-blood-slash-impact-fx,
-    .carnage-wide-cut-impact-fx,
-    .carnage-brain-devour-impact-fx,
-    .flash-red-speed-aura,
-    .flash-lightning-rush-hit-fx,
-    .flash-infinite-run-screen-fx,
-    .flash-infinite-punch-impact-fx,
-    .flash-speed-steal-cast-fx,
-    .flash-speed-steal-pressure-fx,
-    .flash-phase-shift-fx .character-face,
-    .flash-phase-speed-lines,
-    .scorpion-venom-drop,
-    .scorpion-poison-drops,
-    .scorpion-tail-sting-fx,
-    .scorpion-tail-laser-beam,
-    .scorpion-tail-laser-impact-fx,
-    .scorpion-tail-ready-fx,
-    .xenomorph-facehugger-overlay,
-    .venom-ally-symbiosis-marker,
-    .venom-bite-crunch-fx,
-    .venom-symbiote-tendril,
-    .venom-tendril-latch-fx,
-    .venom-web-cocoon-fx,
-    .ghost-rider-skull-surge,
-    .ghost-rider-hellfire-breath,
-    .ghost-rider-hellfire-breath-move,
-    .ghost-rider-hellfire-aura,
-    .ghost-rider-chainsaw-slice,
-    .negan-iron-overlay,
-    .negan-iron-glow,
-    .negan-iron-steam,
-    .negan-iron-smoke,
-    .negan-iron-slam-fx,
-    .negan-iron-rip-away-fx,
-    .parasite-drain-tendril,
-    .parasite-life-leech-enemy-fx,
-    .parasite-life-leech-ally-fx,
-    .parasite-metabolic-collapse-fx,
-    .parasite-metabolic-screen-flash,
-    .parasite-energy-transfer-fx,
-    .parasite-host-mutation-cast-fx,
-    .parasite-overload-screen-fx,
-    .parasite-host-mutation-marker,
-    .parasite-overload-marker,
-    .parasite-absorption-marker,
-    .pokemon-evolution-aura,
-    .pokemon-evolution-aura *,
-    .pokemon-solar-beam-charge-fx,
-    .pokemon-solar-beam-charge-fx *,
-    .pokemon-solar-beam-travel,
-    .pokemon-solar-beam-travel *,
-    .pokemon-solar-beam-impact-fx,
-    .pokemon-solar-beam-impact-fx *,
-    .pokemon-thunder-impact-fx,
-    .pokemon-thunder-impact-fx *,
-    .pokemon-flamethrower-stream,
-    .pokemon-flamethrower-stream *,
-    .pokemon-flamethrower-impact-fx,
-    .pokemon-flamethrower-impact-fx *,
-    .pokemon-water-gun-stream,
-    .pokemon-water-gun-stream *,
-    .pokemon-water-gun-impact-fx,
-    .pokemon-water-gun-impact-fx *,
-    .pokemon-leech-seed-vine,
-    .pokemon-leech-seed-vine *,
-    .pokemon-leech-seed-impact-fx,
-    .pokemon-leech-seed-impact-fx *,
-    .pokemon-supersonic-fx,
-    .pokemon-supersonic-fx *,
-    .pokemon-future-sight-fx,
-    .pokemon-future-sight-fx *,
-    .pokemon-x-cutter-fx,
-    .pokemon-x-cutter-fx *,
-    .pokemon-center-healing-fx,
-    .pokemon-center-healing-fx *,
-    .pokemon-smog-fx,
-    .pokemon-smog-fx *,
-    .pokemon-koffing-team-fog-fx,
-    .pokemon-koffing-team-fog-fx *,
-    .pokemon-koffing-screen-explosion-fx,
-    .pokemon-koffing-screen-explosion-fx *,
-    .pokemon-ekans-poison-fang-fx,
-    .pokemon-ekans-poison-fang-fx *,
-    .pokemon-ekans-toxic-stream,
-    .pokemon-ekans-toxic-stream *,
-    .pokemon-ekans-toxic-impact-fx,
-    .pokemon-ekans-toxic-impact-fx *,
-    .pokemon-ekans-toxic-status,
-    .pokemon-ekans-toxic-status *,
-    .pokemon-ekans-shed-skin-fx,
-    .pokemon-ekans-shed-skin-fx *,
-    .pokemon-ekans-crunch-fx,
-    .pokemon-ekans-crunch-fx *,
-    .pokemon-machop-brick-break-fx,
-    .pokemon-machop-brick-break-fx *,
-    .pokemon-machop-counter-fx,
-    .pokemon-machop-counter-fx *,
-    .pokemon-machop-bulk-up-cast-fx,
-    .pokemon-machop-bulk-up-cast-fx *,
-    .pokemon-machop-bulk-up-status,
-    .pokemon-machop-bulk-up-status *,
-    .pokemon-machop-taunt-fx,
-    .pokemon-machop-taunt-fx *,
-    .pokemon-psybeam-stream,
-    .pokemon-psybeam-stream *,
-    .pokemon-psybeam-impact-fx,
-    .pokemon-psybeam-impact-fx *,
-    .pokemon-powder-stream,
-    .pokemon-powder-stream *,
-    .pokemon-powder-impact-fx,
-    .pokemon-powder-impact-fx *,
-    .pokemon-whirlwind-fx,
-    .pokemon-whirlwind-fx *,
-    .pokemon-trainer-ball-projectile,
-    .pokemon-trainer-ball-projectile *,
-    .pokemon-trainer-ball-impact-fx,
-    .pokemon-trainer-ball-impact-fx *,
-    .pokemon-x-stats-fx,
-    .pokemon-x-stats-fx *,
-    .pokemon-rare-candy-fx,
-    .pokemon-rare-candy-fx *,
-    .pokemon-psychic-stream,
-    .pokemon-psychic-stream *,
-    .pokemon-psychic-impact-fx,
-    .pokemon-psychic-impact-fx *,
-    .pokemon-calm-mind-fx,
-    .pokemon-calm-mind-fx *,
-    .pokemon-teleport-fx,
-    .pokemon-teleport-fx *,
-    .pokemon-leech-life-stream,
-    .pokemon-leech-life-stream *,
-    .pokemon-leech-life-impact-fx,
-    .pokemon-leech-life-impact-fx *,
-    .pokemon-bite-fx,
-    .pokemon-bite-fx * {
+.skilltooltipimage.passive-trigger-flash,
+.goblin-bomb-marker,
+.goblin-bomb-marker.fresh,
+.goblin-bomb-lob,
+.goblin-bomb-spark,
+.character-card.has-lantern-aura::before,
+.character-card.has-lantern-aura::after,
+.lantern-trigger-burst,
+.lantern-trigger-burst.lantern-grey-smoke span,
+.lantern-energy-link,
+.hp-delta-popup,
+.combat-impact-burst,
+.status-apply-burst,
+.pixel-impact-fx,
+.pixel-portal-fx,
+.pixel-status-fx,
+.character-face.damage-impact,
+.character-face.heal-impact,
+.character-face.skill-caster-surge,
+.character-card.low-hp-danger .character-face,
+.target-lock-marker,
+.skill-cast-projectile,
+.skillimage.skill-cast-pulse,
+.skillimage.skill-blocked-shake,
+.skillimage.skill-ready-glow,
+.weather-fx-start-burst.weather-fx-start-burst-active,
+.weather-fx-start-burst.weather-fx-start-burst-active .weather-fx-start-burst-label,
+.skill-cooldown-badge.cooldown-tick-pop,
+.player-characters.turn-start-sweep::after,
+.enemy-characters.turn-start-sweep::after,
+.skillpreview.skillpreview-added,
+.seraphina-med-plus-overlay span,
+.seraphina-buckshot-impact-fx,
+.seraphina-buckshot-impact-fx .seraphina-buckshot-pellet,
+.seraphina-road-flare .flare-flame,
+.seraphina-road-flare .flare-glow,
+.seraphina-road-flare .flare-smoke,
+.smartgun-lock-cast-fx,
+.character-card.smartgun-lock-fx::after,
+.predator-bleeder-spears::after,
+.predator-bleeder-spear-projectile,
+.carnage-blood-tendril,
+.carnage-blood-slash-impact-fx,
+.carnage-wide-cut-impact-fx,
+.carnage-brain-devour-impact-fx,
+.flash-red-speed-aura,
+.flash-lightning-rush-hit-fx,
+.flash-infinite-run-screen-fx,
+.flash-infinite-punch-impact-fx,
+.flash-speed-steal-cast-fx,
+.flash-speed-steal-pressure-fx,
+.flash-phase-shift-fx .character-face,
+.flash-phase-speed-lines,
+.scorpion-venom-drop,
+.scorpion-poison-drops,
+.scorpion-tail-sting-fx,
+.scorpion-tail-laser-beam,
+.scorpion-tail-laser-impact-fx,
+.scorpion-tail-ready-fx,
+.xenomorph-facehugger-overlay,
+.venom-ally-symbiosis-marker,
+.venom-bite-crunch-fx,
+.venom-symbiote-tendril,
+.venom-tendril-latch-fx,
+.venom-web-cocoon-fx,
+.ghost-rider-skull-surge,
+.ghost-rider-hellfire-breath,
+.ghost-rider-hellfire-breath-move,
+.ghost-rider-hellfire-aura,
+.ghost-rider-chainsaw-slice,
+.negan-iron-overlay,
+.negan-iron-glow,
+.negan-iron-steam,
+.negan-iron-smoke,
+.negan-iron-slam-fx,
+.negan-iron-rip-away-fx,
+.parasite-drain-tendril,
+.parasite-life-leech-enemy-fx,
+.parasite-life-leech-ally-fx,
+.parasite-metabolic-collapse-fx,
+.parasite-metabolic-screen-flash,
+.parasite-energy-transfer-fx,
+.parasite-host-mutation-cast-fx,
+.parasite-overload-screen-fx,
+.parasite-host-mutation-marker,
+.parasite-overload-marker,
+.parasite-absorption-marker,
+.pokemon-evolution-aura,
+.pokemon-evolution-aura *,
+.pokemon-solar-beam-charge-fx,
+.pokemon-solar-beam-charge-fx *,
+.pokemon-solar-beam-travel,
+.pokemon-solar-beam-travel *,
+.pokemon-solar-beam-impact-fx,
+.pokemon-solar-beam-impact-fx *,
+.pokemon-thunder-impact-fx,
+.pokemon-thunder-impact-fx *,
+.pokemon-flamethrower-stream,
+.pokemon-flamethrower-stream *,
+.pokemon-flamethrower-impact-fx,
+.pokemon-flamethrower-impact-fx *,
+.pokemon-water-gun-stream,
+.pokemon-water-gun-stream *,
+.pokemon-water-gun-impact-fx,
+.pokemon-water-gun-impact-fx *,
+.pokemon-leech-seed-vine,
+.pokemon-leech-seed-vine *,
+.pokemon-leech-seed-impact-fx,
+.pokemon-leech-seed-impact-fx *,
+.pokemon-supersonic-fx,
+.pokemon-supersonic-fx *,
+.pokemon-future-sight-fx,
+.pokemon-future-sight-fx *,
+.pokemon-x-cutter-fx,
+.pokemon-x-cutter-fx *,
+.pokemon-center-healing-fx,
+.pokemon-center-healing-fx *,
+.pokemon-smog-fx,
+.pokemon-smog-fx *,
+.pokemon-koffing-team-fog-fx,
+.pokemon-koffing-team-fog-fx *,
+.pokemon-koffing-screen-explosion-fx,
+.pokemon-koffing-screen-explosion-fx *,
+.pokemon-ekans-poison-fang-fx,
+.pokemon-ekans-poison-fang-fx *,
+.pokemon-ekans-toxic-stream,
+.pokemon-ekans-toxic-stream *,
+.pokemon-ekans-toxic-impact-fx,
+.pokemon-ekans-toxic-impact-fx *,
+.pokemon-ekans-toxic-status,
+.pokemon-ekans-toxic-status *,
+.pokemon-ekans-shed-skin-fx,
+.pokemon-ekans-shed-skin-fx *,
+.pokemon-ekans-crunch-fx,
+.pokemon-ekans-crunch-fx *,
+.pokemon-machop-brick-break-fx,
+.pokemon-machop-brick-break-fx *,
+.pokemon-machop-counter-fx,
+.pokemon-machop-counter-fx *,
+.pokemon-machop-bulk-up-cast-fx,
+.pokemon-machop-bulk-up-cast-fx *,
+.pokemon-machop-bulk-up-status,
+.pokemon-machop-bulk-up-status *,
+.pokemon-machop-taunt-fx,
+.pokemon-machop-taunt-fx *,
+.pokemon-psybeam-stream,
+.pokemon-psybeam-stream *,
+.pokemon-psybeam-impact-fx,
+.pokemon-psybeam-impact-fx *,
+.pokemon-powder-stream,
+.pokemon-powder-stream *,
+.pokemon-powder-impact-fx,
+.pokemon-powder-impact-fx *,
+.pokemon-whirlwind-fx,
+.pokemon-whirlwind-fx *,
+.pokemon-trainer-ball-projectile,
+.pokemon-trainer-ball-projectile *,
+.pokemon-trainer-ball-impact-fx,
+.pokemon-trainer-ball-impact-fx *,
+.pokemon-x-stats-fx,
+.pokemon-x-stats-fx *,
+.pokemon-rare-candy-fx,
+.pokemon-rare-candy-fx *,
+.pokemon-psychic-stream,
+.pokemon-psychic-stream *,
+.pokemon-psychic-impact-fx,
+.pokemon-psychic-impact-fx *,
+.pokemon-calm-mind-fx,
+.pokemon-calm-mind-fx *,
+.pokemon-teleport-fx,
+.pokemon-teleport-fx *,
+.pokemon-leech-life-stream,
+.pokemon-leech-life-stream *,
+.pokemon-leech-life-impact-fx,
+.pokemon-leech-life-impact-fx *,
+.pokemon-bite-fx,
+.pokemon-bite-fx * {
         animation: none;
     }
 }
@@ -15540,206 +15185,6 @@ body.ui-disable-skill-cast-animations .pinsir-guillotine-cinematic { display: no
     .ghost-rider-chainsaw-slice .chainsaw-blade { width: 100px; height: 14px; }
 }
 
-/* Ghost Rider Special Death Animation */
-.ghost-rider-death-fire {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 75px;
-    height: 75px;
-    z-index: 100;
-    pointer-events: none;
-    perspective: 500px;
-    contain: layout paint;
-}
-
-.ghost-rider-death-portrait-wrap {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 75px;
-    height: 75px;
-    animation: ghost-rider-portrait-lift 4200ms ease-in-out both;
-}
-
-.ghost-rider-death-portrait {
-    width: 100%;
-    height: 100%;
-    background-size: cover;
-    background-position: center;
-    border: 2px solid #ff4d00;
-    box-shadow: 0 0 15px #ff4d00, 0 0 30px #ff0000;
-}
-
-.ghost-rider-death-slice-x {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 5;
-}
-
-.ghost-rider-death-slice-x::before,
-.ghost-rider-death-slice-x::after {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: -20%;
-    width: 140%;
-    height: 6px;
-    background: #fff;
-    box-shadow: 0 0 10px #ff4d00, 0 0 20px #ff0000;
-    opacity: 0;
-    border-radius: 3px;
-}
-
-.ghost-rider-death-slice-x::before {
-    transform: translateY(-50%) rotate(45deg) scaleX(0);
-    animation: ghost-rider-slice-x 350ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-    animation-delay: 850ms;
-}
-
-.ghost-rider-death-slice-x::after {
-    transform: translateY(-50%) rotate(-45deg) scaleX(0);
-    animation: ghost-rider-slice-x 350ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-    animation-delay: 1150ms;
-}
-
-.ghost-rider-death-fire-fx {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle, #fff 0%, #ffca00 30%, #ff4d00 60%, transparent 80%);
-    mix-blend-mode: screen;
-    opacity: 0;
-    z-index: 10;
-    animation: ghost-rider-death-fire-burst 3000ms ease-out both;
-    animation-delay: 1400ms;
-}
-
-.ghost-rider-death-ash {
-    position: absolute;
-    inset: 0;
-    z-index: 15;
-}
-
-.ghost-rider-death-ash span {
-    position: absolute;
-    width: 5px;
-    height: 5px;
-    background: #111;
-    border-radius: 50%;
-    opacity: 0;
-    box-shadow: 0 0 3px #000;
-    animation: ghost-rider-ash-scatter 2500ms ease-out both;
-    animation-delay: 1800ms;
-}
-
-.ghost-rider-death-ash span:nth-child(1) { left: 20%; top: 30%; --tx: -20px; --ty: -50px; }
-.ghost-rider-death-ash span:nth-child(2) { left: 70%; top: 20%; --tx: 30px; --ty: -60px; }
-.ghost-rider-death-ash span:nth-child(3) { left: 40%; top: 50%; --tx: -10px; --ty: -40px; }
-.ghost-rider-death-ash span:nth-child(4) { left: 80%; top: 60%; --tx: 40px; --ty: -30px; }
-.ghost-rider-death-ash span:nth-child(5) { left: 10%; top: 80%; --tx: -30px; --ty: -20px; }
-
-@keyframes ghost-rider-portrait-lift {
-    0% { transform: translateY(0) scale(1); filter: brightness(1); }
-    15% { transform: translateY(-55px) scale(1.15); filter: brightness(1.2); }
-    30% { transform: translateY(-50px) scale(1.15); }
-    70% { transform: translateY(-50px) scale(1.15); opacity: 1; }
-    85% { transform: translateY(-50px) scale(1.15); opacity: 1; filter: brightness(2) contrast(1.5); }
-    100% { transform: translateY(-80px) scale(0.4); opacity: 0; }
-}
-
-@keyframes ghost-rider-slice-x {
-    0% { opacity: 0; transform: translateY(-50%) rotate(var(--rot, 45deg)) scaleX(0); }
-    30% { opacity: 1; }
-    100% { opacity: 1; transform: translateY(-50%) rotate(var(--rot, 45deg)) scaleX(1); }
-}
-
-.ghost-rider-death-slice-x::before { --rot: 45deg; }
-.ghost-rider-death-slice-x::after { --rot: -45deg; }
-
-@keyframes ghost-rider-death-fire-burst {
-    0% { opacity: 0; transform: scale(0.3); filter: blur(10px); }
-    20% { opacity: 1; transform: scale(1.3); filter: blur(2px); }
-    100% { opacity: 0; transform: scale(2.5); filter: blur(20px); }
-}
-
-@keyframes ghost-rider-ash-scatter {
-    0% { opacity: 0; transform: translate(0, 0) rotate(0); }
-    20% { opacity: 1; }
-    100% { opacity: 0; transform: translate(var(--tx), var(--ty)) rotate(360deg) scale(0.1); }
-}
-
-.death-kill-label.ghost-rider-purified {
-    color: #ffca00;
-    font-size: 32px;
-    text-shadow: 2px 2px 0 #000, 0 0 15px #ff4d00, 0 0 25px #ff0000;
-    animation: ghost-rider-purified-label 4000ms ease-out both;
-}
-
-@keyframes ghost-rider-purified-label {
-    0% { opacity: 0; transform: translateX(-50%) scale(0.3) translateY(20px); }
-    15% { opacity: 1; transform: translateX(-50%) scale(1.4) translateY(0); }
-    85% { opacity: 1; transform: translateX(-50%) scale(1) translateY(0); }
-    100% { opacity: 0; transform: translateX(-50%) scale(0.7) translateY(-30px); }
-}
-
-/* Predator Hunted Animation */
-.predator-hunted-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 75px;
-    height: 75px;
-    z-index: 110;
-    pointer-events: none;
-    overflow: hidden;
-    contain: layout paint;
-}
-
-.predator-hunted-half {
-    position: absolute;
-    left: 0;
-    width: 100%;
-    height: 50%;
-    background-size: 100% 200%;
-    background-repeat: no-repeat;
-    transition: none;
-}
-
-.predator-hunted-half.top {
-    top: 0;
-    background-position: top;
-    animation: predator-rip-top 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
-    animation-delay: 0.4s;
-}
-
-.predator-hunted-half.bottom {
-    bottom: 0;
-    background-position: bottom;
-    animation: predator-rip-bottom 1.2s ease-out both;
-    animation-delay: 0.4s;
-}
-
-.predator-hunted-active .character-face {
-    opacity: 0 !important;
-}
-
-@keyframes predator-rip-top {
-    0% { transform: translateY(0); opacity: 1; }
-    20% { transform: translateY(-5px); opacity: 1; }
-    40% { transform: translateY(-15px) rotate(-2deg); opacity: 1; }
-    100% { transform: translateY(-120px) rotate(-10deg) scale(0.8); opacity: 0; filter: blur(8px) brightness(2); }
-}
-
-@keyframes predator-rip-bottom {
-    0% { transform: translateY(0); opacity: 1; }
-    30% { transform: translateY(0); opacity: 1; }
-    100% { transform: translateY(10px); opacity: 0.5; filter: grayscale(1); }
-}
-
 .predator-gauntlet-blades {
     position: absolute;
     bottom: 0;
@@ -15768,86 +15213,6 @@ body.ui-disable-skill-cast-animations .pinsir-guillotine-cinematic { display: no
     15% { transform: translateY(10%); opacity: 1; }
     30% { transform: translateY(0); opacity: 1; }
     100% { transform: translateY(-250%); opacity: 1; }
-}
-
-.predator-hunted-callout {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: #ff1111;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 26px;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 6px;
-    text-shadow: 0 0 20px rgba(255, 0, 0, 1), 0 0 5px #000;
-    white-space: nowrap;
-    opacity: 0;
-    z-index: 130;
-    animation: predator-hunted-text-glow 2.5s ease-out both;
-    animation-delay: 0.6s;
-}
-
-@keyframes predator-hunted-text-glow {
-    0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; filter: blur(15px); }
-    15% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; filter: blur(0); }
-    30% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-    85% { transform: translate(-50%, -50%) scale(1.05); opacity: 1; }
-    100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; filter: blur(10px); }
-}
-
-/* Lasered Kill Animation */
-.lasered-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 75px;
-    height: 75px;
-    z-index: 110;
-    pointer-events: none;
-    overflow: hidden;
-    contain: layout paint;
-}
-
-.lasered-half {
-    position: absolute;
-    left: 0;
-    width: 100%;
-    height: 50%;
-    background-size: 100% 200%;
-    background-repeat: no-repeat;
-    transition: none;
-}
-
-.lasered-half.top {
-    top: 0;
-    background-position: top;
-    animation: lasered-rip-top 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
-    animation-delay: 0.5s;
-}
-
-.lasered-half.bottom {
-    bottom: 0;
-    background-position: bottom;
-    animation: lasered-rip-bottom 1.2s ease-out both;
-    animation-delay: 0.5s;
-}
-
-.lasered-active .character-face {
-    opacity: 0 !important;
-}
-
-@keyframes lasered-rip-top {
-    0% { transform: translateY(0) rotate(0); opacity: 1; }
-    20% { transform: translateY(-10px) rotate(2deg); opacity: 1; }
-    100% { transform: translateY(-150px) rotate(15deg) scale(0.5); opacity: 0; filter: contrast(2) brightness(3) blur(10px); }
-}
-
-@keyframes lasered-rip-bottom {
-    0% { transform: translateY(0); opacity: 1; }
-    40% { transform: translateY(5px); opacity: 1; }
-    100% { transform: translateY(20px); opacity: 0; filter: grayscale(1) brightness(0.5); }
 }
 
 .laser-beams {
@@ -15903,38 +15268,10 @@ body.ui-disable-skill-cast-animations .pinsir-guillotine-cinematic { display: no
     100% { transform: translateX(100%) rotate(var(--laser-rotation, 0deg)); opacity: 0; }
 }
 
-.lasered-callout {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: #fff;
-    font-family: 'Arial Black', Gadget, sans-serif;
-    font-size: 32px;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000, 0 0 40px #ff0000;
-    white-space: nowrap;
-    opacity: 0;
-    z-index: 140;
-    animation: lasered-text-pop 2s ease-out both;
-    animation-delay: 0.7s;
-}
-
-@keyframes lasered-text-pop {
-    0% { transform: translate(-50%, -50%) scale(2); opacity: 0; filter: brightness(5); }
-    10% { transform: translate(-50%, -50%) scale(1); opacity: 1; filter: brightness(1); }
-    80% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
-    100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; filter: blur(10px); }
-}
-
 .lightsaber-portrait-slash-fx,
 .sidious-lightning-fx,
 .boba-water-bounty-fx,
-.boba-wanted-marker,
-.sabered-overlay,
-.special-kill-overlay {
+.boba-wanted-marker {
     position: absolute;
     left: 0;
     top: 0;
@@ -15949,12 +15286,6 @@ body.ui-disable-skill-cast-animations .pinsir-guillotine-cinematic { display: no
 .boba-water-bounty-fx,
 .boba-wanted-marker {
     z-index: 88;
-}
-
-.sabered-overlay,
-.special-kill-overlay {
-    z-index: 120;
-    overflow: visible;
 }
 
 .lightsaber-core,
@@ -16141,130 +15472,6 @@ body.ui-disable-skill-cast-animations .pinsir-guillotine-cinematic { display: no
     100% { transform: translateY(24px); opacity: 0; }
 }
 
-.sabered-half,
-.special-kill-portrait {
-    position: absolute;
-    background-size: cover;
-    background-position: center;
-}
-
-.sabered-half.top,
-.sabered-half.bottom {
-    left: 0;
-    width: 75px;
-    height: 38px;
-}
-
-.sabered-half.top { top: 0; animation: sabered-half-top 3000ms ease-out both; }
-.sabered-half.bottom { bottom: 0; background-position-y: bottom; animation: sabered-half-bottom 3000ms ease-out both; }
-
-.sabered-half.left,
-.sabered-half.right {
-    top: 0;
-    width: 38px;
-    height: 75px;
-}
-
-.sabered-half.left { left: 0; animation: sabered-half-left 3000ms ease-out both; }
-.sabered-half.right { right: 0; background-position-x: right; animation: sabered-half-right 3000ms ease-out both; }
-
-.sabered-slash-line {
-    position: absolute;
-    left: -15%;
-    top: 50%;
-    width: 130%;
-    height: 6px;
-    background: #fff;
-    border-radius: 999px;
-    box-shadow: 0 0 12px currentColor, 0 0 26px currentColor;
-    animation: sabered-line 950ms ease-out both;
-}
-
-.sabered-overlay.red { color: #ff2525; }
-.sabered-overlay.blue { color: #35a9ff; }
-.sabered-overlay.vertical .sabered-slash-line { transform: rotate(90deg); }
-.sabered-label,
-.special-kill-label {
-    font-size: 24px;
-    color: #fff;
-    text-shadow: 2px 2px 0 #000, 0 0 12px currentColor;
-}
-
-@keyframes sabered-line {
-    0% { opacity: 0; transform: rotate(var(--saber-kill-rot, 0deg)) scaleX(0); }
-    20% { opacity: 1; }
-    65% { opacity: 1; transform: rotate(var(--saber-kill-rot, 0deg)) scaleX(1); }
-    100% { opacity: 0; transform: rotate(var(--saber-kill-rot, 0deg)) scaleX(1.1); }
-}
-
-.sabered-overlay.vertical { --saber-kill-rot: 90deg; }
-@keyframes sabered-half-top { 100% { transform: translateY(-28px) rotate(-5deg); opacity: 0; } }
-@keyframes sabered-half-bottom { 100% { transform: translateY(28px) rotate(5deg); opacity: 0; } }
-@keyframes sabered-half-left { 100% { transform: translateX(-28px) rotate(-5deg); opacity: 0; } }
-@keyframes sabered-half-right { 100% { transform: translateX(28px) rotate(5deg); opacity: 0; } }
-
-.special-kill-portrait {
-    inset: 0;
-    filter: contrast(1.1) saturate(1.1);
-    animation: special-kill-portrait-fade 3200ms ease-out both;
-}
-
-.advanced-sabered-kill .special-kill-portrait {
-    animation: advanced-sabered-portrait 3500ms cubic-bezier(0.16, 0.8, 0.22, 1) both;
-}
-
-.special-kill-overlay.crunch-kill .special-kill-portrait {
-    animation: crunch-kill-portrait-break 3200ms ease-out both;
-    filter: contrast(1.08) saturate(0.92);
-}
-
-.special-kill-overlay.crunch-kill .special-kill-label {
-    color: #fff;
-    text-shadow: 2px 2px 0 #000, 0 0 12px rgba(255,255,255,0.9), 0 0 20px rgba(191, 191, 191, 0.86);
-    letter-spacing: 1px;
-}
-
-.special-kill-overlay.crunch-kill .crunch-piece {
-    position: absolute;
-    left: 31px;
-    top: 31px;
-    width: 16px;
-    height: 16px;
-    background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(214,214,214,0.74));
-    box-shadow: 0 0 8px rgba(255,255,255,0.42);
-    clip-path: polygon(50% 0%, 100% 35%, 82% 100%, 20% 84%, 0% 28%);
-    animation: crunch-piece-burst 1400ms ease-out both;
-}
-
-.special-kill-overlay.crunch-kill .piece-1 { --sx: -38px; --sy: -34px; --rot: -24deg; }
-.special-kill-overlay.crunch-kill .piece-2 { --sx: -20px; --sy: -38px; --rot: 18deg; animation-delay: 40ms; }
-.special-kill-overlay.crunch-kill .piece-3 { --sx: 4px; --sy: -40px; --rot: -12deg; animation-delay: 80ms; }
-.special-kill-overlay.crunch-kill .piece-4 { --sx: 24px; --sy: -36px; --rot: 28deg; animation-delay: 120ms; }
-.special-kill-overlay.crunch-kill .piece-5 { --sx: 36px; --sy: -20px; --rot: -32deg; animation-delay: 160ms; }
-.special-kill-overlay.crunch-kill .piece-6 { --sx: 40px; --sy: 0px; --rot: 24deg; animation-delay: 200ms; }
-.special-kill-overlay.crunch-kill .piece-7 { --sx: 34px; --sy: 22px; --rot: -18deg; animation-delay: 240ms; }
-.special-kill-overlay.crunch-kill .piece-8 { --sx: 18px; --sy: 36px; --rot: 36deg; animation-delay: 280ms; }
-.special-kill-overlay.crunch-kill .piece-9 { --sx: -2px; --sy: 40px; --rot: -14deg; animation-delay: 320ms; }
-.special-kill-overlay.crunch-kill .piece-10 { --sx: -24px; --sy: 34px; --rot: 22deg; animation-delay: 360ms; }
-.special-kill-overlay.crunch-kill .piece-11 { --sx: -38px; --sy: 18px; --rot: -20deg; animation-delay: 400ms; }
-.special-kill-overlay.crunch-kill .piece-12 { --sx: -42px; --sy: -2px; --rot: 30deg; animation-delay: 440ms; }
-.special-kill-overlay.crunch-kill .piece-13 { --sx: -14px; --sy: -16px; --rot: -30deg; animation-delay: 60ms; }
-.special-kill-overlay.crunch-kill .piece-14 { --sx: 10px; --sy: -18px; --rot: 26deg; animation-delay: 100ms; }
-.special-kill-overlay.crunch-kill .piece-15 { --sx: 20px; --sy: 8px; --rot: -16deg; animation-delay: 140ms; }
-.special-kill-overlay.crunch-kill .piece-16 { --sx: -10px; --sy: 18px; --rot: 20deg; animation-delay: 180ms; }
-.special-kill-overlay.crunch-kill .piece-17 { --sx: -26px; --sy: 6px; --rot: -10deg; animation-delay: 220ms; }
-.special-kill-overlay.crunch-kill .piece-18 { --sx: 28px; --sy: -8px; --rot: 34deg; animation-delay: 260ms; }
-.special-kill-overlay.crunch-kill .piece-19 { --sx: -6px; --sy: -28px; --rot: 12deg; animation-delay: 300ms; }
-.special-kill-overlay.crunch-kill .piece-20 { --sx: 8px; --sy: 28px; --rot: -26deg; animation-delay: 340ms; }
-.special-kill-overlay.crunch-kill .piece-21 { --sx: -30px; --sy: -8px; --rot: 14deg; animation-delay: 380ms; }
-.special-kill-overlay.crunch-kill .piece-22 { --sx: 32px; --sy: 10px; --rot: -22deg; animation-delay: 420ms; }
-.special-kill-overlay.crunch-kill .piece-23 { --sx: -18px; --sy: 26px; --rot: 18deg; animation-delay: 460ms; }
-.special-kill-overlay.crunch-kill .piece-24 { --sx: 16px; --sy: -26px; --rot: -18deg; animation-delay: 500ms; }
-
-.advanced-sabered-kill.grievous .special-kill-portrait {
-    animation-duration: 3800ms;
-}
-
 .advanced-saber-slashes {
     position: absolute;
     inset: -10px;
@@ -16303,74 +15510,10 @@ body.ui-disable-skill-cast-animations .pinsir-guillotine-cinematic { display: no
 .advanced-saber-slashes .yellow { color: #ffe04f; }
 .advanced-saber-slashes .purple { color: #b15cff; }
 
-.advanced-sabered-shards {
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-}
-
-.advanced-sabered-shards span {
-    position: absolute;
-    width: 21px;
-    height: 24px;
-    background: rgba(255, 255, 255, 0.18);
-    border: 1px solid rgba(255, 255, 255, 0.35);
-    box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.65), 0 0 10px currentColor;
-    opacity: 0;
-    clip-path: polygon(12% 0, 100% 18%, 76% 100%, 0 72%);
-    animation: advanced-sabered-shard 1800ms ease-out both;
-    animation-delay: 900ms;
-}
-
-.advanced-sabered-shards span:nth-child(1) { left: 0; top: 0; --sx: -28px; --sy: -42px; --rot: -54deg; }
-.advanced-sabered-shards span:nth-child(2) { left: 18px; top: 0; --sx: -10px; --sy: -46px; --rot: -28deg; }
-.advanced-sabered-shards span:nth-child(3) { left: 36px; top: 0; --sx: 12px; --sy: -44px; --rot: 30deg; }
-.advanced-sabered-shards span:nth-child(4) { left: 54px; top: 0; --sx: 30px; --sy: -38px; --rot: 58deg; }
-.advanced-sabered-shards span:nth-child(5) { left: 0; top: 24px; --sx: -40px; --sy: -12px; --rot: -36deg; }
-.advanced-sabered-shards span:nth-child(6) { left: 18px; top: 24px; --sx: -16px; --sy: -22px; --rot: -14deg; }
-.advanced-sabered-shards span:nth-child(7) { left: 36px; top: 24px; --sx: 18px; --sy: -18px; --rot: 18deg; }
-.advanced-sabered-shards span:nth-child(8) { left: 54px; top: 24px; --sx: 42px; --sy: -8px; --rot: 42deg; }
-.advanced-sabered-shards span:nth-child(9) { left: 0; top: 48px; --sx: -34px; --sy: 28px; --rot: -68deg; }
-.advanced-sabered-shards span:nth-child(10) { left: 18px; top: 48px; --sx: -8px; --sy: 36px; --rot: -24deg; }
-.advanced-sabered-shards span:nth-child(11) { left: 36px; top: 48px; --sx: 14px; --sy: 34px; --rot: 24deg; }
-.advanced-sabered-shards span:nth-child(12) { left: 54px; top: 48px; --sx: 36px; --sy: 24px; --rot: 64deg; }
-
-.advanced-sabered-kill.yoda { color: #5dff57; }
-.advanced-sabered-kill.grievous { color: #b15cff; }
-
 @keyframes advanced-saber-slash {
     0% { opacity: 0; transform: translate(42px, -34px) rotate(var(--slash-rot, 0deg)) scaleX(0.05); }
     20%, 72% { opacity: 1; }
     100% { opacity: 0; transform: translate(-42px, 34px) rotate(var(--slash-rot, 0deg)) scaleX(1.08); }
-}
-
-@keyframes advanced-sabered-portrait {
-    0%, 35% { opacity: 1; transform: translateY(0) scale(1); filter: saturate(1.1) contrast(1.1); }
-    58% { opacity: 1; transform: translateY(-14px) scale(1.04); filter: saturate(1.4) contrast(1.18); }
-    100% { opacity: 0; transform: translateY(-34px) scale(0.92); filter: blur(3px) saturate(0.8); }
-}
-
-@keyframes advanced-sabered-shard {
-    0% { opacity: 0; transform: translate(0, 0) rotate(0deg) scale(0.7); }
-    22% { opacity: 0.9; }
-    100% { opacity: 0; transform: translate(var(--sx), var(--sy)) rotate(var(--rot)) scale(0.2); }
-}
-
-@keyframes special-kill-portrait-fade {
-    0%, 68% { opacity: 1; }
-    100% { opacity: 0; transform: scale(1.08); }
-}
-
-@keyframes crunch-kill-portrait-break {
-    0%, 20% { opacity: 1; transform: scale(1); }
-    45% { opacity: 0.82; transform: scale(1.02); }
-    100% { opacity: 0; transform: scale(0.92); }
-}
-
-@keyframes crunch-piece-burst {
-    0% { opacity: 0; transform: translate(0, 0) rotate(0deg) scale(0.2); }
-    12% { opacity: 1; }
-    100% { opacity: 0; transform: translate(var(--sx), var(--sy)) rotate(var(--rot)) scale(0.18); }
 }
 
 .eviscerated-gashes span,
@@ -16489,27 +15632,6 @@ body.ui-disable-skill-cast-animations .pinsir-guillotine-cinematic { display: no
 }
 
 @keyframes predator-thermal-scan { 0% { opacity: 0; transform: scale(1.2); } 20%, 75% { opacity: 1; } 100% { opacity: 0; transform: scale(1); } }
-
-.ghost-rider-judged-eyes {
-    position: absolute;
-    left: 23px;
-    top: 25px;
-    width: 30px;
-    height: 9px;
-    z-index: 8;
-}
-.ghost-rider-judged-eyes span {
-    position: absolute;
-    width: 8px;
-    height: 9px;
-    border-radius: 50%;
-    background: #fff;
-    box-shadow: 0 0 8px #ffef6a, 0 0 16px #ff4d00;
-    animation: judged-eyes 2600ms ease-out both;
-}
-.ghost-rider-judged-eyes span:first-child { left: 0; }
-.ghost-rider-judged-eyes span:last-child { right: 0; }
-@keyframes judged-eyes { 0%, 20% { opacity: 0; transform: scale(0.2); } 35%, 80% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(1.6); } }
 
 .vanished-smoke span {
     position: absolute;
