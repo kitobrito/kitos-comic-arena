@@ -56,6 +56,9 @@ test('private backend and deployment sources cannot be served by the root static
         '/pokemonDittoTransformationFaces.js',
         '/pokemon-wave-2-live.js',
         '/scripts/script.js',
+        '/scripts/tri-portal.js',
+        '/scripts/shattered-portal.js',
+        '/scripts/split-hub.js',
         '/styles/style.css',
         '/assets/images/avatar.png',
     ].forEach((requestPath) => {
