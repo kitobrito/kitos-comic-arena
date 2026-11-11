@@ -67,6 +67,7 @@ test('costs and cooldowns match the design (red = Bloodline, yellow = Genjutsu)'
     assert.equal(by['blaziken-fiery-roar'].cooldown, 3);
     assert.deepEqual(by['blaziken-blaze-kick'].energy, ['Bloodline', 'Bloodline']);
     assert.ok(by['blaziken-passive-mega-blaziken'].classes.includes('Passive'));
+    assert.ok(!by['blaziken-blaze-kick'].hiddenFromSelectionViewer, 'Blaze Kick shows on her skills page');
 });
 
 test('Smoldering Roundhouse: 15 + 5, and each use adds 5 affliction damage to later skills', () => {
