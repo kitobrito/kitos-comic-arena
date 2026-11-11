@@ -1636,6 +1636,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     let mobileRosterTapIndex = null;
 const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         aegislash: 'AEGISLASH.webp',
+        blaziken: 'blaziken.png.webp',
         ditto: 'ditto.webp',
         dragapult: 'dragapult.jpg.webp',
         nincada: 'nincada.png.webp',
