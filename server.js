@@ -20349,6 +20349,8 @@ const SHATTERED_PAGES = {
     '/shattered-factions': 'shattered-factions.html',
     '/shattered-manual': 'shattered-manual.html',
     '/shattered-ladder': 'shattered-ladder.html',
+    '/shattered-players': 'shattered-players.html',
+    '/shattered-player': 'shattered-player.html',
     '/shattered-account': 'shattered-account.html',
     '/shattered-play': 'shattered-realms.html',
     '/shattered-realms': 'shattered-realms.html',

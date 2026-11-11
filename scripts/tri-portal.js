@@ -53,7 +53,7 @@
     "editmission": "missionadmin", "pokemon-editmission": "missionadmin",
     "charactereditor": "charadmin", "pokemon-charactereditor": "charadmin",
     "pokemon-demos": "demos", "demofeedback": "demos",
-    "shattered-news": "news", "shattered-ladder": "ladder", "shattered-realms": "play", "shattered-play": "play",
+    "shattered-news": "news", "shattered-ladder": "ladder", "shattered-players": "community", "shattered-player": "community", "shattered-realms": "play", "shattered-play": "play",
     "register": "login", "selection-login": "login"
   };
   var section = SECTION_OF[bare] || "other";
@@ -76,7 +76,7 @@
       news: "/pokemon#news-feed", ladder: "/pokemon-community", login: "/pokemon#auth-panel", play: "/pokemon"
     },
     shattered: {
-      home: "/shattered", news: "/shattered-news", events: "/shattered-news", community: "/shattered-ladder", ladder: "/shattered-ladder",
+      home: "/shattered", news: "/shattered-news", events: "/shattered-news", community: "/shattered-players", ladder: "/shattered-ladder",
       characters: "/shattered-factions", manual: "/shattered-manual", missions: "/shattered-manual#unlocks",
       profile: "/shattered-account", login: "/shattered-account", play: "/shattered-play"
     }
