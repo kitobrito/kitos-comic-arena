@@ -4075,9 +4075,9 @@ const normalizeMissionState = (missions = {}) => {
     )
         ? eeveeEvolutionCharacterId
         : null;
+    // Choosing an evolution adds it to the roster; Eevee herself stays playable.
     if (validEeveeEvolutionCharacterId) {
         unlockedCharacterIds.add(validEeveeEvolutionCharacterId);
-        unlockedCharacterIds.delete('eevee');
     }
     if (starterCharacterId && getPokemonStarterCharacterIds().has(starterCharacterId)) {
         unlockedCharacterIds.add(starterCharacterId);
@@ -4940,7 +4940,7 @@ const POKEMON_EEVEE_EVOLUTION_MISSION_ENTRY = {
     reward_character: '',
     reward_character_name: 'Eevee Evolution Choice',
     reward_character_ids: ['jolteon', 'flareon', 'vaporeon'],
-    reward: 'Choose Jolteon, Flareon, or Vaporeon. Eevee is permanently removed after the choice.',
+    reward: 'Choose Jolteon, Flareon, or Vaporeon. Eevee stays playable.',
     arena: 'pokemon',
     mode_restriction: {
         allowed_modes: ['quick', 'ladder'],
@@ -4957,7 +4957,7 @@ const POKEMON_EEVEE_EVOLUTION_MISSION_ENTRY = {
     portraitAlt: 'Eevee portrait',
     requirements: [
         'Win 25 matches with Eevee on your team.',
-        'After this mission is complete, choose one evolution. This decision is permanent.',
+        'After this mission is complete, choose one evolution. The choice is permanent, and Eevee stays playable.',
     ],
     goals: [
         {
@@ -6583,15 +6583,6 @@ const profileHasUnlockedCharacter = (profile, characterId, lockedCharacterIds = 
     }
     const arenaState = getProfileArenaState(profile, arena);
     const missions = arenaState && typeof arenaState.missions === 'object' ? arenaState.missions : {};
-    if (
-        normalizeArenaMode(arena) === 'pokemon' &&
-        normalizedCharacterId === 'eevee' &&
-        getPokemonEeveeEvolutionCharacterIds().has(
-            normalizeCharacterId(missions.eeveeEvolutionCharacterId)
-        )
-    ) {
-        return false;
-    }
     const unlocked = new Set(
         (Array.isArray(missions.unlockedCharacterIds) ? missions.unlockedCharacterIds : [])
             .map((entry) => normalizeCharacterId(entry))
@@ -19059,7 +19050,6 @@ app.post('/api/profile/pokemon/eevee-evolution', requireSession, async (req, res
         const unlockedIds = new Set(
             Array.isArray(missionState.unlockedCharacterIds) ? missionState.unlockedCharacterIds : []
         );
-        unlockedIds.delete('eevee');
         getPokemonEeveeEvolutionCharacterIds().forEach((characterId) => {
             unlockedIds.delete(characterId);
         });
@@ -19083,19 +19073,12 @@ app.post('/api/profile/pokemon/eevee-evolution', requireSession, async (req, res
             profile: updatedArenaState,
         });
 
-        const eeveeRosterIndex = getRosterIndexByCharacterId('eevee');
+        // Eevee stays playable after evolving, so a saved team that includes her is kept.
         const savedTeamIndicesByArena = {
             ...(user.savedTeamIndicesByArena && typeof user.savedTeamIndicesByArena === 'object'
                 ? user.savedTeamIndicesByArena
                 : {}),
         };
-        if (
-            Number.isInteger(eeveeRosterIndex) &&
-            Array.isArray(savedTeamIndicesByArena.pokemon) &&
-            savedTeamIndicesByArena.pokemon.some((slot) => Number(slot) === eeveeRosterIndex)
-        ) {
-            savedTeamIndicesByArena.pokemon = [];
-        }
         const nextSavedTeamIndicesByArena = buildSanitizedSavedTeamIndicesByArena({
             ...user,
             savedTeamIndicesByArena,
@@ -20558,6 +20541,8 @@ if (require.main === module) {
 } else {
     module.exports = {
         app,
+        normalizeMissionState,
+        profileHasUnlockedCharacter,
         compactFinishedMatchesForTests,
         normalizeArenaMode,
         correctCanonicalNewsChangeText,

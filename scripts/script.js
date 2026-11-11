@@ -2904,13 +2904,6 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         if (!characterId) {
             return false;
         }
-        if (
-            activeArenaMode === 'pokemon' &&
-            characterId === 'eevee' &&
-            getSelectedEeveeEvolutionId()
-        ) {
-            return true;
-        }
         if (!missionLockedCharacterIds.has(characterId)) {
             return false;
         }
@@ -17228,7 +17221,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             const chosenName =
                 getEeveeEvolutionOptions().find((option) => option.id === evolutionCharacterId)?.name ||
                 evolutionCharacterId;
-            setSelectionMissionsStatus(`${chosenName} unlocked. Eevee has been permanently removed.`);
+            setSelectionMissionsStatus(`${chosenName} unlocked. Eevee stays on your roster too.`);
         } catch (error) {
             if (button) button.disabled = false;
             setSelectionMissionsStatus(error.message || 'Unable to save Eevee evolution.');
@@ -17241,7 +17234,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             const selected = getEeveeEvolutionOptions().find((option) => option.id === selectedEvolutionId);
             const note = document.createElement('p');
             note.className = 'selection-mission-progress';
-            note.textContent = `${selected?.name || 'Evolution'} chosen. Eevee is permanently removed.`;
+            note.textContent = `${selected?.name || 'Evolution'} chosen. Eevee stays on your roster too.`;
             card.appendChild(note);
             return;
         }
@@ -17258,7 +17251,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 const warning = document.createElement('p');
                 warning.className = 'selection-mission-progress';
                 warning.textContent =
-                    'Are you sure? This decision is permanent and cannot be reversed and Eevee is permanently removed';
+                    'Are you sure? This decision is permanent and cannot be reversed. Eevee stays on your roster.';
                 const yesButton = document.createElement('button');
                 yesButton.type = 'button';
                 yesButton.className = 'selection-mission-action';
