@@ -10016,6 +10016,7 @@ app.use(
                     'https://www.googletagmanager.com',
                     'https://www.google-analytics.com',
                     'https://region1.google-analytics.com',
+                    'https://shattered-realms.onrender.com',
                 ],
                 objectSrc: ["'none'"],
                 frameSrc: ["'self'", 'https://www.googletagmanager.com', 'https://shattered-realms.onrender.com'],
@@ -10098,6 +10099,9 @@ const PUBLIC_SCRIPTS_FILES = new Set([
     '/scripts/arena-navigation.js',
     '/scripts/arena-select-ui.js',
     '/scripts/script.js',
+    '/scripts/tri-portal.js',
+    '/scripts/shattered-portal.js',
+    '/scripts/split-hub.js',
 ]);
 const isPrivateStaticSourcePath = (requestPath = '') => {
     const normalizedPath = String(requestPath || '')
@@ -20073,8 +20077,16 @@ app.get('/', (req, res) => {
 // trace of the previous shared layout. Keeps data-page-arena="pokemon" on
 // <body> for scripts/index.js's activeHomeArena resolution (auth/account/
 // leaderboards/news/gen2-starter logic is reused as-is, just re-skinned).
-app.get(['/pokemon', '/pokemon.html'], (req, res) => {
-    res.sendFile(path.join(__dirname, 'pokemon-home.html'));
+app.get(['/pokemon', '/pokemon.html'], async (req, res, next) => {
+    // Pokemon Arena's front page is the same portal layout as Comic Arena's (index.html, which
+    // already carries every Pokemon panel), opened in Pokemon mode. The older standalone
+    // pokemon-home.html is kept on disk but no longer routed.
+    try {
+        const html = await fs.promises.readFile(path.join(__dirname, 'index.html'), 'utf8');
+        res.type('html').send(html.replace('<body class="home-classic-page">', '<body class="home-classic-page" data-page-arena="pokemon">'));
+    } catch (error) {
+        next(error);
+    }
 });
 
 // Same ground-up redesign approach as /pokemon, but for the Missions page.
@@ -20216,6 +20228,54 @@ app.get(['/editmission', '/editmission.html'], requireSession, async (req, res) 
         return res.redirect('/');
     }
     return res.sendFile(path.join(__dirname, 'editmission.html'));
+});
+
+
+// ---- Tri-game portal (Comic-Arena, Pokemon-Arena, Shattered Realms) ----
+// Each game's front door, the 50/50 split hub, and Shattered Realms' own section (its accounts,
+// patch notes and ladder come from the Shattered Realms server; see scripts/shattered-portal.js).
+app.get(['/comic', '/comic.html'], (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+app.get(['/split', '/split.html'], (req, res) => {
+    res.sendFile(path.join(__dirname, 'split.html'));
+});
+const SHATTERED_PAGES = {
+    '/shattered': 'shattered-home.html',
+    '/shattered-news': 'shattered-news.html',
+    '/shattered-factions': 'shattered-factions.html',
+    '/shattered-manual': 'shattered-manual.html',
+    '/shattered-ladder': 'shattered-ladder.html',
+    '/shattered-account': 'shattered-account.html',
+    '/shattered-play': 'shattered-realms.html',
+    '/shattered-realms': 'shattered-realms.html',
+};
+Object.entries(SHATTERED_PAGES).forEach(([route, file]) => {
+    app.get([route, `${route}.html`], (req, res) => {
+        res.sendFile(path.join(__dirname, file));
+    });
+});
+
+// Short links that follow the visitor's chosen game (the tri_universe cookie set by
+// scripts/tri-portal.js, or ?universe=comic|pokemon|shattered).
+const TRI_UNIVERSES = new Set(['comic', 'pokemon', 'shattered']);
+const TRI_ROUTES = {
+    characters: { comic: '/charactersandskills.html', pokemon: '/pokemon-charactersandskills.html', shattered: '/shattered-factions' },
+    missions: { comic: '/missions.html', pokemon: '/pokemon-missions', shattered: '/shattered-manual#unlocks' },
+    news: { comic: '/comic#news-feed', pokemon: '/pokemon#news-feed', shattered: '/shattered-news' },
+    ladder: { comic: '/community', pokemon: '/pokemon-community', shattered: '/shattered-ladder' },
+    login: { comic: '/comic#auth-panel', pokemon: '/pokemon#auth-panel', shattered: '/shattered-account' },
+};
+const triUniverseOf = (req) => {
+    const asked = String(req.query?.universe || req.query?.arena || '').toLowerCase();
+    if (TRI_UNIVERSES.has(asked)) return asked;
+    const fromCookie = String(req.cookies?.tri_universe || '').toLowerCase();
+    return TRI_UNIVERSES.has(fromCookie) ? fromCookie : 'comic';
+};
+Object.entries(TRI_ROUTES).forEach(([name, byUniverse]) => {
+    app.get(`/${name}`, (req, res) => {
+        res.redirect(302, byUniverse[triUniverseOf(req)]);
+    });
 });
 
 app.use((error, req, res, next) => {
