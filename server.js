@@ -59,6 +59,7 @@ const { syncPokemonAegislashRelease } = require('./sync_pokemon_aegislash_releas
 const { syncPokemonDittoRelease } = require('./sync_pokemon_ditto_release');
 const { syncPokemonDragapultRelease } = require('./sync_pokemon_dragapult_release');
 const { syncPokemonNincadaRelease } = require('./sync_pokemon_nincada_release');
+const { syncArenaPortalUpdateNews } = require('./sync_arena_portal_update_news');
 const {
     EVENT_DURATION_MS: PRIMEAPE_EVENT_DURATION_MS,
     syncPokemonPrimeapeRelease,
@@ -9333,13 +9334,25 @@ const normalizeNewsChanges = (value) =>
         .filter(Boolean)
         .slice(0, 200);
 
+// Links in news posts may only point inside the site ("/missions.html", "/pokemon-missions").
+const NEWS_LINK_HREF_RE = /^\/(?!\/)[A-Za-z0-9\-._~/?=&#%]*$/;
 const normalizeNewsBlocks = (value) =>
     (Array.isArray(value) ? value : [])
-        .map((entry) => ({
-            type: typeof entry?.type === 'string' ? entry.type.trim().toLowerCase() : 'paragraph',
-            text: typeof entry?.text === 'string' ? entry.text.trim() : '',
-        }))
-        .filter((entry) => entry.type === 'divider' || (entry.type === 'paragraph' && entry.text))
+        .map((entry) => {
+            const type = typeof entry?.type === 'string' ? entry.type.trim().toLowerCase() : 'paragraph';
+            const block = { type, text: typeof entry?.text === 'string' ? entry.text.trim() : '' };
+            if (type === 'link') {
+                const href = typeof entry?.href === 'string' ? entry.href.trim() : '';
+                block.href = NEWS_LINK_HREF_RE.test(href) ? href : '';
+            }
+            return block;
+        })
+        .filter(
+            (entry) =>
+                entry.type === 'divider' ||
+                (entry.type === 'paragraph' && entry.text) ||
+                (entry.type === 'link' && entry.text && entry.href)
+        )
         .slice(0, 200);
 
 const normalizeNewsArena = (post = {}) => {
@@ -14586,6 +14599,9 @@ async function initDb() {
     if (primeapeReleaseSync.migrated) {
         console.log('Published the Primeape and Annihilape seven-day release.');
     }
+    // After the Primeape sync above, which also rewrites Latest Releases on every start.
+    await syncArenaPortalUpdateNews(db);
+    console.log('Synced the Arena Portal update news posts (Deadpool, Blaziken).');
     const compensationSync = await syncPokemonCompensationGrant(db);
     if (compensationSync.migrated) {
         console.log(

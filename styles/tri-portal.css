@@ -803,3 +803,14 @@ html.tp-on .pp-tabbar { background: rgba(6, 12, 26, 0.92) !important; border-top
   .tp-ob, .tp-ob-box, .tp-ob-msg, .tp-ob-choice { animation: none !important; }
   html.tp-on *, html.tp-on *::before, html.tp-on *::after { transition-duration: 0.01ms !important; }
 }
+
+/* News post links (e.g. "Go to Deadpool's mission") */
+html.tp-on .news-link-row { margin: 14px 0 !important; }
+html.tp-on a.news-link {
+  display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; text-decoration: none !important;
+  background: var(--tp-btn-bg) !important; color: var(--tp-btn-ink) !important; border: var(--tp-btn-border) !important;
+  border-radius: var(--tp-radius-sm) !important; box-shadow: var(--tp-btn-shadow) !important;
+  font: 700 14px/1.1 var(--tp-font-ui) !important; letter-spacing: 0.03em;
+}
+html.tp-on a.news-link::after { content: "\203A"; font-size: 18px; line-height: 1; }
+html.tp-on a.news-link:hover { filter: brightness(1.08); transform: translateY(-1px); }
