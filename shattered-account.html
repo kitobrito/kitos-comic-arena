@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-K64P68MT');</script>
+<!-- End Google Tag Manager -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account | Shattered Realms</title>
+  <meta name="description" content="Sign in to or create your Shattered Realms account: see your rank, RP and record, and play signed in.">
+  <meta property="og:title" content="Account | Shattered Realms">
+  <meta property="og:description" content="Sign in to or create your Shattered Realms account: see your rank, RP and record, and play signed in.">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#090d16">
+  <link rel="icon" href="/assets/images/shatteredrealmslogo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://shattered-realms.onrender.com" crossorigin>
+  <link rel="stylesheet" href="/styles/tri-portal.css?v=tri-1" />
+  <link rel="stylesheet" href="/styles/shattered-portal.css?v=tri-1" />
+  <script src="/scripts/tri-portal.js?v=tri-1"></script>
+</head>
+<body class="tp-native" data-sr-page="account">
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-K64P68MT"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+  <div class="tp-wrap">
+    <div class="tp-grid">
+      <aside class="tp-rail tp-rail-left" data-sr-rail="left" aria-label="Shattered Realms navigation"></aside>
+      <main class="tp-center" id="main">
+
+        <section class="tp-card" data-sr-guest>
+          <span class="tp-eyebrow">Shattered Realms account</span>
+          <h1 class="tp-h1">Sign in to the realms</h1>
+          <p class="tp-lede">Your Shattered Realms account is the same one you use in the game, on itch.io and on Android. It's separate from your Comic-Arena / Pok&eacute;mon-Arena account.</p>
+          <div class="sr-account" style="margin-top:18px">
+            <form class="tp-card tp-card-2" data-sr-auth-form novalidate>
+              <div class="tp-tabs" role="tablist" aria-label="Sign in or register">
+                <button class="tp-tab" type="button" role="tab" data-sr-mode="login">Sign in</button>
+                <button class="tp-tab" type="button" role="tab" data-sr-mode="register">Create account</button>
+              </div>
+              <label class="tp-label" for="sr-name">Player name</label>
+              <input class="tp-field" id="sr-name" name="name" type="text" autocomplete="username" required minlength="3" maxlength="16" pattern="[A-Za-z0-9_]{3,16}" placeholder="3-16 letters, numbers or _">
+              <label class="tp-label" for="sr-pass">Password</label>
+              <input class="tp-field" id="sr-pass" name="password" type="password" autocomplete="current-password" required minlength="8" maxlength="128" placeholder="At least 8 characters">
+              <div data-sr-confirm hidden>
+                <label class="tp-label" for="sr-confirm">Confirm password</label>
+                <input class="tp-field" id="sr-confirm" name="confirm" type="password" autocomplete="new-password" minlength="8" maxlength="128">
+              </div>
+              <button class="tp-btn tp-btn-block" type="submit" data-sr-submit>Sign in</button>
+              <p class="tp-status" data-sr-auth-status aria-live="polite"></p>
+            </form>
+            <div class="tp-card tp-card-2">
+              <h2 class="tp-title">What you get</h2>
+              <ul class="sr-list">
+                <li><b>Ranked play.</b> Your tier, RP and promotion series follow you on every device.</li>
+                <li><b>Unlocks that stick.</b> Legendaries, boards and sets you win stay unlocked.</li>
+                <li><b>One sign-in.</b> Sign in here and the game on this site opens signed in.</li>
+                <li><b>Your vote counts once.</b> Realm votes are tied to your account.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+        <section class="tp-card" data-sr-profile hidden>
+          <span class="tp-eyebrow">Your profile</span>
+          <div data-sr-profile-body></div>
+        </section>
+      </main>
+      <aside class="tp-rail tp-rail-right" data-sr-rail="right" aria-label="Ladder and community"></aside>
+    </div>
+  </div>
+  <footer class="tp-footer">
+    <span>Arena Portal &middot; Comic-Arena, Pok&eacute;mon-Arena and Shattered Realms. Free to play.</span>
+    <nav aria-label="Footer">
+      <a href="/comic">Comic-Arena</a>
+      <a href="/pokemon">Pok&eacute;mon-Arena</a>
+      <a href="/shattered">Shattered Realms</a>
+      <a href="/split">Split view</a>
+      <a href="/shattered-news">Patch notes</a>
+      <a href="https://fadeawaytoday.itch.io/shattered-realms-tcg" target="_blank" rel="noopener noreferrer">itch.io</a>
+    </nav>
+  </footer>
+  <script src="/scripts/shattered-portal.js?v=tri-1" defer></script>
+</body>
+</html>
