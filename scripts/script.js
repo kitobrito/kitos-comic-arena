@@ -19098,7 +19098,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         'mew',
         'chikorita',
         'cyndaquil',
-        'totodile',
+        'totodile', 'blaziken',
         'nincada',
         'darkrai',
         'scraggy',

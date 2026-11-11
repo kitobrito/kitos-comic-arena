@@ -5447,6 +5447,53 @@ const POKEMON_ONIX_MISSION_ENTRY = {
     sortOrder: 16,
 };
 
+const POKEMON_BLAZIKEN_MISSION_ENTRY = {
+    missionId: 'blaziken-blazing-kick-trial',
+    title: 'Blaziken Blazing Kick Trial',
+    level_requirement: 10,
+    rank: '10',
+    reward_character: 'blaziken',
+    reward_character_name: 'Blaziken',
+    reward: 'Unlock Blaziken.',
+    unlock_point_cost: 300,
+    arena: 'pokemon',
+    mode_restriction: {
+        allowed_modes: ['quick', 'ladder'],
+    },
+    win_streak: {
+        character_id: '',
+        character_name: '',
+        wins: 0,
+    },
+    image: 'assets/images/PokemonArena/missionpics/blaziken.webp',
+    imageAlt: 'Blaziken mission artwork',
+    characterName: 'Blaziken',
+    portrait: 'assets/images/PokemonArena/blaziken/blazikenfp.webp',
+    portraitAlt: 'Blaziken portrait',
+    requirements: [
+        'Master the flames of two Fire starters.',
+        'Win 10 Quick or Ladder matches with Charmander and win 4 in a row with Charmander.',
+        'Win 10 Quick or Ladder matches with Cyndaquil and win 4 in a row with Cyndaquil.',
+        'Bot and human opponents both count.',
+    ],
+    goals: [
+        { type: 'win_matches', character_id: 'charmander', character_name: 'Charmander', wins: 10 },
+        { type: 'win_streak', character_id: 'charmander', character_name: 'Charmander', wins: 4 },
+        { type: 'win_matches', character_id: 'cyndaquil', character_name: 'Cyndaquil', wins: 10 },
+        { type: 'win_streak', character_id: 'cyndaquil', character_name: 'Cyndaquil', wins: 4 },
+    ],
+    special_pve: {
+        enabled: false,
+        buttonLabel: 'Start Fight',
+        botName: 'Mission Bot',
+        botTeamCharacterId: '',
+        botTeamSize: 3,
+        backgroundImage: '',
+        playerTeamCharacterIds: [],
+    },
+    sortOrder: 234,
+};
+
 const POKEMON_AEGISLASH_MISSION_ENTRY = {
     missionId: 'aegislash-kings-shield-trial',
     title: "Aegislash King's Shield Trial",
@@ -6258,6 +6305,7 @@ const ensureRequiredMissionCatalogEntries = (missions = []) => {
     upsertRequiredMission(POKEMON_AERODACTYL_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'aerodactyl');
     upsertRequiredMission(POKEMON_ONIX_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'onix');
     upsertRequiredMission(POKEMON_AEGISLASH_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'aegislash');
+    upsertRequiredMission(POKEMON_BLAZIKEN_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'blaziken');
     upsertRequiredMission(POKEMON_DITTO_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'ditto');
     upsertRequiredMission(POKEMON_SCRAGGY_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'scraggy');
     upsertRequiredMission(POKEMON_DRAGAPULT_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'dragapult');

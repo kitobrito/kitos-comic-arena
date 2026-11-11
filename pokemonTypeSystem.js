@@ -47,6 +47,7 @@ const POKEMON_CHARACTER_TYPES = Object.freeze({
     chikorita: ['Grass'],
     totodile: ['Water'],
     aegislash: ['Steel', 'Ghost'],
+    blaziken: ['Fire', 'Fighting'],
     ditto: ['Normal'],
     scraggy: ['Dark', 'Fighting'],
     dragapult: ['Dragon', 'Ghost'],
@@ -108,6 +109,7 @@ const skillsByType = {
         'lance-dragonite-2-extreme-speed', 'lance-dragonite-2-safeguard',
     ],
     Fire: [
+        'blaziken-smoldering-roundhouse', 'blaziken-fiery-roar', 'blaziken-passive-mega-blaziken', 'blaziken-blaze-kick',
         'charmander-ember', 'charmander-flamethrower', 'charmander-passive-evolution-charmeleon',
         'charmander-fire-punch', 'charmander-charmeleon-flamethrower',
         'charmander-charizard-x-fire-punch', 'charmander-charizard-x-flamethrower',
@@ -151,6 +153,7 @@ const skillsByType = {
         'articuno-snowstorm',
     ],
     Fighting: [
+        'blaziken-sky-uppercut', 'blaziken-arm-guard',
         'machop-brick-break', 'machop-counter', 'machop-bulk-up',
         'machop-passive-evolution-machoke', 'machoke-brick-break', 'machoke-counter',
         'machoke-bulk-up', 'hitmonlee-double-kick', 'hitmonlee-high-jump-kick',

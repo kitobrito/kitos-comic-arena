@@ -385,7 +385,7 @@ test('Pokemon roster presentation is Trainer first and then National Pokedex ord
         'drowzee','krabby','marowak','hitmonlee','hitmonchan','koffing','chansey','mr-mime','scyther','pinsir',
         'tauros','magikarp','ditto',
         'eevee','vaporeon','jolteon','flareon','aerodactyl','articuno','zapdos','moltres','dragonite',
-        'mewtwo','mew','chikorita','cyndaquil','totodile','nincada','darkrai','scraggy','aegislash','dragapult',
+        'mewtwo','mew','chikorita','cyndaquil','totodile','blaziken','nincada','darkrai','scraggy','aegislash','dragapult',
     ];
     const root = path.resolve(__dirname, '..');
     const selectionSource = fs.readFileSync(path.join(root, 'scripts', 'script.js'), 'utf8');
