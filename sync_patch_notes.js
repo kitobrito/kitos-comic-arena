@@ -29,7 +29,28 @@ const NO_ZOOM = [
     p('In battle on phones, double tapping now works like double clicking: double tap an empty spot to take back the last skill you confirmed, or double tap the skill itself, its small icon on your character, or its icon in the turn order to take that one back. Double clicking the small icon on your character works on computers too now.'),
 ];
 
+const IPHONE_TEAM_TAP = [
+    p('iPhone: double tapping a character in Your Team now removes them every time, and double tapping a character in the roster adds them. iPhones could swallow the first of the two taps, so the second one only highlighted the character instead of removing or adding it.'),
+];
+
 const POSTS = [
+    {
+        releaseVersion: 'patch-2026-11-12-pidgey-fix-iphone-team-pokemon',
+        title: 'Pokemon Arena: Pidgey\'s New Costs Are Live, iPhone Team Fix',
+        arena: 'pokemon',
+        author: 'kito',
+        blocks: [
+            p('Pidgey and Pidgeotto\'s all-random costs and cooldowns from the last update are now actually in the game. An old saved copy of Pidgey on the server was still overriding them, so you kept seeing the old costs. Gust: 1 random, 1 turn cooldown. Whirlwind: 2 random (3 for Pidgeotto), 5 turn cooldown. Peck: 2 random, 1 turn cooldown.'),
+            ...IPHONE_TEAM_TAP,
+        ],
+    },
+    {
+        releaseVersion: 'patch-2026-11-12-iphone-team-comic',
+        title: 'Comic Arena: iPhone Team Fix',
+        arena: 'comic',
+        author: 'kito',
+        blocks: [...IPHONE_TEAM_TAP],
+    },
     {
         releaseVersion: 'patch-2026-11-12-aerodactyl-rework',
         title: 'Pokemon Arena: Aerodactyl Reworked, Mega Aerodactyl Arrives',

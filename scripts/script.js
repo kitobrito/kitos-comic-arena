@@ -19943,6 +19943,11 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         persistTeamSelection();
     };
 
+    // When the selection screen last turned a quick double tap into a double click (see the touchend
+    // handler further down). Phone roster tiles otherwise ignore double clicks (they add on a second tap).
+    let syntheticSelectionDblclickAt = 0;
+    const isSyntheticSelectionDoubleTap = () => Date.now() - syntheticSelectionDblclickAt < 100;
+
     // Phones: the slot armed by a first tap (see handleSelectedSlotClick).
     const TEAM_DOUBLE_TAP_MS = 900;
     let armedTeamTap = null;
@@ -20611,10 +20616,12 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 cancelSelectionPreview();
                 if (
                     document.documentElement.classList.contains('selection-experimental') &&
-                    isPhoneTouchSelection()
+                    isPhoneTouchSelection() &&
+                    !isSyntheticSelectionDoubleTap()
                 ) {
                     return;
                 }
+                mobileRosterTapIndex = null;
                 if (listItem.classList.contains('slot-empty')) return;
                 if (!Number.isInteger(rosterIndex)) return;
                 if (document.documentElement.classList.contains('selection-experimental')) {
@@ -20861,6 +20868,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         slot.addEventListener('drop', (event) => handleSelectedSlotDrop(event, slotIndex));
         slot.addEventListener('dblclick', () => {
             cancelSelectionPreview();
+            disarmTeamTap();
             handleSelectedSlotDoubleClick(slotIndex);
         });
         slot.addEventListener('pointerenter', () => {
@@ -20991,7 +20999,22 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         target?.dispatchEvent(new MouseEvent('click', {
             bubbles: true, cancelable: true, view: window, button: 0, clientX: touch.clientX, clientY: touch.clientY,
         }));
+        // Then the double click itself. An iPhone can swallow the FIRST tap's click as part of the
+        // double tap, so the second click alone would only "arm" a team slot or roster tile; the
+        // double click removes / adds no matter what. (If the first click did arrive, the second
+        // click already removed / added and this double click finds nothing left to do.)
+        syntheticSelectionDblclickAt = Date.now();
+        target?.dispatchEvent(new MouseEvent('dblclick', {
+            bubbles: true, cancelable: true, view: window, button: 0, detail: 2, clientX: touch.clientX, clientY: touch.clientY,
+        }));
     }, { passive: false });
+    // A browser that also fires its own dblclick for the same double tap must not act twice.
+    if (!isIngamePage) document.addEventListener('dblclick', (event) => {
+        if (event.isTrusted && Date.now() - syntheticSelectionDblclickAt < 600) {
+            event.stopImmediatePropagation();
+            event.preventDefault();
+        }
+    }, true);
     [lastPageButton, nextPageButton].filter(Boolean).forEach((button) => {
         button.addEventListener('dblclick', (event) => event.preventDefault());
     });

@@ -477,3 +477,32 @@ test('battle polish outlines black energy and signs without routine queue-sync p
     assert.doesNotMatch(script, /match state changed while that skill was being queued/);
     assert.match(ingame, /scripts\/script\.js\?v=pokemon-battle-polish-v2/);
 });
+
+test('a stored Pidgey override cannot bring back the old Gust/Whirlwind/Peck costs and cooldowns', () => {
+    const canonicalPidgey = characters.find((character) => character.id === 'pidgey');
+    const randomOnlyIds = ['pidgey-gust', 'pidgey-whirlwind', 'pidgey-peck', 'pidgeotto-gust', 'pidgeotto-whirlwind', 'pidgeotto-peck'];
+    const stalePidgey = {
+        ...JSON.parse(JSON.stringify(canonicalPidgey)),
+        customCharacterOverride: true,
+    };
+    stalePidgey.skills.forEach((skill) => {
+        if (randomOnlyIds.includes(skill.id)) {
+            skill.energy = ['Taijutsu', 'Ninjutsu'];
+            skill.cooldown = 0;
+            skill.customSkillOverride = true;
+        }
+    });
+
+    const [corrected] = applyRequiredCanonicalSkillCorrections([stalePidgey], [canonicalPidgey]);
+    randomOnlyIds.forEach((id) => {
+        const fixed = corrected.skills.find((skill) => skill.id === id);
+        const canonical = canonicalPidgey.skills.find((skill) => skill.id === id);
+        assert.ok(fixed, id);
+        assert.deepEqual(fixed.energy, canonical.energy, `${id} energy`);
+        assert.equal(fixed.cooldown, canonical.cooldown, `${id} cooldown`);
+        assert.ok(fixed.energy.every((e) => e === 'Random'), `${id} is random-only`);
+    });
+    // The evolution passive's description still comes from characters.js too.
+    const passive = corrected.skills.find((skill) => skill.id === 'pidgey-passive-evolution-pidgeotto');
+    assert.equal(passive.skilldescription, canonicalPidgey.skills.find((s) => s.id === passive.id).skilldescription);
+});
