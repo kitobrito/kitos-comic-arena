@@ -23,7 +23,27 @@ const BATTLE_FX = [
     p('The Skill animations and Death animations switches in the battle options still turn all of this off.'),
 ];
 
+const NO_ZOOM = [
+    p('Phones held upright no longer zoom on the character select screen or in battle. Tapping the arrows quickly (or double tapping anywhere) used to zoom into the background and throw the whole screen out of place. Pinching won\'t zoom there either. Turn your phone sideways if you want to pinch-zoom.'),
+    p('Character select: tapping the page arrows quickly now just flips through more pages, even on the first and last page. Double tapping a character in your team removes it again (it was getting swallowed by the zoom).'),
+    p('In battle on phones, double tapping now works like double clicking: double tap an empty spot to take back the last skill you confirmed, or double tap the skill itself, its small icon on your character, or its icon in the turn order to take that one back. Double clicking the small icon on your character works on computers too now.'),
+];
+
 const POSTS = [
+    {
+        releaseVersion: 'patch-2026-11-12-no-zoom-pokemon',
+        title: 'Pokemon Arena: No More Accidental Zoom on Phones',
+        arena: 'pokemon',
+        author: 'kito',
+        blocks: [...NO_ZOOM],
+    },
+    {
+        releaseVersion: 'patch-2026-11-12-no-zoom-comic',
+        title: 'Comic Arena: No More Accidental Zoom on Phones',
+        arena: 'comic',
+        author: 'kito',
+        blocks: [...NO_ZOOM],
+    },
     {
         releaseVersion: 'patch-2026-11-12-pidgey-random-pokemon',
         title: 'Pokemon Arena: Pidgey Goes All Random',

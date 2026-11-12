@@ -1,3 +1,27 @@
+// Portrait phones: no zooming at all on the game screens (selection and battle). A double tap or
+// a pinch used to zoom into the fixed-size layout and wreck it. Landscape keeps pinch-zoom.
+(function lockPortraitZoom() {
+    const portraitQuery = window.matchMedia ? window.matchMedia('(orientation: portrait)') : null;
+    const isPortrait = () => Boolean(portraitQuery?.matches);
+    const viewport = document.querySelector('meta[name="viewport"]');
+    const baseViewport = viewport?.getAttribute('content') || 'width=device-width, initial-scale=1.0';
+    const syncViewport = () => {
+        if (!viewport) return;
+        viewport.setAttribute('content', isPortrait()
+            ? 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'
+            : baseViewport);
+    };
+    syncViewport();
+    portraitQuery?.addEventListener?.('change', syncViewport);
+    // iOS Safari ignores user-scalable=no, so stop the pinch itself.
+    const stopGesture = (event) => { if (isPortrait()) event.preventDefault(); };
+    document.addEventListener('gesturestart', stopGesture, { passive: false });
+    document.addEventListener('gesturechange', stopGesture, { passive: false });
+    document.addEventListener('touchmove', (event) => {
+        if (isPortrait() && event.touches.length > 1) event.preventDefault();
+    }, { passive: false });
+})();
+
 document.addEventListener('DOMContentLoaded', async () => {
     const usernamesMatch = (left, right) =>
         typeof left === 'string' &&
@@ -15146,10 +15170,52 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             cancelQueuedSkillForActor(mostRecentActorSlot);
         };
 
+        // Phones don't send dblclick reliably: two quick taps in the same spot count as one, so every
+        // double-click gesture in battle (unqueue the last skill from empty space, unqueue a skill
+        // from its icon, its small queued icon on the portrait, or the turn-order strip) works by touch.
+        let lastBattleTap = null;
+        let syntheticBattleDblclickAt = 0;
+        document.addEventListener('touchend', (event) => {
+            if (event.touches.length || event.changedTouches.length !== 1) return;
+            const touch = event.changedTouches[0];
+            const now = Date.now();
+            if (lastBattleTap && now - lastBattleTap.time < 380
+                && Math.hypot(touch.clientX - lastBattleTap.x, touch.clientY - lastBattleTap.y) < 32) {
+                lastBattleTap = null;
+                const tapTarget = document.elementFromPoint(touch.clientX, touch.clientY) || event.target;
+                syntheticBattleDblclickAt = now;
+                tapTarget?.dispatchEvent(new MouseEvent('dblclick', {
+                    bubbles: true, cancelable: true, button: 0, clientX: touch.clientX, clientY: touch.clientY,
+                }));
+                return;
+            }
+            lastBattleTap = { time: now, x: touch.clientX, y: touch.clientY };
+        }, { passive: true });
+        // A browser that also fires its own dblclick for the same double tap must not undo twice.
+        document.addEventListener('dblclick', (event) => {
+            if (event.isTrusted && Date.now() - syntheticBattleDblclickAt < 600) {
+                event.stopImmediatePropagation();
+                event.preventDefault();
+            }
+        }, true);
+
         document.addEventListener('dblclick', (event) => {
             if (activeChoicePopupMode === 'turn-start-target') return;
             const target = event.target;
             if (!target?.closest) return;
+            // The small queued-skill icon on one of your portraits: unqueue that character's skill.
+            const queueIcon = target.closest('.player-characters .skillqueue');
+            if (queueIcon) {
+                const card = queueIcon.closest('.character-card');
+                const actorSlot = Array.from(document.querySelectorAll('.player-characters .character-card')).indexOf(card);
+                if (actorSlot >= 0 && getQueuedSkillForActorSlot(actorSlot)) {
+                    event.preventDefault();
+                    clearActiveSkillTargeting();
+                    updateSkillBrowserActiveIcon(null);
+                    cancelQueuedSkillForActor(actorSlot);
+                }
+                return;
+            }
             const interactiveTarget = target.closest(
                 [
                     'button',
@@ -20311,12 +20377,16 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         if (lastPageButton) {
             const canGoBack = currentRosterPage > 0;
             lastPageButton.style.opacity = canGoBack ? '1' : '0.45';
-            lastPageButton.style.pointerEvents = canGoBack ? 'auto' : 'none';
+            // Dimmed, but still catching taps: if it stopped taking them, a fast second tap would
+            // fall through to the background and the phone would double-tap zoom the whole page.
+            lastPageButton.classList.toggle('page-end', !canGoBack);
+            lastPageButton.setAttribute('aria-disabled', canGoBack ? 'false' : 'true');
         }
         if (nextPageButton) {
             const canGoNext = currentRosterPage < totalPages - 1;
             nextPageButton.style.opacity = canGoNext ? '1' : '0.45';
-            nextPageButton.style.pointerEvents = canGoNext ? 'auto' : 'none';
+            nextPageButton.classList.toggle('page-end', !canGoNext);
+            nextPageButton.setAttribute('aria-disabled', canGoNext ? 'false' : 'true');
         }
     };
 
@@ -20867,6 +20937,32 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
     });
 
     syncArenaModeButtons();
+
+    // Phones: a quick second tap on a page arrow is just another page turn, never a double-tap
+    // zoom (which blows up the whole selection screen). Taps on the empty background around the
+    // roster can't zoom either; pinch-to-zoom still works.
+    const DOUBLE_TAP_MS = 400;
+    [lastPageButton, nextPageButton].filter(Boolean).forEach((button) => {
+        let lastTap = 0;
+        button.addEventListener('touchend', (event) => {
+            const now = Date.now();
+            if (now - lastTap < DOUBLE_TAP_MS) {
+                event.preventDefault();
+                button.click();
+            }
+            lastTap = now;
+        }, { passive: false });
+        button.addEventListener('dblclick', (event) => event.preventDefault());
+    });
+    let lastBackgroundTap = 0;
+    document.addEventListener('touchend', (event) => {
+        if (event.touches.length || event.changedTouches.length !== 1) return;
+        const target = event.target;
+        const interactive = target?.closest?.('a, button, input, select, textarea, label, [role="button"], [contenteditable], .nextpage, .lastpage, .slot-item, .selected-character-slot, .character-portrait, .skill-image');
+        const now = Date.now();
+        if (!interactive && now - lastBackgroundTap < DOUBLE_TAP_MS) event.preventDefault();
+        lastBackgroundTap = interactive ? 0 : now;
+    }, { passive: false });
 
     if (nextPageButton) {
         nextPageButton.addEventListener('click', () => {

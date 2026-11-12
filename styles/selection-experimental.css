@@ -2764,3 +2764,31 @@ html.selection-experimental body.matchmaking-active .sound-controller {
         transition-duration: 0.01ms !important;
     }
 }
+
+/* Phones: no double-tap zoom on the selection screen (it blew up the fixed-size layout when the
+   page arrows were tapped quickly). touch-action: manipulation keeps scrolling and pinch-zoom. */
+html.selection-experimental,
+html.selection-experimental body,
+html.selection-experimental .nextpage,
+html.selection-experimental .lastpage {
+    touch-action: manipulation;
+}
+html.selection-experimental .nextpage,
+html.selection-experimental .lastpage {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+}
+html.selection-experimental .nextpage.page-end,
+html.selection-experimental .lastpage.page-end {
+    cursor: default;
+}
+
+/* Portrait phones: no zoom at all (pinch included); scrolling still works. */
+@media (orientation: portrait) {
+    html.selection-experimental,
+    html.selection-experimental body {
+        touch-action: pan-x pan-y;
+    }
+}

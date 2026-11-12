@@ -995,3 +995,16 @@ html.battle-experimental .backgroundingame:-webkit-full-screen {
         scroll-behavior: auto;
     }
 }
+
+/* Battle: no double-tap zoom (two quick taps are a double-click gesture here: unqueue a skill),
+   and in portrait no zoom at all, pinch included. Scrolling still works. */
+html,
+body {
+    touch-action: manipulation;
+}
+@media (orientation: portrait) {
+    html,
+    body {
+        touch-action: pan-x pan-y;
+    }
+}
