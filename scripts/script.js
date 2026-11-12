@@ -1666,7 +1666,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         nincada: 'nincada.png.webp',
         drowzee: 'drowzee.png.webp',
         abra: 'ABRA.png.webp',
-        aerodactyl: 'AERODACTYL.png.webp',
+        aerodactyl: 'aerodactyl-rework.webp',
         articuno: 'ARTICUNO.png.webp',
         beedrill: '015BeedrillRB.webp.webp',
         bulbasaur: 'BULBASAUR.png.webp',
@@ -1781,6 +1781,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
     const POKEMON_SELECTION_EVOLUTION_RENDER_BY_ID = Object.freeze({
         aegislash: { name: 'Blade Stance', filename: 'aegislashnopassive.webp', label: 'Blade Stance' },
         abra: { name: 'Kadabra', filename: 'kadabra.png.webp' },
+        aerodactyl: { name: 'Mega Aerodactyl', filename: 'megaaerodactyl.webp', label: 'Mega' },
         beedrill: { name: 'Mega Beedrill', filename: 'megabeedrill.png.webp' },
         blaziken: { name: 'Mega Blaziken', filename: 'megablaziken.webp', label: 'Mega' },
         bulbasaur: { name: 'Ivysaur', filename: 'ivysaur.png.webp' },
@@ -5168,8 +5169,23 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             return Math.max(0, Number(cooldowns[skillId]) || 0);
         };
 
+        // Area skills (the whole enemy team, or a splash on the other enemies), as in battleLogic.js.
+        const AREA_EFFECT_SCOPES = new Set(['all-enemy', 'other-enemies', 'all-other-enemies']);
+        const isAreaSkill = (skill) => {
+            if (!skill) return false;
+            if (String(skill.target || '').trim().toLowerCase() === 'all-enemy') return true;
+            return (Array.isArray(skill.effects) ? skill.effects : []).some((effect) => {
+                const scope = String(effect?.scope || '').trim().toLowerCase();
+                if (!AREA_EFFECT_SCOPES.has(scope)) return false;
+                return effect?.type === 'damage' || effect?.type === 'health_steal_damage' || Boolean(effect?.metadata?.harmful);
+            });
+        };
+
         const isSkillBlockedByHelpfulHarmfulLock = (actorUnit, skill) => {
             const statuses = Array.isArray(actorUnit?.state?.statuses) ? actorUnit.state.statuses : [];
+            if (statuses.some((status) => status?.metadata?.cannotUseAoeSkills) && isAreaSkill(skill)) {
+                return true;
+            }
             const harmful = skillHasHarmfulEffects(skill);
             if (statuses.some((status) => status?.metadata?.cannotUseHarmfulSkills) && harmful) {
                 return true;
@@ -19009,6 +19025,10 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             Object.values(JOHTO_STARTER_MIDDLE_EVOLUTION_SKILL_BY_ID).includes(skill?.id)
         ) {
             return 'evolution-2';
+        }
+        // Mega Aerodactyl's Rock Blast passive shows the Mega form.
+        if (forms.some((form) => form.id === 'evolution') && skillId === 'aerodactyl-passive-rock-blast') {
+            return 'evolution';
         }
         // Mega Blaziken's own skill (it replaces Fiery Roar once Blaziken Mega Evolves).
         if (forms.some((form) => form.id === 'evolution') && skillId === 'blaziken-blaze-kick') {

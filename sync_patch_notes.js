@@ -31,6 +31,21 @@ const NO_ZOOM = [
 
 const POSTS = [
     {
+        releaseVersion: 'patch-2026-11-12-aerodactyl-rework',
+        title: 'Pokemon Arena: Aerodactyl Reworked, Mega Aerodactyl Arrives',
+        arena: 'pokemon',
+        author: 'kito',
+        blocks: [
+            p('Aerodactyl has a brand new kit, new artwork and a Mega Evolution. (Lance\'s Aerodactyl is unchanged.)'),
+            p('Gust (1 random, cooldown 3): for 2 turns, the enemy team can\'t use skills that hit more than one enemy, and your team\'s skills that hit more than one enemy deal 5 more damage. While Mega Evolved, Gust also deals 10 damage to the enemy team.'),
+            p('Dragon Breath (1 green, cooldown 1): deals 10 affliction damage to the enemy team, and 10 more on your next turn. While Mega Evolved, the first hit deals 10 bonus damage.'),
+            p('Hyper Beam (3 random, cooldown 1): deals 40 damage to one enemy and 10 to the others. While Mega Evolved, the others take 10 bonus damage.'),
+            p('Giga Impact (2 random, cooldown 4, Control): Aerodactyl becomes invulnerable for 1 turn and marks an enemy. When the mark ends, if that enemy can still be targeted, both of them take 30 damage and the enemy is stunned for 1 turn. Aerodactyl\'s own damage from this can\'t kill it, and if the enemy dodges (for example by becoming invulnerable), neither takes damage.'),
+            p('Mega Aerodactyl: if Giga Impact deals damage, Aerodactyl Mega Evolves for the rest of the game, heals 10 health, powers up its skills and gains Rock Blast: every skill it uses deals 5 piercing damage to the enemy team on each of its next 2 turns, and this stacks.'),
+            p('Mega Aerodactyl also has its own artwork on the character select screen: tap the Mega dot under Aerodactyl.'),
+        ],
+    },
+    {
         releaseVersion: 'patch-2026-11-12-lance-team-skills',
         title: 'Pokemon Arena: Lance\'s Team in Character Files',
         arena: 'pokemon',
