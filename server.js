@@ -8595,8 +8595,12 @@ const mergeCharacterOverrideRecord = (baseCharacter, overrideCharacter) => {
 const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonicalCharacters = []) => {
     const requiredFieldsByCharacterAndSkill = {
         // Pidgey uses only Random energy: costs and cooldowns always come from characters.js.
-        pidgey: Object.fromEntries(['pidgey-gust', 'pidgey-whirlwind', 'pidgey-peck', 'pidgeotto-gust', 'pidgeotto-whirlwind', 'pidgeotto-peck']
-            .map((id) => [id, ['energy', 'cooldown']])),
+        // (One pidgey entry only: a second `pidgey:` key further down used to silently replace this one.)
+        pidgey: {
+            ...Object.fromEntries(['pidgey-gust', 'pidgey-whirlwind', 'pidgey-peck', 'pidgeotto-gust', 'pidgeotto-whirlwind', 'pidgeotto-peck']
+                .map((id) => [id, ['energy', 'cooldown']])),
+            'pidgey-passive-evolution-pidgeotto': ['skilldescription'],
+        },
         magnemite: {
             'magneton-flash-cannon': ['skilldescription'],
         },
@@ -8641,9 +8645,6 @@ const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonical
             'machoke-counter': ['skilldescription', 'energy', 'target', 'cooldown', 'classes', 'effects'],
             'machoke-bulk-up': ['skilldescription', 'energy', 'target', 'cooldown', 'classes', 'effects'],
             'machoke-taunt': ['skilldescription', 'energy', 'target', 'cooldown', 'classes', 'effects'],
-        },
-        pidgey: {
-            'pidgey-passive-evolution-pidgeotto': ['skilldescription'],
         },
         gastly: {
             'gastly-passive-evolution-haunter': ['skilldescription'],
