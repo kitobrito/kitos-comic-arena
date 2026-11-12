@@ -87,7 +87,7 @@ const skillsByType = {
         'flareon-double-team', 'magikarp-tackle', 'magikarp-splash', 'magikarp-flail',
         'magikarp-struggle', 'gyarados-hyper-beam', 'gyarados-hyper-beam-affliction',
         'mr-mime-safeguard', 'hitmonchan-mega-punch', 'hitmonlee-focus-energy',
-        'hitmonlee-mega-kick', 'aerodactyl-take-down', 'aerodactyl-double-edge',
+        'hitmonlee-mega-kick', 'aerodactyl-hyper-beam', 'aerodactyl-giga-impact',
         'magnemite-swift', 'onix-harden', 'meowth-pay-day', 'meowth-fury-swipes',
         'meowth-fake-out', 'meowth-passive-evolution-persian', 'persian-pay-day',
         'persian-fury-swipes', 'persian-fake-out', 'clefairy-metronome',
@@ -180,6 +180,7 @@ const skillsByType = {
         'tauros-earthquake',
     ],
     Flying: [
+        'aerodactyl-gust',
         'pidgey-gust', 'pidgey-peck', 'pidgeotto-gust', 'pidgeotto-peck', 'zapdos-flight',
         'lance-dragonite-1-roost', 'lance-charizard-air-slash', 'lance-aerodactyl-aerial-ace',
     ],
@@ -202,7 +203,7 @@ const skillsByType = {
         'pinsir-x-scissor', 'pinsir-struggle-bug', 'pinsir-mega-pinsir-passive',
     ],
     Rock: [
-        'aerodactyl-rock-slide', 'aerodactyl-stone-edge', 'aerodactyl-passive-tough-head',
+        'aerodactyl-passive-mega-aerodactyl', 'aerodactyl-passive-rock-blast',
         'onix-rock-throw', 'onix-stealth-rock', 'onix-passive-sturdy', 'pinsir-rock-tomb',
         'lance-aerodactyl-rock-slide', 'lance-aerodactyl-ancient-power',
     ],
@@ -213,6 +214,7 @@ const skillsByType = {
         'drowzee-nightmare', 'hypno-nightmare', 'darkrai-shadow-sneak',
     ],
     Dragon: [
+        'aerodactyl-dragon-breath',
         'charmander-dragon-claw', 'charmander-charizard-x-dragon-claw',
         'charmander-charizard-y-dragon-claw', 'gyarados-dragon-rage', 'dragonite-dragon-claw',
         'dragonite-draco-meteor', 'dragonite-dragon-boost', 'dragonite-pressure',

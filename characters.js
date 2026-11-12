@@ -28811,209 +28811,253 @@ const characters = [
         "characterId": "aerodactyl",
         "name": "Aerodactyl",
         "facePicture": "assets/images/PokemonArena/aerodactyl/fp.webp",
-        "startStatuses": [
-            {
-                "statusId": "aerodactyl_tough_head_passive",
-                "sourceSkillId": "aerodactyl-passive-tough-head",
-                "duration": 99,
-                "metadata": {
-                    "infiniteDuration": true,
-                    "minimumHpFromSelfSkillDamage": 1,
-                    "selfSkillHealthLossShieldStatusId": "aerodactyl_tough_head_defense",
-                    "selfSkillHealthLossShieldStatusIconUrl": "assets/images/PokemonArena/aerodactyl/passive.png",
-                    "selfSkillHealthLossShieldTooltipTextTemplate": "Aerodactyl has {destructibleDefensePoints} destructible defense from Rock Head.",
-                    "statusIconUrl": "assets/images/PokemonArena/aerodactyl/passive.png",
-                    "tooltipText": "Aerodactyl's own skills that make it lose HP instead grant the same amount as destructible defense. Aerodactyl's own self-damage skills cannot kill it."
-                }
-            }
-        ],
+        "startStatuses": [],
         "skills": [
             {
-                "id": "aerodactyl-take-down",
-                "name": "Take Down",
-                "skillimage": "assets/images/PokemonArena/aerodactyl/takedown.webp",
-                "skilldescription": "Deals 20 damage to one enemy. Aerodactyl loses 10 HP that cannot kill it. Rock Head converts that lost HP into destructible defense.",
+                "id": "aerodactyl-gust",
+                "name": "Gust",
+                "skillimage": "assets/images/PokemonArena/aerodactyl/gust.webp",
+                "skilldescription": "For 2 turns, the enemy team cannot use skills that hit more than one enemy, and Aerodactyl's team's skills that hit more than one enemy deal 5 additional damage. While Mega Evolved, this also deals 10 damage to the enemy team.",
                 "energy": [
                     "Random"
                 ],
-                "target": "single-enemy",
+                "target": "all-enemy",
                 "damage": 0,
-                "cooldown": 0,
+                "cooldown": 3,
                 "classes": [
-                    "Normal",
-                    "Physical",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 20,
-                        "scope": "target"
-                    },
-                    {
-                        "type": "HealthLoss",
-                        "amount": 10,
-                        "scope": "self"
-                    }
-                ]
-            },
-            {
-                "id": "aerodactyl-rock-slide",
-                "name": "Rock Slide",
-                "skillimage": "assets/images/PokemonArena/aerodactyl/rockslide.webp",
-                "skilldescription": "Deals 10 damage to the enemy team. Aerodactyl then consumes all destructible defense from Rock Head to deal bonus damage equal to the amount consumed to the main target. Each enemy has a 30% chance to have their harmful skills stunned for 1 turn.",
-                "energy": [
-                    "Genjutsu"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 2,
-                "classes": [
-                    "Rock",
-                    "Physical",
+                    "Flying",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "damage",
                         "amount": 10,
-                        "scope": "all-enemy"
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 0,
-                        "scope": "target",
+                        "scope": "all-enemy",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "aerodactyl_mega_evolution"
+                        },
                         "metadata": {
-                            "bonusPerStatusMetadata": {
-                                "statusId": "aerodactyl_tough_head_defense",
-                                "metadataKey": "destructibleDefensePoints",
-                                "multiplier": 1,
-                                "scope": "self",
-                                "consumeStatus": true
-                            }
+                            "noAreaBonus": true
                         }
                     },
                     {
                         "type": "apply_status",
-                        "statusId": "aerodactyl_rock_slide_harmful_stun",
-                        "duration": 1,
+                        "statusId": "aerodactyl_gust_grounded",
+                        "duration": 2,
                         "scope": "all-enemy",
-                        "chance": 30,
                         "metadata": {
                             "harmful": true,
-                            "cannotUseHarmfulSkills": true,
-                            "statusIconUrl": "assets/images/PokemonArena/aerodactyl/rockslide.webp",
-                            "tooltipText": "This character's harmful skills are stunned."
+                            "cannotUseAoeSkills": true,
+                            "statusIconUrl": "assets/images/PokemonArena/aerodactyl/gust.webp",
+                            "tooltipText": "Gust: this character can't use skills that hit more than one enemy."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "aerodactyl_gust_tailwind",
+                        "duration": 2,
+                        "scope": "all-allies",
+                        "metadata": {
+                            "aoeSkillDamageBonusFlat": 5,
+                            "statusIconUrl": "assets/images/PokemonArena/aerodactyl/gust.webp",
+                            "tooltipText": "Gust: this character's skills that hit more than one enemy deal 5 additional damage."
                         }
                     }
                 ]
             },
             {
-                "id": "aerodactyl-double-edge",
-                "name": "Double Edge",
-                "skillimage": "assets/images/PokemonArena/aerodactyl/doubleedge.webp",
-                "skilldescription": "Deals 35 damage to one enemy. Aerodactyl loses 15 HP that cannot kill it. Rock Head converts that lost HP into destructible defense.",
+                "id": "aerodactyl-dragon-breath",
+                "name": "Dragon Breath",
+                "skillimage": "assets/images/PokemonArena/aerodactyl/dragonbreath.webp",
+                "skilldescription": "Deals 10 affliction damage to the enemy team for 2 turns. While Mega Evolved, the first hit deals 10 bonus affliction damage.",
+                "energy": [
+                    "Taijutsu"
+                ],
+                "target": "all-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Dragon",
+                    "Special",
+                    "Affliction",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "afflictionDamage": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "all-enemy",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "aerodactyl_mega_evolution"
+                        },
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "noAreaBonus": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "aerodactyl_dragon_breath",
+                        "duration": 1,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "harmful": true,
+                            "turnEndDamage": 10,
+                            "afflictionDamage": true,
+                            "triggerOnApply": false,
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "statusIconUrl": "assets/images/PokemonArena/aerodactyl/dragonbreath.webp",
+                            "tooltipText": "Dragon Breath: this character takes 10 affliction damage this turn."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "aerodactyl-hyper-beam",
+                "name": "Hyper Beam",
+                "skillimage": "assets/images/PokemonArena/aerodactyl/hyperbeam.webp",
+                "skilldescription": "Deals 40 damage to one enemy and 10 damage to the other enemies. While Mega Evolved, the other enemies take 10 bonus damage.",
+                "energy": [
+                    "Random",
+                    "Random",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Normal",
+                    "Special",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 40,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "other-enemies"
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "other-enemies",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "aerodactyl_mega_evolution"
+                        },
+                        "metadata": {
+                            "noAreaBonus": true
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "aerodactyl-giga-impact",
+                "name": "Giga Impact",
+                "skillimage": "assets/images/PokemonArena/aerodactyl/gigaimpact.webp",
+                "skilldescription": "Aerodactyl becomes invulnerable for 1 turn and marks one enemy. When the mark ends, if that enemy can still be targeted, Aerodactyl and the target take 30 damage and the target is stunned for 1 turn. Aerodactyl's own damage from this can't kill it, and if the target can't be targeted, neither takes damage.",
                 "energy": [
                     "Random",
                     "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 3,
+                "cooldown": 4,
                 "classes": [
                     "Normal",
                     "Physical",
+                    "Control",
                     "Instant"
                 ],
                 "effects": [
                     {
-                        "type": "damage",
-                        "amount": 35,
-                        "scope": "target"
-                    },
-                    {
-                        "type": "HealthLoss",
-                        "amount": 15,
-                        "scope": "self"
-                    }
-                ]
-            },
-            {
-                "id": "aerodactyl-stone-edge",
-                "name": "Stone Edge",
-                "skillimage": "assets/images/PokemonArena/aerodactyl/stoneedge.webp",
-                "skilldescription": "Deals 35 damage to one enemy. This skill has a 30% chance to stun that enemy's skills for 2 turns. Aerodactyl consumes all destructible defense from Rock Head to add the same amount as bonus stun chance for this use. If the stun lands, it counts as a crit and deals 5 additional damage and becomes piercing.",
-                "energy": [
-                    "Genjutsu",
-                    "Random"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 2,
-                "classes": [
-                    "Rock",
-                    "Physical",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 35,
-                        "scope": "target"
-                    },
-                    {
                         "type": "apply_status",
-                        "statusId": "aerodactyl_stone_edge_stun",
-                        "duration": 2,
-                        "scope": "target",
-                        "chance": 30,
-                        "metadata": {
-                            "chancePerStatusMetadata": {
-                                "statusId": "aerodactyl_tough_head_defense",
-                                "metadataKey": "destructibleDefensePoints",
-                                "multiplier": 1,
-                                "scope": "self"
-                            },
-                            "critBonusDamage": 5,
-                            "harmful": true,
-                            "cannotUseSkills": true,
-                            "statusIconUrl": "assets/images/PokemonArena/aerodactyl/stoneedge.webp",
-                            "tooltipText": "This character's skills are stunned."
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 0,
-                        "scope": "target",
-                        "metadata": {
-                            "ignoreDamageReduction": true,
-                            "bonusPerStatusMetadata": {
-                                "statusId": "aerodactyl_stone_edge_stun",
-                                "metadataKey": "critBonusDamage",
-                                "multiplier": 1,
-                                "scope": "target"
-                            }
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "aerodactyl_stone_edge_consumed",
+                        "statusId": "aerodactyl_giga_impact_flight",
                         "duration": 1,
                         "scope": "self",
                         "metadata": {
-                            "hidden": true,
-                            "removeStatusIdsOnApply": [
-                                "aerodactyl_tough_head_defense"
-                            ]
+                            "invulnerable": true,
+                            "statusIconUrl": "assets/images/PokemonArena/aerodactyl/gigaimpact.webp",
+                            "tooltipText": "Giga Impact: Aerodactyl is invulnerable."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "aerodactyl_giga_impact_mark",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "endIfSourceDies": true,
+                            "statusIconUrl": "assets/images/PokemonArena/aerodactyl/gigaimpact.webp",
+                            "tooltipText": "Giga Impact: when this ends, if this character can be targeted, it and Aerodactyl take 30 damage and it is stunned for 1 turn.",
+                            "gigaImpact": {
+                                "damage": 30,
+                                "selfDamage": 30,
+                                "stun": 1,
+                                "skillClasses": [
+                                    "Normal",
+                                    "Physical"
+                                ],
+                                "stunIconUrl": "assets/images/PokemonArena/aerodactyl/gigaimpact.webp",
+                                "onHitApplyStatusToSource": {
+                                    "statusId": "aerodactyl_mega_evolution",
+                                    "duration": 999,
+                                    "metadata": {
+                                        "infiniteDuration": true,
+                                        "unremovable": true,
+                                        "healOnApplyFlat": 10,
+                                        "facePictureOverride": "assets/images/PokemonArena/aerodactyl/megafp.webp",
+                                        "statusIconUrl": "assets/images/PokemonArena/aerodactyl/megafp.webp",
+                                        "tooltipText": "Aerodactyl has Mega Evolved: its skills are stronger, and every skill it uses deals 5 piercing damage to the enemy team for 2 turns (Rock Blast, stacks).",
+                                        "onOwnerSkillUseExtraEffects": [
+                                            {
+                                                "type": "apply_status",
+                                                "statusId": "aerodactyl_rock_blast",
+                                                "duration": 2,
+                                                "scope": "all-enemy",
+                                                "metadata": {
+                                                    "harmful": true,
+                                                    "turnEndDamage": 5,
+                                                    "ignoreTargetDamageReduction": true,
+                                                    "ignoreTargetDestructibleDefense": true,
+                                                    "triggerOnApply": false,
+                                                    "turnEndTrigger": "source_turn",
+                                                    "turnDurationAnchor": "source_turn",
+                                                    "allowDuplicateStatusInstances": true,
+                                                    "statusIconUrl": "assets/images/PokemonArena/aerodactyl/rockblast.webp",
+                                                    "tooltipText": "Rock Blast: this character takes 5 piercing damage each turn."
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
                         }
                     }
                 ]
             },
             {
-                "id": "aerodactyl-passive-tough-head",
-                "name": "Passive: Rock Head",
-                "skillimage": "assets/images/PokemonArena/aerodactyl/passive.png",
-                "skilldescription": "Aerodactyl's own skills that cause it to lose health will instead grant it destructible defense equal to the health lost. This destructible defense is consumed directly by Rock Slide and Stone Edge, and Stone Edge turns that defense into extra stun chance.",
+                "id": "aerodactyl-passive-mega-aerodactyl",
+                "name": "Passive: Mega Aerodactyl",
+                "skillimage": "assets/images/PokemonArena/aerodactyl/megafp.webp",
+                "skilldescription": "If Aerodactyl deals damage to an enemy with Giga Impact, it Mega Evolves for the rest of the game: it heals 10 health, its skills improve, and it gains Rock Blast.",
                 "energy": [],
                 "target": "",
                 "damage": 0,
@@ -29023,14 +29067,32 @@ const characters = [
                     "Passive",
                     "Instant"
                 ]
+            },
+            {
+                "id": "aerodactyl-passive-rock-blast",
+                "name": "Passive: Rock Blast",
+                "skillimage": "assets/images/PokemonArena/aerodactyl/rockblast.webp",
+                "skilldescription": "Mega Aerodactyl only. Every time Aerodactyl uses a skill, it deals 5 piercing damage to the enemy team for 2 turns afterwards. This stacks.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Rock",
+                    "Passive",
+                    "Instant"
+                ],
+                "actorCondition": {
+                    "statusId": "aerodactyl_mega_evolution"
+                }
             }
         ],
-        "role": "Bruiser",
+        "role": "AOE DPS",
         "universe": "pokemon",
         "arena": "pokemon",
-        "roleCategory": "bruiser",
-        "description": "A prehistoric flying striker that converts its own recoil into destructible defense, then cashes that defense out through Rock Slide pressure and Stone Edge finishers.",
-        "descriptionHtml": "A prehistoric flying striker that converts its own recoil into destructible defense, then cashes that defense out through Rock Slide pressure and Stone Edge finishers.",
+        "roleCategory": "aoe-dps",
+        "description": "A prehistoric sky tyrant that grounds the enemy team's area attacks with Gust, scorches everyone with Dragon Breath and Hyper Beam, and dives in with Giga Impact to Mega Evolve. Mega Aerodactyl rains Rock Blast on the enemy team with every skill.",
+        "descriptionHtml": "A prehistoric sky tyrant that grounds the enemy team's area attacks with Gust, scorches everyone with Dragon Breath and Hyper Beam, and dives in with Giga Impact to Mega Evolve. Mega Aerodactyl rains Rock Blast on the enemy team with every skill.",
         "pokemonTypes": [
             "Rock",
             "Flying"

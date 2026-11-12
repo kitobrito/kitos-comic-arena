@@ -1682,6 +1682,7 @@ const hasActiveStunLikeEffect = (actorState) =>
                 metadata.cannotUseSkills ||
                 metadata.cannotUseHarmfulSkills ||
                 metadata.cannotUseHelpfulSkills ||
+                metadata.cannotUseAoeSkills ||
                 metadata.cannotUseNonMentalSkills ||
                 (Array.isArray(metadata.cannotUseSkillClasses) &&
                     metadata.cannotUseSkillClasses.length > 0) ||
@@ -2882,6 +2883,11 @@ const resolveEffectDamageAmount = ({
     const sourceTotals = getStatusMetadataTotals(actorState);
     const classScopedSourceTotals = getSourceClassScopedDamageModifiers(actorState, effectiveSkillClasses);
     amount += (Number(sourceTotals.damageBonusFlat) || 0) - (Number(sourceTotals.damageDebuffFlat) || 0);
+    // Area damage (the enemy team or the other enemies) gets the source's area bonus (Aerodactyl's Gust).
+    // (A skill's extra hit on the same targets, e.g. a Mega bonus, sets noAreaBonus so it isn't counted twice.)
+    if (AREA_EFFECT_SCOPES.has(String(effect?.scope || '').trim().toLowerCase()) && !effect?.metadata?.noAreaBonus) {
+        amount += Math.max(0, Number(getStatusMetadataSum(actorState, 'aoeSkillDamageBonusFlat')) || 0);
+    }
     amount += resolveStatusMetadataThresholdAdjustment({
         actorState,
         targetState,
@@ -3880,6 +3886,7 @@ const isHarmfulEffect = (effect) => {
                 metadata.cannotUseSkills ||
                 metadata.cannotUseHelpfulSkills ||
                 metadata.cannotUseHarmfulSkills ||
+                metadata.cannotUseAoeSkills ||
                 metadata.cannotUseNonMentalSkills ||
                 metadata.useChosenSkillClassForCannotUseSkillClasses ||
                 (Array.isArray(metadata.cannotUseSkillClasses) && metadata.cannotUseSkillClasses.length > 0) ||
@@ -3889,6 +3896,19 @@ const isHarmfulEffect = (effect) => {
         );
     }
     return false;
+};
+
+// An area skill hits more than one enemy: it targets the whole enemy team, or one of its harmful
+// effects lands on the enemy team / the other enemies (e.g. a splash).
+const AREA_EFFECT_SCOPES = new Set(['all-enemy', 'other-enemies', 'all-other-enemies']);
+const isAreaSkill = (skill) => {
+    if (!skill) return false;
+    if (String(skill.target || '').trim().toLowerCase() === 'all-enemy') return true;
+    return (Array.isArray(skill.effects) ? skill.effects : []).some((effect) => {
+        const scope = String(effect?.scope || '').trim().toLowerCase();
+        if (!AREA_EFFECT_SCOPES.has(scope)) return false;
+        return isHarmfulEffect(effect);
+    });
 };
 
 const skillHasHarmfulEffects = (skill) => {
@@ -7276,6 +7296,10 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
             refundSkippedQueuedAction();
             continue;
         }
+        if (hasStatusMetadataFlag(actorState, 'cannotUseAoeSkills') && isAreaSkill(skill)) {
+            refundSkippedQueuedAction();
+            continue;
+        }
         const blockedSkillClasses = new Set(
             (Array.isArray(actorState?.statuses) ? actorState.statuses : []).flatMap((status) => {
                 const remaining = Number(status?.remainingTurns) || 0;
@@ -7787,7 +7811,19 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 ignoreMaxUses: true,
             })
         ) continue;
-        const effects = withNextHarmfulSkillBonus({ actorState, skill, effects: baseEffects });
+        // A status can add effects to every skill its owner uses (Mega Aerodactyl's Rock Blast).
+        const onOwnerSkillUseEffects = queued?.isAutoCast
+            ? []
+            : (Array.isArray(actorState?.statuses) ? actorState.statuses : []).flatMap((status) =>
+                isStatusActiveForMetadata(status, actorUnit) && Array.isArray(status?.metadata?.onOwnerSkillUseExtraEffects)
+                    ? status.metadata.onOwnerSkillUseExtraEffects
+                    : []
+            );
+        const effects = withNextHarmfulSkillBonus({
+            actorState,
+            skill,
+            effects: onOwnerSkillUseEffects.length ? [...baseEffects, ...onOwnerSkillUseEffects] : baseEffects,
+        });
         const skillCannotBeCountered =
             Boolean(skill?.cannotBeCountered) || hasSkillClass(skill?.classes || [], 'uncounterable');
         const actingCharacterId = normalizeBattleCharacterId(actorCharacter) || null;
@@ -15400,6 +15436,79 @@ const triggerStoredStatusEffects = ({
                     fresh: false,
                 });
                 applyHealToUnit(sourceUnit, 10);
+            }
+        }
+        return;
+    }
+    // Aerodactyl's Giga Impact: when the mark ends, if the target can still be hit, it and Aerodactyl
+    // both take the damage (Aerodactyl's own share can't kill it) and the target is stunned. A hit that
+    // deals damage Mega Evolves Aerodactyl. A target that can't be hit spares both of them.
+    const gigaImpact = status?.metadata?.gigaImpact;
+    if (gigaImpact && typeof gigaImpact === 'object') {
+        const sourceUnit = status?.sourceUsername && Number.isInteger(status?.sourceSlot)
+            ? match.board?.[status.sourceUsername]?.[Number(status.sourceSlot)] || null
+            : null;
+        const sourceAlive = Boolean(sourceUnit && sourceUnit.alive !== false);
+        const targetable = targetUnit.alive !== false
+            && !isUnitBanished(targetUnit)
+            && !isUnitInvulnerableForSkill(targetUnit, Array.isArray(gigaImpact.skillClasses) ? gigaImpact.skillClasses : []);
+        if (!sourceAlive || !targetable) return;
+        const dealt = applyDamageToUnit(targetUnit, Math.max(0, Number(gigaImpact.damage) || 0), {
+            match,
+            sourceSkillId: status?.sourceSkillId || null,
+            sourceUsername: status.sourceUsername,
+            sourceSlot: Number(status.sourceSlot),
+            targetUsername,
+            targetSlot,
+        });
+        const selfDamage = Math.max(0, Number(gigaImpact.selfDamage) || 0);
+        if (selfDamage > 0) {
+            const sourceHp = Math.max(0, Number(sourceUnit.hp) || 0);
+            applyHealthLossToUnit(sourceUnit, Math.min(selfDamage, Math.max(0, sourceHp - 1)), {
+                match,
+                sourceSkillId: status?.sourceSkillId || null,
+                sourceUsername: status.sourceUsername,
+                sourceSlot: Number(status.sourceSlot),
+                targetUsername: status.sourceUsername,
+                targetSlot: Number(status.sourceSlot),
+            });
+        }
+        const stun = Math.max(0, Number(gigaImpact.stun) || 0);
+        if (stun > 0 && targetUnit.alive !== false) {
+            // During the end-of-turn tick the target's status list is rebuilt, so new statuses go
+            // through pendingStatuses (added after the tick), like other on-expire statuses.
+            applyStatus({
+                targetState: Array.isArray(pendingStatuses) ? { statuses: pendingStatuses } : targetState,
+                targetUnit,
+                statusId: `${status.id}_stun`,
+                duration: stun,
+                sourceSkillId: status?.sourceSkillId || null,
+                sourceUsername: status.sourceUsername,
+                sourceSlot: Number(status.sourceSlot),
+                metadata: {
+                    harmful: true,
+                    cannotUseSkills: true,
+                    statusIconUrl: gigaImpact.stunIconUrl || status?.metadata?.statusIconUrl || null,
+                    tooltipText: 'This character is stunned.',
+                },
+                fresh: false,
+            });
+        }
+        const mega = gigaImpact.onHitApplyStatusToSource;
+        if (dealt > 0 && mega?.statusId && sourceUnit.alive !== false) {
+            const sourceState = ensureUnitStateShape(sourceUnit);
+            if (!hasStatus(sourceState, mega.statusId)) {
+                applyStatus({
+                    targetState: sourceState,
+                    targetUnit: sourceUnit,
+                    statusId: mega.statusId,
+                    duration: Math.max(1, Number(mega.duration) || 999),
+                    sourceSkillId: status?.sourceSkillId || null,
+                    sourceUsername: status.sourceUsername,
+                    sourceSlot: Number(status.sourceSlot),
+                    metadata: { ...(mega.metadata || {}) },
+                    fresh: false,
+                });
             }
         }
         return;

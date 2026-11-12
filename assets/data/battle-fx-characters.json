@@ -4893,23 +4893,31 @@
    "defeat": "type/faint",
    "kill": "crush",
    "skills": {
-    "aerodactyl-take-down": {
-     "delivery": "melee",
-     "element": "normal",
-     "windup": null,
-     "travel": null,
-     "impact": "type/normal",
-     "kill": "shatter"
-    },
-    "aerodactyl-rock-slide": {
+    "aerodactyl-gust": {
      "delivery": "area",
-     "element": "rock",
+     "element": "flying",
      "windup": null,
      "travel": null,
-     "impact": "type/rock",
-     "kill": "crush"
+     "impact": "type/flying",
+     "kill": "gust"
     },
-    "aerodactyl-double-edge": {
+    "aerodactyl-dragon-breath": {
+     "delivery": "area",
+     "element": "dragon",
+     "windup": null,
+     "travel": null,
+     "impact": "type/dragon",
+     "kill": "dragon-claw"
+    },
+    "aerodactyl-hyper-beam": {
+     "delivery": "projectile",
+     "element": "normal",
+     "windup": null,
+     "travel": "type/normal",
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "aerodactyl-giga-impact": {
      "delivery": "melee",
      "element": "normal",
      "windup": null,
@@ -4917,15 +4925,14 @@
      "impact": "type/normal",
      "kill": "shatter"
     },
-    "aerodactyl-stone-edge": {
-     "delivery": "melee",
-     "element": "rock",
+    "aerodactyl-passive-mega-aerodactyl": {
+     "delivery": "passive",
      "windup": null,
      "travel": null,
-     "impact": "type/rock",
-     "kill": "crush"
+     "impact": null,
+     "kill": null
     },
-    "aerodactyl-passive-tough-head": {
+    "aerodactyl-passive-rock-blast": {
      "delivery": "passive",
      "windup": null,
      "travel": null,
