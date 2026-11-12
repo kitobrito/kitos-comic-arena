@@ -6,22 +6,19 @@ const path = require('node:path');
 const root = path.join(__dirname, '..');
 const script = fs.readFileSync(path.join(root, 'scripts', 'script.js'), 'utf8');
 
-test('a newly-applied status not already covered by a bespoke effect plays a buff/debuff sprite burst keyed off metadata.harmful', () => {
+test('a newly-applied status not already covered by a bespoke effect plays a buff/debuff burst in either arena, keyed off metadata.harmful', () => {
     assert.match(script, /let handled = false;/);
     assert.match(
         script,
-        /if \(\s*!handled &&\s*currentMatchArena === 'pokemon' &&\s*!status\?\.metadata\?\.infiniteDuration &&\s*!isPokemonEvolutionStatus\(status\)\s*\) \{/
+        /if \(\s*!handled &&\s*!status\?\.metadata\?\.infiniteDuration &&\s*!isPokemonEvolutionStatus\(status\)\s*\) \{\s*window\.BattleFX\?\.status\(card, Boolean\(status\?\.metadata\?\.harmful\)\);/
     );
-    assert.match(
-        script,
-        /key: status\?\.metadata\?\.harmful \? 'debuffApply' : 'buffApply',/
-    );
+    assert.doesNotMatch(script, /currentMatchArena === 'pokemon' &&\s*!status\?\.metadata\?\.infiniteDuration/);
 });
 
 test('every existing bespoke status effect branch marks the status handled so it does not also get a generic burst', () => {
     const forEachBlock = script.slice(
         script.indexOf('changedStatuses.forEach((status) => {'),
-        script.indexOf("key: status?.metadata?.harmful ? 'debuffApply' : 'buffApply',")
+        script.indexOf('window.BattleFX?.status(card, Boolean(status?.metadata?.harmful));')
     );
     const bespokeBranches = forEachBlock.match(/showTemporaryCardFx\(/g) || [];
     const handledMarks = forEachBlock.match(/handled = true;/g) || [];
@@ -33,9 +30,8 @@ test('every existing bespoke status effect branch marks the status handled so it
     );
 });
 
-test('the fallback burst positions itself from the character-face rect, matching the faint burst pattern', () => {
-    assert.match(
-        script,
-        /const face = card\.querySelector\('\.character-face'\);\s*const faceRect = \(face \|\| card\)\.getBoundingClientRect\(\);\s*playPokemonSpriteBurst\(\{\s*x: faceRect\.left \+ faceRect\.width \/ 2,\s*y: faceRect\.top \+ faceRect\.height \/ 2,\s*key: status\?\.metadata\?\.harmful/
-    );
+test('the engine centres the status burst on the character-face rect and picks the buff or debuff effect', () => {
+    const engine = fs.readFileSync(path.join(root, 'scripts', 'battle-fx.js'), 'utf8');
+    assert.match(engine, /const faceOf = \(card\) => card\?\.querySelector\?\.\('\.character-face'\) \|\| card;/);
+    assert.match(engine, /key: harmful \? 'type\/debuffApply' : 'type\/buffApply'/);
 });

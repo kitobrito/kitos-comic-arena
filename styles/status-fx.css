@@ -1,0 +1,884 @@
+/* Persistent character status overlays (scripts/script.js syncCharacterSpecificFx / syncStatusLayers).
+ *
+ * Every status draws its own layer sized to the portrait (--sfx-face, measured from the real
+ * .character-face, so phone and portrait layouts scale too). Layers never share the card's
+ * ::before/::after any more, so several statuses on one character all show at once.
+ *
+ * Zones, so stacked statuses don't collide:
+ *   over the face   tints, smoke, ice, webs, portals        (z 41-45)
+ *   around the face rings, orbits, auras                    (z 46-48)
+ *   corner badges   counters and icons (bomb, charges)      (z 49-50)
+ *   above the face  callouts (TAUNTED)                      (z 51)
+ * Lifecycle: .sfx-enter pops a layer in, .sfx-leave plays it out before it is removed.
+ * The enemy side is mirrored (scaleX(-1)), so text inside a layer (.sfx-text) is flipped back.
+ */
+
+.character-card {
+    --F: var(--sfx-face, 77px);
+}
+
+/* ---- Base layer and lifecycle ------------------------------------------------------ */
+.character-card > .sfx-layer {
+    position: absolute;
+    left: var(--sfx-face-x, 0px);
+    top: var(--sfx-face-y, 0px);
+    width: var(--F);
+    height: var(--F);
+    pointer-events: none;
+    z-index: 43;
+}
+.sfx-layer > i,
+.sfx-layer > svg {
+    position: absolute;
+    display: block;
+    font-style: normal;
+}
+.sfx-enter {
+    animation: sfx-in 420ms cubic-bezier(.2, 1.4, .4, 1) both !important;
+}
+.sfx-leave {
+    animation: sfx-out 300ms ease-in both !important;
+    pointer-events: none;
+}
+@keyframes sfx-in {
+    0% { opacity: 0; scale: 1.35; filter: brightness(2.2); }
+    60% { opacity: 1; filter: brightness(1.3); }
+    100% { opacity: 1; scale: 1; filter: none; }
+}
+@keyframes sfx-out {
+    to { opacity: 0; scale: .85; filter: blur(2px); }
+}
+.enemy-characters .sfx-text {
+    transform: scaleX(-1);
+}
+.sfx-text {
+    font: 900 calc(var(--F) * .12)/1 'Franklin', 'Arial Black', Arial, sans-serif;
+    letter-spacing: .06em;
+    color: #fff;
+    text-shadow: 1px 1px 0 #000, -1px 1px 0 #000;
+}
+
+/* The old single-layer versions are retired: the new layers draw these statuses. */
+.character-card.batman-smoke-fx::before,
+.character-card.spider-web-fx::before,
+.character-card.andrea-lock-fx::after,
+.character-card.smartgun-lock-fx::after,
+.character-card.angstrom-banish-fx::before,
+.character-card.storm-ice-fx::after,
+.character-card.rage-infected-fx::after,
+.character-card.mysterio-illusion-fx::before,
+.character-card.captain-shield-fx::before,
+.character-card.predator-cloak-fx::after {
+    content: none !important;
+    animation: none !important;
+}
+
+/* ---- Taunted: an angry red ring of spikes, and a TAUNTED! banner that shakes ----------- */
+.character-card.taunted-fx .character-face {
+    border-color: #ff2a1a;
+    box-shadow: 0 0 0 2px #ffe14a, 0 0 14px rgba(255, 40, 20, .9);
+    animation: none;
+}
+.sfx-taunted-fx { z-index: 46; }
+.sfx-taunted-fx .ring {
+    inset: -5px;
+    border-radius: 6px;
+    border: 2px solid #ff3a1f;
+    box-shadow: 0 0 10px #ff3a1f, inset 0 0 12px rgba(255, 58, 31, .55);
+    animation: sfx-taunt-ring 900ms ease-in-out infinite;
+}
+.sfx-taunted-fx .spike {
+    left: 50%;
+    top: 50%;
+    width: 4px;
+    height: calc(var(--F) * .16);
+    margin-left: -2px;
+    background: linear-gradient(#fff36a, #ff3a1f);
+    clip-path: polygon(50% 0, 100% 100%, 0 100%);
+    transform-origin: 50% 0;
+    animation: sfx-taunt-spike 900ms ease-in-out infinite;
+}
+.sfx-taunted-fx .spike.a { --r: 0deg; }
+.sfx-taunted-fx .spike.b { --r: 45deg; animation-delay: -110ms; }
+.sfx-taunted-fx .spike.c { --r: 90deg; animation-delay: -220ms; }
+.sfx-taunted-fx .spike.d { --r: 135deg; animation-delay: -330ms; }
+.sfx-taunted-fx .spike.e { --r: 180deg; animation-delay: -440ms; }
+.sfx-taunted-fx .spike.f { --r: 225deg; animation-delay: -550ms; }
+.sfx-taunted-fx .spike.g { --r: 270deg; animation-delay: -660ms; }
+.sfx-taunted-fx .spike.h { --r: 315deg; animation-delay: -770ms; }
+@keyframes sfx-taunt-ring { 50% { transform: scale(1.04); box-shadow: 0 0 16px #ff3a1f, inset 0 0 16px rgba(255, 58, 31, .7); } }
+@keyframes sfx-taunt-spike {
+    0%, 100% { transform: rotate(var(--r)) translateY(calc(var(--F) * -.62)); opacity: .9; }
+    50% { transform: rotate(var(--r)) translateY(calc(var(--F) * -.7)) scaleY(1.3); opacity: 1; }
+}
+.taunt-callout {
+    top: -24px;
+    z-index: 51;
+    animation: sfx-taunt-bob 1.2s ease-in-out infinite;
+}
+.taunt-callout span {
+    padding: 3px 9px 2px;
+    border: 2px solid #120400;
+    background: linear-gradient(180deg, #fff66a 0%, #ffb021 38%, #ff2e1a 74%, #a00d0d 100%);
+    font-size: 13px;
+    transform: rotate(-4deg);
+    clip-path: polygon(4% 0, 96% 6%, 100% 50%, 95% 100%, 3% 94%, 0 48%);
+    box-shadow: none;
+    filter: drop-shadow(0 2px 0 #000) drop-shadow(0 0 6px rgba(255, 46, 26, .85));
+    animation: sfx-taunt-shake 1.6s ease-in-out infinite;
+}
+.enemy-characters .taunt-callout span { transform: scaleX(-1) rotate(-4deg); }
+@keyframes sfx-taunt-bob { 50% { margin-top: -3px; } }
+@keyframes sfx-taunt-shake {
+    0%, 70%, 100% { translate: 0 0; }
+    74% { translate: -2px 0; } 78% { translate: 2px 0; } 82% { translate: -2px 0; } 86% { translate: 1px 0; }
+}
+
+/* ---- Batman: smoke bomb (thick drifting smoke) and pocket EMP (electric static) -------- */
+.character-card.batman-smoke-fx .character-face { filter: brightness(.55) saturate(.6) blur(.4px); }
+.sfx-batman-smoke-fx { overflow: visible; z-index: 44; }
+.sfx-batman-smoke-fx .puff {
+    width: calc(var(--F) * .78);
+    height: calc(var(--F) * .62);
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 40%, rgba(214, 220, 228, .92), rgba(120, 128, 140, .75) 45%, rgba(60, 64, 72, 0) 72%);
+    filter: blur(2px);
+    animation: sfx-smoke-drift 5.5s ease-in-out infinite;
+}
+.sfx-batman-smoke-fx .puff.a { left: -14%; top: 8%; }
+.sfx-batman-smoke-fx .puff.b { left: 34%; top: -6%; animation-delay: -1.1s; animation-duration: 6.2s; }
+.sfx-batman-smoke-fx .puff.c { left: 10%; top: 44%; animation-delay: -2.4s; }
+.sfx-batman-smoke-fx .puff.d { left: 46%; top: 38%; animation-delay: -3.3s; animation-duration: 6.8s; }
+.sfx-batman-smoke-fx .puff.e { left: 18%; top: 18%; width: calc(var(--F) * .6); animation-delay: -4.1s; opacity: .8; }
+@keyframes sfx-smoke-drift {
+    0%, 100% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: .85; }
+    33% { transform: translate(10%, -8%) scale(1.12) rotate(20deg); opacity: 1; }
+    66% { transform: translate(-8%, 6%) scale(.94) rotate(-14deg); opacity: .75; }
+}
+.character-card.batman-emp-fx .character-face { filter: saturate(.35) contrast(1.15) hue-rotate(180deg) brightness(.9); }
+.sfx-batman-emp-fx { overflow: hidden; z-index: 44; }
+.sfx-batman-emp-fx .arc {
+    inset: 0;
+    background: linear-gradient(90deg, transparent, #b9f3ff, #3fc4ff, transparent);
+    clip-path: polygon(0 40%, 18% 30%, 30% 52%, 46% 34%, 60% 58%, 78% 38%, 100% 50%, 100% 54%, 78% 42%, 60% 62%, 46% 38%, 30% 56%, 18% 34%, 0 44%);
+    filter: drop-shadow(0 0 3px #3fc4ff);
+    opacity: 0;
+    animation: sfx-emp-arc 1.4s steps(1) infinite;
+}
+.sfx-batman-emp-fx .arc.b { transform: rotate(68deg) scale(1.2); animation-delay: -.45s; }
+.sfx-batman-emp-fx .arc.c { transform: rotate(-38deg) scale(1.1) translateY(14%); animation-delay: -.9s; }
+.sfx-batman-emp-fx .scan {
+    left: 0; right: 0; height: 18%;
+    background: linear-gradient(transparent, rgba(120, 220, 255, .35), transparent);
+    animation: sfx-scan 1.8s linear infinite;
+}
+.sfx-batman-emp-fx .tag {
+    right: 3px; bottom: 3px;
+    padding: 1px 3px;
+    background: #0a2a3a;
+    border: 1px solid #3fc4ff;
+    color: #bdf1ff;
+    animation: sfx-blink 1s steps(2) infinite;
+}
+@keyframes sfx-emp-arc { 0% { opacity: 1; } 8% { opacity: 0; } 14% { opacity: .8; } 20%, 100% { opacity: 0; } }
+@keyframes sfx-scan { from { top: -20%; } to { top: 100%; } }
+@keyframes sfx-blink { 50% { opacity: .35; } }
+
+/* ---- Spider-Man: a web stretched over the portrait (strands + rings), the spider dangles -- */
+.character-card.spider-web-fx .character-face { filter: saturate(.85) brightness(.95); }
+.sfx-spider-web-fx { z-index: 44; }
+.sfx-spider-web-fx svg {
+    inset: -4%;
+    width: 108%;
+    height: 108%;
+    overflow: visible;
+    filter: drop-shadow(0 0 1px rgba(0, 0, 0, .9));
+    transform-origin: 0 0;
+    animation: sfx-web-sway 4s ease-in-out infinite;
+}
+.sfx-spider-web-fx path { fill: none; stroke: #f4f7ff; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.sfx-spider-web-fx .strands path { stroke-width: 1.4; }
+.sfx-spider-web-fx .rings path { stroke-width: 1.1; stroke-dasharray: none; opacity: .9; }
+.sfx-spider-web-fx .spider {
+    right: 14%;
+    top: 0;
+    width: 1px;
+    height: 46%;
+    background: rgba(255, 255, 255, .8);
+    transform-origin: 50% 0;
+    animation: sfx-spider-dangle 3.2s ease-in-out infinite;
+}
+.sfx-spider-web-fx .spider::after {
+    content: "";
+    position: absolute;
+    left: -4px;
+    bottom: -6px;
+    width: 9px;
+    height: 7px;
+    border-radius: 50% 50% 45% 45%;
+    background: #111;
+    box-shadow: 0 0 0 1px #c41d1d;
+}
+@keyframes sfx-web-sway { 50% { transform: skew(1.5deg, 1deg) scale(1.01); } }
+@keyframes sfx-spider-dangle { 0%, 100% { transform: rotate(6deg) scaleY(.9); } 50% { transform: rotate(-6deg) scaleY(1.05); } }
+
+/* ---- Andrea: sniper scope (rotating ticks, crosshair, blinking red dot) -------------- */
+.sfx-andrea-lock-fx { z-index: 46; }
+.sfx-andrea-lock-fx .scope {
+    inset: 6%;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 40, 40, .95);
+    box-shadow: 0 0 8px rgba(255, 30, 30, .8), inset 0 0 10px rgba(255, 30, 30, .35);
+    animation: sfx-scope-breathe 1.6s ease-in-out infinite;
+}
+.sfx-andrea-lock-fx .ticks {
+    inset: -2%;
+    border-radius: 50%;
+    background: repeating-conic-gradient(rgba(255, 50, 50, .9) 0 2deg, transparent 2deg 30deg);
+    -webkit-mask: radial-gradient(circle, transparent 60%, #000 61%, #000 66%, transparent 67%);
+    mask: radial-gradient(circle, transparent 60%, #000 61%, #000 66%, transparent 67%);
+    animation: sfx-spin 6s linear infinite;
+}
+.sfx-andrea-lock-fx .hair { background: rgba(255, 45, 45, .95); box-shadow: 0 0 4px #ff2d2d; }
+.sfx-andrea-lock-fx .hair.a { left: 50%; top: 0; width: 2px; height: 34%; margin-left: -1px; }
+.sfx-andrea-lock-fx .hair.b { left: 50%; bottom: 0; width: 2px; height: 34%; margin-left: -1px; }
+.sfx-andrea-lock-fx .hair.c { top: 50%; left: 0; height: 2px; width: 34%; margin-top: -1px; }
+.sfx-andrea-lock-fx .hair.d { top: 50%; right: 0; height: 2px; width: 34%; margin-top: -1px; }
+.sfx-andrea-lock-fx .dot {
+    left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px 0 0 -3px;
+    border-radius: 50%;
+    background: #ff1a1a;
+    box-shadow: 0 0 6px 2px #ff1a1a;
+    animation: sfx-blink .7s steps(2) infinite;
+}
+@keyframes sfx-scope-breathe { 50% { transform: scale(.94); } }
+@keyframes sfx-spin { to { transform: rotate(360deg); } }
+
+/* ---- Smartgun lock-on: HUD brackets clamp in, a scanline sweeps, LOCK tag -------------- */
+.sfx-smartgun-lock-fx { z-index: 46; --hud: #39ff9c; }
+.sfx-smartgun-lock-fx .bracket {
+    width: 28%;
+    height: 28%;
+    border: 0 solid var(--hud);
+    filter: drop-shadow(0 0 3px var(--hud));
+    animation: sfx-bracket-clamp 1.4s ease-in-out infinite;
+}
+.sfx-smartgun-lock-fx .bracket.a { left: 0; top: 0; border-left-width: 3px; border-top-width: 3px; --dx: -1; --dy: -1; }
+.sfx-smartgun-lock-fx .bracket.b { right: 0; top: 0; border-right-width: 3px; border-top-width: 3px; --dx: 1; --dy: -1; }
+.sfx-smartgun-lock-fx .bracket.c { left: 0; bottom: 0; border-left-width: 3px; border-bottom-width: 3px; --dx: -1; --dy: 1; }
+.sfx-smartgun-lock-fx .bracket.d { right: 0; bottom: 0; border-right-width: 3px; border-bottom-width: 3px; --dx: 1; --dy: 1; }
+.sfx-smartgun-lock-fx .scan {
+    left: 4%; right: 4%; height: 2px;
+    background: var(--hud);
+    box-shadow: 0 0 6px var(--hud);
+    opacity: .75;
+    animation: sfx-scan 1.6s ease-in-out infinite alternate;
+}
+.sfx-smartgun-lock-fx .tag {
+    left: 50%; top: -12px;
+    translate: -50% 0;
+    padding: 1px 4px;
+    background: rgba(0, 30, 16, .9);
+    border: 1px solid var(--hud);
+    color: var(--hud);
+    animation: sfx-blink 1.2s steps(2) infinite;
+}
+@keyframes sfx-bracket-clamp {
+    0%, 100% { transform: translate(calc(var(--dx) * 4px), calc(var(--dy) * 4px)); }
+    50% { transform: translate(0, 0); }
+}
+
+/* ---- Angstrom Levy: banished into a swirling dimensional portal ------------------------ */
+.character-card.angstrom-banish-fx .character-face {
+    filter: hue-rotate(80deg) saturate(1.4) brightness(.8);
+    opacity: .55;
+    transform: scale(.86);
+}
+.sfx-angstrom-banish-fx { z-index: 42; }
+.sfx-angstrom-banish-fx .portal {
+    inset: -12%;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, #2bff88, #0b3d2c, #9dff3f, #052e1d, #2bff88);
+    -webkit-mask: radial-gradient(circle, transparent 52%, #000 56%, #000 68%, transparent 72%);
+    mask: radial-gradient(circle, transparent 52%, #000 56%, #000 68%, transparent 72%);
+    filter: drop-shadow(0 0 6px #2bff88);
+    animation: sfx-spin 2.6s linear infinite;
+}
+.sfx-angstrom-banish-fx .portal.inner {
+    inset: 4%;
+    animation-direction: reverse;
+    animation-duration: 1.8s;
+    opacity: .7;
+}
+.sfx-angstrom-banish-fx .mote {
+    left: 50%; top: 50%; width: 4px; height: 4px;
+    border-radius: 50%;
+    background: #caff9d;
+    box-shadow: 0 0 6px #2bff88;
+    animation: sfx-mote-in 1.6s ease-in infinite;
+}
+.sfx-angstrom-banish-fx .mote.b { --a: 90deg; animation-delay: -.4s; }
+.sfx-angstrom-banish-fx .mote.c { --a: 180deg; animation-delay: -.8s; }
+.sfx-angstrom-banish-fx .mote.d { --a: 270deg; animation-delay: -1.2s; }
+@keyframes sfx-mote-in {
+    from { transform: rotate(var(--a, 0deg)) translateX(calc(var(--F) * .7)); opacity: 0; }
+    30% { opacity: 1; }
+    to { transform: rotate(calc(var(--a, 0deg) + 220deg)) translateX(0); opacity: 0; }
+}
+
+/* ---- Storm: sealed in an ice barrier (frost, jagged shards, glints) --------------------- */
+.character-card.storm-ice-fx .character-face { filter: saturate(.35) brightness(1.15) hue-rotate(165deg); }
+.sfx-storm-ice-fx { z-index: 44; }
+.sfx-storm-ice-fx .frost {
+    inset: 0;
+    border-radius: 3px;
+    background:
+        linear-gradient(135deg, rgba(225, 248, 255, .55), rgba(150, 210, 255, .18) 40%, rgba(225, 248, 255, .45)),
+        repeating-linear-gradient(62deg, transparent 0 9px, rgba(255, 255, 255, .18) 9px 10px);
+    border: 2px solid rgba(200, 240, 255, .85);
+    box-shadow: inset 0 0 12px rgba(180, 230, 255, .9), 0 0 10px rgba(120, 200, 255, .7);
+}
+.sfx-storm-ice-fx .shard {
+    width: 26%;
+    height: 34%;
+    background: linear-gradient(160deg, #ffffff, #a9e4ff 50%, #4ba9e6);
+    clip-path: polygon(50% 0, 100% 70%, 60% 100%, 20% 85%, 0 40%);
+    filter: drop-shadow(0 0 2px #fff);
+    opacity: .9;
+}
+.sfx-storm-ice-fx .shard.a { left: -8%; top: -10%; transform: rotate(-30deg); }
+.sfx-storm-ice-fx .shard.b { right: -8%; top: -8%; transform: rotate(35deg) scale(.9); }
+.sfx-storm-ice-fx .shard.c { left: -10%; bottom: -8%; transform: rotate(-150deg) scale(.8); }
+.sfx-storm-ice-fx .shard.d { right: -6%; bottom: -10%; transform: rotate(160deg); }
+.sfx-storm-ice-fx .shard.e { left: 38%; top: -16%; transform: scale(.6); }
+.sfx-storm-ice-fx .shard.f { right: -12%; top: 40%; transform: rotate(90deg) scale(.6); }
+.sfx-storm-ice-fx .glint {
+    width: 8px; height: 8px;
+    background: #fff;
+    clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
+    animation: sfx-twinkle 2.2s ease-in-out infinite;
+}
+.sfx-storm-ice-fx .glint.a { left: 20%; top: 18%; }
+.sfx-storm-ice-fx .glint.b { left: 70%; top: 58%; animation-delay: -.8s; }
+.sfx-storm-ice-fx .glint.c { left: 40%; top: 76%; animation-delay: -1.5s; }
+@keyframes sfx-twinkle { 0%, 100% { transform: scale(0) rotate(0deg); opacity: 0; } 50% { transform: scale(1) rotate(45deg); opacity: 1; } }
+
+/* ---- Rage infected: throbbing red veins, blood dripping, glowing eyes ------------------- */
+.character-card.rage-infected-fx .character-face { filter: sepia(.55) saturate(1.8) hue-rotate(-28deg) contrast(1.1); }
+.sfx-rage-infected-fx { overflow: hidden; z-index: 44; }
+.sfx-rage-infected-fx .veins {
+    inset: 0;
+    background:
+        radial-gradient(circle at 0 0, transparent 30%, rgba(160, 0, 0, .55) 31% 32%, transparent 33%),
+        radial-gradient(circle at 100% 100%, transparent 36%, rgba(160, 0, 0, .55) 37% 38%, transparent 39%),
+        radial-gradient(ellipse at 50% 50%, transparent 50%, rgba(120, 0, 0, .65) 100%);
+    animation: sfx-throb 900ms ease-in-out infinite;
+}
+.sfx-rage-infected-fx .drip {
+    top: -8%;
+    width: 5px;
+    height: 30%;
+    border-radius: 0 0 4px 4px;
+    background: linear-gradient(#5a0000, #c20d0d);
+    animation: sfx-drip 2.6s ease-in infinite;
+}
+.sfx-rage-infected-fx .drip.a { left: 14%; }
+.sfx-rage-infected-fx .drip.b { left: 38%; animation-delay: -.9s; height: 22%; }
+.sfx-rage-infected-fx .drip.c { left: 62%; animation-delay: -1.7s; }
+.sfx-rage-infected-fx .drip.d { left: 84%; animation-delay: -2.2s; height: 18%; }
+.sfx-rage-infected-fx .eyes {
+    left: 26%; top: 34%; width: 48%; height: 8%;
+    background: radial-gradient(circle at 20% 50%, #ff2a2a 0 18%, transparent 30%), radial-gradient(circle at 80% 50%, #ff2a2a 0 18%, transparent 30%);
+    filter: drop-shadow(0 0 4px #ff0000);
+    animation: sfx-blink 1.8s ease-in-out infinite;
+}
+@keyframes sfx-throb { 50% { opacity: .6; transform: scale(1.03); } }
+@keyframes sfx-drip { 0% { transform: scaleY(.2); transform-origin: 50% 0; opacity: 1; } 70% { transform: scaleY(1); opacity: 1; } 100% { transform: scaleY(1) translateY(30%); opacity: 0; } }
+
+/* ---- Mysterio: trapped under his fishbowl illusion, green mist swirling inside ---------- */
+.character-card.mysterio-illusion-fx .character-face { filter: hue-rotate(60deg) saturate(1.3) brightness(.95); }
+.sfx-mysterio-illusion-fx { z-index: 44; }
+.sfx-mysterio-illusion-fx .dome {
+    inset: -6%;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 60%, rgba(120, 255, 170, .08), rgba(80, 220, 140, .25) 70%, rgba(200, 255, 220, .5) 72%, transparent 76%);
+    border: 2px solid rgba(190, 255, 215, .7);
+    box-shadow: 0 0 12px rgba(80, 255, 150, .6), inset 0 0 14px rgba(80, 255, 150, .4);
+}
+.sfx-mysterio-illusion-fx .mist {
+    left: 10%; bottom: 4%;
+    width: 80%; height: 40%;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(110, 255, 160, .55), transparent 70%);
+    filter: blur(2px);
+    animation: sfx-mist-rise 3.2s ease-in-out infinite;
+}
+.sfx-mysterio-illusion-fx .mist.b { animation-delay: -1.1s; left: -4%; }
+.sfx-mysterio-illusion-fx .mist.c { animation-delay: -2.1s; left: 24%; }
+.sfx-mysterio-illusion-fx .glare {
+    left: 14%; top: 6%; width: 30%; height: 18%;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(255, 255, 255, .8), transparent 70%);
+    transform: rotate(-30deg);
+}
+@keyframes sfx-mist-rise { 0% { transform: translateY(10%) scale(.8); opacity: 0; } 40% { opacity: 1; } 100% { transform: translateY(-110%) scale(1.3); opacity: 0; } }
+
+/* ---- Captain America: vibranium ricochet mark (the shield circles the portrait) --------- */
+.character-card.captain-shield-fx .character-face { box-shadow: 0 0 0 2px #e8eef8, 0 0 10px rgba(80, 140, 255, .8); }
+.sfx-captain-shield-fx { z-index: 47; }
+.sfx-captain-shield-fx .trail {
+    inset: -10%;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    border-top-color: rgba(220, 230, 255, .9);
+    border-right-color: rgba(220, 230, 255, .35);
+    filter: drop-shadow(0 0 3px #7fb0ff);
+    animation: sfx-spin 1.6s linear infinite;
+}
+.sfx-captain-shield-fx .shield {
+    left: 50%; top: 50%;
+    width: 34%; height: 34%;
+    margin: -17% 0 0 -17%;
+    animation: sfx-shield-orbit 1.6s linear infinite;
+}
+.sfx-captain-shield-fx .shield b {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle, #1f4fd1 0 24%, #e6e6e6 25% 41%, #d0202a 42% 58%, #e6e6e6 59% 75%, #d0202a 76%);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .8);
+    animation: sfx-spin .5s linear infinite;
+}
+.sfx-captain-shield-fx .shield b::after {
+    content: "";
+    position: absolute;
+    left: 38%; top: 38%; width: 24%; height: 24%;
+    background: #fff;
+    clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+@keyframes sfx-shield-orbit {
+    from { transform: rotate(0deg) translateX(calc(var(--F) * .6)) rotate(0deg); }
+    to { transform: rotate(360deg) translateX(calc(var(--F) * .6)) rotate(-360deg); }
+}
+
+/* ---- Predator cloak: half-invisible, a heat-shimmer band rolls across, red laser dots ---- */
+.character-card.predator-cloak-fx .character-face { opacity: .42; filter: contrast(1.3) saturate(.6) hue-rotate(40deg); }
+.sfx-predator-cloak-fx { overflow: hidden; z-index: 44; }
+.sfx-predator-cloak-fx .shimmer {
+    top: -20%; bottom: -20%; width: 45%;
+    background: linear-gradient(90deg, transparent, rgba(190, 255, 230, .45), rgba(255, 255, 255, .7), rgba(190, 255, 230, .45), transparent);
+    transform: skewX(-18deg);
+    filter: blur(1px);
+    mix-blend-mode: screen;
+    animation: sfx-shimmer 2.4s ease-in-out infinite;
+}
+.sfx-predator-cloak-fx .tri {
+    width: 5px; height: 5px;
+    background: #ff2020;
+    clip-path: polygon(50% 0, 100% 100%, 0 100%);
+    filter: drop-shadow(0 0 3px #ff0000);
+    animation: sfx-blink .9s steps(2) infinite;
+}
+.sfx-predator-cloak-fx .tri.a { left: 30%; top: 34%; }
+.sfx-predator-cloak-fx .tri.b { left: 36%; top: 34%; animation-delay: -.1s; }
+.sfx-predator-cloak-fx .tri.c { left: 33%; top: 28%; animation-delay: -.2s; }
+@keyframes sfx-shimmer { from { left: -60%; } to { left: 120%; } }
+
+/* ---- Hulk rage: green fire licks up the portrait; at max rage it cracks and bursts ------ */
+.character-card.hulk-rage-high-fx .character-face { filter: saturate(1.35) contrast(1.08); box-shadow: 0 0 10px rgba(80, 255, 60, .75); }
+.sfx-hulk-rage-high-fx { z-index: 46; }
+.sfx-hulk-rage-high-fx .flame {
+    bottom: -6%;
+    width: 30%;
+    height: 50%;
+    border-radius: 50% 50% 20% 20% / 70% 70% 30% 30%;
+    background: radial-gradient(ellipse at 50% 90%, #eaffc4 0 10%, #7dff3a 30%, rgba(40, 170, 20, .8) 55%, transparent 72%);
+    filter: blur(1px);
+    transform-origin: 50% 100%;
+    mix-blend-mode: screen;
+    animation: sfx-flame 900ms ease-in-out infinite alternate;
+}
+.sfx-hulk-rage-high-fx .flame.a { left: -10%; }
+.sfx-hulk-rage-high-fx .flame.b { left: 14%; height: 40%; animation-delay: -.3s; }
+.sfx-hulk-rage-high-fx .flame.c { left: 36%; height: 56%; animation-delay: -.6s; }
+.sfx-hulk-rage-high-fx .flame.d { left: 58%; height: 42%; animation-delay: -.15s; }
+.sfx-hulk-rage-high-fx .flame.e { left: 80%; animation-delay: -.45s; }
+@keyframes sfx-flame { from { transform: scaleY(.75) skewX(-6deg); opacity: .7; } to { transform: scaleY(1.15) skewX(6deg); opacity: 1; } }
+.character-card.hulk-rage-max-fx .character-face { filter: saturate(1.6) contrast(1.15) brightness(1.05); box-shadow: 0 0 16px rgba(80, 255, 60, .95); }
+.sfx-hulk-rage-max-fx { z-index: 47; }
+.sfx-hulk-rage-max-fx .burst {
+    inset: -18%;
+    background: repeating-conic-gradient(rgba(150, 255, 90, .55) 0 6deg, transparent 6deg 22deg);
+    -webkit-mask: radial-gradient(circle, transparent 45%, #000 50%, transparent 72%);
+    mask: radial-gradient(circle, transparent 45%, #000 50%, transparent 72%);
+    animation: sfx-spin 5s linear infinite, sfx-throb 700ms ease-in-out infinite;
+}
+.sfx-hulk-rage-max-fx .crack {
+    background: #0c2b06;
+    box-shadow: 0 0 4px #7dff3a;
+    height: 2px;
+}
+.sfx-hulk-rage-max-fx .crack.a { left: 6%; top: 20%; width: 40%; transform: rotate(28deg); }
+.sfx-hulk-rage-max-fx .crack.b { right: 4%; top: 64%; width: 36%; transform: rotate(-34deg); }
+.sfx-hulk-rage-max-fx .crack.c { left: 34%; bottom: 8%; width: 28%; transform: rotate(70deg); }
+
+/* ---- Aquaman: a shark fin per stack, slicing through a ring of water ------------------- */
+.aquaman-sea-shark-ring {
+    left: calc(var(--sfx-face-x, 0px) - var(--F) * .14);
+    top: calc(var(--sfx-face-y, 0px) - var(--F) * .14);
+    width: calc(var(--F) * 1.28);
+    height: calc(var(--F) * 1.28);
+    z-index: 47;
+    animation: none;
+}
+.aquaman-sea-shark-ring .shark-water {
+    position: absolute;
+    inset: 4%;
+    border-radius: 50%;
+    border: 2px solid rgba(120, 225, 255, .55);
+    box-shadow: 0 0 8px rgba(40, 170, 230, .6), inset 0 0 8px rgba(40, 170, 230, .45);
+    animation: sfx-ripple 2.4s ease-out infinite;
+}
+.aquaman-sea-shark-ring .shark-water.b { animation-delay: -1.2s; }
+@keyframes sfx-ripple { 0% { transform: scale(.9); opacity: .9; } 100% { transform: scale(1.1); opacity: 0; } }
+.aquaman-sea-shark-fin {
+    left: 50%;
+    top: 50%;
+    width: 0;
+    height: 0;
+    margin: 0;
+    transform: none;
+    animation: sfx-fin-orbit 3.6s linear infinite;
+    animation-delay: calc(var(--fin-index, 0) * -3.6s / var(--fin-count, 1));
+}
+.aquaman-sea-shark-fin::before,
+.aquaman-sea-shark-fin::after { content: none; }
+.aquaman-sea-shark-fin .fin {
+    position: absolute;
+    left: -7px;
+    top: calc(var(--F) * -.64 - 14px);
+    width: 14px;
+    height: 16px;
+    background: linear-gradient(120deg, #0d2b3a 0%, #2a7d98 55%, #d9f6ff 56% 62%, #0b2433 63%);
+    clip-path: polygon(30% 0, 100% 100%, 0 100%);
+    filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .8));
+    transform-origin: 50% 100%;
+    animation: sfx-fin-bob 1.2s ease-in-out infinite;
+    animation-delay: calc(var(--fin-index, 0) * -.4s);
+}
+.aquaman-sea-shark-fin .wake {
+    position: absolute;
+    left: 2px;
+    top: calc(var(--F) * -.64 - 4px);
+    width: 26px;
+    height: 7px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse at 10% 50%, rgba(235, 252, 255, .95), rgba(110, 220, 255, .55) 40%, transparent 72%);
+    filter: blur(.5px);
+}
+.aquaman-sea-shark-fin.is-new .fin {
+    animation: sfx-fin-surface 700ms cubic-bezier(.2, 1.4, .4, 1) both, sfx-fin-bob 1.2s ease-in-out 700ms infinite;
+}
+@keyframes sfx-fin-orbit { to { transform: rotate(360deg); } }
+@keyframes sfx-fin-bob { 50% { transform: translateY(2px) scaleY(.85); } }
+@keyframes sfx-fin-surface { from { transform: translateY(14px) scaleY(0); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* ---- Joker's remote bomb: a lit bomb with a sparking fuse and a blinking detonator ------ */
+.joker-detonator-light {
+    left: auto;
+    right: calc(100% - var(--F) - 10px);
+    top: -12px;
+    width: 22px;
+    height: 22px;
+    z-index: 50;
+}
+.joker-detonator-light span {
+    position: relative;
+    border: 2px solid #050505;
+    background: radial-gradient(circle at 35% 30%, #5b5b6a, #15151c 60%);
+    box-shadow: 0 0 0 1px #6d1fd1, 0 0 10px rgba(255, 35, 35, .7);
+    animation: sfx-bomb-tick 1s ease-in-out infinite;
+}
+.joker-detonator-light span::before {
+    content: "";
+    position: absolute;
+    right: 1px; top: -5px;
+    width: 3px; height: 6px;
+    background: #a07a3a;
+    transform: rotate(30deg);
+}
+.joker-detonator-light span::after {
+    content: "";
+    position: absolute;
+    right: -3px; top: -9px;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #fff 0 20%, #ffd23a 35%, #ff4b1a 60%, transparent 70%);
+    animation: sfx-spark 160ms steps(2) infinite;
+}
+@keyframes sfx-bomb-tick { 0%, 100% { transform: scale(1); box-shadow: 0 0 0 1px #6d1fd1, 0 0 6px rgba(255, 35, 35, .5); } 50% { transform: scale(1.12); box-shadow: 0 0 0 1px #6d1fd1, 0 0 14px rgba(255, 35, 35, 1); } }
+@keyframes sfx-spark { 50% { transform: scale(1.4) rotate(45deg); } }
+
+/* ---- Rex Splode charges: a crackling energy orb with the count ------------------------- */
+.rex-charge-counter {
+    width: 26px;
+    height: 26px;
+    background: radial-gradient(circle at 35% 30%, #fff6b0, #ffb12a 35%, #f0461d 65%, #3a0b05 100%);
+    box-shadow: 0 0 10px rgba(255, 120, 30, .9), 0 0 0 2px rgba(255, 210, 120, .35);
+    z-index: 50;
+}
+.rex-charge-counter:not(.empty)::after {
+    content: "";
+    position: absolute;
+    inset: -5px;
+    border-radius: 50%;
+    border: 2px dashed rgba(255, 190, 80, .85);
+    animation: sfx-spin 2.4s linear infinite;
+}
+
+/* ---- Space Marine channel: a segmented charge bar with moving energy ------------------- */
+.space-marine-channel-bar {
+    width: var(--F);
+    height: 10px;
+    border: 1px solid #0b1a2a;
+    border-radius: 2px;
+    background: linear-gradient(#0d1520, #1b2838);
+    box-shadow: 0 0 6px rgba(74, 163, 255, .6);
+}
+.space-marine-channel-fill {
+    background: linear-gradient(90deg, rgba(74, 163, 255, .9), #c4e7ff),
+        repeating-linear-gradient(90deg, transparent 0 7px, rgba(0, 0, 0, .35) 7px 8px);
+    background-blend-mode: multiply;
+    box-shadow: 0 0 8px #4aa3ff;
+}
+
+/* ---- Scraggy's Focus Energy: glowing chi orbs ------------------------------------------ */
+.community-scraggy-focus-meter { top: 3px; z-index: 50; gap: 4px; }
+.community-scraggy-focus-meter .focus-pip {
+    width: 9px;
+    height: 9px;
+    border: 1px solid rgba(255, 255, 255, .7);
+    background: radial-gradient(circle at 35% 30%, #3a3a46, #14141b);
+}
+
+/* ---- Small finishes on the rest -------------------------------------------------------- */
+.xenomorph-facehugger-overlay img { animation: sfx-breathe 1.4s ease-in-out infinite; }
+@keyframes sfx-breathe { 50% { transform: scale(1.04, .97); } }
+
+@media (prefers-reduced-motion: reduce) {
+    .sfx-layer, .sfx-layer *, .aquaman-sea-shark-ring *, .taunt-callout, .taunt-callout span,
+    .joker-detonator-light span, .rex-charge-counter::after, .sfx-enter, .sfx-leave {
+        animation: none !important;
+    }
+}
+
+/* ---- Element overlays redrawn on the shared portrait box ------------------------------ */
+.character-card > .pokemon-ekans-toxic-status,
+.character-card > .pokemon-machop-bulk-up-status,
+.character-card > .flash-phase-speed-lines,
+.character-card > .seraphina-med-plus-overlay,
+.character-card > .negan-iron-scar-overlay,
+.character-card > .scorpion-poison-drops {
+    position: absolute;
+    left: var(--sfx-face-x, 0px);
+    top: var(--sfx-face-y, 0px);
+    right: auto;
+    bottom: auto;
+    width: var(--F);
+    height: var(--F);
+    margin: 0;
+    transform: none;
+    pointer-events: none;
+    overflow: visible;
+    background: none;
+    border: 0;
+    box-shadow: none;
+    filter: none;
+}
+.character-card > .pokemon-ekans-toxic-status > *,
+.character-card > .pokemon-machop-bulk-up-status > *,
+.character-card > .flash-phase-speed-lines > *,
+.character-card > .seraphina-med-plus-overlay > *,
+.character-card > .negan-iron-scar-overlay > *,
+.character-card > .scorpion-poison-drops > * {
+    position: absolute;
+    display: block;
+    inset: auto;
+    margin: 0;
+    border: 0;
+    box-shadow: none;
+    filter: none;
+    background: none;
+    transform: none;
+    animation: none;
+}
+
+/* Ekans' Toxic: poison bubbles boil up through a purple haze; two stacks boil harder. */
+.character-card > .pokemon-ekans-toxic-status { z-index: 44; }
+.pokemon-ekans-toxic-status .toxic-goo.goo-a {
+    inset: 0;
+    border-radius: 4px;
+    background: radial-gradient(ellipse at 50% 110%, rgba(160, 40, 220, .65), rgba(110, 20, 160, .25) 55%, transparent 75%);
+    animation: sfx-throb 1.6s ease-in-out infinite;
+}
+.pokemon-ekans-toxic-status .toxic-goo.goo-b {
+    left: 0; right: 0; bottom: 0; height: 22%;
+    background: linear-gradient(transparent, rgba(150, 30, 210, .8));
+    clip-path: polygon(0 40%, 12% 20%, 24% 45%, 38% 15%, 52% 42%, 66% 18%, 80% 44%, 92% 22%, 100% 38%, 100% 100%, 0 100%);
+    animation: sfx-goo 2s ease-in-out infinite alternate;
+}
+.pokemon-ekans-toxic-status .bubble {
+    bottom: 4%;
+    width: calc(var(--F) * .13);
+    height: calc(var(--F) * .13);
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #fff 0 12%, #e59cff 18%, #9b2fd6 55%, rgba(80, 10, 120, .6) 70%);
+    box-shadow: 0 0 6px rgba(190, 80, 255, .9);
+    animation: sfx-bubble 2.2s ease-in infinite;
+}
+.pokemon-ekans-toxic-status .bubble-a { left: 14%; }
+.pokemon-ekans-toxic-status .bubble-b { left: 40%; animation-delay: -.7s; scale: .7; }
+.pokemon-ekans-toxic-status .bubble-c { left: 62%; animation-delay: -1.3s; }
+.pokemon-ekans-toxic-status .bubble-d { left: 82%; animation-delay: -1.8s; scale: .6; }
+.pokemon-ekans-toxic-status[style*="--toxic-stack-count: 2"] .bubble { animation-duration: 1.3s; }
+@keyframes sfx-bubble { 0% { transform: translateY(0) scale(.4); opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { transform: translateY(calc(var(--F) * -.8)) scale(1.1); opacity: 0; } }
+@keyframes sfx-goo { to { transform: translateY(-8%) scaleY(1.2); } }
+
+/* Machop's Bulk Up: orange power rings pulse out and sparks rise; stronger with intensity. */
+.character-card > .pokemon-machop-bulk-up-status { z-index: 46; }
+.pokemon-machop-bulk-up-status .bulk-ring {
+    inset: 8%;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 150, 40, .9);
+    box-shadow: 0 0 10px rgba(255, 120, 20, .9);
+    animation: sfx-power-ring 1.5s ease-out infinite;
+}
+.pokemon-machop-bulk-up-status .ring-b { animation-delay: -.5s; }
+.pokemon-machop-bulk-up-status .ring-c { animation-delay: -1s; }
+.pokemon-machop-bulk-up-status .bulk-spark {
+    bottom: 6%;
+    width: calc(var(--F) * .16);
+    height: calc(var(--F) * .1);
+    background: linear-gradient(#fff3a0, #ff8a1f);
+    clip-path: polygon(50% 0, 100% 100%, 50% 60%, 0 100%);
+    filter: drop-shadow(0 0 3px #ff8a1f);
+    animation: sfx-chevron 1.2s ease-in infinite;
+}
+.pokemon-machop-bulk-up-status .spark-a { left: 10%; }
+.pokemon-machop-bulk-up-status .spark-b { left: 42%; animation-delay: -.4s; }
+.pokemon-machop-bulk-up-status .spark-c { left: 74%; animation-delay: -.8s; }
+.pokemon-machop-bulk-up-status[style*="--bulk-intensity: 2"] .bulk-ring,
+.pokemon-machop-bulk-up-status[style*="--bulk-intensity: 3"] .bulk-ring { border-width: 4px; animation-duration: 1.05s; }
+@keyframes sfx-power-ring { 0% { transform: scale(.7); opacity: 0; } 30% { opacity: 1; } 100% { transform: scale(1.35); opacity: 0; } }
+@keyframes sfx-chevron { 0% { transform: translateY(0); opacity: 0; } 25% { opacity: 1; } 100% { transform: translateY(calc(var(--F) * -.75)); opacity: 0; } }
+
+/* Flash's Phase Shift: lightning-yellow speed streaks tear past, a red afterimage trails. */
+.character-card > .flash-phase-speed-lines { z-index: 46; overflow: hidden; }
+.flash-phase-speed-lines .phase-line {
+    left: -40%;
+    height: 3px;
+    width: 70%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, transparent, #ffe44a, #fff);
+    box-shadow: 0 0 6px #ffcf1a;
+    animation: sfx-streak 600ms linear infinite;
+}
+.flash-phase-speed-lines .phase-line.a { top: 22%; }
+.flash-phase-speed-lines .phase-line.b { top: 52%; animation-delay: -.2s; width: 50%; }
+.flash-phase-speed-lines .phase-line.c { top: 78%; animation-delay: -.4s; }
+.flash-phase-speed-lines .phase-afterimage {
+    inset: 0;
+    background: linear-gradient(90deg, rgba(220, 20, 30, .55), transparent 60%);
+    mix-blend-mode: screen;
+    animation: sfx-afterimage 900ms ease-in-out infinite;
+}
+@keyframes sfx-streak { from { transform: translateX(0); opacity: 1; } to { transform: translateX(calc(var(--F) * 2)); opacity: .2; } }
+@keyframes sfx-afterimage { 0%, 100% { transform: translateX(-6%); opacity: .4; } 50% { transform: translateX(4%); opacity: .9; } }
+
+/* Seraphina's medical station: green crosses float up, the portrait glows soft green. */
+.character-card.seraphina-med-station-fx .character-face { box-shadow: 0 0 10px rgba(60, 255, 140, .75); }
+.character-card > .seraphina-med-plus-overlay { z-index: 46; }
+.seraphina-med-plus-overlay span {
+    bottom: 0;
+    font: 900 calc(var(--F) * .22)/1 'Arial Black', Arial, sans-serif;
+    color: #6dff9e;
+    text-shadow: 0 0 6px #22ff77, 1px 1px 0 #064d22;
+    animation: sfx-heal-rise 2.4s ease-out infinite;
+}
+.seraphina-med-plus-overlay span:nth-child(1) { left: 6%; }
+.seraphina-med-plus-overlay span:nth-child(2) { left: 30%; animation-delay: -.35s; font-size: calc(var(--F) * .16); }
+.seraphina-med-plus-overlay span:nth-child(3) { left: 54%; animation-delay: -.7s; }
+.seraphina-med-plus-overlay span:nth-child(4) { left: 78%; animation-delay: -1.05s; font-size: calc(var(--F) * .15); }
+.seraphina-med-plus-overlay span:nth-child(5) { left: 18%; animation-delay: -1.4s; font-size: calc(var(--F) * .13); }
+.seraphina-med-plus-overlay span:nth-child(6) { left: 66%; animation-delay: -1.75s; }
+.seraphina-med-plus-overlay span:nth-child(7) { left: 42%; animation-delay: -2.1s; font-size: calc(var(--F) * .14); }
+@keyframes sfx-heal-rise { 0% { transform: translateY(0) scale(.5); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(calc(var(--F) * -.95)) scale(1.1); opacity: 0; } }
+
+/* Negan's iron scar: a glowing brand burned into the face that slowly cools and smokes. */
+.character-card > .negan-iron-scar-overlay { z-index: 44; }
+.negan-iron-scar-overlay .negan-scar-burn {
+    left: 30%; top: 30%; width: 40%; height: 40%;
+    border-radius: 45% 55% 50% 50%;
+    background: radial-gradient(circle, #fff1a8 0 8%, #ff7a1a 25%, rgba(150, 20, 0, .85) 55%, rgba(40, 0, 0, .5) 70%, transparent 74%);
+    mix-blend-mode: multiply;
+    animation: sfx-scar-glow 2.4s ease-in-out infinite;
+}
+.negan-iron-scar-overlay .negan-scar-burn.b {
+    left: 36%; top: 36%; width: 28%; height: 28%;
+    mix-blend-mode: screen;
+    background: radial-gradient(circle, rgba(255, 200, 80, .9), rgba(255, 90, 0, .4) 50%, transparent 70%);
+}
+.negan-iron-scar-overlay .negan-scar-tear {
+    width: 2px; height: 30%;
+    background: linear-gradient(#ff9a3a, transparent);
+    opacity: .7;
+}
+.negan-iron-scar-overlay .negan-scar-tear.a { left: 40%; top: 58%; transform: rotate(10deg); }
+.negan-iron-scar-overlay .negan-scar-tear.b { left: 58%; top: 56%; transform: rotate(-8deg); }
+@keyframes sfx-scar-glow { 50% { filter: brightness(1.4); opacity: .85; } }
+
+/* Scorpion's poison on a target: drops in the venom's colour drip down the portrait. */
+.character-card > .scorpion-poison-drops { z-index: 44; --venom: #79ff3a; }
+.scorpion-poison-acid-fx > .scorpion-poison-drops { --venom: #d8ff2a; }
+.scorpion-poison-paralytic-fx > .scorpion-poison-drops { --venom: #3ad8ff; }
+.scorpion-poison-neurotoxin-fx > .scorpion-poison-drops { --venom: #c04aff; }
+.scorpion-poison-drops .scorpion-drop-main {
+    left: 0; right: 0; top: 0; height: 18%;
+    background: linear-gradient(var(--venom), transparent);
+    opacity: .7;
+    clip-path: polygon(0 0, 100% 0, 100% 50%, 86% 80%, 72% 45%, 56% 100%, 40% 50%, 24% 90%, 10% 40%, 0 70%);
+}
+.scorpion-poison-drops .scorpion-drop-drip {
+    top: 8%;
+    width: calc(var(--F) * .09);
+    height: calc(var(--F) * .13);
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    background: radial-gradient(circle at 35% 30%, #fff 0 12%, var(--venom) 30%, rgba(0, 0, 0, .3) 100%);
+    box-shadow: 0 0 5px var(--venom);
+    animation: sfx-venom-fall 1.8s ease-in infinite;
+}
+.scorpion-poison-drops .scorpion-drop-drip.a { left: 18%; }
+.scorpion-poison-drops .scorpion-drop-drip.b { left: 50%; animation-delay: -.6s; }
+.scorpion-poison-drops .scorpion-drop-drip.c { left: 78%; animation-delay: -1.2s; }
+@keyframes sfx-venom-fall { 0% { transform: translateY(0) scale(.4); opacity: 0; } 20% { opacity: 1; transform: translateY(0) scale(1); } 100% { transform: translateY(calc(var(--F) * .85)); opacity: 0; } }
+
+/* Aquaman fins: brighter, larger, and sitting right on the water ring. */
+.aquaman-sea-shark-fin .fin {
+    left: -9px;
+    top: calc(var(--F) * -.58 - 18px);
+    width: 18px;
+    height: 20px;
+    background: linear-gradient(115deg, #2a6f8a 0%, #5fb6d4 50%, #f2fdff 51% 58%, #1c4e66 59%);
+    filter: drop-shadow(0 0 2px #e9fbff) drop-shadow(0 1px 1px rgba(0, 0, 0, .9));
+}
+.aquaman-sea-shark-fin .wake {
+    left: 4px;
+    top: calc(var(--F) * -.58 - 4px);
+    width: 30px;
+    height: 8px;
+}
+.aquaman-sea-shark-ring .shark-water {
+    inset: 8%;
+    border-color: rgba(150, 235, 255, .75);
+    background: radial-gradient(circle, transparent 62%, rgba(40, 150, 210, .25) 70%, transparent 74%);
+}

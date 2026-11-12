@@ -40,8 +40,9 @@ test('experimental battle exposes an upward-opening options menu with a death an
         /\.ingame-ui-options-panel \{[\s\S]*?bottom: calc\(100% \+ 8px\);[\s\S]*?left: 0;/
     );
     assert.match(script, /deathAnimations: true/);
-    assert.match(script, /if \(!card \|\| !uiSettings\.deathAnimations\) return;/);
-    assert.match(sharedStyles, /body\.ui-disable-death-animations \.character-death-shatter/);
+    assert.match(script, /deaths: \(\) => Boolean\(uiSettings\.deathAnimations\)/);
+    assert.match(fs.readFileSync(path.join(__dirname, '..', 'scripts', 'battle-fx.js'), 'utf8'), /if \(!settings\.deaths\(\)\) return;/);
+    assert.match(fs.readFileSync(path.join(__dirname, '..', 'styles', 'battle-fx.css'), 'utf8'), /body\.ui-disable-death-animations \.bfx-death-stage/);
     assert.match(ingame, /battle-options-death-toggle-v1/);
     assert.match(ingame, /battle-death-toggle-v1/);
 });

@@ -16,7 +16,31 @@ const SITE_CLEANUP = [
     p('A little spring cleaning on the website. Shattered Realms now has its own section in the portal (pick it in the bar at the top of every page), so the old Shattered Realms banner across the top of the site, the "Play Shattered Realms" button in the side menu and the Shattered Realms logo next to the Anime-Arena banner have been removed.'),
 ];
 
+const BATTLE_FX = [
+    p('Every battle looks different now. Every character and every skill in both arenas has its own animation: the caster winds up and lunges, the move flies across the board in its own colours, and the target flinches harder the bigger the hit. Fighters jump onto the board when a match starts, and the winners celebrate when it ends.'),
+    p('Death animations are brand new, and each one depends on what killed you. By default a defeated portrait lifts up and explodes into pieces that fade away. Lightsabers cut it apart in the wielder\'s own colours (General Grievous uses all four of his). Negan beats it to a pulp with Lucille. Homelander, Superman and Billy Butcher\'s eyes glow before their lasers fire straight from their eyes. Every death has its own stamp, from LUCILLE\'D to LASERED to TOASTY.'),
+    p('Every status effect on a portrait has been redrawn: taunts, webs, smoke, ice, sniper and smartgun locks, portals, rage, Aquaman\'s circling shark fins and the rest. Several can now show on one character at the same time (before, some hid each other), and they fade in and out instead of popping.'),
+    p('The Skill animations and Death animations switches in the battle options still turn all of this off.'),
+];
+
 const POSTS = [
+    {
+        releaseVersion: 'patch-2026-11-12-battle-animations-pokemon',
+        title: 'Pokemon Arena: Brand New Battle Animations',
+        arena: 'pokemon',
+        author: 'kito',
+        blocks: [
+            ...BATTLE_FX,
+            p('Pokemon knockouts follow the move type that landed them: fire burns the portrait to ash that blows away, grass wraps it in vines and squeezes until it pops, electric fries it black, water washes it away, dragon slashes it into falling strips with a green claw, rock crushes it flat, ground splits it down the middle, and every other type has its own.'),
+        ],
+    },
+    {
+        releaseVersion: 'patch-2026-11-12-battle-animations-comic',
+        title: 'Comic Arena: Brand New Battle Animations',
+        arena: 'comic',
+        author: 'kito',
+        blocks: [...BATTLE_FX],
+    },
     {
         releaseVersion: 'patch-2026-11-12-site-cleanup-pokemon',
         title: 'Pokemon Arena: Home Page Cleanup',

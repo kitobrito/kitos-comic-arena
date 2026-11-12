@@ -4966,6 +4966,8 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
         if (typeof context?.sourceCharacterId === 'string' && context.sourceCharacterId) {
             targetState.killedByCharacterId = context.sourceCharacterId;
         }
+        // The killing skill, so the client can pick its death animation (e.g. by Pokemon move type).
+        targetState.killedBySkillId = typeof context?.sourceSkillId === 'string' ? context.sourceSkillId : null;
         triggerTeamMemberDeathHooks({
             match: context.match,
             deadUsername: context.targetUsername,
@@ -5413,6 +5415,8 @@ const applyHealthLossToUnit = (unit, rawAmount, context = {}) => {
         if (typeof context?.sourceCharacterId === 'string' && context.sourceCharacterId) {
             targetState.killedByCharacterId = context.sourceCharacterId;
         }
+        // The killing skill, so the client can pick its death animation (e.g. by Pokemon move type).
+        targetState.killedBySkillId = typeof context?.sourceSkillId === 'string' ? context.sourceSkillId : null;
         triggerTeamMemberDeathHooks({
             match: context.match,
             deadUsername: context.targetUsername,
@@ -5456,6 +5460,8 @@ const applyHealthCapLossToUnit = (unit, rawAmount, context = {}) => {
         if (typeof context?.sourceCharacterId === 'string' && context.sourceCharacterId) {
             targetState.killedByCharacterId = context.sourceCharacterId;
         }
+        // The killing skill, so the client can pick its death animation (e.g. by Pokemon move type).
+        targetState.killedBySkillId = typeof context?.sourceSkillId === 'string' ? context.sourceSkillId : null;
         triggerTeamMemberDeathHooks({
             match: context.match,
             deadUsername: context.targetUsername,
@@ -5498,6 +5504,8 @@ const applyHealthCapSetToUnit = (unit, rawAmount, context = {}) => {
         if (typeof context?.sourceCharacterId === 'string' && context.sourceCharacterId) {
             targetState.killedByCharacterId = context.sourceCharacterId;
         }
+        // The killing skill, so the client can pick its death animation (e.g. by Pokemon move type).
+        targetState.killedBySkillId = typeof context?.sourceSkillId === 'string' ? context.sourceSkillId : null;
         triggerTeamMemberDeathHooks({
             match: context.match,
             deadUsername: context.targetUsername,
@@ -11730,6 +11738,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     recipient.unit.hp = 0;
                     recipient.unit.alive = false;
                     targetState.killedByCharacterId = actingCharacterId || null;
+                    targetState.killedBySkillId = skill?.id || null;
                     triggerTeamMemberDeathHooks({
                         match,
                         deadUsername: recipient.username,

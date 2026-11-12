@@ -1,0 +1,222 @@
+/* BattleFX layer (scripts/battle-fx.js): sprites, death stages and the pieces they animate.
+   Everything here is composited (transform/opacity only on moving nodes). */
+.bfx-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9000;
+    overflow: hidden;
+    contain: strict;
+}
+
+.bfx-sprite {
+    position: absolute;
+    left: 0;
+    top: 0;
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+    will-change: transform, background-position;
+    transform-origin: 50% 50%;
+}
+
+.bfx-death-stage {
+    position: fixed;
+    overflow: visible;
+    transform-origin: 50% 50%;
+}
+
+.bfx-piece {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center top;
+    border-radius: inherit;
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+}
+
+.character-face.bfx-dying {
+    opacity: 0 !important;
+}
+
+/* Glowing blade / beam line across the portrait (lightsabers, lasers, claws). */
+.bfx-blade {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 150%;
+    height: var(--blade-w, 6px);
+    border-radius: 999px;
+    background: linear-gradient(90deg, transparent, #fff 12%, #fff 88%, transparent);
+    box-shadow: 0 0 calc(var(--blade-glow, 18px) / 2) var(--blade), 0 0 var(--blade-glow, 18px) var(--blade), 0 0 calc(var(--blade-glow, 18px) * 2) var(--blade);
+    transform-origin: 50% 50%;
+    z-index: 3;
+}
+
+/* Freshly cut edge glowing in the blade colour. */
+.bfx-hot-edge {
+    filter: drop-shadow(0 0 4px var(--edge, #ff5a1f)) drop-shadow(0 0 10px var(--edge, #ff5a1f));
+}
+
+.bfx-burn-front {
+    position: absolute;
+    left: -10%;
+    right: -10%;
+    height: 60%;
+    top: 40%;
+    background: linear-gradient(0deg, transparent 0%, rgba(255, 120, 20, 0.85) 30%, rgba(255, 220, 90, 0.95) 48%, rgba(255, 90, 0, 0.6) 62%, transparent 100%);
+    mix-blend-mode: screen;
+    filter: blur(3px);
+    z-index: 2;
+}
+
+.bfx-vines {
+    position: absolute;
+    inset: -6%;
+    width: 112%;
+    height: 112%;
+    overflow: visible;
+    z-index: 2;
+}
+
+.bfx-vines path {
+    fill: none;
+    stroke-width: 5;
+    stroke-linecap: round;
+    filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.6));
+}
+
+
+.bfx-frost {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background:
+        radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.9) 0 4%, transparent 9%),
+        radial-gradient(circle at 70% 60%, rgba(255, 255, 255, 0.8) 0 3%, transparent 8%),
+        linear-gradient(135deg, rgba(190, 235, 255, 0.75), rgba(120, 190, 255, 0.35));
+    mix-blend-mode: screen;
+    z-index: 2;
+}
+
+.bfx-swarm {
+    position: absolute;
+    inset: -10%;
+    background-image: radial-gradient(circle, #1d1a10 0 1.5px, transparent 2px);
+    background-size: 9px 9px;
+    animation: bfx-swarm-jitter 120ms steps(2) infinite;
+    opacity: 0.85;
+    z-index: 2;
+}
+
+@keyframes bfx-swarm-jitter {
+    50% { background-position: 3px 4px; }
+}
+
+@property --hole {
+    syntax: '<percentage>';
+    inherits: false;
+    initial-value: 75%;
+}
+
+.bfx-shadow {
+    position: absolute;
+    inset: -20%;
+    background: radial-gradient(circle, transparent var(--hole), rgba(20, 0, 30, 0.95) calc(var(--hole) + 12%));
+    z-index: 2;
+}
+
+
+
+
+
+/* Lucille (hand-drawn art) swings in from the top right and pivots on the grip. */
+.bfx-lucille {
+    position: absolute;
+    right: -30%;
+    top: -45%;
+    width: 30%;
+    height: 150%;
+    transform-origin: 50% 95%;
+    z-index: 4;
+    background: center / contain no-repeat;
+    filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.6));
+}
+
+
+body.ui-disable-skill-cast-animations .bfx-sprite,
+body.skill-effects-muted .bfx-sprite {
+    display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .bfx-sprite { display: none; }
+}
+
+.bfx-kill-label {
+    position: fixed;
+    font: 900 15px/1 'Bangers', 'Impact', sans-serif;
+    letter-spacing: 2px;
+    color: #fff;
+    padding: 3px 8px;
+    background: #c4161c;
+    border: 2px solid #000;
+    box-shadow: 3px 3px 0 #000;
+    white-space: nowrap;
+    z-index: 2;
+}
+
+/* The "Death animations" battle option off: no death stage (the engine also skips the recipe). */
+body.ui-disable-death-animations .bfx-death-stage {
+    display: none;
+}
+
+/* Eye lasers: the eyes glow in the laser's colour, then a beam fires from each one. */
+.bfx-eye-glow {
+    position: fixed;
+    width: var(--s);
+    height: var(--s);
+    border-radius: 50%;
+    background: radial-gradient(circle, #fff 0 18%, var(--c) 38%, transparent 70%);
+    box-shadow: 0 0 calc(var(--s) * .6) var(--c), 0 0 calc(var(--s) * 1.2) var(--c);
+    mix-blend-mode: screen;
+    z-index: 2;
+}
+.bfx-eye-beam {
+    position: fixed;
+    height: var(--w);
+    margin-top: calc(var(--w) / -2);
+    border-radius: 999px;
+    transform-origin: 0 50%;
+    background: linear-gradient(90deg, #fff, var(--c) 30%, var(--c) 85%, #fff);
+    box-shadow: 0 0 calc(var(--w) * 1.5) var(--c), 0 0 calc(var(--w) * 4) var(--c);
+    z-index: 1;
+}
+
+/* Hand-drawn art pieces (assets/images/battle-fx/art): sabers, claws, vines, wave, jaws, decals. */
+.bfx-art {
+    position: absolute;
+    display: block;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    pointer-events: none;
+    z-index: 3;
+}
+.bfx-saber {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 4;
+}
+.bfx-saber .bfx-saber-blade {
+    inset: 0;
+    transform-origin: 0 50%;
+    filter: brightness(1.25) drop-shadow(0 0 3px var(--glow)) drop-shadow(0 0 9px var(--glow));
+}
+.bfx-saber .bfx-saber-hilt {
+    right: 100%;
+    top: 50%;
+    margin-right: -2px;
+    transform: translateY(-50%);
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .7));
+}

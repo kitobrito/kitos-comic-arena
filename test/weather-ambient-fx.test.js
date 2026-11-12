@@ -62,15 +62,16 @@ test('style.css defines fall, flicker, static-jitter and flash-pulse animations 
     assert.match(styles, /@keyframes weather-fx-lightning-flash-pulse/);
 });
 
-test('client flies an elemental sprite from caster to target, looping frames mid-flight, then bursts on arrival', () => {
-    assert.match(script, /const playPokemonSpriteProjectile = async \(\{ fromX, fromY, toX, toY, key, flightMs = 520 \}\) => \{/);
-    assert.match(script, /cycleSpriteFrames\(el, resolved, \{ loop: true \}\)/);
-    assert.match(script, /el\.style\.transition = `left \$\{flightMs\}ms linear, top \$\{flightMs\}ms linear`;/);
-    assert.match(script, /playPokemonSpriteBurst\(\{ x: toX, y: toY, key \}\);/);
+test('the battle FX engine flies a skill\'s effect from caster to target, looping frames mid-flight, then plays the impact', () => {
+    const engine = fs.readFileSync(path.join(root, 'scripts', 'battle-fx.js'), 'utf8');
+    assert.match(engine, /await playSprite\(\{ key: profile\.travel, from, to, size: from\.h \* 0\.7, duration: flight, loop: true/);
+    assert.match(engine, /if \(loop\) frame %= frameCount;/);
+    assert.match(engine, /if \(profile\.impact\) playSprite\(\{ key: profile\.impact, x: to\.x, y: to\.y/);
 });
 
-test('style.css positions the projectile sprite above the board and mutes it with the same toggles as the burst', () => {
-    assert.match(styles, /\.pokemon-sprite-projectile\s*\{/);
-    assert.match(styles, /body\.ui-disable-skill-cast-animations \.pokemon-sprite-projectile/);
-    assert.match(styles, /body\.skill-effects-muted \.pokemon-sprite-projectile/);
+test('battle-fx.css keeps sprites above the board and mutes them with the same toggles as other cast effects', () => {
+    const css = fs.readFileSync(path.join(root, 'styles', 'battle-fx.css'), 'utf8');
+    assert.match(css, /\.bfx-layer \{[\s\S]*?position: fixed;[\s\S]*?z-index: 9000;/);
+    assert.match(css, /body\.ui-disable-skill-cast-animations \.bfx-sprite/);
+    assert.match(css, /body\.skill-effects-muted \.bfx-sprite/);
 });

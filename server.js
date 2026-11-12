@@ -10205,6 +10205,7 @@ const PUBLIC_SCRIPTS_FILES = new Set([
     '/scripts/arena-navigation.js',
     '/scripts/arena-select-ui.js',
     '/scripts/script.js',
+    '/scripts/battle-fx.js',
     '/scripts/tri-portal.js',
     '/scripts/shattered-portal.js',
     '/scripts/split-hub.js',
@@ -10826,6 +10827,9 @@ const sanitizeUnitStateForViewer = ({ unit, unitUsername, viewerUsername }) => {
               .filter(Boolean)
         : [];
     const state = { statuses };
+    if (unit?.state?.killedBySkillId) {
+        state.killedBySkillId = unit.state.killedBySkillId;
+    }
     if (unit?.state?.killedByCharacterId) {
         state.killedByCharacterId = unit.state.killedByCharacterId;
     }
