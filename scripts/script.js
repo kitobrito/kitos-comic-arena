@@ -15184,6 +15184,9 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 && Math.hypot(touch.clientX - lastBattleTap.x, touch.clientY - lastBattleTap.y) < 32) {
                 lastBattleTap = null;
                 const tapTarget = document.elementFromPoint(touch.clientX, touch.clientY) || event.target;
+                if (tapTarget?.closest?.('input, select, textarea, [contenteditable]')) return;
+                // iPhones zoom on a quick second tap even with touch-action set: cancel it first.
+                event.preventDefault();
                 syntheticBattleDblclickAt = now;
                 tapTarget?.dispatchEvent(new MouseEvent('dblclick', {
                     bubbles: true, cancelable: true, button: 0, clientX: touch.clientX, clientY: touch.clientY,
@@ -15191,7 +15194,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 return;
             }
             lastBattleTap = { time: now, x: touch.clientX, y: touch.clientY };
-        }, { passive: true });
+        }, { passive: false });
         // A browser that also fires its own dblclick for the same double tap must not undo twice.
         document.addEventListener('dblclick', (event) => {
             if (event.isTrusted && Date.now() - syntheticBattleDblclickAt < 600) {
@@ -20946,28 +20949,32 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
     // Phones: a quick second tap on a page arrow is just another page turn, never a double-tap
     // zoom (which blows up the whole selection screen). Taps on the empty background around the
     // roster can't zoom either; pinch-to-zoom still works.
+    // A quick second tap anywhere on the selection screen. iPhones turn it into a zoom even with
+    // touch-action set (and swallow the tap), so it is cancelled here before Safari can zoom, and the
+    // tap is delivered as a normal click instead: page arrows turn again, a team slot's second tap
+    // removes that character, a roster tile's second tap adds it.
     const DOUBLE_TAP_MS = 400;
+    let lastSelectionTap = null;
+    if (!isIngamePage) document.addEventListener('touchend', (event) => {
+        if (event.touches.length || event.changedTouches.length !== 1) return;
+        const touch = event.changedTouches[0];
+        const now = Date.now();
+        const quick = Boolean(lastSelectionTap)
+            && now - lastSelectionTap.time < DOUBLE_TAP_MS
+            && Math.hypot(touch.clientX - lastSelectionTap.x, touch.clientY - lastSelectionTap.y) < 40;
+        lastSelectionTap = quick ? null : { time: now, x: touch.clientX, y: touch.clientY };
+        if (!quick) return;
+        const target = document.elementFromPoint(touch.clientX, touch.clientY) || event.target;
+        if (target?.closest?.('input, select, textarea, [contenteditable]')) return;
+        event.preventDefault();
+        // A real click event (an icon inside a button is an SVG element, which has no .click()).
+        target?.dispatchEvent(new MouseEvent('click', {
+            bubbles: true, cancelable: true, view: window, button: 0, clientX: touch.clientX, clientY: touch.clientY,
+        }));
+    }, { passive: false });
     [lastPageButton, nextPageButton].filter(Boolean).forEach((button) => {
-        let lastTap = 0;
-        button.addEventListener('touchend', (event) => {
-            const now = Date.now();
-            if (now - lastTap < DOUBLE_TAP_MS) {
-                event.preventDefault();
-                button.click();
-            }
-            lastTap = now;
-        }, { passive: false });
         button.addEventListener('dblclick', (event) => event.preventDefault());
     });
-    let lastBackgroundTap = 0;
-    document.addEventListener('touchend', (event) => {
-        if (event.touches.length || event.changedTouches.length !== 1) return;
-        const target = event.target;
-        const interactive = target?.closest?.('a, button, input, select, textarea, label, [role="button"], [contenteditable], .nextpage, .lastpage, .slot-item, .selected-character-slot, .character-portrait, .skill-image');
-        const now = Date.now();
-        if (!interactive && now - lastBackgroundTap < DOUBLE_TAP_MS) event.preventDefault();
-        lastBackgroundTap = interactive ? 0 : now;
-    }, { passive: false });
 
     if (nextPageButton) {
         nextPageButton.addEventListener('click', () => {
