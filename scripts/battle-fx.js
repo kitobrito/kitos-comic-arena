@@ -40,7 +40,7 @@
     const CHARACTERS_URL = 'assets/data/battle-fx-characters.json';
     const MAX_SPRITES = 32;
     const MAX_SHEETS = 64;
-    const VERSION = 'battle-fx-v2';
+    const VERSION = 'battle-fx-v3';
 
     const settings = {
         casts: () => true,     // replaced by configure(): the "Skill animations" setting
@@ -446,6 +446,49 @@
         const blade = overlayDiv(stage, 'bfx-blade', `--blade:${colour};--blade-w:${width}px;--blade-glow:${glow}px;transform:translate(-50%,-50%) translateY(${offset}px) rotate(${angle}deg) scaleX(0);`);
         return blade;
     };
+    // ---- Hand-drawn art (assets/images/battle-fx/art) ----------------------------------------
+    const ART = 'assets/images/battle-fx/art/';
+    const ART_FILES = ['lucille', 'saber-red', 'saber-blue', 'saber-green', 'saber-violet', 'saber-yellow', 'saber-hilt',
+        'dragon-claw', 'vine', 'wave', 'jaws-top', 'jaws-bottom', 'bullet-holes', 'ash-sheet'];
+    const artUrl = (name) => `${ART}${name}.webp?v=${VERSION}`;
+    const artImages = new Map();
+    const preloadArt = () => ART_FILES.forEach((name) => {
+        if (artImages.has(name)) return;
+        const img = new Image();
+        img.decoding = 'async';
+        img.src = artUrl(name);
+        img.decode?.().catch(() => {});
+        artImages.set(name, img);
+    });
+    const artDiv = (stage, name, css = '') => overlayDiv(stage, 'bfx-art', `background-image:url("${artUrl(name)}");${css}`);
+    // Cells of the bullet-hole sheet (960 x 606): three holes on top, three crack patterns below
+    // (the first crack is a spider web).
+    const DECAL_SHEET = [960, 606];
+    const HOLES = [[35, 25, 205, 192], [335, 16, 250, 238], [667, 6, 260, 261]];
+    const CRACKS = [[6, 326, 313, 265], [320, 325, 297, 270], [644, 303, 309, 295]];
+    const decal = (stage, cell, size, x, y, rot = 0) => {
+        const [cx, cy, cw, ch] = cell;
+        const k = size / Math.max(cw, ch);
+        return artDiv(stage, 'bullet-holes', `background-size:${DECAL_SHEET[0] * k}px ${DECAL_SHEET[1] * k}px;background-position:${-cx * k}px ${-cy * k}px;width:${cw * k}px;height:${ch * k}px;left:${x}%;top:${y}%;transform:translate(-50%,-50%) rotate(${rot}deg);`);
+    };
+    const SABER_ART = new Set(['red', 'blue', 'green', 'violet', 'yellow']);
+    // A lightsaber: the hilt, and its blade igniting out of it across the portrait.
+    const saberStrike = async (stage, rect, colourName, angle, ms) => {
+        const h = rect.width * 0.3;
+        const wrap = overlayDiv(stage, 'bfx-saber', `width:${rect.width * 1.5}px;height:${h}px;transform:translate(-50%,-50%) rotate(${angle}deg);`);
+        const blade = document.createElement('i');
+        blade.className = 'bfx-art bfx-saber-blade';
+        blade.style.backgroundImage = `url("${artUrl(`saber-${colourName}`)}")`;
+        blade.style.setProperty('--glow', SABER[colourName] || '#fff');
+        const hilt = document.createElement('i');
+        hilt.className = 'bfx-art bfx-saber-hilt';
+        hilt.style.cssText = `background-image:url("${artUrl('saber-hilt')}");height:${h * 0.42}px;width:${h * 0.42 * 5.85}px;`;
+        wrap.append(hilt, blade);
+        await anim(blade, [{ transform: 'scaleX(0)', opacity: 1 }, { transform: 'scaleX(1)', opacity: 1, offset: 0.45 }, { transform: 'scaleX(1)', opacity: 1, offset: 0.8 }, { transform: 'scaleX(1)', opacity: 0 }], { duration: ms, easing: 'ease-out' });
+        await anim(wrap, [{ opacity: 1 }, { opacity: 0 }], { duration: 120 });
+        wrap.remove();
+    };
+
     const LASER = { red: '#ff2a1a', yellow: '#ffd21a' };
     const SABER = { red: '#ff2a2a', blue: '#2f8bff', green: '#33ff57', violet: '#b45bff', yellow: '#ffe14a', white: '#ffffff' };
 
@@ -454,7 +497,11 @@
         async shatter({ stage, src, rect }) {
             const w = whole(stage, src);
             await anim(w, [{ transform: 'none' }, { transform: 'translateY(-16%) scale(1.06)', filter: 'brightness(1.25)' }], { duration: 380, easing: 'cubic-bezier(.2,.8,.3,1)' });
-            w.remove();
+            // Cracks spread across it for a moment before it bursts.
+            const crack = decal(stage, CRACKS[2], rect.width * 1.05, 50, 34, rand(-20, 20));
+            await anim(crack, [{ transform: `${crack.style.transform} scale(.2)`, opacity: 0 }, { transform: `${crack.style.transform} scale(1)`, opacity: 1 }], { duration: 160, easing: 'ease-out' });
+            await wait(90);
+            w.remove(); crack.remove();
             const p = tiles(stage, src, 9, 9);
             p.forEach((el) => { el.style.transform = 'translateY(-16%) scale(1.06)'; });
             await burst(p, rect, { force: 1.1, rise: rect.height * 0.25 });
@@ -464,9 +511,11 @@
             const colours = (ctx.sabers && ctx.sabers.length ? ctx.sabers : ['blue']).map((c) => SABER[c] || c);
             const base = whole(stage, src);
             const angles = colours.length === 1 ? [-28] : colours.map((_, i) => -60 + (120 / (colours.length - 1 || 1)) * i);
+            const names = ctx.sabers && ctx.sabers.length ? ctx.sabers : ['blue'];
             for (let i = 0; i < colours.length; i += 1) {
-                const blade = lineAcross(stage, angles[i], colours[i], { width: 5, glow: 22 });
                 fx('impacts/directional_impact_002', rect, 0.9, { angle: angles[i] });
+                if (SABER_ART.has(names[i])) { await saberStrike(stage, rect, names[i], angles[i], colours.length > 1 ? 320 : 460); continue; }
+                const blade = lineAcross(stage, angles[i], colours[i], { width: 5, glow: 22 });
                 await anim(blade, [{ transform: `translate(-50%,-50%) rotate(${angles[i]}deg) scaleX(0)`, opacity: 1 }, { transform: `translate(-50%,-50%) rotate(${angles[i]}deg) scaleX(1.4)`, opacity: 1, offset: 0.6 }, { transform: `translate(-50%,-50%) rotate(${angles[i]}deg) scaleX(1.4)`, opacity: 0 }], { duration: colours.length > 1 ? 260 : 380, easing: 'ease-out' });
                 blade.remove();
             }
@@ -500,6 +549,10 @@
             flame.remove(); w.remove();
             const ash = tiles(stage, src, 14, 14);
             ash.forEach((el) => { el.style.filter = 'grayscale(1) brightness(.18) contrast(1.4)'; });
+            // Ash and embers break apart and drift off with the gust (an 8-frame sheet).
+            const flakes = artDiv(stage, 'ash-sheet', `left:-10%;top:10%;width:${rect.width * 1.2}px;height:${rect.width * 1.2 * 123 / 128}px;background-size:800% 100%;z-index:4;`);
+            flakes.animate([{ backgroundPosition: '0% 0' }, { backgroundPosition: '114.3% 0' }], { duration: 1000, easing: 'steps(8, jump-none)', fill: 'forwards' });
+            flakes.animate([{ transform: 'translate(0,0)', opacity: 1 }, { transform: `translate(${rect.width * 0.9}px, ${-rect.height * 0.35}px)`, opacity: 0 }], { duration: 1150, easing: 'ease-in', fill: 'forwards' });
             fx('smoke-bursts/directional_smoke_burst_001', rect, 1.1, { angle: 0 });
             await Promise.all(ash.map((el, i) => {
                 const blown = i % 2 === 0; // half the ash goes with the gust
@@ -514,9 +567,28 @@
         // Grass: vines wrap the portrait, squeeze it three times, and it pops.
         async vines({ stage, src, rect }, colour = '#3fbf4a') {
             const w = whole(stage, src);
-            const svg = vineSvg(stage, colour);
-            const paths = [...svg.querySelectorAll('path')];
-            await Promise.all(paths.map((p, i) => anim(p, [{ strokeDashoffset: 400 }, { strokeDashoffset: 0 }], { duration: 520, delay: i * 70, easing: 'ease-out' })));
+            let svg;
+            if (colour === '#3fbf4a') {
+                // Thorny vines grow across the portrait from both sides and wrap it.
+                const lay = [[-24, 20, false], [16, 44, true], [-9, 66, false], [28, 86, true]];
+                svg = document.createElement('div');
+                lay.forEach(([rot, y, rtl], i) => {
+                    const v = artDiv(stage, 'vine', `left:50%;top:${y}%;width:${rect.width * 1.7}px;height:${rect.width * 1.7 / 5.45}px;transform:translate(-50%,-50%) rotate(${rot}deg)${rtl ? ' scaleX(-1)' : ''};z-index:4;`);
+                    svg.appendChild(v);
+                    v.animate([{ clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0 0 0)' }], { duration: 520, delay: i * 90, easing: 'ease-out', fill: 'both' });
+                });
+                stage.appendChild(svg);
+                await wait(520 + lay.length * 90);
+            } else {
+                svg = vineSvg(stage, colour);
+                // Webbed up (Spider-Man): a web spreads over it, then the strands wrap.
+                const web = decal(stage, CRACKS[0], rect.width * 1.15, 50, 50, rand(-15, 15));
+                web.style.filter = 'invert(1) drop-shadow(0 0 2px #000)';
+                anim(web, [{ opacity: 0, transform: `${web.style.transform} scale(.3)` }, { opacity: 1, transform: `${web.style.transform} scale(1)` }], { duration: 300, easing: 'ease-out' });
+                const paths = [...svg.querySelectorAll('path')];
+                await Promise.all(paths.map((p, i) => anim(p, [{ strokeDashoffset: 400 }, { strokeDashoffset: 0 }], { duration: 520, delay: i * 70, easing: 'ease-out' })));
+                svg.appendChild(web);
+            }
             for (let i = 0; i < 3; i += 1) {
                 await anim(stage, [{ transform: 'none' }, { transform: `scale(${0.9 - i * 0.04}, ${1.02 + i * 0.02})` }, { transform: `scale(${0.95 - i * 0.04}, 1)` }], { duration: 230, easing: 'ease-in-out', fill: 'forwards' });
             }
@@ -543,10 +615,12 @@
         async wave({ stage, src, rect }) {
             stage.style.overflow = 'hidden'; // the wave sweeps in from outside the portrait
             const w = whole(stage, src);
-            const wave = overlayDiv(stage, 'bfx-wave');
+            // The wave rolls in from the left, crashes over the portrait and carries it off.
+            const wh = rect.height * 1.25;
+            const wave = artDiv(stage, 'wave', `left:0;bottom:-12%;width:${wh * 2.05}px;height:${wh}px;z-index:4;`);
             fx('type/water', rect, 1.3);
             await Promise.all([
-                anim(wave, [{ transform: 'translateX(-120%) skewX(-12deg)' }, { transform: 'translateX(120%) skewX(-12deg)' }], { duration: 950, easing: 'cubic-bezier(.4,.1,.5,1)' }),
+                anim(wave, [{ transform: `translateX(${-wh * 2.05}px)` }, { transform: `translateX(${-wh * 0.9}px)`, offset: 0.45 }, { transform: `translateX(${rect.width}px)` }], { duration: 1050, easing: 'cubic-bezier(.4,.1,.5,1)' }),
                 anim(w, [
                     { transform: 'none', opacity: 1, filter: 'none' },
                     { transform: 'translateX(4%) skewX(-4deg)', opacity: 1, filter: 'hue-rotate(160deg) saturate(.6) blur(1px)', offset: 0.45 },
@@ -557,13 +631,11 @@
         // Dragon: three green claw slashes, then diagonal strips fall away.
         async 'dragon-claw'({ stage, src, rect }, colour = '#36ff8a', count = 3) {
             const base = whole(stage, src);
-            for (let i = 0; i < count; i += 1) {
-                const off = (i - (count - 1) / 2) * rect.width * 0.22;
-                const slash = lineAcross(stage, -50, colour, { width: 7, glow: 16, offset: off });
-                slash.classList.add('bfx-claw');
-                await anim(slash, [{ transform: `translate(-50%,-50%) translateY(${off}px) rotate(-50deg) scaleX(0)` }, { transform: `translate(-50%,-50%) translateY(${off}px) rotate(-50deg) scaleX(1.5)` }], { duration: 120, easing: 'ease-out' });
-            }
-            stage.querySelectorAll('.bfx-claw').forEach((s) => s.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 400, fill: 'forwards' }));
+            // The claw rakes from the top right to the bottom left (silver for Wolverine).
+            const claw = artDiv(stage, 'dragon-claw', `left:50%;top:50%;width:${rect.width * 1.25}px;height:${rect.width * 1.25 * 815 / 795}px;transform:translate(-50%,-50%);z-index:4;${colour === '#36ff8a' ? '' : 'filter:grayscale(1) brightness(1.7) contrast(1.2) drop-shadow(0 0 4px #cfe6ff);'}`);
+            claw.classList.add('bfx-claw');
+            await anim(claw, [{ clipPath: 'inset(0 0 100% 100%)' }, { clipPath: 'inset(0 0 0 0)' }], { duration: 90 * count, easing: 'ease-out' });
+            claw.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 500, delay: 200, fill: 'forwards' });
             base.remove();
             const strips = 6;
             const parts = [];
@@ -646,6 +718,7 @@
         async pummel({ stage, src, rect }) {
             const w = whole(stage, src);
             for (let i = 0; i < 4; i += 1) {
+                if (i) decal(stage, CRACKS[1], rect.width * (0.45 + i * 0.12), rand(30, 70), rand(30, 70), rand(0, 360));
                 fx('type/fighting', { left: rect.left + rand(-0.2, 0.2) * rect.width, top: rect.top + rand(-0.2, 0.2) * rect.height, width: rect.width, height: rect.height }, 0.8);
                 await anim(w, [{ transform: 'none' }, { transform: `translate(${rand(-10, 10)}px, ${rand(-8, 8)}px) rotate(${rand(-6, 6)}deg) scale(.96)` }, { transform: 'none' }], { duration: 140 });
             }
@@ -724,12 +797,12 @@
             const w = whole(stage, src);
             for (let i = 0; i < 6; i += 1) {
                 const x = rand(15, 85); const y = rand(15, 85);
-                overlayDiv(stage, 'bfx-bullet-hole', `left:${x}%;top:${y}%;`);
+                decal(stage, HOLES[i % 3], rect.width * rand(0.22, 0.32), x, y, rand(0, 360)).classList.add('bfx-bullet-hole-art');
                 playSprite({ key: 'impacts/directional_impact_004', x: rect.left + (rect.width * x) / 100, y: rect.top + (rect.height * y) / 100, size: rect.height * 0.5 });
                 await anim(w, [{ transform: 'none' }, { transform: `translate(${rand(-5, 5)}px, ${rand(-4, 4)}px)` }, { transform: 'none' }], { duration: 90 });
             }
             await wait(150);
-            stage.querySelectorAll('.bfx-bullet-hole').forEach((h) => h.remove());
+            stage.querySelectorAll('.bfx-bullet-hole-art').forEach((h) => h.remove());
             w.remove();
             await burst(tiles(stage, src, 8, 8), rect, { force: 1, duration: 850 });
         },
@@ -741,12 +814,15 @@
         // Symbiotes, Carnage, bloodthirsty walkers: jaws close over it.
         async devour({ stage, src, rect }) {
             const w = whole(stage, src);
-            const top = overlayDiv(stage, 'bfx-jaw bfx-jaw-top');
-            const bottom = overlayDiv(stage, 'bfx-jaw bfx-jaw-bottom');
+            // The jaws snap shut over it.
+            const jw = rect.width * 1.35;
+            const top = artDiv(stage, 'jaws-top', `left:50%;top:0;width:${jw}px;height:${jw * 377 / 963}px;z-index:4;`);
+            const bottom = artDiv(stage, 'jaws-bottom', `left:50%;bottom:0;width:${jw * 786 / 963}px;height:${jw * 305 / 963}px;z-index:4;`);
             await Promise.all([
-                anim(top, [{ transform: 'translateY(-100%)' }, { transform: 'translateY(0)' }], { duration: 420, easing: 'cubic-bezier(.6,0,1,.4)' }),
-                anim(bottom, [{ transform: 'translateY(100%)' }, { transform: 'translateY(0)' }], { duration: 420, easing: 'cubic-bezier(.6,0,1,.4)' }),
+                anim(top, [{ transform: 'translate(-50%,-115%)' }, { transform: 'translate(-50%,-10%)', offset: 0.55 }, { transform: 'translate(-50%,8%)' }], { duration: 440, easing: 'cubic-bezier(.6,0,1,.4)' }),
+                anim(bottom, [{ transform: 'translate(-50%,115%)' }, { transform: 'translate(-50%,10%)', offset: 0.55 }, { transform: 'translate(-50%,-6%)' }], { duration: 440, easing: 'cubic-bezier(.6,0,1,.4)' }),
             ]);
+            anim(stage, [{ transform: 'none' }, { transform: 'translate(2px,-1px)' }, { transform: 'translate(-2px,1px)' }, { transform: 'none' }], { duration: 180, fill: 'none' });
             w.remove();
             fx('splatters/burst_splatter_001', rect, 1.4);
             await Promise.all([top, bottom].map((el) => anim(el, [{ opacity: 1 }, { opacity: 0 }], { duration: 700, delay: 250 })));
@@ -769,7 +845,7 @@
         async lucille({ stage, src, rect }) {
             const w = whole(stage, src);
             const bat = overlayDiv(stage, 'bfx-lucille');
-            bat.innerHTML = LUCILLE_SVG;
+            bat.style.backgroundImage = `url("${artUrl('lucille')}")`;
             const crumple = [
                 'rotate(-6deg) scale(.94, .9)', 'rotate(5deg) scale(.86, .74) translateY(6%)', 'rotate(-3deg) scale(1.1, .32) translateY(42%)',
             ];
@@ -823,12 +899,6 @@
         stage.appendChild(svg);
         return svg;
     };
-    // Lucille: a baseball bat wrapped in barbed wire, drawn as vector art.
-    const LUCILLE_SVG = '<svg viewBox="0 0 40 200" preserveAspectRatio="xMidYMid meet"><defs><linearGradient id="bfxwood" x1="0" x2="1"><stop offset="0" stop-color="#5a3518"/><stop offset=".45" stop-color="#a8703a"/><stop offset="1" stop-color="#4a2a12"/></linearGradient></defs>'
-        + '<path d="M14 196 L26 196 L24 120 Q33 70 32 18 Q31 4 20 4 Q9 4 8 18 Q7 70 16 120 Z" fill="url(#bfxwood)" stroke="#2b170a" stroke-width="1.5"/>'
-        + '<rect x="12" y="170" width="16" height="22" rx="3" fill="#1e1e1e"/>'
-        + '<path d="M6 30 L34 42 M6 44 L34 56 M7 58 L33 70 M7 72 L33 84 M8 86 L32 98 M34 34 L6 46 M34 48 L6 60 M33 62 L7 74 M33 76 L7 88" stroke="#c9ced4" stroke-width="1.6" fill="none"/>'
-        + '<g fill="#e8ecf0">' + Array.from({ length: 12 }, (_, i) => `<path d="M${i % 2 ? 4 : 32} ${32 + i * 5.5} l${i % 2 ? -4 : 4} -2 l0 4 z"/>`).join('') + '</g></svg>';
 
     const playDeath = async (card, ctx) => {
         ctx = { ...ctx, card };
@@ -895,6 +965,7 @@
                 Object.values(c.skills).forEach((s) => keys.push(s.windup, s.travel, s.impact));
             });
             keys.push('type/buffApply', 'type/debuffApply', 'fantasy-spells/spell_heal_001', 'impacts/directional_impact_002');
+            preloadArt();
             return preloadKeys(keys);
         },
 

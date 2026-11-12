@@ -123,6 +123,16 @@ test('laser-eyed heroes fire from their measured eyes, which glow in their laser
     assert.match(engine, /burn: 'TOASTY'/);
 });
 
+test('the hand-drawn art pieces all exist and each is used by a death animation', () => {
+    const files = engine.match(/const ART_FILES = \[([^\]]+)\]/)[1].match(/'([a-z-]+)'/g).map((x) => x.slice(1, -1));
+    assert.ok(files.length >= 14);
+    for (const name of files) {
+        assert.ok(fs.existsSync(path.join(root, 'assets', 'images', 'battle-fx', 'art', `${name}.webp`)), `missing art ${name}`);
+        const uses = engine.split(`'${name}'`).length - 1 + (name.startsWith('saber-') && name !== 'saber-hilt' ? 1 : 0);
+        assert.ok(uses >= 2, `${name} is never used`);
+    }
+});
+
 test('the battle page loads the engine before the game script, with its styles', () => {
     // The server only serves listed files from /scripts/: the engine must be on the list, its build scripts must not.
     const server = read('server.js');

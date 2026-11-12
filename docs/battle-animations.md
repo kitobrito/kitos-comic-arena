@@ -123,24 +123,19 @@ The Stylized Projectiles pack in `assets/images/PokemonArena/animations` is a Un
 - [ ] On a phone (portrait and landscape): watch a full match and confirm overlays scale with the portraits.
 - [ ] Battle options: turning off "Skill animations" and "Death animations" stops casts and deaths.
 
-## 5. Art that would make it better
+## 5. Hand-drawn art
 
-The engine draws everything with code and the existing packs today. These pieces of art would be a big upgrade
-(transparent PNG, roughly 512 px on the long side unless noted):
+`assets/images/battle-fx/art/` holds the custom art, cut out of its backgrounds into transparent WebP:
 
-1. **Lucille:** "A baseball bat wrapped in rusty barbed wire, side view, hand-painted comic style, wood grain,
-   black grip tape on the handle, a few dried blood flecks, transparent background, bat pointing straight up."
-2. **Lightsaber blade and hilt:** "A single glowing lightsaber blade, white-hot core with a soft coloured glow,
-   horizontal, transparent background" (one each in red, blue, green, violet, yellow) plus "a metal lightsaber
-   hilt, side view, transparent background".
-3. **Dragon claw slash:** "Three parallel claw slash marks made of green energy, diagonal, glowing edges,
-   transparent background, comic style."
-4. **Vines:** "Thorny green vines curling in an S shape with small leaves, side view, transparent background,
-   tileable along its length."
-5. **Ash and embers:** "A sprite sheet of 8 frames of black ash flakes and orange embers drifting and breaking up,
-   transparent background, 128 x 128 per frame."
-6. **Water wave:** "A cresting cartoon ocean wave, side view, white foam on top, transparent background, wide format."
-7. **Bullet holes and cracks:** "Three bullet-hole decals with cracked edges, and three crack decals,
-   transparent background, comic style."
-8. **Symbiote jaws:** "Black symbiote jaws with long white teeth seen from the front, top and bottom halves as
-   separate pieces, transparent background."
+| File | Used by |
+| --- | --- |
+| `saber-red/blue/green/violet/yellow`, `saber-hilt` | saber: each blade ignites out of its hilt across the portrait |
+| `lucille` | lucille: Negan's bat |
+| `dragon-claw` | dragon-claw (green) and claw-triple (silver, Wolverine) |
+| `vine` | vines: four thorny vines grow across and wrap the portrait |
+| `wave` | wave: rolls in and carries the portrait off |
+| `bullet-holes` (sheet: three holes, two cracks, a spider web) | riddled (holes), shatter and pummel (cracks), cocoon (web) |
+| `ash-sheet` (8 frames) | burn: ash and embers drift off with the gust |
+| `jaws-top`, `jaws-bottom` | devour: the jaws snap shut |
+
+To replace a piece, keep the file name and size proportions and bump `VERSION` in `scripts/battle-fx.js`.

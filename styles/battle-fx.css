@@ -86,16 +86,6 @@
     filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.6));
 }
 
-.bfx-wave {
-    position: absolute;
-    top: -15%;
-    bottom: -15%;
-    left: -20%;
-    width: 140%;
-    background: linear-gradient(90deg, transparent 0%, rgba(30, 120, 220, 0.0) 20%, rgba(40, 150, 240, 0.85) 45%, rgba(220, 245, 255, 0.95) 55%, rgba(30, 110, 210, 0.7) 70%, transparent 100%);
-    filter: blur(2px);
-    z-index: 2;
-}
 
 .bfx-frost {
     position: absolute;
@@ -136,36 +126,11 @@
     z-index: 2;
 }
 
-.bfx-bullet-hole {
-    position: absolute;
-    width: 9%;
-    aspect-ratio: 1;
-    transform: translate(-50%, -50%);
-    border-radius: 50%;
-    background: radial-gradient(circle, #000 0 35%, #3a2a1e 45%, rgba(255, 200, 120, 0.6) 55%, transparent 70%);
-    z-index: 3;
-}
 
-.bfx-jaw {
-    position: absolute;
-    left: -10%;
-    right: -10%;
-    height: 55%;
-    background: #070708;
-    z-index: 3;
-}
 
-.bfx-jaw-top {
-    top: 0;
-    clip-path: polygon(0 0, 100% 0, 100% 70%, 92% 100%, 84% 70%, 76% 100%, 68% 70%, 60% 100%, 52% 70%, 44% 100%, 36% 70%, 28% 100%, 20% 70%, 12% 100%, 4% 70%, 0 80%);
-}
 
-.bfx-jaw-bottom {
-    bottom: 0;
-    clip-path: polygon(0 20%, 8% 0, 16% 30%, 24% 0, 32% 30%, 40% 0, 48% 30%, 56% 0, 64% 30%, 72% 0, 80% 30%, 88% 0, 96% 30%, 100% 20%, 100% 100%, 0 100%);
-}
 
-/* Lucille swings in from the top right and pivots on the grip. */
+/* Lucille (hand-drawn art) swings in from the top right and pivots on the grip. */
 .bfx-lucille {
     position: absolute;
     right: -30%;
@@ -174,13 +139,10 @@
     height: 150%;
     transform-origin: 50% 95%;
     z-index: 4;
+    background: center / contain no-repeat;
     filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.6));
 }
 
-.bfx-lucille svg {
-    width: 100%;
-    height: 100%;
-}
 
 body.ui-disable-skill-cast-animations .bfx-sprite,
 body.skill-effects-muted .bfx-sprite {
@@ -229,4 +191,32 @@ body.ui-disable-death-animations .bfx-death-stage {
     background: linear-gradient(90deg, #fff, var(--c) 30%, var(--c) 85%, #fff);
     box-shadow: 0 0 calc(var(--w) * 1.5) var(--c), 0 0 calc(var(--w) * 4) var(--c);
     z-index: 1;
+}
+
+/* Hand-drawn art pieces (assets/images/battle-fx/art): sabers, claws, vines, wave, jaws, decals. */
+.bfx-art {
+    position: absolute;
+    display: block;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    pointer-events: none;
+    z-index: 3;
+}
+.bfx-saber {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 4;
+}
+.bfx-saber .bfx-saber-blade {
+    inset: 0;
+    transform-origin: 0 50%;
+    filter: brightness(1.25) drop-shadow(0 0 3px var(--glow)) drop-shadow(0 0 9px var(--glow));
+}
+.bfx-saber .bfx-saber-hilt {
+    right: 100%;
+    top: 50%;
+    margin-right: -2px;
+    transform: translateY(-50%);
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .7));
 }
