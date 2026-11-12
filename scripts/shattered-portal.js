@@ -6,6 +6,8 @@
  * server (its website API, see server/server.js onApi in shattered-realms-tcg):
  *   GET  /api/news          patch notes, factions, keywords, rules, current poll
  *   GET  /api/leaderboard   top 50 ranked players
+ *   GET  /api/players       every registered player's public profile (the playerbase page)
+ *   GET  /api/player/<name> one player's public profile (the profile page)
  *   POST /api/login | register | me | logout
  *   GET/POST /poll/<id>     the community faction vote
  * The site's sign-in token is kept in localStorage ("sr-site-token") and handed
@@ -36,6 +38,8 @@
   var newsP = null;
   function news() { return newsP || (newsP = cached("sr-news", 300000, function () { return TP.srApi("news"); })); }
   function ladder() { return cached("sr-ladder", 60000, function () { return TP.srApi("leaderboard"); }); }
+  function players() { return cached("sr-players", 30000, function () { return TP.srApi("players"); }); }
+  function player(name) { return TP.srApi("player/" + encodeURIComponent(name)); }
   function voterId() {
     try {
       var id = localStorage.getItem("sr-site-voter");
@@ -147,7 +151,8 @@
     { href: "/shattered-manual", label: "How to Play", ico: "book", page: "manual" },
     { href: "/shattered-manual#unlocks", label: "Unlocks & Rewards", ico: "shield", page: "unlocks" },
     { href: "/shattered-ladder", label: "Ranked Ladder", ico: "trophy", page: "ladder" },
-    { href: ITCH, label: "Community (itch.io)", ico: "users", page: "itch", ext: true }
+    { href: "/shattered-players", label: "Playerbase", ico: "users", page: "players" },
+    { href: ITCH, label: "Community (itch.io)", ico: "scroll", page: "itch", ext: true }
   ];
   function renderLeft() {
     var rail = $('[data-sr-rail="left"]');
@@ -185,11 +190,12 @@
         '<a class="tp-btn tp-btn-ghost tp-btn-block" style="margin-top:8px" href="/shattered-account">Profile</a>';
     });
   }
+  function profileHref(name) { return "/shattered-player?name=" + encodeURIComponent(name); }
   function ladderRows(rows, limit) {
     if (!rows || !rows.length) return '<p class="tp-empty">No ranked games yet. Be the first on the board.</p>';
     return '<ol class="tp-ladder">' + rows.slice(0, limit).map(function (r) {
       var pct = r.tier === "Legendary" ? 100 : Math.max(4, Math.min(100, r.rp || 0));
-      return '<li><span class="tp-name">' + esc(r.name) + "</span><em>" + esc(r.label) + '</em><span class="tp-xp" title="' + esc(r.rp) + ' RP"><i style="--p:' + pct + '%"></i></span></li>';
+      return '<li><a class="tp-name" href="' + profileHref(r.name) + '">' + esc(r.name) + "</a><em>" + esc(r.label) + '</em><span class="tp-xp" title="' + esc(r.rp) + ' RP"><i style="--p:' + pct + '%"></i></span></li>';
     }).join("") + "</ol>";
   }
   function renderRight() {
@@ -456,7 +462,7 @@
         var slice = shown.slice(state.page * state.per, state.page * state.per + state.per);
         body.innerHTML = slice.length ? slice.map(function (r) {
           var games = (r.wins || 0) + (r.losses || 0);
-          return "<tr" + (you && you.name === r.name ? ' class="is-me"' : "") + '><td class="place">' + r.place + "</td><td><b>" + esc(r.name) + "</b></td>" +
+          return "<tr" + (you && you.name === r.name ? ' class="is-me"' : "") + '><td class="place">' + r.place + '</td><td><a class="sr-player-link" href="' + profileHref(r.name) + '"><b>' + esc(r.name) + "</b></a></td>" +
             '<td><span class="sr-tier" style="--c:' + (TIER_COLOR[r.tier] || "#9ca3af") + '"><i></i>' + esc(r.label) + "</span></td><td>" + esc(r.rp) + "</td>" +
             "<td>" + (r.wins || 0) + " – " + (r.losses || 0) + "</td><td>" + (games ? Math.round((r.wins || 0) * 100 / games) + "%" : "–") + "</td>" +
             "<td>" + (r.series ? r.series.wins + "-" + r.series.losses + " to " + esc(r.series.to) : "–") + "</td></tr>";
@@ -469,6 +475,136 @@
       search.addEventListener("input", function () { state.page = 0; draw(); });
       draw();
     }).catch(function () { stop(); body.innerHTML = '<tr><td colspan="7"><p class="tp-empty">The ladder is unavailable right now. Try again in a minute.</p></td></tr>'; });
+  };
+
+  // ---- Playerbase and profiles ------------------------------------------------------
+  function joinedText(ms) {
+    if (!ms) return "a while ago";
+    try { return new Date(ms).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }); } catch (e) { return "a while ago"; }
+  }
+  function presence(p) {
+    if (p.inMatch) return '<span class="sr-presence is-match"><i></i>In a match</span>';
+    if (p.online) return '<span class="sr-presence is-on"><i></i>Online</span>';
+    return "";
+  }
+  // A sigil instead of an avatar (the game has none): the player's initial on a tier-coloured shard.
+  function sigil(p, big) {
+    var c = TIER_COLOR[p.tier] || "#9ca3af";
+    return '<span class="sr-sigil' + (big ? " is-big" : "") + '" style="--c:' + c + '" aria-hidden="true"><b>' + esc((p.name || "?").charAt(0).toUpperCase()) + "</b></span>";
+  }
+  function pct(n) { return n == null ? "–" : n + "%"; }
+
+  views.players = function () {
+    var grid = $("[data-sr-pb-grid]"), pager = $("[data-sr-pager]");
+    var search = $("[data-sr-pb-search]"), filter = $("[data-sr-pb-filter]"), sort = $("[data-sr-pb-sort]");
+    var stop = wakeNote(grid);
+    var params = new URLSearchParams(location.search);
+    if (params.get("q")) search.value = params.get("q");
+    if (params.get("show") && filter.querySelector('option[value="' + params.get("show") + '"]')) filter.value = params.get("show");
+    if (params.get("sort") && sort.querySelector('option[value="' + params.get("sort") + '"]')) sort.value = params.get("sort");
+    Promise.all([players(), me()]).then(function (res) {
+      stop();
+      var rows = res[0].rows || [], you = res[1];
+      var state = { page: 0, per: 24 };
+      var set = function (k, v) { var el = $('[data-sr-pb="' + k + '"]'); if (el) el.textContent = v; };
+      set("total", rows.length);
+      set("online", rows.filter(function (r) { return r.online; }).length);
+      set("ranked", rows.filter(function (r) { return r.place; }).length);
+      set("games", Math.round(rows.reduce(function (n, r) { return n + (r.games || 0); }, 0) / 2));
+      var SORTS = {
+        newest: function (a, b) { return (b.joined || 0) - (a.joined || 0); },
+        rank: function (a, b) { return (a.place || 1e9) - (b.place || 1e9) || (b.wins || 0) - (a.wins || 0); },
+        wins: function (a, b) { return (b.wins || 0) - (a.wins || 0) || (b.winRate || 0) - (a.winRate || 0); },
+        games: function (a, b) { return (b.games || 0) - (a.games || 0); },
+        name: function (a, b) { return a.name.localeCompare(b.name); }
+      };
+      function card(p) {
+        var mine = you && you.name === p.name;
+        return '<article class="sr-pb-card' + (mine ? " is-me" : "") + (p.online ? " is-online" : "") + '">' +
+          sigil(p) +
+          '<div class="sr-pb-body">' +
+            '<div class="sr-pb-name"><a href="' + profileHref(p.name) + '">' + esc(p.name) + "</a>" +
+              (p.admin ? '<span class="tp-chip">Admin</span>' : "") + (mine ? '<span class="tp-chip">You</span>' : "") +
+              (p.place ? '<span class="sr-pb-place">#' + p.place + "</span>" : "") + "</div>" +
+            '<div class="sr-pb-meta"><span class="sr-tier" style="--c:' + (TIER_COLOR[p.tier] || "#9ca3af") + '"><i></i>' + esc(p.label) + "</span>" +
+              "<span>Joined " + esc(joinedText(p.joined)) + "</span>" + presence(p) + "</div>" +
+            '<div class="sr-pb-statrow">' +
+              "<div><b>" + (p.games || 0) + "</b><span>Games</span></div>" +
+              "<div><b>" + (p.wins || 0) + "</b><span>Wins</span></div>" +
+              "<div><b>" + (p.games ? pct(p.winRate) : "–") + "</b><span>Win %</span></div>" +
+              "<div><b>" + (p.rankedWins || 0) + "–" + (p.rankedLosses || 0) + "</b><span>Ranked</span></div>" +
+              "<div><b>" + esc(p.rp) + "</b><span>RP</span></div>" +
+            "</div>" +
+            '<a class="sr-pb-open" href="' + profileHref(p.name) + '">Open profile &rsaquo;</a>' +
+          "</div></article>";
+      }
+      function draw() {
+        var q = (search.value || "").trim().toLowerCase(), show = filter.value;
+        var shown = rows.filter(function (r) {
+          if (show === "online" && !r.online) return false;
+          if (show === "ranked" && !r.place) return false;
+          return !q || r.name.toLowerCase().indexOf(q) !== -1 || String(r.label).toLowerCase().indexOf(q) !== -1 || String(r.tier).toLowerCase().indexOf(q) !== -1;
+        }).sort(SORTS[sort.value] || SORTS.newest);
+        var pages = Math.max(1, Math.ceil(shown.length / state.per));
+        state.page = Math.min(state.page, pages - 1);
+        var slice = shown.slice(state.page * state.per, state.page * state.per + state.per);
+        grid.innerHTML = slice.length ? slice.map(card).join("") :
+          '<p class="tp-empty">' + (rows.length ? "No player matches those filters." : "No players yet. Create an account and be the first.") + "</p>";
+        pager.innerHTML = '<span class="tp-small">' + shown.length + " player" + (shown.length === 1 ? "" : "s") + " · page " + (state.page + 1) + " of " + pages + "</span>" +
+          '<span class="tp-row"><button class="tp-btn tp-btn-ghost" type="button" data-pg="-1"' + (state.page === 0 ? " disabled" : "") + '>&lsaquo; Prev</button>' +
+          '<button class="tp-btn tp-btn-ghost" type="button" data-pg="1"' + (state.page >= pages - 1 ? " disabled" : "") + ">Next &rsaquo;</button></span>";
+      }
+      pager.addEventListener("click", function (e) {
+        var b = e.target.closest("[data-pg]"); if (!b || b.disabled) return;
+        state.page += +b.getAttribute("data-pg"); draw();
+        grid.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+      [search, filter, sort].forEach(function (el) { el.addEventListener(el === search ? "input" : "change", function () { state.page = 0; draw(); }); });
+      draw();
+    }).catch(function () { stop(); grid.innerHTML = '<p class="tp-empty">The playerbase is unavailable right now. Try again in a minute.</p>'; });
+  };
+
+  views.player = function () {
+    var box = $("[data-sr-player]"), find = $("[data-sr-player-find]");
+    var name = (new URLSearchParams(location.search).get("name") || "").trim();
+    find.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var n = find.name.value.trim();
+      if (n) location.href = profileHref(n);
+    });
+    if (!name) {
+      box.innerHTML = '<span class="tp-eyebrow">Profile</span><h1 class="tp-h1">Find a player</h1><p class="tp-lede">Type a name below, or <a href="/shattered-players">browse the playerbase</a>.</p>';
+      return;
+    }
+    var stop = wakeNote(box);
+    Promise.all([player(name), me()]).then(function (res) {
+      stop();
+      var p = res[0].player, you = res[1], mine = you && you.name === p.name;
+      doc.title = p.name + " | Shattered Realms";
+      var c = TIER_COLOR[p.tier] || "#eab308";
+      var rpPct = p.tier === "Legendary" ? 100 : Math.max(0, Math.min(100, p.rp || 0));
+      var rankedRate = p.rankedGames ? Math.round((p.rankedWins || 0) * 100 / p.rankedGames) : null;
+      box.innerHTML =
+        '<div class="sr-profile-head">' + sigil(p, true) +
+          '<div><span class="tp-eyebrow">Player profile</span>' +
+          '<h1 class="tp-h1" style="margin:4px 0 6px">' + esc(p.name) + (p.admin ? ' <span class="tp-chip">Admin</span>' : "") + (mine ? ' <span class="tp-chip">You</span>' : "") + "</h1>" +
+          '<div class="sr-pb-meta"><span class="sr-tier" style="--c:' + c + '"><i></i>' + esc(p.label) + "</span><span>" + esc(p.rp) + " RP</span>" +
+            "<span>" + (p.place ? "#" + p.place + " on the ladder" : "Not ranked yet") + "</span><span>Joined " + esc(joinedText(p.joined)) + "</span>" + presence(p) + "</div></div></div>" +
+        '<div class="sr-rp" title="RP toward the next division"><i style="--p:' + rpPct + '%"></i></div>' +
+        (p.series ? '<p class="tp-small" style="margin-top:8px">Promotion series to <b>' + esc(p.series.to) + "</b>: " + p.series.wins + "–" + p.series.losses + " (best of " + p.series.best + ").</p>" : "") +
+        '<div class="sr-statgrid"><div><b>' + (p.rankedWins || 0) + "</b><span>Ranked wins</span></div><div><b>" + (p.rankedLosses || 0) + "</b><span>Ranked losses</span></div>" +
+          "<div><b>" + pct(rankedRate) + "</b><span>Ranked win rate</span></div>" +
+          "<div><b>" + (p.wins || 0) + "</b><span>All wins</span></div><div><b>" + (p.losses || 0) + "</b><span>All losses</span></div>" +
+          "<div><b>" + (p.games ? pct(p.winRate) : "–") + "</b><span>Overall win rate</span></div></div>" +
+        '<div class="tp-row" style="margin-top:16px">' +
+          (mine ? '<a class="tp-btn" href="/shattered-account">Manage your account</a>' : '<a class="tp-btn" href="/shattered-play">Play Shattered Realms</a>') +
+          '<a class="tp-btn tp-btn-ghost" href="/shattered-ladder">See the ladder</a></div>';
+    }).catch(function (err) {
+      stop();
+      box.innerHTML = err && err.status === 404
+        ? '<span class="tp-eyebrow">Profile</span><h1 class="tp-h1">No player called "' + esc(name) + '"</h1><p class="tp-lede">Check the spelling, or <a href="/shattered-players">browse the playerbase</a>.</p>'
+        : '<p class="tp-empty">That profile is unavailable right now. Try again in a minute.</p>';
+    });
   };
 
   views.account = function () {

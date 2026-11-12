@@ -341,7 +341,7 @@ a.tp-card:hover, .tp-card.is-link:hover { box-shadow: var(--tp-card-hover-shadow
 .tp-btn[disabled] { opacity: 0.55; cursor: not-allowed; transform: none; }
 .tp-btn-ghost { background: rgba(255, 255, 255, 0.04); color: var(--tp-ink) !important; border: 1px solid var(--tp-line-strong); box-shadow: none; }
 .tp-btn-ghost:hover { border-color: rgba(var(--tp-accent-rgb), 0.7); background: rgba(var(--tp-accent-rgb), 0.1); }
-.tp-btn-block { width: 100%; }
+.tp-btn-block { width: 100%; box-sizing: border-box; }
 .tp-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 
 .tp-field {
