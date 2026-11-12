@@ -210,7 +210,7 @@
       "</div></div>" +
       '<div class="tp-card"><h2 class="tp-title">Top 10 Players<small>Ranked</small></h2><div data-sr-top>' + '<p class="tp-empty">Loading&hellip;</p>' + "</div>" +
         '<a class="tp-btn tp-btn-ghost tp-btn-block" style="margin-top:12px" href="/shattered-ladder">Full ladder</a></div>' +
-      '<div class="tp-card"><h2 class="tp-title">Realm Vote<small>Next faction</small></h2><div data-sr-mini-vote><p class="tp-empty">Loading&hellip;</p></div></div>';
+      '<div class="tp-card"><h2 class="tp-title">Realm Vote<small>Results</small></h2><div data-sr-mini-vote><p class="tp-empty">Loading&hellip;</p></div></div>';
     var top = $("[data-sr-top]", rail);
     var stopWake = wakeNote($(".tp-empty", top));
     ladder().then(function (d) {
@@ -223,10 +223,19 @@
       $("[data-sr-pulse=factions]").textContent = String(n.factions.length);
       $("[data-sr-pulse=cards]").textContent = n.cardCount ? (Math.floor(n.cardCount / 100) * 100).toLocaleString("en-US") + "+" : "1,000+";
       if (n.poll) renderVote($("[data-sr-mini-vote]", rail), n.poll, true);
+      else renderVoteResult($("[data-sr-mini-vote]", rail), n.pollResult);
     }).catch(function () { $("[data-sr-mini-vote]", rail).innerHTML = '<p class="tp-empty">Vote unavailable right now.</p>'; });
   }
 
   // ---- Vote --------------------------------------------------------------------------
+  // No poll open: the last vote's result (from /api/news pollResult), or nothing to vote on.
+  function renderVoteResult(box, result) {
+    if (!box) return;
+    if (!result || !result.winner) { box.innerHTML = '<p class="tp-empty">No vote is open right now. Check back for the next one!</p>'; return; }
+    var w = result.winner;
+    box.innerHTML = '<div class="sr-vote-result">' + (w.art ? '<img src="' + esc(w.art) + '" alt="" loading="lazy">' : "") +
+      '<p><b>The vote is closed: ' + esc(w.name) + ' won!</b> They have joined the realms. Thank you to everyone who voted.</p></div>';
+  }
   function renderVote(box, poll, mini) {
     var mine = null;
     try { mine = localStorage.getItem("sr-site-vote-" + poll.id); } catch (e) {}
@@ -348,6 +357,7 @@
       var count = $("[data-sr-count]");
       if (count) count.textContent = String(n.factions.length);
       if (n.poll && vote) renderVote(vote, n.poll, false);
+      else if (vote) renderVoteResult(vote, n.pollResult);
     }).catch(function () {
       stop();
       latest.innerHTML = '<p class="tp-empty">Patch notes are unavailable right now. <a href="' + ITCH + '" target="_blank" rel="noopener noreferrer">Read them on itch.io</a>.</p>';
