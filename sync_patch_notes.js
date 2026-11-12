@@ -25,6 +25,20 @@ const BATTLE_FX = [
 
 const POSTS = [
     {
+        releaseVersion: 'patch-2026-11-12-pidgey-random-pokemon',
+        title: 'Pokemon Arena: Pidgey Goes All Random',
+        arena: 'pokemon',
+        author: 'kito',
+        blocks: [
+            p('Pidgey and Pidgeotto now use only random energy, so they fit on any team. To make up for it, their skills have cooldowns:'),
+            p('Pidgey: Gust costs 1 random energy with a 1 turn cooldown (was 1 Bloodline, no cooldown). Whirlwind costs 2 random with a 5 turn cooldown (was 2 Bloodline, 3 turns). Peck costs 2 random with a 1 turn cooldown (was 1 Taijutsu + 1 random, no cooldown).'),
+            p('Pidgeotto: Gust costs 1 random with a 1 turn cooldown (was 1 Bloodline, no cooldown). Whirlwind costs 3 random with a 5 turn cooldown (was 2 Bloodline + 1 random, 3 turns). Peck costs 2 random with a 1 turn cooldown (was 1 Taijutsu + 1 random, no cooldown).'),
+            p('Sand-Attack is unchanged.'),
+            divider,
+            p('Character Files: Lance now shows as a single portrait in the roster. His Dragonite, Gyarados and Aerodactyl no longer get their own tiles next to him (they still all take the field when you pick him).'),
+        ],
+    },
+    {
         releaseVersion: 'patch-2026-11-12-battle-animations-pokemon',
         title: 'Pokemon Arena: Brand New Battle Animations',
         arena: 'pokemon',
