@@ -31,6 +31,15 @@ const NO_ZOOM = [
 
 const POSTS = [
     {
+        releaseVersion: 'patch-2026-11-12-mega-blaziken-render',
+        title: 'Pokemon Arena: Mega Blaziken on Character Select',
+        arena: 'pokemon',
+        author: 'kito',
+        blocks: [
+            p('Blaziken now has a Mega toggle on the character select screen. Tap the second dot under Blaziken (or pick Blaze Kick in its skills) to see Mega Blaziken in its new artwork.'),
+        ],
+    },
+    {
         releaseVersion: 'patch-2026-11-12-no-zoom-pokemon',
         title: 'Pokemon Arena: No More Accidental Zoom on Phones',
         arena: 'pokemon',

@@ -1782,6 +1782,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         aegislash: { name: 'Blade Stance', filename: 'aegislashnopassive.webp', label: 'Blade Stance' },
         abra: { name: 'Kadabra', filename: 'kadabra.png.webp' },
         beedrill: { name: 'Mega Beedrill', filename: 'megabeedrill.png.webp' },
+        blaziken: { name: 'Mega Blaziken', filename: 'megablaziken.webp', label: 'Mega' },
         bulbasaur: { name: 'Ivysaur', filename: 'ivysaur.png.webp' },
         chansey: { name: 'Blissey', filename: 'blissey.png.webp' },
         charmander: { name: 'Charmeleon', filename: 'charmeleon.png.webp' },
@@ -19005,6 +19006,10 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             Object.values(JOHTO_STARTER_MIDDLE_EVOLUTION_SKILL_BY_ID).includes(skill?.id)
         ) {
             return 'evolution-2';
+        }
+        // Mega Blaziken's own skill (it replaces Fiery Roar once Blaziken Mega Evolves).
+        if (forms.some((form) => form.id === 'evolution') && skillId === 'blaziken-blaze-kick') {
+            return 'evolution';
         }
         if (forms.some((form) => form.id === 'evolution') && isSelectionEvolutionSkill(skill)) {
             return 'evolution';
