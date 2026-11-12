@@ -8594,6 +8594,9 @@ const mergeCharacterOverrideRecord = (baseCharacter, overrideCharacter) => {
 
 const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonicalCharacters = []) => {
     const requiredFieldsByCharacterAndSkill = {
+        // Pidgey uses only Random energy: costs and cooldowns always come from characters.js.
+        pidgey: Object.fromEntries(['pidgey-gust', 'pidgey-whirlwind', 'pidgey-peck', 'pidgeotto-gust', 'pidgeotto-whirlwind', 'pidgeotto-peck']
+            .map((id) => [id, ['energy', 'cooldown']])),
         magnemite: {
             'magneton-flash-cannon': ['skilldescription'],
         },

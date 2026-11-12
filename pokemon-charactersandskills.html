@@ -369,6 +369,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       roster = roster.filter(function (character) {
         return getCharacterArena(character) === pageArena;
       });
+      // Lance takes three team slots, but the list shows only Lance himself, not his Pokemon.
+      var lanceTeamIds = { "lance-dragonite-1": true, "lance-gyarados": true, "lance-aerodactyl": true };
+      roster = roster.filter(function (character) {
+        return !lanceTeamIds[getCharacterRecordIdForList(character)];
+      });
+      function getCharacterRecordIdForList(character) {
+        return String((character && (character.id || character.characterId)) || "").trim().toLowerCase();
+      }
 
       var pageTitle = document.querySelector(".character-search-label");
       var universeFilters = document.getElementById("universe-filters");

@@ -22342,11 +22342,11 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/pidgey/gust.webp",
                 "skilldescription": "Pidgey deals 15 piercing damage to one enemy and 10 piercing damage to all other enemies. If the target is affected by Sand-Attack, this skill deals 10 additional piercing damage to that enemy.",
                 "energy": [
-                    "Bloodline"
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 0,
+                "cooldown": 1,
                 "classes": [
                     "Flying",
                     "Physical",
@@ -22418,12 +22418,12 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/pidgey/whirlwind.webp",
                 "skilldescription": "For 2 turns, Pidgey gains 25% evasion, and Gust and Peck deal 5 additional piercing damage to all other enemies.",
                 "energy": [
-                    "Bloodline",
-                    "Bloodline"
+                    "Random",
+                    "Random"
                 ],
                 "target": "self",
                 "damage": 0,
-                "cooldown": 3,
+                "cooldown": 5,
                 "classes": [
                     "Normal",
                     "Physical",
@@ -22449,12 +22449,12 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/pidgey/peck.webp",
                 "skilldescription": "Pidgey deals 20 piercing damage to one enemy. If the target is affected by Sand-Attack, Peck deals 10 additional piercing damage. While Whirlwind is active, Peck also deals 10 piercing damage to all other enemies.",
                 "energy": [
-                    "Taijutsu",
+                    "Random",
                     "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 0,
+                "cooldown": 1,
                 "classes": [
                     "Flying",
                     "Physical",
@@ -22566,11 +22566,11 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/pidgey/pidgeottogust.webp",
                 "skilldescription": "Pidgeotto deals 20 piercing damage to one enemy and 15 piercing damage to all other enemies. If the target is affected by Sand-Attack, this skill deals 10 additional piercing damage to that enemy. While Whirlwind is active, Gust deals 10 additional piercing damage to all other enemies.",
                 "energy": [
-                    "Bloodline"
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 0,
+                "cooldown": 1,
                 "classes": [
                     "Flying",
                     "Physical",
@@ -22632,13 +22632,13 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/pidgey/pidgeottowhirlwind.webp",
                 "skilldescription": "For 3 turns, Pidgeotto gains 50% evasion, and Gust and Peck deal 10 additional piercing damage to all other enemies.",
                 "energy": [
-                    "Bloodline",
-                    "Bloodline",
+                    "Random",
+                    "Random",
                     "Random"
                 ],
                 "target": "self",
                 "damage": 0,
-                "cooldown": 3,
+                "cooldown": 5,
                 "classes": [
                     "Normal",
                     "Physical",
@@ -22667,12 +22667,12 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/pidgey/pidgeottopeck.webp",
                 "skilldescription": "Pidgeotto deals 30 piercing damage to one enemy. If the target is affected by Sand-Attack, Peck deals 15 additional piercing damage. While Whirlwind is active, Peck also deals 15 piercing damage to all other enemies.",
                 "energy": [
-                    "Taijutsu",
+                    "Random",
                     "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 0,
+                "cooldown": 1,
                 "classes": [
                     "Flying",
                     "Physical",
