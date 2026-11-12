@@ -31,6 +31,15 @@ const NO_ZOOM = [
 
 const POSTS = [
     {
+        releaseVersion: 'patch-2026-11-12-lance-team-skills',
+        title: 'Pokemon Arena: Lance\'s Team in Character Files',
+        arena: 'pokemon',
+        author: 'kito',
+        blocks: [
+            p('Click Lance in Character Files to see his whole team under "Lance\'s team": Dragonite, Gyarados and Aerodactyl, plus the partner that takes over when each one faints (Charizard, Kingdra and a second Dragonite). Tap any of them to see their skills.'),
+        ],
+    },
+    {
         releaseVersion: 'patch-2026-11-12-mega-blaziken-render',
         title: 'Pokemon Arena: Mega Blaziken on Character Select',
         arena: 'pokemon',

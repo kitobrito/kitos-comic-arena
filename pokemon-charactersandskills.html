@@ -21,6 +21,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   <link rel="stylesheet" href="styles/pokemon-characters.css?v=ground-up-v1" />
   <link rel="stylesheet" href="/styles/tri-portal.css?v=tri-3" />
   <script src="/scripts/tri-portal.js?v=tri-3"></script>
+<style>
+  .character-lance-team { margin-top: 18px; }
+  .character-lance-team-heading { margin: 0 0 10px; font-size: 15px; letter-spacing: .08em; text-transform: uppercase; color: #ffd36a; }
+</style>
 </head>
 <body class="pp-body pp-has-tabbar" data-page-arena="pokemon" data-portal-section="characters">
 <!-- Google Tag Manager (noscript) -->
@@ -858,6 +862,68 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             grid.appendChild(formPanel);
           });
           skillsView.appendChild(grid);
+        }
+
+        // Lance: his six Pokemon (three leads, each with the partner that takes over when it
+        // faints) aren't in the roster list on their own, so their skills live here.
+        if (characterId === "lance") {
+          var fullRoster = Array.isArray(window.characters)
+            ? window.characters
+            : (typeof characters !== "undefined" && Array.isArray(characters) ? characters : []);
+          var teamSection = document.createElement("div");
+          teamSection.className = "character-lance-team";
+          var teamHeading = document.createElement("h4");
+          teamHeading.className = "character-lance-team-heading";
+          teamHeading.textContent = "Lance's team";
+          teamSection.appendChild(teamHeading);
+          var teamGrid = document.createElement("div");
+          teamGrid.className = "character-modal-skill-grid";
+          var addTeamMember = function (name, portraitSrc, note, skills) {
+            var visible = (skills || []).filter(function (skill) { return skill && !skill.hiddenFromSelectionViewer; });
+            if (!visible.length) return;
+            var memberToggle = document.createElement("button");
+            memberToggle.type = "button";
+            memberToggle.className = "character-evolution-toggle";
+            memberToggle.setAttribute("aria-expanded", "false");
+            var memberPortrait = document.createElement("img");
+            memberPortrait.src = portraitSrc || character.facePicture || "";
+            memberPortrait.alt = name + " portrait";
+            var memberTitle = document.createElement("strong");
+            memberTitle.textContent = name;
+            var memberPrompt = document.createElement("span");
+            memberPrompt.textContent = note + " · View skills";
+            memberToggle.appendChild(memberPortrait);
+            memberToggle.appendChild(memberTitle);
+            memberToggle.appendChild(memberPrompt);
+            var memberPanel = document.createElement("div");
+            memberPanel.className = "character-modal-skill-grid character-evolution-skills";
+            memberPanel.hidden = true;
+            visible.forEach(function (skill) { memberPanel.appendChild(createSkillCard(skill)); });
+            memberToggle.addEventListener("click", function () {
+              var opening = memberPanel.hidden;
+              memberPanel.hidden = !opening;
+              memberToggle.setAttribute("aria-expanded", opening ? "true" : "false");
+              memberPrompt.textContent = note + (opening ? " · Hide skills" : " · View skills");
+            });
+            teamGrid.appendChild(memberToggle);
+            teamGrid.appendChild(memberPanel);
+          };
+          ["lance-dragonite-1", "lance-gyarados", "lance-aerodactyl"].forEach(function (leadId) {
+            var lead = fullRoster.find(function (entry) { return entry && (entry.id === leadId || entry.characterId === leadId); });
+            if (!lead) return;
+            var hp = lead.maxHp ? " · " + lead.maxHp + " HP" : "";
+            addTeamMember(lead.name, lead.facePicture, "Starts on the field" + hp, lead.skills);
+            (Array.isArray(lead.battleForms) ? lead.battleForms : []).forEach(function (partner) {
+              addTeamMember(
+                partner.name || "Partner",
+                partner.facePicture,
+                "Takes over when " + lead.name + " faints" + (partner.maxHp || lead.maxHp ? " · " + (partner.maxHp || lead.maxHp) + " HP" : ""),
+                partner.skills
+              );
+            });
+          });
+          teamSection.appendChild(teamGrid);
+          skillsView.appendChild(teamSection);
         }
 
         modalBackdrop.classList.add("visible");
