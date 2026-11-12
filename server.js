@@ -60,6 +60,7 @@ const { syncPokemonDittoRelease } = require('./sync_pokemon_ditto_release');
 const { syncPokemonDragapultRelease } = require('./sync_pokemon_dragapult_release');
 const { syncPokemonNincadaRelease } = require('./sync_pokemon_nincada_release');
 const { syncArenaPortalUpdateNews } = require('./sync_arena_portal_update_news');
+const { syncPatchNotes } = require('./sync_patch_notes');
 const {
     EVENT_DURATION_MS: PRIMEAPE_EVENT_DURATION_MS,
     syncPokemonPrimeapeRelease,
@@ -14592,6 +14593,7 @@ async function initDb() {
     }
     // After the Primeape sync above, which also rewrites Latest Releases on every start.
     await syncArenaPortalUpdateNews(db);
+    await syncPatchNotes(db);
     console.log('Synced the Arena Portal update news posts (Deadpool, Blaziken).');
     const compensationSync = await syncPokemonCompensationGrant(db);
     if (compensationSync.migrated) {
