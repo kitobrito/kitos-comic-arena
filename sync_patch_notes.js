@@ -24,7 +24,7 @@ const BATTLE_FX = [
 ];
 
 const NO_ZOOM = [
-    p('Phones held upright no longer zoom on the character select screen or in battle. Tapping the arrows quickly (or double tapping anywhere) used to zoom into the background and throw the whole screen out of place. Pinching won\'t zoom there either. Turn your phone sideways if you want to pinch-zoom.'),
+    p('Phones held upright no longer zoom on the character select screen or in battle. Tapping the arrows quickly (or double tapping anywhere) used to zoom into the background and throw the whole screen out of place. Pinching won\'t zoom there either. Turn your phone sideways if you want to pinch-zoom. This now works on iPhones too, which were still zooming on a quick double tap.'),
     p('Character select: tapping the page arrows quickly now just flips through more pages, even on the first and last page. Double tapping a character in your team removes it again (it was getting swallowed by the zoom).'),
     p('In battle on phones, double tapping now works like double clicking: double tap an empty spot to take back the last skill you confirmed, or double tap the skill itself, its small icon on your character, or its icon in the turn order to take that one back. Double clicking the small icon on your character works on computers too now.'),
 ];
@@ -43,6 +43,15 @@ const POSTS = [
             p('Giga Impact (2 random, cooldown 4, Control): Aerodactyl becomes invulnerable for 1 turn and marks an enemy. When the mark ends, if that enemy can still be targeted, both of them take 30 damage and the enemy is stunned for 1 turn. Aerodactyl\'s own damage from this can\'t kill it, and if the enemy dodges (for example by becoming invulnerable), neither takes damage.'),
             p('Mega Aerodactyl: if Giga Impact deals damage, Aerodactyl Mega Evolves for the rest of the game, heals 10 health, powers up its skills and gains Rock Blast: every skill it uses deals 5 piercing damage to the enemy team on each of its next 2 turns, and this stacks.'),
             p('Mega Aerodactyl also has its own artwork on the character select screen: tap the Mega dot under Aerodactyl.'),
+        ],
+    },
+    {
+        releaseVersion: 'patch-2026-11-12-lance-team-skills',
+        title: 'Pokemon Arena: Lance\'s Team in Character Files',
+        arena: 'pokemon',
+        author: 'kito',
+        blocks: [
+            p('Click Lance in Character Files to see his whole team under "Lance\'s team": Dragonite, Gyarados and Aerodactyl, plus the partner that takes over when each one faints (Charizard, Kingdra and a second Dragonite). Tap any of them to see their skills.'),
         ],
     },
     {
