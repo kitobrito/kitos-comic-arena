@@ -67,22 +67,20 @@ test('the Gen 2 mission locks all three alternatives at 500 points', () => {
     assert.equal(resolveMissionUnlockPointCost(mission), 500);
 });
 
-test('homepage chooser uses the case, selection scenes, and BIB renders', () => {
+test('both homepages provide the same accessible partner chooser and local artwork', () => {
     const root = path.resolve(__dirname, '..');
-    const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-    const script = fs.readFileSync(path.join(root, 'scripts', 'index.js'), 'utf8');
-    const css = fs.readFileSync(path.join(root, 'styles', 'gen2-starter-choice.css'), 'utf8');
-    assert.match(html, /id="gen2-starter-overlay"/);
-    assert.match(html, /3ballselection\.png/);
-    assert.match(script, /\/api\/profile\/pokemon\/gen2-starter/);
-    starterIds.forEach((id) => {
-        assert.match(script, new RegExp(`BIB/${id}\\.png`, 'i'));
-        assert.match(script, new RegExp(`${id}selection\\.jpg`, 'i'));
-    });
-    assert.match(css, /\.gen2-ball-button:hover/);
-    assert.match(css, /\.gen2-ball-button\.is-pressing/);
-    assert.match(css, /gen2-spin-lights/);
-    assert.match(css, /gen2-confetti-fall/);
+    for (const file of ['index.html', 'pokemon-home.html']) {
+        const html = fs.readFileSync(path.join(root, file), 'utf8');
+        assert.match(html, /id="gen2-starter-overlay"/);
+        assert.match(html, /aria-modal="true"/);
+        assert.match(html, /styles\/gen2-starter-choice\.css/);
+        starterIds.forEach((id) => {
+            assert.match(html, new RegExp(`data-starter-id="${id}"`));
+            assert.ok(fs.existsSync(path.join(root, 'assets/images/PokemonArena/BIB', id + '.png')));
+        });
+        assert.doesNotMatch(html, /3ballselection\.png/);
+    }
+    const css = fs.readFileSync(path.join(root, 'styles/gen2-starter-choice.css'), 'utf8');
     assert.match(css, /prefers-reduced-motion/);
 });
 

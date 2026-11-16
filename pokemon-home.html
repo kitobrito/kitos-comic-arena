@@ -342,123 +342,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     }
     .pp-avatar-row input { margin: 0; }
 
-    /* Gen2 starter overlay --------------------------------------------- */
-    .gen2-starter-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 200;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(6, 7, 9, 0.86);
-      backdrop-filter: blur(6px);
-      padding: 20px;
-    }
-    .gen2-starter-overlay[hidden] { display: none; }
-    .gen2-starter-dialog {
-      position: relative;
-      width: min(560px, 100%);
-      background: var(--pp-bg-panel);
-      border: 1px solid var(--pp-line-strong);
-      border-radius: var(--pp-radius);
-      padding: 32px 24px;
-      text-align: center;
-    }
-    .gen2-starter-close {
-      position: absolute;
-      top: 10px; right: 10px;
-      width: 32px; height: 32px;
-      border-radius: 50%;
-      border: 1px solid var(--pp-line-strong);
-      background: transparent;
-      color: var(--pp-ink);
-      font-size: 18px;
-      cursor: pointer;
-    }
-    .gen2-starter-heading {
-      font-family: var(--pp-font-display);
-      font-size: 22px;
-      margin: 0 0 8px;
-    }
-    .gen2-starter-copy {
-      font-size: 13.5px;
-      color: var(--pp-ink-dim);
-      margin: 0 0 22px;
-    }
-    .gen2-case-stage {
-      position: relative;
-      max-width: 340px;
-      margin: 0 auto 18px;
-    }
-    .gen2-case-art { width: 100%; }
-    .gen2-ball-button {
-      position: absolute;
-      width: 26%;
-      aspect-ratio: 1;
-      border-radius: 50%;
-      border: none;
-      background: transparent;
-      cursor: pointer;
-      padding: 0;
-      transition: transform 140ms ease;
-    }
-    .gen2-ball-button:hover { transform: scale(1.08); }
-    .gen2-ball-button img { width: 100%; border-radius: 50%; }
-    .gen2-ball-button:nth-of-type(1) { left: 6%; top: 38%; }
-    .gen2-ball-button:nth-of-type(2) { left: 37%; top: 8%; }
-    .gen2-ball-button:nth-of-type(3) { right: 6%; top: 38%; }
-    .gen2-starter-status {
-      font-size: 12.5px;
-      color: var(--pp-ink-faint);
-      margin: 0;
-    }
-    .gen2-reveal-stage {
-      position: relative;
-      width: 220px;
-      height: 220px;
-      margin: 0 auto 16px;
-    }
-    .gen2-reveal-background, .gen2-reveal-render {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
-    .gen2-reveal-name {
-      font-family: var(--pp-font-display);
-      font-size: 20px;
-      margin: 0 0 10px;
-    }
-    .gen2-confirm-copy {
-      font-size: 13.5px;
-      color: var(--pp-ink-dim);
-      margin: 0 0 16px;
-    }
-    .gen2-confirm-actions {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    .gen2-confirm-button {
-      padding: 11px 18px;
-      border-radius: var(--pp-radius);
-      border: 1px solid var(--pp-line-strong);
-      background: transparent;
-      color: var(--pp-ink);
-      font-weight: 700;
-      font-size: 13px;
-      cursor: pointer;
-    }
-    .gen2-confirm-button.is-yes {
-      background: var(--pp-accent);
-      color: var(--pp-accent-ink);
-      border-color: var(--pp-accent);
-    }
   </style>
-  <link rel="stylesheet" href="/styles/tri-portal.css?v=tri-3" />
-  <script src="/scripts/tri-portal.js?v=tri-3"></script>
+  <link rel="stylesheet" href="/styles/tri-portal.css?v=warm-cream-v2" />
+  <link rel="stylesheet" href="/styles/gen2-starter-choice.css?v=partner-experience-v2" />
+  <script src="/scripts/tri-portal.js?v=warm-cream-v2"></script>
 </head>
 <body class="pp-body pp-has-tabbar" data-page-arena="pokemon" data-portal-section="home">
 <!-- Google Tag Manager (noscript) -->
@@ -721,35 +608,31 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </nav>
 
 <div class="gen2-starter-overlay" id="gen2-starter-overlay" hidden>
-  <div class="gen2-starter-presentation-fx" id="gen2-starter-presentation-fx" aria-hidden="true"></div>
-  <section class="gen2-starter-dialog" role="dialog" aria-modal="true" aria-labelledby="gen2-starter-title">
-    <button class="gen2-starter-close" id="gen2-starter-close" type="button" aria-label="Choose a starter later">&times;</button>
-    <div class="gen2-starter-view" id="gen2-starter-case-view">
-      <h2 class="gen2-starter-heading" id="gen2-starter-title">Choose Your Gen 2 Starter</h2>
-      <p class="gen2-starter-copy">Your first choice is free. The other two remain available for 500 Pokemon unlock points each.</p>
-      <div class="gen2-case-stage" aria-label="Starter ball case">
-        <img class="gen2-case-art" src="assets/images/PokemonArena/chooseyourstarter/Gen2 starters/3ballselection.png" alt="Open Pokemon Arena starter case" />
-        <button class="gen2-ball-button" type="button" data-starter-id="cyndaquil" aria-label="Choose Cyndaquil"><img src="assets/images/PokemonArena/chooseyourstarter/Gen2 starters/cyndaball.png" alt="" /></button>
-        <button class="gen2-ball-button" type="button" data-starter-id="totodile" aria-label="Choose Totodile"><img src="assets/images/PokemonArena/chooseyourstarter/Gen2 starters/totodileball.jpg" alt="" /></button>
-        <button class="gen2-ball-button" type="button" data-starter-id="chikorita" aria-label="Choose Chikorita"><img src="assets/images/PokemonArena/chooseyourstarter/Gen2 starters/chikaritaball.jpg" alt="" /></button>
-      </div>
-      <p class="gen2-starter-status" id="gen2-starter-status" aria-live="polite">Hover over a ball, then press it to reveal the Pokemon.</p>
-    </div>
-    <div class="gen2-starter-view" id="gen2-starter-confirm-view" hidden>
-      <div class="gen2-reveal-stage">
-        <img class="gen2-reveal-background" id="gen2-reveal-background" alt="" />
-        <img class="gen2-reveal-render" id="gen2-reveal-render" alt="" />
-        <h2 class="gen2-reveal-name" id="gen2-reveal-name"></h2>
-      </div>
-      <p class="gen2-confirm-copy" id="gen2-confirm-copy">Are you sure?</p>
-      <div class="gen2-confirm-actions">
-        <button class="gen2-confirm-button is-yes" id="gen2-starter-yes" type="button">Yes, choose this starter</button>
-        <button class="gen2-confirm-button" id="gen2-starter-no" type="button">No, show the case</button>
-      </div>
-      <p class="gen2-starter-status" id="gen2-confirm-status" aria-live="polite"></p>
-    </div>
-  </section>
-</div>
+ <section class="gen2-starter-dialog" role="dialog" aria-modal="true" aria-labelledby="gen2-starter-title" aria-describedby="gen2-starter-description" tabindex="-1">
+ <header class="gen2-dialog-header"><span class="gen2-lab-brand"><span class="gen2-pokeball" aria-hidden="true"></span> JOHTO PARTNER PROGRAM</span><button class="gen2-starter-close" id="gen2-starter-close" type="button" aria-label="Choose a starter later">×</button></header>
+ <div class="gen2-dialog-intro"><p class="gen2-eyebrow">A NEW ADVENTURE STARTS HERE</p><h2 class="gen2-starter-heading" id="gen2-starter-title">Small partner.<br />Big adventure.</h2><p class="gen2-starter-copy" id="gen2-starter-description">Three personalities. One first partner. Get to know them, then choose the Pokémon you'll start with.</p></div>
+ <div class="gen2-starter-view" id="gen2-starter-case-view">
+ <div class="gen2-case-stage" aria-label="Meet the Johto starters"><button class="gen2-ball-button" type="button" data-starter-id="cyndaquil" aria-label="Meet Cyndaquil, Fire type">
+ <span class="gen2-card-top"><span>NO. 155</span><span class="gen2-type">Fire</span></span>
+ <span class="gen2-card-art"><span class="gen2-orbit" aria-hidden="true"></span><img src="/assets/images/PokemonArena/BIB/cyndaquil.png" alt="" width="475" height="475" /></span>
+ <span class="gen2-card-name">Cyndaquil</span><span class="gen2-card-description">The little spark with a big future.</span><span class="gen2-card-link">Meet your partner <span aria-hidden="true">↗</span></span>
+ </button><button class="gen2-ball-button" type="button" data-starter-id="totodile" aria-label="Meet Totodile, Water type">
+ <span class="gen2-card-top"><span>NO. 158</span><span class="gen2-type">Water</span></span>
+ <span class="gen2-card-art"><span class="gen2-orbit" aria-hidden="true"></span><img src="/assets/images/PokemonArena/BIB/totodile.png" alt="" width="475" height="475" /></span>
+ <span class="gen2-card-name">Totodile</span><span class="gen2-card-description">A little wild. A lot of heart.</span><span class="gen2-card-link">Meet your partner <span aria-hidden="true">↗</span></span>
+ </button><button class="gen2-ball-button" type="button" data-starter-id="chikorita" aria-label="Meet Chikorita, Grass type">
+ <span class="gen2-card-top"><span>NO. 152</span><span class="gen2-type">Grass</span></span>
+ <span class="gen2-card-art"><span class="gen2-orbit" aria-hidden="true"></span><img src="/assets/images/PokemonArena/BIB/chikorita.png" alt="" width="475" height="475" /></span>
+ <span class="gen2-card-name">Chikorita</span><span class="gen2-card-description">Big heart. Fresh beginnings.</span><span class="gen2-card-link">Meet your partner <span aria-hidden="true">↗</span></span>
+ </button></div>
+ <p class="gen2-starter-status" id="gen2-starter-status">Take your time. Meeting a starter doesn't lock in your choice.</p>
+ </div>
+ <div class="gen2-starter-view" id="gen2-starter-confirm-view" hidden>
+ <div class="gen2-partner-layout"><div class="gen2-reveal-stage"><span class="gen2-reveal-orbit" aria-hidden="true"></span><span class="gen2-reveal-spark" aria-hidden="true">✦</span><img class="gen2-reveal-render" id="gen2-reveal-render" alt="" width="475" height="475" /></div>
+ <div class="gen2-partner-copy"><p class="gen2-eyebrow" id="gen2-reveal-kicker">YOUR NEXT CHAPTER</p><span class="gen2-type" id="gen2-reveal-type"></span><h3 class="gen2-reveal-name" id="gen2-reveal-name"></h3><p class="gen2-partner-description" id="gen2-reveal-description"></p><div class="gen2-evolution"><span>THE ADVENTURE AHEAD</span><p id="gen2-reveal-evolution"></p><small>Evolution missions unlock as you play.</small></div><p class="gen2-confirm-copy" id="gen2-confirm-copy"></p><div class="gen2-confirm-actions"><button class="gen2-confirm-button is-yes" id="gen2-starter-yes" type="button">Choose this partner</button><button class="gen2-confirm-button" id="gen2-starter-no" type="button">Meet the others</button></div><p class="gen2-starter-status" id="gen2-confirm-status" role="status" aria-live="polite"></p></div></div>
+ </div>
+ <footer class="gen2-dialog-footer"><span class="gen2-free-badge">FIRST PARTNER · FREE</span><span>Your other two starters stay available for 500 Pokémon unlock points each.</span></footer>
+ </section></div>
 
 <script>
   (function () {
@@ -762,6 +645,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     });
   }());
 </script>
-<script src="./scripts/index.js?v=ground-up-v1&news-skill-image-fix-v1&home-switch-link-v1&news-name-link-v1&news-changes-id-lookup-v1" defer></script>
+<script src="./scripts/index.js?v=partner-experience-v2&ground-up-v1&news-skill-image-fix-v1&home-switch-link-v1&news-name-link-v1&news-changes-id-lookup-v1" defer></script>
 </body>
 </html>

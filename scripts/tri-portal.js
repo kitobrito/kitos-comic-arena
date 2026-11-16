@@ -516,7 +516,7 @@
     try { popup = !!window.opener && window.innerWidth < 900; } catch (e) {}
     if (!popup) buildShell();
     focusAuthPanel();
-    if (!doc.body.classList.contains("tp-native")) { watchLegacy(); window.addEventListener("load", function () { watchLegacy.done || (watchLegacy.done = 1, Array.prototype.forEach.call(doc.querySelectorAll("body > *:not(.tp-header)"), adaptTree)); }); }
+    if (game !== "pokemon" && !doc.body.classList.contains("tp-native")) { watchLegacy(); window.addEventListener("load", function () { watchLegacy.done || (watchLegacy.done = 1, Array.prototype.forEach.call(doc.querySelectorAll("body > *:not(.tp-header)"), adaptTree)); }); }
     // Open the welcome guide only when explicitly requested, never on a first visit.
     if (params.has("guide")) setTimeout(openOnboarding, 600);
   }
