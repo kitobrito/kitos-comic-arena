@@ -840,9 +840,13 @@ html.tp-on[data-theme="pokemon"] :is(.group-title, .panel-title, .pp-panel-title
 }
 html.tp-on[data-theme="pokemon"] :is(.pp-footer, footer) { color: #475569; }
 
-/* Full warm Pokemon theme: cream surfaces and buttons, with ink-colored text. */
+/* Pokemon portal: warm surfaces with distinct, readable action colors. */
 :root[data-theme="pokemon"], .theme-pokemon {
   color-scheme: light;
+  --poke-action-bg: linear-gradient(180deg, #2868bd, #1e509a);
+  --poke-action-ink: #ffffff;
+  --poke-action-edge: #17417f;
+  --poke-action-shadow: rgba(30, 80, 154, .18);
   --tp-bg: #fffbea;
   --tp-bg-atmo: radial-gradient(ellipse at 15% 0%, #fff2b5, transparent 65%);
   --tp-texture: none;
@@ -860,16 +864,16 @@ html.tp-on[data-theme="pokemon"] :is(.pp-footer, footer) { color: #475569; }
   --tp-ink-faint: #807354;
   --tp-line: #e7dcb6;
   --tp-line-strong: #c7af68;
-  --tp-accent: #826219;
-  --tp-accent-2: #b7932d;
-  --tp-accent-3: #187a83;
-  --tp-accent-rgb: 130, 98, 25;
-  --tp-accent-ink: #33280d;
-  --tp-btn-bg: linear-gradient(100deg, #f4dc8b, #ffedb5);
-  --tp-btn-ink: #493a16;
-  --tp-btn-border: 1px solid #c8aa51;
-  --tp-btn-shadow: 0 3px 10px rgba(130, 98, 25, .12);
-  --tp-glow: 0 0 14px rgba(202, 163, 54, .2);
+  --tp-accent: #235eaf;
+  --tp-accent-2: #bd2d3e;
+  --tp-accent-3: #e7b82e;
+  --tp-accent-rgb: 35, 94, 175;
+  --tp-accent-ink: #ffffff;
+  --tp-btn-bg: var(--poke-action-bg);
+  --tp-btn-ink: var(--poke-action-ink);
+  --tp-btn-border: 1px solid var(--poke-action-edge);
+  --tp-btn-shadow: 0 3px 0 var(--poke-action-edge), 0 5px 12px var(--poke-action-shadow);
+  --tp-glow: 0 0 14px rgba(35, 94, 175, .2);
   --tp-well: #fffdf2;
   --pp-bg: #fffbea;
   --pp-bg-raised: #fff8df;
@@ -877,9 +881,9 @@ html.tp-on[data-theme="pokemon"] :is(.pp-footer, footer) { color: #475569; }
   --pp-ink: #302e23;
   --pp-ink-dim: #6b624b;
   --pp-ink-faint: #807354;
-  --pp-accent: #826219;
-  --pp-accent-bright: #826219;
-  --pp-accent-soft: #f5e7b9;
+  --pp-accent: #235eaf;
+  --pp-accent-bright: #235eaf;
+  --pp-accent-soft: #e5efff;
 }
 html.tp-on[data-theme="pokemon"] :is(.sidebar, .aside, .main, .panel, .hero, .topbar, .tp-header, .pp-topbar, .pp-tabbar, .pp-hero, .group, .account-panel, #admin-panel-section, .tp-card, [data-tp-dark]) {
   background: #fff8df !important;
@@ -887,31 +891,32 @@ html.tp-on[data-theme="pokemon"] :is(.sidebar, .aside, .main, .panel, .hero, .to
   border-color: #decf99 !important;
 }
 html.tp-on[data-theme="pokemon"] :is(.nav-link, .account-action, .pp-account-action, .side-link, .home-link, .tp-menu a, .tp-menu button, .hero-link, .global-arena-switch, .pp-btn, .tp-btn, .pp-nav a, .tp-icon-btn, .tp-account, .auth-submit, .save-avatar-button) {
-  background: #fff2c6 !important;
-  color: #493d22 !important;
-  border: 1px solid #ddc985 !important;
-  box-shadow: none !important;
+  background: var(--poke-action-bg) !important;
+  color: var(--poke-action-ink) !important;
+  border: 1px solid var(--poke-action-edge) !important;
+  box-shadow: 0 2px 0 var(--poke-action-edge), 0 4px 9px var(--poke-action-shadow) !important;
 }
 html.tp-on[data-theme="pokemon"] :is(.nav-link, .account-action, .pp-account-action, .tp-menu a, .tp-menu button, .pp-btn, .tp-btn):is(:hover, :focus-visible) {
-  background: #f6e3a4 !important; border-color: #ae8323 !important;
+  background: var(--poke-action-bg) !important; border-color: var(--poke-action-edge) !important;
+  filter: brightness(1.06);
 }
 html.tp-on[data-theme="pokemon"] :is(.nav-link.play-now.pokemon, .pp-btn-primary, .tp-menu-play, .tp-btn-primary) {
-  background: linear-gradient(100deg, #f4dc8b, #ffedb5) !important;
-  color: #493a16 !important; border-color: #c8aa51 !important;
-  box-shadow: 0 3px 10px rgba(130, 98, 25, .12) !important;
+  background: var(--poke-action-bg) !important;
+  color: var(--poke-action-ink) !important; border-color: var(--poke-action-edge) !important;
+  box-shadow: 0 3px 0 var(--poke-action-edge), 0 6px 14px var(--poke-action-shadow) !important;
 }
-html.tp-on[data-theme="pokemon"] :is(.group-title, .panel-title, .pp-panel-title, .tp-card-title, .ladder-title) { color: #826219 !important; }
+html.tp-on[data-theme="pokemon"] :is(.group-title, .panel-title, .pp-panel-title, .tp-card-title, .ladder-title) { color: #235eaf !important; }
+html.tp-on[data-theme="pokemon"] #auth-panel > .group-title { color: #b3293a !important; }
 html.tp-on[data-theme="pokemon"] #admin-panel-section :is(.group-title, .pp-panel-title) { color: #7b489c !important; }
-html.tp-on[data-theme="pokemon"] :is(.nav-link, .account-action, .pp-account-action, .tp-menu a, .tp-menu button) svg { color: #187a83 !important; }
-html.tp-on[data-theme="pokemon"] :is([href*="missions"], [href*="characters"]) svg { color: #927011 !important; }
-html.tp-on[data-theme="pokemon"] :is([data-play-arena="pokemon"], [href*="events"]) svg { color: #b34832 !important; }
-html.tp-on[data-theme="pokemon"] #gen2-starter-reopen svg { color: #32754a !important; }
-html.tp-on[data-theme="pokemon"] #clan-panel-button svg { color: #98651c !important; }
-html.tp-on[data-theme="pokemon"] #reset-account-button,
-html.tp-on[data-theme="pokemon"] #reset-account-button svg { color: #7b489c !important; }
+html.tp-on[data-theme="pokemon"] :is(.nav-link, .account-action, .pp-account-action, .tp-menu a, .tp-menu button) svg { color: currentColor !important; }
+html.tp-on[data-theme="pokemon"] :is([href*="missions"], [href*="characters"]) svg { color: currentColor !important; }
+html.tp-on[data-theme="pokemon"] :is([data-play-arena="pokemon"], [href*="events"]) svg { color: currentColor !important; }
+html.tp-on[data-theme="pokemon"] #gen2-starter-reopen svg { color: currentColor !important; }
+html.tp-on[data-theme="pokemon"] #clan-panel-button svg { color: currentColor !important; }
+html.tp-on[data-theme="pokemon"] #reset-account-button svg { color: currentColor !important; }
 html.tp-on[data-theme="pokemon"] :is(.tp-mode[data-mode="pokemon"][aria-current="page"], .pp-nav a[aria-current="page"], .nav-link.active, .nav-link[aria-current="page"]) {
-  background: #f2dc91 !important; color: #493a16 !important;
-  border-color: #b79438 !important; box-shadow: inset 0 -2px 0 #a7832b !important;
+  background: var(--poke-action-bg) !important; color: var(--poke-action-ink) !important;
+  border-color: var(--poke-action-edge) !important; box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .16), 0 0 0 2px #ffffff !important;
 }
 html.tp-on[data-theme="pokemon"] :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
   background: #fffdf2 !important; color: #3c3524 !important; border-color: #d9c996 !important;
@@ -923,11 +928,11 @@ html.tp-on[data-theme="pokemon"] :is(.topnav, .topnav a, .arena-badge, .arena-ba
 html.tp-on[data-theme="pokemon"] :is(button, input[type="submit"]):not(.gen2-ball-button):not(.gen2-confirm-button):not(.gen2-starter-close):not(.pp-btn-art):not(.pp-promo-banner):not(.gen2-ball-button *) { color: #493d22; }
 html.tp-on[data-theme="pokemon"] :is(.pp-footer, footer) { color: #736443; }
 html.tp-on[data-theme="pokemon"] body :is(button, input[type="submit"]):not(#gen2-starter-overlay *) {
-  background: #fff2c6 !important; color: #493d22 !important; border-color: #ddc985 !important;
-  text-shadow: none !important; box-shadow: none !important;
+  background: var(--poke-action-bg) !important; color: var(--poke-action-ink) !important; border-color: var(--poke-action-edge) !important;
+  text-shadow: none !important; box-shadow: 0 2px 0 var(--poke-action-edge), 0 4px 9px var(--poke-action-shadow) !important;
 }
 html.tp-on[data-theme="pokemon"] :is(.home-arena-switch-button.active, .home-arena-switch-button[aria-pressed="true"]) {
-  background: #f2dc91 !important; color: #493a16 !important; border-color: #b79438 !important;
+  background: var(--poke-action-bg) !important; color: var(--poke-action-ink) !important; border-color: var(--poke-action-edge) !important;
 }
 html.tp-on[data-theme="pokemon"] :is(.hero-card, .hero-card-item, .hero-point, .classic-info-panel, .release-panel, .release-card, .news-shell, .news-feed, .section-heading, .pokemon-ladder-promo, .ladder-panel, .ladder-bar, .portal-panel, .auth-shell) {
   background: #fff8df !important; color: #493d22 !important; border-color: #ddc985 !important;
@@ -941,4 +946,56 @@ html.tp-on[data-theme="pokemon"] :is(.pokemon-ladder-promo a, .classic-info-kick
 }
 html.tp-on[data-theme="pokemon"] :is(.brand-tagline, .group-note, .account-greeting, .hero-point-copy, .hero-card-copy, .classic-info-copy, .classic-bullet-list, .classic-bullet-list li, .release-copy, .section-heading p, .hero-description, .hero-card-item span) {
   color: #6b624b !important; text-shadow: none !important;
+}
+
+/* Colors follow the action, so links keep their color after arena URL rewrites. */
+html.tp-on[data-theme="pokemon"] :is(
+  [data-play-arena="pokemon"], .pp-btn-primary, .tp-btn-primary, .tp-menu-play,
+  [href*="manual"], [href*="charactereditor"], [href*="newspost"],
+  #clan-panel-button, #reset-account-button, #auth-submit,
+  .tp-mode[data-mode="comic"], [data-home-arena-switch="comic"]
+) {
+  --poke-action-bg: linear-gradient(180deg, #c63243, #a82233);
+  --poke-action-ink: #ffffff;
+  --poke-action-edge: #8f1f2d;
+  --poke-action-shadow: rgba(168, 34, 51, .18);
+}
+html.tp-on[data-theme="pokemon"] :is(
+  .nav-link.active, [href*="events"], [href*="charactersandskills"], [href*="editmission"],
+  #change-avatar-button, #gen2-starter-reopen, #auth-toggle,
+  .tp-mode[data-mode="split"], .home-arena-switch-button[data-home-arena-switch="pokemon"]
+) {
+  --poke-action-bg: linear-gradient(180deg, #ffe780, #f2c53d);
+  --poke-action-ink: #3b2b08;
+  --poke-action-edge: #bc8e19;
+  --poke-action-shadow: rgba(188, 142, 25, .16);
+}
+html.tp-on[data-theme="pokemon"] :is(.tp-mode, .home-arena-switch-button) {
+  background: var(--poke-action-bg) !important;
+  color: var(--poke-action-ink) !important;
+  border-color: var(--poke-action-edge) !important;
+}
+html.tp-on[data-theme="pokemon"] :is(.nav-link, .account-action, .pp-account-action, .pp-btn, .tp-btn, .tp-mode, .home-arena-switch-button):focus-visible {
+  outline: 3px solid #153b78 !important;
+  outline-offset: 3px;
+}
+html.tp-on[data-theme="pokemon"] :is(.nav-link, .account-action, .pp-account-action, .pp-btn, .tp-btn, .tp-mode):active {
+  filter: brightness(.94);
+}
+html.tp-on[data-theme="pokemon"] :is(button, input[type="submit"]):disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+html.tp-on[data-theme="pokemon"] input[type="file"]::file-selector-button {
+  background: #235eaf;
+  color: #ffffff;
+  border: 1px solid #17417f;
+  border-radius: 6px;
+  padding: 7px 10px;
+  cursor: pointer;
+}
+/* Nested labels must use the foreground of their colored control. */
+html.tp-on[data-theme="pokemon"] :is(.nav-link, .account-action, .pp-account-action, .pp-btn, .tp-btn, .pp-nav a, .tp-account, .tp-icon-btn, .tp-mode, .home-arena-switch-button) :is(span, strong, b, small) {
+  color: inherit !important;
+  -webkit-text-fill-color: currentColor !important;
 }
