@@ -86,39 +86,36 @@
 
 :root[data-theme="pokemon"], .theme-pokemon {
   color-scheme: dark;
-  --tp-accent: var(--tp-poke-1);
-  --tp-accent-2: var(--tp-poke-2);
-  --tp-accent-3: var(--tp-poke-3);
-  --tp-accent-rgb: 6, 182, 212;
+  --tp-accent: #facc15;
+  --tp-accent-2: #ef4444;
+  --tp-accent-3: #06b6d4;
+  --tp-accent-rgb: 250, 204, 21;
   --tp-accent-ink: #00141a;
-  --tp-bg: #060b18;
-  --tp-bg-atmo:
-    radial-gradient(1000px 560px at 85% -10%, rgba(37, 99, 235, 0.32), transparent 62%),
-    radial-gradient(900px 520px at 0% 10%, rgba(6, 182, 212, 0.18), transparent 60%),
-    radial-gradient(700px 400px at 50% 110%, rgba(139, 92, 246, 0.18), transparent 60%);
-  --tp-texture: repeating-linear-gradient(0deg, rgba(6, 182, 212, 0.045) 0 1px, transparent 1px 4px);
+  --tp-bg: #fffbea;
+  --tp-bg-atmo: radial-gradient(ellipse at 15% 0%, rgba(250, 204, 21, 0.16), transparent 65%);
+  --tp-texture: none;
   --tp-texture-size: auto;
-  --tp-card: rgba(6, 182, 212, 0.08);
-  --tp-card-2: rgba(10, 22, 44, 0.85);
-  --tp-card-border: rgba(6, 182, 212, 0.35);
+  --tp-card: #161f30;
+  --tp-card-2: #161f30;
+  --tp-card-border: rgba(250, 204, 21, 0.25);
   --tp-card-border-w: 1px;
-  --tp-card-shadow: 0 0 15px rgba(6, 182, 212, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  --tp-card-hover-shadow: 0 0 15px rgba(6, 182, 212, 0.4), 0 0 32px rgba(37, 99, 235, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --tp-card-shadow: 0 6px 20px rgba(13, 19, 31, 0.15);
+  --tp-card-hover-shadow: 0 0 16px rgba(250, 204, 21, 0.3);
   --tp-radius: 16px;
   --tp-radius-sm: 10px;
   --tp-pill-radius: 999px;
-  --tp-btn-bg: linear-gradient(135deg, #22d3ee 0%, #06b6d4 35%, #2563eb 100%);
+  --tp-btn-bg: linear-gradient(90deg, #ef4444, #f97316);
   --tp-btn-ink: #f0fdff;
-  --tp-btn-border: 1px solid rgba(165, 243, 252, 0.55);
-  --tp-btn-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
-  --tp-glow: 0 0 15px rgba(6, 182, 212, 0.4);
+  --tp-btn-border: 1px solid #ef4444;
+  --tp-btn-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+  --tp-glow: 0 0 16px rgba(239, 68, 68, 0.45);
   --tp-font-display: 'Exo 2', 'Plus Jakarta Sans', system-ui, sans-serif;
   --tp-font-ui: 'Exo 2', 'Plus Jakarta Sans', system-ui, sans-serif;
   --tp-display-case: none;
   --tp-display-spacing: 0;
   --tp-display-weight: 800;
   --tp-display-scale: 1;
-  --tp-title-rule: linear-gradient(90deg, var(--tp-poke-1), var(--tp-poke-3) 70%, transparent);
+  --tp-title-rule: linear-gradient(90deg, #ef4444, #facc15, #06b6d4);
   --tp-well: rgba(2, 10, 24, 0.55);
 }
 
@@ -776,3 +773,69 @@ html.tp-on a.news-link {
 }
 html.tp-on a.news-link::after { content: "\203A"; font-size: 18px; line-height: 1; }
 html.tp-on a.news-link:hover { filter: brightness(1.08); transform: translateY(-1px); }
+
+/* Pokemon: warm Pokedex ground, dark steel panels, and distinct action colors. */
+html.tp-on[data-theme="pokemon"] body {
+  color: #243047 !important;
+  --bg-main: #fffbea;
+  --bg-card: #161f30;
+  --bg-row-hover: #1e293b;
+  --accent-primary: #ef4444;
+  --accent-secondary: #facc15;
+  --accent-tertiary: #06b6d4;
+  --accent-admin: #a855f7;
+}
+html.tp-on[data-theme="pokemon"] :is(.pp-panel, .pp-card, .pp-hero, .pp-stat, .tp-card, .sidebar, .aside, .main, .panel, .hero, .tp-header, .pp-topbar, .pp-tabbar, [data-tp-dark]) {
+  color: var(--tp-ink) !important;
+}
+html.tp-on[data-theme="pokemon"] .pp-hero {
+  background: #0d131f;
+}
+html.tp-on[data-theme="pokemon"] :is(.pp-panel-title, .group-title, .panel-title, .tp-card-title) {
+  color: #facc15 !important;
+}
+html.tp-on[data-theme="pokemon"] #admin-panel-section :is(.group-title, .pp-panel-title),
+html.tp-on[data-theme="pokemon"] #reset-account-button {
+  color: #a855f7 !important;
+}
+html.tp-on[data-theme="pokemon"] :is(.nav-link, .account-action, .pp-account-action, .tp-menu a, .tp-menu button) {
+  background: #161f30 !important;
+  color: #e8ecf4 !important;
+  border: 1px solid rgba(250, 204, 21, 0.25) !important;
+}
+html.tp-on[data-theme="pokemon"] :is(.nav-link, .account-action, .pp-account-action, .tp-menu a, .tp-menu button):is(:hover, :focus-visible) {
+  background: #1e293b !important;
+  border-color: #facc15 !important;
+}
+html.tp-on[data-theme="pokemon"] :is(.nav-link, .account-action, .pp-account-action, .tp-menu a, .tp-menu button) svg {
+  color: #06b6d4 !important;
+  stroke: currentColor !important;
+}
+html.tp-on[data-theme="pokemon"] :is([href*="missions"], [href*="characters"]) svg {
+  color: #facc15 !important;
+}
+html.tp-on[data-theme="pokemon"] :is([data-play-arena="pokemon"], [href*="events"]) svg {
+  color: #ef4444 !important;
+}
+html.tp-on[data-theme="pokemon"] #gen2-starter-reopen svg { color: #10b981 !important; }
+html.tp-on[data-theme="pokemon"] #clan-panel-button svg { color: #f59e0b !important; }
+html.tp-on[data-theme="pokemon"] #reset-account-button svg { color: #a855f7 !important; }
+html.tp-on[data-theme="pokemon"] :is(.nav-link.play-now.pokemon, .tp-menu-play, .pp-btn-primary) {
+  background: linear-gradient(90deg, #ef4444, #f97316) !important;
+  color: #fff !important;
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.4) !important;
+}
+html.tp-on[data-theme="pokemon"] :is(.nav-link.play-now.pokemon, .tp-menu-play) svg { color: #fff !important; }
+.tp-mode[data-mode="pokemon"][aria-current="page"],
+html.tp-on[data-theme="pokemon"] .pp-nav a[aria-current="page"] {
+  background: linear-gradient(90deg, #ef4444, #f59e0b) !important;
+  color: #fff !important;
+  font-weight: 800;
+  border-color: #facc15 !important;
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.4) !important;
+}
+html.tp-on[data-theme="pokemon"] :is(.group-title, .panel-title, .pp-panel-title)::after {
+  background: linear-gradient(90deg, #ef4444, #facc15, #06b6d4);
+}
+html.tp-on[data-theme="pokemon"] :is(.pp-footer, footer) { color: #475569; }
