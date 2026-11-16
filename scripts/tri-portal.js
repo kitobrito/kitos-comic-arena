@@ -517,8 +517,8 @@
     if (!popup) buildShell();
     focusAuthPanel();
     if (!doc.body.classList.contains("tp-native")) { watchLegacy(); window.addEventListener("load", function () { watchLegacy.done || (watchLegacy.done = 1, Array.prototype.forEach.call(doc.querySelectorAll("body > *:not(.tp-header)"), adaptTree)); }); }
-    var hub = section === "home" || section === "split";
-    if (params.has("guide") || (!popup && hub && !store.get("tri-onboarded") && !params.has("noguide") && !navigator.webdriver)) setTimeout(openOnboarding, 600);
+    // Open the welcome guide only when explicitly requested, never on a first visit.
+    if (params.has("guide")) setTimeout(openOnboarding, 600);
   }
   if (doc.readyState === "loading") doc.addEventListener("DOMContentLoaded", start);
   else start();
