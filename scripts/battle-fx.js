@@ -148,6 +148,7 @@
      *  angle: degrees to rotate (directional effects point along their travel)
      *  Resolves when the sprite finishes. */
     const playSprite = ({ key, x, y, from, to, size = 120, duration, loop = false, angle = 0, easing = 'outCubic', blend }) => {
+        if (window.ARENA_SCENE_PREVIEW) size = Math.min(size, Math.max(60, Math.min(125, innerWidth * .2)));
         const effect = manifest.effects[key];
         if (!effect || liveSprites >= MAX_SPRITES) return Promise.resolve();
         const sheet = sheetFor(key);
@@ -1054,7 +1055,7 @@
         async death(card, { killerId, skillId, kill: forced, label, killerCard } = {}) {
             if (!card) return;
             animatorFor(card)?.go('defeat');
-            if (!settings.deaths()) return;
+            if (!settings.deaths() || window.ARENA_SCENE_PREVIEW) return;
             await loadData();
             const ctx = BattleFX.killFor(killerId, skillId);
             await playDeath(card, { ...ctx, kill: forced || ctx.kill, label, fromCard: killerCard });

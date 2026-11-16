@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 850" preserveAspectRatio="xMidYMid slice">
+<defs><linearGradient id="sky" x2="0" y2="1"><stop stop-color="#b8d7bc"/><stop offset="1" stop-color="#e6e5ac"/></linearGradient><linearGradient id="floor" x2="0" y2="1"><stop stop-color="#9bad63"/><stop offset="1" stop-color="#4f7342"/></linearGradient><radialGradient id="light"><stop stop-color="#fff6bb" stop-opacity=".8"/><stop offset="1" stop-color="#fff6bb" stop-opacity="0"/></radialGradient><linearGradient id="trunk"><stop stop-color="#263e31"/><stop offset=".5" stop-color="#536247"/><stop offset="1" stop-color="#243c30"/></linearGradient></defs>
+<path fill="url(#sky)" d="M0 0h1600v850H0z"/><circle cx="870" cy="230" r="500" fill="url(#light)"/>
+<g fill="#849f79" opacity=".8"><path d="M0 230Q180 150 350 260T750 220T1150 200T1600 250V700H0z"/><path d="M60 0h37l-5 440H44zm220 0h27l10 420h-50zm890 0h25l15 490h-70zm290 0h38l25 460h-75z"/></g>
+<g fill="#567e60"><path d="M0 340q160-120 300 15t310-10 340 15 300-25 350 15v450H0z"/><path d="M145 0h52l-8 560h-70zm240 0h31l15 510h-70zm655 0h47l25 560h-97zm325 0h40l20 530h-83z"/></g>
+<path fill="url(#floor)" d="M0 490Q400 440 800 515q400-70 800-15v350H0z"/>
+<path fill="#c2b786" d="M740 470q85-15 140 10l-20 80q170 60 300 290H220q390-270 520-380z" opacity=".7"/>
+<path fill="#ded1a0" d="M790 490h35l-15 120Q690 740 500 850H350q380-270 440-360z" opacity=".5"/>
+<g fill="url(#trunk)" stroke="#1e3829" stroke-width="3"><path d="M-70-50h200q-20 200-17 350t-20 260l60 65-120-15-120 30 55-100q20-250-38-590z"/><path d="M1450-40h180q-75 260-60 520l90 155-120-30-140 35 75-105q5-235-25-575z"/></g>
+<g fill="#244b35"><ellipse cx="100" cy="20" rx="440" ry="180"/><ellipse cx="430" cy="-15" rx="320" ry="125"/><ellipse cx="1440" cy="0" rx="470" ry="190"/></g>
+<g fill="#3c6541"><ellipse cx="200" cy="80" rx="220" ry="65"/><ellipse cx="550" cy="12" rx="210" ry="75"/><ellipse cx="1320" cy="95" rx="190" ry="55"/></g>
+<g fill="#718b4b"><ellipse cx="650" cy="25" rx="110" ry="25"/><ellipse cx="1190" cy="75" rx="110" ry="25"/></g>
+<g fill="#355a35"><path d="M0 800q130-130 280 20l90 30H0zm1200 50q60-160 190-80 95-110 210-20v100z"/><path d="m150 650 12-55 9 40 30-45-10 54 29-5-40 25zm1230 10 9-50 15 36 25-34-10 55z"/></g>
+<g fill="#e4d4a0" opacity=".65"><ellipse cx="320" cy="690" rx="16" ry="5"/><ellipse cx="1210" cy="700" rx="25" ry="6"/><ellipse cx="740" cy="740" rx="12" ry="4"/></g>
+<g fill="#ddc5b4"><ellipse cx="205" cy="735" rx="8" ry="3"/><ellipse cx="1400" cy="690" rx="10" ry="4"/></g>
+</svg>

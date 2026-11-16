@@ -7897,7 +7897,7 @@ const recalculatePlayerLadderStandings = async (arena = DEFAULT_ARENA_MODE) => {
 };
 
 const applyMatchCompletionRewards = async (match, winnerUsername, endedAt) => {
-    if (!match || !Array.isArray(match.players) || match.players.length < 2) {
+    if (!match || match.adminRenderPreview || !Array.isArray(match.players) || match.players.length < 2) {
         return null;
     }
 
@@ -10147,6 +10147,9 @@ app.use(
 );
 // Private campaign prototype: validate the live account for every request,
 // before any page, module or asset can reach the generic static server.
+app.use('/arena-scene', require('./prototypes/arena-scene/access.cjs')({
+    resolveUser: getSessionUserFromRequest, repositoryRoot: __dirname,
+}));
 app.use('/pokemon-campaign', require('./prototypes/pokemon-campaign/access.cjs')({
     resolveUser: getSessionUserFromRequest,
     repositoryRoot: __dirname,
@@ -10231,6 +10234,7 @@ const PUBLIC_SCRIPTS_FILES = new Set([
 ]);
 const isPrivateStaticSourcePath = (requestPath = '') => {
     if (require('./prototypes/pokemon-campaign/access.cjs').isCampaignSourcePath(requestPath)) return true;
+    if (require('./prototypes/arena-scene/access.cjs').isSceneSourcePath(requestPath)) return true;
     const normalizedPath = String(requestPath || '')
         .replace(/\\/g, '/')
         .replace(/\/+/g, '/');
@@ -10535,6 +10539,9 @@ const requireSession = async (req, res, next) => {
         req.authUser = {
             ...serializeUserForClient(user),
         };
+        if (/^\/api\/match\/scene-/i.test(decodeURIComponent(req.path)) && String(user.role || '').trim().toLowerCase() !== 'admin') {
+            return res.status(403).json({ error: 'Admin preview access required.' });
+        }
         next();
     } catch (error) {
         // A temporary database failure is not an authentication failure. Returning
@@ -11087,6 +11094,7 @@ const findMostRecentActiveMatchForUser = async (username, arena = '') => {
     return matchesCollection.findOne(
         {
             'players.username': username,
+            adminRenderPreview: { $ne: true },
             status: 'active',
             ...(normalizedArena ? { arena: normalizedArena } : {}),
         },
@@ -11353,6 +11361,10 @@ const attachWebSocketSupport = (server) => {
             }
             const match = await matchesCollection.findOne({ matchId });
             if (!match || !Array.isArray(match.players)) {
+                socket.destroy();
+                return;
+            }
+            if (match.adminRenderPreview && String(authUser.role || '').trim().toLowerCase() !== 'admin') {
                 socket.destroy();
                 return;
             }
@@ -12025,41 +12037,44 @@ const buildMatch = (players, aliveLookup = {}, options = {}) => {
           }
         : pickInitialTurn(players);
     const matchId = options.matchId || `match-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-    const matchStartsAt = new Date(Date.now() + MATCH_FOUND_HOLD_MS);
+    const holdMs = options.isolated ? 0 : MATCH_FOUND_HOLD_MS;
+    const matchStartsAt = new Date(Date.now() + holdMs);
     const { chakraPools, economy, turnExpiresAt } = initializeEconomyState(
         players,
         currentTurn,
         aliveLookup
     );
     const delayedTurnExpiry = turnExpiresAt
-        ? new Date(new Date(turnExpiresAt).getTime() + MATCH_FOUND_HOLD_MS)
+        ? new Date(new Date(turnExpiresAt).getTime() + holdMs)
         : matchStartsAt;
     const turnStartedAt = matchStartsAt;
-    quickMatches.set(matchId, {
-        players,
-        stateRevision: 0,
-        turnNumber: 0,
-        createdAt: new Date(),
-        arena,
-        matchStartsAt,
-        turnOrder,
-        currentTurn,
-        turnStartedAt,
-        chakraPools,
-        economy,
-        pendingTurns: Object.fromEntries(players.map((username) => [username, makeEmptyPendingTurn()])),
-        turnExpiresAt: delayedTurnExpiry,
-    });
-    players.forEach((p) => {
-        const opponent = players.find((x) => x !== p) || null;
-        if (!isGameBotUsername(p)) {
-            userToMatch.set(p, {
-                matchId,
-                opponent: isGameBotUsername(opponent) ? GAME_BOT_DISPLAY_NAME : opponent,
-                arena,
-            });
-        }
-    });
+    if (!options.isolated) {
+        quickMatches.set(matchId, {
+            players,
+            stateRevision: 0,
+            turnNumber: 0,
+            createdAt: new Date(),
+            arena,
+            matchStartsAt,
+            turnOrder,
+            currentTurn,
+            turnStartedAt,
+            chakraPools,
+            economy,
+            pendingTurns: Object.fromEntries(players.map((username) => [username, makeEmptyPendingTurn()])),
+            turnExpiresAt: delayedTurnExpiry,
+        });
+        players.forEach((p) => {
+            const opponent = players.find((x) => x !== p) || null;
+            if (!isGameBotUsername(p)) {
+                userToMatch.set(p, {
+                    matchId,
+                    opponent: isGameBotUsername(opponent) ? GAME_BOT_DISPLAY_NAME : opponent,
+                    arena,
+                });
+            }
+        });
+    }
     return {
         matchId,
         stateRevision: 0,
@@ -12269,6 +12284,8 @@ const createMatchDocumentFromTeams = async ({
     botMatch = null,
     extraFields = null,
     forcedFirstTurnUsername = null,
+    isolated = false,
+    matchId = null,
 }) => {
     const normalizedArena = normalizeArenaMode(arena);
     const aliveLookup = Object.fromEntries(
@@ -12280,6 +12297,8 @@ const createMatchDocumentFromTeams = async ({
     const built = buildMatch(players.map((player) => player.username), aliveLookup, {
         arena: normalizedArena,
         forcedFirstTurnUsername,
+        isolated,
+        ...(matchId ? { matchId } : {}),
     });
     const playerDocs = players.map((player) => ({
         ...player,
@@ -13776,6 +13795,7 @@ const runBattleBotTurn = (matchId) =>
     matchCommandCoordinator.execute(matchId, 'battle-bot-turn', () => runBattleBotTurnUnlocked(matchId));
 
 const getBattleBotActionDelayRange = (match = {}) => {
+    if (match.adminRenderPreview) return { minMs: 900, maxMs: 1600 };
     const isExplicitPveBattle =
         match.mode === 'pve' &&
         Boolean(match.specialPveMissionId || match.pveBattle?.missionId);
@@ -14316,7 +14336,9 @@ const finalizeTurn = async (match, username, options = {}) => {
         );
         await applyRewardsToPersistedMatch(match);
         quickMatches.delete(match.matchId);
-        (match.players || []).forEach((player) => userToMatch.delete(player.username));
+        (match.players || []).forEach((player) => {
+            if (userToMatch.get(player.username)?.matchId === match.matchId) userToMatch.delete(player.username);
+        });
         return match;
     }
     if (!match.board) {
@@ -14416,7 +14438,9 @@ const finalizeTurn = async (match, username, options = {}) => {
         );
         await applyRewardsToPersistedMatch(match);
         quickMatches.delete(match.matchId);
-        (match.players || []).forEach((player) => userToMatch.delete(player.username));
+        (match.players || []).forEach((player) => {
+            if (userToMatch.get(player.username)?.matchId === match.matchId) userToMatch.delete(player.username);
+        });
         return match;
     }
 
@@ -15114,6 +15138,39 @@ app.post('/api/team/save', requireSession, async (req, res) => {
     return res.json({ ok: true });
 });
 
+// Private visual test: real PvP rules and bots, isolated from queue recovery and progression.
+const createAdminSceneMatch = async ({ user, team, arena }) => {
+    if (String(user?.role || '').trim().toLowerCase() !== 'admin') throw new Error('Admin access required.');
+    const profile = normalizeUserProfile(user);
+    await assertTeamCanBeUsed(profile, team, user.role, arena);
+    if (!isTeamRosterInArena(team, arena)) throw new Error('Choose three characters from this arena.');
+    const previewId = `scene-${crypto.randomUUID()}`;
+    const bot = createBattleBotPlayer({ matchId: previewId, team: await buildBattleBotTeam(arena), arena });
+    bot.displayName = 'Arena Sparring Bot';
+    return createMatchDocumentFromTeams({
+        mode: 'pve', arena, isolated: true, matchId: previewId,
+        players: [{ username: user.username, team, profile: buildBattleProfileSnapshot(profile, arena) }, bot],
+        botMatch: { enabled: true, displayName: bot.displayName },
+        forcedFirstTurnUsername: user.username,
+        extraFields: { adminRenderPreview: true, backgroundOverride: getRandomRegularBackground(arena) },
+    });
+};
+app.post('/api/admin/arena-scene/start', requireSession, async (req, res) => {
+    res.set('Cache-Control', 'private, no-store');
+    if (String(req.authUser?.role || '').trim().toLowerCase() !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required.' });
+    }
+    const { error, value } = teamSaveSchema.validate(req.body || {});
+    if (error) return res.status(400).json({ error: 'Select three different characters from one arena.' });
+    try {
+        const match = await createAdminSceneMatch({ user: req.authUser, team: value.team, arena: value.arena });
+        scheduleBattleBotTurn(match);
+        res.json({ ok: true, matchFound: true, matchReady: true, matchId: match.matchId, arena: match.arena });
+    } catch (error) {
+        res.status(400).json({ error: error.message || 'Unable to start preview.' });
+    }
+});
+
 // Quick matchmaking endpoints (demo/in-memory)
 app.post('/api/match/join', requireSession, async (req, res) => {
     try {
@@ -15204,6 +15261,7 @@ app.post('/api/match/join', requireSession, async (req, res) => {
         // If already stored in DB from earlier pairing, surface it
         const existingMatch = await matchesCollection.findOne({
             'players.username': username,
+            adminRenderPreview: { $ne: true },
             status: 'active',
             arena,
         });
@@ -15756,7 +15814,9 @@ app.post('/api/match/:matchId/surrender', requireSession, withMatchCommand(async
         throw error;
     }
     quickMatches.delete(matchId);
-    (match.players || []).forEach((player) => userToMatch.delete(player.username));
+    (match.players || []).forEach((player) => {
+        if (userToMatch.get(player.username)?.matchId === match.matchId) userToMatch.delete(player.username);
+    });
     queueMatchStateBroadcast(endedMatch);
     let ladderResults = null;
     try {
@@ -16656,6 +16716,7 @@ app.get('/api/admin/winrates', requireSession, async (req, res) => {
                 ? new Date(effectiveWinratesState.resetAt)
                 : null;
         const matchFilter = {
+            adminRenderPreview: { $ne: true },
             status: 'ended',
             mode,
             arena,
@@ -20571,6 +20632,10 @@ if (require.main === module) {
 } else {
     module.exports = {
         app,
+        attachWebSocketSupport,
+        createAdminSceneMatch,
+        applyMatchCompletionRewards,
+        findMostRecentActiveMatchForUser,
         normalizeMissionState,
         profileHasUnlockedCharacter,
         compactFinishedMatchesForTests,

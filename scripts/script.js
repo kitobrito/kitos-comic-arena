@@ -54,6 +54,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // (also needed there since the default without an explicit arena falls back
     // to whatever arena localStorage last remembered, not always comic).
     const buildArenaSelectionUrl = (arena = 'comic', layoutQuery = '') => {
+        if (window.ARENA_SCENE_PREVIEW) return `/arena-scene/selection.html?arena=${encodeURIComponent(arena)}`;
         const normalizedLayoutQuery = typeof layoutQuery === 'string' ? layoutQuery.replace(/^&/, '') : '';
         if (arena === 'pokemon') {
             return normalizedLayoutQuery ? `pokemon-arena?${normalizedLayoutQuery}` : 'pokemon-arena';
@@ -1966,6 +1967,14 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         }
         return `${encodeURI(`/assets/images/selection-featured/PokemonArena/BIB/${filename}`)}?v=kanto-skins-renders-v1`;
     };
+    if (window.ARENA_SCENE_PREVIEW) window.ArenaSceneArt = {
+        pokemon: POKEMON_SELECTION_FEATURED_RENDER_BY_ID,
+        evolutions: POKEMON_SELECTION_EVOLUTION_RENDER_BY_ID,
+        forms: POKEMON_SELECTION_BATTLE_FORM_RENDERS_BY_ID,
+        skins: POKEMON_SELECTION_SKIN_RENDER_FORMS_BY_ID,
+        comic: COMIC_SELECTION_FEATURED_RENDER_BY_ID,
+        source: getSelectionRenderSource,
+    };
     const getSelectionCharacterId = (character) =>
         String(character?.characterId || character?.id || '').trim().toLowerCase();
     const getSelectionEquippedSkinId = (character) => {
@@ -3351,7 +3360,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         const layoutQuery = ['classic', 'experimental'].includes(requestedLayout)
             ? `&layout=${encodeURIComponent(requestedLayout)}`
             : '';
-        return `ingame.html?matchId=${encodeURIComponent(matchId)}&arena=${encodeURIComponent(arena)}${layoutQuery}`;
+        return `${window.ARENA_SCENE_PREVIEW ? '/arena-scene/' : ''}ingame.html?matchId=${encodeURIComponent(matchId)}&arena=${encodeURIComponent(arena)}${layoutQuery}`;
     };
 
     // Shared across pages (not just ingame's evolution cinematic) - the selection screen's
@@ -9919,6 +9928,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         };
 
         const queuePokemonEvolutionCinematic = (card, previousUnit, nextUnit, status) => {
+            if (window.ARENA_SCENE_PREVIEW) return;
             pokemonEvolutionCinematicQueue.push({ card, previousUnit, nextUnit, status });
             runNextPokemonEvolutionCinematic();
         };
@@ -10052,6 +10062,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         };
 
         const queuePinsirGuillotineCinematic = (card, faceSrc, victimName) => {
+            if (window.ARENA_SCENE_PREVIEW) return;
             pinsirGuillotineCinematicQueue.push({ card, faceSrc, victimName });
             runNextPinsirGuillotineCinematic();
         };
@@ -11169,8 +11180,11 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         };
         const formatHealthText = (hp, hpCap, displayMaxHp) =>
             hpCap < displayMaxHp ? `${hp}/${hpCap}` : `${hp}/${displayMaxHp}`;
-        const healthPxWidth = (hp, displayMaxHp) =>
-            Math.max(0, Math.round(HEALTH_BAR_MAX_WIDTH * (hp / displayMaxHp)));
+        const healthBarWidthForCard = (card) => window.ARENA_SCENE_PREVIEW
+            ? card?.querySelector('.health-bar-container')?.clientWidth || HEALTH_BAR_MAX_WIDTH
+            : HEALTH_BAR_MAX_WIDTH;
+        const healthPxWidth = (hp, displayMaxHp, card) =>
+            Math.max(0, Math.round(healthBarWidthForCard(card) * (hp / displayMaxHp)));
 
         const renderUnitHealth = (card, unit) => {
             if (!card) return;
@@ -11189,7 +11203,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             const cachedDisplayMaxHp = Number(card.dataset.renderedDisplayMaxHp);
             const cachedDead = card.dataset.renderedDead === 'true';
             const cachedFaceSrc = card.dataset.renderedFaceSrc || '';
-            const width = healthPxWidth(hp, displayMaxHp);
+            const width = healthPxWidth(hp, displayMaxHp, card);
             if (cachedHp !== hp || cachedHpCap !== hpCap || cachedDisplayMaxHp !== displayMaxHp) {
                 healthBar.style.width = `${width}px`;
                 card.dataset.renderedHp = String(hp);
@@ -11251,7 +11265,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                     capMarker.className = 'health-cap-marker';
                     healthContainer.appendChild(capMarker);
                 }
-                capMarker.style.left = `${Math.max(0, Math.round((HEALTH_BAR_MAX_WIDTH * hpCap) / displayMaxHp) - 2)}px`;
+                capMarker.style.left = `${Math.max(0, Math.round((healthBarWidthForCard(card) * hpCap) / displayMaxHp) - 2)}px`;
                 capMarker.title = `Healing capped at ${hpCap} HP for the rest of the match`;
                 const capIcon = ensureCharacterFxElement(card, 'health-cap-icon', '<span>CAP</span>');
                 if (capIcon) {
@@ -13036,6 +13050,18 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                     ).catch(() => {});
                 }
             }
+            if (window.ARENA_SCENE_PREVIEW) {
+                const units = {};
+                for (const side of ['player', 'opponent']) {
+                    const owner = data[side];
+                    units[side] = (data.board?.[owner?.username] || []).map((unit) => ({
+                        unit, character: getEffectiveCharacterPresentationForUnit(unit, owner?.profile),
+                        baseCharacter: rosterData[unit.rosterIndex],
+                    }));
+                }
+                window.ArenaSceneState = { match: data, units };
+                window.dispatchEvent(new CustomEvent('arena-scene-state', { detail: window.ArenaSceneState }));
+            }
             const nextVisualSignature = buildMatchVisualSignature(data, {
                 playerUsername: currentPlayerUsername,
                 opponentUsername: currentOpponentUsername,
@@ -13608,6 +13634,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         };
 
         const playBattleIntro = async (data) => {
+            if (window.ARENA_SCENE_PREVIEW) return;
             if (hasPlayedBattleIntro || !battleIntroOverlayEl) return;
             hasPlayedBattleIntro = true;
             const lanceIntroArena = data?.arena || currentMatchArena;
@@ -15299,9 +15326,9 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             if (!known && !uncertain) return;
             const { hp, hpCap, displayMaxHp } = computeUnitHealthMetrics(unit);
             if (hp <= 0) return;
-            const currentWidth = healthPxWidth(hp, displayMaxHp);
+            const currentWidth = healthPxWidth(hp, displayMaxHp, card);
             const predictedHp = known ? Math.max(0, hp - Number(damageAmount)) : hp;
-            const predictedWidth = healthPxWidth(predictedHp, displayMaxHp);
+            const predictedWidth = healthPxWidth(predictedHp, displayMaxHp, card);
             const flashWidth = currentWidth - predictedWidth;
 
             const label = document.createElement('span');
@@ -15323,7 +15350,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 const marker = document.createElement('div');
                 marker.className = 'health-bar-damage-flash health-bar-damage-flash-uncertain-only';
                 marker.style.left = '0';
-                marker.style.width = `${HEALTH_BAR_MAX_WIDTH}px`;
+                marker.style.width = `${healthBarWidthForCard(card)}px`;
                 marker.appendChild(label);
                 container.appendChild(marker);
             }
@@ -17947,6 +17974,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
     };
 
     const resumeMatchIfActive = async () => {
+        if (window.ARENA_SCENE_PREVIEW) return;
         try {
             const response = await fetch(
                 `${API_BASE_URL}/api/match/status?arena=${encodeURIComponent(activeArenaMode)}`,
@@ -18088,13 +18116,13 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         setSearchingState('searching', mode);
         openSearching();
         try {
-            const response = await fetch(`${API_BASE_URL}/api/match/join`, {
+            const response = await fetch(`${API_BASE_URL}${window.ARENA_SCENE_PREVIEW ? '/api/admin/arena-scene/start' : '/api/match/join'}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
-                body: JSON.stringify(
-                    buildMatchmakingJoinPayload(mode, options.targetUsername || '')
-                ),
+                body: JSON.stringify(window.ARENA_SCENE_PREVIEW
+                    ? { team: getTeamIndices(), arena: activeArenaMode }
+                    : buildMatchmakingJoinPayload(mode, options.targetUsername || '')),
             });
             const data = await response.json();
             if (
@@ -18146,6 +18174,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         }
         matchmakingRecoveryPromise = null;
         closeSearching();
+        if (window.ARENA_SCENE_PREVIEW) return;
         try {
             await fetch(`${API_BASE_URL}/api/match/cancel`, {
                 method: 'POST',
@@ -19463,7 +19492,13 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
     const getTeamIndices = () =>
         selectedAssignments.map((assignment) => assignment?.characterIndex).filter((idx) => Number.isInteger(idx));
 
+    if (window.ARENA_SCENE_PREVIEW) window.ArenaSceneSelection = {
+        team: () => getTeamIndices(), arena: () => activeArenaMode,
+        start: () => joinMatchmaking('quick'),
+    };
+
     const persistTeamSelection = async () => {
+        if (window.ARENA_SCENE_PREVIEW) return;
         const indices = selectedAssignments.map((assignment) => assignment?.characterIndex);
         if (!indices.every((idx) => Number.isInteger(idx))) {
             return;
