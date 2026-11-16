@@ -18,6 +18,7 @@
     "stale-matches:check": "node scripts/stale-matches.js",
     "stale-matches:force": "node scripts/stale-matches.js --force",
     "test": "node --test test/*.test.js",
+    "test:campaign": "node --test prototypes/pokemon-campaign/test/*.test.mjs",
     "test:e2e": "playwright test"
   },
   "keywords": [],

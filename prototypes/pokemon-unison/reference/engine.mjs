@@ -253,20 +253,21 @@ function weatherStatusFieldBonus(state, actor, effect) {
     return Number(config.amount) || 0;
 }
 
-function makeUnit(speciesId, slot, player, startingForm = 'base') {
-    const species = ROSTER[speciesId];
+function makeUnit(speciesId, slot, player, startingForm = 'base', scenarioSpecies = null, startingHp = MAX_HP) {
+    const species = scenarioSpecies ?? ROSTER[speciesId];
     if (!species) throw new Error(`Unknown species: ${speciesId}`);
     const form = species.forms?.[startingForm] ? startingForm : 'base';
     return {
         slot,
         player,
         speciesId,
+        ...(scenarioSpecies ? { scenarioSpecies: clone(scenarioSpecies) } : {}),
         form,
         effectiveSpeciesId: null,
         effectiveForm: null,
         banished: false,
-        hp: MAX_HP,
-        maxHp: MAX_HP,
+        hp: scenarioSpecies?.startingHp ?? startingHp,
+        maxHp: scenarioSpecies?.startingHp ?? startingHp,
         shield: Math.max(0, Number(species.startShield) || 0),
         shieldCapacity: Math.max(0, Number(species.startShield) || 0),
         barrier: 0,
@@ -333,8 +334,8 @@ function consumeTrackedShieldStatus(state, target, statusId) {
     return removed;
 }
 
-function makeTeam(speciesIds, player, formOverrides = []) {
-    return speciesIds.map((speciesId, slot) => makeUnit(speciesId, slot, player, formOverrides[slot]));
+function makeTeam(speciesIds, player, formOverrides = [], scenarioRoster = null, startingHp = MAX_HP) {
+    return speciesIds.map((speciesId, slot) => makeUnit(speciesId, slot, player, formOverrides[slot], scenarioRoster?.[speciesId], startingHp));
 }
 
 export function createGame({
@@ -344,10 +345,34 @@ export function createGame({
     economyMode = 'sandbox',
     formOverrides = {},
 } = {}) {
-    if (!players.includes(startingPlayer)) throw new Error('startingPlayer must be A or B.');
-    if (!['arena', 'sandbox'].includes(economyMode)) throw new Error('economyMode must be arena or sandbox.');
     const teamError = validateMatchTeams(teams);
     if (teamError) throw new Error(teamError);
+    return initializeGame({ seed, teams, startingPlayer, economyMode, formOverrides });
+}
+
+// Campaign scenarios reuse the battle rules with their own species and smaller
+// parties. They never register species in the competitive roster or change its HP.
+export function createScenarioGame({ roster, teams, startingHp = 50, seed = 0x5eed1234,
+    startingPlayer = 'A', economyMode = 'arena' } = {}) {
+    if (!Number.isInteger(startingHp) || startingHp < 1 || startingHp > 1000) throw new Error('Invalid scenario HP.');
+    for (const player of players) {
+        const team = teams?.[player];
+        if (!Array.isArray(team) || team.length < 1 || team.length > 3 || new Set(team).size !== team.length) {
+            throw new Error('Scenario teams must contain one to three distinct Pokemon.');
+        }
+        for (const id of team) {
+            const species = roster?.[id];
+            if (!species || species.id !== id || !Array.isArray(species.types) || !species.skills?.length) {
+                throw new Error(`Unknown or incomplete scenario Pokemon: ${id}.`);
+            }
+        }
+    }
+    return initializeGame({ seed, teams, startingPlayer, economyMode, formOverrides: {}, scenarioRoster: roster, startingHp });
+}
+
+function initializeGame({ seed, teams, startingPlayer, economyMode, formOverrides, scenarioRoster = null, startingHp = MAX_HP }) {
+    if (!players.includes(startingPlayer)) throw new Error('startingPlayer must be A or B.');
+    if (!['arena', 'sandbox'].includes(economyMode)) throw new Error('economyMode must be arena or sandbox.');
     const state = {
         protocolVersion: PROTOCOL_VERSION,
         seed: seed >>> 0,
@@ -363,8 +388,8 @@ export function createGame({
         winner: null,
         weather: null,
         teams: {
-            A: makeTeam(teams.A, 'A', formOverrides.A ?? []),
-            B: makeTeam(teams.B, 'B', formOverrides.B ?? []),
+            A: makeTeam(teams.A, 'A', formOverrides.A ?? [], scenarioRoster, startingHp),
+            B: makeTeam(teams.B, 'B', formOverrides.B ?? [], scenarioRoster, startingHp),
         },
         energy: {
             A: economyMode === 'arena' ? emptyEnergy() : sandboxEnergy(),
@@ -404,7 +429,7 @@ function findUnit(state, player, slot) {
 }
 
 function getSpecies(unit) {
-    return unit ? ROSTER[unit.effectiveSpeciesId ?? unit.speciesId] ?? null : null;
+    return unit ? (unit.effectiveSpeciesId ? ROSTER[unit.effectiveSpeciesId] : unit.scenarioSpecies ?? ROSTER[unit.speciesId]) ?? null : null;
 }
 
 function getForm(unit) {
@@ -1830,6 +1855,9 @@ function applyEffectToTarget(state, context, effect, target) {
             skillId: skill.id,
         });
         return;
+    }
+    if (effect.campaignCritical && ['damage', 'drain'].includes(effect.kind)) {
+        log(state, 'critical', `${getSpecies(actor).name}'s ${skill.name} scored a critical hit!`, { player: actor.player, actorSlot: actor.slot, targetPlayer: target.player, targetSlot: target.slot });
     }
     if (effect.kind === 'damage') {
         const counterBonus = effect.bonusPerCounter
@@ -3309,6 +3337,7 @@ function skillFailureStatus(actor) {
 function skillFails(state, actor, skill) {
     const status = skillFailureStatus(actor);
     if (!status) return false;
+    if (status.consumeOnSkillAttempt) status.durationActions = 0;
     const roll = nextRandom(state) * 100;
     log(state, 'roll', `${skill.name} rolled ${roll.toFixed(2)} against ${status.skillFailChance}% failure.`, {
         roll,
@@ -3953,7 +3982,7 @@ function finishTeamTurn(state, actingPlayer, actingSlots) {
     return state;
 }
 
-export function resolveQueuedTurn(inputState, queuedActions = []) {
+export function resolveQueuedTurn(inputState, queuedActions = [], { trace = false } = {}) {
     if (inputState.winner) {
         return { ok: false, error: 'The match is already over.', state: inputState };
     }
@@ -3961,6 +3990,7 @@ export function resolveQueuedTurn(inputState, queuedActions = []) {
     const planned = buildQueuedPlanningState(inputState, actions);
     if (!planned.ok) return { ok: false, error: planned.error, state: inputState };
     const actingPlayer = inputState.currentPlayer;
+    const steps = [];
     let state = clone(inputState);
     if (!Array.isArray(state.turns)) state.turns = [];
     const actingSlots = new Set(actions.map((action) => action.actorSlot));
@@ -3976,10 +4006,11 @@ export function resolveQueuedTurn(inputState, queuedActions = []) {
             continue;
         }
         state = result.state;
+        if (trace) steps.push({ action: clone(action), state: clone(state) });
     }
     state.turns.push(actions);
     finishTeamTurn(state, actingPlayer, actingSlots);
-    return { ok: true, state };
+    return { ok: true, state, ...(trace ? { steps } : {}) };
 }
 
 export function applyAction(inputState, action) {

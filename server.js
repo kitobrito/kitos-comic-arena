@@ -10145,6 +10145,13 @@ app.use(
         },
     })
 );
+// Private campaign prototype: validate the live account for every request,
+// before any page, module or asset can reach the generic static server.
+app.use('/pokemon-campaign', require('./prototypes/pokemon-campaign/access.cjs')({
+    resolveUser: getSessionUserFromRequest,
+    repositoryRoot: __dirname,
+}));
+
 app.get(POKEMON_UNISON_PREVIEW_PATH, (req, res, next) => {
     const requestedPath = String(req.originalUrl || '').split('?')[0];
     if (requestedPath.endsWith('/')) {
@@ -10223,6 +10230,7 @@ const PUBLIC_SCRIPTS_FILES = new Set([
     '/scripts/split-hub.js',
 ]);
 const isPrivateStaticSourcePath = (requestPath = '') => {
+    if (require('./prototypes/pokemon-campaign/access.cjs').isCampaignSourcePath(requestPath)) return true;
     const normalizedPath = String(requestPath || '')
         .replace(/\\/g, '/')
         .replace(/\/+/g, '/');
