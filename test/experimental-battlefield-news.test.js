@@ -17,7 +17,9 @@ test('both posts explain the opt-in battlefield, how to turn it on and off, and 
         assert.match(text, /classic view stays the default/);
         assert.match(text, /destroyed/);
         assert.match(text, /stole/);
-        assert.doesNotMatch(text, /discord/i);
+        assert.match(text, /taken the Discord links down/);
+        assert.match(text, /don't want to be part of the community anymore/);
+        assert.doesNotMatch(text, /discord\.gg|on Discord/i);
     }
 });
 

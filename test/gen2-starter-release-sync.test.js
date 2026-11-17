@@ -44,7 +44,8 @@ test('Gen 2 launch news presents starters, music, evolutions, and community char
     assert.match(text, /16 ranked matches/i);
     assert.match(text, /36 additional ranked matches/i);
     assert.match(text, /community characters/i);
-    assert.match(text, /first community character.*Discord.*put into the game/i);
+    assert.match(text, /More characters are on the way/);
+    assert.doesNotMatch(text, /discord/i);
     assert.equal(newsPost.changes.length, 15);
 });
 

@@ -45,7 +45,7 @@ const REDESIGN = [
 
 const THANKS_AND_PROMISE = (game) => [
     p(`Thank you to everyone who has kept playing ${game} through the quiet stretch. I have not forgotten about Comic Arena or Pokemon Arena. Shattered Realms has taken a lot of my time lately, but both arenas are getting more support soon: more characters, more balance passes and more missions are on the way.`),
-    p('If something looks wrong on the new site or in battle, especially on your phone, please let me know on Discord. See you in the queue.'),
+    p('See you in the queue.'),
 ];
 
 const comicPost = {
