@@ -13050,6 +13050,8 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                     ).catch(() => {});
                 }
             }
+            // Presentation hooks (scripts/energy-fx.js) read every match state from this event.
+            window.dispatchEvent(new CustomEvent('battle-match-state', { detail: data }));
             if (window.ARENA_SCENE_PREVIEW) {
                 const units = {};
                 for (const side of ['player', 'opponent']) {

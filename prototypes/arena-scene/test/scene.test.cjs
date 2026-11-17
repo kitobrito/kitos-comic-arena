@@ -91,6 +91,19 @@ test('an active ranked match is still recovered when a newer private preview exi
     await matches.insertOne(normal);
     assert.equal((await engine.findMostRecentActiveMatchForUser(admin.username, 'pokemon')).matchId, normal.matchId);
 });
+test('a player sees the energy the enemy destroyed or stole from them, and only their own', async () => {
+    const battleLogic = require('../../../battleLogic.js');
+    const created = await engine.createAdminSceneMatch({ user: admin, team: teams.comic, arena: 'comic' });
+    const stored = matches.docs.find(m => m.matchId === created.matchId);
+    const bot = stored.players[1].username;
+    stored.chakraPools[admin.username] = { taijutsu: 1, bloodline: 0, ninjutsu: 0, genjutsu: 0 };
+    battleLogic.removeRandomChakraFromMatch({ match: stored, username: admin.username, amount: 1, sourceUsername: bot });
+    battleLogic.recordEnergyLoss(stored, { username: admin.username, type: 'genjutsu', kind: 'stolen', toUsername: bot, sourceSlot: 2 });
+    battleLogic.recordEnergyLoss(stored, { username: bot, type: 'ninjutsu', kind: 'destroyed' });
+    const payload = await (await request('/api/match/' + stored.matchId)).json();
+    assert.deepEqual(payload.energyLosses.map(l => [l.type, l.kind, l.toUsername]), [['taijutsu', 'destroyed', null], ['genjutsu', 'stolen', bot]]);
+    assert.ok(Array.isArray(payload.lastChakraGain[admin.username]));
+});
 test('revoking admin role immediately denies an existing preview match API', async () => {
     const match = matches.docs.find(m => m.adminRenderPreview);
     users.docs.find(u => u.username === admin.username).role = 'player';

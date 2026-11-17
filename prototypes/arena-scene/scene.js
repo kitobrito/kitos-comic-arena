@@ -688,7 +688,12 @@
             if (!next?.match) return;
             state = next;
             const ownTurn = next.match.currentTurn === next.match.player?.username;
-            $('.scene-turn').textContent = next.match.status === 'ended' ? 'Battle complete' : ownTurn ? 'YOUR TURN · Plan your moves' : 'BOT TURN · Watch the battlefield';
+            const turnLabel = $('.scene-turn');
+            const label = next.match.status === 'ended' ? 'BATTLE OVER' : ownTurn ? 'YOUR TURN' : 'ENEMY TURN';
+            if (turnLabel.textContent !== label) {
+                turnLabel.textContent = label;
+                if (motionOK()) turnLabel.animate([{ transform: 'scale(.6)', opacity: 0, letterSpacing: '12px' }, { transform: 'scale(1.12)', opacity: 1, offset: 0.55 }, { transform: 'none', opacity: 1 }], { duration: 520, easing: 'cubic-bezier(.2,.9,.3,1.2)' });
+            }
             field.classList.toggle('scene-bot-turn', !ownTurn);
             for (const [side, cards] of Object.entries(teams)) cards.forEach((card, slot) => {
                 const entry = next.units[side]?.[slot]; if (!entry) return;

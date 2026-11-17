@@ -10228,6 +10228,7 @@ const PUBLIC_SCRIPTS_FILES = new Set([
     '/scripts/arena-select-ui.js',
     '/scripts/script.js',
     '/scripts/battle-fx.js',
+    '/scripts/energy-fx.js',
     '/scripts/tri-portal.js',
     '/scripts/shattered-portal.js',
     '/scripts/split-hub.js',
@@ -10960,6 +10961,14 @@ const sanitizeLastChakraGainForViewer = (lastChakraGain, viewerUsername) => {
     return ownGain ? { [viewerUsername]: ownGain } : null;
 };
 
+// Energy this viewer lost (destroyed, or stolen by the enemy), for the start-of-turn animation.
+const sanitizeEnergyLossesForViewer = (energyLosses, viewerUsername) => {
+    if (!Array.isArray(energyLosses) || !viewerUsername) return [];
+    return energyLosses
+        .filter((entry) => entry && usernamesEqual(entry.username, viewerUsername))
+        .map(({ id, type, kind, toUsername, sourceSlot, turn }) => ({ id, type, kind, toUsername: toUsername || null, sourceSlot: Number.isInteger(sourceSlot) ? sourceSlot : null, turn }));
+};
+
 const serializedMatchProfileCache = new WeakMap();
 const serializeMatchProfileForClient = (profile, arena) => {
     if (!profile || typeof profile !== 'object') return null;
@@ -11043,6 +11052,7 @@ const buildMatchPayloadForUser = (match, username) => {
         board: sanitizeBoardForViewer(match.board, username),
         chakraPools: sanitizeChakraPoolsForViewer(match.chakraPools, username),
         lastChakraGain: sanitizeLastChakraGainForViewer(match.economy?.lastChakraGain, username),
+        energyLosses: sanitizeEnergyLossesForViewer(match.economy?.energyLosses, username),
         pendingTurn: getPendingTurn(match, username),
         ladderResult: ladderResultKey ? match.ladderResults?.[ladderResultKey] || null : null,
         backgroundOverride: normalizeMatchBackgroundOverride(match.backgroundOverride, match.arena),
@@ -11079,6 +11089,7 @@ const buildMatchActionStatePayload = (match, username, extra = {}) => {
         board: safePayload.board || null,
         chakraPools: safePayload.chakraPools || null,
         lastChakraGain: safePayload.lastChakraGain || null,
+        energyLosses: safePayload.energyLosses || [],
         pendingTurn: safePayload.pendingTurn || makeEmptyPendingTurn(),
         ladderResult: safePayload.ladderResult || null,
         backgroundOverride: safePayload.backgroundOverride || '',

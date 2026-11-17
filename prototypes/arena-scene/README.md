@@ -38,6 +38,12 @@ Battlefield presentation (all in `scene.js` / `scene.css`):
 - Comic Arena stands in a generated colosseum (`arena.webp`, built from `arena.svg` by
   `tools/build-arena-bg.py` then `tools/render-arena-bg.mjs`).
 
+- "YOUR TURN" / "ENEMY TURN" is a large banner under the energy bar.
+- Start-of-turn energy (shared with the live battle page, `scripts/energy-fx.js`): new energy
+  appears as orbs and flies into its counters; energy the enemy destroyed shatters, energy it
+  stole is snatched into the thief. The server records losses in `match.economy.energyLosses`
+  (`battleLogic.recordEnergyLoss`) and sends each player only their own.
+
 Preview matches use the regular PvP starting health, energy economy and skills.
 The admin moves first; the bot uses its existing team builder and skill AI.
 They have `scene-` IDs, `adminRenderPreview: true`, and `mode: pve`. Creation is

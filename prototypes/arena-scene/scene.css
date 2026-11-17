@@ -391,3 +391,13 @@ html.scene-arena-comic .scene-field { --floor-top:41%; }
 .scene-divider-glow { inset:0 -26px; clip-path:polygon(46% 0,54% 0,100% 100%,0 100%); background:linear-gradient(#ffd77a00,#ffd77a66 18%,#ffd77a33); filter:blur(8px); }
 .scene-divider-vs { position:absolute; left:50%; top:0; translate:-50% -55%; display:grid; place-items:center; width:38px; height:38px; border-radius:50%; background:radial-gradient(#3a2a12,#120d07); border:2px solid #ffd77a; color:#ffe7a8; font:900 13px/1 Impact,'Arial Black',sans-serif; letter-spacing:1px; box-shadow:0 0 16px #ffc84a88,0 4px 10px #000a; }
 @media (max-width:700px) { .scene-divider-vs { width:28px; height:28px; font-size:10px; } }
+
+/* ===== Turn banner under the energy bar ============================================================ */
+.scene-hud { flex-direction:column; gap:6px; }
+.scene-hud .game-hud { order:1; }
+html.arena-scene-preview body.scene-battle .scene-hud .scene-turn { order:2; margin:0; padding:0; border:0; border-radius:0; background:linear-gradient(#fff6c8,#f3cf5a 45%,#c48a1e); -webkit-background-clip:text; background-clip:text; color:transparent; box-shadow:none; backdrop-filter:none; font:400 40px/1 Impact,'Arial Black',sans-serif; letter-spacing:4px; filter:drop-shadow(0 2px 0 #4a2f05) drop-shadow(0 0 14px #f5c54a88) drop-shadow(0 4px 8px #000c); text-align:center; white-space:nowrap; }
+html.arena-scene-preview body.scene-battle .scene-bot-turn .scene-hud .scene-turn { background:linear-gradient(#ffd9cf,#e2715a 50%,#93321f); -webkit-background-clip:text; background-clip:text; filter:drop-shadow(0 2px 0 #3d0f06) drop-shadow(0 0 12px #e2715a77) drop-shadow(0 4px 8px #000c); }
+
+@media (max-width:700px) {
+ html.arena-scene-preview body.scene-battle .scene-hud .scene-turn { font-size:26px; letter-spacing:3px; width:auto; }
+}
