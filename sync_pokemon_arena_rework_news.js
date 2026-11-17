@@ -15,11 +15,15 @@ const newsPost = { ...{
     "blocks": [
         {
             "type": "paragraph",
-            "text": "Pokemon Arena Update V.4.0 is a full rework of the roster, built to make Pokemon Arena much easier to pick up while keeping every Pokemon's flavor. 43 Pokemon have brand-new, simpler kits."
+            "text": "Pokemon Arena Update V.4.0 is a full rework of the roster, built to make Pokemon Arena much easier to pick up while keeping every Pokemon's flavor. 42 Pokemon have brand-new, simpler kits."
         },
         {
             "type": "paragraph",
-            "text": "Every reworked Pokemon now has four skills: one or two attacks, one utility skill, and one way to protect itself. Every skill does what its description says in one or two short sentences, uses the same few effects (damage, piercing damage, damage over time, stuns, shields, damage reduction, damage boosts and weakens, healing and energy steal), and costs one to three energy."
+            "text": "Every reworked Pokemon has four skills, and they all work together. Each Pokemon has one main skill that puts a named mark on enemies (like Burned, Static, Poisoned or Asleep) or puts the Pokemon in a stance (like In its shell, Focused or Raging). Every other skill says plainly how it uses that mark: \"+10 damage to Burned enemies\", \"if the target is Asleep, it takes 20 each turn instead\", \"while Squirtle is in its shell, also stuns it\". Even the defensive skill pays off: it heals a little if the Pokemon used its main skill last turn, or while it is in its stance."
+        },
+        {
+            "type": "paragraph",
+            "text": "Critical hits are in: many attacks have a chance to crit for extra piercing damage, shown right in the description. Some stances raise that chance, like Abra's Calm Mind, Scyther's Swords Dance and Hitmonlee's Focus Energy."
         },
         {
             "type": "paragraph",
@@ -31,19 +35,20 @@ const newsPost = { ...{
         },
         {
             "type": "paragraph",
-            "text": "Community characters (Ditto, Scraggy, Dragapult, Nincada with Ninjask and Shedinja, Darkrai and Aegislash) are unchanged, as are Aerodactyl, Pokemon Trainer and Lance."
+            "text": "Community characters (Ditto, Scraggy, Dragapult, Nincada with Ninjask and Shedinja, Darkrai and Aegislash) are unchanged, as are Blaziken, Aerodactyl, Pokemon Trainer and Lance."
         }
     ],
     "paragraphs": [
-        "Pokemon Arena Update V.4.0 is a full rework of the roster, built to make Pokemon Arena much easier to pick up while keeping every Pokemon's flavor. 43 Pokemon have brand-new, simpler kits.",
-        "Every reworked Pokemon now has four skills: one or two attacks, one utility skill, and one way to protect itself. Every skill does what its description says in one or two short sentences, uses the same few effects (damage, piercing damage, damage over time, stuns, shields, damage reduction, damage boosts and weakens, healing and energy steal), and costs one to three energy.",
+        "Pokemon Arena Update V.4.0 is a full rework of the roster, built to make Pokemon Arena much easier to pick up while keeping every Pokemon's flavor. 42 Pokemon have brand-new, simpler kits.",
+        "Every reworked Pokemon has four skills, and they all work together. Each Pokemon has one main skill that puts a named mark on enemies (like Burned, Static, Poisoned or Asleep) or puts the Pokemon in a stance (like In its shell, Focused or Raging). Every other skill says plainly how it uses that mark: \"+10 damage to Burned enemies\", \"if the target is Asleep, it takes 20 each turn instead\", \"while Squirtle is in its shell, also stuns it\". Even the defensive skill pays off: it heals a little if the Pokemon used its main skill last turn, or while it is in its stance.",
+        "Critical hits are in: many attacks have a chance to crit for extra piercing damage, shown right in the description. Some stances raise that chance, like Abra's Calm Mind, Scyther's Swords Dance and Hitmonlee's Focus Energy.",
         "Evolution is simple now too: every evolving Pokemon, Pidgey included, evolves automatically at the start of its 4th turn, and all of its skills get stronger. Its portrait and its full-body render in the new battle screen change to the evolved form. Rare Candy still evolves a Pokemon instantly, and the Gen 2 starters still evolve through their ranked win missions.",
         "Weather is back with the legendary birds, in a simpler form: Articuno's Blizzard brings a Snowstorm, Moltres's Wildfire starts a Wildfire, and Zapdos calls a Thunderstorm. Each lasts 3 rounds, makes skills of its type deal 10 more damage, and changes the arena background for both players.",
-        "Community characters (Ditto, Scraggy, Dragapult, Nincada with Ninjask and Shedinja, Darkrai and Aegislash) are unchanged, as are Aerodactyl, Pokemon Trainer and Lance."
+        "Community characters (Ditto, Scraggy, Dragapult, Nincada with Ninjask and Shedinja, Darkrai and Aegislash) are unchanged, as are Blaziken, Aerodactyl, Pokemon Trainer and Lance."
     ],
     "changes": [
         {
-            "text": "Sets enemies on fire, then hits harder as Charmeleon. Evolves into Charmeleon on its 4th turn. New skills: Ember, Scratch, Flamethrower, Protect.",
+            "text": "Ember Burns enemies, and every other skill hits Burned enemies harder. Evolves into Charmeleon on its 4th turn. Main skill: Ember. Skills: Ember, Scratch, Flamethrower, Protect.",
             "changeType": "rework",
             "characterId": "charmander",
             "characterName": "Charmander",
@@ -53,7 +58,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/newcharmanderfp.jpeg"
         },
         {
-            "text": "Hides in its shell to protect itself and wears enemies down with water. Evolves into Wartortle on its 4th turn. New skills: Water Gun, Bubble, Withdraw, Protect.",
+            "text": "Withdraw puts Squirtle in its shell; its water attacks hit harder while it is inside. Evolves into Wartortle on its 4th turn. Main skill: Withdraw. Skills: Withdraw, Water Gun, Bubble, Protect.",
             "changeType": "rework",
             "characterId": "squirtle",
             "characterName": "Squirtle",
@@ -63,7 +68,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/newsquirtlefp.jpeg"
         },
         {
-            "text": "Drains enemies with seeds and heals itself while it fights. Evolves into Ivysaur on its 4th turn. New skills: Leech Seed, Vine Whip, Solar Beam, Synthesis.",
+            "text": "Leech Seed drains an enemy; Bulbasaur's other skills are stronger against Seeded enemies. Evolves into Ivysaur on its 4th turn. Main skill: Leech Seed. Skills: Leech Seed, Vine Whip, Solar Beam, Synthesis.",
             "changeType": "rework",
             "characterId": "bulbasaur",
             "characterName": "Bulbasaur",
@@ -73,7 +78,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/Bulbasaur/bulbasaurfp.jpg"
         },
         {
-            "text": "Fast electric attacks that can stun. New skills: Thundershock, Volt Tackle, Thunder, Agility.",
+            "text": "Thundershock gives Static; Volt Tackle and Thunder punish enemies with Static. Main skill: Thundershock. Skills: Thundershock, Volt Tackle, Thunder, Agility.",
             "changeType": "rework",
             "characterId": "pikachu",
             "characterName": "Pikachu",
@@ -83,7 +88,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/newpikachufp.jpeg"
         },
         {
-            "text": "Puts enemies to sleep and weakens their attacks with powders. New skills: Confusion, Stun Spore, Sleep Powder, Protect.",
+            "text": "Sleep Powder makes enemies Drowsy; its other skills punish Drowsy enemies. Main skill: Sleep Powder. Skills: Sleep Powder, Confusion, Stun Spore, Protect.",
             "changeType": "rework",
             "characterId": "butterfree",
             "characterName": "Butterfree",
@@ -93,7 +98,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/butterfree/butterfreefp.webp"
         },
         {
-            "text": "The team medic: heals allies and keeps them alive. Evolves into Blissey on its 4th turn. New skills: Egg Bomb, Softboil, Pokémon Center Healing, Safeguard.",
+            "text": "Softboil heals an ally and puts Chansey on duty as a Nurse; her other skills are stronger while Nursing. Evolves into Blissey on its 4th turn. Main skill: Softboil. Skills: Softboil, Egg Bomb, Pokémon Center Healing, Safeguard.",
             "changeType": "rework",
             "characterId": "chansey",
             "characterName": "Chansey",
@@ -103,7 +108,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/Chansey/chanseyfp.webp"
         },
         {
-            "text": "Fills the field with poison gas that hurts every enemy. Evolves into Weezing on its 4th turn. New skills: Smog, Poison Gas, Self-Destruct, Haze.",
+            "text": "Smog Poisons an enemy; Poison Gas and Self-Destruct hit Poisoned enemies harder. Evolves into Weezing on its 4th turn. Main skill: Smog. Skills: Smog, Poison Gas, Self-Destruct, Haze.",
             "changeType": "rework",
             "characterId": "koffing",
             "characterName": "Koffing",
@@ -113,7 +118,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/koffing/koffingfp.webp"
         },
         {
-            "text": "Bites and drains health to keep itself going. Evolves into Golbat on its 4th turn. New skills: Bite, Leech Life, Supersonic, Double Team.",
+            "text": "Supersonic Confuses an enemy; Zubat's bites hit Confused enemies harder. Evolves into Golbat on its 4th turn. Main skill: Supersonic. Skills: Supersonic, Bite, Leech Life, Double Team.",
             "changeType": "rework",
             "characterId": "zubat",
             "characterName": "Zubat",
@@ -123,7 +128,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/zubat/zubatfp.webp"
         },
         {
-            "text": "A ghost that curses enemies and steals their energy. Evolves into Haunter on its 4th turn. New skills: Lick, Curse, Spite, Vanish.",
+            "text": "Curse haunts an enemy; Lick and Spite are stronger against Cursed enemies. Evolves into Haunter on its 4th turn. Main skill: Curse. Skills: Curse, Lick, Spite, Vanish.",
             "changeType": "rework",
             "characterId": "gastly",
             "characterName": "Gastly",
@@ -133,7 +138,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/gastley/gastleyfp.webp"
         },
         {
-            "text": "Fragile but powerful: teleports out of danger and hits hard with Psychic. Evolves into Kadabra on its 4th turn. New skills: Psychic, Future Sight, Calm Mind, Teleport.",
+            "text": "Calm Mind Focuses Abra; its psychic attacks hit harder and crit more while Focused. Evolves into Kadabra on its 4th turn. Main skill: Calm Mind. Skills: Calm Mind, Psychic, Future Sight, Teleport.",
             "changeType": "rework",
             "characterId": "abra",
             "characterName": "Abra",
@@ -143,7 +148,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/abra/abrafp.webp"
         },
         {
-            "text": "Hard shell, huge claw: defends itself and crushes one target. Evolves into Kingler on its 4th turn. New skills: Metal Claw, Crabhammer, Leer, Harden.",
+            "text": "Leer Exposes an enemy; Krabby's claws crush Exposed enemies. Evolves into Kingler on its 4th turn. Main skill: Leer. Skills: Leer, Metal Claw, Crabhammer, Harden.",
             "changeType": "rework",
             "characterId": "krabby",
             "characterName": "Krabby",
@@ -153,7 +158,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/Krabby/krabbyfp.png"
         },
         {
-            "text": "Sharpens its blades, then slices through defenses. New skills: Fury Cutter, X-Cutter, Swords Dance, Double Team.",
+            "text": "Swords Dance Sharpens Scyther's blades; its cuts hit harder and crit more while Sharpened. Main skill: Swords Dance. Skills: Swords Dance, Fury Cutter, X-Cutter, Double Team.",
             "changeType": "rework",
             "characterId": "scyther",
             "characterName": "Scyther",
@@ -163,7 +168,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/scyther/scytherfp.webp"
         },
         {
-            "text": "A balanced fighter that is easy to play. New skills: Swift, Dig, Hidden Power, Protect.",
+            "text": "Swift Locks On to an enemy; Dig and Hidden Power hit the Locked On enemy harder. Main skill: Swift. Skills: Swift, Dig, Hidden Power, Protect.",
             "changeType": "rework",
             "characterId": "eevee",
             "characterName": "Eevee",
@@ -173,7 +178,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/eevee/eevee/eeveefp.png"
         },
         {
-            "text": "The fastest Eeveelution: cheap, quick electric hits. New skills: Pin Missile, Thunderbolt, Thunder Fang, Agility.",
+            "text": "Pin Missile Paralyzes an enemy; Thunderbolt and Thunder Fang punish Paralyzed enemies. Main skill: Pin Missile. Skills: Pin Missile, Thunderbolt, Thunder Fang, Agility.",
             "changeType": "rework",
             "characterId": "jolteon",
             "characterName": "Jolteon",
@@ -183,7 +188,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/eevee/jolteon/jolteonfp.png"
         },
         {
-            "text": "Burns everything and powers itself up. New skills: Fire Spin, Fire Blast, Heating Up, Double Team.",
+            "text": "Fire Spin Burns an enemy; Fire Blast and Heating Up punish Burned enemies. Main skill: Fire Spin. Skills: Fire Spin, Fire Blast, Heat Wave, Double Team.",
             "changeType": "rework",
             "characterId": "flareon",
             "characterName": "Flareon",
@@ -193,7 +198,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/eevee/flareon/flareonfp.png"
         },
         {
-            "text": "Heals the team with water and protects itself with Acid Armor. New skills: Aurora Beam, Hydro Pump, Aqua Ring, Acid Armor.",
+            "text": "Aqua Ring surrounds the team with water; Vaporeon hits harder and heals more while in its Aqua Ring. Main skill: Aqua Ring. Skills: Aqua Ring, Aurora Beam, Hydro Pump, Acid Armor.",
             "changeType": "rework",
             "characterId": "vaporeon",
             "characterName": "Vaporeon",
@@ -203,7 +208,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/eevee/vaporeon/vaporeonfp.png"
         },
         {
-            "text": "Poisons one enemy and squeezes them. Evolves into Arbok on its 4th turn. New skills: Poison Fang, Toxic, Wrap, Shed Skin.",
+            "text": "Toxic Poisons an enemy; Poison Fang and Wrap are stronger against Poisoned enemies. Evolves into Arbok on its 4th turn. Main skill: Toxic. Skills: Toxic, Poison Fang, Wrap, Shed Skin.",
             "changeType": "rework",
             "characterId": "ekans",
             "characterName": "Ekans",
@@ -213,7 +218,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/ekans/ekansfp.jpg"
         },
         {
-            "text": "Punches hard and bulks up to take hits. Evolves into Machoke on its 4th turn. New skills: Brick Break, Karate Chop, Bulk Up, Detect.",
+            "text": "Bulk Up powers Machop up; its punches hit harder and crit more while Bulked Up. Evolves into Machoke on its 4th turn. Main skill: Bulk Up. Skills: Bulk Up, Brick Break, Karate Chop, Detect.",
             "changeType": "rework",
             "characterId": "machop",
             "characterName": "Machop",
@@ -223,7 +228,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/machop/machopfp.png"
         },
         {
-            "text": "Useless at first... until it evolves into a raging Gyarados. Evolves into Gyarados on its 4th turn. New skills: Tackle, Flail, Struggle, Splash.",
+            "text": "Splash makes Magikarp Determined; it fights a little better while Determined, and becomes a raging Gyarados. Evolves into Gyarados on its 4th turn. Main skill: Splash. Skills: Splash, Tackle, Flail, Struggle.",
             "changeType": "rework",
             "characterId": "magikarp",
             "characterName": "Magikarp",
@@ -233,7 +238,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/magikarp/magikarpfp.png"
         },
         {
-            "text": "Builds invisible walls that shield the whole team. New skills: Dazzling Gleam, Light Screen, Barrier, Safeguard.",
+            "text": "Light Screen Screens the team; Mr. Mime's other skills get stronger while it is Screened. Main skill: Light Screen. Skills: Light Screen, Dazzling Gleam, Barrier, Safeguard.",
             "changeType": "rework",
             "characterId": "mr-mime",
             "characterName": "Mr. Mime",
@@ -243,7 +248,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/Mr.mime/fp.jpg"
         },
         {
-            "text": "Elemental punches: one burns, one freezes, one stuns. New skills: Mega Punch, Fire Punch, Thunder Punch, Detect.",
+            "text": "Fire Punch Burns an enemy; Mega Punch and Thunder Punch punish Burned enemies. Main skill: Fire Punch. Skills: Fire Punch, Mega Punch, Thunder Punch, Detect.",
             "changeType": "rework",
             "characterId": "hitmonchan",
             "characterName": "Hitmonchan",
@@ -253,7 +258,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/hitmonchan/fp.webp"
         },
         {
-            "text": "Focuses, then lands one devastating kick. New skills: Double Kick, High Jump Kick, Focus Energy, Detect.",
+            "text": "Focus Energy Focuses Hitmonlee; its kicks hit harder and crit far more while Focused. Main skill: Focus Energy. Skills: Focus Energy, Double Kick, High Jump Kick, Detect.",
             "changeType": "rework",
             "characterId": "hitmonlee",
             "characterName": "Hitmonlee",
@@ -263,7 +268,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/hitmonlee/fp.webp"
         },
         {
-            "text": "Shocks the whole enemy team and can stun one of them. Evolves into Magneton on its 4th turn. New skills: Spark, Discharge, Thunder Wave, Magnet Rise.",
+            "text": "Thunder Wave Paralyzes an enemy; Spark and Discharge hit Paralyzed enemies harder. Evolves into Magneton on its 4th turn. Main skill: Thunder Wave. Skills: Thunder Wave, Spark, Discharge, Magnet Rise.",
             "changeType": "rework",
             "characterId": "magnemite",
             "characterName": "Magnemite",
@@ -273,7 +278,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/mangemite/magnemitefp.webp"
         },
         {
-            "text": "A huge rock wall that takes hits for the team. New skills: Rock Throw, Iron Tail, Stealth Rock, Harden.",
+            "text": "Harden turns Onix to stone; it hits back harder while Hardened. Main skill: Harden. Skills: Harden, Rock Throw, Iron Tail, Stealth Rock.",
             "changeType": "rework",
             "characterId": "onix",
             "characterName": "Onix",
@@ -283,7 +288,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/onix/fp.webp"
         },
         {
-            "text": "Steals energy with Pay Day and claws when the enemy is out of options. Evolves into Persian on its 4th turn. New skills: Fury Swipes, Pay Day, Night Slash, Feint.",
+            "text": "Pay Day steals energy and makes Meowth Lucky; its claws hit harder and crit more while Lucky. Evolves into Persian on its 4th turn. Main skill: Pay Day. Skills: Pay Day, Fury Swipes, Night Slash, Feint.",
             "changeType": "rework",
             "characterId": "meowth",
             "characterName": "Meowth",
@@ -293,7 +298,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/Meowth/meowthnewfacepicture.png"
         },
         {
-            "text": "Heals allies, and Metronome casts a random surprise skill. Evolves into Clefable on its 4th turn. New skills: Double Slap, Moonlight, Metronome, Protect.",
+            "text": "Moonlight heals an ally and makes Clefairy Moonlit; its slaps hit harder while Moonlit, and Metronome casts a random surprise. Evolves into Clefable on its 4th turn. Main skill: Moonlight. Skills: Moonlight, Double Slap, Metronome, Protect.",
             "changeType": "rework",
             "characterId": "clefairy",
             "characterName": "Clefairy",
@@ -303,7 +308,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/clefairy/fp.webp"
         },
         {
-            "text": "Sings enemies to sleep and protects its friends. Evolves into Wigglytuff on its 4th turn. New skills: Pound, Sing, Wish, Protect.",
+            "text": "Sing puts an enemy to Sleep; Pound and Wish are stronger after singing. Evolves into Wigglytuff on its 4th turn. Main skill: Sing. Skills: Sing, Pound, Wish, Protect.",
             "changeType": "rework",
             "characterId": "jigglypuff",
             "characterName": "Jigglypuff",
@@ -313,7 +318,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/jigglypuff/fp.webp"
         },
         {
-            "text": "Poison stings that pile up, then Mega Evolves into a living drill. Evolves into Mega Beedrill on its 4th turn. New skills: Poison Sting, Twinneedle, Envenom, Hive Swarm.",
+            "text": "Poison Sting Poisons an enemy; Twinneedle and Envenom punish Poisoned enemies, then it Mega Evolves. Evolves into Mega Beedrill on its 4th turn. Main skill: Poison Sting. Skills: Poison Sting, Twinneedle, Envenom, Hive Swarm.",
             "changeType": "rework",
             "characterId": "beedrill",
             "characterName": "Beedrill",
@@ -323,7 +328,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/beedrill/FP.png"
         },
         {
-            "text": "Freezes enemies and brings a Snowstorm that powers up Ice skills. New skills: Ice Beam, Blizzard, Sheer Cold, Mist.",
+            "text": "Blizzard brings a Snowstorm; Ice Beam and Sheer Cold are stronger in the snow. Main skill: Blizzard. Skills: Blizzard, Ice Beam, Sheer Cold, Mist.",
             "changeType": "rework",
             "characterId": "articuno",
             "characterName": "Articuno",
@@ -333,7 +338,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/articuno/fp.png"
         },
         {
-            "text": "Sets the whole enemy team on fire and starts a Wildfire that powers up Fire skills. New skills: Heat Wave, Wildfire, Overheat, Roost.",
+            "text": "Wildfire Burns everyone and starts a Wildfire; Heat Wave and Overheat punish Burned enemies. Main skill: Wildfire. Skills: Wildfire, Heat Wave, Overheat, Roost.",
             "changeType": "rework",
             "characterId": "moltres",
             "characterName": "Moltres",
@@ -343,7 +348,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/moltres/FP.png"
         },
         {
-            "text": "Calls a Thunderstorm that powers up Electric skills, then unleashes huge electric attacks. New skills: Thunderstorm, Zap Cannon, Thunderstorm, Fly.",
+            "text": "Thunderstorm Charges Zapdos up; its lightning hits harder and stuns while Charged. Main skill: Thunderstorm. Skills: Thunderstorm, Thunderstorm, Zap Cannon, Fly.",
             "changeType": "rework",
             "characterId": "zapdos",
             "characterName": "Zapdos",
@@ -353,7 +358,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/zapdos/fp.png"
         },
         {
-            "text": "Shields and heals the team with psychic bubbles. New skills: Psychic, Pink Bubble, Life Dew, Psychic Barrier.",
+            "text": "Pink Bubble shields an ally; Mew's psychic power and Life Dew are stronger for Bubbled allies. Main skill: Pink Bubble. Skills: Pink Bubble, Psychic, Life Dew, Psychic Barrier.",
             "changeType": "rework",
             "characterId": "mew",
             "characterName": "Mew",
@@ -363,7 +368,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/mew/fp.png"
         },
         {
-            "text": "The strongest psychic Pokemon: big damage and self-healing. New skills: Psychic, Shadow Ball, Drain Punch, Barrier.",
+            "text": "Psychic Mind Locks an enemy; Shadow Ball and Drain Punch tear through Mind Locked enemies. Main skill: Psychic. Skills: Psychic, Shadow Ball, Drain Punch, Barrier.",
             "changeType": "rework",
             "characterId": "mewtwo",
             "characterName": "Mewtwo",
@@ -373,7 +378,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/mewtwo/fp.png"
         },
         {
-            "text": "A gentle giant: very tough, and hits like a dragon. New skills: Dragon Claw, Draco Meteor, Dragon Dance, Protect.",
+            "text": "Dragon Dance makes Dragonite Dancing; it hits harder and takes less damage while Dancing. Main skill: Dragon Dance. Skills: Dragon Dance, Dragon Claw, Draco Meteor, Protect.",
             "changeType": "rework",
             "characterId": "dragonite",
             "characterName": "Dragonite",
@@ -383,7 +388,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/dragonite/fp.png"
         },
         {
-            "text": "Sets enemies alight; its earned evolutions upgrade Tackle into Flame Wheel. New skills: Tackle, Ember, Smokescreen, Protect.",
+            "text": "Ember Burns an enemy; Tackle and Flame Wheel hit Burned enemies harder. Main skill: Ember. Skills: Ember, Tackle, Smokescreen, Protect.",
             "changeType": "rework",
             "characterId": "cyndaquil",
             "characterName": "Cyndaquil",
@@ -393,7 +398,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/Cyndaquil/cyndaquilmaybefacepicture.png"
         },
         {
-            "text": "Shields allies with leaves and heals; its earned evolutions upgrade Razor Leaf into Magical Leaf. New skills: Razor Leaf, Light Screen, Synthesis, Protect.",
+            "text": "Light Screen Screens the team; Razor Leaf and Synthesis are stronger while Screened. Main skill: Light Screen. Skills: Light Screen, Razor Leaf, Synthesis, Protect.",
             "changeType": "rework",
             "characterId": "chikorita",
             "characterName": "Chikorita",
@@ -403,7 +408,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/Cyndaquil/Chikorita/chikoritanewfacepicture.png"
         },
         {
-            "text": "Bites hard and scares enemies; its earned evolutions upgrade Scary Face into a big bite. New skills: Water Gun, Aqua Tail, Scary Face, Protect.",
+            "text": "Scary Face Scares an enemy; Water Gun and Aqua Tail hit Scared enemies harder. Main skill: Scary Face. Skills: Scary Face, Water Gun, Aqua Tail, Protect.",
             "changeType": "rework",
             "characterId": "totodile",
             "characterName": "Totodile",
@@ -413,7 +418,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/Cyndaquil/Totodile/totodilenewfacepicture.png"
         },
         {
-            "text": "Puts enemies to sleep and feeds on their dreams. Evolves into Hypno on its 4th turn. New skills: Dream Eater, Hypnosis, Nightmare, Protect.",
+            "text": "Hypnosis puts an enemy to Sleep; Dream Eater and Nightmare feast on Sleeping enemies. Evolves into Hypno on its 4th turn. Main skill: Hypnosis. Skills: Hypnosis, Dream Eater, Nightmare, Protect.",
             "changeType": "rework",
             "characterId": "drowzee",
             "characterName": "Drowzee",
@@ -423,7 +428,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/Drowzee/FP.webp"
         },
         {
-            "text": "Gets angrier and stronger the longer the fight goes. New skills: Rock Smash, Close Combat, Rage, Detect.",
+            "text": "Rage makes Primeape Raging; it hits harder and crits more while Raging. Main skill: Rage. Skills: Rage, Rock Smash, Close Combat, Detect.",
             "changeType": "rework",
             "characterId": "primeape",
             "characterName": "Primeape",
@@ -433,7 +438,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/Primeape/Primeape-FP.jpg"
         },
         {
-            "text": "Swings its bone club and throws it like a boomerang. New skills: Bone Club, Bonemerang, Bone Rush, Bone Guard.",
+            "text": "Bone Guard readies Marowak's bone; its bone attacks are stronger while Bone Ready. Main skill: Bone Guard. Skills: Bone Guard, Bone Club, Bonemerang, Bone Rush.",
             "changeType": "rework",
             "characterId": "marowak",
             "characterName": "Marowak",
@@ -443,7 +448,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/marowak/facepicture.jpg"
         },
         {
-            "text": "Crushes enemies in its horns. New skills: Vice Grip, X-Scissor, Seismic Toss, Detect.",
+            "text": "Vice Grip Grips an enemy; X-Scissor and Seismic Toss punish Gripped enemies. Main skill: Vice Grip. Skills: Vice Grip, X-Scissor, Seismic Toss, Detect.",
             "changeType": "rework",
             "characterId": "pinsir",
             "characterName": "Pinsir",
@@ -453,7 +458,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/pinsir/facepicture.jpg"
         },
         {
-            "text": "Charges straight through the enemy team. New skills: Horn Attack, Take-Down, Earthquake, Protect.",
+            "text": "Horn Attack makes Tauros Enraged; Take-Down and Earthquake are stronger while Enraged. Main skill: Horn Attack. Skills: Horn Attack, Take-Down, Earthquake, Protect.",
             "changeType": "rework",
             "characterId": "tauros",
             "characterName": "Tauros",
@@ -461,16 +466,6 @@ const newsPost = { ...{
             "skillId": "",
             "skillName": "",
             "skillimage": "assets/images/PokemonArena/tauros/facepicture.jpg"
-        },
-        {
-            "text": "Fiery kicks, and Mega Evolves on its 4th turn. Evolves into Mega Blaziken on its 4th turn. New skills: Blaze Kick, Sky Uppercut, Heat Wave, Detect.",
-            "changeType": "rework",
-            "characterId": "blaziken",
-            "characterName": "Blaziken",
-            "facePicture": "assets/images/PokemonArena/blaziken/blazikenfp.webp",
-            "skillId": "",
-            "skillName": "",
-            "skillimage": "assets/images/PokemonArena/blaziken/blazikenfp.webp"
         },
         {
             "text": "Pidgey now evolves into Pidgeotto at the start of its 4th turn, like every other evolving Pokemon. Its skills are unchanged.",

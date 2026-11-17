@@ -64,7 +64,7 @@ test('signature kills: lightsabers in the wielder\'s colours, Lucille for Negan,
     assert.equal(profiles.characters.homelander.laser, 'red');
     assert.equal(profiles.characters.superman.laser, 'red');
     const pokemonKill = (type) => Object.values(profiles.characters).filter((c) => c.arena === 'pokemon')
-        .flatMap((c) => Object.values(c.skills)).find((s) => s.element === type)?.kill;
+        .flatMap((c) => Object.values(c.skills)).find((s) => s.element === type && s.kill)?.kill;
     assert.equal(pokemonKill('fire'), 'burn');
     assert.equal(pokemonKill('grass'), 'vines');
     assert.equal(pokemonKill('electric'), 'electrocute');
