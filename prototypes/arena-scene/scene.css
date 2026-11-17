@@ -18,30 +18,6 @@ html.arena-scene-preview.battle-experimental body.scene-battle { background:#101
 html.arena-scene-preview.battle-experimental body.scene-battle .backgroundingame { width:100%!important; height:auto!important; min-height:100dvh!important; max-width:none!important; padding:0!important; margin:0!important; background:#101916!important; overflow:visible!important; position:relative!important; display:block!important; border:0!important; border-radius:0!important; box-shadow:none!important; }
 html.arena-scene-preview.battle-experimental body.scene-battle .ingame-stage { width:min(1440px,100%)!important; height:auto!important; min-height:100dvh!important; max-width:none!important; margin:0 auto!important; padding:0!important; position:relative!important; transform:none!important; zoom:1!important; overflow:visible!important; display:flex!important; flex-direction:column!important; gap:0!important; }
 html.arena-scene-preview body.scene-battle :is(.bottomgame,.lance-champion-side-render,.battle-options-button,.battle-layout-toggle,.ingame-layout-toggle) { display:none!important; }
-html.arena-scene-preview body.scene-battle .scene-commandbar { display:grid; grid-template-columns:1.15fr 1fr; gap:26px; padding:20px 28px 14px; background:linear-gradient(125deg,#182820,#101c1a); border-bottom:1px solid #304637; color:#f0ebd6; box-sizing:border-box; position:relative; z-index:5; }
-.scene-team-tabs { display:flex; gap:5px; flex-wrap:wrap; }
-.scene-team-tab { cursor:pointer; padding:8px 13px; color:#c6d0bd; border:1px solid #425743; border-radius:6px; background:#16231c; font:600 12px Arial,sans-serif; }
-.scene-team-tab.selected { border-color:#c4ad6c; background:#394733; color:#f7e3ab; }
-.scene-hint { margin:12px 0; color:#aebbab; font:12px/1.4 Arial,sans-serif; }
-.scene-skills { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
-.scene-skill { position:relative; display:flex; flex-direction:column; align-items:center; gap:6px; padding:9px 4px 7px; border-radius:8px; border:1px solid #4b6145; background:#233225; color:#e8e7d3; min-height:112px; cursor:pointer; font:600 11px/1.3 Arial,sans-serif; }
-.scene-skill:hover { background:#35482d; border-color:#c8b56f; }
-.scene-skill img { width:46px; height:46px; object-fit:cover; border-radius:7px; border:1px solid #8c9d72; }
-.scene-skill-state { font:700 9px/1.2 Arial,sans-serif; color:#e3c181; }
-.scene-skill.scene-queued { border-color:#edce74; box-shadow:inset 0 0 0 1px #d0b66d; }
-.scene-skill.scene-on-cooldown img { filter:grayscale(.8); opacity:.6; }
-.scene-skill:disabled { opacity:.4; cursor:default; }
-.scene-queue { min-height:15px; margin:9px 0 5px; color:#d9c78f; font:11px/1.4 Arial,sans-serif; }
-html.arena-scene-preview.battle-experimental body.scene-battle .game-hud { display:block!important; position:relative!important; inset:auto!important; width:100%!important; height:auto!important; padding:0!important; margin:0!important; border:0!important; background:none!important; box-shadow:none!important; transform:none!important; }
-html.arena-scene-preview body.scene-battle :is(.player-left,.player-right) { display:none!important; }
-html.arena-scene-preview.battle-experimental body.scene-battle .ready-section { position:relative!important; inset:auto!important; width:100%!important; height:auto!important; margin:0!important; padding:10px 12px!important; border:1px solid #8f8351!important; border-radius:7px!important; background:#31402c!important; transform:none!important; display:grid!important; grid-template-columns:1fr auto!important; gap:6px 12px!important; cursor:pointer; box-sizing:border-box; }
-html.arena-scene-preview body.scene-battle .ready-text { position:static!important; width:auto!important; margin:0!important; color:#f5dda1!important; font:700 12px Arial,sans-serif!important; text-align:left!important; }
-html.arena-scene-preview body.scene-battle .timer-track { position:relative!important; inset:auto!important; width:65px!important; height:16px!important; background:#16261a!important; border-radius:4px; }
-html.arena-scene-preview body.scene-battle .timer-countdown { font:700 10px/16px Arial,sans-serif!important; inset:0!important; }
-html.arena-scene-preview body.scene-battle .chakra-display { position:static!important; display:flex!important; justify-content:flex-start!important; gap:10px!important; width:auto!important; height:auto!important; padding:0!important; font:11px Arial,sans-serif!important; transform:none!important; }
-html.arena-scene-preview body.scene-battle .chakra-item { position:static!important; gap:4px!important; font-size:11px!important; }
-html.arena-scene-preview body.scene-battle .chakra-count { font:700 11px Arial,sans-serif!important; }
-html.arena-scene-preview body.scene-battle .exchange-label { position:static!important; width:auto!important; margin:0!important; color:#c2d0af!important; font:700 9px Arial,sans-serif!important; text-align:right!important; }
 html.arena-scene-preview.battle-experimental body.scene-battle .skillinformation { display:block!important; position:relative!important; inset:auto!important; width:100%!important; min-height:0!important; height:auto!important; padding:14px 17px!important; margin:0!important; border:1px solid #3f5540!important; border-radius:8px!important; background:#0c1814b3!important; transform:none!important; box-shadow:none!important; color:#eee9d7!important; box-sizing:border-box; text-align:left!important; }
 html.arena-scene-preview body.scene-battle .skillinformation :is(.skillviewimage,.skill-browser-icons) { display:none!important; }
 html.arena-scene-preview body.scene-battle .skillinformation :is(p,div) { position:static!important; width:auto!important; height:auto!important; margin:0 0 8px!important; padding:0!important; transform:none!important; font:12px/1.6 Arial,sans-serif!important; color:#c9d1bd!important; text-align:left!important; }
@@ -57,8 +33,6 @@ html.arena-scene-preview body.scene-battle :is(.ChakraChooseEndTurn,.exchange_ch
  .scene-header .scene-start { margin-left:auto; }
  .scene-ribbon { padding:12px 10px; gap:6px; grid-template-columns:1fr 1fr; }
  .scene-turn { grid-column:1/-1; grid-row:1; text-align:center; font-size:10px; padding:8px; } .scene-side-label { font-size:8px; letter-spacing:1px; }
- html.arena-scene-preview body.scene-battle .scene-commandbar { grid-template-columns:1fr; padding:15px 13px; gap:14px; }
- .scene-team-tab { font-size:11px; padding:8px 11px; } .scene-skill { min-height:104px; font-size:10px; } .scene-skill img { width:42px; height:42px; }
  html.arena-scene-preview body.scene-battle .skillinformation .ingameskilldescription { font-size:12px!important; }
 }
 
@@ -231,3 +205,115 @@ html.arena-scene-preview.battle-experimental body.scene-battle .scene-plate .rag
 html.arena-scene-preview.battle-experimental body.scene-battle .scene-plate .rage-text { font:700 7px/7px Arial,sans-serif!important; position:absolute!important; inset:0!important; text-align:center!important; transform:none!important; }
 /* Character callouts (Taunt, Status, counters) centre over the head instead of a portrait corner. */
 html.arena-scene-preview body.scene-battle .character-card > :is(.taunt-callout,.status-callout) { left:50%!important; right:auto!important; top:calc(-54px - var(--lift,0)*1px)!important; translate:-50% 0; }
+
+
+/* ===== Top bar HUD: turn, energy, exchange, timer and Ready, on the battlefield =================== */
+.scene-hud { display:flex; align-items:center; justify-content:center; gap:10px; pointer-events:auto; min-width:0; }
+html.arena-scene-preview.battle-experimental body.scene-battle .scene-hud .game-hud { display:block!important; position:static!important; inset:auto!important; width:auto!important; height:auto!important; padding:0!important; margin:0!important; border:0!important; background:none!important; box-shadow:none!important; transform:none!important; }
+html.arena-scene-preview body.scene-battle .scene-hud :is(.player-left,.player-right) { display:none!important; }
+html.arena-scene-preview.battle-experimental body.scene-battle .scene-hud .ready-section { position:relative!important; inset:auto!important; width:auto!important; height:auto!important; margin:0!important; padding:5px 5px 5px 14px!important; display:flex!important; align-items:center!important; gap:12px!important; border:1px solid #e5cf8655!important; border-radius:999px!important; background:#0c1714e6!important; box-shadow:0 8px 22px #0007,inset 0 1px 0 #ffffff12!important; backdrop-filter:blur(6px); transform:none!important; cursor:default; box-sizing:border-box; transition:opacity .3s, filter .3s; }
+html.arena-scene-preview body.scene-battle .scene-hud .chakra-display { order:1; position:static!important; display:flex!important; align-items:center!important; gap:9px!important; width:auto!important; height:auto!important; padding:0!important; transform:none!important; }
+html.arena-scene-preview body.scene-battle .scene-hud .chakra-item { position:static!important; display:inline-flex!important; align-items:center!important; gap:4px!important; color:#f3efdc!important; }
+html.arena-scene-preview body.scene-battle .scene-hud .chakra-box { width:13px!important; height:13px!important; border-radius:4px!important; box-shadow:inset 0 -2px 0 #0004,0 0 6px #0006!important; position:static!important; transform:none!important; }
+html.arena-scene-preview body.scene-battle .scene-hud .chakra-count { font:700 12px Arial,sans-serif!important; color:#f3efdc!important; }
+html.arena-scene-preview body.scene-battle .scene-hud .chakra-item[data-chakra-total] { padding-left:9px; border-left:1px solid #ffffff22; }
+html.arena-scene-preview body.scene-battle .scene-hud .chakra-icon { font:700 11px Arial,sans-serif!important; color:#cfd8c4!important; }
+html.arena-scene-preview body.scene-battle .scene-hud .exchange-label { order:2; position:static!important; width:auto!important; margin:0!important; padding:6px 10px!important; border:1px solid #ffffff2a!important; border-radius:999px!important; background:#ffffff0d!important; color:#d8e1cb!important; font:700 9px Arial,sans-serif!important; letter-spacing:.6px; cursor:pointer; white-space:nowrap; text-align:center!important; }
+html.arena-scene-preview body.scene-battle .scene-hud .exchange-label:hover { background:#ffffff1f!important; color:#fff!important; }
+html.arena-scene-preview body.scene-battle .scene-hud .timer-track { order:3; position:relative!important; inset:auto!important; width:44px!important; height:22px!important; margin:0!important; border-radius:999px!important; background:#1a2a21!important; overflow:hidden!important; }
+html.arena-scene-preview body.scene-battle .scene-hud .timer-bar { position:absolute!important; inset:0 auto 0 0!important; background:linear-gradient(90deg,#6c9a4c,#a8c968)!important; opacity:.55; }
+html.arena-scene-preview body.scene-battle .scene-hud .timer-countdown { position:absolute!important; inset:0!important; font:700 11px/22px Arial,sans-serif!important; color:#fff!important; text-shadow:0 1px 2px #000; }
+html.arena-scene-preview body.scene-battle .scene-hud .ready-text { order:4; position:static!important; width:auto!important; margin:0!important; padding:9px 16px!important; border-radius:999px!important; background:linear-gradient(#f6dc8a,#d6a94a)!important; color:#2a1f08!important; font:800 12px Arial,sans-serif!important; letter-spacing:.5px; text-align:center!important; white-space:nowrap; cursor:pointer; box-shadow:0 2px 0 #8a6a25,0 0 16px #f2c45a55!important; text-shadow:none!important; transition:transform .12s, filter .12s; }
+html.arena-scene-preview body.scene-battle .scene-hud .ready-text:hover { filter:brightness(1.08); transform:translateY(-1px); }
+html.arena-scene-preview body.scene-battle .scene-hud .ready-section:focus-visible { outline:3px solid #f4d68b; outline-offset:3px; }
+.scene-bot-turn .scene-hud .ready-section { opacity:.55; filter:saturate(.5); }
+.scene-bot-turn .scene-hud .ready-text { background:#3a3a36!important; color:#cfcfc4!important; box-shadow:none!important; }
+
+/* ===== Fighter panels: all three skill bars at once ================================================ */
+html.arena-scene-preview body.scene-battle .scene-commandbar { display:block; padding:16px 28px 18px; background:linear-gradient(125deg,#16251e,#0f1b18); border-bottom:1px solid #304637; color:#f0ebd6; box-sizing:border-box; position:relative; z-index:5; }
+.scene-plan-line { display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin:0 0 11px; }
+.scene-hint { margin:0; color:#d8dccb; font:600 13px/1.4 Arial,sans-serif; }
+.scene-queue { margin:0; color:#d9c78f; font:700 11px/1.4 Arial,sans-serif; letter-spacing:.4px; white-space:nowrap; }
+.scene-roster { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; align-items:start; }
+.scene-fighter { border:1px solid #3a5040; border-radius:12px; background:#132019; padding:9px; box-shadow:inset 0 1px 0 #ffffff0a; transition:border-color .2s, box-shadow .2s, background .2s; min-width:0; }
+.scene-fighter-head { all:unset; box-sizing:border-box; display:flex; align-items:center; gap:9px; width:100%; padding:2px 2px 8px; cursor:pointer; }
+.scene-fighter-face { width:36px; height:36px; border-radius:8px; object-fit:cover; border:1px solid #6e8261; flex:none; background:#0b1410; }
+.scene-fighter-id { display:flex; flex-direction:column; gap:5px; min-width:0; flex:1; }
+.scene-fighter-name { font:700 13px/1.1 Arial,sans-serif; color:#f1ecd8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.scene-fighter-hp { display:block; height:4px; border-radius:3px; background:#0b1410; overflow:hidden; }
+.scene-fighter-hp i { display:block; height:100%; background:linear-gradient(90deg,#6c9a4c,#b9da72); transition:width .45s; }
+.scene-fighter-status { font:700 9px Arial,sans-serif; letter-spacing:.6px; text-transform:uppercase; color:#9fb09a; white-space:nowrap; }
+.scene-fighter-head.selected .scene-fighter-name { color:#ffe39a; }
+.scene-fighter-head:focus-visible { outline:3px solid #f4d68b; outline-offset:2px; border-radius:8px; }
+.scene-fighter-skills { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; }
+.scene-skill { position:relative; display:flex; flex-direction:column; align-items:center; gap:5px; padding:8px 3px 6px; border-radius:9px; border:1px solid #435a40; background:#1d2c21; color:#e8e7d3; min-height:96px; cursor:pointer; font:600 10.5px/1.25 Arial,sans-serif; transition:transform .12s, border-color .15s, background .15s, box-shadow .15s; }
+.scene-skill:hover:not(:disabled) { background:#2b3d27; border-color:#c8b56f; transform:translateY(-2px); }
+.scene-skill img { width:44px; height:44px; object-fit:cover; border-radius:8px; border:1px solid #8c9d72; box-shadow:0 3px 6px #0006; }
+.scene-skill-name { overflow-wrap:anywhere; text-align:center; }
+.scene-skill-state { font:700 9px/1.2 Arial,sans-serif; color:#e3c181; min-height:0; }
+.scene-skill.scene-on-cooldown img { filter:grayscale(.8); opacity:.55; }
+.scene-skill.scene-unavailable img { opacity:.45; filter:grayscale(.6); }
+.scene-skill:disabled { opacity:.4; cursor:default; }
+.scene-skill.scene-armed { border-color:#ffd96b; background:#3a3a1f; box-shadow:0 0 0 1px #ffd96b,0 0 18px #ffcc4566; animation:scene-armed-pulse 1.1s ease-in-out infinite; }
+.scene-fighter.is-armed { border-color:#cdb468; box-shadow:0 0 0 1px #cdb46855,0 8px 22px #0006; }
+.scene-fighter-queued { all:unset; box-sizing:border-box; display:none; }
+.scene-fighter.is-queued { border-color:#a99355; background:linear-gradient(135deg,#2a2c1a,#18241c); }
+.scene-fighter.is-queued .scene-fighter-skills { display:none; }
+.scene-fighter.is-queued .scene-fighter-queued { display:flex; align-items:center; gap:10px; width:100%; padding:7px 8px; border-radius:9px; border:1px solid #e3c56f; background:#2f2e1a; cursor:pointer; box-shadow:0 0 14px #f2c45a33; animation:scene-fold .28s cubic-bezier(.2,.9,.3,1.2); }
+.scene-fighter.is-queued .scene-fighter-queued:hover { background:#3b391f; }
+.scene-fighter.is-queued .scene-fighter-queued:focus-visible { outline:3px solid #f4d68b; outline-offset:2px; }
+.scene-fighter.is-queued .scene-fighter-status { color:#f2d27a; }
+.scene-fighter-queued img { width:38px; height:38px; border-radius:8px; object-fit:cover; border:1px solid #e3c56f; flex:none; }
+.scene-queued-text { display:flex; flex-direction:column; gap:2px; min-width:0; flex:1; font:12px/1.2 Arial,sans-serif; color:#e8e2c6; }
+.scene-queued-text b { color:#ffe7a3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.scene-queued-text span { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#cfc7a6; }
+.scene-queued-change { font:700 9px Arial,sans-serif; letter-spacing:.6px; text-transform:uppercase; color:#2a1f08; background:#e3c56f; padding:5px 8px; border-radius:999px; flex:none; }
+.scene-fighter.is-out { opacity:.5; }
+.scene-fighter.is-out .scene-fighter-skills { display:none; }
+.scene-fighter.is-out .scene-fighter-status { color:#ff9c8a; }
+.scene-fighter.is-waiting:not(.is-queued) .scene-fighter-skills { opacity:.6; }
+.scene-details { margin-top:12px; }
+html.arena-scene-preview.battle-experimental body.scene-battle .scene-details .skillinformation { display:flex!important; flex-wrap:wrap!important; align-items:baseline; column-gap:18px; row-gap:2px; padding:12px 16px!important; }
+html.arena-scene-preview body.scene-battle .scene-details .skillinformation :is(.ingameskillname,.ingameskilldescription,.ingamecharacterrole) { flex-basis:100%; }
+html.arena-scene-preview body.scene-battle .scene-details .skillinformation .ingameskillname { font-size:18px!important; margin-bottom:4px!important; }
+html.arena-scene-preview body.scene-battle .scene-details .skillinformation .ingamecharacterrole:empty { display:none!important; }
+html.arena-scene-preview body.scene-battle .scene-details .skillinformation :is(.energytext,.ingameclasses,.ingamecooldown) { margin:0 0 4px!important; font-size:12px!important; }
+@keyframes scene-armed-pulse { 50% { box-shadow:0 0 0 1px #ffd96b,0 0 26px #ffcc45aa; } }
+@keyframes scene-fold { from { transform:scaleY(.6); opacity:0; } to { transform:none; opacity:1; } }
+
+@media (max-width:980px) and (min-width:701px) {
+ .scene-hud .exchange-label { display:none!important; }
+ .scene-skill-name { font-size:9.5px; }
+}
+@media (max-width:700px) {
+ .scene-ribbon { grid-template-columns:1fr!important; padding:8px!important; gap:6px!important; }
+ .scene-side-label { display:none; }
+ .scene-hud { flex-direction:column; gap:6px; width:100%; }
+ html.arena-scene-preview.battle-experimental body.scene-battle .scene-hud .game-hud { width:100%!important; }
+ html.arena-scene-preview.battle-experimental body.scene-battle .scene-hud .ready-section { width:100%!important; flex-wrap:wrap!important; justify-content:space-between!important; gap:7px 8px!important; padding:6px 6px 6px 10px!important; border-radius:16px!important; }
+ html.arena-scene-preview body.scene-battle .scene-hud .chakra-display { gap:6px!important; flex:1 1 auto; }
+ html.arena-scene-preview body.scene-battle .scene-hud .ready-text { padding:8px 12px!important; font-size:11px!important; }
+ html.arena-scene-preview body.scene-battle .scene-hud .exchange-label { order:3; flex:none; padding:5px 7px!important; font-size:8px!important; letter-spacing:.3px; }
+ html.arena-scene-preview body.scene-battle .scene-hud .timer-track { order:2; width:38px!important; }
+ html.arena-scene-preview body.scene-battle .scene-hud .ready-text { order:6; flex:1 1 100%; }
+ .scene-turn { width:100%; box-sizing:border-box; }
+ html.arena-scene-preview body.scene-battle .scene-commandbar { padding:12px 10px 14px; }
+ .scene-plan-line { flex-direction:column; gap:3px; }
+ .scene-hint { font-size:12px; }
+ .scene-roster { grid-template-columns:1fr; gap:8px; }
+ .scene-fighter { padding:7px; }
+ .scene-fighter-head { padding-bottom:6px; }
+ .scene-skill { min-height:88px; }
+}
+@media (max-width:700px) {
+ html.arena-scene-preview.battle-experimental body.scene-battle .scene-hud .ready-section { display:grid!important; grid-template-columns:minmax(0,1fr) auto auto!important; grid-template-areas:"chakra timer exchange" "ready ready ready"; align-items:center!important; }
+ html.arena-scene-preview body.scene-battle .scene-hud .chakra-display { grid-area:chakra; min-width:0; flex-wrap:nowrap; }
+ html.arena-scene-preview body.scene-battle .scene-hud .timer-track { grid-area:timer; }
+ html.arena-scene-preview body.scene-battle .scene-hud .exchange-label { grid-area:exchange; transform:none!important; left:auto!important; right:auto!important; translate:none!important; }
+ html.arena-scene-preview body.scene-battle .scene-hud .ready-text { grid-area:ready; }
+ html.arena-scene-preview body.scene-battle .scene-hud .chakra-item[data-chakra-total] { padding-left:6px; }
+}
+@media (max-width:700px) {
+ html.arena-scene-preview body.scene-battle .scene-hud .chakra-display { justify-content:flex-start!important; overflow:hidden; }
+ html.arena-scene-preview body.scene-battle .scene-hud .chakra-item[data-chakra-total] { display:none!important; }
+}

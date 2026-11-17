@@ -28,6 +28,10 @@ Battlefield presentation (all in `scene.js` / `scene.css`):
   target with afterimages and hop back, ranged attackers kick back, and the target's hit,
   damage number and health drop wait for the strike to land.
 
+- Energy, exchange, timer and Ready sit in the battlefield's top bar. Only the Ready button
+  ends the turn. All three fighters' skill bars show at once in panels under the battlefield;
+  a panel folds into one button (skill → target, tap to change) once its skill is queued.
+
 Preview matches use the regular PvP starting health, energy economy and skills.
 The admin moves first; the bot uses its existing team builder and skill AI.
 They have `scene-` IDs, `adminRenderPreview: true`, and `mode: pve`. Creation is
