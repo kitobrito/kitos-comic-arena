@@ -42,3 +42,10 @@ is not connected. Avoid putting a mark and its own payoff in the same skill: the
 
 The build starts from the pre-rework `characters.js` (commit 7436989, override with `BASE_REV`), so any Pokemon can
 be put back exactly as it was by removing it from `kits.js` and rebuilding. Blaziken was put back this way.
+
+## Balance pass (V.4.2)
+
+`rebalance()` in `kits.js` runs before `linkEverything`: attacks lose 2 turns of cooldown (1 for hits of 40+, which keep at
+least 1), anything that can stun keeps a cooldown of at least 2, guards stay at 4, and nothing costs more than 2 energy.
+Single-target damage, two-turn damage over time, heals and shields were raised a step in the kit numbers themselves.
+Charmander's Flamethrower is pinned at 1 Bloodline, no cooldown.
