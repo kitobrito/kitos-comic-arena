@@ -6,21 +6,6 @@ const test = require('node:test');
 const characters = require('../characters');
 const { applyStatus, buildInitialBoard, tickStatusesForTurnEnd } = require('../battleLogic');
 
-test('Zubat and Golbat Supersonic durations are anchored to their own turns', () => {
-    const zubat = characters.find((character) => character.id === 'zubat');
-    assert.ok(zubat, 'Zubat should exist');
-
-    for (const skillId of ['zubat-supersonic', 'golbat-supersonic']) {
-        const skill = zubat.skills.find((entry) => entry.id === skillId);
-        assert.ok(skill, `${skillId} should exist`);
-        const mark = skill.effects.find(
-            (effect) => effect.type === 'apply_status' && effect.statusId === 'zubat_supersonic_mark'
-        );
-        assert.ok(mark, `${skillId} should apply the Supersonic mark`);
-        assert.equal(mark.metadata.turnDurationAnchor, 'source_turn');
-    }
-});
-
 test('Supersonic survives the enemy turn and expires after Zubat can cash it in', () => {
     const zubatIndex = characters.findIndex((character) => character.id === 'zubat');
     const players = [

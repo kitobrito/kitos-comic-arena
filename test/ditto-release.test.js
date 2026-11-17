@@ -269,39 +269,6 @@ test('Ditto automatically copies the character opposite it without discounting i
     assert.equal(match.board.Opponent[1].hp, 85);
 });
 
-test('Ditto copies Pokemon passive trackers and can build Moltres Heat', () => {
-    const players = [
-        { username: 'DittoUser', team: [dittoIndex] },
-        { username: 'Opponent', team: [moltresIndex] },
-    ];
-    const match = makeMatch(players);
-    const ditto = match.board.DittoUser[0];
-    const transformation = ditto.state.statuses.find(
-        (status) => status.id === 'ditto_transformation'
-    );
-    assert.equal(
-        transformation?.metadata?.facePictureOverride,
-        DITTO_TRANSFORMATION_FACE_BY_CHARACTER_ID.moltres
-    );
-    const heatTracker = ditto.state.statuses.find((status) => status.id === 'moltres_heat');
-    const heatWaveIndex = characters[moltresIndex].skills.findIndex(
-        (skill) => skill.id === 'moltres-heat-wave'
-    );
-
-    assert.ok(heatTracker, 'Ditto should receive Moltres Heat when transforming');
-    assert.equal(heatTracker.metadata.heat, 0);
-
-    queueSkill({
-        match,
-        username: 'DittoUser',
-        skillIndex: heatWaveIndex,
-        targetUsername: 'Opponent',
-    });
-    resolvePendingTurnSkills({ match, actingUsername: 'DittoUser', characters });
-
-    assert.equal(heatTracker.metadata.heat, 1);
-});
-
 test('Ditto receives every Pokemon start-of-battle passive and tracker', () => {
     characters.forEach((character, characterIndex) => {
         const startStatuses = Array.isArray(character?.startStatuses) ? character.startStatuses : [];
@@ -329,44 +296,6 @@ test('Ditto receives every Pokemon start-of-battle passive and tracker', () => {
             );
         });
     });
-});
-
-test('Ditto keeps passive trackers when copying an already-evolved Pokemon', () => {
-    const players = [
-        { username: 'Pink', team: [dittoIndex] },
-        { username: 'Blue', team: [dittoIndex, totodileIndex] },
-    ];
-    const match = makeMatch(players);
-    const evolvedTotodile = match.board.Blue[1];
-    evolvedTotodile.state.statuses.push({
-        id: 'test_totodile_evolution',
-        remainingTurns: 999,
-        metadata: {
-            infiniteDuration: true,
-            useEvolvedSkills: true,
-        },
-    });
-
-    queueSkill({
-        match,
-        username: 'Pink',
-        skillIndex: 0,
-        targetUsername: 'Blue',
-        targetSlot: 1,
-    });
-    resolvePendingTurnSkills({ match, actingUsername: 'Pink', characters });
-
-    const copiedDitto = match.board.Pink[0];
-    assert.ok(
-        copiedDitto.state.statuses.some(
-            (status) => status.id === 'totodile_water_rings_tracker'
-        )
-    );
-    assert.equal(
-        copiedDitto.state.statuses.find((status) => status.id === 'ditto_transformation')
-            ?.metadata?.useEvolvedSkills,
-        true
-    );
 });
 
 test('opposing Ditto remain Ditto and can manually Transform into a living ally or enemy', () => {

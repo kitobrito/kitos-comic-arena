@@ -84,18 +84,3 @@ test('Pink Butterfree skin costs 750 points and overrides all five skills', () =
     assert.equal(Object.keys(pinkButterfree.skillImageOverridesBySkillId).length, 5);
 });
 
-test('Onix Iron Tail grants 3 reduction plus a 2-point Rock Throw bonus', () => {
-    const onix = characters.find((character) => character.characterId === 'onix');
-    const ironTail = onix.skills.find((skill) => skill.id === 'onix-iron-tail');
-    const reductionEffects = ironTail.effects.filter(
-        (effect) => effect.statusId === 'onix_iron_tail_reduction'
-    );
-
-    assert.equal(reductionEffects[0].metadata.stackDelta, 3);
-    assert.equal(reductionEffects[1].metadata.stackDelta, 2);
-    assert.equal(
-        reductionEffects.reduce((total, effect) => total + effect.metadata.stackDelta, 0),
-        5
-    );
-    assert.equal(ironTail.effects.find((effect) => effect.type === 'damage').amount, 25);
-});

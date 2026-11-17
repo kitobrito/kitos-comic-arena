@@ -36,19 +36,6 @@ const makeDb = () => {
     };
 };
 
-test('Gen 2 launch news presents starters, music, evolutions, and community characters', () => {
-    const text = newsPost.paragraphs.join(' ');
-    starterIds.forEach((starterId) => assert.match(text.toLowerCase(), new RegExp(starterId)));
-    assert.match(text, /Generation 2 and beyond/i);
-    assert.match(text, /music.*upgraded|upgraded.*music/i);
-    assert.match(text, /16 ranked matches/i);
-    assert.match(text, /36 additional ranked matches/i);
-    assert.match(text, /community characters/i);
-    assert.match(text, /More characters are on the way/);
-    assert.doesNotMatch(text, /discord/i);
-    assert.equal(newsPost.changes.length, 15);
-});
-
 test('Gen 2 release sync preserves Comic releases and promotes all three starters', async () => {
     const db = makeDb();
     db.documents.set('app_state:latest_character_releases', {

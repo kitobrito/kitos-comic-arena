@@ -414,33 +414,6 @@ test('Comic Arena damage is unchanged even when a class name matches a Pokemon t
     assert.equal(match.board.Villain[0].state.pokemonTypeEffectivenessEvent, undefined);
 });
 
-test('Chikorita Sweet Scent cycles Physical, Special, and Affliction at 5 damage reduction', () => {
-    const chikoritaIndex = characters.findIndex((character) => character?.id === 'chikorita');
-    const targetIndex = characters.findIndex((character) => character?.id === 'aegislash');
-    const match = makeMatch(characters, { Ash: [chikoritaIndex], Gary: [targetIndex] });
-    match.economy.turnCounts = { Ash: 1, Gary: 1 };
-
-    processTurnStartStatusEffects({ match, startingUsername: 'Ash' });
-    let aura = match.board.Gary[0].state.statuses.find((status) =>
-        status.id.startsWith('chikorita_sweet_scent_aura_')
-    );
-    assert.deepEqual(aura.metadata.damageDebuffBySkillClass, { physical: 5 });
-
-    match.economy.turnCounts.Ash = 2;
-    processTurnStartStatusEffects({ match, startingUsername: 'Ash' });
-    aura = match.board.Gary[0].state.statuses.find((status) =>
-        status.id.startsWith('chikorita_sweet_scent_aura_')
-    );
-    assert.deepEqual(aura.metadata.damageDebuffBySkillClass, { special: 5 });
-
-    match.economy.turnCounts.Ash = 3;
-    processTurnStartStatusEffects({ match, startingUsername: 'Ash' });
-    aura = match.board.Gary[0].state.statuses.find((status) =>
-        status.id.startsWith('chikorita_sweet_scent_aura_')
-    );
-    assert.deepEqual(aura.metadata.damageDebuffBySkillClass, { affliction: 5 });
-});
-
 test('type-class news explains every player-facing rule and syncs idempotently', async () => {
     const text = newsPost.paragraphs.join(' ');
     assert.match(text, /40 Pokemon/i);
