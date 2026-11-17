@@ -214,9 +214,9 @@ function cast(g, c, skillId, target = { username: 'foe', slot: 0 }) { g.use(c.sk
 test('combo payoffs only work after the main skill: Burned enemies take more from Scratch', () => {
     const c = byId.get('charmander');
     const g = game(c, 1);
-    let hp = g.foes[0].hp; cast(g, c, 'charmander-scratch'); assert.equal(hp - g.foes[0].hp, 20, 'Scratch alone: 20');
+    let hp = g.foes[0].hp; cast(g, c, 'charmander-scratch'); assert.equal(hp - g.foes[0].hp, 25, 'Scratch alone: 25');
     cast(g, c, 'charmander-ember'); assert.ok(g.foes[0].state.statuses.some((s) => s.id === 'charmander_burn'), 'Ember Burns');
-    hp = g.foes[0].hp; cast(g, c, 'charmander-scratch'); assert.equal(hp - g.foes[0].hp, 30, 'Scratch on a Burned enemy: 30');
+    hp = g.foes[0].hp; cast(g, c, 'charmander-scratch'); assert.equal(hp - g.foes[0].hp, 35, 'Scratch on a Burned enemy: 35');
 });
 
 test('area combos check each enemy: Flamethrower only adds damage to the Burned one', () => {
@@ -231,9 +231,9 @@ test('area combos check each enemy: Flamethrower only adds damage to the Burned 
 test('stance combos check the Pokemon itself: Water Gun hits harder while Squirtle is in its shell', () => {
     const c = byId.get('squirtle');
     const g = game(c, 1);
-    let hp = g.foes[0].hp; cast(g, c, 'squirtle-water-gun'); assert.equal(hp - g.foes[0].hp, 20);
+    let hp = g.foes[0].hp; cast(g, c, 'squirtle-water-gun'); assert.equal(hp - g.foes[0].hp, 25);
     cast(g, c, 'squirtle-withdraw', { username: 'ash', slot: 0 });
-    hp = g.foes[0].hp; cast(g, c, 'squirtle-water-gun'); assert.equal(hp - g.foes[0].hp, 30);
+    hp = g.foes[0].hp; cast(g, c, 'squirtle-water-gun'); assert.equal(hp - g.foes[0].hp, 35);
 });
 
 test('conditional stuns: Thunder stuns for longer on an enemy with Static', () => {
@@ -262,10 +262,10 @@ test('some skills can crit, and stances raise the crit chance', () => {
         configureBattleRuntime({ random: () => 0.99 });
         return hp - g.foes[0].hp;
     };
-    assert.equal(hit(0.99, false), 25, 'no crit');
-    assert.equal(hit(0.05, false), 40, 'crit: +15');
-    assert.equal(hit(0.3, false), 25, 'a 30% roll misses the 10% crit');
-    assert.equal(hit(0.3, true), 25 + 10 + 15, 'but lands at 40% while Focused (and Focused adds 10)');
+    assert.equal(hit(0.99, false), 35, 'no crit');
+    assert.equal(hit(0.05, false), 50, 'crit: +15');
+    assert.equal(hit(0.3, false), 35, 'a 30% roll misses the 10% crit');
+    assert.equal(hit(0.3, true), 35 + 10 + 15, 'but lands at 40% while Focused (and Focused adds 10)');
     const crits = reworked.flatMap((x) => x.skills.flatMap(forms)).filter((s) => s.effects?.some((e) => e.metadata?.criticalHit));
     assert.ok(crits.length >= 30, `${crits.length} skills can crit`);
 });
@@ -276,4 +276,15 @@ test('Blaziken keeps its pre-rework kit', () => {
     assert.ok(!kits.some((k) => k.id === 'blaziken'));
     assert.ok(blaziken.skills.some((s) => s.id === 'blaziken-smoldering-roundhouse'));
     assert.doesNotMatch(blaziken.skills.map((s) => s.skilldescription).join(' '), /At the start of its 4th turn/);
+});
+
+test("balance: Charmander's Flamethrower costs 1 Bloodline with no cooldown, and nothing costs more than 2 energy", () => {
+    const flame = byId.get('charmander').skills.find((s) => s.id === 'charmander-flamethrower');
+    for (const f of forms(flame)) { assert.deepEqual(f.energy, ['Bloodline']); assert.equal(f.cooldown, 0); }
+    for (const s of reworked.flatMap((c) => c.skills.filter(isActive).flatMap(forms))) {
+        if (s.effects?.some((e) => e.type === 'metronome')) continue;
+        assert.ok(s.energy.length <= 2, `${s.id} costs at most 2`);
+        const stuns = s.effects.some((e) => e.metadata?.cannotUseSkills || e.metadata?.cannotUseSkillClasses);
+        if (stuns) assert.ok(s.cooldown >= 2, `${s.id}: stuns keep a cooldown of 2+ so they cannot chain`);
+    }
 });
