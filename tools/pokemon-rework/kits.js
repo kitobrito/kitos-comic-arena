@@ -3,7 +3,7 @@
 // skill and one way to protect itself. Evolving Pokemon evolve automatically at the start of their 4th turn and
 // their skills get stronger. Skill ids and art stay the same (missions, animations and history keep working).
 const D = require('./dsl');
-const { damage: dmg, overTime: dot, stun, invulnerable: inv, shield, reduce, boost, weaken, expose, heal, regen, drain, gain, cleanse } = D;
+const { weather, damage: dmg, overTime: dot, stun, invulnerable: inv, shield, reduce, boost, weaken, expose, heal, regen, drain, gain, cleanse } = D;
 const S = (id, o) => ({ id, ...o });
 const after = (p) => { p.text = p.text.replace(/^Deals (\d+) affliction damage to .*? each turn/, 'then $1 affliction damage each turn').replace(/^(stuns|stops) one enemy/, '$1 the target').replace(/one enemy/, 'the target'); return p; };
 const A = (fn) => after(fn);
@@ -227,25 +227,25 @@ module.exports = [
       S('beedrill-hive-swarm', { type: 'Bug', cls: 'Strategic', cost: 'X', cd: 4, target: 'self', parts: [inv(1)], evo: { id: 'beedrill-hive-swarm-mega', parts: [inv(1)] } }),
     ] },
   // ---------------------------------------------------------------- Legends
-  { id: 'articuno', role: 'Controller', about: 'Freezes enemies and chills the whole team.',
+  { id: 'articuno', role: 'Controller', about: 'Freezes enemies and brings a Snowstorm that powers up Ice skills.',
     skills: [
       S('articuno-ice-beam', { type: 'Ice', cls: 'Special', cost: 'B', cd: 0, target: 'single-enemy', parts: [dmg(25)] }),
-      S('articuno-blizzard', { type: 'Ice', cls: 'Special', cost: 'BX', cd: 2, target: 'all-enemy', parts: [dmg(20, { who: 'all-enemy' })] }),
+      S('articuno-blizzard', { type: 'Ice', cls: 'Special', cost: 'BX', cd: 3, target: 'all-enemy', parts: [dmg(15, { who: 'all-enemy' }), weather('snowstorm', 'a Snowstorm', 3, { Ice: 10 })] }),
       S('articuno-sheer-cold', { type: 'Ice', cls: 'Special', cost: 'BX', cd: 3, target: 'single-enemy', parts: [dmg(15), A(stun(1))] }),
       S('articuno-snowstorm', { type: 'Ice', cls: 'Strategic', cost: 'X', cd: 4, target: 'self', name: 'Mist', parts: [inv(1)] }),
     ] },
-  { id: 'moltres', role: 'Area damage', about: 'Sets the whole enemy team on fire.',
+  { id: 'moltres', role: 'Area damage', about: 'Sets the whole enemy team on fire and starts a Wildfire that powers up Fire skills.',
     skills: [
       S('moltres-heat-wave', { type: 'Fire', cls: 'Special', cost: 'RX', cd: 1, target: 'all-enemy', parts: [dmg(20, { who: 'all-enemy' })] }),
-      S('moltres-fire-spin', { type: 'Fire', cls: 'Special', cost: 'R', cd: 2, target: 'all-enemy', parts: [dot(10, 2, { who: 'all-enemy' })] }),
+      S('moltres-fire-spin', { type: 'Fire', cls: 'Special', cost: 'RX', cd: 3, target: 'all-enemy', name: 'Wildfire', parts: [dot(5, 2, { who: 'all-enemy' }), weather('wildfire', 'a Wildfire', 3, { Fire: 10 })] }),
       S('moltres-overheat', { type: 'Fire', cls: 'Special', cost: 'RRX', cd: 3, target: 'single-enemy', parts: [dmg(55)] }),
       S('moltres-sunny-day', { type: 'Fire', cls: 'Strategic', cost: 'X', cd: 4, target: 'self', name: 'Roost', parts: [inv(1)] }),
     ] },
-  { id: 'zapdos', role: 'Burst damage', about: 'Charges up, then unleashes huge electric attacks.',
+  { id: 'zapdos', role: 'Burst damage', about: 'Calls a Thunderstorm that powers up Electric skills, then unleashes huge electric attacks.',
     skills: [
       S('zapdos-thunderbolt', { type: 'Electric', cls: 'Special', cost: 'Y', cd: 0, target: 'single-enemy', parts: [dmg(25)] }),
       S('zapdos-zap-cannon', { type: 'Electric', cls: 'Special', cost: 'YYX', cd: 3, target: 'single-enemy', parts: [dmg(40), A(stun(1))] }),
-      S('zapdos-charge', { type: 'Electric', cls: 'Strategic', cost: 'X', cd: 3, target: 'self', parts: [boost(10, 2), gain(1)] }),
+      S('zapdos-charge', { type: 'Electric', cls: 'Strategic', cost: 'X', cd: 3, target: 'self', name: 'Thunderstorm', parts: [weather('thunderstorm', 'a Thunderstorm', 3, { Electric: 10 }), gain(1)] }),
       S('zapdos-flight', { type: 'Flying', cls: 'Strategic', cost: 'X', cd: 4, target: 'self', name: 'Fly', parts: [inv(1)] }),
     ] },
   { id: 'mew', role: 'Support', about: 'Shields and heals the team with psychic bubbles.',

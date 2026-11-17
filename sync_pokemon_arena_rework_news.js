@@ -22,18 +22,23 @@ const newsPost = { ...{
         },
         {
             "type": "paragraph",
-            "text": "Evolution is simple now too: every evolving Pokemon evolves automatically at the start of its 4th turn, and all of its skills get stronger. Rare Candy still evolves a Pokemon instantly. The Gen 2 starters still evolve through their ranked win missions."
+            "text": "Evolution is simple now too: every evolving Pokemon, Pidgey included, evolves automatically at the start of its 4th turn, and all of its skills get stronger. Its portrait and its full-body render in the new battle screen change to the evolved form. Rare Candy still evolves a Pokemon instantly, and the Gen 2 starters still evolve through their ranked win missions."
         },
         {
             "type": "paragraph",
-            "text": "Community characters (Ditto, Scraggy, Dragapult, Nincada with Ninjask and Shedinja, Darkrai and Aegislash) are unchanged, as are Pidgey, Aerodactyl, Pokemon Trainer and Lance."
+            "text": "Weather is back with the legendary birds, in a simpler form: Articuno's Blizzard brings a Snowstorm, Moltres's Wildfire starts a Wildfire, and Zapdos calls a Thunderstorm. Each lasts 3 rounds, makes skills of its type deal 10 more damage, and changes the arena background for both players."
+        },
+        {
+            "type": "paragraph",
+            "text": "Community characters (Ditto, Scraggy, Dragapult, Nincada with Ninjask and Shedinja, Darkrai and Aegislash) are unchanged, as are Aerodactyl, Pokemon Trainer and Lance."
         }
     ],
     "paragraphs": [
         "Pokemon Arena Update V.4.0 is a full rework of the roster, built to make Pokemon Arena much easier to pick up while keeping every Pokemon's flavor. 43 Pokemon have brand-new, simpler kits.",
         "Every reworked Pokemon now has four skills: one or two attacks, one utility skill, and one way to protect itself. Every skill does what its description says in one or two short sentences, uses the same few effects (damage, piercing damage, damage over time, stuns, shields, damage reduction, damage boosts and weakens, healing and energy steal), and costs one to three energy.",
-        "Evolution is simple now too: every evolving Pokemon evolves automatically at the start of its 4th turn, and all of its skills get stronger. Rare Candy still evolves a Pokemon instantly. The Gen 2 starters still evolve through their ranked win missions.",
-        "Community characters (Ditto, Scraggy, Dragapult, Nincada with Ninjask and Shedinja, Darkrai and Aegislash) are unchanged, as are Pidgey, Aerodactyl, Pokemon Trainer and Lance."
+        "Evolution is simple now too: every evolving Pokemon, Pidgey included, evolves automatically at the start of its 4th turn, and all of its skills get stronger. Its portrait and its full-body render in the new battle screen change to the evolved form. Rare Candy still evolves a Pokemon instantly, and the Gen 2 starters still evolve through their ranked win missions.",
+        "Weather is back with the legendary birds, in a simpler form: Articuno's Blizzard brings a Snowstorm, Moltres's Wildfire starts a Wildfire, and Zapdos calls a Thunderstorm. Each lasts 3 rounds, makes skills of its type deal 10 more damage, and changes the arena background for both players.",
+        "Community characters (Ditto, Scraggy, Dragapult, Nincada with Ninjask and Shedinja, Darkrai and Aegislash) are unchanged, as are Aerodactyl, Pokemon Trainer and Lance."
     ],
     "changes": [
         {
@@ -317,7 +322,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/beedrill/FP.png"
         },
         {
-            "text": "Freezes enemies and chills the whole team. New skills: Ice Beam, Blizzard, Sheer Cold, Mist.",
+            "text": "Freezes enemies and brings a Snowstorm that powers up Ice skills. New skills: Ice Beam, Blizzard, Sheer Cold, Mist.",
             "changeType": "rework",
             "characterId": "articuno",
             "characterName": "Articuno",
@@ -327,7 +332,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/articuno/fp.png"
         },
         {
-            "text": "Sets the whole enemy team on fire. New skills: Heat Wave, Fire Spin, Overheat, Roost.",
+            "text": "Sets the whole enemy team on fire and starts a Wildfire that powers up Fire skills. New skills: Heat Wave, Wildfire, Overheat, Roost.",
             "changeType": "rework",
             "characterId": "moltres",
             "characterName": "Moltres",
@@ -337,7 +342,7 @@ const newsPost = { ...{
             "skillimage": "assets/images/PokemonArena/moltres/FP.png"
         },
         {
-            "text": "Charges up, then unleashes huge electric attacks. New skills: Thunderstorm, Zap Cannon, Charge, Fly.",
+            "text": "Calls a Thunderstorm that powers up Electric skills, then unleashes huge electric attacks. New skills: Thunderstorm, Zap Cannon, Thunderstorm, Fly.",
             "changeType": "rework",
             "characterId": "zapdos",
             "characterName": "Zapdos",
@@ -465,6 +470,16 @@ const newsPost = { ...{
             "skillId": "",
             "skillName": "",
             "skillimage": "assets/images/PokemonArena/blaziken/blazikenfp.webp"
+        },
+        {
+            "text": "Pidgey now evolves into Pidgeotto at the start of its 4th turn, like every other evolving Pokemon. Its skills are unchanged.",
+            "changeType": "change",
+            "characterId": "pidgey",
+            "characterName": "Pidgey",
+            "facePicture": "assets/images/PokemonArena/pidgey/pidgeyfp.webp",
+            "skillId": "pidgey-passive-evolution-pidgeotto",
+            "skillName": "Evolution: Pidgeotto",
+            "skillimage": "assets/images/PokemonArena/pidgey/pidgeyfp.webp"
         }
     ],
     "author": "kito"

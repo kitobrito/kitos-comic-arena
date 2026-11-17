@@ -251,22 +251,22 @@ Beedrill (Assassin) - Poison stings that pile up, then Mega Evolves into a livin
     -> Hive Swarm [X cd4] Mega Beedrill becomes invulnerable for 1 turn.
   Evolution: Mega Beedrill [- cd0] At the start of its 4th turn, Beedrill evolves into Mega Beedrill and its skills get stronger.
 
-Articuno (Controller) - Freezes enemies and chills the whole team.
+Articuno (Controller) - Freezes enemies and brings a Snowstorm that powers up Ice skills.
   Ice Beam [B cd0] Deals 25 damage to one enemy.
-  Blizzard [BX cd2] Deals 20 damage to all enemies.
+  Blizzard [BX cd3] Deals 15 damage to all enemies and summons a Snowstorm for 3 rounds (Ice skills deal 10 more damage).
   Sheer Cold [BX cd3] Deals 15 damage to one enemy and stuns the target for 1 turn.
   Mist [X cd4] Articuno becomes invulnerable for 1 turn.
 
-Moltres (Area damage) - Sets the whole enemy team on fire.
+Moltres (Area damage) - Sets the whole enemy team on fire and starts a Wildfire that powers up Fire skills.
   Heat Wave [RX cd1] Deals 20 damage to all enemies.
-  Fire Spin [R cd2] Deals 10 affliction damage to all enemies each turn for 2 turns.
+  Wildfire [RX cd3] Deals 5 affliction damage to all enemies each turn for 2 turns and summons a Wildfire for 3 rounds (Fire skills deal 10 more damage).
   Overheat [RRX cd3] Deals 55 damage to one enemy.
   Roost [X cd4] Moltres becomes invulnerable for 1 turn.
 
-Zapdos (Burst damage) - Charges up, then unleashes huge electric attacks.
+Zapdos (Burst damage) - Calls a Thunderstorm that powers up Electric skills, then unleashes huge electric attacks.
   Thunderstorm [Y cd0] Deals 25 damage to one enemy.
   Zap Cannon [YYX cd3] Deals 40 damage to one enemy and stuns the target for 1 turn.
-  Charge [X cd3] Zapdos deals 10 more damage for 2 turns and gains 1 random energy.
+  Thunderstorm [X cd3] Summons a Thunderstorm for 3 rounds (Electric skills deal 10 more damage) and gains 1 random energy.
   Fly [X cd4] Zapdos becomes invulnerable for 1 turn.
 
 Mew (Support) - Shields and heals the team with psychic bubbles.

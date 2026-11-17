@@ -75,6 +75,14 @@ function cleanse(o = {}) {
   return { fx: [{ type: 'cleanse_statuses', count: 0, harmfulOnly: true, sourceRelation: 'enemy', scope }], text: `removes harmful effects from ${WHO[scope]}`, scope };
 }
 
+// Match-wide weather (one at a time, either team can summon it). It also changes the arena background.
+// mods: { Type: +/- damage }. The skill that summons it does not get its own bonus.
+function weather(key, name, rounds, mods) {
+  const parts = Object.entries(mods).map(([t, n]) => `${t} skills deal ${Math.abs(n)} ${n > 0 ? 'more' : 'less'} damage`);
+  const rule = parts.length > 1 ? `${parts.slice(0, -1).join(', ')} and ${parts[parts.length - 1]}` : parts[0];
+  return { fx: [{ type: 'set_weather', scope: 'self', weather: { key, name, rounds, description: `${rule}.`, damageTypeModifiers: { ...mods } } }],
+    text: `summons ${name} for ${rounds} rounds (${rule})`, scope: 'self' };
+}
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 // Join fragments into one or two short sentences.
 function describe(parts, name) {
@@ -83,4 +91,4 @@ function describe(parts, name) {
   return out.replace(/\{name\}/g, name).replace(/ ,/g, ',');
 }
 
-module.exports = { ENERGY, cost, damage, overTime, stun, invulnerable, shield, reduce, boost, weaken, expose, heal, regen, drain, gain, cleanse, describe, cap };
+module.exports = { weather, ENERGY, cost, damage, overTime, stun, invulnerable, shield, reduce, boost, weaken, expose, heal, regen, drain, gain, cleanse, describe, cap };

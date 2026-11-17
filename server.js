@@ -8705,6 +8705,8 @@ const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonical
     const requiredCharacterFieldsByCharacterId = {
         ekans: ['description', 'descriptionHtml', 'characterdeescription', 'facePicture'],
         krabby: ['description', 'descriptionHtml', 'characterdeescription', 'startStatuses'],
+        // Pidgey evolves on turn 4 (Pokemon Arena V.4.0): its evolution timer must come from characters.js.
+        pidgey: ['startStatuses'],
     };
     const canonicalById = new Map(
         (Array.isArray(canonicalCharacters) ? canonicalCharacters : []).map((character) => [

@@ -149,5 +149,39 @@ test("Pokemon Trainer's Rare Candy evolves a reworked Pokemon on the spot", () =
 test('the V.4.0 news post lists every reworked Pokemon', () => {
     const { newsPost } = require('../sync_pokemon_arena_rework_news');
     assert.equal(newsPost.arena, 'pokemon');
-    assert.deepEqual(newsPost.changes.map((c) => c.characterId).sort(), [...POKEMON_REWORKED_IDS].sort());
+    assert.deepEqual(newsPost.changes.map((c) => c.characterId).sort(), [...POKEMON_REWORKED_IDS, 'pidgey'].sort());
+    assert.match(newsPost.paragraphs.join(' '), /Snowstorm/);
+});
+
+test('Pidgey keeps its kit and evolves into Pidgeotto at the start of its 4th turn too', () => {
+    const pidgey = byId.get('pidgey');
+    const g = game(pidgey, 1);
+    let turn = 1;
+    for (; turn <= 5 && !g.unit.state.statuses.some((s) => s.id === 'pidgey_pidgeotto_evolution'); turn++) { g.pass('ash'); g.pass('foe'); }
+    assert.equal(turn, 4);
+    const status = g.unit.state.statuses.find((s) => s.id === 'pidgey_pidgeotto_evolution');
+    assert.equal(status.metadata.skillReplacements['pidgey-gust'], 'pidgeotto-gust', 'its skills improve');
+    assert.match(status.metadata.tooltipText, /evolved into Pidgeotto/);
+    assert.match(fs.readFileSync(path.join(root, 'server.js'), 'utf8'), /pidgey: \['startStatuses'\]/, 'a stored override cannot bring back the old timer');
+});
+
+test('the legendary birds summon weather that powers up their type (and changes the arena background)', () => {
+    const background = fs.readFileSync(path.join(root, 'scripts/script.js'), 'utf8');
+    for (const [id, skillId, key, type, boostedSkill] of [
+        ['articuno', 'articuno-blizzard', 'snowstorm', 'Ice', 'articuno-ice-beam'],
+        ['moltres', 'moltres-fire-spin', 'wildfire', 'Fire', 'moltres-overheat'],
+        ['zapdos', 'zapdos-charge', 'thunderstorm', 'Electric', 'zapdos-thunderbolt'],
+    ]) {
+        const bird = byId.get(id);
+        const g = game(bird, 1);
+        const boosted = bird.skills.find((s) => s.id === boostedSkill);
+        const plain = expectedHit(boosted);
+        g.use(bird.skills.findIndex((s) => s.id === skillId), { username: 'foe', slot: 0 });
+        assert.equal(g.match.weather?.key, key, `${id} summons ${key}`);
+        assert.equal(g.match.weather.damageTypeModifiers[type], 10);
+        assert.match(background, new RegExp(`${key}: 'assets/images/PokemonArena/backgrounds%20and%20weather/`), `${key} has an arena background`);
+        g.foes[0].hp = 100; g.foes[0].state.statuses = [];
+        g.use(bird.skills.indexOf(boosted), { username: 'foe', slot: 0 });
+        assert.equal(100 - g.foes[0].hp, plain + 10, `${boosted.name} deals 10 more during the weather`);
+    }
 });

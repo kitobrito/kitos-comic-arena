@@ -20612,20 +20612,15 @@ const characters = [
         "startStatuses": [
             {
                 "statusId": "pidgey_evolution_tracker",
-                "duration": 99,
                 "sourceSkillId": "pidgey-passive-evolution-pidgeotto",
+                "duration": 3,
                 "metadata": {
-                    "infiniteDuration": true,
-                    "pidgeyDamageDealt": 0,
-                    "stackMetadataKey": "pidgeyDamageDealt",
-                    "stackDeltaFromDamageDealt": true,
-                    "stackMax": 50,
-                    "applyStatusAtStack": {
-                        "metadataKey": "pidgeyDamageDealt",
-                        "value": 50,
+                    "unremovable": true,
+                    "statusIconUrl": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
+                    "tooltipText": "Evolves into Pidgeotto at the start of its 4th turn.",
+                    "onExpireApplyStatusToSelf": {
                         "statusId": "pidgey_pidgeotto_evolution",
-                        "duration": 99,
-                        "sourceSkillId": "pidgey-passive-evolution-pidgeotto",
+                        "duration": 999,
                         "metadata": {
                             "infiniteDuration": true,
                             "removeStatusIdsOnApply": [
@@ -20639,11 +20634,10 @@ const characters = [
                                 "pidgey-sand-attack": "pidgeotto-sand-attack"
                             },
                             "tooltipText": "Pidgey has evolved into Pidgeotto. All of his skills have improved effects.",
-                            "healOnApplyFlat": 10
+                            "healOnApplyFlat": 10,
+                            "unremovable": true
                         }
-                    },
-                    "statusIconUrl": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
-                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/50 total damage. At 50 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
+                    }
                 }
             }
         ],
@@ -20859,7 +20853,7 @@ const characters = [
                 "id": "pidgey-passive-evolution-pidgeotto",
                 "name": "Evolution - Pidgeotto",
                 "skillimage": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
-                "skilldescription": "After Pidgey has dealt 50 total damage during battle, he evolves into Pidgeotto. Pidgeotto's skills are improved.",
+                "skilldescription": "At the start of its 4th turn, Pidgey evolves into Pidgeotto and its skills get stronger.",
                 "energy": [],
                 "target": "",
                 "damage": 0,
@@ -26609,8 +26603,8 @@ const characters = [
         "universe": "pokemon",
         "role": "Controller",
         "roleCategory": "controller",
-        "description": "Freezes enemies and chills the whole team.",
-        "descriptionHtml": "Freezes enemies and chills the whole team.",
+        "description": "Freezes enemies and brings a Snowstorm that powers up Ice skills.",
+        "descriptionHtml": "Freezes enemies and brings a Snowstorm that powers up Ice skills.",
         "characterdeescription": "A legendary ice mage that chains cooldown paralysis and stuns into an escalating Sheer Cold.",
         "pokemonTypes": [
             "Ice",
@@ -26649,13 +26643,13 @@ const characters = [
                 "id": "articuno-blizzard",
                 "name": "Blizzard",
                 "skillimage": "assets/images/PokemonArena/articuno/blizzard.png",
-                "skilldescription": "Deals 20 damage to all enemies.",
-                "description": "Deals 20 damage to all enemies.",
+                "skilldescription": "Deals 15 damage to all enemies and summons a Snowstorm for 3 rounds (Ice skills deal 10 more damage).",
+                "description": "Deals 15 damage to all enemies and summons a Snowstorm for 3 rounds (Ice skills deal 10 more damage).",
                 "energy": [
                     "Ninjutsu",
                     "Random"
                 ],
-                "cooldown": 2,
+                "cooldown": 3,
                 "target": "all-enemy",
                 "damage": 0,
                 "classes": [
@@ -26665,10 +26659,23 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 20,
+                        "amount": 15,
                         "scope": "all-enemy",
                         "metadata": {
                             "harmful": true
+                        }
+                    },
+                    {
+                        "type": "set_weather",
+                        "scope": "self",
+                        "weather": {
+                            "key": "snowstorm",
+                            "name": "a Snowstorm",
+                            "rounds": 3,
+                            "description": "Ice skills deal 10 more damage.",
+                            "damageTypeModifiers": {
+                                "Ice": 10
+                            }
                         }
                     }
                 ]
@@ -26752,8 +26759,8 @@ const characters = [
         "universe": "pokemon",
         "role": "Area damage",
         "roleCategory": "area-damage",
-        "description": "Sets the whole enemy team on fire.",
-        "descriptionHtml": "Sets the whole enemy team on fire.",
+        "description": "Sets the whole enemy team on fire and starts a Wildfire that powers up Fire skills.",
+        "descriptionHtml": "Sets the whole enemy team on fire and starts a Wildfire that powers up Fire skills.",
         "characterdeescription": "A legendary fire attacker that builds Heat and spends it on a team-wide Overheat that weakens with every use.",
         "pokemonTypes": [
             "Fire",
@@ -26791,14 +26798,15 @@ const characters = [
             },
             {
                 "id": "moltres-fire-spin",
-                "name": "Fire Spin",
+                "name": "Wildfire",
                 "skillimage": "assets/images/PokemonArena/moltres/firespin.png",
-                "skilldescription": "Deals 10 affliction damage to all enemies each turn for 2 turns.",
-                "description": "Deals 10 affliction damage to all enemies each turn for 2 turns.",
+                "skilldescription": "Deals 5 affliction damage to all enemies each turn for 2 turns and summons a Wildfire for 3 rounds (Fire skills deal 10 more damage).",
+                "description": "Deals 5 affliction damage to all enemies each turn for 2 turns and summons a Wildfire for 3 rounds (Fire skills deal 10 more damage).",
                 "energy": [
-                    "Bloodline"
+                    "Bloodline",
+                    "Random"
                 ],
-                "cooldown": 2,
+                "cooldown": 3,
                 "target": "all-enemy",
                 "damage": 0,
                 "classes": [
@@ -26814,14 +26822,27 @@ const characters = [
                         "metadata": {
                             "harmful": true,
                             "afflictionDamage": true,
-                            "turnEndDamage": 10,
+                            "turnEndDamage": 5,
                             "ignoreTargetDamageReduction": true,
                             "ignoreTargetDestructibleDefense": true,
                             "turnEndTrigger": "source_turn",
                             "turnDurationAnchor": "source_turn",
-                            "tooltipText": "Takes 10 affliction damage each turn."
+                            "tooltipText": "Takes 5 affliction damage each turn."
                         },
                         "statusId": "moltres_fire_spin_1"
+                    },
+                    {
+                        "type": "set_weather",
+                        "scope": "self",
+                        "weather": {
+                            "key": "wildfire",
+                            "name": "a Wildfire",
+                            "rounds": 3,
+                            "description": "Fire skills deal 10 more damage.",
+                            "damageTypeModifiers": {
+                                "Fire": 10
+                            }
+                        }
                     }
                 ]
             },
@@ -26894,8 +26915,8 @@ const characters = [
         "universe": "pokemon",
         "role": "Burst damage",
         "roleCategory": "burst-damage",
-        "description": "Charges up, then unleashes huge electric attacks.",
-        "descriptionHtml": "Charges up, then unleashes huge electric attacks.",
+        "description": "Calls a Thunderstorm that powers up Electric skills, then unleashes huge electric attacks.",
+        "descriptionHtml": "Calls a Thunderstorm that powers up Electric skills, then unleashes huge electric attacks.",
         "characterdeescription": "A legendary electric controller that punishes harmful skills and detonates Thunderstorm into Zap Cannon.",
         "pokemonTypes": [
             "Electric",
@@ -26972,10 +26993,10 @@ const characters = [
             },
             {
                 "id": "zapdos-charge",
-                "name": "Charge",
+                "name": "Thunderstorm",
                 "skillimage": "assets/images/PokemonArena/zapdos/charge.webp",
-                "skilldescription": "Zapdos deals 10 more damage for 2 turns and gains 1 random energy.",
-                "description": "Zapdos deals 10 more damage for 2 turns and gains 1 random energy.",
+                "skilldescription": "Summons a Thunderstorm for 3 rounds (Electric skills deal 10 more damage) and gains 1 random energy.",
+                "description": "Summons a Thunderstorm for 3 rounds (Electric skills deal 10 more damage) and gains 1 random energy.",
                 "energy": [
                     "Random"
                 ],
@@ -26988,17 +27009,17 @@ const characters = [
                 ],
                 "effects": [
                     {
-                        "type": "apply_status",
-                        "duration": 2,
+                        "type": "set_weather",
                         "scope": "self",
-                        "metadata": {
-                            "damageBonusFlat": 10,
-                            "mergeNumericAddKeys": [
-                                "damageBonusFlat"
-                            ],
-                            "tooltipText": "Deals 10 more damage."
-                        },
-                        "statusId": "zapdos_charge_1"
+                        "weather": {
+                            "key": "thunderstorm",
+                            "name": "a Thunderstorm",
+                            "rounds": 3,
+                            "description": "Electric skills deal 10 more damage.",
+                            "damageTypeModifiers": {
+                                "Electric": 10
+                            }
+                        }
                     },
                     {
                         "type": "gain_chakra",

@@ -15,7 +15,8 @@
   Gen 2 starters keep evolving through their ranked win missions (their evolved signature skill swaps in).
 - Descriptions are generated from the effects, so they always match what the skill does.
 - Skill ids and art are kept, so missions, animations, skins and match history keep working.
-- Left unchanged: community characters (Ditto, Scraggy, Dragapult, Nincada/Ninjask/Shedinja, Darkrai, Aegislash), Pidgey and
+- Pidgey keeps its kit but also evolves on turn 4. The birds summon simple weather (3 rounds, +10 to their type) that changes the arena background.
+- Left unchanged: community characters (Ditto, Scraggy, Dragapult, Nincada/Ninjask/Shedinja, Darkrai, Aegislash), and
   Aerodactyl (reworked recently), Pokemon Trainer (only Rare Candy was pointed at the new evolutions) and Lance.
 
 ## Files

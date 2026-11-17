@@ -148,6 +148,35 @@ if (replaced !== built.size) throw new Error(`replaced ${replaced} of ${built.si
   out = out.slice(0, a0) + json + out.slice(i + 1);
   console.log(`Rare Candy: ${trainerPatch.fixed} evolutions pointed at the new kits`);
 }
+// Pidgey keeps its kit but evolves on the same schedule as everyone else (start of its 4th turn).
+{
+  const pidgey = byId.get('pidgey');
+  const tracker = pidgey.startStatuses.find((x) => x.statusId === 'pidgey_evolution_tracker');
+  const evolved = JSON.parse(JSON.stringify(tracker.metadata.applyStatusAtStack));
+  evolved.metadata.tooltipText = 'Pidgey has evolved into Pidgeotto. All of his skills have improved effects.';
+  const startStatuses = [{ statusId: 'pidgey_evolution_tracker', sourceSkillId: tracker.sourceSkillId, duration: 3,
+    metadata: { unremovable: true, statusIconUrl: tracker.metadata.statusIconUrl, tooltipText: 'Evolves into Pidgeotto at the start of its 4th turn.',
+      onExpireApplyStatusToSelf: { statusId: evolved.statusId, duration: 999, metadata: { ...evolved.metadata, infiniteDuration: true, unremovable: true } } } }];
+  const text = 'At the start of its 4th turn, Pidgey evolves into Pidgeotto and its skills get stronger.';
+  const objStart = out.search(/"id"\s*:\s*"pidgey",/);
+  const keyAt = (key, from) => out.indexOf(`"${key}"`, from);
+  // replace the value (an array or string) that follows "key": after position `from`
+  const replaceValue = (key, from, json) => {
+    const k = keyAt(key, from), v = out.indexOf(':', k) + 1;
+    let i = v; while (out[i] === ' ') i++;
+    let end;
+    if (out[i] === '"') { end = i + 1; while (out[end] !== '"' || out[end - 1] === '\\') end++; end++; }
+    else { let d = 0, str = false; for (end = i; end < out.length; end++) { const ch = out[end]; if (str) { if (ch === '\\') end++; else if (ch === '"') str = false; continue; } if (ch === '"') str = true; else if (ch === '[' || ch === '{') d++; else if (ch === ']' || ch === '}') { d--; if (!d) { end++; break; } } } }
+    const indent = (out.slice(out.lastIndexOf('\n', k) + 1, k).match(/^\s*/) || [''])[0];
+    out = out.slice(0, i) + JSON.stringify(json, null, 4).split('\n').map((l, j) => (j ? indent + l : l)).join('\n') + out.slice(end);
+  };
+  if (objStart < 0) throw new Error('pidgey not found');
+  replaceValue('startStatuses', objStart, startStatuses);
+  const passiveAt = out.search(/"id"\s*:\s*"pidgey-passive-evolution-pidgeotto"/);
+  replaceValue('skilldescription', passiveAt, text);
+  if (keyAt('description', passiveAt) < out.indexOf('"effects"', passiveAt)) replaceValue('description', passiveAt, text);
+  console.log('Pidgey: evolves on turn 4');
+}
 fs.writeFileSync(CHAR_FILE, out);
 fs.writeFileSync(path.join(root, 'pokemonReworkData.js'), `'use strict';\n// Written by tools/pokemon-rework/build.js: the Pokemon Arena rework.\n// Move type of every reworked skill, and the reworked characters (stored admin overrides are ignored for them).\nconst POKEMON_REWORK_SKILL_TYPES = ${JSON.stringify(types, null, 4)};\nconst POKEMON_REWORKED_IDS = ${JSON.stringify([...built.keys()])};\nmodule.exports = { POKEMON_REWORK_SKILL_TYPES, POKEMON_REWORKED_IDS };\n`);
 console.log(`rewrote ${replaced} characters, ${Object.keys(types).length} skill types`);
