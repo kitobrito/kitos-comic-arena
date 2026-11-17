@@ -37,7 +37,7 @@ const paragraphs = [
     'Welcome to Generation 2 and beyond! Cyndaquil, Chikorita, and Totodile are now fully playable in Pokemon Arena. Open the starter case on the homepage and choose one for free; the other two remain available for 500 unlock points each.',
     'Your partner grows with you. Win 16 ranked matches with your chosen starter to permanently evolve it into Quilava, Bayleaf, or Croconaw. Then win 36 additional ranked matches to reach Typhlosion, Meganium, or Feraligatr. Each evolution upgrades its portrait, selection render, and complete skill artwork.',
     'Pokemon Arena music has also been upgraded for Generation 2 with Johto and Gold, Silver, and Crystal battle themes joining the in-game playlist.',
-    'The next character releases will be community characters. Post your first community character in the Discord and it will be put into the game!',
+    'More characters are on the way, including community characters.',
 ];
 
 const newsPost = {

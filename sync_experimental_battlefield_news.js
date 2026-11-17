@@ -23,12 +23,14 @@ const ENERGY = [
 
 const CLOSING = p('This is a beta, so some things may still look a little off, especially on phones. Phones currently show the skill bars as a list below the battlefield instead of under each fighter.');
 
+const GOODBYE = p("One last note: I've taken the Discord links down from the site. I'm sorry to everyone who enjoyed chatting about the game there, but I don't want to be part of the community anymore. Game updates will still be posted here in the news.");
+
 const comicPost = {
     releaseVersion: 'experimental-battlefield-comic-v1',
     title: 'Comic Arena: Try the Experimental Battlefield (Beta)',
     arena: 'comic',
     author: 'kito',
-    blocks: [...BATTLEFIELD('Comic Arena', 'standing in a packed night-time stadium under the floodlights'), divider, ...ENERGY, divider, CLOSING],
+    blocks: [...BATTLEFIELD('Comic Arena', 'standing in a packed night-time stadium under the floodlights'), divider, ...ENERGY, divider, CLOSING, divider, GOODBYE],
 };
 
 const pokemonPost = {
@@ -36,7 +38,7 @@ const pokemonPost = {
     title: 'Pokemon Arena: Try the Experimental Battlefield (Beta)',
     arena: 'pokemon',
     author: 'kito',
-    blocks: [...BATTLEFIELD('Pokemon Arena', 'facing off in the forest, from tiny Pikachu to towering Onix'), divider, ...ENERGY, divider, CLOSING],
+    blocks: [...BATTLEFIELD('Pokemon Arena', 'facing off in the forest, from tiny Pikachu to towering Onix'), divider, ...ENERGY, divider, CLOSING, divider, GOODBYE],
 };
 
 const paragraphsOf = (post) => post.blocks.filter((block) => block.type === 'paragraph').map((block) => block.text);
