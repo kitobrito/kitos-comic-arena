@@ -1,7 +1,8 @@
 const { MongoClient } = require('mongodb');
 require('dotenv').config();
 
-// Pokemon Arena V.4.0: the roster rework (tools/pokemon-rework). Run once after deploying:
+// Pokemon Arena V.4.0: the roster rework (tools/pokemon-rework).
+// Synced at server startup; the same post can also be synced manually:
 //   node sync_pokemon_arena_rework_news.js
 const uri = process.env.MONGODB_URI;
 const dbName = process.env.MONGODB_DB || 'comic-arena';
@@ -485,21 +486,33 @@ const newsPost = { ...{
     "author": "kito"
 }, createdAt: now, updatedAt: now };
 
-async function syncPokemonArenaReworkNews() {
+// Reuse the server's configured database during startup; the CLI below remains available.
+async function syncPokemonArenaReworkNews(db, options = {}) {
+    if (!db) throw new Error('A MongoDB database connection is required.');
+    const timestamp = options.now instanceof Date ? options.now : new Date();
+    const newsPosts = db.collection(newsCollectionName);
+    const { createdAt, ...update } = newsPost;
+    await newsPosts.updateOne(
+        { title: newsPost.title },
+        { $set: { ...update, updatedAt: timestamp }, $setOnInsert: { createdAt: timestamp } },
+        { upsert: true }
+    );
+    return { posts: 1 };
+}
+
+async function runPokemonArenaReworkNews() {
     if (!uri) throw new Error('MONGODB_URI is required.');
     const client = new MongoClient(uri, { family: 4 });
     await client.connect();
     try {
-        const newsPosts = client.db(dbName).collection(newsCollectionName);
-        const { createdAt, ...update } = newsPost;
-        await newsPosts.updateOne({ title: newsPost.title }, { $set: { ...update, updatedAt: new Date() }, $setOnInsert: { createdAt } }, { upsert: true });
+        await syncPokemonArenaReworkNews(client.db(dbName));
         console.log('Synced Pokemon Arena V.4.0 roster rework news.');
     } finally {
         await client.close();
     }
 }
 
-module.exports = { newsPost };
+module.exports = { newsPost, syncPokemonArenaReworkNews };
 if (require.main === module) {
-    syncPokemonArenaReworkNews().catch((error) => { console.error(error); process.exit(1); });
+    runPokemonArenaReworkNews().catch((error) => { console.error(error); process.exit(1); });
 }
