@@ -1,358 +1,347 @@
-Charmander (Damage over time) - Sets enemies on fire, then hits harder as Charmeleon.
-  Ember [R cd0] Deals 15 damage to one enemy and then 5 affliction damage each turn for 2 turns.
-    -> Fire Punch [R cd0] Deals 20 damage to one enemy and then 10 affliction damage each turn for 2 turns.
-  Scratch [G cd0] Deals 20 damage to one enemy.
-    -> Dragon Claw [G cd0] Deals 30 damage to one enemy.
-  Flamethrower [RX cd2] Deals 15 damage to all enemies and then 5 affliction damage each turn for 2 turns.
-    -> Flamethrower [RX cd2] Deals 20 damage to all enemies and then 10 affliction damage each turn for 2 turns.
-  Protect [X cd4] Charmander becomes invulnerable for 1 turn.
-    -> Protect [X cd4] Charmeleon becomes invulnerable for 1 turn.
+Charmander (Damage over time) - Ember Burns enemies, and every other skill hits Burned enemies harder.
+  Ember [R cd0] Deals 10 damage to one enemy and Burns the target (5 affliction damage each turn for 2 turns).
+    -> Fire Punch [R cd0] Deals 15 damage to one enemy and Burns the target (10 affliction damage each turn for 2 turns).
+  Scratch [G cd0] Deals 20 damage to one enemy. +10 damage to Burned enemies. 20% chance to crit for +10 damage.
+    -> Dragon Claw [G cd0] Deals 25 damage to one enemy. +15 damage to Burned enemies. 25% chance to crit for +10 damage.
+  Flamethrower [RX cd2] Deals 10 damage to all enemies. +10 damage to Burned enemies.
+    -> Flamethrower [RX cd2] Deals 15 damage to all enemies. +15 damage to Burned enemies.
+  Protect [X cd4] Charmander becomes invulnerable for 1 turn. If Charmander used Ember last turn, it also heals 10.
+    -> Protect [X cd4] Charmeleon becomes invulnerable for 1 turn. If Charmeleon used Fire Punch last turn, it also heals 15.
   Evolution: Charmeleon [- cd0] At the start of its 4th turn, Charmander evolves into Charmeleon and its skills get stronger.
 
-Squirtle (Tank) - Hides in its shell to protect itself and wears enemies down with water.
-  Water Gun [B cd0] Deals 20 damage to one enemy.
-    -> Hydro Pump [BX cd1] Deals 40 damage to one enemy.
-  Bubble [BX cd1] Deals 20 damage to one enemy and the target deals 10 less damage for 1 turn.
-    -> Bubblebeam [BXX cd1] Deals 25 damage to all enemies and they deal 10 less damage for 1 turn.
-  Withdraw [X cd2] Gives Squirtle 25 destructible defense for 2 turns.
-    -> Shell Guard [X cd2] Gives Wartortle 35 destructible defense for 2 turns and Wartortle takes 5 less damage for 2 turns.
-  Protect [X cd4] Squirtle becomes invulnerable for 1 turn.
-    -> Protect [X cd4] Wartortle becomes invulnerable for 1 turn.
+Squirtle (Tank) - Withdraw puts Squirtle in its shell; its water attacks hit harder while it is inside.
+  Withdraw [X cd2] Squirtle goes into its shell for 2 turns: 25 destructible defense.
+    -> Shell Guard [X cd2] Wartortle goes into its shell for 2 turns: 35 destructible defense.
+  Water Gun [B cd0] Deals 20 damage to one enemy. +10 damage while Squirtle is in its shell.
+    -> Hydro Pump [BX cd1] Deals 30 damage to one enemy. +15 damage while Wartortle is in its shell. 20% chance to crit for +10 damage.
+  Bubble [BX cd1] Deals 20 damage to one enemy and the target deals 10 less damage for 1 turn. While Squirtle is in its shell, also stuns it for 1 turn.
+    -> Bubblebeam [BXX cd1] Deals 20 damage to all enemies and they deal 10 less damage for 1 turn. +10 damage while Wartortle is in its shell.
+  Protect [X cd4] Squirtle becomes invulnerable for 1 turn. While Squirtle is in its shell, also heals Squirtle for 10.
+    -> Protect [X cd4] Wartortle becomes invulnerable for 1 turn. While Wartortle is in its shell, also heals Wartortle for 15.
   Evolution: Wartortle [- cd0] At the start of its 4th turn, Squirtle evolves into Wartortle and its skills get stronger.
 
-Bulbasaur (Drain & sustain) - Drains enemies with seeds and heals itself while it fights.
-  Leech Seed [G cd1] Deals 10 affliction damage to one enemy each turn for 3 turns and heals Bulbasaur for 5 each turn for 3 turns.
-    -> Leech Seed [G cd1] Deals 15 affliction damage to one enemy each turn for 3 turns and heals Ivysaur for 10 each turn for 3 turns.
-  Vine Whip [GX cd0] Deals 25 damage to one enemy.
-    -> Vine Whip [GX cd0] Deals 35 damage to one enemy.
-  Solar Beam [GXX cd3] Deals 45 piercing damage to one enemy.
-    -> Solar Beam [GXX cd3] Deals 55 piercing damage to one enemy.
-  Synthesis [X cd4] Bulbasaur becomes invulnerable for 1 turn.
-    -> Synthesis [X cd4] Ivysaur becomes invulnerable for 1 turn and heals Ivysaur for 15.
+Bulbasaur (Drain & sustain) - Leech Seed drains an enemy; Bulbasaur's other skills are stronger against Seeded enemies.
+  Leech Seed [G cd1] Seeds one enemy (10 affliction damage each turn for 3 turns) and heals Bulbasaur for 5 each turn for 3 turns.
+    -> Leech Seed [G cd1] Seeds one enemy (15 affliction damage each turn for 3 turns) and heals Ivysaur for 10 each turn for 3 turns.
+  Vine Whip [GX cd0] Deals 20 damage to one enemy. +10 damage to Seeded enemies.
+    -> Vine Whip [GX cd0] Deals 25 damage to one enemy. +15 damage to Seeded enemies. 20% chance to crit for +10 damage.
+  Solar Beam [GXX cd3] Deals 40 piercing damage to one enemy. +15 damage to Seeded enemies.
+    -> Solar Beam [GXX cd3] Deals 45 piercing damage to one enemy. +20 damage to Seeded enemies.
+  Synthesis [X cd4] Bulbasaur becomes invulnerable for 1 turn. If Bulbasaur used Leech Seed last turn, it also heals 10.
+    -> Synthesis [X cd4] Ivysaur becomes invulnerable for 1 turn and heals Ivysaur for 15. If Ivysaur used Leech Seed last turn, it also heals 15.
   Evolution: Ivysaur [- cd0] At the start of its 4th turn, Bulbasaur evolves into Ivysaur and its skills get stronger.
 
-Pikachu (Burst damage) - Fast electric attacks that can stun.
-  Thundershock [Y cd0] Deals 20 damage to one enemy.
-  Volt Tackle [GY cd1] Deals 40 piercing damage to one enemy.
-  Thunder [YX cd3] Deals 25 damage to one enemy and stuns the target for 1 turn.
-  Agility [X cd4] Pikachu becomes invulnerable for 1 turn.
+Pikachu (Burst damage) - Thundershock gives Static; Volt Tackle and Thunder punish enemies with Static.
+  Thundershock [Y cd0] Deals 15 damage to one enemy and gives the target Static for 2 turns.
+  Volt Tackle [GY cd1] Deals 30 piercing damage to one enemy. +15 damage to Static enemies. 25% chance to crit for +10 damage.
+  Thunder [YX cd3] Deals 25 damage to one enemy and stuns the target for 1 turn. If the target is Static, the stun lasts 2 turns.
+  Agility [X cd4] Pikachu becomes invulnerable for 1 turn. If Pikachu used Thundershock last turn, it also heals 10.
 
-Butterfree (Controller) - Puts enemies to sleep and weakens their attacks with powders.
-  Confusion [B cd0] Deals 20 damage to one enemy.
-  Stun Spore [YX cd3] Deals 15 damage to one enemy and stuns the target for 1 turn.
-  Sleep Powder [YX cd3] All enemies deal 10 less damage for 2 turns.
-  Protect [X cd4] Butterfree becomes invulnerable for 1 turn.
+Butterfree (Controller) - Sleep Powder makes enemies Drowsy; its other skills punish Drowsy enemies.
+  Sleep Powder [YX cd3] Makes all enemies Drowsy for 2 turns: they deal 10 less damage.
+  Confusion [B cd0] Deals 20 damage to one enemy. +10 damage to Drowsy enemies.
+  Stun Spore [Y cd2] Deals 15 damage to one enemy. If the target is Drowsy, stuns it for 1 turn.
+  Protect [X cd4] Butterfree becomes invulnerable for 1 turn. If Butterfree used Sleep Powder last turn, it also heals 10.
 
-Chansey (Healer) - The team medic: heals allies and keeps them alive.
-  Egg Bomb [X cd0] Deals 15 damage to one enemy.
-    -> Egg Bomb [X cd0] Deals 20 damage to one enemy.
-  Softboil [Y cd0] Heals one ally for 20.
-    -> Softboil [Y cd0] Heals one ally for 30.
-  Pokémon Center Healing [YX cd3] Heals all allies for 10 and 5 more each turn for 2 turns.
-    -> Pokémon Center Healing [YX cd3] Heals all allies for 15 and 10 more each turn for 2 turns.
-  Safeguard [X cd4] Makes one ally invulnerable for 1 turn.
-    -> Safeguard [X cd4] Makes one ally invulnerable for 1 turn and removes harmful effects from one ally.
+Chansey (Healer) - Softboil heals an ally and puts Chansey on duty as a Nurse; her other skills are stronger while Nursing.
+  Softboil [Y cd0] Heals one ally for 20 and Chansey is Nursing for 2 turns.
+    -> Softboil [Y cd0] Heals one ally for 30 and Blissey is Nursing for 2 turns.
+  Egg Bomb [X cd0] Deals 15 damage to one enemy. +10 damage while Chansey is Nursing.
+    -> Egg Bomb [X cd0] Deals 20 damage to one enemy. +10 damage while Blissey is Nursing.
+  Pokémon Center Healing [YX cd3] Heals all allies for 10. While Chansey is Nursing, also heals all allies for 10 each turn for 2 turns.
+    -> Pokémon Center Healing [YX cd3] Heals all allies for 15. While Blissey is Nursing, also heals all allies for 15 each turn for 2 turns.
+  Safeguard [X cd4] Makes one ally invulnerable for 1 turn. While Chansey is Nursing, also removes harmful effects from that ally.
+    -> Safeguard [X cd4] Makes one ally invulnerable for 1 turn. While Blissey is Nursing, also removes harmful effects from that ally.
   Evolution: Blissey [- cd0] At the start of its 4th turn, Chansey evolves into Blissey and its skills get stronger.
 
-Koffing (Poison) - Fills the field with poison gas that hurts every enemy.
-  Smog [B cd1] Deals 10 damage to one enemy and then 10 affliction damage each turn for 2 turns.
-    -> Smog [B cd1] Deals 15 damage to one enemy and then 10 affliction damage each turn for 3 turns.
-  Poison Gas [BX cd3] Deals 5 affliction damage to all enemies each turn for 3 turns.
-    -> Poison Gas [BX cd3] Deals 10 affliction damage to all enemies each turn for 3 turns.
-  Self-Destruct [BXX cd4] Deals 30 damage to all enemies and Koffing takes 20 recoil damage.
-    -> Self-Destruct [BXX cd4] Deals 40 damage to all enemies and Weezing takes 20 recoil damage.
-  Haze [X cd4] Koffing becomes invulnerable for 1 turn.
-    -> Haze [X cd4] Weezing becomes invulnerable for 1 turn.
+Koffing (Poison) - Smog Poisons an enemy; Poison Gas and Self-Destruct hit Poisoned enemies harder.
+  Smog [B cd1] Deals 10 damage to one enemy and Poisons the target (10 affliction damage each turn for 2 turns).
+    -> Smog [B cd1] Deals 15 damage to one enemy and Poisons the target (10 affliction damage each turn for 3 turns).
+  Poison Gas [BX cd3] Poisons all enemies (5 affliction damage each turn for 2 turns).
+    -> Poison Gas [BX cd3] Poisons all enemies (10 affliction damage each turn for 2 turns).
+  Self-Destruct [BXX cd4] Deals 20 damage to all enemies and Koffing takes 20 recoil damage. +15 damage to Poisoned enemies.
+    -> Self-Destruct [BXX cd4] Deals 25 damage to all enemies and Weezing takes 20 recoil damage. +20 damage to Poisoned enemies.
+  Haze [X cd4] Koffing becomes invulnerable for 1 turn. If Koffing used Smog last turn, it also heals 10.
+    -> Haze [X cd4] Weezing becomes invulnerable for 1 turn. If Weezing used Smog last turn, it also heals 15.
   Evolution: Weezing [- cd0] At the start of its 4th turn, Koffing evolves into Weezing and its skills get stronger.
 
-Zubat (Fast damage) - Bites and drains health to keep itself going.
-  Bite [G cd0] Deals 20 damage to one enemy.
-    -> Bite [G cd0] Deals 25 damage to one enemy.
-  Leech Life [BX cd1] Deals 20 damage to one enemy and heals Zubat for 15.
-    -> Leech Life [BX cd1] Deals 30 damage to one enemy and heals Golbat for 20.
-  Supersonic [Y cd3] One enemy deals 15 less damage for 2 turns.
-    -> Supersonic [Y cd3] Stuns one enemy for 1 turn.
-  Double Team [X cd4] Zubat becomes invulnerable for 1 turn.
-    -> Double Team [X cd4] Golbat becomes invulnerable for 1 turn.
+Zubat (Fast damage) - Supersonic Confuses an enemy; Zubat's bites hit Confused enemies harder.
+  Supersonic [Y cd2] Confuses one enemy for 2 turns: it deals 10 less damage.
+    -> Supersonic [Y cd2] Confuses one enemy for 2 turns: it deals 15 less damage.
+  Bite [G cd0] Deals 20 damage to one enemy. +10 damage to Confused enemies. 20% chance to crit for +10 damage.
+    -> Bite [G cd0] Deals 25 damage to one enemy. +10 damage to Confused enemies. 25% chance to crit for +10 damage.
+  Leech Life [BX cd1] Deals 20 damage to one enemy and heals Zubat for 15. +10 damage to Confused enemies.
+    -> Leech Life [BX cd1] Deals 25 damage to one enemy and heals Golbat for 20. +10 damage to Confused enemies.
+  Double Team [X cd4] Zubat becomes invulnerable for 1 turn. If Zubat used Supersonic last turn, it also heals 10.
+    -> Double Team [X cd4] Golbat becomes invulnerable for 1 turn. If Golbat used Supersonic last turn, it also heals 15.
   Evolution: Golbat [- cd0] At the start of its 4th turn, Zubat evolves into Golbat and its skills get stronger.
 
-Gastly (Disruptor) - A ghost that curses enemies and steals their energy.
-  Lick [B cd0] Deals 20 piercing damage to one enemy.
-    -> Lick [B cd0] Deals 25 piercing damage to one enemy.
-  Curse [BY cd2] Deals 10 affliction damage to one enemy each turn for 3 turns.
-    -> Curse [BY cd2] Deals 15 affliction damage to one enemy each turn for 3 turns.
-  Spite [Y cd3] Deals 10 damage to one enemy and removes 1 random energy from the enemy team.
-    -> Spite [Y cd3] Deals 20 damage to one enemy and removes 1 random energy from the enemy team.
-  Vanish [X cd4] Gastly becomes invulnerable for 1 turn.
-    -> Vanish [X cd4] Haunter becomes invulnerable for 1 turn.
+Gastly (Disruptor) - Curse haunts an enemy; Lick and Spite are stronger against Cursed enemies.
+  Curse [BY cd2] Curses one enemy (10 affliction damage each turn for 3 turns).
+    -> Curse [BY cd2] Curses one enemy (15 affliction damage each turn for 3 turns).
+  Lick [B cd0] Deals 20 piercing damage to one enemy. +10 damage to Cursed enemies.
+    -> Lick [B cd0] Deals 25 piercing damage to one enemy. +10 damage to Cursed enemies.
+  Spite [Y cd3] Deals 10 damage to one enemy. If the target is Cursed, removes 1 random energy from the enemy team.
+    -> Spite [Y cd3] Deals 20 damage to one enemy. If the target is Cursed, removes 1 random energy from the enemy team.
+  Vanish [X cd4] Gastly becomes invulnerable for 1 turn. If Gastly used Curse last turn, it also heals 10.
+    -> Vanish [X cd4] Haunter becomes invulnerable for 1 turn. If Haunter used Curse last turn, it also heals 15.
   Evolution: Haunter [- cd0] At the start of its 4th turn, Gastly evolves into Haunter and its skills get stronger.
 
-Abra (Psychic damage) - Fragile but powerful: teleports out of danger and hits hard with Psychic.
-  Psychic [YX cd0] Deals 30 damage to one enemy.
-    -> Psychic [YX cd0] Deals 40 damage to one enemy.
-  Future Sight [B cd2] Deals 15 damage to all enemies.
-    -> Future Sight [B cd2] Deals 20 damage to all enemies.
-  Calm Mind [Y cd3] Abra deals 10 more damage for 2 turns.
-    -> Calm Mind [Y cd3] Kadabra deals 15 more damage for 2 turns.
-  Teleport [X cd4] Abra becomes invulnerable for 1 turn.
-    -> Teleport [X cd4] Kadabra becomes invulnerable for 1 turn.
+Abra (Psychic damage) - Calm Mind Focuses Abra; its psychic attacks hit harder and crit more while Focused.
+  Calm Mind [Y cd3] Abra is Focused for 2 turns.
+    -> Calm Mind [Y cd3] Kadabra is Focused for 2 turns.
+  Psychic [YX cd0] Deals 25 damage to one enemy. +10 damage while Abra is Focused. 10% chance to crit for +15 damage (40% while Abra is Focused).
+    -> Psychic [YX cd0] Deals 30 damage to one enemy. +15 damage while Kadabra is Focused. 10% chance to crit for +15 damage (40% while Kadabra is Focused).
+  Future Sight [B cd2] Deals 15 damage to all enemies. +5 damage while Abra is Focused.
+    -> Future Sight [B cd2] Deals 20 damage to all enemies. +10 damage while Kadabra is Focused.
+  Teleport [X cd4] Abra becomes invulnerable for 1 turn. While Abra is Focused, also heals Abra for 10.
+    -> Teleport [X cd4] Kadabra becomes invulnerable for 1 turn. While Kadabra is Focused, also heals Kadabra for 15.
   Evolution: Kadabra [- cd0] At the start of its 4th turn, Abra evolves into Kadabra and its skills get stronger.
 
-Krabby (Bruiser) - Hard shell, huge claw: defends itself and crushes one target.
-  Metal Claw [G cd0] Deals 20 damage to one enemy.
-    -> Metal Claw [G cd0] Deals 25 damage to one enemy.
-  Crabhammer [GX cd1] Deals 35 damage to one enemy.
-    -> Crabhammer [GX cd1] Deals 45 damage to one enemy.
-  Leer [X cd2] One enemy takes 10 more damage for 2 turns.
-    -> Leer [X cd2] One enemy takes 15 more damage for 2 turns.
-  Harden [X cd3] Krabby takes 10 less damage for 2 turns.
-    -> Harden [X cd3] Kingler takes 15 less damage for 2 turns.
+Krabby (Bruiser) - Leer Exposes an enemy; Krabby's claws crush Exposed enemies.
+  Leer [X cd2] Exposes one enemy for 2 turns: it takes 5 more damage.
+    -> Leer [X cd2] Exposes one enemy for 2 turns: it takes 10 more damage.
+  Metal Claw [G cd0] Deals 20 damage to one enemy. +10 damage to Exposed enemies. 20% chance to crit for +10 damage.
+    -> Metal Claw [G cd0] Deals 25 damage to one enemy. +10 damage to Exposed enemies. 25% chance to crit for +10 damage.
+  Crabhammer [GX cd2] Deals 30 damage to one enemy. If the target is Exposed, stuns it for 1 turn.
+    -> Crabhammer [GX cd2] Deals 40 damage to one enemy. If the target is Exposed, stuns it for 1 turn.
+  Harden [X cd3] Krabby takes 10 less damage for 2 turns. If Krabby used Leer last turn, it also heals 10.
+    -> Harden [X cd3] Kingler takes 15 less damage for 2 turns. If Kingler used Leer last turn, it also heals 15.
   Evolution: Kingler [- cd0] At the start of its 4th turn, Krabby evolves into Kingler and its skills get stronger.
 
-Scyther (Assassin) - Sharpens its blades, then slices through defenses.
-  Fury Cutter [G cd0] Deals 20 damage to one enemy.
-  X-Cutter [GG cd1] Deals 40 piercing damage to one enemy.
-  Swords Dance [X cd3] Scyther deals 15 more damage for 2 turns.
-  Double Team [X cd4] Scyther becomes invulnerable for 1 turn.
+Scyther (Assassin) - Swords Dance Sharpens Scyther's blades; its cuts hit harder and crit more while Sharpened.
+  Swords Dance [X cd3] Scyther is Sharpened for 2 turns.
+  Fury Cutter [G cd0] Deals 20 damage to one enemy. +10 damage while Scyther is Sharpened. 20% chance to crit for +10 damage (50% while Scyther is Sharpened).
+  X-Cutter [GG cd1] Deals 35 piercing damage to one enemy. +10 damage while Scyther is Sharpened.
+  Double Team [X cd4] Scyther becomes invulnerable for 1 turn. While Scyther is Sharpened, also heals Scyther for 10.
 
-Eevee (All-rounder) - A balanced fighter that is easy to play.
-  Swift [X cd0] Deals 20 piercing damage to one enemy.
-  Dig [GX cd2] Eevee becomes invulnerable for 1 turn and deals 30 damage to one enemy.
-  Hidden Power [XX cd2] Deals 20 damage to all enemies.
-  Protect [X cd4] Eevee becomes invulnerable for 1 turn.
+Eevee (All-rounder) - Swift Locks On to an enemy; Dig and Hidden Power hit the Locked On enemy harder.
+  Swift [X cd0] Deals 15 piercing damage to one enemy and Locks On to the target for 2 turns.
+  Dig [GX cd2] Eevee becomes invulnerable for 1 turn and deals 25 damage to one enemy. +10 damage to Locked On enemies. 20% chance to crit for +10 damage.
+  Hidden Power [XX cd2] Deals 15 damage to all enemies. +15 damage to Locked On enemies.
+  Protect [X cd4] Eevee becomes invulnerable for 1 turn. If Eevee used Swift last turn, it also heals 10.
 
-Jolteon (Fast damage) - The fastest Eeveelution: cheap, quick electric hits.
-  Pin Missile [G cd0] Deals 20 damage to one enemy.
-  Thunderbolt [YX cd0] Deals 35 damage to one enemy.
-  Thunder Fang [GY cd3] Deals 20 damage to one enemy and stuns the target for 1 turn.
-  Agility [X cd4] Jolteon becomes invulnerable for 1 turn.
+Jolteon (Fast damage) - Pin Missile Paralyzes an enemy; Thunderbolt and Thunder Fang punish Paralyzed enemies.
+  Pin Missile [G cd0] Deals 15 damage to one enemy and Paralyzes the target for 2 turns. 25% chance to crit for +10 damage.
+  Thunderbolt [YX cd0] Deals 30 damage to one enemy. +10 damage to Paralyzed enemies.
+  Thunder Fang [GY cd2] Deals 20 damage to one enemy. If the target is Paralyzed, stuns it for 1 turn.
+  Agility [X cd4] Jolteon becomes invulnerable for 1 turn. If Jolteon used Pin Missile last turn, it also heals 10.
 
-Flareon (Damage over time) - Burns everything and powers itself up.
-  Fire Spin [R cd1] Deals 15 damage to one enemy and then 10 affliction damage each turn for 2 turns.
-  Fire Blast [RX cd2] Deals 40 damage to one enemy.
-  Heating Up [R cd3] Flareon deals 10 more damage for 3 turns.
-  Double Team [X cd4] Flareon becomes invulnerable for 1 turn.
+Flareon (Damage over time) - Fire Spin Burns an enemy; Fire Blast and Heating Up punish Burned enemies.
+  Fire Spin [R cd1] Deals 10 damage to one enemy and Burns the target (10 affliction damage each turn for 2 turns).
+  Fire Blast [RX cd2] Deals 30 damage to one enemy. +15 damage to Burned enemies. 20% chance to crit for +10 damage.
+  Heat Wave [RX cd3] Deals 10 damage to all enemies. +10 damage to Burned enemies.
+  Double Team [X cd4] Flareon becomes invulnerable for 1 turn. If Flareon used Fire Spin last turn, it also heals 10.
 
-Vaporeon (Healer) - Heals the team with water and protects itself with Acid Armor.
-  Aurora Beam [B cd0] Deals 20 damage to one enemy.
-  Hydro Pump [BX cd1] Deals 35 damage to one enemy.
-  Aqua Ring [B cd2] Heals all allies for 10 each turn for 2 turns.
-  Acid Armor [X cd4] Vaporeon becomes invulnerable for 1 turn.
+Vaporeon (Healer) - Aqua Ring surrounds the team with water; Vaporeon hits harder and heals more while in its Aqua Ring.
+  Aqua Ring [B cd2] Surrounds all allies with an Aqua Ring for 2 turns: they heal 10 each turn.
+  Aurora Beam [B cd0] Deals 20 damage to one enemy. +10 damage while Vaporeon is in its Aqua Ring.
+  Hydro Pump [BX cd1] Deals 30 damage to one enemy. +10 damage while Vaporeon is in its Aqua Ring. 20% chance to crit for +10 damage.
+  Acid Armor [X cd4] Vaporeon becomes invulnerable for 1 turn. While Vaporeon is in its Aqua Ring, also heals Vaporeon for 15.
 
-Ekans (Poison) - Poisons one enemy and squeezes them.
-  Poison Fang [R cd0] Deals 20 damage to one enemy.
-    -> Poison Fang [R cd0] Deals 25 damage to one enemy.
-  Toxic [R cd2] Deals 10 affliction damage to one enemy each turn for 3 turns.
-    -> Toxic [R cd2] Deals 15 affliction damage to one enemy each turn for 3 turns.
-  Wrap [RX cd3] Deals 15 damage to one enemy and stuns the target for 1 turn.
-    -> Wrap [RX cd3] Deals 25 damage to one enemy and stuns the target for 1 turn.
-  Shed Skin [X cd4] Ekans becomes invulnerable for 1 turn.
-    -> Shed Skin [X cd4] Arbok becomes invulnerable for 1 turn.
+Ekans (Poison) - Toxic Poisons an enemy; Poison Fang and Wrap are stronger against Poisoned enemies.
+  Toxic [R cd2] Poisons the target (10 affliction damage each turn for 3 turns).
+    -> Toxic [R cd2] Poisons the target (15 affliction damage each turn for 3 turns).
+  Poison Fang [R cd0] Deals 20 damage to one enemy. +10 damage to Poisoned enemies. 20% chance to crit for +10 damage.
+    -> Poison Fang [R cd0] Deals 25 damage to one enemy. +10 damage to Poisoned enemies. 25% chance to crit for +10 damage.
+  Wrap [RX cd3] Deals 20 damage to one enemy. If the target is Poisoned, stuns it for 1 turn.
+    -> Wrap [RX cd3] Deals 30 damage to one enemy. If the target is Poisoned, stuns it for 1 turn.
+  Shed Skin [X cd4] Ekans becomes invulnerable for 1 turn. If Ekans used Toxic last turn, it also heals 10.
+    -> Shed Skin [X cd4] Arbok becomes invulnerable for 1 turn. If Arbok used Toxic last turn, it also heals 15.
   Evolution: Arbok [- cd0] At the start of its 4th turn, Ekans evolves into Arbok and its skills get stronger.
 
-Machop (Bruiser) - Punches hard and bulks up to take hits.
-  Brick Break [G cd0] Deals 20 piercing damage to one enemy.
-    -> Brick Break [G cd0] Deals 30 piercing damage to one enemy.
-  Karate Chop [GX cd2] Deals 35 damage to one enemy.
-    -> Cross Chop [GX cd2] Deals 45 damage to one enemy.
-  Bulk Up [X cd3] Machop takes 10 less damage for 2 turns and Machop deals 5 more damage for 2 turns.
-    -> Bulk Up [X cd3] Machoke takes 15 less damage for 2 turns and Machoke deals 10 more damage for 2 turns.
-  Detect [X cd4] Machop becomes invulnerable for 1 turn.
-    -> Detect [X cd4] Machoke becomes invulnerable for 1 turn.
+Machop (Bruiser) - Bulk Up powers Machop up; its punches hit harder and crit more while Bulked Up.
+  Bulk Up [X cd3] Machop is Bulked Up for 2 turns and takes 10 less damage.
+    -> Bulk Up [X cd3] Machoke is Bulked Up for 2 turns and takes 15 less damage.
+  Brick Break [G cd0] Deals 20 piercing damage to one enemy. +10 damage while Machop is Bulked Up.
+    -> Brick Break [G cd0] Deals 25 piercing damage to one enemy. +10 damage while Machoke is Bulked Up.
+  Karate Chop [GX cd2] Deals 30 damage to one enemy. 10% chance to crit for +15 damage (40% while Machop is Bulked Up).
+    -> Cross Chop [GX cd2] Deals 40 damage to one enemy. 10% chance to crit for +15 damage (40% while Machoke is Bulked Up).
+  Detect [X cd4] Machop becomes invulnerable for 1 turn. While Machop is Bulked Up, also heals Machop for 10.
+    -> Detect [X cd4] Machoke becomes invulnerable for 1 turn. While Machoke is Bulked Up, also heals Machoke for 15.
   Evolution: Machoke [- cd0] At the start of its 4th turn, Machop evolves into Machoke and its skills get stronger.
 
-Magikarp (Late bloomer) - Useless at first... until it evolves into a raging Gyarados.
-  Tackle [X cd0] Deals 10 damage to one enemy.
-    -> Dragon Rage [GX cd0] Deals 40 damage to one enemy.
-  Flail [X cd1] Deals 15 damage to one enemy.
-    -> Hydro Pump [BXX cd2] Deals 30 damage to all enemies.
-  Struggle [X cd2] Gives Magikarp 20 destructible defense for 2 turns.
-    -> Ice Fang [BX cd3] Deals 25 damage to one enemy and stuns the target for 1 turn.
-  Splash [X cd3] Magikarp becomes invulnerable for 1 turn.
-    -> Protect [X cd4] Gyarados becomes invulnerable for 1 turn.
+Magikarp (Late bloomer) - Splash makes Magikarp Determined; it fights a little better while Determined, and becomes a raging Gyarados.
+  Splash [X cd3] Magikarp becomes invulnerable for 1 turn and is Determined for 2 turns.
+    -> Dragon Dance [X cd3] Gyarados becomes invulnerable for 1 turn and is Raging for 2 turns.
+  Tackle [X cd0] Deals 10 damage to one enemy. +10 damage while Magikarp is Determined.
+    -> Dragon Rage [GX cd0] Deals 30 damage to one enemy. +15 damage while Gyarados is Raging. 25% chance to crit for +10 damage.
+  Flail [X cd1] Deals 15 damage to one enemy. +5 damage while Magikarp is Determined. 30% chance to crit for +15 damage.
+    -> Hydro Pump [BXX cd2] Deals 25 damage to all enemies. +10 damage while Gyarados is Raging.
+  Struggle [X cd2] Gives Magikarp 20 destructible defense for 2 turns. While Magikarp is Determined, also heals Magikarp for 10.
+    -> Ice Fang [BX cd3] Deals 25 damage to one enemy. While Gyarados is Raging, also stuns it for 1 turn.
   Evolution: Gyarados [- cd0] At the start of its 4th turn, Magikarp evolves into Gyarados and its skills get stronger.
 
-Mr. Mime (Protector) - Builds invisible walls that shield the whole team.
-  Dazzling Gleam [BX cd1] Deals 20 damage to all enemies.
-  Light Screen [B cd2] Gives all allies 15 destructible defense for 2 turns.
-  Barrier [X cd2] One ally takes 15 less damage for 2 turns.
-  Safeguard [X cd4] Mr. Mime becomes invulnerable for 1 turn.
+Mr. Mime (Protector) - Light Screen Screens the team; Mr. Mime's other skills get stronger while it is Screened.
+  Light Screen [B cd2] Screens all allies for 2 turns: 15 destructible defense.
+  Dazzling Gleam [BX cd1] Deals 15 damage to all enemies. +10 damage while Mr. Mime is Screened.
+  Barrier [X cd2] One ally takes 10 less damage for 2 turns. If that ally is Screened, it takes 20 less damage instead.
+  Safeguard [X cd4] Mr. Mime becomes invulnerable for 1 turn. If Mr. Mime used Light Screen last turn, it also heals 10.
 
-Hitmonchan (Fast damage) - Elemental punches: one burns, one freezes, one stuns.
-  Mega Punch [G cd0] Deals 25 damage to one enemy.
-  Fire Punch [GR cd1] Deals 20 damage to one enemy and then 10 affliction damage each turn for 2 turns.
-  Thunder Punch [GY cd3] Deals 20 damage to one enemy and stuns the target for 1 turn.
-  Detect [X cd4] Hitmonchan becomes invulnerable for 1 turn.
+Hitmonchan (Fast damage) - Fire Punch Burns an enemy; Mega Punch and Thunder Punch punish Burned enemies.
+  Fire Punch [GR cd1] Deals 15 damage to one enemy and Burns the target (10 affliction damage each turn for 2 turns).
+  Mega Punch [G cd0] Deals 20 damage to one enemy. +10 damage to Burned enemies. 25% chance to crit for +10 damage.
+  Thunder Punch [GY cd2] Deals 20 damage to one enemy. If the target is Burned, stuns it for 1 turn.
+  Detect [X cd4] Hitmonchan becomes invulnerable for 1 turn. If Hitmonchan used Fire Punch last turn, it also heals 10.
 
-Hitmonlee (Burst damage) - Focuses, then lands one devastating kick.
-  Double Kick [G cd0] Deals 20 damage to one enemy.
-  High Jump Kick [GG cd2] Deals 50 damage to one enemy and Hitmonlee takes 10 recoil damage.
-  Focus Energy [X cd3] Hitmonlee deals 15 more damage for 2 turns.
-  Detect [X cd4] Hitmonlee becomes invulnerable for 1 turn.
+Hitmonlee (Burst damage) - Focus Energy Focuses Hitmonlee; its kicks hit harder and crit far more while Focused.
+  Focus Energy [X cd3] Hitmonlee is Focused for 2 turns.
+  Double Kick [G cd0] Deals 20 damage to one enemy. +10 damage while Hitmonlee is Focused.
+  High Jump Kick [GG cd2] Deals 40 damage to one enemy and Hitmonlee takes 10 recoil damage. 15% chance to crit for +20 damage (65% while Hitmonlee is Focused).
+  Detect [X cd4] Hitmonlee becomes invulnerable for 1 turn. While Hitmonlee is Focused, also heals Hitmonlee for 10.
 
-Magnemite (Area damage) - Shocks the whole enemy team and can stun one of them.
-  Spark [Y cd0] Deals 20 damage to one enemy.
-    -> Spark [Y cd0] Deals 25 damage to one enemy.
-  Discharge [YX cd1] Deals 15 damage to all enemies.
-    -> Discharge [YX cd1] Deals 25 damage to all enemies.
-  Thunder Wave [Y cd3] Stuns one enemy for 1 turn.
-    -> Thunder Wave [Y cd3] Deals 10 damage to one enemy and stuns the target for 1 turn.
-  Magnet Rise [X cd4] Magnemite becomes invulnerable for 1 turn.
-    -> Magnet Rise [X cd4] Magneton becomes invulnerable for 1 turn.
+Magnemite (Area damage) - Thunder Wave Paralyzes an enemy; Spark and Discharge hit Paralyzed enemies harder.
+  Thunder Wave [Y cd3] Paralyzes one enemy: stunned for 1 turn.
+    -> Thunder Wave [Y cd3] Deals 10 damage to one enemy and paralyzes it: stunned for 1 turn.
+  Spark [Y cd0] Deals 20 damage to one enemy. +10 damage to Paralyzed enemies.
+    -> Spark [Y cd0] Deals 25 damage to one enemy. +10 damage to Paralyzed enemies. 20% chance to crit for +10 damage.
+  Discharge [YX cd1] Deals 15 damage to all enemies. +10 damage to Paralyzed enemies.
+    -> Discharge [YX cd1] Deals 20 damage to all enemies. +15 damage to Paralyzed enemies.
+  Magnet Rise [X cd4] Magnemite becomes invulnerable for 1 turn. If Magnemite used Thunder Wave last turn, it also heals 10.
+    -> Magnet Rise [X cd4] Magneton becomes invulnerable for 1 turn. If Magneton used Thunder Wave last turn, it also heals 15.
   Evolution: Magneton [- cd0] At the start of its 4th turn, Magnemite evolves into Magneton and its skills get stronger.
 
-Onix (Tank) - A huge rock wall that takes hits for the team.
-  Rock Throw [G cd0] Deals 20 damage to one enemy.
-  Iron Tail [GX cd2] Deals 25 damage to one enemy and the target deals 10 less damage for 2 turns.
-  Stealth Rock [XX cd3] Deals 10 damage to all enemies and then 5 affliction damage each turn for 3 turns.
-  Harden [X cd3] Gives Onix 30 destructible defense for 3 turns.
+Onix (Tank) - Harden turns Onix to stone; it hits back harder while Hardened.
+  Harden [X cd3] Onix is Hardened for 3 turns: 30 destructible defense.
+  Rock Throw [G cd0] Deals 20 damage to one enemy. +10 damage while Onix is Hardened.
+  Iron Tail [GX cd2] Deals 25 damage to one enemy and the target deals 10 less damage for 2 turns. While Onix is Hardened, also stuns it for 1 turn.
+  Stealth Rock [XX cd3] Deals 10 damage to all enemies and then 5 affliction damage each turn for 3 turns. +10 damage while Onix is Hardened.
 
-Meowth (Energy thief) - Steals energy with Pay Day and claws when the enemy is out of options.
-  Fury Swipes [G cd0] Deals 20 damage to one enemy.
-    -> Fury Swipes [G cd0] Deals 30 damage to one enemy.
-  Pay Day [X cd3] Deals 10 damage to one enemy, removes 1 random energy from the enemy team and gains 1 random energy.
-    -> Pay Day [X cd3] Deals 20 damage to one enemy, removes 1 random energy from the enemy team and gains 1 random energy.
-  Night Slash [GX cd2] Deals 30 piercing damage to one enemy.
-    -> Night Slash [GX cd2] Deals 40 piercing damage to one enemy.
-  Feint [X cd4] Meowth becomes invulnerable for 1 turn.
-    -> Feint [X cd4] Persian becomes invulnerable for 1 turn.
+Meowth (Energy thief) - Pay Day steals energy and makes Meowth Lucky; its claws hit harder and crit more while Lucky.
+  Pay Day [X cd3] Deals 10 damage to one enemy, removes 1 random energy from the enemy team, gains 1 random energy and Meowth is Lucky for 2 turns.
+    -> Pay Day [X cd3] Deals 20 damage to one enemy, removes 1 random energy from the enemy team, gains 1 random energy and Persian is Lucky for 2 turns.
+  Fury Swipes [G cd0] Deals 20 damage to one enemy. 15% chance to crit for +10 damage (50% while Meowth is Lucky).
+    -> Fury Swipes [G cd0] Deals 25 damage to one enemy. 15% chance to crit for +15 damage (50% while Persian is Lucky).
+  Night Slash [GX cd2] Deals 25 piercing damage to one enemy. +15 damage while Meowth is Lucky.
+    -> Night Slash [GX cd2] Deals 35 piercing damage to one enemy. +15 damage while Persian is Lucky.
+  Feint [X cd4] Meowth becomes invulnerable for 1 turn. While Meowth is Lucky, also heals Meowth for 10.
+    -> Feint [X cd4] Persian becomes invulnerable for 1 turn. While Persian is Lucky, also heals Persian for 15.
   Evolution: Persian [- cd0] At the start of its 4th turn, Meowth evolves into Persian and its skills get stronger.
 
-Clefairy (Support) - Heals allies, and Metronome casts a random surprise skill.
-  Double Slap [X cd0] Deals 20 damage to one enemy.
-    -> Double Slap [X cd0] Deals 25 damage to one enemy.
-  Moonlight [R cd1] Heals one ally for 20.
-    -> Moonlight [R cd1] Heals one ally for 30.
+Clefairy (Support) - Moonlight heals an ally and makes Clefairy Moonlit; its slaps hit harder while Moonlit, and Metronome casts a random surprise.
+  Moonlight [R cd1] Heals one ally for 20 and Clefairy is Moonlit for 2 turns.
+    -> Moonlight [R cd1] Heals one ally for 30 and Clefable is Moonlit for 2 turns.
+  Double Slap [X cd0] Deals 15 damage to one enemy. +15 damage while Clefairy is Moonlit.
+    -> Double Slap [X cd0] Deals 20 damage to one enemy. +15 damage while Clefable is Moonlit.
   Metronome [X cd2] Casts a random copy-safe damaging skill on an enemy or a random copy-safe helpful skill on an ally.
     -> Clefable Metronome [X cd2] Casts a random copy-safe damaging skill on an enemy or a random copy-safe helpful skill on an ally.
-  Protect [X cd4] Clefairy becomes invulnerable for 1 turn.
-    -> Protect [X cd4] Clefable becomes invulnerable for 1 turn.
+  Protect [X cd4] Clefairy becomes invulnerable for 1 turn. While Clefairy is Moonlit, also heals Clefairy for 10.
+    -> Protect [X cd4] Clefable becomes invulnerable for 1 turn. While Clefable is Moonlit, also heals Clefable for 15.
   Evolution: Clefable [- cd0] At the start of its 4th turn, Clefairy evolves into Clefable and its skills get stronger.
 
-Jigglypuff (Controller) - Sings enemies to sleep and protects its friends.
-  Pound [X cd0] Deals 20 damage to one enemy.
-    -> Pound [X cd0] Deals 25 damage to one enemy.
-  Sing [BX cd3] Stuns one enemy for 1 turn.
-    -> Sing [BX cd3] Stuns one enemy for 2 turns.
-  Wish [X cd2] Heals one ally for 10 each turn for 2 turns.
-    -> Wish [X cd2] Heals one ally for 15 each turn for 2 turns.
-  Protect [X cd4] Jigglypuff becomes invulnerable for 1 turn.
-    -> Protect [X cd4] Wigglytuff becomes invulnerable for 1 turn.
+Jigglypuff (Controller) - Sing puts an enemy to Sleep; Pound and Wish are stronger after singing.
+  Sing [BX cd3] Puts one enemy to Sleep: stunned for 1 turn and Jigglypuff gets an Encore for 2 turns.
+    -> Sing [BX cd3] Puts one enemy to Sleep: stunned for 2 turns and Wigglytuff gets an Encore for 2 turns.
+  Pound [X cd0] Deals 20 damage to one enemy. +15 damage to Asleep enemies.
+    -> Pound [X cd0] Deals 25 damage to one enemy. +15 damage to Asleep enemies.
+  Wish [X cd2] Heals one ally for 10 each turn for 2 turns. While Jigglypuff is on an Encore, also heals that ally for 10.
+    -> Wish [X cd2] Heals one ally for 15 each turn for 2 turns. While Wigglytuff is on an Encore, also heals that ally for 15.
+  Protect [X cd4] Jigglypuff becomes invulnerable for 1 turn. While Jigglypuff is on an Encore, also heals Jigglypuff for 10.
+    -> Protect [X cd4] Wigglytuff becomes invulnerable for 1 turn. While Wigglytuff is on an Encore, also heals Wigglytuff for 15.
   Evolution: Wigglytuff [- cd0] At the start of its 4th turn, Jigglypuff evolves into Wigglytuff and its skills get stronger.
 
-Beedrill (Assassin) - Poison stings that pile up, then Mega Evolves into a living drill.
-  Poison Sting [X cd0] Deals 10 damage to one enemy and then 5 affliction damage each turn for 2 turns.
-    -> Poison Sting [X cd0] Deals 15 damage to one enemy and then 10 affliction damage each turn for 2 turns.
-  Twinneedle [GX cd1] Deals 30 damage to one enemy.
-    -> Twinneedle [GX cd1] Deals 40 damage to one enemy.
-  Envenom [B cd2] One enemy takes 10 more damage for 2 turns.
-    -> Fell Stinger [B cd2] Deals 30 piercing damage to one enemy.
-  Hive Swarm [X cd4] Beedrill becomes invulnerable for 1 turn.
-    -> Hive Swarm [X cd4] Mega Beedrill becomes invulnerable for 1 turn.
+Beedrill (Assassin) - Poison Sting Poisons an enemy; Twinneedle and Envenom punish Poisoned enemies, then it Mega Evolves.
+  Poison Sting [X cd0] Deals 10 damage to one enemy and Poisons the target (5 affliction damage each turn for 2 turns).
+    -> Poison Sting [X cd0] Deals 15 damage to one enemy and Poisons the target (10 affliction damage each turn for 2 turns).
+  Twinneedle [GX cd1] Deals 25 damage to one enemy. +10 damage to Poisoned enemies. 25% chance to crit for +10 damage.
+    -> Twinneedle [GX cd1] Deals 30 damage to one enemy. +15 damage to Poisoned enemies. 30% chance to crit for +10 damage.
+  Envenom [B cd2] One enemy takes 5 more damage for 2 turns. If the target is Poisoned, it takes 15 more damage instead.
+    -> Fell Stinger [B cd2] Deals 20 piercing damage to one enemy. +15 damage to Poisoned enemies.
+  Hive Swarm [X cd4] Beedrill becomes invulnerable for 1 turn. If Beedrill used Poison Sting last turn, it also heals 10.
+    -> Hive Swarm [X cd4] Mega Beedrill becomes invulnerable for 1 turn. If Mega Beedrill used Poison Sting last turn, it also heals 15.
   Evolution: Mega Beedrill [- cd0] At the start of its 4th turn, Beedrill evolves into Mega Beedrill and its skills get stronger.
 
-Articuno (Controller) - Freezes enemies and brings a Snowstorm that powers up Ice skills.
-  Ice Beam [B cd0] Deals 25 damage to one enemy.
-  Blizzard [BX cd3] Deals 15 damage to all enemies and summons a Snowstorm for 3 rounds (Ice skills deal 10 more damage).
-  Sheer Cold [BX cd3] Deals 15 damage to one enemy and stuns the target for 1 turn.
-  Mist [X cd4] Articuno becomes invulnerable for 1 turn.
+Articuno (Controller) - Blizzard brings a Snowstorm; Ice Beam and Sheer Cold are stronger in the snow.
+  Blizzard [BX cd3] Deals 15 damage to all enemies, summons a Snowstorm for 3 rounds (Ice skills deal 10 more damage) and Articuno is Snowbound for 3 turns.
+  Ice Beam [B cd0] Deals 20 damage to one enemy. 15% chance to crit for +10 damage (40% while Articuno is Snowbound).
+  Sheer Cold [BX cd3] Deals 15 damage to one enemy and stuns the target for 1 turn. While Articuno is Snowbound, the stun lasts 2 turns.
+  Mist [X cd4] Articuno becomes invulnerable for 1 turn. While Articuno is Snowbound, also heals Articuno for 10.
 
-Moltres (Area damage) - Sets the whole enemy team on fire and starts a Wildfire that powers up Fire skills.
-  Heat Wave [RX cd1] Deals 20 damage to all enemies.
-  Wildfire [RX cd3] Deals 5 affliction damage to all enemies each turn for 2 turns and summons a Wildfire for 3 rounds (Fire skills deal 10 more damage).
-  Overheat [RRX cd3] Deals 55 damage to one enemy.
-  Roost [X cd4] Moltres becomes invulnerable for 1 turn.
+Moltres (Area damage) - Wildfire Burns everyone and starts a Wildfire; Heat Wave and Overheat punish Burned enemies.
+  Wildfire [RX cd3] Burns all enemies (5 affliction damage each turn for 2 turns) and summons a Wildfire for 3 rounds (Fire skills deal 10 more damage).
+  Heat Wave [RX cd1] Deals 15 damage to all enemies. +10 damage to Burned enemies.
+  Overheat [RRX cd3] Deals 40 damage to one enemy. +15 damage to Burned enemies. 20% chance to crit for +15 damage.
+  Roost [X cd4] Moltres becomes invulnerable for 1 turn. If Moltres used Wildfire last turn, it also heals 10.
 
-Zapdos (Burst damage) - Calls a Thunderstorm that powers up Electric skills, then unleashes huge electric attacks.
-  Thunderstorm [Y cd0] Deals 25 damage to one enemy.
-  Zap Cannon [YYX cd3] Deals 40 damage to one enemy and stuns the target for 1 turn.
-  Thunderstorm [X cd3] Summons a Thunderstorm for 3 rounds (Electric skills deal 10 more damage) and gains 1 random energy.
-  Fly [X cd4] Zapdos becomes invulnerable for 1 turn.
+Zapdos (Burst damage) - Thunderstorm Charges Zapdos up; its lightning hits harder and stuns while Charged.
+  Thunderstorm [X cd3] Summons a Thunderstorm for 3 rounds (Electric skills deal 10 more damage), gains 1 random energy and Zapdos is Charged for 3 turns.
+  Thunderstorm [Y cd0] Deals 20 damage to one enemy. 15% chance to crit for +10 damage (40% while Zapdos is Charged).
+  Zap Cannon [YYX cd3] Deals 35 damage to one enemy. While Zapdos is Charged, also stuns it for 1 turn.
+  Fly [X cd4] Zapdos becomes invulnerable for 1 turn. While Zapdos is Charged, also heals Zapdos for 10.
 
-Mew (Support) - Shields and heals the team with psychic bubbles.
-  Psychic [BX cd0] Deals 30 damage to one enemy.
-  Pink Bubble [R cd2] Gives one ally 25 destructible defense for 2 turns.
-  Life Dew [RX cd2] Heals all allies for 15.
-  Psychic Barrier [X cd4] Mew becomes invulnerable for 1 turn.
+Mew (Support) - Pink Bubble shields an ally; Mew's psychic power and Life Dew are stronger for Bubbled allies.
+  Pink Bubble [R cd2] Bubbles one ally for 2 turns: 25 destructible defense.
+  Psychic [BX cd0] Deals 25 damage to one enemy. +10 damage while Mew is Bubbled. 20% chance to crit for +10 damage.
+  Life Dew [RX cd2] Heals all allies for 10. Bubbled allies heal 10 more.
+  Psychic Barrier [X cd4] Mew becomes invulnerable for 1 turn. If Mew used Pink Bubble last turn, it also heals 10.
 
-Mewtwo (Burst damage) - The strongest psychic Pokemon: big damage and self-healing.
-  Psychic [B cd0] Deals 25 damage to one enemy.
-  Shadow Ball [BR cd2] Deals 45 piercing damage to one enemy.
-  Drain Punch [YX cd1] Deals 25 damage to one enemy and heals Mewtwo for 15.
-  Barrier [X cd4] Mewtwo becomes invulnerable for 1 turn.
+Mewtwo (Burst damage) - Psychic Mind Locks an enemy; Shadow Ball and Drain Punch tear through Mind Locked enemies.
+  Psychic [B cd0] Deals 20 damage to one enemy and Mind Locks the target for 2 turns.
+  Shadow Ball [BR cd2] Deals 35 piercing damage to one enemy. +15 damage to Mind Locked enemies. 20% chance to crit for +15 damage.
+  Drain Punch [YX cd1] Deals 25 damage to one enemy and heals Mewtwo for 15. +10 damage to Mind Locked enemies.
+  Barrier [X cd4] Mewtwo becomes invulnerable for 1 turn. If Mewtwo used Psychic last turn, it also heals 10.
 
-Dragonite (Tank) - A gentle giant: very tough, and hits like a dragon.
-  Dragon Claw [G cd0] Deals 25 damage to one enemy.
-  Draco Meteor [BRX cd3] Deals 30 damage to all enemies.
-  Dragon Dance [X cd3] Dragonite deals 10 more damage for 2 turns and Dragonite takes 10 less damage for 2 turns.
-  Protect [X cd4] Dragonite becomes invulnerable for 1 turn.
+Dragonite (Tank) - Dragon Dance makes Dragonite Dancing; it hits harder and takes less damage while Dancing.
+  Dragon Dance [X cd3] Dragonite is Dancing for 2 turns and takes 10 less damage.
+  Dragon Claw [G cd0] Deals 20 damage to one enemy. +10 damage while Dragonite is Dancing. 15% chance to crit for +10 damage (40% while Dragonite is Dancing).
+  Draco Meteor [BRX cd3] Deals 25 damage to all enemies. +10 damage while Dragonite is Dancing.
+  Protect [X cd4] Dragonite becomes invulnerable for 1 turn. While Dragonite is Dancing, also heals Dragonite for 10.
 
-Cyndaquil (Damage over time) - Sets enemies alight; its earned evolutions upgrade Tackle into Flame Wheel.
-  Tackle [X cd0] Deals 20 damage to one enemy.
-  Ember [R cd1] Deals 10 damage to one enemy and then 10 affliction damage each turn for 2 turns.
-  Smokescreen [X cd3] All enemies deal 10 less damage for 1 turn.
-  Protect [X cd4] Cyndaquil becomes invulnerable for 1 turn.
-  Flame Wheel [R cd0] Deals 20 damage to one enemy and then 5 affliction damage each turn for 2 turns.
-  Flame Wheel [R cd0] Deals 25 damage to one enemy and then 10 affliction damage each turn for 2 turns.
+Cyndaquil (Damage over time) - Ember Burns an enemy; Tackle and Flame Wheel hit Burned enemies harder.
+  Ember [R cd1] Deals 10 damage to one enemy and Burns the target (10 affliction damage each turn for 2 turns).
+  Tackle [X cd0] Deals 15 damage to one enemy. +10 damage to Burned enemies.
+  Smokescreen [X cd3] All enemies deal 10 less damage for 1 turn. Burned enemies deal 15 less damage instead.
+  Protect [X cd4] Cyndaquil becomes invulnerable for 1 turn. If Cyndaquil used Ember last turn, it also heals 10.
+  Flame Wheel [R cd0] Deals 20 damage to one enemy. +10 damage to Burned enemies. 20% chance to crit for +10 damage.
+  Flame Wheel [R cd0] Deals 25 damage to one enemy. +15 damage to Burned enemies. 25% chance to crit for +10 damage.
 
-Chikorita (Support) - Shields allies with leaves and heals; its earned evolutions upgrade Razor Leaf into Magical Leaf.
-  Razor Leaf [G cd0] Deals 20 damage to one enemy.
-  Light Screen [X cd2] Gives all allies 10 destructible defense for 2 turns.
-  Synthesis [GX cd2] Heals one ally for 20.
-  Protect [X cd4] Chikorita becomes invulnerable for 1 turn.
-  Magical Leaf [G cd0] Deals 25 piercing damage to one enemy.
-  Magical Leaf [G cd0] Deals 30 piercing damage to one enemy.
+Chikorita (Support) - Light Screen Screens the team; Razor Leaf and Synthesis are stronger while Screened.
+  Light Screen [X cd2] Screens all allies for 2 turns: 10 destructible defense.
+  Razor Leaf [G cd0] Deals 20 damage to one enemy. +10 damage while Chikorita is Screened.
+  Synthesis [GX cd2] Heals one ally for 20. If that ally is Screened, it heals 10 more.
+  Protect [X cd4] Chikorita becomes invulnerable for 1 turn. If Chikorita used Light Screen last turn, it also heals 10.
+  Magical Leaf [G cd0] Deals 25 piercing damage to one enemy. +10 damage while Bayleef is Screened.
+  Magical Leaf [G cd0] Deals 30 piercing damage to one enemy. +15 damage while Meganium is Screened.
 
-Totodile (Bruiser) - Bites hard and scares enemies; its earned evolutions upgrade Scary Face into a big bite.
-  Water Gun [B cd0] Deals 20 damage to one enemy.
-  Aqua Tail [BX cd1] Deals 30 damage to one enemy.
-  Scary Face [X cd3] One enemy deals 15 less damage for 2 turns.
-  Protect [X cd4] Totodile becomes invulnerable for 1 turn.
-  Bite [X cd2] Deals 20 damage to one enemy and the target deals 10 less damage for 1 turn.
-  Dragon Claw [GX cd2] Deals 35 damage to one enemy.
+Totodile (Bruiser) - Scary Face Scares an enemy; Water Gun and Aqua Tail hit Scared enemies harder.
+  Scary Face [X cd2] Scares one enemy for 2 turns: it deals 10 less damage.
+  Water Gun [B cd0] Deals 20 damage to one enemy. +10 damage to Scared enemies.
+  Aqua Tail [BX cd1] Deals 25 damage to one enemy. +15 damage to Scared enemies. 20% chance to crit for +10 damage.
+  Protect [X cd4] Totodile becomes invulnerable for 1 turn. If Totodile Scared an enemy last turn, it also heals 10.
+  Bite [X cd2] Deals 15 damage to one enemy and Scares it for 2 turns: it deals 10 less damage.
+  Crunch [X cd2] Deals 20 damage to one enemy and Scares it for 2 turns: it deals 15 less damage.
 
-Drowzee (Controller) - Puts enemies to sleep and feeds on their dreams.
-  Dream Eater [B cd0] Deals 20 damage to one enemy and heals Drowzee for 10.
-    -> Dream Eater [B cd0] Deals 25 damage to one enemy and heals Hypno for 15.
-  Hypnosis [YX cd3] Stuns one enemy for 1 turn.
-    -> Hypnosis [YX cd3] Deals 15 damage to one enemy and stuns the target for 1 turn.
-  Nightmare [Y cd2] Deals 10 affliction damage to one enemy each turn for 2 turns.
-    -> Nightmare [Y cd2] Deals 15 affliction damage to one enemy each turn for 2 turns.
-  Protect [X cd4] Drowzee becomes invulnerable for 1 turn.
-    -> Protect [X cd4] Hypno becomes invulnerable for 1 turn.
+Drowzee (Controller) - Hypnosis puts an enemy to Sleep; Dream Eater and Nightmare feast on Sleeping enemies.
+  Hypnosis [YX cd3] Puts one enemy to Sleep: stunned for 1 turn.
+    -> Hypnosis [YX cd3] Deals 10 damage to one enemy and puts it to Sleep: stunned for 1 turn.
+  Dream Eater [B cd0] Deals 15 damage to one enemy and heals Drowzee for 10. +15 damage to Asleep enemies.
+    -> Dream Eater [B cd0] Deals 20 damage to one enemy and heals Hypno for 15. +15 damage to Asleep enemies.
+  Nightmare [Y cd2] Deals 10 affliction damage to one enemy each turn for 2 turns. If the target is Asleep, it takes 20 each turn instead.
+    -> Nightmare [Y cd2] Deals 15 affliction damage to one enemy each turn for 2 turns. If the target is Asleep, it takes 25 each turn instead.
+  Protect [X cd4] Drowzee becomes invulnerable for 1 turn. If Drowzee used Hypnosis last turn, it also heals 10.
+    -> Protect [X cd4] Hypno becomes invulnerable for 1 turn. If Hypno used Hypnosis last turn, it also heals 15.
   Evolution: Hypno [- cd0] At the start of its 4th turn, Drowzee evolves into Hypno and its skills get stronger.
 
-Primeape (Berserker) - Gets angrier and stronger the longer the fight goes.
-  Rock Smash [G cd0] Deals 20 damage to one enemy.
-  Close Combat [GX cd1] Deals 40 damage to one enemy and Primeape takes 10 more damage for 1 turn.
-  Rage [X cd2] Primeape deals 10 more damage for 3 turns.
-  Detect [X cd4] Primeape becomes invulnerable for 1 turn.
+Primeape (Berserker) - Rage makes Primeape Raging; it hits harder and crits more while Raging.
+  Rage [X cd2] Primeape is Raging for 3 turns.
+  Rock Smash [G cd0] Deals 20 damage to one enemy. +10 damage while Primeape is Raging.
+  Close Combat [GX cd1] Deals 35 damage to one enemy and Primeape takes 10 more damage for 1 turn. 15% chance to crit for +15 damage (50% while Primeape is Raging).
+  Detect [X cd4] Primeape becomes invulnerable for 1 turn. While Primeape is Raging, also heals Primeape for 10.
 
-Marowak (Bruiser) - Swings its bone club and throws it like a boomerang.
-  Bone Club [G cd0] Deals 20 damage to one enemy.
-  Bonemerang [GX cd1] Deals 20 damage to one enemy and 15 damage to another random enemy.
-  Bone Rush [GX cd3] Deals 15 damage to one enemy and stuns the target for 1 turn.
-  Bone Guard [X cd3] Gives Marowak 25 destructible defense for 2 turns.
+Marowak (Bruiser) - Bone Guard readies Marowak's bone; its bone attacks are stronger while Bone Ready.
+  Bone Guard [X cd3] Marowak is Bone Ready for 2 turns: 25 destructible defense.
+  Bone Club [G cd0] Deals 20 damage to one enemy. +10 damage while Marowak is Bone Ready. 20% chance to crit for +10 damage.
+  Bonemerang [GX cd1] Deals 20 damage to one enemy and 15 damage to another random enemy. +10 damage while Marowak is Bone Ready.
+  Bone Rush [GX cd3] Deals 20 damage to one enemy. While Marowak is Bone Ready, also stuns it for 1 turn.
 
-Pinsir (Bruiser) - Crushes enemies in its horns.
-  Vice Grip [G cd0] Deals 25 damage to one enemy.
-  X-Scissor [GX cd1] Deals 35 damage to one enemy.
-  Seismic Toss [GX cd3] Deals 15 damage to one enemy and stuns the target for 1 turn.
-  Detect [X cd4] Pinsir becomes invulnerable for 1 turn.
+Pinsir (Bruiser) - Vice Grip Grips an enemy; X-Scissor and Seismic Toss punish Gripped enemies.
+  Vice Grip [G cd0] Deals 20 damage to one enemy and Grips the target for 2 turns.
+  X-Scissor [GX cd1] Deals 25 damage to one enemy. +15 damage to Gripped enemies. 20% chance to crit for +15 damage.
+  Seismic Toss [GX cd3] Deals 20 damage to one enemy. If the target is Gripped, stuns it for 1 turn.
+  Detect [X cd4] Pinsir becomes invulnerable for 1 turn. If Pinsir used Vice Grip last turn, it also heals 10.
 
-Tauros (Bruiser) - Charges straight through the enemy team.
-  Horn Attack [G cd0] Deals 25 damage to one enemy.
-  Take-Down [GX cd1] Deals 40 damage to one enemy and Tauros takes 10 recoil damage.
-  Earthquake [GXX cd3] Deals 25 damage to all enemies.
-  Protect [X cd4] Tauros becomes invulnerable for 1 turn.
-
-Blaziken (Damage over time) - Fiery kicks, and Mega Evolves on its 4th turn.
-  Blaze Kick [R cd0] Deals 15 damage to one enemy and then 5 affliction damage each turn for 2 turns.
-    -> Blaze Kick [R cd0] Deals 20 damage to one enemy and then 10 affliction damage each turn for 2 turns.
-  Sky Uppercut [GX cd1] Deals 35 damage to one enemy.
-    -> Sky Uppercut [GX cd1] Deals 45 damage to one enemy.
-  Heat Wave [RX cd3] Deals 15 damage to all enemies.
-    -> Heat Wave [RX cd3] Deals 25 damage to all enemies.
-  Detect [X cd4] Blaziken becomes invulnerable for 1 turn.
-    -> Detect [X cd4] Mega Blaziken becomes invulnerable for 1 turn.
-  Evolution: Mega Blaziken [- cd0] At the start of its 4th turn, Blaziken evolves into Mega Blaziken and its skills get stronger.
+Tauros (Bruiser) - Horn Attack makes Tauros Enraged; Take-Down and Earthquake are stronger while Enraged.
+  Horn Attack [G cd0] Deals 20 damage to one enemy and Tauros is Enraged for 2 turns.
+  Take-Down [GX cd1] Deals 30 damage to one enemy and Tauros takes 10 recoil damage. +15 damage while Tauros is Enraged. 20% chance to crit for +10 damage.
+  Earthquake [GXX cd3] Deals 20 damage to all enemies. +10 damage while Tauros is Enraged.
+  Protect [X cd4] Tauros becomes invulnerable for 1 turn. While Tauros is Enraged, also heals Tauros for 10.

@@ -83,12 +83,52 @@ function weather(key, name, rounds, mods) {
   return { fx: [{ type: 'set_weather', scope: 'self', weather: { key, name, rounds, description: `${rule}.`, damageTypeModifiers: { ...mods } } }],
     text: `summons ${name} for ${rounds} rounds (${rule})`, scope: 'self' };
 }
+// ---- Combos: one main skill puts a named mark on enemies (or a stance on the Pokemon itself), and the
+// other skills check for it. Conditions on 'target' are read on each character hit; 'self' on the caster.
+// mark(part, id, label, text): the part's status gets a fixed id and a name ("Burned", "In its shell").
+function mark(part, id, label, text) {
+  part.fx = part.fx.map((e) => (e.type === 'apply_status' ? { ...e, statusId: id, fixedId: true, metadata: { ...e.metadata, tooltipText: `${label}: ${e.metadata?.tooltipText ?? ''}`.trim() } } : e));
+  if (!part.fx.some((e) => e.type === 'apply_status')) throw new Error(`mark ${id}: no status in part`);
+  if (text) part.text = text;
+  return part;
+}
+// A plain named marker with no other effect (e.g. Static), lasting `dur` turns.
+function tag(id, label, dur, scope, text) {
+  return { fx: [{ type: 'apply_status', statusId: id, fixedId: true, duration: dur, scope, metadata: { ...(scope === 'self' || scope === 'ally' || scope === 'all-allies' ? {} : { harmful: true }), tooltipText: `${label}.` } }], text, scope };
+}
+const cond = (id, self) => ({ scope: self ? 'self' : 'target', statusId: id });
+// Extra damage while the target (or, with self, the Pokemon) has the mark/stance.
+function bonus(n, id, label, o = {}) {
+  const scope = o.who ?? 'target';
+  return { fx: [{ type: 'damage', amount: n, scope, condition: cond(id, o.self), metadata: { harmful: true, ...(o.pierce ? { ignoreDamageReduction: true, ignoreDestructibleDefense: true } : {}) } }],
+    text: o.self ? `+${n} damage while {name} is ${label}` : `+${n} damage to ${label} enemies`, scope, bonus: true };
+}
+// Any other part, only while the mark/stance is there.
+function when(part, id, label, o = {}) {
+  part.fx = part.fx.map((e) => ({ ...e, condition: cond(id, o.self) }));
+  part.text = part.text.replace(/\bone enemy\b/, 'it').replace(/\bone ally\b/, 'that ally');
+  part.text = o.self ? `while {name} is ${label}, also ${part.text.charAt(0).toLowerCase()}${part.text.slice(1)}` : `if the target is ${label}, ${part.text.charAt(0).toLowerCase()}${part.text.slice(1)}`;
+  if (o.text) part.text = o.text;
+  part.when = true;
+  return part;
+}
+// Critical hit: pct% chance of +n piercing damage (shown as CRIT). o.up = { id, label, pct }: higher chance while
+// the Pokemon has that stance.
+function crit(n, pct, o = {}) {
+  const meta = { harmful: true, criticalHit: true, ignoreDamageReduction: true, ignoreDestructibleDefense: true };
+  if (o.up) meta.chanceBonusIfActorStatus = { statusId: o.up.id, amount: o.up.pct };
+  return { fx: [{ type: 'damage', amount: n, scope: o.who ?? 'target', chance: pct, metadata: meta }],
+    text: `${pct}% chance to crit for +${n} damage${o.up ? ` (${pct + o.up.pct}% while {name} is ${o.up.label})` : ''}`, scope: o.who ?? 'target', bonus: true };
+}
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 // Join fragments into one or two short sentences.
 function describe(parts, name) {
-  const t = parts.map((p, i) => (i === 0 ? cap(p.text) : p.text.replace(/^Deals /, 'deals ')));
-  let out = t.length > 1 ? `${t.slice(0, -1).join(', ')} and ${t[t.length - 1]}.` : `${t[0]}.`;
-  return out.replace(/\{name\}/g, name).replace(/ ,/g, ',');
+  parts = parts.filter((p) => p.text);
+  const main = parts.filter((p) => !p.bonus && !p.when), extra = parts.filter((p) => p.bonus || p.when);
+  const t = main.map((p, i) => (i === 0 ? cap(p.text) : p.text.replace(/^Deals /, 'deals ')));
+  let out = t.length ? (t.length > 1 ? `${t.slice(0, -1).join(', ')} and ${t[t.length - 1]}.` : `${t[0]}.`) : '';
+  for (const p of extra) out += ` ${cap(p.text)}.`;
+  return out.trim().replace(/\{name\}/g, name).replace(/ ,/g, ',');
 }
 
-module.exports = { weather, ENERGY, cost, damage, overTime, stun, invulnerable, shield, reduce, boost, weaken, expose, heal, regen, drain, gain, cleanse, describe, cap };
+module.exports = { crit, mark, tag, bonus, when, weather, ENERGY, cost, damage, overTime, stun, invulnerable, shield, reduce, boost, weaken, expose, heal, regen, drain, gain, cleanse, describe, cap };

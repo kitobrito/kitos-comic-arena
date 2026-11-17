@@ -8,7 +8,7 @@ const D = require('./dsl');
 const kits = require('./kits');
 const root = path.resolve(__dirname, '../..');
 const CHAR_FILE = path.join(root, 'characters.js');
-const BASE_REV = process.env.BASE_REV || 'main';
+const BASE_REV = process.env.BASE_REV || '7436989';
 const source = require('child_process').execSync(`git show ${BASE_REV}:characters.js`, { cwd: root, maxBuffer: 1 << 28 }).toString();
 const tmp = path.join(root, '.characters-base.tmp.js');
 fs.writeFileSync(tmp, source);
@@ -24,7 +24,8 @@ function fxFor(skillId, parts, target) {
   let n = 0;
   return parts.flatMap((p) => p.fx).map((e) => {
     const out = JSON.parse(JSON.stringify(e));
-    if (out.type === 'apply_status') out.statusId = `${skillId.replace(/-/g, '_')}_${++n}`;
+    if (out.type === 'apply_status' && !out.fixedId) out.statusId = `${skillId.replace(/-/g, '_')}_${++n}`;
+    delete out.fixedId;
     // "ally" in a skill that targets self-or-ally lands on the chosen character.
     if (out.scope === 'ally') out.scope = 'target';
     if (out.scope === 'target' && target === 'all-allies') out.scope = 'all-allies';

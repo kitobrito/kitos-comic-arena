@@ -26,3 +26,19 @@
   `node scripts/build-battle-fx-characters.js`.
 - Tests: `test/pokemon-arena-rework.test.js` (every skill cast in the engine), `tools/pokemon-rework/probe.test.js` (the effects).
 - News post: `node sync_pokemon_arena_rework_news.js` (run once after deploying).
+
+## Combos (one main skill per Pokemon)
+
+Every kit marks exactly one skill `main: true`. The main skill puts a named mark on enemies (`mark`/`tag` with a
+fixed status id such as `charmander_burn`) or a stance on the Pokemon itself. Every other skill references it:
+
+- `bonus(n, id, label, { self, who, pierce })`: extra damage to marked enemies (or while the Pokemon has the stance).
+- `when(part, id, label, { self, text })`: any effect that only happens if the target is marked / while in the stance.
+- `crit(n, pct, { up: { id, label, pct } })`: a chance to crit for +n piercing damage, higher while in a stance.
+
+`linkEverything` at the bottom of `kits.js` connects whatever is left (usually the defensive skill): stance Pokemon
+heal a little while in their stance; the others heal if they used the main skill last turn. It throws if an attack
+is not connected. Avoid putting a mark and its own payoff in the same skill: the engine applies the mark first.
+
+The build starts from the pre-rework `characters.js` (commit 7436989, override with `BASE_REV`), so any Pokemon can
+be put back exactly as it was by removing it from `kits.js` and rebuilding. Blaziken was put back this way.
