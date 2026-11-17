@@ -17500,53 +17500,52 @@ const characters = [
         "characterId": "charmander",
         "name": "Charmander",
         "facePicture": "assets/images/PokemonArena/newcharmanderfp.jpeg",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Damage over time",
+        "roleCategory": "damage-over-time",
+        "description": "Sets enemies on fire, then hits harder as Charmeleon.",
+        "descriptionHtml": "Sets enemies on fire, then hits harder as Charmeleon.",
+        "characterdeescription": "A fiery and determined Pokémon whose burning tail reflects its fighting spirit. Though small and inexperienced, Charmander grows stronger as battle progresses, eventually evolving into the fierce Charmeleon.",
+        "pokemonTypes": [
+            "Fire"
+        ],
         "startStatuses": [
             {
                 "statusId": "charmander_evolution_tracker",
-                "duration": 99,
                 "sourceSkillId": "charmander-passive-evolution-charmeleon",
+                "duration": 3,
                 "metadata": {
-                    "infiniteDuration": true,
-                    "charmanderEvolutionProgress": 0,
-                    "stackMetadataKey": "charmanderEvolutionProgress",
-                    "stackMax": 2,
-                    "applyStatusAtStack": {
-                        "metadataKey": "charmanderEvolutionProgress",
-                        "value": 2,
+                    "unremovable": true,
+                    "tooltipText": "Evolves into Charmeleon at the start of its 4th turn.",
+                    "onExpireApplyStatusToSelf": {
                         "statusId": "charmander_charmeleon_evolution",
-                        "duration": 99,
+                        "duration": 999,
                         "metadata": {
                             "infiniteDuration": true,
+                            "unremovable": true,
+                            "useEvolvedSkills": true,
                             "facePictureOverride": "assets/images/PokemonArena/Charmander/charmeleonfp.jpg",
-                            "skillReplacements": {
-                                "charmander-ember": "charmander-fire-punch",
-                                "charmander-scratch": "charmander-dragon-claw",
-                                "charmander-flamethrower": "charmander-charmeleon-flamethrower",
-                                "charmander-rage": "charmander-charmeleon-rage"
-                            },
-                            "tooltipText": "Charmander has evolved into Charmeleon. All of his skills have improved effects.",
-                            "healOnApplyFlat": 10
+                            "tooltipText": "Charmander has evolved into Charmeleon."
                         }
-                    },
-                    "tooltipText": "Charmander evolves into Charmeleon after critically striking or burning an enemy twice."
+                    }
                 }
             }
         ],
-        "characterdeescription": "A fiery and determined Pokémon whose burning tail reflects its fighting spirit. Though small and inexperienced, Charmander grows stronger as battle progresses, eventually evolving into the fierce Charmeleon.",
         "skills": [
             {
                 "id": "charmander-ember",
                 "name": "Ember",
                 "skillimage": "assets/images/PokemonArena/Charmander/ember.jpg",
-                "skilldescription": "Charmander deals 20 affliction damage to one enemy. This skill has a 30% chance to Burn the target. Burn: The target takes 5 permanent affliction damage and deals 5 less non-affliction damage. This effect stacks.",
+                "skilldescription": "Deals 15 damage to one enemy and then 5 affliction damage each turn for 2 turns.",
+                "description": "Deals 15 damage to one enemy and then 5 affliction damage each turn for 2 turns.",
                 "energy": [
                     "Bloodline"
                 ],
+                "cooldown": 0,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 0,
                 "classes": [
-                    "Fire",
                     "Special",
                     "Affliction",
                     "Instant"
@@ -17554,95 +17553,87 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 20,
+                        "amount": 15,
                         "scope": "target",
                         "metadata": {
-                            "afflictionDamage": true,
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true,
-                            "bonusPerStatusMetadata": {
-                                "scope": "self",
-                                "statusId": "charmander_rage_stacks",
-                                "metadataKey": "charmanderRageStacks",
-                                "multiplier": 5
-                            }
+                            "harmful": true
                         }
                     },
                     {
                         "type": "apply_status",
-                        "statusId": "charmander_burn",
-                        "duration": 99,
+                        "duration": 2,
                         "scope": "target",
-                        "chance": 30,
                         "metadata": {
                             "harmful": true,
-                            "infiniteDuration": true,
-                            "charmanderBurnStacks": 1,
-                            "stackMetadataKey": "charmanderBurnStacks",
-                            "stackDelta": 1,
-                            "stackMax": 99,
-                            "stackDerivedNumericKeys": {
-                                "turnEndDamage": 5,
-                                "nonAfflictionDamageDebuffFlat": 5
-                            },
                             "afflictionDamage": true,
+                            "turnEndDamage": 5,
                             "ignoreTargetDamageReduction": true,
                             "ignoreTargetDestructibleDefense": true,
-                            "onSuccessApplyStatusesToOwner": [
-                                {
-                                    "statusId": "charmander_evolution_tracker",
-                                    "duration": 99,
-                                    "metadata": {
-                                        "infiniteDuration": true,
-                                        "charmanderEvolutionProgress": 1,
-                                        "stackMetadataKey": "charmanderEvolutionProgress",
-                                        "stackDelta": 1,
-                                        "stackMax": 2
-                                    }
-                                },
-                                {
-                                    "statusId": "charmander_charizard_y_evolution_branch",
-                                    "duration": 99,
-                                    "condition": {
-                                        "scope": "self",
-                                        "statusMetadataAtLeast": {
-                                            "statusId": "charmander_evolution_tracker",
-                                            "metadataKey": "charmanderEvolutionProgress",
-                                            "value": 2
-                                        },
-                                        "missingStatusId": "charmander_charizard_y_evolution_branch"
-                                    },
-                                    "metadata": {
-                                        "infiniteDuration": true,
-                                        "skillReplacements": {
-                                            "charmander-fire-punch": "charmander-charizard-y-fire-punch",
-                                            "charmander-dragon-claw": "charmander-charizard-y-dragon-claw",
-                                            "charmander-charmeleon-flamethrower": "charmander-charizard-y-flamethrower",
-                                            "charmander-charmeleon-rage": "charmander-charizard-y-rage"
-                                        },
-                                        "tooltipText": "Charmander's evolution was activated by Ember or Flamethrower, preparing the Mega Charizard Y skin branch."
-                                    }
-                                }
-                            ],
-                            "statusIconUrl": "assets/images/PokemonArena/Charmander/ember.jpg",
-                            "tooltipTextTemplate": "This character has {charmanderBurnStacks} Burn stack(s), takes {turnEndDamage} affliction damage each turn, and deals {nonAfflictionDamageDebuffFlat} less non-affliction damage."
-                        }
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "Takes 5 affliction damage each turn."
+                        },
+                        "statusId": "charmander_ember_1"
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "charmander-fire-punch",
+                    "name": "Fire Punch",
+                    "skillimage": "assets/images/PokemonArena/Charmander/firepunch.jpg",
+                    "skilldescription": "Deals 20 damage to one enemy and then 10 affliction damage each turn for 2 turns.",
+                    "description": "Deals 20 damage to one enemy and then 10 affliction damage each turn for 2 turns.",
+                    "energy": [
+                        "Bloodline"
+                    ],
+                    "cooldown": 0,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Physical",
+                        "Affliction",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "damage",
+                            "amount": 20,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true
+                            }
+                        },
+                        {
+                            "type": "apply_status",
+                            "duration": 2,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true,
+                                "afflictionDamage": true,
+                                "turnEndDamage": 10,
+                                "ignoreTargetDamageReduction": true,
+                                "ignoreTargetDestructibleDefense": true,
+                                "turnEndTrigger": "source_turn",
+                                "turnDurationAnchor": "source_turn",
+                                "tooltipText": "Takes 10 affliction damage each turn."
+                            },
+                            "statusId": "charmander_fire_punch_1"
+                        }
+                    ]
+                }
             },
             {
                 "id": "charmander-scratch",
                 "name": "Scratch",
                 "skillimage": "assets/images/PokemonArena/Charmander/scratch.webp",
-                "skilldescription": "Charmander deals 20 damage to one enemy. This skill has a 30% chance to critically strike, dealing 10 additional damage and becoming Piercing.",
+                "skilldescription": "Deals 20 damage to one enemy.",
+                "description": "Deals 20 damage to one enemy.",
                 "energy": [
                     "Taijutsu"
                 ],
+                "cooldown": 0,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 1,
                 "classes": [
-                    "Normal",
                     "Physical",
                     "Instant"
                 ],
@@ -17652,75 +17643,52 @@ const characters = [
                         "amount": 20,
                         "scope": "target",
                         "metadata": {
-                            "bonusPerStatusMetadata": {
-                                "scope": "self",
-                                "statusId": "charmander_rage_stacks",
-                                "metadataKey": "charmanderRageStacks",
-                                "multiplier": 5
-                            }
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 10,
-                        "scope": "target",
-                        "chance": 30,
-                        "metadata": {
-                            "ignoreDamageReduction": true,
-                            "onSuccessfulDamageApplyStatusesToOwner": [
-                                {
-                                    "statusId": "charmander_evolution_tracker",
-                                    "duration": 99,
-                                    "metadata": {
-                                        "infiniteDuration": true,
-                                        "charmanderEvolutionProgress": 1,
-                                        "stackMetadataKey": "charmanderEvolutionProgress",
-                                        "stackDelta": 1,
-                                        "stackMax": 2
-                                    }
-                                },
-                                {
-                                    "statusId": "charmander_charizard_x_evolution_branch",
-                                    "duration": 99,
-                                    "condition": {
-                                        "scope": "self",
-                                        "statusMetadataAtLeast": {
-                                            "statusId": "charmander_evolution_tracker",
-                                            "metadataKey": "charmanderEvolutionProgress",
-                                            "value": 2
-                                        },
-                                        "missingStatusId": "charmander_charizard_x_evolution_branch"
-                                    },
-                                    "metadata": {
-                                        "infiniteDuration": true,
-                                        "skillReplacements": {
-                                            "charmander-fire-punch": "charmander-charizard-x-fire-punch",
-                                            "charmander-dragon-claw": "charmander-charizard-x-dragon-claw",
-                                            "charmander-charmeleon-flamethrower": "charmander-charizard-x-flamethrower",
-                                            "charmander-charmeleon-rage": "charmander-charizard-x-rage"
-                                        },
-                                        "tooltipText": "Charmander's evolution was activated by Scratch, preparing the Mega Charizard X skin branch."
-                                    }
-                                }
-                            ]
+                            "harmful": true
                         }
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "charmander-dragon-claw",
+                    "name": "Dragon Claw",
+                    "skillimage": "assets/images/PokemonArena/Charmander/dragonclaw.jpg",
+                    "skilldescription": "Deals 30 damage to one enemy.",
+                    "description": "Deals 30 damage to one enemy.",
+                    "energy": [
+                        "Taijutsu"
+                    ],
+                    "cooldown": 0,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Physical",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "damage",
+                            "amount": 30,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true
+                            }
+                        }
+                    ]
+                }
             },
             {
                 "id": "charmander-flamethrower",
-                "name": "Charmander's Flamethrower",
+                "name": "Flamethrower",
                 "skillimage": "assets/images/PokemonArena/Charmander/charmandersflamethrower.jpg",
-                "skilldescription": "Charmander deals 20 affliction damage to all enemies. Each enemy has a 30% chance to be Burned. Burn: The target takes 5 permanent affliction damage and deals 5 less non-affliction damage. This effect stacks.",
+                "skilldescription": "Deals 15 damage to all enemies and then 5 affliction damage each turn for 2 turns.",
+                "description": "Deals 15 damage to all enemies and then 5 affliction damage each turn for 2 turns.",
                 "energy": [
                     "Bloodline",
                     "Random"
                 ],
+                "cooldown": 2,
                 "target": "all-enemy",
                 "damage": 0,
-                "cooldown": 2,
                 "classes": [
-                    "Fire",
                     "Special",
                     "Affliction",
                     "Instant"
@@ -17728,850 +17696,149 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 20,
+                        "amount": 15,
                         "scope": "all-enemy",
                         "metadata": {
-                            "afflictionDamage": true,
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true,
-                            "bonusPerStatusMetadata": {
-                                "scope": "self",
-                                "statusId": "charmander_rage_stacks",
-                                "metadataKey": "charmanderRageStacks",
-                                "multiplier": 5
-                            }
+                            "harmful": true
                         }
                     },
                     {
                         "type": "apply_status",
-                        "statusId": "charmander_burn",
-                        "duration": 99,
+                        "duration": 2,
                         "scope": "all-enemy",
-                        "chance": 30,
-                        "rollPerRecipient": true,
                         "metadata": {
                             "harmful": true,
-                            "infiniteDuration": true,
-                            "charmanderBurnStacks": 1,
-                            "stackMetadataKey": "charmanderBurnStacks",
-                            "stackDelta": 1,
-                            "stackMax": 99,
-                            "stackDerivedNumericKeys": {
-                                "turnEndDamage": 5,
-                                "nonAfflictionDamageDebuffFlat": 5
-                            },
                             "afflictionDamage": true,
+                            "turnEndDamage": 5,
                             "ignoreTargetDamageReduction": true,
                             "ignoreTargetDestructibleDefense": true,
-                            "onSuccessApplyStatusesToOwner": [
-                                {
-                                    "statusId": "charmander_evolution_tracker",
-                                    "duration": 99,
-                                    "metadata": {
-                                        "infiniteDuration": true,
-                                        "charmanderEvolutionProgress": 1,
-                                        "stackMetadataKey": "charmanderEvolutionProgress",
-                                        "stackDelta": 1,
-                                        "stackMax": 2
-                                    }
-                                },
-                                {
-                                    "statusId": "charmander_charizard_y_evolution_branch",
-                                    "duration": 99,
-                                    "condition": {
-                                        "scope": "self",
-                                        "statusMetadataAtLeast": {
-                                            "statusId": "charmander_evolution_tracker",
-                                            "metadataKey": "charmanderEvolutionProgress",
-                                            "value": 2
-                                        },
-                                        "missingStatusId": "charmander_charizard_y_evolution_branch"
-                                    },
-                                    "metadata": {
-                                        "infiniteDuration": true,
-                                        "skillReplacements": {
-                                            "charmander-fire-punch": "charmander-charizard-y-fire-punch",
-                                            "charmander-dragon-claw": "charmander-charizard-y-dragon-claw",
-                                            "charmander-charmeleon-flamethrower": "charmander-charizard-y-flamethrower",
-                                            "charmander-charmeleon-rage": "charmander-charizard-y-rage"
-                                        },
-                                        "tooltipText": "Charmander's evolution was activated by Ember or Flamethrower, preparing the Mega Charizard Y skin branch."
-                                    }
-                                }
-                            ],
-                            "statusIconUrl": "assets/images/PokemonArena/Charmander/charmandersflamethrower.jpg",
-                            "tooltipTextTemplate": "This character has {charmanderBurnStacks} Burn stack(s), takes {turnEndDamage} affliction damage each turn, and deals {nonAfflictionDamageDebuffFlat} less non-affliction damage."
-                        }
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "Takes 5 affliction damage each turn."
+                        },
+                        "statusId": "charmander_flamethrower_1"
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "charmander-charmeleon-flamethrower",
+                    "name": "Flamethrower",
+                    "skillimage": "assets/images/PokemonArena/Charmander/charmeleonsflamethrower.jpg",
+                    "skilldescription": "Deals 20 damage to all enemies and then 10 affliction damage each turn for 2 turns.",
+                    "description": "Deals 20 damage to all enemies and then 10 affliction damage each turn for 2 turns.",
+                    "energy": [
+                        "Bloodline",
+                        "Random"
+                    ],
+                    "cooldown": 2,
+                    "target": "all-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Special",
+                        "Affliction",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "damage",
+                            "amount": 20,
+                            "scope": "all-enemy",
+                            "metadata": {
+                                "harmful": true
+                            }
+                        },
+                        {
+                            "type": "apply_status",
+                            "duration": 2,
+                            "scope": "all-enemy",
+                            "metadata": {
+                                "harmful": true,
+                                "afflictionDamage": true,
+                                "turnEndDamage": 10,
+                                "ignoreTargetDamageReduction": true,
+                                "ignoreTargetDestructibleDefense": true,
+                                "turnEndTrigger": "source_turn",
+                                "turnDurationAnchor": "source_turn",
+                                "tooltipText": "Takes 10 affliction damage each turn."
+                            },
+                            "statusId": "charmander_charmeleon_flamethrower_1"
+                        }
+                    ]
+                }
             },
             {
                 "id": "charmander-rage",
-                "name": "Charmander's Rage",
+                "name": "Protect",
                 "skillimage": "assets/images/PokemonArena/Charmander/charmanderrage.webp",
-                "skilldescription": "For 4 turns, Charmander gains 25% damage reduction. The first time each turn Charmander takes damage, the damage of his damaging skills is permanently increased by 5. Maximum: 2 stacks.",
+                "skilldescription": "Charmander becomes invulnerable for 1 turn.",
+                "description": "Charmander becomes invulnerable for 1 turn.",
                 "energy": [
-                    "Bloodline"
+                    "Random"
                 ],
+                "cooldown": 4,
                 "target": "self",
                 "damage": 0,
-                "cooldown": 3,
                 "classes": [
-                    "Normal",
-                    "Physical",
-                    "Instant",
-                    "Invisible"
+                    "Strategic",
+                    "Instant"
                 ],
                 "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "charmander_rage_active",
-                        "duration": 4,
+                        "duration": 1,
                         "scope": "self",
                         "metadata": {
-                            "damageReductionPercent": 25,
-                            "onOwnerDamagedByBaseDamageAtLeastApplyStatusToOwner": {
-                                "threshold": 1,
-                                "enemyOnly": true,
-                                "oncePerOwnerTurn": true,
-                                "statusId": "charmander_rage_stacks",
-                                "duration": 99,
-                                "metadata": {
-                                    "infiniteDuration": true,
-                                    "charmanderRageStacks": 1,
-                                    "stackMetadataKey": "charmanderRageStacks",
-                                    "stackDelta": 1,
-                                    "stackMax": 2,
-                                    "statusIconUrl": "assets/images/PokemonArena/Charmander/charmanderrage.webp",
-                                    "tooltipTextTemplate": "Charmander's damaging skills deal {charmanderRageStacks} Rage stack(s) of additional damage."
-                                }
-                            },
-                            "statusIconUrl": "assets/images/PokemonArena/Charmander/charmanderrage.webp",
-                            "tooltipText": "Charmander has 25% damage reduction. The first time each turn he takes damage, his damaging skills gain 5 permanent damage."
-                        }
+                            "invulnerable": true,
+                            "tooltipText": "Invulnerable."
+                        },
+                        "statusId": "charmander_rage_1"
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "charmander-rage-evolved",
+                    "name": "Protect",
+                    "skillimage": "assets/images/PokemonArena/Charmander/charmanderrage.webp",
+                    "skilldescription": "Charmeleon becomes invulnerable for 1 turn.",
+                    "description": "Charmeleon becomes invulnerable for 1 turn.",
+                    "energy": [
+                        "Random"
+                    ],
+                    "cooldown": 4,
+                    "target": "self",
+                    "damage": 0,
+                    "classes": [
+                        "Strategic",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "apply_status",
+                            "duration": 1,
+                            "scope": "self",
+                            "metadata": {
+                                "invulnerable": true,
+                                "tooltipText": "Invulnerable."
+                            },
+                            "statusId": "charmander_rage_evolved_1"
+                        }
+                    ]
+                }
             },
             {
                 "id": "charmander-passive-evolution-charmeleon",
-                "name": "Evolution - Charmeleon",
+                "name": "Evolution: Charmeleon",
                 "skillimage": "assets/images/PokemonArena/Charmander/passiveevolvecharmeleon.jpg",
-                "skilldescription": "After Charmander critically strikes or burns an enemy twice, he evolves into Charmeleon. All of his skills gain improved effects.",
+                "skilldescription": "At the start of its 4th turn, Charmander evolves into Charmeleon and its skills get stronger.",
+                "description": "At the start of its 4th turn, Charmander evolves into Charmeleon and its skills get stronger.",
                 "energy": [],
+                "cooldown": 0,
                 "target": "",
                 "damage": 0,
-                "cooldown": 0,
                 "classes": [
-                    "Fire",
                     "Passive",
                     "Instant"
-                ]
-            },
-            {
-                "id": "charmander-fire-punch",
-                "name": "Fire Punch",
-                "actorCondition": {
-                    "statusId": "charmander_charmeleon_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/Charmander/firepunch.jpg",
-                "skilldescription": "Charmeleon deals 15 physical damage and 30 affliction damage to one enemy. This skill has a 30% chance to Burn the target. Burn: The target takes 5 permanent affliction damage and deals 5 less non-affliction damage. This effect stacks.",
-                "energy": [
-                    "Bloodline",
-                    "Bloodline"
                 ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 0,
-                "classes": [
-                    "Fire",
-                    "Physical",
-                    "Affliction",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 15,
-                        "scope": "target",
-                        "metadata": {
-                            "bonusPerStatusMetadata": {
-                                "scope": "self",
-                                "statusId": "charmander_rage_stacks",
-                                "metadataKey": "charmanderRageStacks",
-                                "multiplier": 5
-                            }
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 30,
-                        "scope": "target",
-                        "metadata": {
-                            "afflictionDamage": true,
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "charmander_burn",
-                        "duration": 99,
-                        "scope": "target",
-                        "chance": 30,
-                        "metadata": {
-                            "harmful": true,
-                            "infiniteDuration": true,
-                            "charmanderBurnStacks": 1,
-                            "stackMetadataKey": "charmanderBurnStacks",
-                            "stackDelta": 1,
-                            "stackMax": 99,
-                            "stackDerivedNumericKeys": {
-                                "turnEndDamage": 5,
-                                "nonAfflictionDamageDebuffFlat": 5
-                            },
-                            "afflictionDamage": true,
-                            "ignoreTargetDamageReduction": true,
-                            "ignoreTargetDestructibleDefense": true,
-                            "statusIconUrl": "assets/images/PokemonArena/Charmander/firepunch.jpg",
-                            "tooltipTextTemplate": "This character has {charmanderBurnStacks} Burn stack(s), takes {turnEndDamage} affliction damage each turn, and deals {nonAfflictionDamageDebuffFlat} less non-affliction damage."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "charmander-dragon-claw",
-                "name": "Dragon Claw",
-                "actorCondition": {
-                    "statusId": "charmander_charmeleon_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/Charmander/dragonclaw.jpg",
-                "skilldescription": "Charmeleon deals 30 damage to one enemy. This skill has a 30% chance to critically strike, dealing 10 additional damage and becoming Piercing.",
-                "energy": [
-                    "Taijutsu",
-                    "Random"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 1,
-                "classes": [
-                    "Dragon",
-                    "Physical",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 30,
-                        "scope": "target",
-                        "metadata": {
-                            "bonusPerStatusMetadata": {
-                                "scope": "self",
-                                "statusId": "charmander_rage_stacks",
-                                "metadataKey": "charmanderRageStacks",
-                                "multiplier": 5
-                            }
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 10,
-                        "scope": "target",
-                        "chance": 30,
-                        "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "charmander-charmeleon-flamethrower",
-                "name": "Charmeleon's Flamethrower",
-                "actorCondition": {
-                    "statusId": "charmander_charmeleon_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/Charmander/charmeleonsflamethrower.jpg",
-                "skilldescription": "Deals 30 affliction damage to all enemies. Each enemy has a 30% chance to be Burned. Burn: The target takes 5 permanent affliction damage and deals 5 less non-affliction damage. This effect stacks.",
-                "energy": [
-                    "Bloodline",
-                    "Random",
-                    "Random"
-                ],
-                "target": "all-enemy",
-                "damage": 0,
-                "cooldown": 2,
-                "classes": [
-                    "Fire",
-                    "Special",
-                    "Affliction",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 30,
-                        "scope": "all-enemy",
-                        "metadata": {
-                            "afflictionDamage": true,
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true,
-                            "bonusPerStatusMetadata": {
-                                "scope": "self",
-                                "statusId": "charmander_rage_stacks",
-                                "metadataKey": "charmanderRageStacks",
-                                "multiplier": 5
-                            }
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "charmander_burn",
-                        "duration": 99,
-                        "scope": "all-enemy",
-                        "chance": 30,
-                        "rollPerRecipient": true,
-                        "metadata": {
-                            "harmful": true,
-                            "infiniteDuration": true,
-                            "charmanderBurnStacks": 1,
-                            "stackMetadataKey": "charmanderBurnStacks",
-                            "stackDelta": 1,
-                            "stackMax": 99,
-                            "stackDerivedNumericKeys": {
-                                "turnEndDamage": 5,
-                                "nonAfflictionDamageDebuffFlat": 5
-                            },
-                            "afflictionDamage": true,
-                            "ignoreTargetDamageReduction": true,
-                            "ignoreTargetDestructibleDefense": true,
-                            "statusIconUrl": "assets/images/PokemonArena/Charmander/charmeleonsflamethrower.jpg",
-                            "tooltipTextTemplate": "This character has {charmanderBurnStacks} Burn stack(s), takes {turnEndDamage} affliction damage each turn, and deals {nonAfflictionDamageDebuffFlat} less non-affliction damage."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "charmander-charmeleon-rage",
-                "name": "Charmeleon's Rage",
-                "actorCondition": {
-                    "statusId": "charmander_charmeleon_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/Charmander/charmeleonrage.jpg",
-                "skilldescription": "For 4 turns, Charmeleon gains 50% damage reduction. The first time each turn Charmeleon takes damage, the damage of his damaging skills is permanently increased by 5. Maximum: 4 stacks.",
-                "energy": [
-                    "Bloodline"
-                ],
-                "target": "self",
-                "damage": 0,
-                "cooldown": 3,
-                "classes": [
-                    "Normal",
-                    "Physical",
-                    "Instant",
-                    "Invisible"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "charmander_charmeleon_rage_active",
-                        "duration": 4,
-                        "scope": "self",
-                        "metadata": {
-                            "damageReductionPercent": 50,
-                            "onOwnerDamagedByBaseDamageAtLeastApplyStatusToOwner": {
-                                "threshold": 1,
-                                "enemyOnly": true,
-                                "oncePerOwnerTurn": true,
-                                "statusId": "charmander_rage_stacks",
-                                "duration": 99,
-                                "metadata": {
-                                    "infiniteDuration": true,
-                                    "charmanderRageStacks": 1,
-                                    "stackMetadataKey": "charmanderRageStacks",
-                                    "stackDelta": 1,
-                                    "stackMax": 4,
-                                    "statusIconUrl": "assets/images/PokemonArena/Charmander/charmeleonrage.jpg",
-                                    "tooltipTextTemplate": "Charmeleon's damaging skills deal {charmanderRageStacks} Rage stack(s) of additional damage."
-                                }
-                            },
-                            "statusIconUrl": "assets/images/PokemonArena/Charmander/charmeleonrage.jpg",
-                            "tooltipText": "Charmeleon has 50% damage reduction. The first time each turn he takes damage, his damaging skills gain 5 permanent damage."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "charmander-charizard-x-fire-punch",
-                "name": "Fire Punch",
-                "actorCondition": {
-                    "statusId": "charmander_charizard_x_evolution_branch"
-                },
-                "skillimage": "assets/images/PokemonArena/Charmander/firepunch.jpg",
-                "skilldescription": "Charmeleon deals 15 physical damage and 30 affliction damage to one enemy. This skill has a 30% chance to Burn the target. Burn: The target takes 5 permanent affliction damage and deals 5 less non-affliction damage. This effect stacks.",
-                "energy": [
-                    "Bloodline",
-                    "Bloodline"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 0,
-                "classes": [
-                    "Fire",
-                    "Physical",
-                    "Affliction",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 15,
-                        "scope": "target",
-                        "metadata": {
-                            "bonusPerStatusMetadata": {
-                                "scope": "self",
-                                "statusId": "charmander_rage_stacks",
-                                "metadataKey": "charmanderRageStacks",
-                                "multiplier": 5
-                            }
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 30,
-                        "scope": "target",
-                        "metadata": {
-                            "afflictionDamage": true,
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "charmander_burn",
-                        "duration": 99,
-                        "scope": "target",
-                        "chance": 30,
-                        "metadata": {
-                            "harmful": true,
-                            "infiniteDuration": true,
-                            "charmanderBurnStacks": 1,
-                            "stackMetadataKey": "charmanderBurnStacks",
-                            "stackDelta": 1,
-                            "stackMax": 99,
-                            "stackDerivedNumericKeys": {
-                                "turnEndDamage": 5,
-                                "nonAfflictionDamageDebuffFlat": 5
-                            },
-                            "afflictionDamage": true,
-                            "ignoreTargetDamageReduction": true,
-                            "ignoreTargetDestructibleDefense": true,
-                            "statusIconUrl": "assets/images/PokemonArena/Charmander/firepunch.jpg",
-                            "tooltipTextTemplate": "This character has {charmanderBurnStacks} Burn stack(s), takes {turnEndDamage} affliction damage each turn, and deals {nonAfflictionDamageDebuffFlat} less non-affliction damage."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "charmander-charizard-x-dragon-claw",
-                "name": "Dragon Claw",
-                "actorCondition": {
-                    "statusId": "charmander_charizard_x_evolution_branch"
-                },
-                "skillimage": "assets/images/PokemonArena/Charmander/dragonclaw.jpg",
-                "skilldescription": "Charmeleon deals 30 damage to one enemy. This skill has a 30% chance to critically strike, dealing 10 additional damage and becoming Piercing.",
-                "energy": [
-                    "Taijutsu",
-                    "Random"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 1,
-                "classes": [
-                    "Dragon",
-                    "Physical",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 30,
-                        "scope": "target",
-                        "metadata": {
-                            "bonusPerStatusMetadata": {
-                                "scope": "self",
-                                "statusId": "charmander_rage_stacks",
-                                "metadataKey": "charmanderRageStacks",
-                                "multiplier": 5
-                            }
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 10,
-                        "scope": "target",
-                        "chance": 30,
-                        "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "charmander-charizard-x-flamethrower",
-                "name": "Charmeleon's Flamethrower",
-                "actorCondition": {
-                    "statusId": "charmander_charizard_x_evolution_branch"
-                },
-                "skillimage": "assets/images/PokemonArena/Charmander/charmeleonsflamethrower.jpg",
-                "skilldescription": "Deals 30 affliction damage to all enemies. Each enemy has a 30% chance to be Burned. Burn: The target takes 5 permanent affliction damage and deals 5 less non-affliction damage. This effect stacks.",
-                "energy": [
-                    "Bloodline",
-                    "Random",
-                    "Random"
-                ],
-                "target": "all-enemy",
-                "damage": 0,
-                "cooldown": 2,
-                "classes": [
-                    "Fire",
-                    "Special",
-                    "Affliction",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 30,
-                        "scope": "all-enemy",
-                        "metadata": {
-                            "afflictionDamage": true,
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true,
-                            "bonusPerStatusMetadata": {
-                                "scope": "self",
-                                "statusId": "charmander_rage_stacks",
-                                "metadataKey": "charmanderRageStacks",
-                                "multiplier": 5
-                            }
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "charmander_burn",
-                        "duration": 99,
-                        "scope": "all-enemy",
-                        "chance": 30,
-                        "rollPerRecipient": true,
-                        "metadata": {
-                            "harmful": true,
-                            "infiniteDuration": true,
-                            "charmanderBurnStacks": 1,
-                            "stackMetadataKey": "charmanderBurnStacks",
-                            "stackDelta": 1,
-                            "stackMax": 99,
-                            "stackDerivedNumericKeys": {
-                                "turnEndDamage": 5,
-                                "nonAfflictionDamageDebuffFlat": 5
-                            },
-                            "afflictionDamage": true,
-                            "ignoreTargetDamageReduction": true,
-                            "ignoreTargetDestructibleDefense": true,
-                            "statusIconUrl": "assets/images/PokemonArena/Charmander/charmeleonsflamethrower.jpg",
-                            "tooltipTextTemplate": "This character has {charmanderBurnStacks} Burn stack(s), takes {turnEndDamage} affliction damage each turn, and deals {nonAfflictionDamageDebuffFlat} less non-affliction damage."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "charmander-charizard-x-rage",
-                "name": "Charmeleon's Rage",
-                "actorCondition": {
-                    "statusId": "charmander_charizard_x_evolution_branch"
-                },
-                "skillimage": "assets/images/PokemonArena/Charmander/charmeleonrage.jpg",
-                "skilldescription": "For 4 turns, Charmeleon gains 50% damage reduction. The first time each turn Charmeleon takes damage, the damage of his damaging skills is permanently increased by 5. Maximum: 4 stacks.",
-                "energy": [
-                    "Bloodline"
-                ],
-                "target": "self",
-                "damage": 0,
-                "cooldown": 3,
-                "classes": [
-                    "Normal",
-                    "Physical",
-                    "Instant",
-                    "Invisible"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "charmander_charmeleon_rage_active",
-                        "duration": 4,
-                        "scope": "self",
-                        "metadata": {
-                            "damageReductionPercent": 50,
-                            "onOwnerDamagedByBaseDamageAtLeastApplyStatusToOwner": {
-                                "threshold": 1,
-                                "enemyOnly": true,
-                                "oncePerOwnerTurn": true,
-                                "statusId": "charmander_rage_stacks",
-                                "duration": 99,
-                                "metadata": {
-                                    "infiniteDuration": true,
-                                    "charmanderRageStacks": 1,
-                                    "stackMetadataKey": "charmanderRageStacks",
-                                    "stackDelta": 1,
-                                    "stackMax": 4,
-                                    "statusIconUrl": "assets/images/PokemonArena/Charmander/charmeleonrage.jpg",
-                                    "tooltipTextTemplate": "Charmeleon's damaging skills deal {charmanderRageStacks} Rage stack(s) of additional damage."
-                                }
-                            },
-                            "statusIconUrl": "assets/images/PokemonArena/Charmander/charmeleonrage.jpg",
-                            "tooltipText": "Charmeleon has 50% damage reduction. The first time each turn he takes damage, his damaging skills gain 5 permanent damage."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "charmander-charizard-y-fire-punch",
-                "name": "Fire Punch",
-                "actorCondition": {
-                    "statusId": "charmander_charizard_y_evolution_branch"
-                },
-                "skillimage": "assets/images/PokemonArena/Charmander/firepunch.jpg",
-                "skilldescription": "Charmeleon deals 15 physical damage and 30 affliction damage to one enemy. This skill has a 30% chance to Burn the target. Burn: The target takes 5 permanent affliction damage and deals 5 less non-affliction damage. This effect stacks.",
-                "energy": [
-                    "Bloodline",
-                    "Bloodline"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 0,
-                "classes": [
-                    "Fire",
-                    "Physical",
-                    "Affliction",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 15,
-                        "scope": "target",
-                        "metadata": {
-                            "bonusPerStatusMetadata": {
-                                "scope": "self",
-                                "statusId": "charmander_rage_stacks",
-                                "metadataKey": "charmanderRageStacks",
-                                "multiplier": 5
-                            }
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 30,
-                        "scope": "target",
-                        "metadata": {
-                            "afflictionDamage": true,
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "charmander_burn",
-                        "duration": 99,
-                        "scope": "target",
-                        "chance": 30,
-                        "metadata": {
-                            "harmful": true,
-                            "infiniteDuration": true,
-                            "charmanderBurnStacks": 1,
-                            "stackMetadataKey": "charmanderBurnStacks",
-                            "stackDelta": 1,
-                            "stackMax": 99,
-                            "stackDerivedNumericKeys": {
-                                "turnEndDamage": 5,
-                                "nonAfflictionDamageDebuffFlat": 5
-                            },
-                            "afflictionDamage": true,
-                            "ignoreTargetDamageReduction": true,
-                            "ignoreTargetDestructibleDefense": true,
-                            "statusIconUrl": "assets/images/PokemonArena/Charmander/firepunch.jpg",
-                            "tooltipTextTemplate": "This character has {charmanderBurnStacks} Burn stack(s), takes {turnEndDamage} affliction damage each turn, and deals {nonAfflictionDamageDebuffFlat} less non-affliction damage."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "charmander-charizard-y-dragon-claw",
-                "name": "Dragon Claw",
-                "actorCondition": {
-                    "statusId": "charmander_charizard_y_evolution_branch"
-                },
-                "skillimage": "assets/images/PokemonArena/Charmander/dragonclaw.jpg",
-                "skilldescription": "Charmeleon deals 30 damage to one enemy. This skill has a 30% chance to critically strike, dealing 10 additional damage and becoming Piercing.",
-                "energy": [
-                    "Taijutsu",
-                    "Random"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 1,
-                "classes": [
-                    "Dragon",
-                    "Physical",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 30,
-                        "scope": "target",
-                        "metadata": {
-                            "bonusPerStatusMetadata": {
-                                "scope": "self",
-                                "statusId": "charmander_rage_stacks",
-                                "metadataKey": "charmanderRageStacks",
-                                "multiplier": 5
-                            }
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 10,
-                        "scope": "target",
-                        "chance": 30,
-                        "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "charmander-charizard-y-flamethrower",
-                "name": "Charmeleon's Flamethrower",
-                "actorCondition": {
-                    "statusId": "charmander_charizard_y_evolution_branch"
-                },
-                "skillimage": "assets/images/PokemonArena/Charmander/charmeleonsflamethrower.jpg",
-                "skilldescription": "Deals 30 affliction damage to all enemies. Each enemy has a 30% chance to be Burned. Burn: The target takes 5 permanent affliction damage and deals 5 less non-affliction damage. This effect stacks.",
-                "energy": [
-                    "Bloodline",
-                    "Random",
-                    "Random"
-                ],
-                "target": "all-enemy",
-                "damage": 0,
-                "cooldown": 2,
-                "classes": [
-                    "Fire",
-                    "Special",
-                    "Affliction",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 30,
-                        "scope": "all-enemy",
-                        "metadata": {
-                            "afflictionDamage": true,
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true,
-                            "bonusPerStatusMetadata": {
-                                "scope": "self",
-                                "statusId": "charmander_rage_stacks",
-                                "metadataKey": "charmanderRageStacks",
-                                "multiplier": 5
-                            }
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "charmander_burn",
-                        "duration": 99,
-                        "scope": "all-enemy",
-                        "chance": 30,
-                        "rollPerRecipient": true,
-                        "metadata": {
-                            "harmful": true,
-                            "infiniteDuration": true,
-                            "charmanderBurnStacks": 1,
-                            "stackMetadataKey": "charmanderBurnStacks",
-                            "stackDelta": 1,
-                            "stackMax": 99,
-                            "stackDerivedNumericKeys": {
-                                "turnEndDamage": 5,
-                                "nonAfflictionDamageDebuffFlat": 5
-                            },
-                            "afflictionDamage": true,
-                            "ignoreTargetDamageReduction": true,
-                            "ignoreTargetDestructibleDefense": true,
-                            "statusIconUrl": "assets/images/PokemonArena/Charmander/charmeleonsflamethrower.jpg",
-                            "tooltipTextTemplate": "This character has {charmanderBurnStacks} Burn stack(s), takes {turnEndDamage} affliction damage each turn, and deals {nonAfflictionDamageDebuffFlat} less non-affliction damage."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "charmander-charizard-y-rage",
-                "name": "Charmeleon's Rage",
-                "actorCondition": {
-                    "statusId": "charmander_charizard_y_evolution_branch"
-                },
-                "skillimage": "assets/images/PokemonArena/Charmander/charmeleonrage.jpg",
-                "skilldescription": "For 4 turns, Charmeleon gains 50% damage reduction. The first time each turn Charmeleon takes damage, the damage of his damaging skills is permanently increased by 5. Maximum: 4 stacks.",
-                "energy": [
-                    "Bloodline"
-                ],
-                "target": "self",
-                "damage": 0,
-                "cooldown": 3,
-                "classes": [
-                    "Normal",
-                    "Physical",
-                    "Instant",
-                    "Invisible"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "charmander_charmeleon_rage_active",
-                        "duration": 4,
-                        "scope": "self",
-                        "metadata": {
-                            "damageReductionPercent": 50,
-                            "onOwnerDamagedByBaseDamageAtLeastApplyStatusToOwner": {
-                                "threshold": 1,
-                                "enemyOnly": true,
-                                "oncePerOwnerTurn": true,
-                                "statusId": "charmander_rage_stacks",
-                                "duration": 99,
-                                "metadata": {
-                                    "infiniteDuration": true,
-                                    "charmanderRageStacks": 1,
-                                    "stackMetadataKey": "charmanderRageStacks",
-                                    "stackDelta": 1,
-                                    "stackMax": 4,
-                                    "statusIconUrl": "assets/images/PokemonArena/Charmander/charmeleonrage.jpg",
-                                    "tooltipTextTemplate": "Charmeleon's damaging skills deal {charmanderRageStacks} Rage stack(s) of additional damage."
-                                }
-                            },
-                            "statusIconUrl": "assets/images/PokemonArena/Charmander/charmeleonrage.jpg",
-                            "tooltipText": "Charmeleon has 50% damage reduction. The first time each turn he takes damage, his damaging skills gain 5 permanent damage."
-                        }
-                    }
-                ]
+                "effects": []
             }
-        ],
-        "role": "DOT DPS",
-        "universe": "pokemon",
-        "arena": "pokemon",
-        "roleCategory": "dot-dps",
-        "description": "A fiery and determined Pokémon whose burning tail reflects its fighting spirit. Though small and inexperienced, Charmander grows stronger as battle progresses, eventually evolving into the fierce Charmeleon.",
-        "descriptionHtml": "A fiery and determined Pokémon whose burning tail reflects its fighting spirit. Though small and inexperienced, Charmander grows stronger as battle progresses, eventually evolving into the fierce Charmeleon.",
-        "pokemonTypes": [
-            "Fire"
         ]
     },
     {
@@ -18579,59 +17846,52 @@ const characters = [
         "characterId": "squirtle",
         "name": "Squirtle",
         "facePicture": "assets/images/PokemonArena/newsquirtlefp.jpeg",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Tank",
+        "roleCategory": "tank",
+        "description": "Hides in its shell to protect itself and wears enemies down with water.",
+        "descriptionHtml": "Hides in its shell to protect itself and wears enemies down with water.",
+        "characterdeescription": "A cautious Water-type Pokémon that turns defense into momentum. Squirtle grows stronger by shielding allies, breaking enemy guards, and cleansing harmful effects, eventually evolving into the sturdier Wartortle.",
+        "pokemonTypes": [
+            "Water"
+        ],
         "startStatuses": [
             {
                 "statusId": "squirtle_evolution_tracker",
-                "duration": 99,
                 "sourceSkillId": "squirtle-passive-evolution-wartortle",
+                "duration": 3,
                 "metadata": {
-                    "infiniteDuration": true,
-                    "squirtleEvolutionStacks": 0,
-                    "stackMetadataKey": "squirtleEvolutionStacks",
-                    "stackDelta": 1,
-                    "stackMax": 3,
-                    "applyStatusAtStack": {
-                        "metadataKey": "squirtleEvolutionStacks",
-                        "value": 3,
+                    "unremovable": true,
+                    "tooltipText": "Evolves into Wartortle at the start of its 4th turn.",
+                    "onExpireApplyStatusToSelf": {
                         "statusId": "squirtle_wartortle_evolution",
-                        "duration": 99,
-                        "sourceSkillId": "squirtle-passive-evolution-wartortle",
+                        "duration": 999,
                         "metadata": {
                             "infiniteDuration": true,
-                            "removeStatusIdsOnApply": [
-                                "squirtle_evolution_tracker"
-                            ],
+                            "unremovable": true,
+                            "useEvolvedSkills": true,
                             "facePictureOverride": "assets/images/PokemonArena/squirtle/wartortlefp.jpg",
-                            "skillReplacements": {
-                                "squirtle-water-gun": "wartortle-hydro-pump",
-                                "squirtle-withdraw": "wartortle-shell-guard",
-                                "squirtle-bubble": "wartortle-bubblebeam",
-                                "squirtle-rapid-spin": "wartortle-aqua-spin"
-                            },
-                            "tooltipText": "Squirtle has evolved into Wartortle. All of his skills have improved effects.",
-                            "healOnApplyFlat": 10
+                            "tooltipText": "Squirtle has evolved into Wartortle."
                         }
-                    },
-                    "statusIconUrl": "assets/images/PokemonArena/squirtle/evolutionwartortle.jpg",
-                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 3 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
+                    }
                 }
             }
         ],
-        "characterdeescription": "A cautious Water-type Pokémon that turns defense into momentum. Squirtle grows stronger by shielding allies, breaking enemy guards, and cleansing harmful effects, eventually evolving into the sturdier Wartortle.",
         "skills": [
             {
                 "id": "squirtle-water-gun",
                 "name": "Water Gun",
                 "skillimage": "assets/images/PokemonArena/squirtle/watergun.jpg",
-                "skilldescription": "Squirtle deals 20 damage to one enemy this turn and 10 damage next turn. For 1 turn, if the target uses a new harmful skill, they are affected by Guard Break for 2 turns. (Guard Break=unable to reduce damage or become invulnerable)",
+                "skilldescription": "Deals 20 damage to one enemy.",
+                "description": "Deals 20 damage to one enemy.",
                 "energy": [
                     "Ninjutsu"
                 ],
+                "cooldown": 0,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 0,
                 "classes": [
-                    "Water",
                     "Special",
                     "Instant"
                 ],
@@ -18639,393 +17899,262 @@ const characters = [
                     {
                         "type": "damage",
                         "amount": 20,
-                        "scope": "target"
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "squirtle_water_gun_mark",
-                        "duration": 1,
                         "scope": "target",
                         "metadata": {
-                            "harmful": true,
-                            "turnStartDamage": 10,
-                            "fixedTurnStartDamage": true,
-                            "skipFirstTurnStartTick": true,
-                            "onOwnerUseSkillTrigger": true,
-                            "onOwnerUseSkillHarmfulOnly": true,
-                            "onOwnerUseSkillApplyStatusToOwner": {
-                                "statusId": "squirtle_guard_break",
-                                "duration": 2,
-                                "metadata": {
-                                    "harmful": true,
-                                    "cannotReduceDamage": true,
-                                    "cannotBecomeInvulnerable": true,
-                                    "statusIconUrl": "assets/images/PokemonArena/squirtle/evolutionwartortle.jpg",
-                                    "tooltipText": "This character cannot reduce damage or become invulnerable."
-                                }
-                            },
-                            "onOwnerUseSkillApplyStatusToSourceOwner": {
-                                "statusId": "squirtle_evolution_tracker",
-                                "duration": 99,
-                                "metadata": {
-                                    "infiniteDuration": true,
-                                    "squirtleEvolutionStacks": 1,
-                                    "stackMetadataKey": "squirtleEvolutionStacks",
-                                    "stackDelta": 1,
-                                    "stackMax": 3,
-                                    "statusIconUrl": "assets/images/PokemonArena/squirtle/evolutionwartortle.jpg",
-                                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 3 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
-                                }
-                            },
-                            "statusIconUrl": "assets/images/PokemonArena/squirtle/watergun.jpg",
-                            "tooltipText": "This character takes 10 damage at the start of each turn. If this character uses a new harmful skill, they are affected by Guard Break for 2 turns."
+                            "harmful": true
                         }
                     }
-                ]
-            },
-            {
-                "id": "squirtle-withdraw",
-                "name": "Withdraw",
-                "skillimage": "assets/images/PokemonArena/squirtle/withdraw.webp",
-                "skilldescription": "For 1 turn, one member of your team will block the first enemy harmful skill used on them, negating its damage and ignoring its effect completely that turn.",
-                "energy": [
-                    "Random",
-                    "Random"
                 ],
-                "target": "self-or-single-ally",
-                "damage": 0,
-                "cooldown": 2,
-                "classes": [
-                    "Water",
-                    "Strategic",
-                    "Instant",
-                    "Invisible"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "squirtle_withdraw_guard",
-                        "duration": 1,
-                        "scope": "self-or-single-ally",
-                        "metadata": {
-                            "harmful": true,
-                            "triggerOnEnemyHarmfulSkill": true,
-                            "counterCancelsSkill": true,
-                            "counterApplyStatusToSourceOwner": {
-                                "statusId": "squirtle_evolution_tracker",
-                                "duration": 99,
-                                "metadata": {
-                                    "infiniteDuration": true,
-                                    "squirtleEvolutionStacks": 1,
-                                    "stackMetadataKey": "squirtleEvolutionStacks",
-                                    "stackDelta": 1,
-                                    "stackMax": 3,
-                                    "statusIconUrl": "assets/images/PokemonArena/squirtle/evolutionwartortle.jpg",
-                                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 3 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
-                                }
-                            },
-                            "statusIconUrl": "assets/images/PokemonArena/squirtle/withdraw.webp",
-                            "tooltipText": "This character blocks the next enemy harmful skill used on them."
+                "evolvesTo": {
+                    "id": "wartortle-hydro-pump",
+                    "name": "Hydro Pump",
+                    "skillimage": "assets/images/PokemonArena/squirtle/hydropump.jpg",
+                    "skilldescription": "Deals 40 damage to one enemy.",
+                    "description": "Deals 40 damage to one enemy.",
+                    "energy": [
+                        "Ninjutsu",
+                        "Random"
+                    ],
+                    "cooldown": 1,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Special",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "damage",
+                            "amount": 40,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true
+                            }
                         }
-                    }
-                ]
+                    ]
+                }
             },
             {
                 "id": "squirtle-bubble",
                 "name": "Bubble",
                 "skillimage": "assets/images/PokemonArena/squirtle/bubble.jpg",
-                "skilldescription": "Squirtle deals 10 damage to one enemy for 5 turns. If the target is affected by Guard Break, this deals 10 bonus damage to them. This skill stacks.",
+                "skilldescription": "Deals 20 damage to one enemy and the target deals 10 less damage for 1 turn.",
+                "description": "Deals 20 damage to one enemy and the target deals 10 less damage for 1 turn.",
                 "energy": [
                     "Ninjutsu",
                     "Random"
                 ],
+                "cooldown": 1,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 0,
                 "classes": [
-                    "Water",
                     "Special",
                     "Instant"
                 ],
                 "effects": [
                     {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true
+                        }
+                    },
+                    {
                         "type": "apply_status",
-                        "statusId": "squirtle_bubble",
-                        "duration": 5,
+                        "duration": 1,
                         "scope": "target",
                         "metadata": {
                             "harmful": true,
-                            "squirtleBubbleStacks": 1,
-                            "stackMetadataKey": "squirtleBubbleStacks",
-                            "stackDelta": 1,
-                            "stackMax": 99,
-                            "stackDerivedNumericKeys": {
-                                "turnStartDamage": 10
-                            },
-                            "turnStartDamage": 10,
-                            "turnStartBonusDamageIfTargetHasStatusId": {
-                                "statusId": "squirtle_guard_break",
-                                "amount": 10
-                            },
-                            "fixedTurnStartDamage": true,
-                            "statusIconUrl": "assets/images/PokemonArena/squirtle/bubble.jpg",
-                            "tooltipTextTemplate": "This character has {squirtleBubbleStacks} Bubble stack(s) and takes {turnStartDamage} damage at the start of each turn. If this character has Guard Break, they take 10 additional damage."
-                        }
+                            "DamageDebuff": 10,
+                            "tooltipText": "Deals 10 less damage."
+                        },
+                        "statusId": "squirtle_bubble_1"
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "wartortle-bubblebeam",
+                    "name": "Bubblebeam",
+                    "skillimage": "assets/images/PokemonArena/squirtle/bubblebeam.jpeg",
+                    "skilldescription": "Deals 25 damage to all enemies and they deal 10 less damage for 1 turn.",
+                    "description": "Deals 25 damage to all enemies and they deal 10 less damage for 1 turn.",
+                    "energy": [
+                        "Ninjutsu",
+                        "Random",
+                        "Random"
+                    ],
+                    "cooldown": 1,
+                    "target": "all-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Special",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "damage",
+                            "amount": 25,
+                            "scope": "all-enemy",
+                            "metadata": {
+                                "harmful": true
+                            }
+                        },
+                        {
+                            "type": "apply_status",
+                            "duration": 1,
+                            "scope": "all-enemy",
+                            "metadata": {
+                                "harmful": true,
+                                "DamageDebuff": 10,
+                                "tooltipText": "Deals 10 less damage."
+                            },
+                            "statusId": "wartortle_bubblebeam_1"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "squirtle-withdraw",
+                "name": "Withdraw",
+                "skillimage": "assets/images/PokemonArena/squirtle/withdraw.webp",
+                "skilldescription": "Gives Squirtle 25 destructible defense for 2 turns.",
+                "description": "Gives Squirtle 25 destructible defense for 2 turns.",
+                "energy": [
+                    "Random"
+                ],
+                "cooldown": 2,
+                "target": "self",
+                "damage": 0,
+                "classes": [
+                    "Strategic",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "duration": 2,
+                        "scope": "self",
+                        "metadata": {
+                            "destructibleDefensePoints": 25,
+                            "tooltipText": "25 destructible defense."
+                        },
+                        "statusId": "squirtle_withdraw_1"
+                    }
+                ],
+                "evolvesTo": {
+                    "id": "wartortle-shell-guard",
+                    "name": "Shell Guard",
+                    "skillimage": "assets/images/PokemonArena/squirtle/shellguard.jpg",
+                    "skilldescription": "Gives Wartortle 35 destructible defense for 2 turns and Wartortle takes 5 less damage for 2 turns.",
+                    "description": "Gives Wartortle 35 destructible defense for 2 turns and Wartortle takes 5 less damage for 2 turns.",
+                    "energy": [
+                        "Random"
+                    ],
+                    "cooldown": 2,
+                    "target": "self",
+                    "damage": 0,
+                    "classes": [
+                        "Strategic",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "apply_status",
+                            "duration": 2,
+                            "scope": "self",
+                            "metadata": {
+                                "destructibleDefensePoints": 35,
+                                "tooltipText": "35 destructible defense."
+                            },
+                            "statusId": "wartortle_shell_guard_1"
+                        },
+                        {
+                            "type": "apply_status",
+                            "duration": 2,
+                            "scope": "self",
+                            "metadata": {
+                                "damageReductionFlat": 5,
+                                "tooltipText": "Takes 5 less damage."
+                            },
+                            "statusId": "wartortle_shell_guard_2"
+                        }
+                    ]
+                }
             },
             {
                 "id": "squirtle-rapid-spin",
-                "name": "Rapid Spin",
+                "name": "Protect",
                 "skillimage": "assets/images/PokemonArena/squirtle/rapidspin.webp",
-                "skilldescription": "Squirtle removes all harmful skills from himself or one ally and deals 15 damage to all enemies.",
+                "skilldescription": "Squirtle becomes invulnerable for 1 turn.",
+                "description": "Squirtle becomes invulnerable for 1 turn.",
                 "energy": [
-                    "Taijutsu",
                     "Random"
                 ],
-                "target": "self-or-single-ally",
-                "damage": 0,
                 "cooldown": 4,
-                "classes": [
-                    "Normal",
-                    "Physical",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "cleanse_statuses",
-                        "scope": "self-or-single-ally",
-                        "sourceRelation": "enemy",
-                        "harmfulOnly": true,
-                        "count": 0,
-                        "metadata": {
-                            "onCleanseApplyStatusToOwner": {
-                                "statusId": "squirtle_evolution_tracker",
-                                "duration": 99,
-                                "metadata": {
-                                    "infiniteDuration": true,
-                                    "squirtleEvolutionStacks": 1,
-                                    "stackMetadataKey": "squirtleEvolutionStacks",
-                                    "stackDelta": 1,
-                                    "stackMax": 3,
-                                    "statusIconUrl": "assets/images/PokemonArena/squirtle/evolutionwartortle.jpg",
-                                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 3 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
-                                }
-                            }
-                        },
-                        "_removedAnyCount": 7
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 15,
-                        "scope": "all-enemy"
-                    }
-                ]
-            },
-            {
-                "id": "squirtle-passive-evolution-wartortle",
-                "name": "Evolution - Wartortle",
-                "skillimage": "assets/images/PokemonArena/squirtle/evolutionwartortle.jpg",
-                "skilldescription": "Whenever Squirtle blocks an enemy harmful skill, applies Guard Break to an enemy, or successfully removes enemy harmful skills from himself or an ally, he gains 1 evolution stack. At 3 stacks, Squirtle evolves into Wartortle and gains improved versions of all skills.",
-                "energy": [],
-                "target": "",
+                "target": "self",
                 "damage": 0,
-                "cooldown": 0,
                 "classes": [
-                    "Water",
-                    "Passive",
-                    "Instant"
-                ]
-            },
-            {
-                "id": "wartortle-shell-guard",
-                "name": "Shell Guard",
-                "actorCondition": {
-                    "statusId": "squirtle_wartortle_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/squirtle/shellguard.jpg",
-                "skilldescription": "For 1 turn, Wartortle blocks all enemy harmful skills used on himself and one selected ally.",
-                "energy": [
-                    "Random",
-                    "Random"
-                ],
-                "target": "single-ally",
-                "damage": 0,
-                "cooldown": 2,
-                "classes": [
-                    "Water",
                     "Strategic",
-                    "Instant",
-                    "Invisible"
+                    "Instant"
                 ],
                 "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "wartortle_shell_guard",
                         "duration": 1,
                         "scope": "self",
                         "metadata": {
-                            "ignoreEnemyDamage": true,
-                            "ignoreHarmfulNonDamageEffects": true,
-                            "statusIconUrl": "assets/images/PokemonArena/squirtle/shellguard.jpg",
-                            "tooltipText": "This character ignores enemy harmful skills for 1 turn."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "wartortle_shell_guard",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "ignoreEnemyDamage": true,
-                            "ignoreHarmfulNonDamageEffects": true,
-                            "statusIconUrl": "assets/images/PokemonArena/squirtle/shellguard.jpg",
-                            "tooltipText": "This character ignores enemy harmful skills for 1 turn."
-                        }
+                            "invulnerable": true,
+                            "tooltipText": "Invulnerable."
+                        },
+                        "statusId": "squirtle_rapid_spin_1"
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "squirtle-rapid-spin-evolved",
+                    "name": "Protect",
+                    "skillimage": "assets/images/PokemonArena/squirtle/rapidspin.webp",
+                    "skilldescription": "Wartortle becomes invulnerable for 1 turn.",
+                    "description": "Wartortle becomes invulnerable for 1 turn.",
+                    "energy": [
+                        "Random"
+                    ],
+                    "cooldown": 4,
+                    "target": "self",
+                    "damage": 0,
+                    "classes": [
+                        "Strategic",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "apply_status",
+                            "duration": 1,
+                            "scope": "self",
+                            "metadata": {
+                                "invulnerable": true,
+                                "tooltipText": "Invulnerable."
+                            },
+                            "statusId": "squirtle_rapid_spin_evolved_1"
+                        }
+                    ]
+                }
             },
             {
-                "id": "wartortle-hydro-pump",
-                "name": "Hydro Pump",
-                "actorCondition": {
-                    "statusId": "squirtle_wartortle_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/squirtle/hydropump.jpg",
-                "skilldescription": "Wartortle deals 30 damage to one enemy this turn and 20 damage next turn. For 1 turn, if the target uses a new harmful skill, they are affected by Guard Break for 3 turns.",
-                "energy": [
-                    "Ninjutsu",
-                    "Ninjutsu"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
+                "id": "squirtle-passive-evolution-wartortle",
+                "name": "Evolution: Wartortle",
+                "skillimage": "assets/images/PokemonArena/squirtle/evolutionwartortle.jpg",
+                "skilldescription": "At the start of its 4th turn, Squirtle evolves into Wartortle and its skills get stronger.",
+                "description": "At the start of its 4th turn, Squirtle evolves into Wartortle and its skills get stronger.",
+                "energy": [],
                 "cooldown": 0,
-                "classes": [
-                    "Water",
-                    "Special",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 30,
-                        "scope": "target"
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "wartortle_hydro_pump_mark",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "turnStartDamage": 20,
-                            "fixedTurnStartDamage": true,
-                            "skipFirstTurnStartTick": true,
-                            "onOwnerUseSkillTrigger": true,
-                            "onOwnerUseSkillHarmfulOnly": true,
-                            "onOwnerUseSkillApplyStatusToOwner": {
-                                "statusId": "squirtle_guard_break",
-                                "duration": 3,
-                                "metadata": {
-                                    "harmful": true,
-                                    "cannotReduceDamage": true,
-                                    "cannotBecomeInvulnerable": true,
-                                    "statusIconUrl": "assets/images/PokemonArena/squirtle/hydropump.jpg",
-                                    "tooltipText": "This character cannot reduce damage or become invulnerable."
-                                }
-                            },
-                            "statusIconUrl": "assets/images/PokemonArena/squirtle/hydropump.jpg",
-                            "tooltipText": "This character takes 20 damage at the start of each turn. If this character uses a new harmful skill, they are affected by Guard Break for 3 turns."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "wartortle-bubblebeam",
-                "name": "Bubblebeam",
-                "actorCondition": {
-                    "statusId": "squirtle_wartortle_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/squirtle/bubblebeam.jpeg",
-                "skilldescription": "Wartortle deals 10 damage to all enemies for 5 turns. Enemies affected by Guard Break take 10 additional damage each turn.",
-                "energy": [
-                    "Ninjutsu",
-                    "Random",
-                    "Random"
-                ],
-                "target": "all-enemy",
+                "target": "",
                 "damage": 0,
-                "cooldown": 2,
                 "classes": [
-                    "Water",
-                    "Special",
+                    "Passive",
                     "Instant"
                 ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "wartortle_bubblebeam",
-                        "duration": 5,
-                        "scope": "all-enemy",
-                        "metadata": {
-                            "harmful": true,
-                            "turnStartDamage": 10,
-                            "turnStartBonusDamageIfTargetHasStatusId": {
-                                "statusId": "squirtle_guard_break",
-                                "amount": 10
-                            },
-                            "fixedTurnStartDamage": true,
-                            "statusIconUrl": "assets/images/PokemonArena/squirtle/bubblebeam.jpeg",
-                            "tooltipText": "This character takes 10 damage at the start of each turn. If this character has Guard Break, they take 10 additional damage."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "wartortle-aqua-spin",
-                "name": "Aqua Spin",
-                "actorCondition": {
-                    "statusId": "squirtle_wartortle_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/squirtle/aquaspin.jpg",
-                "skilldescription": "Wartortle removes all harmful skills from his team and deals 25 damage to the enemy team.",
-                "energy": [
-                    "Taijutsu",
-                    "Random",
-                    "Random"
-                ],
-                "target": "all-allies",
-                "damage": 0,
-                "cooldown": 4,
-                "classes": [
-                    "Water",
-                    "Physical",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "cleanse_statuses",
-                        "scope": "all-allies",
-                        "sourceRelation": "enemy",
-                        "harmfulOnly": true,
-                        "count": 0
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 25,
-                        "scope": "all-enemy"
-                    }
-                ]
+                "effects": []
             }
-        ],
-        "role": "Tank",
-        "universe": "pokemon",
-        "arena": "pokemon",
-        "roleCategory": "tank",
-        "description": "A cautious Water-type Pokémon that turns defense into momentum. Squirtle grows stronger by shielding allies, breaking enemy guards, and cleansing harmful effects, eventually evolving into the sturdier Wartortle.",
-        "descriptionHtml": "A cautious Water-type Pokémon that turns defense into momentum. Squirtle grows stronger by shielding allies, breaking enemy guards, and cleansing harmful effects, eventually evolving into the sturdier Wartortle.",
-        "pokemonTypes": [
-            "Water"
         ]
     },
     {
@@ -19033,186 +18162,146 @@ const characters = [
         "characterId": "bulbasaur",
         "name": "Bulbasaur",
         "facePicture": "assets/images/PokemonArena/Bulbasaur/bulbasaurfp.jpg",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Drain & sustain",
+        "roleCategory": "drain-sustain",
+        "description": "Drains enemies with seeds and heals itself while it fights.",
+        "descriptionHtml": "Drains enemies with seeds and heals itself while it fights.",
+        "characterdeescription": "A patient and resilient Grass-type Pokémon that draws strength from sunlight. Bulbasaur grows more powerful as the sun shines overhead, eventually evolving into Ivysaur and unleashing devastating solar attacks.",
+        "pokemonTypes": [
+            "Grass",
+            "Poison"
+        ],
         "startStatuses": [
             {
                 "statusId": "bulbasaur_sun_tracker",
-                "duration": 99,
                 "sourceSkillId": "bulbasaur-passive-evolution-ivysaur",
+                "duration": 3,
                 "metadata": {
-                    "infiniteDuration": true,
-                    "turnEndApplyStatusToOwnerIfNoManualSkill": {
-                        "statusId": "bulbasaur_sun_stacks",
-                        "duration": 99,
-                        "sourceSkillId": "bulbasaur-passive-evolution-ivysaur",
+                    "unremovable": true,
+                    "tooltipText": "Evolves into Ivysaur at the start of its 4th turn.",
+                    "onExpireApplyStatusToSelf": {
+                        "statusId": "bulbasaur_ivysaur_evolution",
+                        "duration": 999,
                         "metadata": {
                             "infiniteDuration": true,
-                            "bulbasaurSunStacks": 1,
-                            "stackMetadataKey": "bulbasaurSunStacks",
-                            "stackDelta": 1,
-                            "stackMax": 5,
-                            "randomCostReductionPerStatusMetadata": {
-                                "skillIds": [
-                                    "bulbasaur-solar-beam",
-                                    "ivysaur-solar-beam"
-                                ],
-                                "metadataKey": "bulbasaurSunStacks",
-                                "multiplier": 1
-                            },
-                            "applyStatusAtStack": {
-                                "metadataKey": "bulbasaurSunStacks",
-                                "value": 5,
-                                "statusId": "bulbasaur_ivysaur_evolution",
-                                "duration": 99,
-                                "sourceSkillId": "bulbasaur-passive-evolution-ivysaur",
-                                "metadata": {
-                                    "infiniteDuration": true,
-                                    "removeStatusIdsOnApply": [
-                                        "bulbasaur_sun_stacks",
-                                        "bulbasaur_sun_tracker"
-                                    ],
-                                    "facePictureOverride": "assets/images/PokemonArena/Bulbasaur/ivysaurfp.jpg",
-                                    "skillReplacements": {
-                                        "bulbasaur-leech-seed": "ivysaur-leech-seed",
-                                        "bulbasaur-vine-whip": "ivysaur-vine-whip",
-                                        "bulbasaur-razor-leaf": "ivysaur-razor-leaf",
-                                        "bulbasaur-solar-beam": "ivysaur-solar-beam"
-                                    },
-                                    "tooltipText": "Bulbasaur has evolved into Ivysaur. All of his skills have improved effects.",
-                                    "healOnApplyFlat": 10
-                                }
-                            },
-                            "statusIconUrl": "assets/images/PokemonArena/Bulbasaur/passiveevolveivysaur.png",
-                            "tooltipTextTemplate": "Bulbasaur has {bulbasaurSunStacks} Sun stack(s). Solar Beam costs {bulbasaurSunStacks} less random energy. At 5 Sun, Bulbasaur evolves into Ivysaur and consumes all Sun stacks."
+                            "unremovable": true,
+                            "useEvolvedSkills": true,
+                            "facePictureOverride": "assets/images/PokemonArena/Bulbasaur/ivysaurfp.jpg",
+                            "tooltipText": "Bulbasaur has evolved into Ivysaur."
                         }
-                    },
-                    "tooltipText": "Bulbasaur gains 1 Sun whenever Leech Seed damages an enemy. If he does not use a new skill during his turn, he gains 1 Sun instead."
+                    }
                 }
             }
         ],
-        "characterdeescription": "A patient and resilient Grass-type Pokémon that draws strength from sunlight. Bulbasaur grows more powerful as the sun shines overhead, eventually evolving into Ivysaur and unleashing devastating solar attacks.",
         "skills": [
             {
                 "id": "bulbasaur-leech-seed",
                 "name": "Leech Seed",
                 "skillimage": "assets/images/PokemonArena/Bulbasaur/bulbasaurleechseed.jpg",
-                "skilldescription": "Bulbasaur steals 20 health from one enemy immediately, then steals 5 health at the start of that enemy's next 2 turns. Bulbasaur gains 1 Sun whenever Leech Seed deals damage.",
+                "skilldescription": "Deals 10 affliction damage to one enemy each turn for 3 turns and heals Bulbasaur for 5 each turn for 3 turns.",
+                "description": "Deals 10 affliction damage to one enemy each turn for 3 turns and heals Bulbasaur for 5 each turn for 3 turns.",
                 "energy": [
                     "Taijutsu"
                 ],
+                "cooldown": 1,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 1,
                 "classes": [
-                    "Grass",
-                    "Physical",
-                    "Control"
+                    "Special",
+                    "Affliction",
+                    "Instant"
                 ],
                 "effects": [
                     {
-                        "type": "health_steal_damage",
-                        "amount": 20,
-                        "scope": "target",
-                        "metadata": {
-                            "onSuccessfulDamageApplyStatusToOwner": {
-                                "statusId": "bulbasaur_sun_stacks",
-                                "duration": 99,
-                                "metadata": {
-                                    "infiniteDuration": true,
-                                    "bulbasaurSunStacks": 1,
-                                    "stackMetadataKey": "bulbasaurSunStacks",
-                                    "stackDelta": 1,
-                                    "stackMax": 5,
-                                    "randomCostReductionPerStatusMetadata": {
-                                        "skillIds": [
-                                            "bulbasaur-solar-beam",
-                                            "ivysaur-solar-beam"
-                                        ],
-                                        "metadataKey": "bulbasaurSunStacks",
-                                        "multiplier": 1
-                                    },
-                                    "statusIconUrl": "assets/images/PokemonArena/Bulbasaur/passiveevolveivysaur.png",
-                                    "tooltipTextTemplate": "Bulbasaur has {bulbasaurSunStacks} Sun stack(s). Solar Beam costs {bulbasaurSunStacks} less random energy. At 5 Sun, Bulbasaur evolves into Ivysaur and consumes all Sun stacks."
-                                }
-                            }
-                        }
-                    },
-                    {
                         "type": "apply_status",
-                        "statusId": "bulbasaur_leech_seed",
-                        "duration": 2,
+                        "duration": 3,
                         "scope": "target",
                         "metadata": {
                             "harmful": true,
-                            "turnStartDamage": 5,
-                            "damageImmediatelyOnApply": false,
-                            "turnStartHealSourceAmount": 5,
-                            "fixedTurnStartDamage": true,
+                            "afflictionDamage": true,
+                            "turnEndDamage": 10,
                             "ignoreTargetDamageReduction": true,
                             "ignoreTargetDestructibleDefense": true,
-                            "turnStartApplyStatusToSourceOwner": {
-                                "statusId": "bulbasaur_sun_stacks",
-                                "duration": 99,
-                                "sourceSkillId": "bulbasaur-passive-evolution-ivysaur",
-                                "metadata": {
-                                    "infiniteDuration": true,
-                                    "bulbasaurSunStacks": 1,
-                                    "stackMetadataKey": "bulbasaurSunStacks",
-                                    "stackDelta": 1,
-                                    "stackMax": 5,
-                                    "randomCostReductionPerStatusMetadata": {
-                                        "skillIds": [
-                                            "bulbasaur-solar-beam",
-                                            "ivysaur-solar-beam"
-                                        ],
-                                        "metadataKey": "bulbasaurSunStacks",
-                                        "multiplier": 1
-                                    },
-                                    "applyStatusAtStack": {
-                                        "metadataKey": "bulbasaurSunStacks",
-                                        "value": 5,
-                                        "statusId": "bulbasaur_ivysaur_evolution",
-                                        "duration": 99,
-                                        "sourceSkillId": "bulbasaur-passive-evolution-ivysaur",
-                                        "metadata": {
-                                            "infiniteDuration": true,
-                                            "removeStatusIdsOnApply": [
-                                                "bulbasaur_sun_stacks"
-                                            ],
-                                            "facePictureOverride": "assets/images/PokemonArena/Bulbasaur/ivysaurfp.jpg",
-                                            "skillReplacements": {
-                                                "bulbasaur-leech-seed": "ivysaur-leech-seed",
-                                                "bulbasaur-vine-whip": "ivysaur-vine-whip",
-                                                "bulbasaur-razor-leaf": "ivysaur-razor-leaf",
-                                                "bulbasaur-solar-beam": "ivysaur-solar-beam"
-                                            },
-                                            "tooltipText": "Bulbasaur has evolved into Ivysaur. All of his skills have improved effects.",
-                                            "healOnApplyFlat": 10
-                                        }
-                                    },
-                                    "statusIconUrl": "assets/images/PokemonArena/Bulbasaur/passiveevolveivysaur.png",
-                                    "tooltipTextTemplate": "Bulbasaur has {bulbasaurSunStacks} Sun stack(s). Solar Beam costs {bulbasaurSunStacks} less random energy. At 5 Sun, Bulbasaur evolves into Ivysaur and consumes all Sun stacks."
-                                }
-                            },
-                            "statusIconUrl": "assets/images/PokemonArena/Bulbasaur/bulbasaurleechseed.jpg",
-                            "tooltipText": "This character loses 5 health at the start of each of their next 2 turns. Bulbasaur restores 5 health and gains 1 Sun whenever this deals damage."
-                        }
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "Takes 10 affliction damage each turn."
+                        },
+                        "statusId": "bulbasaur_leech_seed_1"
+                    },
+                    {
+                        "type": "apply_status",
+                        "duration": 3,
+                        "scope": "self",
+                        "metadata": {
+                            "turnEndHealFlat": 5,
+                            "tooltipText": "Heals 5 each turn."
+                        },
+                        "statusId": "bulbasaur_leech_seed_2"
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "ivysaur-leech-seed",
+                    "name": "Leech Seed",
+                    "skillimage": "assets/images/PokemonArena/Bulbasaur/ivysaurleechseed.png",
+                    "skilldescription": "Deals 15 affliction damage to one enemy each turn for 3 turns and heals Ivysaur for 10 each turn for 3 turns.",
+                    "description": "Deals 15 affliction damage to one enemy each turn for 3 turns and heals Ivysaur for 10 each turn for 3 turns.",
+                    "energy": [
+                        "Taijutsu"
+                    ],
+                    "cooldown": 1,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Special",
+                        "Affliction",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "apply_status",
+                            "duration": 3,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true,
+                                "afflictionDamage": true,
+                                "turnEndDamage": 15,
+                                "ignoreTargetDamageReduction": true,
+                                "ignoreTargetDestructibleDefense": true,
+                                "turnEndTrigger": "source_turn",
+                                "turnDurationAnchor": "source_turn",
+                                "tooltipText": "Takes 15 affliction damage each turn."
+                            },
+                            "statusId": "ivysaur_leech_seed_1"
+                        },
+                        {
+                            "type": "apply_status",
+                            "duration": 3,
+                            "scope": "self",
+                            "metadata": {
+                                "turnEndHealFlat": 10,
+                                "tooltipText": "Heals 10 each turn."
+                            },
+                            "statusId": "ivysaur_leech_seed_2"
+                        }
+                    ]
+                }
             },
             {
                 "id": "bulbasaur-vine-whip",
                 "name": "Vine Whip",
                 "skillimage": "assets/images/PokemonArena/Bulbasaur/bulbasaurvinewhip.jpg",
-                "skilldescription": "Bulbasaur deals 25 piercing damage to one enemy. That enemy's harmful skills are stunned for 1 turn. This skill has a 10% chance to critically strike for each Sun stack, dealing 15 additional damage.",
+                "skilldescription": "Deals 25 damage to one enemy.",
+                "description": "Deals 25 damage to one enemy.",
                 "energy": [
                     "Taijutsu",
                     "Random"
                 ],
+                "cooldown": 0,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 1,
                 "classes": [
-                    "Grass",
                     "Physical",
                     "Instant"
                 ],
@@ -19222,347 +18311,180 @@ const characters = [
                         "amount": 25,
                         "scope": "target",
                         "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 15,
-                        "scope": "target",
-                        "chance": 0,
-                        "metadata": {
-                            "ignoreDamageReduction": true,
-                            "chancePerStatusMetadata": {
-                                "scope": "self",
-                                "statusId": "bulbasaur_sun_stacks",
-                                "metadataKey": "bulbasaurSunStacks",
-                                "multiplier": 10
-                            }
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "bulbasaur_vine_whip_harmful_stun",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "cannotUseHarmfulSkills": true,
-                            "tooltipText": "This character's harmful skills are disabled."
+                            "harmful": true
                         }
                     }
-                ]
-            },
-            {
-                "id": "bulbasaur-razor-leaf",
-                "name": "Razor Leaf",
-                "skillimage": "assets/images/PokemonArena/Bulbasaur/bulbasaurrazorleaf.jpg",
-                "skilldescription": "Bulbasaur deals 15 damage to one enemy and 10 damage to all other enemies. This skill has a 10% chance to critically strike each enemy for each Sun stack, dealing 10 additional damage and becoming Piercing.",
-                "energy": [
-                    "Random",
-                    "Random"
                 ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 2,
-                "classes": [
-                    "Grass",
-                    "Physical",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 15,
-                        "scope": "target"
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 10,
-                        "scope": "other-enemies"
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 10,
-                        "scope": "all-enemy",
-                        "chance": 0,
-                        "rollPerRecipient": true,
-                        "metadata": {
-                            "ignoreDamageReduction": true,
-                            "chancePerStatusMetadata": {
-                                "scope": "self",
-                                "statusId": "bulbasaur_sun_stacks",
-                                "metadataKey": "bulbasaurSunStacks",
-                                "multiplier": 10
+                "evolvesTo": {
+                    "id": "ivysaur-vine-whip",
+                    "name": "Vine Whip",
+                    "skillimage": "assets/images/PokemonArena/Bulbasaur/ivysaurvinewhip.jpg",
+                    "skilldescription": "Deals 35 damage to one enemy.",
+                    "description": "Deals 35 damage to one enemy.",
+                    "energy": [
+                        "Taijutsu",
+                        "Random"
+                    ],
+                    "cooldown": 0,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Physical",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "damage",
+                            "amount": 35,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true
                             }
                         }
-                    }
-                ]
+                    ]
+                }
             },
             {
                 "id": "bulbasaur-solar-beam",
                 "name": "Solar Beam",
                 "skillimage": "assets/images/PokemonArena/Bulbasaur/bulbasaursolarbeam.jpg",
-                "skilldescription": "This skill costs 1 less Random energy for each Sun stack Bulbasaur possesses. Bulbasaur deals 50 damage to one enemy. After using this skill, all Sun stacks are removed.",
+                "skilldescription": "Deals 45 piercing damage to one enemy.",
+                "description": "Deals 45 piercing damage to one enemy.",
                 "energy": [
                     "Taijutsu",
                     "Random",
-                    "Random",
-                    "Random",
-                    "Random",
                     "Random"
                 ],
+                "cooldown": 3,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 3,
-                "cannotBeCountered": true,
                 "classes": [
-                    "Grass",
                     "Special",
-                    "Instant",
-                    "Uncounterable"
+                    "Instant"
                 ],
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 50,
-                        "scope": "target"
-                    },
+                        "amount": 45,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    }
+                ],
+                "evolvesTo": {
+                    "id": "ivysaur-solar-beam",
+                    "name": "Solar Beam",
+                    "skillimage": "assets/images/PokemonArena/Bulbasaur/ivysaursolarbeam.webp",
+                    "skilldescription": "Deals 55 piercing damage to one enemy.",
+                    "description": "Deals 55 piercing damage to one enemy.",
+                    "energy": [
+                        "Taijutsu",
+                        "Random",
+                        "Random"
+                    ],
+                    "cooldown": 3,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Special",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "damage",
+                            "amount": 55,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true,
+                                "ignoreDamageReduction": true,
+                                "ignoreDestructibleDefense": true
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "bulbasaur-razor-leaf",
+                "name": "Synthesis",
+                "skillimage": "assets/images/PokemonArena/Bulbasaur/bulbasaurrazorleaf.jpg",
+                "skilldescription": "Bulbasaur becomes invulnerable for 1 turn.",
+                "description": "Bulbasaur becomes invulnerable for 1 turn.",
+                "energy": [
+                    "Random"
+                ],
+                "cooldown": 4,
+                "target": "self",
+                "damage": 0,
+                "classes": [
+                    "Strategic",
+                    "Instant"
+                ],
+                "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "bulbasaur_sun_spent",
                         "duration": 1,
                         "scope": "self",
                         "metadata": {
-                            "removeStatusIdsOnApply": [
-                                "bulbasaur_sun_stacks"
-                            ]
-                        }
+                            "invulnerable": true,
+                            "tooltipText": "Invulnerable."
+                        },
+                        "statusId": "bulbasaur_razor_leaf_1"
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "ivysaur-razor-leaf",
+                    "name": "Synthesis",
+                    "skillimage": "assets/images/PokemonArena/Bulbasaur/ivysaurrazorleaf.jpg",
+                    "skilldescription": "Ivysaur becomes invulnerable for 1 turn and heals Ivysaur for 15.",
+                    "description": "Ivysaur becomes invulnerable for 1 turn and heals Ivysaur for 15.",
+                    "energy": [
+                        "Random"
+                    ],
+                    "cooldown": 4,
+                    "target": "self",
+                    "damage": 0,
+                    "classes": [
+                        "Strategic",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "apply_status",
+                            "duration": 1,
+                            "scope": "self",
+                            "metadata": {
+                                "invulnerable": true,
+                                "tooltipText": "Invulnerable."
+                            },
+                            "statusId": "ivysaur_razor_leaf_1"
+                        },
+                        {
+                            "type": "heal",
+                            "amount": 15,
+                            "scope": "self"
+                        }
+                    ]
+                }
             },
             {
                 "id": "bulbasaur-passive-evolution-ivysaur",
-                "name": "Evolution - Ivysaur",
+                "name": "Evolution: Ivysaur",
                 "skillimage": "assets/images/PokemonArena/Bulbasaur/passiveevolveivysaur.png",
-                "skilldescription": "Whenever Bulbasaur damages an enemy with Leech Seed, he gains 1 Sun stack. If Bulbasaur does not use a new skill during his turn, he gains 1 Sun stack instead. Maximum: 5 Sun. When Bulbasaur reaches 5 Sun, he immediately evolves into Ivysaur and consumes all Sun stacks. Ivysaur gains improved versions of all skills.",
+                "skilldescription": "At the start of its 4th turn, Bulbasaur evolves into Ivysaur and its skills get stronger.",
+                "description": "At the start of its 4th turn, Bulbasaur evolves into Ivysaur and its skills get stronger.",
                 "energy": [],
+                "cooldown": 0,
                 "target": "",
                 "damage": 0,
-                "cooldown": 0,
                 "classes": [
-                    "Grass",
                     "Passive",
                     "Instant"
-                ]
-            },
-            {
-                "id": "ivysaur-leech-seed",
-                "name": "Ivysaur's Leech Seed",
-                "actorCondition": {
-                    "statusId": "bulbasaur_ivysaur_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/Bulbasaur/ivysaurleechseed.png",
-                "skilldescription": "Ivysaur steals 25 health from one enemy immediately, then steals 10 health at the start of that enemy's next 2 turns.",
-                "energy": [
-                    "Taijutsu",
-                    "Random"
                 ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 1,
-                "classes": [
-                    "Grass",
-                    "Physical",
-                    "Control"
-                ],
-                "effects": [
-                    {
-                        "type": "health_steal_damage",
-                        "amount": 25,
-                        "scope": "target"
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "ivysaur_leech_seed",
-                        "duration": 2,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "turnStartDamage": 10,
-                            "damageImmediatelyOnApply": false,
-                            "turnStartHealSourceAmount": 10,
-                            "fixedTurnStartDamage": true,
-                            "ignoreTargetDamageReduction": true,
-                            "ignoreTargetDestructibleDefense": true,
-                            "statusIconUrl": "assets/images/PokemonArena/Bulbasaur/ivysaurleechseed.png",
-                            "tooltipText": "This character loses 10 health at the start of each of their next 2 turns. Ivysaur restores 10 health whenever this deals damage."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "ivysaur-vine-whip",
-                "name": "Ivysaur's Vine Whip",
-                "actorCondition": {
-                    "statusId": "bulbasaur_ivysaur_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/Bulbasaur/ivysaurvinewhip.jpg",
-                "skilldescription": "Ivysaur deals 35 piercing damage to one enemy. That enemy's harmful skills are stunned for 1 turn. This skill has a 10% chance to critically strike for each Sun stack, dealing 15 additional damage.",
-                "energy": [
-                    "Taijutsu",
-                    "Random"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 1,
-                "classes": [
-                    "Grass",
-                    "Physical",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 35,
-                        "scope": "target",
-                        "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 15,
-                        "scope": "target",
-                        "chance": 0,
-                        "metadata": {
-                            "ignoreDamageReduction": true,
-                            "chancePerStatusMetadata": {
-                                "scope": "self",
-                                "statusId": "bulbasaur_sun_stacks",
-                                "metadataKey": "bulbasaurSunStacks",
-                                "multiplier": 10
-                            }
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "ivysaur_vine_whip_harmful_stun",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "cannotUseHarmfulSkills": true,
-                            "tooltipText": "This character's harmful skills are disabled."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "ivysaur-razor-leaf",
-                "name": "Ivysaur's Razor Leaf",
-                "actorCondition": {
-                    "statusId": "bulbasaur_ivysaur_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/Bulbasaur/ivysaurrazorleaf.jpg",
-                "skilldescription": "Ivysaur deals 30 damage to one enemy and 25 damage to all other enemies. This skill has a 10% chance to critically strike each enemy for each Sun stack, dealing 10 additional damage and becoming Piercing.",
-                "energy": [
-                    "Random",
-                    "Random",
-                    "Random"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 2,
-                "classes": [
-                    "Grass",
-                    "Physical",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 30,
-                        "scope": "target"
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 25,
-                        "scope": "other-enemies"
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 10,
-                        "scope": "all-enemy",
-                        "chance": 0,
-                        "rollPerRecipient": true,
-                        "metadata": {
-                            "ignoreDamageReduction": true,
-                            "chancePerStatusMetadata": {
-                                "scope": "self",
-                                "statusId": "bulbasaur_sun_stacks",
-                                "metadataKey": "bulbasaurSunStacks",
-                                "multiplier": 10
-                            }
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "ivysaur-solar-beam",
-                "name": "Ivysaur's Solar Beam",
-                "actorCondition": {
-                    "statusId": "bulbasaur_ivysaur_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/Bulbasaur/ivysaursolarbeam.webp",
-                "skilldescription": "This skill costs 1 less Random energy for each Sun stack Ivysaur possesses. Ivysaur deals 65 damage to one enemy. After using this skill, all Sun stacks are removed.",
-                "energy": [
-                    "Taijutsu",
-                    "Random",
-                    "Random",
-                    "Random",
-                    "Random",
-                    "Random"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 3,
-                "cannotBeCountered": true,
-                "classes": [
-                    "Grass",
-                    "Special",
-                    "Instant",
-                    "Uncounterable"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 65,
-                        "scope": "target"
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "bulbasaur_sun_spent",
-                        "duration": 1,
-                        "scope": "self",
-                        "metadata": {
-                            "removeStatusIdsOnApply": [
-                                "bulbasaur_sun_stacks"
-                            ]
-                        }
-                    }
-                ]
+                "effects": []
             }
-        ],
-        "role": "Hybrid",
-        "universe": "pokemon",
-        "arena": "pokemon",
-        "roleCategory": "Hybrid",
-        "description": "A patient and resilient Grass-type Pokémon that draws strength from sunlight. Bulbasaur grows more powerful as the sun shines overhead, eventually evolving into Ivysaur and unleashing devastating solar attacks.",
-        "descriptionHtml": "A patient and resilient Grass-type Pokémon that draws strength from sunlight. Bulbasaur grows more powerful as the sun shines overhead, eventually evolving into Ivysaur and unleashing devastating solar attacks.",
-        "pokemonTypes": [
-            "Grass",
-            "Poison"
         ]
     },
     {
@@ -19570,113 +18492,41 @@ const characters = [
         "characterId": "pikachu",
         "name": "Pikachu",
         "facePicture": "assets/images/PokemonArena/newpikachufp.jpeg",
-        "startStatuses": [
-            {
-                "statusId": "pikachu_static_passive",
-                "duration": 99,
-                "sourceSkillId": "pikachu-passive-static",
-                "metadata": {
-                    "infiniteDuration": true,
-                    "onEnemySkillTargetedChancePercent": 100,
-                    "onEnemySkillTargetedDamageToSourceAmount": 5,
-                    "onEnemySkillTargetedDamageToSourceIgnoreDamageReduction": true,
-                    "onEnemySkillTargetedDamageToSourceIgnoreDestructibleDefense": true,
-                    "onEnemySkillTargetedDamageToSourceSkillClasses": [
-                        "Energy",
-                        "Instant"
-                    ],
-                    "onEnemySkillTargetedApplyStatusToSource": {
-                        "statusId": "pikachu_static_mark",
-                        "duration": 1,
-                        "metadata": {
-                            "harmful": true,
-                            "statusIconUrl": "assets/images/PokemonArena/Pikachu/passivestatic.jpeg",
-                            "tooltipText": "This character is marked by Static."
-                        }
-                    },
-                    "tooltipText": "Any enemy who uses a new skill on Pikachu takes 5 piercing damage and is marked by Static for 1 turn."
-                }
-            }
-        ],
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Burst damage",
+        "roleCategory": "burst-damage",
+        "description": "Fast electric attacks that can stun.",
+        "descriptionHtml": "Fast electric attacks that can stun.",
         "characterdeescription": "When several of these Pokémon gather, their electricity could build up and cause lightning storms. Forest dwellers, they are few in number and exceptionally rare. The pouches in their cheeks discharge electricity at their opponents. The Pikachu are believed to be highly intelligent.",
+        "pokemonTypes": [
+            "Electric"
+        ],
+        "startStatuses": [],
         "skills": [
             {
                 "id": "pikachu-thundershock",
                 "name": "Thundershock",
                 "skillimage": "assets/images/PokemonArena/Pikachu/thundershock.jpg",
-                "skilldescription": "Deals 20 piercing damage to one targeted enemy and 15 piercing damage to a random different enemy, paralyzes the targeted enemy's cooldowns, and makes Thunder cost 1 white energy and 1 Random energy for 1 turn. If the targeted enemy is affected by Static, their cooldowns are paralyzed for 2 turns instead.",
+                "skilldescription": "Deals 20 damage to one enemy.",
+                "description": "Deals 20 damage to one enemy.",
                 "energy": [
                     "Genjutsu"
                 ],
+                "cooldown": 0,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 0,
                 "classes": [
-                    "Electric",
                     "Special",
                     "Instant"
                 ],
                 "effects": [
                     {
-                        "scope": "target",
                         "type": "damage",
                         "amount": 20,
-                        "metadata": {
-                            "harmful": true,
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "scope": "random-other-enemy",
-                        "type": "damage",
-                        "amount": 15,
-                        "metadata": {
-                            "harmful": true,
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
                         "scope": "target",
-                        "type": "apply_status",
-                        "statusId": "cooldown_paralyze",
-                        "duration": 1,
                         "metadata": {
-                            "harmful": true,
-                            "paralyzeCooldowns": true,
-                            "tooltipText": "Cooldowns are paralyzed."
-                        }
-                    },
-                    {
-                        "scope": "target",
-                        "type": "apply_status",
-                        "statusId": "cooldown_paralyze",
-                        "duration": 2,
-                        "condition": {
-                            "scope": "target",
-                            "statusId": "pikachu_static_mark"
-                        },
-                        "metadata": {
-                            "harmful": true,
-                            "paralyzeCooldowns": true,
-                            "tooltipText": "Cooldowns are paralyzed by Static."
-                        }
-                    },
-                    {
-                        "scope": "self",
-                        "type": "apply_status",
-                        "statusId": "pikachu_thundershock_thunder_cost",
-                        "duration": 1,
-                        "metadata": {
-                            "skillCostOverridesBySkillId": {
-                                "pikachu-thunder": {
-                                    "energy": [
-                                        "Genjutsu",
-                                        "Random"
-                                    ]
-                                }
-                            },
-                            "statusIconUrl": "assets/images/PokemonArena/Pikachu/thundershock.jpg",
-                            "tooltipText": "Thunder costs 1 Ninjutsu and 1 Random energy."
+                            "harmful": true
                         }
                     }
                 ]
@@ -19685,63 +18535,28 @@ const characters = [
                 "id": "pikachu-volt-tackle",
                 "name": "Volt Tackle",
                 "skillimage": "assets/images/PokemonArena/Pikachu/volttackle.jpeg",
-                "skilldescription": "Pikachu deals 35 piercing damage to one enemy then loses 15 health. For 1 turn, if the target uses a new skill it will have its cooldown increased by 2 turns. If the target is affected by Static, their cooldowns are increased for 4 turns instead.",
+                "skilldescription": "Deals 40 piercing damage to one enemy.",
+                "description": "Deals 40 piercing damage to one enemy.",
                 "energy": [
                     "Taijutsu",
                     "Genjutsu"
                 ],
+                "cooldown": 1,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 0,
                 "classes": [
-                    "Electric",
-                    "Special",
+                    "Physical",
                     "Instant"
                 ],
                 "effects": [
                     {
-                        "scope": "target",
                         "type": "damage",
-                        "amount": 35,
+                        "amount": 40,
+                        "scope": "target",
                         "metadata": {
                             "harmful": true,
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "scope": "self",
-                        "type": "damage",
-                        "amount": 15,
-                        "metadata": {
-                            "fixedDamage": true,
                             "ignoreDamageReduction": true,
                             "ignoreDestructibleDefense": true
-                        }
-                    },
-                    {
-                        "scope": "target",
-                        "type": "apply_status",
-                        "statusId": "pikachu_volt_tackle_cooldown_shock",
-                        "duration": 1,
-                        "metadata": {
-                            "harmful": true,
-                            "newSkillCooldownIncrease": 2,
-                            "tooltipText": "This character's new skills have their cooldown increased by 2 turns."
-                        }
-                    },
-                    {
-                        "scope": "target",
-                        "type": "apply_status",
-                        "statusId": "pikachu_volt_tackle_cooldown_shock",
-                        "duration": 4,
-                        "condition": {
-                            "scope": "target",
-                            "statusId": "pikachu_static_mark"
-                        },
-                        "metadata": {
-                            "harmful": true,
-                            "newSkillCooldownIncrease": 2,
-                            "tooltipText": "Static empowers Volt Tackle: this character's new skills have their cooldown increased by 2 turns."
                         }
                     }
                 ]
@@ -19750,128 +18565,70 @@ const characters = [
                 "id": "pikachu-thunder",
                 "name": "Thunder",
                 "skillimage": "assets/images/PokemonArena/Pikachu/thunder.jpg",
-                "skilldescription": "Deals 45 piercing damage to one enemy. If the target is affected by Static, they also take 5 piercing damage, have their harmful skills stunned for 1 turn, and Static is re-applied to them.",
+                "skilldescription": "Deals 25 damage to one enemy and stuns the target for 1 turn.",
+                "description": "Deals 25 damage to one enemy and stuns the target for 1 turn.",
                 "energy": [
                     "Genjutsu",
-                    "Genjutsu"
+                    "Random"
                 ],
+                "cooldown": 3,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 1,
                 "classes": [
-                    "Electric",
                     "Special",
                     "Instant"
                 ],
                 "effects": [
                     {
-                        "scope": "target",
                         "type": "damage",
-                        "amount": 45,
+                        "amount": 25,
+                        "scope": "target",
                         "metadata": {
-                            "harmful": true,
-                            "ignoreDamageReduction": true
+                            "harmful": true
                         }
                     },
                     {
-                        "scope": "target",
-                        "type": "damage",
-                        "amount": 5,
-                        "condition": {
-                            "scope": "target",
-                            "statusId": "pikachu_static_mark"
-                        },
-                        "metadata": {
-                            "harmful": true,
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "scope": "target",
                         "type": "apply_status",
-                        "statusId": "pikachu_thunder_harmful_stun",
                         "duration": 1,
-                        "condition": {
-                            "scope": "target",
-                            "statusId": "pikachu_static_mark"
-                        },
-                        "metadata": {
-                            "harmful": true,
-                            "cannotUseHarmfulSkills": true,
-                            "tooltipText": "This character's harmful skills are stunned."
-                        }
-                    },
-                    {
                         "scope": "target",
-                        "type": "apply_status",
-                        "statusId": "pikachu_static_mark",
-                        "duration": 1,
-                        "condition": {
-                            "scope": "target",
-                            "statusId": "pikachu_static_mark"
-                        },
                         "metadata": {
                             "harmful": true,
-                            "statusIconUrl": "assets/images/PokemonArena/Pikachu/passivestatic.jpeg",
-                            "tooltipText": "This character is marked by Static."
-                        }
+                            "cannotUseSkills": true,
+                            "tooltipText": "Stunned: cannot use skills."
+                        },
+                        "statusId": "pikachu_thunder_1"
                     }
                 ]
             },
             {
                 "id": "pikachu-agility",
-                "name": "Pikachu Agility",
+                "name": "Agility",
                 "skillimage": "assets/images/PokemonArena/Pikachu/agility.jpeg",
                 "skilldescription": "Pikachu becomes invulnerable for 1 turn.",
+                "description": "Pikachu becomes invulnerable for 1 turn.",
                 "energy": [
-                    "Random",
                     "Random"
                 ],
+                "cooldown": 4,
                 "target": "self",
                 "damage": 0,
-                "cooldown": 4,
                 "classes": [
-                    "Psychic",
                     "Strategic",
                     "Instant"
                 ],
                 "effects": [
                     {
-                        "scope": "self",
                         "type": "apply_status",
-                        "statusId": "pikachu_agility_invulnerable",
                         "duration": 1,
+                        "scope": "self",
                         "metadata": {
                             "invulnerable": true,
-                            "tooltipText": "Pikachu is invulnerable."
-                        }
+                            "tooltipText": "Invulnerable."
+                        },
+                        "statusId": "pikachu_agility_1"
                     }
                 ]
-            },
-            {
-                "id": "pikachu-passive-static",
-                "name": "Static",
-                "skillimage": "assets/images/PokemonArena/Pikachu/passivestatic.jpeg",
-                "skilldescription": "Any enemy who uses a new skill on Pikachu takes 5 piercing damage and is marked by this skill for 1 turn.",
-                "energy": [],
-                "target": "",
-                "damage": 0,
-                "cooldown": 0,
-                "classes": [
-                    "Electric",
-                    "Passive",
-                    "Instant"
-                ]
             }
-        ],
-        "role": "Spike DPS",
-        "universe": "pokemon",
-        "arena": "pokemon",
-        "roleCategory": "spike-dps",
-        "description": "When several of these Pokémon gather, their electricity could build up and cause lightning storms. Forest dwellers, they are few in number and exceptionally rare. The pouches in their cheeks discharge electricity at their opponents. The Pikachu are believed to be highly intelligent.",
-        "descriptionHtml": "When several of these Pokémon gather, their electricity could build up and cause lightning storms. Forest dwellers, they are few in number and exceptionally rare. The pouches in their cheeks discharge electricity at their opponents. The Pikachu are believed to be highly intelligent.",
-        "pokemonTypes": [
-            "Electric"
         ]
     },
     {
@@ -19879,126 +18636,42 @@ const characters = [
         "characterId": "butterfree",
         "name": "Butterfree",
         "facePicture": "assets/images/PokemonArena/butterfree/butterfreefp.webp",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Controller",
+        "roleCategory": "controller",
+        "description": "Puts enemies to sleep and weakens their attacks with powders.",
+        "descriptionHtml": "Puts enemies to sleep and weakens their attacks with powders.",
         "characterdeescription": "A graceful butterfly Pokemon that turns powder, psionic force, and careful positioning into battlefield control. Butterfree disorients enemies, disrupts their cooldowns, and puts threats to sleep while its wings keep allies safe from ranged attacks.",
+        "pokemonTypes": [
+            "Bug",
+            "Flying"
+        ],
+        "startStatuses": [],
         "skills": [
             {
                 "id": "butterfree-confusion",
                 "name": "Confusion",
                 "skillimage": "assets/images/PokemonArena/butterfree/confusion.webp",
-                "skilldescription": "Butterfree deals 25 damage to one enemy. This skill has a 25% chance to reflect the next harmful skill used by that enemy back onto its user for 1 turn. For 1 turn, Psybeam deals 5 additional damage and costs 1 less Random energy.",
+                "skilldescription": "Deals 20 damage to one enemy.",
+                "description": "Deals 20 damage to one enemy.",
                 "energy": [
-                    "Taijutsu",
-                    "Random"
+                    "Ninjutsu"
                 ],
+                "cooldown": 0,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 1,
                 "classes": [
-                    "Psychic",
-                    "Special",
-                    "Instant",
-                    "Invisible"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 25,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "butterfree_confusion_reflect",
-                        "duration": 1,
-                        "scope": "target",
-                        "chance": 25,
-                        "metadata": {
-                            "harmful": true,
-                            "reflectNextOwnerUseSkill": true,
-                            "reflectOnlyHarmfulSkills": true,
-                            "reflectBackToCaster": true,
-                            "turnDurationAnchor": "source_turn",
-                            "tooltipText": "The next harmful skill used by this character is reflected back to the user."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "butterfree_confusion_psybeam_bonus",
-                        "duration": 1,
-                        "scope": "self",
-                        "metadata": {
-                            "skillDamageBonuses": {
-                                "butterfree-psybeam": 5
-                            },
-                            "skillCostOverridesBySkillId": {
-                                "butterfree-psybeam": {
-                                    "requiredRandom": 0
-                                }
-                            },
-                            "turnDurationAnchor": "source_turn",
-                            "tooltipText": "Psybeam deals 5 additional damage and costs 1 less random energy."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "butterfree-psybeam",
-                "name": "Psybeam",
-                "skillimage": "assets/images/PokemonArena/butterfree/psybeam.webp",
-                "skilldescription": "Butterfree deals 25 damage to one enemy and increases their next skill cooldown by 2 turns for 1 turn. For 1 turn, Confusion deals 5 additional damage and costs 1 less Random energy.",
-                "energy": [
-                    "Ninjutsu",
-                    "Random"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 1,
-                "classes": [
-                    "Psychic",
                     "Special",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 25,
+                        "amount": 20,
                         "scope": "target",
                         "metadata": {
-                            "harmful": true,
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "butterfree_psybeam_cooldown_wave",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "newSkillCooldownIncrease": 2,
-                            "turnDurationAnchor": "source_turn",
-                            "tooltipText": "This character's new skills cost 2 additional cooldown for 1 turn."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "butterfree_psybeam_confusion_bonus",
-                        "duration": 1,
-                        "scope": "self",
-                        "metadata": {
-                            "skillDamageBonuses": {
-                                "butterfree-confusion": 5
-                            },
-                            "skillCostOverridesBySkillId": {
-                                "butterfree-confusion": {
-                                    "requiredRandom": 0
-                                }
-                            },
-                            "turnDurationAnchor": "source_turn",
-                            "tooltipText": "Confusion deals 5 additional damage and costs 1 less random energy."
+                            "harmful": true
                         }
                     }
                 ]
@@ -20007,82 +18680,38 @@ const characters = [
                 "id": "butterfree-stun-spore",
                 "name": "Stun Spore",
                 "skillimage": "assets/images/PokemonArena/butterfree/stunspore.webp",
-                "skilldescription": "For 2 turns, one enemy takes 10 affliction damage each turn and their cooldowns are paralyzed for 1 turn each turn. This swaps to Sleep Powder after being used.",
+                "skilldescription": "Deals 15 damage to one enemy and stuns the target for 1 turn.",
+                "description": "Deals 15 damage to one enemy and stuns the target for 1 turn.",
                 "energy": [
-                    "Genjutsu"
+                    "Genjutsu",
+                    "Random"
                 ],
+                "cooldown": 3,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 2,
                 "classes": [
-                    "Grass",
-                    "Physical",
-                    "Affliction",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
                     {
-                        "type": "apply_status",
-                        "statusId": "butterfree_stun_spore_lock",
-                        "duration": 2,
+                        "type": "damage",
+                        "amount": 15,
                         "scope": "target",
                         "metadata": {
-                            "harmful": true,
-                            "turnEndDamage": 10,
-                            "afflictionDamage": true,
-                            "ignoreTargetDamageReduction": true,
-                            "ignoreTargetDestructibleDefense": true,
-                            "freezeCooldowns": true,
-                            "turnEndTrigger": "source_turn",
-                            "turnDurationAnchor": "source_turn",
-                            "tooltipText": "This character takes 10 affliction damage each turn and their cooldowns are paralyzed."
+                            "harmful": true
                         }
                     },
                     {
                         "type": "apply_status",
-                        "statusId": "butterfree_stun_spore_swap",
-                        "duration": 99,
-                        "scope": "self",
-                        "metadata": {
-                            "infiniteDuration": true,
-                            "skillReplacements": {
-                                "butterfree-stun-spore": "butterfree-sleep-powder"
-                            },
-                            "removeStatusIdsOnApply": [
-                                "butterfree_sleep_powder_swap"
-                            ],
-                            "tooltipText": "Stun Spore is replaced by Sleep Powder."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "butterfree-whirlwind",
-                "name": "Whirlwind",
-                "skillimage": "assets/images/PokemonArena/butterfree/whirlwind.webp",
-                "skilldescription": "For 1 turn, your team is invulnerable to Physical and Special skills.",
-                "energy": [
-                    "Ninjutsu"
-                ],
-                "target": "all-allies",
-                "damage": 0,
-                "cooldown": 4,
-                "classes": [
-                    "Normal",
-                    "Physical",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "butterfree_whirlwind_cover",
                         "duration": 1,
-                        "scope": "all-allies",
+                        "scope": "target",
                         "metadata": {
-                            "invulnerableToSkillClasses": ["Physical", "Special"],
-                            "turnDurationAnchor": "source_turn",
-                            "tooltipText": "This character is invulnerable to Physical and Special skills."
-                        }
+                            "harmful": true,
+                            "cannotUseSkills": true,
+                            "tooltipText": "Stunned: cannot use skills."
+                        },
+                        "statusId": "butterfree_stun_spore_1"
                     }
                 ]
             },
@@ -20090,65 +18719,62 @@ const characters = [
                 "id": "butterfree-sleep-powder",
                 "name": "Sleep Powder",
                 "skillimage": "assets/images/PokemonArena/butterfree/sleeppowder.webp",
-                "skilldescription": "For 2 turns, one enemy is stunned. Any new damage will cancel this effect. This swaps to Stun Spore after being used.",
+                "skilldescription": "All enemies deal 10 less damage for 2 turns.",
+                "description": "All enemies deal 10 less damage for 2 turns.",
                 "energy": [
-                    "Random",
+                    "Genjutsu",
                     "Random"
                 ],
-                "target": "single-enemy",
-                "damage": 0,
                 "cooldown": 3,
+                "target": "all-enemy",
+                "damage": 0,
                 "classes": [
-                    "Grass",
-                    "Physical",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "butterfree_sleep_powder_stun",
                         "duration": 2,
-                        "scope": "target",
+                        "scope": "all-enemy",
                         "metadata": {
                             "harmful": true,
-                            "cannotUseSkills": true,
-                            "removeStatusIdsOnNewDamage": [
-                                "butterfree_sleep_powder_stun"
-                            ],
-                            "turnEndTrigger": "source_turn",
-                            "turnDurationAnchor": "source_turn",
-                            "tooltipText": "This character is stunned and any new damage will cancel this effect."
-                        }
-                    },
+                            "DamageDebuff": 10,
+                            "tooltipText": "Deals 10 less damage."
+                        },
+                        "statusId": "butterfree_sleep_powder_1"
+                    }
+                ]
+            },
+            {
+                "id": "butterfree-whirlwind",
+                "name": "Protect",
+                "skillimage": "assets/images/PokemonArena/butterfree/whirlwind.webp",
+                "skilldescription": "Butterfree becomes invulnerable for 1 turn.",
+                "description": "Butterfree becomes invulnerable for 1 turn.",
+                "energy": [
+                    "Random"
+                ],
+                "cooldown": 4,
+                "target": "self",
+                "damage": 0,
+                "classes": [
+                    "Strategic",
+                    "Instant"
+                ],
+                "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "butterfree_sleep_powder_swap",
-                        "duration": 99,
+                        "duration": 1,
                         "scope": "self",
                         "metadata": {
-                            "infiniteDuration": true,
-                            "skillReplacements": {
-                                "butterfree-sleep-powder": "butterfree-stun-spore"
-                            },
-                            "removeStatusIdsOnApply": [
-                                "butterfree_stun_spore_swap"
-                            ],
-                            "tooltipText": "Sleep Powder is replaced by Stun Spore."
-                        }
+                            "invulnerable": true,
+                            "tooltipText": "Invulnerable."
+                        },
+                        "statusId": "butterfree_whirlwind_1"
                     }
                 ]
             }
-        ],
-        "role": "Controller",
-        "universe": "pokemon",
-        "arena": "pokemon",
-        "roleCategory": "controller",
-        "description": "A graceful butterfly Pokemon that turns powder, psionic force, and careful positioning into battlefield control. Butterfree disorients enemies, disrupts their cooldowns, and puts threats to sleep while its wings keep allies safe from ranged attacks.",
-        "descriptionHtml": "A graceful butterfly Pokemon that turns powder, psionic force, and careful positioning into battlefield control. Butterfree disorients enemies, disrupts their cooldowns, and puts threats to sleep while its wings keep allies safe from ranged attacks.",
-        "startStatuses": [],
-        "pokemonTypes": [
-            "Bug",
-            "Flying"
         ]
     },
     {
@@ -20416,14 +19042,9 @@ const characters = [
                                 "charmander_evolution_tracker"
                             ],
                             "facePictureOverride": "assets/images/PokemonArena/Charmander/charmeleonfp.jpg",
-                            "skillReplacements": {
-                                "charmander-ember": "charmander-fire-punch",
-                                "charmander-scratch": "charmander-dragon-claw",
-                                "charmander-flamethrower": "charmander-charmeleon-flamethrower",
-                                "charmander-rage": "charmander-charmeleon-rage"
-                            },
                             "tooltipText": "Charmander has evolved into Charmeleon from Rare Candy.",
-                            "healOnApplyFlat": 10
+                            "healOnApplyFlat": 10,
+                            "useEvolvedSkills": true
                         }
                     },
                     {
@@ -20465,14 +19086,9 @@ const characters = [
                                 "squirtle_evolution_tracker"
                             ],
                             "facePictureOverride": "assets/images/PokemonArena/squirtle/wartortlefp.jpg",
-                            "skillReplacements": {
-                                "squirtle-water-gun": "wartortle-hydro-pump",
-                                "squirtle-withdraw": "wartortle-shell-guard",
-                                "squirtle-bubble": "wartortle-bubblebeam",
-                                "squirtle-rapid-spin": "wartortle-aqua-spin"
-                            },
                             "tooltipText": "Squirtle has evolved into Wartortle from Rare Candy.",
-                            "healOnApplyFlat": 10
+                            "healOnApplyFlat": 10,
+                            "useEvolvedSkills": true
                         }
                     },
                     {
@@ -20511,17 +19127,12 @@ const characters = [
                             "infiniteDuration": true,
                             "unremovable": true,
                             "removeStatusIdsOnApply": [
-                                "bulbasaur_sun_stacks"
+                                "bulbasaur_sun_tracker"
                             ],
                             "facePictureOverride": "assets/images/PokemonArena/Bulbasaur/ivysaurfp.jpg",
-                            "skillReplacements": {
-                                "bulbasaur-leech-seed": "ivysaur-leech-seed",
-                                "bulbasaur-vine-whip": "ivysaur-vine-whip",
-                                "bulbasaur-razor-leaf": "ivysaur-razor-leaf",
-                                "bulbasaur-solar-beam": "ivysaur-solar-beam"
-                            },
                             "tooltipText": "Bulbasaur has evolved into Ivysaur from Rare Candy.",
-                            "healOnApplyFlat": 10
+                            "healOnApplyFlat": 10,
+                            "useEvolvedSkills": true
                         }
                     },
                     {
@@ -20563,14 +19174,9 @@ const characters = [
                                 "chansey_evolution_tracker"
                             ],
                             "facePictureOverride": "assets/images/PokemonArena/Chansey/blisseyfp.png",
-                            "skillReplacements": {
-                                "chansey-eggbomb": "blissey-eggbomb",
-                                "chansey-pokemon-center-healing": "blissey-pokemon-center-healing",
-                                "chansey-softboil": "blissey-softboil",
-                                "chansey-emergency-life-support": "blissey-emergency-life-support"
-                            },
                             "tooltipText": "Chansey has evolved into Blissey from Rare Candy.",
-                            "healOnApplyFlat": 10
+                            "healOnApplyFlat": 10,
+                            "useEvolvedSkills": true
                         }
                     },
                     {
@@ -20659,22 +19265,11 @@ const characters = [
                             "unremovable": true,
                             "facePictureOverride": "assets/images/PokemonArena/koffing/weezingfp.webp",
                             "removeStatusIdsOnApply": [
-                                "koffing_poison_gas_base",
-                                "koffing_weezing_progress_tracker",
-                                "koffing_smog_tracker",
-                                "koffing_haze_tracker",
-                                "koffing_self_destruct_tracker",
-                                "koffing_smokescreen_tracker"
+                                "koffing_weezing_progress_tracker"
                             ],
-                            "skillReplacements": {
-                                "koffing-passive-poison-gas": "koffing-weezing-passive-poison-gas",
-                                "koffing-smog": "koffing-weezing-smog",
-                                "koffing-haze": "koffing-weezing-haze",
-                                "koffing-self-destruct": "koffing-weezing-self-destruct",
-                                "koffing-smokescreen": "koffing-weezing-smokescreen"
-                            },
                             "tooltipText": "Koffing has evolved into Weezing from Rare Candy.",
-                            "healOnApplyFlat": 10
+                            "healOnApplyFlat": 10,
+                            "useEvolvedSkills": true
                         }
                     },
                     {
@@ -20714,14 +19309,12 @@ const characters = [
                             "infiniteDuration": true,
                             "unremovable": true,
                             "facePictureOverride": "assets/images/PokemonArena/zubat/golbatfp.webp",
-                            "skillReplacements": {
-                                "zubat-leech-life": "golbat-leech-life",
-                                "zubat-supersonic": "golbat-supersonic",
-                                "zubat-bite": "golbat-bite",
-                                "zubat-draining-fangs": "golbat-draining-fangs"
-                            },
                             "tooltipText": "Zubat has evolved into Golbat from Rare Candy.",
-                            "healOnApplyFlat": 10
+                            "healOnApplyFlat": 10,
+                            "useEvolvedSkills": true,
+                            "removeStatusIdsOnApply": [
+                                "zubat_evolution_tracker"
+                            ]
                         }
                     },
                     {
@@ -20762,14 +19355,12 @@ const characters = [
                             "infiniteDuration": true,
                             "unremovable": true,
                             "facePictureOverride": "assets/images/PokemonArena/gastley/haunterfp.webp",
-                            "skillReplacements": {
-                                "gastly-lick": "haunter-lick",
-                                "gastly-curse": "haunter-curse",
-                                "gastly-spite": "haunter-spite",
-                                "gastly-glare": "haunter-glare"
-                            },
                             "tooltipText": "Gastly has evolved into Haunter from Rare Candy.",
-                            "healOnApplyFlat": 10
+                            "healOnApplyFlat": 10,
+                            "useEvolvedSkills": true,
+                            "removeStatusIdsOnApply": [
+                                "gastly_evolution_tracker"
+                            ]
                         }
                     },
                     {
@@ -20810,14 +19401,12 @@ const characters = [
                             "infiniteDuration": true,
                             "unremovable": true,
                             "facePictureOverride": "assets/images/PokemonArena/abra/kadabrafp.webp",
-                            "skillReplacements": {
-                                "abra-future-sight": "kadabra-future-sight",
-                                "abra-psychic": "kadabra-psychic",
-                                "abra-calm-mind": "kadabra-calm-mind",
-                                "abra-teleport": "kadabra-teleport"
-                            },
                             "tooltipText": "Abra has evolved into Kadabra from Rare Candy.",
-                            "healOnApplyFlat": 10
+                            "healOnApplyFlat": 10,
+                            "useEvolvedSkills": true,
+                            "removeStatusIdsOnApply": [
+                                "abra_calm_mind_tracker"
+                            ]
                         }
                     },
                     {
@@ -20858,14 +19447,12 @@ const characters = [
                             "infiniteDuration": true,
                             "unremovable": true,
                             "facePictureOverride": "assets/images/PokemonArena/Drowzee/hypnofp.webp",
-                            "skillReplacements": {
-                                "drowzee-hypnosis": "hypno-hypnosis",
-                                "drowzee-nightmare": "hypno-nightmare",
-                                "drowzee-dream-eater": "hypno-dream-eater",
-                                "drowzee-disable": "hypno-disable"
-                            },
                             "tooltipText": "Drowzee has evolved into Hypno from Rare Candy.",
-                            "healOnApplyFlat": 10
+                            "healOnApplyFlat": 10,
+                            "useEvolvedSkills": true,
+                            "removeStatusIdsOnApply": [
+                                "drowzee_evolution_tracker"
+                            ]
                         }
                     },
                     {
@@ -20908,14 +19495,9 @@ const characters = [
                             "removeStatusIdsOnApply": [
                                 "krabby_harden_turn_tracker"
                             ],
-                            "skillReplacements": {
-                                "krabby-metal-claw": "kingler-metal-claw",
-                                "krabby-leer": "kingler-leer",
-                                "krabby-crabhammer": "kingler-crabhammer",
-                                "krabby-harden": "kingler-harden"
-                            },
                             "tooltipText": "Krabby has evolved into Kingler from Rare Candy.",
-                            "healOnApplyFlat": 10
+                            "healOnApplyFlat": 10,
+                            "useEvolvedSkills": true
                         }
                     },
                     {
@@ -20954,14 +19536,12 @@ const characters = [
                             "infiniteDuration": true,
                             "unremovable": true,
                             "facePictureOverride": "assets/images/PokemonArena/ekans/arbokfp.jpg",
-                            "skillReplacements": {
-                                "ekans-poison-fang": "arbok-poison-fang",
-                                "ekans-toxic": "arbok-toxic",
-                                "ekans-shed-skin": "arbok-shed-skin",
-                                "ekans-crunch": "arbok-crunch"
-                            },
                             "tooltipText": "Ekans has evolved into Arbok from Rare Candy.",
-                            "healOnApplyFlat": 10
+                            "healOnApplyFlat": 10,
+                            "useEvolvedSkills": true,
+                            "removeStatusIdsOnApply": [
+                                "ekans_evolution_tracker"
+                            ]
                         }
                     },
                     {
@@ -21000,14 +19580,12 @@ const characters = [
                             "infiniteDuration": true,
                             "unremovable": true,
                             "facePictureOverride": "assets/images/PokemonArena/machop/machokefp.png",
-                            "skillReplacements": {
-                                "machop-brick-break": "machoke-brick-break",
-                                "machop-counter": "machoke-counter",
-                                "machop-bulk-up": "machoke-bulk-up",
-                                "machop-taunt": "machoke-taunt"
-                            },
                             "tooltipText": "Machop has evolved into Machoke from Rare Candy.",
-                            "healOnApplyFlat": 10
+                            "healOnApplyFlat": 10,
+                            "useEvolvedSkills": true,
+                            "removeStatusIdsOnApply": [
+                                "machop_evolution_tracker"
+                            ]
                         }
                     },
                     {
@@ -21049,14 +19627,13 @@ const characters = [
                                 "magikarp_evolution_tracker"
                             ],
                             "facePictureOverride": "assets/images/PokemonArena/magikarp/gyaradosfp.png",
-                            "skillReplacements": {
-                                "magikarp-tackle": "gyarados-hyper-beam",
-                                "magikarp-splash": "gyarados-dragon-rage",
-                                "magikarp-flail": "gyarados-ice-fang",
-                                "magikarp-struggle": "gyarados-hydro-pump"
-                            },
                             "tooltipText": "Magikarp has evolved into Gyarados from Rare Candy.",
-                            "healOnApplyFlat": 10
+                            "healOnApplyFlat": 10,
+                            "pokemonTypeOverride": [
+                                "Water",
+                                "Flying"
+                            ],
+                            "useEvolvedSkills": true
                         }
                     },
                     {
@@ -21095,18 +19672,12 @@ const characters = [
                             "infiniteDuration": true,
                             "unremovable": true,
                             "facePictureOverride": "assets/images/PokemonArena/mangemite/magnetonfp.webp",
-                            "skillReplacements": {
-                                "magnemite-spark": "magneton-spark",
-                                "magnemite-thunder-wave": "magneton-thunder-wave",
-                                "magnemite-swift": "magneton-flash-cannon",
-                                "magnemite-magnet-rise": "magneton-magnet-rise"
-                            },
                             "removeStatusIdsOnApply": [
-                                "magnemite_used_spark_during_rise",
-                                "magnemite_used_thunder_wave_during_rise"
+                                "magnemite_evolution_tracker"
                             ],
                             "tooltipText": "Magnemite has evolved into Magneton from Rare Candy.",
-                            "healOnApplyFlat": 10
+                            "healOnApplyFlat": 10,
+                            "useEvolvedSkills": true
                         }
                     },
                     {
@@ -21266,14 +19837,9 @@ const characters = [
                             "removeStatusIdsOnApply": [
                                 "meowth_persian_evolution_tracker"
                             ],
-                            "skillReplacements": {
-                                "meowth-pay-day": "persian-pay-day",
-                                "meowth-fury-swipes": "persian-fury-swipes",
-                                "meowth-fake-out": "persian-fake-out",
-                                "meowth-night-slash": "persian-night-slash"
-                            },
                             "tooltipText": "Meowth has evolved into Persian from Rare Candy.",
-                            "healOnApplyFlat": 10
+                            "healOnApplyFlat": 10,
+                            "useEvolvedSkills": true
                         }
                     },
                     {
@@ -21750,42 +20316,35 @@ const characters = [
         "characterId": "chansey",
         "name": "Chansey",
         "facePicture": "assets/images/PokemonArena/Chansey/chanseyfp.webp",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Healer",
+        "roleCategory": "healer",
+        "description": "The team medic: heals allies and keeps them alive.",
+        "descriptionHtml": "The team medic: heals allies and keeps them alive.",
         "characterdeescription": "A support Pokemon that keeps the squad alive with healing, protection, and a late-game evolution into Blissey. Chansey builds momentum by restoring HP, then turns that healing into a sturdier second form.",
+        "pokemonTypes": [
+            "Normal"
+        ],
         "startStatuses": [
             {
                 "statusId": "chansey_evolution_tracker",
-                "duration": 99,
                 "sourceSkillId": "chansey-passive-evolution-blissey",
+                "duration": 3,
                 "metadata": {
-                    "infiniteDuration": true,
-                    "chanseyHealedAmount": 0,
-                    "stackMetadataKey": "chanseyHealedAmount",
-                    "stackDeltaFromHealingDone": true,
-                    "stackMax": 100,
-                    "applyStatusAtStack": {
-                        "metadataKey": "chanseyHealedAmount",
-                        "value": 100,
+                    "unremovable": true,
+                    "tooltipText": "Evolves into Blissey at the start of its 4th turn.",
+                    "onExpireApplyStatusToSelf": {
                         "statusId": "chansey_blissey_evolution",
-                        "duration": 99,
-                        "sourceSkillId": "chansey-passive-evolution-blissey",
+                        "duration": 999,
                         "metadata": {
                             "infiniteDuration": true,
-                            "removeStatusIdsOnApply": [
-                                "chansey_evolution_tracker"
-                            ],
+                            "unremovable": true,
+                            "useEvolvedSkills": true,
                             "facePictureOverride": "assets/images/PokemonArena/Chansey/blisseyfp.png",
-                            "skillReplacements": {
-                                "chansey-eggbomb": "blissey-eggbomb",
-                                "chansey-pokemon-center-healing": "blissey-pokemon-center-healing",
-                                "chansey-softboil": "blissey-softboil",
-                                "chansey-emergency-life-support": "blissey-emergency-life-support"
-                            },
-                            "tooltipText": "Chansey has evolved into Blissey. Blissey's skills are improved.",
-                            "healOnApplyFlat": 10
+                            "tooltipText": "Chansey has evolved into Blissey."
                         }
-                    },
-                    "statusIconUrl": "assets/images/PokemonArena/Chansey/evolutionblissey.webp",
-                    "tooltipTextTemplate": "Chansey has healed {chanseyHealedAmount}/100 HP during battle. At 100 HP, Chansey evolves into Blissey and consumes the healing tracker."
+                    }
                 }
             }
         ],
@@ -21794,501 +20353,255 @@ const characters = [
                 "id": "chansey-eggbomb",
                 "name": "Egg Bomb",
                 "skillimage": "assets/images/PokemonArena/Chansey/chanseyeggbomb.webp",
-                "skilldescription": "Deals 20 affliction damage to one enemy and causes them to ignore all healing effects for 1 turn.",
+                "skilldescription": "Deals 15 damage to one enemy.",
+                "description": "Deals 15 damage to one enemy.",
                 "energy": [
                     "Random"
                 ],
+                "cooldown": 0,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 1,
                 "classes": [
-                    "Normal",
-                    "Special",
-                    "Affliction",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 20,
-                        "scope": "target",
-                        "metadata": {
-                            "afflictionDamage": true,
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "chansey_egg_bomb_heal_block",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "healReceivedMultiplier": 0,
-                            "tooltipText": "This character ignores healing effects."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "chansey-pokemon-center-healing",
-                "name": "Pokémon Center Healing",
-                "skillimage": "assets/images/PokemonArena/Chansey/chanseypokemoncenterhealing.webp",
-                "skilldescription": "Heals Chansey's team for 10 HP and grants them 5 Shield each turn for 3 turns. During this skill, Softboil will always make its target unable to die.",
-                "energy": [
-                    "Random"
-                ],
-                "target": "all-allies",
-                "damage": 0,
-                "cooldown": 3,
-                "classes": [
-                    "Normal",
                     "Physical",
                     "Instant"
                 ],
                 "effects": [
                     {
-                        "type": "heal",
-                        "amount": 10,
-                        "scope": "all-allies",
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
                         "metadata": {
-                            "onSuccessfulHealApplyStatusToOwner": {
-                                "statusId": "chansey_evolution_tracker",
-                                "duration": 99,
-                                "metadata": {
-                                    "infiniteDuration": true,
-                                    "chanseyHealedAmount": 0,
-                                    "stackMetadataKey": "chanseyHealedAmount",
-                                    "stackDeltaFromHealingDone": true,
-                                    "stackMax": 100,
-                                    "statusIconUrl": "assets/images/PokemonArena/Chansey/evolutionblissey.webp",
-                                    "tooltipTextTemplate": "Chansey has healed {chanseyHealedAmount}/100 HP during battle. At 100 HP, Chansey evolves into Blissey and consumes the healing tracker."
-                                }
-                            }
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "chansey_pokemon_center_healing_active",
-                        "duration": 3,
-                        "scope": "self",
-                        "metadata": {
-                            "infiniteDuration": false,
-                            "skillCostOverridesBySkillId": {
-                                "chansey-emergency-life-support": {
-                                    "reservedSpecific": {
-                                        "bloodline": 1,
-                                        "genjutsu": 1
-                                    },
-                                    "requiredRandom": 0
-                                }
-                            },
-                            "turnEndApplyStatusToAllies": [
-                                {
-                                    "statusId": "chansey_pokemon_center_healing_defense",
-                                    "duration": 99,
-                                    "metadata": {
-                                        "destructibleDefensePoints": 5,
-                                        "mergeNumericAddKeys": [
-                                            "destructibleDefensePoints"
-                                        ],
-                                        "turnDurationAnchor": "source_turn",
-                                        "tooltipTextTemplate": "This character has {destructibleDefensePoints} Shield from Pokemon Center Healing."
-                                    }
-                                }
-                            ],
-                            "tooltipText": "While Pokemon Center Healing is active, Softboil will always make its target unable to die."
+                            "harmful": true
                         }
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "blissey-eggbomb",
+                    "name": "Egg Bomb",
+                    "skillimage": "assets/images/PokemonArena/Chansey/blisseyeggbomb.webp",
+                    "skilldescription": "Deals 20 damage to one enemy.",
+                    "description": "Deals 20 damage to one enemy.",
+                    "energy": [
+                        "Random"
+                    ],
+                    "cooldown": 0,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Physical",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "damage",
+                            "amount": 20,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true
+                            }
+                        }
+                    ]
+                }
             },
             {
                 "id": "chansey-softboil",
                 "name": "Softboil",
                 "skillimage": "assets/images/PokemonArena/Chansey/softboilforchanseyandblissey.webp",
-                "skilldescription": "Heals one ally for 25 HP. That ally has a 50% chance to become unable to die for 1 turn.",
+                "skilldescription": "Heals one ally for 20.",
+                "description": "Heals one ally for 20.",
                 "energy": [
                     "Genjutsu"
                 ],
-                "target": "single-ally",
-                "damage": 0,
-                "cooldown": 1,
-                "classes": [
-                    "Normal",
-                    "Physical",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "heal",
-                        "amount": 25,
-                        "scope": "target",
-                        "metadata": {
-                            "onSuccessfulHealApplyStatusToOwner": {
-                                "statusId": "chansey_evolution_tracker",
-                                "duration": 99,
-                                "metadata": {
-                                    "infiniteDuration": true,
-                                    "chanseyHealedAmount": 0,
-                                    "stackMetadataKey": "chanseyHealedAmount",
-                                    "stackDeltaFromHealingDone": true,
-                                    "stackMax": 100,
-                                    "statusIconUrl": "assets/images/PokemonArena/Chansey/evolutionblissey.webp",
-                                    "tooltipTextTemplate": "Chansey has healed {chanseyHealedAmount}/100 HP during battle. At 100 HP, Chansey evolves into Blissey and consumes the healing tracker."
-                                }
-                            }
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "chansey_softboil_unable_to_die",
-                        "duration": 1,
-                        "scope": "target",
-                        "chance": 50,
-                        "condition": {
-                            "scope": "self",
-                            "missingStatusId": "chansey_pokemon_center_healing_active"
-                        },
-                        "metadata": {
-                            "minimumHp": 1,
-                            "tooltipText": "This character cannot be killed."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "chansey_softboil_unable_to_die",
-                        "duration": 1,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "chansey_pokemon_center_healing_active"
-                        },
-                        "metadata": {
-                            "minimumHp": 1,
-                            "tooltipText": "This character cannot be killed."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "chansey-emergency-life-support",
-                "name": "Pokémon Center Emergency Life Support",
-                "skillimage": "assets/images/PokemonArena/Chansey/chanseyemergencypokemoncenterlifesupport.webp",
-                "skilldescription": "Heals one ally for 50 HP, and removes all enemy skills currently affecting them.",
-                "energy": [
-                    "Bloodline",
-                    "Genjutsu"
-                ],
-                "target": "single-ally",
-                "damage": 0,
-                "cooldown": 4,
-                "classes": [
-                    "Normal",
-                    "Physical",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "heal",
-                        "amount": 50,
-                        "scope": "target",
-                        "metadata": {
-                            "onSuccessfulHealApplyStatusToOwner": {
-                                "statusId": "chansey_evolution_tracker",
-                                "duration": 99,
-                                "metadata": {
-                                    "infiniteDuration": true,
-                                    "chanseyHealedAmount": 0,
-                                    "stackMetadataKey": "chanseyHealedAmount",
-                                    "stackDeltaFromHealingDone": true,
-                                    "stackMax": 100,
-                                    "statusIconUrl": "assets/images/PokemonArena/Chansey/evolutionblissey.webp",
-                                    "tooltipTextTemplate": "Chansey has healed {chanseyHealedAmount}/100 HP during battle. At 100 HP, Chansey evolves into Blissey and consumes the healing tracker."
-                                }
-                            }
-                        }
-                    },
-                    {
-                        "type": "revive",
-                        "amount": 50,
-                        "scope": "target",
-                        "metadata": {
-                            "onSuccessfulHealApplyStatusToOwner": {
-                                "statusId": "chansey_evolution_tracker",
-                                "duration": 99,
-                                "metadata": {
-                                    "infiniteDuration": true,
-                                    "chanseyHealedAmount": 0,
-                                    "stackMetadataKey": "chanseyHealedAmount",
-                                    "stackDeltaFromHealingDone": true,
-                                    "stackMax": 100,
-                                    "statusIconUrl": "assets/images/PokemonArena/Chansey/evolutionblissey.webp",
-                                    "tooltipTextTemplate": "Chansey has healed {chanseyHealedAmount}/100 HP during battle. At 100 HP, Chansey evolves into Blissey and consumes the healing tracker."
-                                }
-                            }
-                        },
-                        "condition": {
-                            "scope": "target",
-                            "sourceCurrentHpAtMost": 0
-                        }
-                    },
-                    {
-                        "type": "cleanse_statuses",
-                        "scope": "target",
-                        "sourceRelation": "enemy"
-                    }
-                ]
-            },
-            {
-                "id": "chansey-passive-evolution-blissey",
-                "name": "Evolution - Blissey",
-                "skillimage": "assets/images/PokemonArena/Chansey/evolutionblissey.webp",
-                "skilldescription": "After Chansey has healed 100 total HP during the battle, it evolves into Blissey. Blissey's skills are improved.",
-                "energy": [],
-                "target": "",
-                "damage": 0,
                 "cooldown": 0,
-                "classes": [
-                    "Normal",
-                    "Passive",
-                    "Instant"
-                ]
-            },
-            {
-                "id": "blissey-eggbomb",
-                "name": "Egg Bomb",
-                "actorCondition": {
-                    "statusId": "chansey_blissey_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/Chansey/blisseyeggbomb.webp",
-                "skilldescription": "Deals 30 affliction damage to one enemy and causes them to ignore all healing effects for 1 turn.",
-                "energy": [
-                    "Random",
-                    "Random"
-                ],
-                "target": "single-enemy",
+                "target": "self-or-single-ally",
                 "damage": 0,
-                "cooldown": 1,
                 "classes": [
-                    "Normal",
-                    "Special",
-                    "Affliction",
+                    "Strategic",
                     "Instant"
                 ],
                 "effects": [
                     {
-                        "type": "damage",
-                        "amount": 30,
-                        "scope": "target",
-                        "metadata": {
-                            "afflictionDamage": true,
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "blissey_egg_bomb_heal_block",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "healReceivedMultiplier": 0,
-                            "tooltipText": "This character ignores healing effects."
-                        }
+                        "type": "heal",
+                        "amount": 20,
+                        "scope": "target"
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "blissey-softboil",
+                    "name": "Softboil",
+                    "skillimage": "assets/images/PokemonArena/Chansey/softboilforchanseyandblissey.webp",
+                    "skilldescription": "Heals one ally for 30.",
+                    "description": "Heals one ally for 30.",
+                    "energy": [
+                        "Genjutsu"
+                    ],
+                    "cooldown": 0,
+                    "target": "self-or-single-ally",
+                    "damage": 0,
+                    "classes": [
+                        "Strategic",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "heal",
+                            "amount": 30,
+                            "scope": "target"
+                        }
+                    ]
+                }
             },
             {
-                "id": "blissey-pokemon-center-healing",
+                "id": "chansey-pokemon-center-healing",
                 "name": "Pokémon Center Healing",
-                "actorCondition": {
-                    "statusId": "chansey_blissey_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/Chansey/blisseypokemoncenterhealing.png",
-                "skilldescription": "Heals Blissey's team for 15 HP and grants them 10 Shield each turn for 3 turns. During this skill, Softboil will always make its target unable to die.",
+                "skillimage": "assets/images/PokemonArena/Chansey/chanseypokemoncenterhealing.webp",
+                "skilldescription": "Heals all allies for 10 and 5 more each turn for 2 turns.",
+                "description": "Heals all allies for 10 and 5 more each turn for 2 turns.",
                 "energy": [
-                    "Random",
+                    "Genjutsu",
                     "Random"
                 ],
+                "cooldown": 3,
                 "target": "all-allies",
                 "damage": 0,
-                "cooldown": 3,
                 "classes": [
-                    "Normal",
-                    "Physical",
+                    "Strategic",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "heal",
-                        "amount": 15,
+                        "amount": 10,
                         "scope": "all-allies"
                     },
                     {
                         "type": "apply_status",
-                        "statusId": "blissey_pokemon_center_healing_active",
-                        "duration": 3,
-                        "scope": "self",
+                        "duration": 2,
+                        "scope": "all-allies",
                         "metadata": {
-                            "infiniteDuration": false,
-                            "skillCostOverridesBySkillId": {
-                                "blissey-emergency-life-support": {
-                                    "reservedSpecific": {
-                                        "bloodline": 1,
-                                        "genjutsu": 1
-                                    },
-                                    "requiredRandom": 0
-                                }
+                            "turnEndHealFlat": 5,
+                            "tooltipText": "Heals 5 each turn."
+                        },
+                        "statusId": "chansey_pokemon_center_healing_1"
+                    }
+                ],
+                "evolvesTo": {
+                    "id": "blissey-pokemon-center-healing",
+                    "name": "Pokémon Center Healing",
+                    "skillimage": "assets/images/PokemonArena/Chansey/blisseypokemoncenterhealing.png",
+                    "skilldescription": "Heals all allies for 15 and 10 more each turn for 2 turns.",
+                    "description": "Heals all allies for 15 and 10 more each turn for 2 turns.",
+                    "energy": [
+                        "Genjutsu",
+                        "Random"
+                    ],
+                    "cooldown": 3,
+                    "target": "all-allies",
+                    "damage": 0,
+                    "classes": [
+                        "Strategic",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "heal",
+                            "amount": 15,
+                            "scope": "all-allies"
+                        },
+                        {
+                            "type": "apply_status",
+                            "duration": 2,
+                            "scope": "all-allies",
+                            "metadata": {
+                                "turnEndHealFlat": 10,
+                                "tooltipText": "Heals 10 each turn."
                             },
-                            "turnEndApplyStatusToAllies": [
-                                {
-                                    "statusId": "blissey_pokemon_center_healing_defense",
-                                    "duration": 99,
-                                    "metadata": {
-                                        "destructibleDefensePoints": 10,
-                                        "mergeNumericAddKeys": [
-                                            "destructibleDefensePoints"
-                                        ],
-                                        "turnDurationAnchor": "source_turn",
-                                        "tooltipTextTemplate": "This character has {destructibleDefensePoints} Shield from Pokemon Center Healing."
-                                    }
-                                }
-                            ],
-                            "tooltipText": "While Pokemon Center Healing is active, Softboil will always make its target unable to die."
+                            "statusId": "blissey_pokemon_center_healing_1"
                         }
-                    }
-                ]
+                    ]
+                }
             },
             {
-                "id": "blissey-softboil",
-                "name": "Softboil",
-                "actorCondition": {
-                    "statusId": "chansey_blissey_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/Chansey/softboilforchanseyandblissey.webp",
-                "skilldescription": "Heals one ally for 25 HP. Blissey and the other ally are also healed for 10 HP. The primary target has a 50% chance to become unable to die for 1 turn.",
+                "id": "chansey-emergency-life-support",
+                "name": "Safeguard",
+                "skillimage": "assets/images/PokemonArena/Chansey/chanseyemergencypokemoncenterlifesupport.webp",
+                "skilldescription": "Makes one ally invulnerable for 1 turn.",
+                "description": "Makes one ally invulnerable for 1 turn.",
                 "energy": [
-                    "Genjutsu",
                     "Random"
                 ],
-                "target": "single-ally",
+                "cooldown": 4,
+                "target": "self-or-single-ally",
                 "damage": 0,
-                "cooldown": 1,
                 "classes": [
-                    "Normal",
-                    "Physical",
+                    "Strategic",
                     "Instant"
                 ],
                 "effects": [
                     {
-                        "type": "heal",
-                        "amount": 25,
-                        "scope": "target"
-                    },
-                    {
-                        "type": "heal",
-                        "amount": 10,
-                        "scope": "self"
-                    },
-                    {
-                        "type": "heal",
-                        "amount": 10,
-                        "scope": "all-allies-except-target"
-                    },
-                    {
                         "type": "apply_status",
-                        "statusId": "blissey_softboil_unable_to_die",
                         "duration": 1,
                         "scope": "target",
-                        "chance": 50,
-                        "condition": {
-                            "scope": "self",
-                            "missingStatusId": "blissey_pokemon_center_healing_active"
-                        },
                         "metadata": {
-                            "minimumHp": 1,
-                            "tooltipText": "This character cannot be killed."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "blissey_softboil_unable_to_die",
-                        "duration": 1,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "blissey_pokemon_center_healing_active"
+                            "invulnerable": true,
+                            "tooltipText": "Invulnerable."
                         },
-                        "metadata": {
-                            "minimumHp": 1,
-                            "tooltipText": "This character cannot be killed."
-                        }
+                        "statusId": "chansey_emergency_life_support_1"
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "blissey-emergency-life-support",
+                    "name": "Safeguard",
+                    "skillimage": "assets/images/PokemonArena/Chansey/blisseyemergencypokemoncenterlifesupport.webp",
+                    "skilldescription": "Makes one ally invulnerable for 1 turn and removes harmful effects from one ally.",
+                    "description": "Makes one ally invulnerable for 1 turn and removes harmful effects from one ally.",
+                    "energy": [
+                        "Random"
+                    ],
+                    "cooldown": 4,
+                    "target": "self-or-single-ally",
+                    "damage": 0,
+                    "classes": [
+                        "Strategic",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "apply_status",
+                            "duration": 1,
+                            "scope": "target",
+                            "metadata": {
+                                "invulnerable": true,
+                                "tooltipText": "Invulnerable."
+                            },
+                            "statusId": "blissey_emergency_life_support_1"
+                        },
+                        {
+                            "type": "cleanse_statuses",
+                            "count": 0,
+                            "harmfulOnly": true,
+                            "sourceRelation": "enemy",
+                            "scope": "target"
+                        }
+                    ]
+                }
             },
             {
-                "id": "blissey-emergency-life-support",
-                "name": "Pokémon Center Emergency Life Support",
-                "actorCondition": {
-                    "statusId": "chansey_blissey_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/Chansey/blisseyemergencypokemoncenterlifesupport.webp",
-                "skilldescription": "Heals one ally for 50 HP and removes all enemy skills affecting them, or revives a defeated ally with 50 HP. This skill costs 1 less Random energy while Pokémon Center Healing is active.",
-                "energy": [
-                    "Bloodline",
-                    "Genjutsu",
-                    "Random"
-                ],
-                "target": "single-ally-or-dead-ally",
+                "id": "chansey-passive-evolution-blissey",
+                "name": "Evolution: Blissey",
+                "skillimage": "assets/images/PokemonArena/Chansey/evolutionblissey.webp",
+                "skilldescription": "At the start of its 4th turn, Chansey evolves into Blissey and its skills get stronger.",
+                "description": "At the start of its 4th turn, Chansey evolves into Blissey and its skills get stronger.",
+                "energy": [],
+                "cooldown": 0,
+                "target": "",
                 "damage": 0,
-                "cooldown": 5,
                 "classes": [
-                    "Normal",
-                    "Physical",
+                    "Passive",
                     "Instant"
                 ],
-                "effects": [
-                    {
-                        "type": "heal",
-                        "amount": 50,
-                        "scope": "target"
-                    },
-                    {
-                        "type": "cleanse_statuses",
-                        "amount": 50,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "target",
-                            "sourceCurrentHpAtMost": 0
-                        },
-                        "sourceRelation": "enemy"
-                    },
-                    {
-                        "type": "revive",
-                        "scope": "target",
-                        "sourceRelation": "enemy",
-                        "amount": 50,
-                        "condition": {
-                            "scope": "target",
-                            "sourceCurrentHpAtMost": 0
-                        }
-                    },
-                    {
-                        "type": "cleanse_statuses",
-                        "scope": "target",
-                        "sourceRelation": "enemy"
-                    }
-                ]
+                "effects": []
             }
-        ],
-        "role": "Heal Support",
-        "universe": "pokemon",
-        "arena": "pokemon",
-        "roleCategory": "heal-support",
-        "description": "A support Pokemon that keeps the squad alive with healing, protection, and a late-game evolution into Blissey. Chansey builds momentum by restoring HP, then turns that healing into a sturdier second form.",
-        "descriptionHtml": "A support Pokemon that keeps the squad alive with healing, protection, and a late-game evolution into Blissey. Chansey builds momentum by restoring HP, then turns that healing into a sturdier second form.",
-        "pokemonTypes": [
-            "Normal"
         ]
     },
     {
@@ -22768,170 +21081,33 @@ const characters = [
         "characterId": "koffing",
         "name": "Koffing",
         "facePicture": "assets/images/PokemonArena/koffing/koffingfp.webp",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Poison",
+        "roleCategory": "poison",
+        "description": "Fills the field with poison gas that hurts every enemy.",
+        "descriptionHtml": "Fills the field with poison gas that hurts every enemy.",
         "characterdeescription": "A poisonous Gas-type Pokemon that clouds the battlefield, disrupts enemy setups, and evolves into a more volatile Weezing after fully using its tricks.",
+        "pokemonTypes": [
+            "Poison"
+        ],
         "startStatuses": [
-            {
-                "statusId": "koffing_poison_gas_base",
-                "sourceSkillId": "koffing-passive-poison-gas",
-                "duration": 99,
-                "metadata": {
-                    "hidden": true,
-                    "hideTooltip": true,
-                    "infiniteDuration": true,
-                    "onTeamMemberSuccessfulDamageOwnerOnly": true,
-                    "onTeamMemberSuccessfulDamageApplyRandomStatusToTarget": {
-                        "chancePercent": 30,
-                        "statusOptions": [
-                            {
-                                "statusId": "koffing_poison_gas_harmful_blind",
-                                "duration": 1,
-                                "metadata": {
-                                    "harmful": true,
-                                    "harmfulBlind": true,
-                                    "tooltipText": "This character's harmful skills target your team randomly."
-                                }
-                            },
-                            {
-                                "statusId": "koffing_poison_gas_paralyze_cooldowns",
-                                "duration": 1,
-                                "metadata": {
-                                    "harmful": true,
-                                    "paralyzeCooldowns": true,
-                                    "tooltipText": "This character's cooldowns are paralyzed."
-                                }
-                            },
-                            {
-                                "statusId": "koffing_poison_gas_helpful_lock",
-                                "duration": 1,
-                                "metadata": {
-                                    "harmful": true,
-                                    "cannotUseHelpfulSkills": true,
-                                    "tooltipText": "This character cannot use helpful skills."
-                                }
-                            },
-                            {
-                                "statusId": "koffing_poison_gas_skill_delay",
-                                "duration": 1,
-                                "metadata": {
-                                    "harmful": true,
-                                    "cannotUseSkills": true,
-                                    "tooltipText": "This character's skills are delayed until their next turn."
-                                }
-                            },
-                            {
-                                "statusId": "koffing_poison_gas_silence",
-                                "duration": 1,
-                                "metadata": {
-                                    "harmful": true,
-                                    "silenceNonDamageEffects": true,
-                                    "tooltipText": "This character is silenced."
-                                }
-                            },
-                            {
-                                "statusId": "koffing_poison_gas_damage_reduction",
-                                "duration": 1,
-                                "metadata": {
-                                    "harmful": true,
-                                    "damageReductionPercent": 50,
-                                    "tooltipText": "This character has 50% damage reduction."
-                                }
-                            }
-                        ]
-                    }
-                }
-            },
             {
                 "statusId": "koffing_weezing_progress_tracker",
                 "sourceSkillId": "koffing-passive-evolution-weezing",
-                "duration": 99,
+                "duration": 3,
                 "metadata": {
-                    "infiniteDuration": true,
-                    "koffingUniqueSkillCount": 0,
-                    "stackMetadataKey": "koffingUniqueSkillCount",
-                    "stackMax": 4,
-                    "statusIconUrl": "assets/images/PokemonArena/koffing/evolutionweezing.webp",
-                    "tooltipTextTemplate": "Koffing has used {koffingUniqueSkillCount}/4 unique skills and will evolve into Weezing at 4.",
-                    "applyStatusAtStack": {
-                        "metadataKey": "koffingUniqueSkillCount",
-                        "value": 4,
+                    "unremovable": true,
+                    "tooltipText": "Evolves into Weezing at the start of its 4th turn.",
+                    "onExpireApplyStatusToSelf": {
                         "statusId": "koffing_weezing_evolution",
-                        "duration": 99,
+                        "duration": 999,
                         "metadata": {
                             "infiniteDuration": true,
+                            "unremovable": true,
+                            "useEvolvedSkills": true,
                             "facePictureOverride": "assets/images/PokemonArena/koffing/weezingfp.webp",
-                            "removeStatusIdsOnApply": [
-                                "koffing_poison_gas_base",
-                                "koffing_weezing_progress_tracker"
-                            ],
-                            "skillReplacements": {
-                                "koffing-passive-poison-gas": "koffing-weezing-passive-poison-gas",
-                                "koffing-smog": "koffing-weezing-smog",
-                                "koffing-haze": "koffing-weezing-haze",
-                                "koffing-self-destruct": "koffing-weezing-self-destruct",
-                                "koffing-smokescreen": "koffing-weezing-smokescreen"
-                            },
-                            "onTeamMemberSuccessfulDamageOwnerOnly": true,
-                            "onTeamMemberSuccessfulDamageApplyRandomStatusToTarget": {
-                                "chancePercent": 60,
-                                "statusOptions": [
-                                    {
-                                        "statusId": "weezing_poison_gas_harmful_blind",
-                                        "duration": 1,
-                                        "metadata": {
-                                            "harmful": true,
-                                            "harmfulBlind": true,
-                                            "tooltipText": "This character's harmful skills target your team randomly."
-                                        }
-                                    },
-                                    {
-                                        "statusId": "weezing_poison_gas_paralyze_cooldowns",
-                                        "duration": 1,
-                                        "metadata": {
-                                            "harmful": true,
-                                            "paralyzeCooldowns": true,
-                                            "tooltipText": "This character's cooldowns are paralyzed."
-                                        }
-                                    },
-                                    {
-                                        "statusId": "weezing_poison_gas_helpful_lock",
-                                        "duration": 1,
-                                        "metadata": {
-                                            "harmful": true,
-                                            "cannotUseHelpfulSkills": true,
-                                            "tooltipText": "This character cannot use helpful skills."
-                                        }
-                                    },
-                                    {
-                                        "statusId": "weezing_poison_gas_skill_delay",
-                                        "duration": 1,
-                                        "metadata": {
-                                            "harmful": true,
-                                            "cannotUseSkills": true,
-                                            "tooltipText": "This character's skills are delayed until their next turn."
-                                        }
-                                    },
-                                    {
-                                        "statusId": "weezing_poison_gas_silence",
-                                        "duration": 1,
-                                        "metadata": {
-                                            "harmful": true,
-                                            "silenceNonDamageEffects": true,
-                                            "tooltipText": "This character is silenced."
-                                        }
-                                    },
-                                    {
-                                        "statusId": "weezing_poison_gas_damage_reduction",
-                                        "duration": 1,
-                                        "metadata": {
-                                            "harmful": true,
-                                            "damageReductionPercent": 50,
-                                            "tooltipText": "This character has 50% damage reduction."
-                                        }
-                                    }
-                                ]
-                            },
-                            "tooltipText": "Koffing has evolved into Weezing. All of his skills have improved effects.",
-                            "healOnApplyFlat": 10
+                            "tooltipText": "Koffing has evolved into Weezing."
                         }
                     }
                 }
@@ -22942,15 +21118,104 @@ const characters = [
                 "id": "koffing-smog",
                 "name": "Smog",
                 "skillimage": "assets/images/PokemonArena/koffing/koffingsmog.webp",
-                "skilldescription": "Koffing deals 5 affliction damage to all enemies each turn for 4 turns. This effect stacks.",
+                "skilldescription": "Deals 10 damage to one enemy and then 10 affliction damage each turn for 2 turns.",
+                "description": "Deals 10 damage to one enemy and then 10 affliction damage each turn for 2 turns.",
                 "energy": [
                     "Ninjutsu"
                 ],
+                "cooldown": 1,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": [
+                    "Special",
+                    "Affliction",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "duration": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "afflictionDamage": true,
+                            "turnEndDamage": 10,
+                            "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "Takes 10 affliction damage each turn."
+                        },
+                        "statusId": "koffing_smog_1"
+                    }
+                ],
+                "evolvesTo": {
+                    "id": "koffing-weezing-smog",
+                    "name": "Smog",
+                    "skillimage": "assets/images/PokemonArena/koffing/weezingsmog.webp",
+                    "skilldescription": "Deals 15 damage to one enemy and then 10 affliction damage each turn for 3 turns.",
+                    "description": "Deals 15 damage to one enemy and then 10 affliction damage each turn for 3 turns.",
+                    "energy": [
+                        "Ninjutsu"
+                    ],
+                    "cooldown": 1,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Special",
+                        "Affliction",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "damage",
+                            "amount": 15,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true
+                            }
+                        },
+                        {
+                            "type": "apply_status",
+                            "duration": 3,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true,
+                                "afflictionDamage": true,
+                                "turnEndDamage": 10,
+                                "ignoreTargetDamageReduction": true,
+                                "ignoreTargetDestructibleDefense": true,
+                                "turnEndTrigger": "source_turn",
+                                "turnDurationAnchor": "source_turn",
+                                "tooltipText": "Takes 10 affliction damage each turn."
+                            },
+                            "statusId": "koffing_weezing_smog_1"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "koffing-smokescreen",
+                "name": "Poison Gas",
+                "skillimage": "assets/images/PokemonArena/koffing/koffingsmokescreen.webp",
+                "skilldescription": "Deals 5 affliction damage to all enemies each turn for 3 turns.",
+                "description": "Deals 5 affliction damage to all enemies each turn for 3 turns.",
+                "energy": [
+                    "Ninjutsu",
+                    "Random"
+                ],
+                "cooldown": 3,
                 "target": "all-enemy",
                 "damage": 0,
-                "cooldown": 0,
                 "classes": [
-                    "Poison",
                     "Special",
                     "Affliction",
                     "Instant"
@@ -22958,485 +21223,213 @@ const characters = [
                 "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "koffing_smog_cloud",
-                        "duration": 4,
+                        "duration": 3,
                         "scope": "all-enemy",
                         "metadata": {
                             "harmful": true,
-                            "allowDuplicateStatusInstances": true,
-                            "turnEndDamage": 5,
-                            "fixedTurnEndDamage": true,
-                            "triggerOnApply": true,
                             "afflictionDamage": true,
+                            "turnEndDamage": 5,
                             "ignoreTargetDamageReduction": true,
                             "ignoreTargetDestructibleDefense": true,
                             "turnEndTrigger": "source_turn",
                             "turnDurationAnchor": "source_turn",
-                            "tooltipText": "This character takes 5 affliction damage each turn from Smog."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "koffing_weezing_progress_tracker",
-                        "duration": 99,
-                        "scope": "self",
-                        "condition": {
-                            "scope": "self",
-                            "missingStatusMetadataAny": [
-                                "koffingUsedSmog"
-                            ]
+                            "tooltipText": "Takes 5 affliction damage each turn."
                         },
-                        "metadata": {
-                            "hidden": true,
-                            "infiniteDuration": true,
-                            "koffingUsedSmog": true,
-                            "stackMetadataKey": "koffingUniqueSkillCount",
-                            "stackDelta": 1,
-                            "stackMax": 4,
-                            "statusIconUrl": "assets/images/PokemonArena/koffing/evolutionweezing.webp",
-                            "tooltipTextTemplate": "Koffing has used {koffingUniqueSkillCount}/4 unique skills and will evolve into Weezing at 4."
-                        }
+                        "statusId": "koffing_smokescreen_1"
                     }
-                ]
-            },
-            {
-                "id": "koffing-haze",
-                "name": "Haze",
-                "skillimage": "assets/images/PokemonArena/koffing/koffinghaze.jpeg",
-                "skilldescription": "For 1 turn, Koffing's team ignores all enemy non-damaging effects.",
-                "energy": [
-                    "Random"
                 ],
-                "target": "all-allies",
-                "damage": 0,
-                "cooldown": 3,
-                "classes": [
-                    "Ice",
-                    "Physical",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "koffing_haze_cover",
-                        "duration": 1,
-                        "scope": "all-allies",
-                        "metadata": {
-                            "ignoreEnemyNonDamageEffects": true,
-                            "turnDurationAnchor": "source_turn",
-                            "tooltipText": "This character ignores enemy non-damaging effects."
+                "evolvesTo": {
+                    "id": "koffing-weezing-smokescreen",
+                    "name": "Poison Gas",
+                    "skillimage": "assets/images/PokemonArena/koffing/weezingsmokescreen.webp",
+                    "skilldescription": "Deals 10 affliction damage to all enemies each turn for 3 turns.",
+                    "description": "Deals 10 affliction damage to all enemies each turn for 3 turns.",
+                    "energy": [
+                        "Ninjutsu",
+                        "Random"
+                    ],
+                    "cooldown": 3,
+                    "target": "all-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Special",
+                        "Affliction",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "apply_status",
+                            "duration": 3,
+                            "scope": "all-enemy",
+                            "metadata": {
+                                "harmful": true,
+                                "afflictionDamage": true,
+                                "turnEndDamage": 10,
+                                "ignoreTargetDamageReduction": true,
+                                "ignoreTargetDestructibleDefense": true,
+                                "turnEndTrigger": "source_turn",
+                                "turnDurationAnchor": "source_turn",
+                                "tooltipText": "Takes 10 affliction damage each turn."
+                            },
+                            "statusId": "koffing_weezing_smokescreen_1"
                         }
-                    },
-                    {
-                        "type": "cleanse_statuses",
-                        "scope": "all-allies",
-                        "sourceRelation": "enemy",
-                        "count": 0
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "koffing_weezing_progress_tracker",
-                        "duration": 99,
-                        "scope": "self",
-                        "condition": {
-                            "scope": "self",
-                            "missingStatusMetadataAny": [
-                                "koffingUsedHaze"
-                            ]
-                        },
-                        "metadata": {
-                            "hidden": true,
-                            "infiniteDuration": true,
-                            "koffingUsedHaze": true,
-                            "stackMetadataKey": "koffingUniqueSkillCount",
-                            "stackDelta": 1,
-                            "stackMax": 4,
-                            "statusIconUrl": "assets/images/PokemonArena/koffing/evolutionweezing.webp",
-                            "tooltipTextTemplate": "Koffing has used {koffingUniqueSkillCount}/4 unique skills and will evolve into Weezing at 4."
-                        }
-                    }
-                ]
+                    ]
+                }
             },
             {
                 "id": "koffing-self-destruct",
                 "name": "Self-Destruct",
                 "skillimage": "assets/images/PokemonArena/koffing/koffingexplosion.webp",
-                "skilldescription": "Koffing deals 20 affliction damage to all enemies and loses 20 HP. If this defeats Koffing, all enemies take 5 additional affliction damage.",
+                "skilldescription": "Deals 30 damage to all enemies and Koffing takes 20 recoil damage.",
+                "description": "Deals 30 damage to all enemies and Koffing takes 20 recoil damage.",
                 "energy": [
                     "Ninjutsu",
-                    "Random"
-                ],
-                "target": "all-enemy",
-                "damage": 0,
-                "cooldown": 4,
-                "classes": [
-                    "Normal",
-                    "Special",
-                    "Affliction",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "koffing_self_destruct_aftershock",
-                        "duration": 1,
-                        "scope": "self",
-                        "metadata": {
-                            "hidden": true,
-                            "infiniteDuration": false,
-                            "onOwnerDeathDealDamageToEnemyTeam": {
-                                "amount": 5,
-                                "afflictionDamage": true,
-                                "ignoreDamageReduction": true,
-                                "ignoreDestructibleDefense": true,
-                                "ignoreDamageImmunity": true,
-                                "ignoreAfflictionDamageImmunity": true
-                            },
-                            "turnDurationAnchor": "source_turn",
-                            "tooltipText": "If this character is defeated by Self-Destruct, all enemies take 5 additional affliction damage."
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 20,
-                        "scope": "all-enemy",
-                        "metadata": {
-                            "afflictionDamage": true,
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 20,
-                        "scope": "self",
-                        "metadata": {
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true,
-                            "ignoreDamageImmunity": true
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "koffing_weezing_progress_tracker",
-                        "duration": 99,
-                        "scope": "self",
-                        "condition": {
-                            "scope": "self",
-                            "missingStatusMetadataAny": [
-                                "koffingUsedSelfDestruct"
-                            ]
-                        },
-                        "metadata": {
-                            "hidden": true,
-                            "infiniteDuration": true,
-                            "koffingUsedSelfDestruct": true,
-                            "stackMetadataKey": "koffingUniqueSkillCount",
-                            "stackDelta": 1,
-                            "stackMax": 4,
-                            "statusIconUrl": "assets/images/PokemonArena/koffing/evolutionweezing.webp",
-                            "tooltipTextTemplate": "Koffing has used {koffingUniqueSkillCount}/4 unique skills and will evolve into Weezing at 4."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "koffing-smokescreen",
-                "name": "Polluted Air",
-                "skillimage": "assets/images/PokemonArena/koffing/koffingsmokescreen.webp",
-                "skilldescription": "Summons Polluted Air for 4 turns: Poison skills deal +5 damage (Polluted Air excluded), Poison type Pokemon gain 20% evasion, and every non-Poison, non-Steel Pokemon takes 3 affliction damage each turn.",
-                "energy": [
-                    "Ninjutsu"
-                ],
-                "target": "self",
-                "damage": 0,
-                "cooldown": 5,
-                "classes": [
-                    "Weather",
-                    "Poison",
-                    "Special",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "set_weather",
-                        "scope": "self",
-                        "weather": {
-                            "key": "pollutedair",
-                            "name": "Polluted Air",
-                            "description": "Poison skills deal +5 damage (Polluted Air excluded). Poison type Pokemon gain 20% evasion. Every turn, 3 affliction damage strikes every non-Poison, non-Steel Pokemon.",
-                            "rounds": 4,
-                            "damageTypeModifiers": { "Poison": 5 },
-                            "periodicNonTypeDamage": { "immuneTypes": ["Poison", "Steel"], "amount": 3 },
-                            "evasionBonusByType": { "Poison": 20 }
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "koffing_weezing_progress_tracker",
-                        "duration": 99,
-                        "scope": "self",
-                        "condition": {
-                            "scope": "self",
-                            "missingStatusMetadataAny": [
-                                "koffingUsedSmokescreen"
-                            ]
-                        },
-                        "metadata": {
-                            "hidden": true,
-                            "infiniteDuration": true,
-                            "koffingUsedSmokescreen": true,
-                            "stackMetadataKey": "koffingUniqueSkillCount",
-                            "stackDelta": 1,
-                            "stackMax": 4,
-                            "statusIconUrl": "assets/images/PokemonArena/koffing/evolutionweezing.webp",
-                            "tooltipTextTemplate": "Koffing has used {koffingUniqueSkillCount}/4 unique skills and will evolve into Weezing at 4."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "koffing-passive-poison-gas",
-                "name": "Passive: Poison Gas",
-                "skillimage": "assets/images/PokemonArena/koffing/koffingpassivepoisongas.webp",
-                "skilldescription": "Whenever Koffing damages an enemy, there is a 5% chance each to blind them, paralyze their cooldowns, disable their helpful skills, delay their skills until their next turn, silence them, or reduce their damage by 50% for 1 turn.",
-                "energy": [],
-                "target": "",
-                "damage": 0,
-                "cooldown": 0,
-                "classes": [
-                    "Poison",
-                    "Passive",
-                    "Instant"
-                ]
-            },
-            {
-                "id": "koffing-passive-evolution-weezing",
-                "name": "Evolution - Weezing",
-                "skillimage": "assets/images/PokemonArena/koffing/evolutionweezing.webp",
-                "skilldescription": "After Koffing has used each of his skills at least once during the battle, he evolves into Weezing. Weezing's skills are all improved.",
-                "energy": [],
-                "target": "",
-                "damage": 0,
-                "cooldown": 0,
-                "classes": [
-                    "Poison",
-                    "Passive",
-                    "Instant"
-                ]
-            },
-            {
-                "id": "koffing-weezing-passive-poison-gas",
-                "name": "Passive: Poison Gas",
-                "actorCondition": {
-                    "statusId": "koffing_weezing_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/koffing/weezingpassivepoisongas.webp",
-                "skilldescription": "Whenever Weezing damages an enemy, there is a 10% chance each to blind them, paralyze their cooldowns, disable their helpful skills, delay their skills until their next turn, silence them, or reduce their damage by 50% for 1 turn.",
-                "energy": [],
-                "target": "",
-                "damage": 0,
-                "cooldown": 0,
-                "classes": [
-                    "Poison",
-                    "Passive",
-                    "Instant"
-                ]
-            },
-            {
-                "id": "koffing-weezing-smog",
-                "name": "Smog",
-                "actorCondition": {
-                    "statusId": "koffing_weezing_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/koffing/weezingsmog.webp",
-                "skilldescription": "Weezing deals 10 affliction damage to all enemies each turn for 4 turns. This effect stacks.",
-                "energy": [
-                    "Ninjutsu",
-                    "Random"
-                ],
-                "target": "all-enemy",
-                "damage": 0,
-                "cooldown": 0,
-                "classes": [
-                    "Poison",
-                    "Special",
-                    "Affliction",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "weezing_smog_cloud",
-                        "duration": 4,
-                        "scope": "all-enemy",
-                        "metadata": {
-                            "harmful": true,
-                            "allowDuplicateStatusInstances": true,
-                            "turnEndDamage": 10,
-                            "fixedTurnEndDamage": true,
-                            "triggerOnApply": true,
-                            "afflictionDamage": true,
-                            "ignoreTargetDamageReduction": true,
-                            "ignoreTargetDestructibleDefense": true,
-                            "turnEndTrigger": "source_turn",
-                            "turnDurationAnchor": "source_turn",
-                            "tooltipText": "This character takes 10 affliction damage each turn from Smog."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "koffing-weezing-haze",
-                "name": "Haze",
-                "actorCondition": {
-                    "statusId": "koffing_weezing_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/koffing/weezinghaze.webp",
-                "skilldescription": "For 2 turns, Weezing's team ignores all enemy non-damaging effects.",
-                "energy": [
                     "Random",
                     "Random"
                 ],
-                "target": "all-allies",
+                "cooldown": 4,
+                "target": "all-enemy",
                 "damage": 0,
-                "cooldown": 3,
                 "classes": [
-                    "Ice",
                     "Physical",
                     "Instant"
                 ],
                 "effects": [
                     {
-                        "type": "apply_status",
-                        "statusId": "weezing_haze_cover",
-                        "duration": 2,
-                        "scope": "all-allies",
-                        "metadata": {
-                            "ignoreEnemyNonDamageEffects": true,
-                            "turnDurationAnchor": "source_turn",
-                            "tooltipText": "This character ignores enemy non-damaging effects."
-                        }
-                    },
-                    {
-                        "type": "cleanse_statuses",
-                        "scope": "all-allies",
-                        "sourceRelation": "enemy",
-                        "count": 0
-                    }
-                ]
-            },
-            {
-                "id": "koffing-weezing-self-destruct",
-                "name": "Self-Destruct",
-                "useBaseSkillCooldown": true,
-                "actorCondition": {
-                    "statusId": "koffing_weezing_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/koffing/weezingexplosion.webp",
-                "skilldescription": "Weezing deals 30 affliction damage to all enemies and loses 30 HP. If this defeats Weezing, all enemies take 5 additional affliction damage.",
-                "energy": [
-                    "Ninjutsu",
-                    "Random",
-                    "Random"
-                ],
-                "target": "all-enemy",
-                "damage": 0,
-                "cooldown": 4,
-                "classes": [
-                    "Normal",
-                    "Special",
-                    "Affliction",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "weezing_self_destruct_aftershock",
-                        "duration": 1,
-                        "scope": "self",
-                        "metadata": {
-                            "hidden": true,
-                            "infiniteDuration": false,
-                            "onOwnerDeathDealDamageToEnemyTeam": {
-                                "amount": 5,
-                                "afflictionDamage": true,
-                                "ignoreDamageReduction": true,
-                                "ignoreDestructibleDefense": true,
-                                "ignoreDamageImmunity": true,
-                                "ignoreAfflictionDamageImmunity": true
-                            },
-                            "turnDurationAnchor": "source_turn",
-                            "tooltipText": "If this character is defeated by Self-Destruct, all enemies take 5 additional affliction damage."
-                        }
-                    },
-                    {
                         "type": "damage",
                         "amount": 30,
                         "scope": "all-enemy",
                         "metadata": {
-                            "afflictionDamage": true,
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true
+                            "harmful": true
                         }
                     },
                     {
                         "type": "damage",
-                        "amount": 30,
+                        "amount": 20,
                         "scope": "self",
                         "metadata": {
+                            "harmful": false,
                             "ignoreDamageReduction": true,
                             "ignoreDestructibleDefense": true,
-                            "ignoreDamageImmunity": true
+                            "fixedDamage": true
                         }
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "koffing-weezing-self-destruct",
+                    "name": "Self-Destruct",
+                    "skillimage": "assets/images/PokemonArena/koffing/weezingexplosion.webp",
+                    "skilldescription": "Deals 40 damage to all enemies and Weezing takes 20 recoil damage.",
+                    "description": "Deals 40 damage to all enemies and Weezing takes 20 recoil damage.",
+                    "energy": [
+                        "Ninjutsu",
+                        "Random",
+                        "Random"
+                    ],
+                    "cooldown": 4,
+                    "target": "all-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Physical",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "damage",
+                            "amount": 40,
+                            "scope": "all-enemy",
+                            "metadata": {
+                                "harmful": true
+                            }
+                        },
+                        {
+                            "type": "damage",
+                            "amount": 20,
+                            "scope": "self",
+                            "metadata": {
+                                "harmful": false,
+                                "ignoreDamageReduction": true,
+                                "ignoreDestructibleDefense": true,
+                                "fixedDamage": true
+                            }
+                        }
+                    ]
+                }
             },
             {
-                "id": "koffing-weezing-smokescreen",
-                "name": "Polluted Air",
-                "actorCondition": {
-                    "statusId": "koffing_weezing_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/koffing/weezingsmokescreen.webp",
-                "skilldescription": "Summons Polluted Air for 4 turns: Poison skills deal +5 damage (Polluted Air excluded), Poison type Pokemon gain 20% evasion, and every non-Poison, non-Steel Pokemon takes 3 affliction damage each turn.",
+                "id": "koffing-haze",
+                "name": "Haze",
+                "skillimage": "assets/images/PokemonArena/koffing/koffinghaze.jpeg",
+                "skilldescription": "Koffing becomes invulnerable for 1 turn.",
+                "description": "Koffing becomes invulnerable for 1 turn.",
                 "energy": [
-                    "Ninjutsu"
+                    "Random"
                 ],
+                "cooldown": 4,
                 "target": "self",
                 "damage": 0,
-                "cooldown": 5,
                 "classes": [
-                    "Weather",
-                    "Poison",
-                    "Special",
+                    "Strategic",
                     "Instant"
                 ],
                 "effects": [
                     {
-                        "type": "set_weather",
+                        "type": "apply_status",
+                        "duration": 1,
                         "scope": "self",
-                        "weather": {
-                            "key": "pollutedair",
-                            "name": "Polluted Air",
-                            "description": "Poison skills deal +5 damage (Polluted Air excluded). Poison type Pokemon gain 20% evasion. Every turn, 3 affliction damage strikes every non-Poison, non-Steel Pokemon.",
-                            "rounds": 4,
-                            "damageTypeModifiers": { "Poison": 5 },
-                            "periodicNonTypeDamage": { "immuneTypes": ["Poison", "Steel"], "amount": 3 },
-                            "evasionBonusByType": { "Poison": 20 }
-                        }
+                        "metadata": {
+                            "invulnerable": true,
+                            "tooltipText": "Invulnerable."
+                        },
+                        "statusId": "koffing_haze_1"
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "koffing-haze-evolved",
+                    "name": "Haze",
+                    "skillimage": "assets/images/PokemonArena/koffing/koffinghaze.jpeg",
+                    "skilldescription": "Weezing becomes invulnerable for 1 turn.",
+                    "description": "Weezing becomes invulnerable for 1 turn.",
+                    "energy": [
+                        "Random"
+                    ],
+                    "cooldown": 4,
+                    "target": "self",
+                    "damage": 0,
+                    "classes": [
+                        "Strategic",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "apply_status",
+                            "duration": 1,
+                            "scope": "self",
+                            "metadata": {
+                                "invulnerable": true,
+                                "tooltipText": "Invulnerable."
+                            },
+                            "statusId": "koffing_haze_evolved_1"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "koffing-passive-evolution-weezing",
+                "name": "Evolution: Weezing",
+                "skillimage": "assets/images/PokemonArena/koffing/evolutionweezing.webp",
+                "skilldescription": "At the start of its 4th turn, Koffing evolves into Weezing and its skills get stronger.",
+                "description": "At the start of its 4th turn, Koffing evolves into Weezing and its skills get stronger.",
+                "energy": [],
+                "cooldown": 0,
+                "target": "",
+                "damage": 0,
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ],
+                "effects": []
             }
-        ],
-        "role": "Disruptor",
-        "universe": "pokemon",
-        "arena": "pokemon",
-        "roleCategory": "disruptor",
-        "description": "A poisonous Gas-type Pokemon that clouds the battlefield, disrupts enemy setups, and evolves into a more volatile Weezing after fully using its tricks.",
-        "descriptionHtml": "A poisonous Gas-type Pokemon that clouds the battlefield, disrupts enemy setups, and evolves into a more volatile Weezing after fully using its tricks.",
-        "pokemonTypes": [
-            "Poison"
         ]
     },
     {
@@ -23444,221 +21437,53 @@ const characters = [
         "characterId": "zubat",
         "name": "Zubat",
         "facePicture": "assets/images/PokemonArena/zubat/zubatfp.webp",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Fast damage",
+        "roleCategory": "fast-damage",
+        "description": "Bites and drains health to keep itself going.",
+        "descriptionHtml": "Bites and drains health to keep itself going.",
+        "characterdeescription": null,
+        "pokemonTypes": [
+            "Poison",
+            "Flying"
+        ],
         "startStatuses": [
             {
                 "statusId": "zubat_evolution_tracker",
                 "sourceSkillId": "zubat-passive-evolution-golbat",
-                "duration": 99,
+                "duration": 3,
                 "metadata": {
-                    "hidden": true,
-                    "infiniteDuration": true,
-                    "zubatHpStolen": 0,
-                    "stackMetadataKey": "zubatHpStolen",
-                    "stackDelta": 0,
-                    "stackMax": 50,
-                    "applyStatusAtStack": {
-                        "metadataKey": "zubatHpStolen",
-                        "value": 50,
+                    "unremovable": true,
+                    "tooltipText": "Evolves into Golbat at the start of its 4th turn.",
+                    "onExpireApplyStatusToSelf": {
                         "statusId": "zubat_golbat_evolution",
-                        "duration": 99,
+                        "duration": 999,
                         "metadata": {
-                            "hidden": true,
                             "infiniteDuration": true,
-                            "removeStatusIdsOnApply": ["zubat_evolution_tracker"],
+                            "unremovable": true,
+                            "useEvolvedSkills": true,
                             "facePictureOverride": "assets/images/PokemonArena/zubat/golbatfp.webp",
-                            "skillReplacements": {
-                                "zubat-leech-life": "golbat-leech-life",
-                                "zubat-supersonic": "golbat-supersonic",
-                                "zubat-bite": "golbat-bite",
-                                "zubat-draining-fangs": "golbat-draining-fangs"
-                            },
-                            "tooltipText": "Zubat has evolved into Golbat. Golbat's skills are improved.",
-                            "healOnApplyFlat": 10
+                            "tooltipText": "Zubat has evolved into Golbat."
                         }
-                    },
-                    "statusIconUrl": "assets/images/PokemonArena/zubat/leechlife.webp",
-                    "tooltipTextTemplate": "Zubat has stolen {zubatHpStolen}/50 total HP and will evolve into Golbat at 50."
+                    }
                 }
             }
         ],
         "skills": [
             {
-                "id": "zubat-leech-life",
-                "name": "Leech Life",
-                "skillimage": "assets/images/PokemonArena/zubat/leechlife.webp",
-                "skilldescription": "Steals 25 HP from one enemy. If that enemy is affected by Supersonic, this steals 5 additional HP. If Bite improved this skill, it steals 5 additional HP. For 1 turn, if that enemy uses a new skill, Zubat steals 5 additional HP from them.",
-                "energy": [
-                    "Bloodline"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 1,
-                "classes": [
-                    "Bug",
-                    "Physical",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "health_steal_damage",
-                        "amount": 25,
-                        "scope": "target",
-                        "metadata": {
-                            "onSuccessfulDamageApplyStatusToOwner": {
-                                "statusId": "zubat_evolution_tracker",
-                                "duration": 99,
-                                "metadata": {
-                                    "hidden": true,
-                                    "infiniteDuration": true,
-                                    "zubatHpStolen": 0,
-                                    "stackMetadataKey": "zubatHpStolen",
-                                    "stackDeltaFromDamageDealt": true,
-                                    "stackMax": 50,
-                                    "statusIconUrl": "assets/images/PokemonArena/zubat/leechlife.webp",
-                                    "tooltipTextTemplate": "Zubat has stolen {zubatHpStolen}/50 total HP and will evolve into Golbat at 50."
-                                }
-                            }
-                        }
-                    },
-                    {
-                        "type": "health_steal_damage",
-                        "amount": 5,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "target",
-                            "statusId": "zubat_supersonic_mark"
-                        },
-                        "metadata": {
-                            "onSuccessfulDamageApplyStatusToOwner": {
-                                "statusId": "zubat_evolution_tracker",
-                                "duration": 99,
-                                "metadata": {
-                                    "hidden": true,
-                                    "infiniteDuration": true,
-                                    "zubatHpStolen": 0,
-                                    "stackMetadataKey": "zubatHpStolen",
-                                    "stackDeltaFromDamageDealt": true,
-                                    "stackMax": 50,
-                                    "statusIconUrl": "assets/images/PokemonArena/zubat/leechlife.webp",
-                                    "tooltipTextTemplate": "Zubat has stolen {zubatHpStolen}/50 total HP and will evolve into Golbat at 50."
-                                }
-                            }
-                        }
-                    },
-                    {
-                        "type": "health_steal_damage",
-                        "amount": 5,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "zubat_bite_bonus"
-                        },
-                        "metadata": {
-                            "onSuccessfulDamageApplyStatusToOwner": {
-                                "statusId": "zubat_evolution_tracker",
-                                "duration": 99,
-                                "metadata": {
-                                    "hidden": true,
-                                    "infiniteDuration": true,
-                                    "zubatHpStolen": 0,
-                                    "stackMetadataKey": "zubatHpStolen",
-                                    "stackDeltaFromDamageDealt": true,
-                                    "stackMax": 50,
-                                    "statusIconUrl": "assets/images/PokemonArena/zubat/leechlife.webp",
-                                    "tooltipTextTemplate": "Zubat has stolen {zubatHpStolen}/50 total HP and will evolve into Golbat at 50."
-                                }
-                            }
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "zubat_leech_life_reckoning",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "hidden": true,
-                            "infiniteDuration": false,
-                            "onOwnerUseSkillTrigger": true,
-                            "onOwnerUseSkillRequireNewSkill": true,
-                            "onOwnerUseSkillSelfDamage": 5,
-                            "onOwnerUseSkillHealSourceAmount": 5,
-                            "onOwnerUseSkillApplyStatusToSourceOwner": {
-                                "statusId": "zubat_evolution_tracker",
-                                "duration": 99,
-                                "metadata": {
-                                    "hidden": true,
-                                    "infiniteDuration": true,
-                                    "zubatHpStolen": 0,
-                                    "stackMetadataKey": "zubatHpStolen",
-                                    "stackDelta": 5,
-                                    "stackMax": 50,
-                                    "statusIconUrl": "assets/images/PokemonArena/zubat/leechlife.webp",
-                                    "tooltipTextTemplate": "Zubat has stolen {zubatHpStolen}/50 total HP and will evolve into Golbat at 50."
-                                }
-                            },
-                            "statusIconUrl": "assets/images/PokemonArena/zubat/leechlife.webp",
-                            "tooltipText": "The next new skill this character uses, they lose 5 HP and Zubat heals for 5 HP."
-                        }
-                    },
-                    {
-                        "type": "drain_chakra",
-                        "amount": 1,
-                        "chakraType": "random",
-                        "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "zubat_draining_fangs_active"
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "zubat-supersonic",
-                "name": "Supersonic",
-                "skillimage": "assets/images/PokemonArena/zubat/supersonic.webp",
-                "skilldescription": "For 1 turn, an enemy has a 45% chance for any skill they use to fail, their skills cost 1 additional random energy, and Leech Life steals 5 additional HP from them. If a skill fails this way, they lose 15 HP.",
-                "energy": [
-                    "Genjutsu"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 3,
-                "classes": [
-                    "Normal",
-                    "Special",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "zubat_supersonic_mark",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "turnDurationAnchor": "source_turn",
-                            "skillFailChancePercent": 45,
-                            "skillFailDamageAmount": 15,
-                            "randomCostIncrease": 1,
-                            "statusIconUrl": "assets/images/PokemonArena/zubat/supersonic.webp",
-                            "tooltipText": "This character has a 45% chance for any skill they use to fail, their skills cost 1 additional random energy, and Leech Life steals 5 additional HP from them."
-                        }
-                    }
-                ]
-            },
-            {
                 "id": "zubat-bite",
                 "name": "Bite",
                 "skillimage": "assets/images/PokemonArena/zubat/bite.webp",
-                "skilldescription": "Deals 20 damage to one enemy. If they are affected by Supersonic, their cooldowns are increased by 1. During the next turn, Leech Life steals 5 additional HP.",
+                "skilldescription": "Deals 20 damage to one enemy.",
+                "description": "Deals 20 damage to one enemy.",
                 "energy": [
                     "Taijutsu"
                 ],
+                "cooldown": 0,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 0,
                 "classes": [
-                    "Dark",
                     "Physical",
                     "Instant"
                 ],
@@ -23668,311 +21493,238 @@ const characters = [
                         "amount": 20,
                         "scope": "target",
                         "metadata": {
-                            "onSuccessfulDamageApplyStatusToOwner": {
-                                "statusId": "zubat_bite_bonus",
-                                "duration": 1,
-                                "metadata": {
-                                    "hidden": true,
-                                    "infiniteDuration": false,
-                                    "statusIconUrl": "assets/images/PokemonArena/zubat/bite.webp",
-                                    "tooltipText": "Zubat's next Leech Life steals 5 additional HP."
-                                }
-                            }
-                        }
-                    },
-                    {
-                        "type": "modify_cooldowns",
-                        "operation": "add",
-                        "amount": 1,
-                        "includeAllCharacterSkills": true,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "target",
-                            "statusId": "zubat_supersonic_mark"
-                        },
-                        "metadata": {
                             "harmful": true
                         }
-                    },
-                    {
-                        "type": "drain_chakra",
-                        "amount": 1,
-                        "chakraType": "random",
-                        "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "zubat_draining_fangs_active"
-                        }
                     }
-                ]
-            },
-            {
-                "id": "zubat-draining-fangs",
-                "name": "Draining Fangs",
-                "skillimage": "assets/images/PokemonArena/zubat/drainingfangs.webp",
-                "skilldescription": "For 3 turns, Leech Life and Bite steal 1 random energy from their target.",
-                "energy": [
-                    "Bloodline"
                 ],
-                "target": "self",
-                "damage": 0,
-                "cooldown": 3,
-                "classes": [
-                    "Dark",
-                    "Physical",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "zubat_draining_fangs_active",
-                        "duration": 3,
-                        "scope": "self",
-                        "metadata": {
-                            "hidden": true,
-                            "infiniteDuration": false,
-                            "statusIconUrl": "assets/images/PokemonArena/zubat/drainingfangs.webp",
-                            "tooltipText": "Leech Life and Bite steal 1 random energy from their target."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "zubat-passive-evolution-golbat",
-                "name": "Evolution - Golbat",
-                "skillimage": "assets/images/PokemonArena/zubat/evolutiongolbat.webp",
-                "skilldescription": "After Zubat has stolen 50 total HP during the battle, it evolves into Golbat. Golbat's skills are improved.",
-                "energy": [],
-                "target": "",
-                "damage": 0,
-                "cooldown": 0,
-                "classes": [
-                    "Poison",
-                    "Passive",
-                    "Instant"
-                ]
-            },
-            {
-                "id": "golbat-leech-life",
-                "name": "Leech Life",
-                "actorCondition": {
-                    "statusId": "zubat_golbat_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/zubat/golbatleechlife.webp",
-                "skilldescription": "Steals 30 HP from one enemy. If that enemy is affected by Supersonic, this steals 10 additional HP. If Bite improved this skill, it steals 10 additional HP. For 1 turn, if that enemy uses a new skill, Golbat steals 20 additional HP from them.",
-                "energy": [
-                    "Bloodline",
-                    "Random"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 1,
-                "classes": [
-                    "Bug",
-                    "Physical",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "health_steal_damage",
-                        "amount": 30,
-                        "scope": "target"
-                    },
-                    {
-                        "type": "health_steal_damage",
-                        "amount": 10,
-                        "scope": "target",
-                        "condition": {
+                "evolvesTo": {
+                    "id": "golbat-bite",
+                    "name": "Bite",
+                    "skillimage": "assets/images/PokemonArena/zubat/golbatbite.webp",
+                    "skilldescription": "Deals 25 damage to one enemy.",
+                    "description": "Deals 25 damage to one enemy.",
+                    "energy": [
+                        "Taijutsu"
+                    ],
+                    "cooldown": 0,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Physical",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "damage",
+                            "amount": 25,
                             "scope": "target",
-                            "statusId": "zubat_supersonic_mark"
+                            "metadata": {
+                                "harmful": true
+                            }
                         }
-                    },
-                    {
-                        "type": "health_steal_damage",
-                        "amount": 10,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "zubat_bite_bonus"
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "zubat_leech_life_reckoning",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "hidden": true,
-                            "infiniteDuration": false,
-                            "onOwnerUseSkillTrigger": true,
-                            "onOwnerUseSkillRequireNewSkill": true,
-                            "onOwnerUseSkillSelfDamage": 20,
-                            "onOwnerUseSkillHealSourceAmount": 20,
-                            "statusIconUrl": "assets/images/PokemonArena/zubat/golbatleechlife.webp",
-                            "tooltipText": "The next new skill this character uses, they lose 20 HP and Golbat heals for 20 HP."
-                        }
-                    },
-                    {
-                        "type": "drain_chakra",
-                        "amount": 1,
-                        "chakraType": "random",
-                        "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "zubat_draining_fangs_active"
-                        }
-                    }
-                ]
+                    ]
+                }
             },
             {
-                "id": "golbat-supersonic",
-                "name": "Supersonic",
-                "actorCondition": {
-                    "statusId": "zubat_golbat_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/zubat/golbatsupersonic.webp",
-                "skilldescription": "For 2 turns, an enemy has a 45% chance for any skill they use to fail, their skills cost 1 additional random energy, and Leech Life steals 10 additional HP from them. If a skill fails this way, they lose 15 HP.",
+                "id": "zubat-leech-life",
+                "name": "Leech Life",
+                "skillimage": "assets/images/PokemonArena/zubat/leechlife.webp",
+                "skilldescription": "Deals 20 damage to one enemy and heals Zubat for 15.",
+                "description": "Deals 20 damage to one enemy and heals Zubat for 15.",
                 "energy": [
-                    "Genjutsu",
+                    "Ninjutsu",
                     "Random"
                 ],
+                "cooldown": 1,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 3,
                 "classes": [
-                    "Normal",
-                    "Special",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "zubat_supersonic_mark",
-                        "duration": 2,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "turnDurationAnchor": "source_turn",
-                            "skillFailChancePercent": 45,
-                            "skillFailDamageAmount": 15,
-                            "randomCostIncrease": 1,
-                            "statusIconUrl": "assets/images/PokemonArena/zubat/golbatsupersonic.webp",
-                            "tooltipText": "This character has a 45% chance for any skill they use to fail, their skills cost 1 additional random energy, and Leech Life steals 10 additional HP from them."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "golbat-bite",
-                "name": "Bite",
-                "actorCondition": {
-                    "statusId": "zubat_golbat_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/zubat/golbatbite.webp",
-                "skilldescription": "Deals 30 damage to one enemy. If they are affected by Supersonic, their cooldowns are increased by 1. During the next turn, Leech Life steals 10 additional HP.",
-                "energy": [
-                    "Taijutsu",
-                    "Random"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 0,
-                "classes": [
-                    "Dark",
                     "Physical",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 30,
+                        "amount": 20,
                         "scope": "target",
-                        "metadata": {
-                            "ignoreDamageReduction": true,
-                            "onSuccessfulDamageApplyStatusToOwner": {
-                                "statusId": "zubat_bite_bonus",
-                                "duration": 1,
-                                "metadata": {
-                                    "hidden": true,
-                                    "infiniteDuration": false,
-                                    "statusIconUrl": "assets/images/PokemonArena/zubat/bite.webp",
-                                    "tooltipText": "Zubat's next Leech Life steals 10 additional HP."
-                                }
-                            }
-                        }
-                    },
-                    {
-                        "type": "modify_cooldowns",
-                        "operation": "add",
-                        "amount": 1,
-                        "includeAllCharacterSkills": true,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "target",
-                            "statusId": "zubat_supersonic_mark"
-                        },
                         "metadata": {
                             "harmful": true
                         }
                     },
                     {
-                        "type": "drain_chakra",
-                        "amount": 1,
-                        "chakraType": "random",
-                        "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "zubat_draining_fangs_active"
-                        }
+                        "type": "heal",
+                        "amount": 15,
+                        "scope": "self"
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "golbat-leech-life",
+                    "name": "Leech Life",
+                    "skillimage": "assets/images/PokemonArena/zubat/golbatleechlife.webp",
+                    "skilldescription": "Deals 30 damage to one enemy and heals Golbat for 20.",
+                    "description": "Deals 30 damage to one enemy and heals Golbat for 20.",
+                    "energy": [
+                        "Ninjutsu",
+                        "Random"
+                    ],
+                    "cooldown": 1,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Physical",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "damage",
+                            "amount": 30,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true
+                            }
+                        },
+                        {
+                            "type": "heal",
+                            "amount": 20,
+                            "scope": "self"
+                        }
+                    ]
+                }
             },
             {
-                "id": "golbat-draining-fangs",
-                "name": "Draining Fangs",
-                "actorCondition": {
-                    "statusId": "zubat_golbat_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/zubat/golbatdrainingfangs.webp",
-                "skilldescription": "For 3 turns, Leech Life and Bite steal 1 random energy from their target instead.",
+                "id": "zubat-supersonic",
+                "name": "Supersonic",
+                "skillimage": "assets/images/PokemonArena/zubat/supersonic.webp",
+                "skilldescription": "One enemy deals 15 less damage for 2 turns.",
+                "description": "One enemy deals 15 less damage for 2 turns.",
                 "energy": [
-                    "Bloodline",
-                    "Random"
+                    "Genjutsu"
                 ],
-                "target": "self",
-                "damage": 0,
                 "cooldown": 3,
+                "target": "single-enemy",
+                "damage": 0,
                 "classes": [
-                    "Dark",
-                    "Physical",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "zubat_draining_fangs_active",
-                        "duration": 3,
+                        "duration": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "DamageDebuff": 15,
+                            "tooltipText": "Deals 15 less damage."
+                        },
+                        "statusId": "zubat_supersonic_1"
+                    }
+                ],
+                "evolvesTo": {
+                    "id": "golbat-supersonic",
+                    "name": "Supersonic",
+                    "skillimage": "assets/images/PokemonArena/zubat/golbatsupersonic.webp",
+                    "skilldescription": "Stuns one enemy for 1 turn.",
+                    "description": "Stuns one enemy for 1 turn.",
+                    "energy": [
+                        "Genjutsu"
+                    ],
+                    "cooldown": 3,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Special",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "apply_status",
+                            "duration": 1,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true,
+                                "cannotUseSkills": true,
+                                "tooltipText": "Stunned: cannot use skills."
+                            },
+                            "statusId": "golbat_supersonic_1"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "zubat-draining-fangs",
+                "name": "Double Team",
+                "skillimage": "assets/images/PokemonArena/zubat/drainingfangs.webp",
+                "skilldescription": "Zubat becomes invulnerable for 1 turn.",
+                "description": "Zubat becomes invulnerable for 1 turn.",
+                "energy": [
+                    "Random"
+                ],
+                "cooldown": 4,
+                "target": "self",
+                "damage": 0,
+                "classes": [
+                    "Strategic",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "duration": 1,
                         "scope": "self",
                         "metadata": {
-                            "hidden": true,
-                            "infiniteDuration": false,
-                            "statusIconUrl": "assets/images/PokemonArena/zubat/golbatdrainingfangs.webp",
-                            "tooltipText": "Leech Life and Bite steal 1 random energy from their target."
-                        }
+                            "invulnerable": true,
+                            "tooltipText": "Invulnerable."
+                        },
+                        "statusId": "zubat_draining_fangs_1"
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "zubat-draining-fangs-evolved",
+                    "name": "Double Team",
+                    "skillimage": "assets/images/PokemonArena/zubat/drainingfangs.webp",
+                    "skilldescription": "Golbat becomes invulnerable for 1 turn.",
+                    "description": "Golbat becomes invulnerable for 1 turn.",
+                    "energy": [
+                        "Random"
+                    ],
+                    "cooldown": 4,
+                    "target": "self",
+                    "damage": 0,
+                    "classes": [
+                        "Strategic",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "apply_status",
+                            "duration": 1,
+                            "scope": "self",
+                            "metadata": {
+                                "invulnerable": true,
+                                "tooltipText": "Invulnerable."
+                            },
+                            "statusId": "zubat_draining_fangs_evolved_1"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "zubat-passive-evolution-golbat",
+                "name": "Evolution: Golbat",
+                "skillimage": "assets/images/PokemonArena/zubat/evolutiongolbat.webp",
+                "skilldescription": "At the start of its 4th turn, Zubat evolves into Golbat and its skills get stronger.",
+                "description": "At the start of its 4th turn, Zubat evolves into Golbat and its skills get stronger.",
+                "energy": [],
+                "cooldown": 0,
+                "target": "",
+                "damage": 0,
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ],
+                "effects": []
             }
-        ],
-        "role": "Fast DPS",
-        "universe": "pokemon",
-        "arena": "pokemon",
-        "roleCategory": "fast-dps",
-        "description": "A cave-dwelling bat Pokemon that hunts marked enemies with Supersonic disruption, life drain, cooldown pressure, and energy theft. Zubat builds toward Golbat by steadily stealing HP during battle.",
-        "descriptionHtml": "A cave-dwelling bat Pokemon that hunts marked enemies with Supersonic disruption, life drain, cooldown pressure, and energy theft. Zubat builds toward Golbat by steadily stealing HP during battle.",
-        "characterdeescription": null,
-        "pokemonTypes": [
-            "Poison",
-            "Flying"
         ]
     },
     {
@@ -23980,40 +21732,36 @@ const characters = [
         "characterId": "gastly",
         "name": "Gastly",
         "facePicture": "assets/images/PokemonArena/gastley/gastleyfp.webp",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Disruptor",
+        "roleCategory": "disruptor",
+        "description": "A ghost that curses enemies and steals their energy.",
+        "descriptionHtml": "A ghost that curses enemies and steals their energy.",
+        "characterdeescription": null,
+        "pokemonTypes": [
+            "Ghost",
+            "Poison"
+        ],
         "startStatuses": [
             {
                 "statusId": "gastly_evolution_tracker",
                 "sourceSkillId": "gastly-passive-evolution-haunter",
-                "duration": 99,
+                "duration": 3,
                 "metadata": {
-                    "hidden": true,
-                    "infiniteDuration": true,
-                    "gastlyDamageTaken": 0,
-                    "stackMetadataKey": "gastlyDamageTaken",
-                    "stackDeltaFromDamageTaken": true,
-                    "stackDelta": 0,
-                    "stackMax": 35,
-                    "applyStatusAtStack": {
-                        "metadataKey": "gastlyDamageTaken",
-                        "value": 35,
+                    "unremovable": true,
+                    "tooltipText": "Evolves into Haunter at the start of its 4th turn.",
+                    "onExpireApplyStatusToSelf": {
                         "statusId": "gastly_haunter_evolution",
-                        "duration": 99,
+                        "duration": 999,
                         "metadata": {
-                            "hidden": true,
                             "infiniteDuration": true,
+                            "unremovable": true,
+                            "useEvolvedSkills": true,
                             "facePictureOverride": "assets/images/PokemonArena/gastley/haunterfp.webp",
-                            "skillReplacements": {
-                                "gastly-lick": "haunter-lick",
-                                "gastly-curse": "haunter-curse",
-                                "gastly-spite": "haunter-spite",
-                                "gastly-glare": "haunter-glare"
-                            },
-                            "tooltipText": "Gastly has evolved into Haunter. Haunter's skills are improved.",
-                            "healOnApplyFlat": 10
+                            "tooltipText": "Gastly has evolved into Haunter."
                         }
-                    },
-                    "statusIconUrl": "assets/images/PokemonArena/gastley/evolutionhaunter.webp",
-                    "tooltipTextTemplate": "Gastly has lost {gastlyDamageTaken}/35 total HP and will evolve into Haunter at 35."
+                    }
                 }
             }
         ],
@@ -24022,17 +21770,16 @@ const characters = [
                 "id": "gastly-lick",
                 "name": "Lick",
                 "skillimage": "assets/images/PokemonArena/gastley/lick.webp",
-                "skilldescription": "Deals 20 affliction damage to one enemy. This skill has a 1% chance to stun the target's harmful skills for 1 turn for each point of health Gastly is missing.",
+                "skilldescription": "Deals 20 piercing damage to one enemy.",
+                "description": "Deals 20 piercing damage to one enemy.",
                 "energy": [
                     "Ninjutsu"
                 ],
+                "cooldown": 0,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 0,
                 "classes": [
-                    "Ghost",
-                    "Special",
-                    "Affliction",
+                    "Physical",
                     "Instant"
                 ],
                 "effects": [
@@ -24041,56 +21788,56 @@ const characters = [
                         "amount": 20,
                         "scope": "target",
                         "metadata": {
-                            "afflictionDamage": true,
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true,
-                            "onSuccessfulDamageApplyStatusToOwner": {
-                                "statusId": "gastly_evolution_tracker",
-                                "duration": 99,
-                                "metadata": {
-                                    "hidden": true,
-                                    "infiniteDuration": true,
-                                    "gastlyDamageTaken": 0,
-                                    "stackMetadataKey": "gastlyDamageTaken",
-                                    "stackDeltaFromDamageDealt": true,
-                                    "stackMax": 35,
-                                    "statusIconUrl": "assets/images/PokemonArena/gastley/evolutionhaunter.webp",
-                                    "tooltipTextTemplate": "Gastly has lost {gastlyDamageTaken}/35 total HP and will evolve into Haunter at 35."
-                                }
-                            }
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "gastly_lick_lock",
-                        "duration": 1,
-                        "scope": "target",
-                        "chance": 1,
-                        "metadata": {
                             "harmful": true,
-                            "chanceFromSourceMissingHpStep": 1,
-                            "chanceFromSourceMissingHpDivisor": 1,
-                            "cannotUseHarmfulSkills": true,
-                            "statusIconUrl": "assets/images/PokemonArena/gastley/lick.webp",
-                            "tooltipText": "This character's harmful skills are stunned."
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
                         }
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "haunter-lick",
+                    "name": "Lick",
+                    "skillimage": "assets/images/PokemonArena/gastley/haunterlick.webp",
+                    "skilldescription": "Deals 25 piercing damage to one enemy.",
+                    "description": "Deals 25 piercing damage to one enemy.",
+                    "energy": [
+                        "Ninjutsu"
+                    ],
+                    "cooldown": 0,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Physical",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "damage",
+                            "amount": 25,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true,
+                                "ignoreDamageReduction": true,
+                                "ignoreDestructibleDefense": true
+                            }
+                        }
+                    ]
+                }
             },
             {
                 "id": "gastly-curse",
                 "name": "Curse",
                 "skillimage": "assets/images/PokemonArena/gastley/curse.webp",
-                "skilldescription": "Marks one enemy permanently. While marked, that enemy takes 15 affliction damage every turn. This damage cannot be ignored. Gastly loses 35 HP. Only one enemy may be affected by Curse at a time.",
+                "skilldescription": "Deals 10 affliction damage to one enemy each turn for 3 turns.",
+                "description": "Deals 10 affliction damage to one enemy each turn for 3 turns.",
                 "energy": [
                     "Ninjutsu",
                     "Genjutsu"
                 ],
+                "cooldown": 2,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 0,
                 "classes": [
-                    "Ghost",
                     "Special",
                     "Affliction",
                     "Instant"
@@ -24098,352 +21845,199 @@ const characters = [
                 "effects": [
                     {
                         "type": "apply_status",
-                        "amount": 15,
+                        "duration": 3,
                         "scope": "target",
                         "metadata": {
-                            "afflictionDamage": true,
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true,
-                            "ignoreDamageImmunity": true,
-                            "ignoreAfflictionDamageImmunity": true,
                             "harmful": true,
-                            "infiniteDuration": true,
-                            "turnEndDamage": 15,
+                            "afflictionDamage": true,
+                            "turnEndDamage": 10,
                             "ignoreTargetDamageReduction": true,
                             "ignoreTargetDestructibleDefense": true,
-                            "statusIconUrl": "assets/images/PokemonArena/gastley/curse.webp",
-                            "tooltipText": "This character takes 15 affliction damage each turn from Curse."
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "Takes 10 affliction damage each turn."
                         },
-                        "statusId": "gastly_curse_mark",
-                        "duration": 99
-                    },
-                    {
-                        "type": "damage",
-                        "statusId": "gastly_curse_mark",
-                        "duration": 99,
-                        "scope": "self",
-                        "metadata": {
-                            "harmful": true,
-                            "infiniteDuration": true,
-                            "turnEndDamage": 15,
-                            "afflictionDamage": true,
-                            "ignoreTargetDamageReduction": true,
-                            "ignoreTargetDestructibleDefense": true,
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true,
-                            "ignoreDamageImmunity": true,
-                            "ignoreAfflictionDamageImmunity": true,
-                            "statusIconUrl": "assets/images/PokemonArena/gastley/curse.webp",
-                            "tooltipText": "This character takes 15 affliction damage each turn from Curse."
-                        },
-                        "amount": 35
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 35,
-                        "scope": "self",
-                        "metadata": {
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true,
-                            "ignoreDamageImmunity": true
-                        }
+                        "statusId": "gastly_curse_1"
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "haunter-curse",
+                    "name": "Curse",
+                    "skillimage": "assets/images/PokemonArena/gastley/hauntercurse.webp",
+                    "skilldescription": "Deals 15 affliction damage to one enemy each turn for 3 turns.",
+                    "description": "Deals 15 affliction damage to one enemy each turn for 3 turns.",
+                    "energy": [
+                        "Ninjutsu",
+                        "Genjutsu"
+                    ],
+                    "cooldown": 2,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Special",
+                        "Affliction",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "apply_status",
+                            "duration": 3,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true,
+                                "afflictionDamage": true,
+                                "turnEndDamage": 15,
+                                "ignoreTargetDamageReduction": true,
+                                "ignoreTargetDestructibleDefense": true,
+                                "turnEndTrigger": "source_turn",
+                                "turnDurationAnchor": "source_turn",
+                                "tooltipText": "Takes 15 affliction damage each turn."
+                            },
+                            "statusId": "haunter_curse_1"
+                        }
+                    ]
+                }
             },
             {
                 "id": "gastly-spite",
                 "name": "Spite",
                 "skillimage": "assets/images/PokemonArena/gastley/spite.webp",
-                "skilldescription": "For 2 turns, one enemy's damage is reduced by 50% and they take 10 additional damage from affliction skills.",
+                "skilldescription": "Deals 10 damage to one enemy and removes 1 random energy from the enemy team.",
+                "description": "Deals 10 damage to one enemy and removes 1 random energy from the enemy team.",
                 "energy": [
-                    "Genjutsu",
-                    "Random"
+                    "Genjutsu"
                 ],
+                "cooldown": 3,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 3,
                 "classes": [
-                    "Ghost",
-                    "Strategic",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
                     {
-                        "type": "apply_status",
-                        "statusId": "gastly_spite_dampen",
-                        "duration": 2,
+                        "type": "damage",
+                        "amount": 10,
                         "scope": "target",
                         "metadata": {
-                            "harmful": true,
-                            "damageReductionPercent": 50,
-                            "damageTakenBonusFlat": 10,
-                            "statusIconUrl": "assets/images/PokemonArena/gastley/spite.webp",
-                            "tooltipText": "This character's damage is heavily restricted and they take more affliction damage."
+                            "harmful": true
                         }
+                    },
+                    {
+                        "type": "drain_chakra",
+                        "amount": 1,
+                        "chakraType": "random",
+                        "scope": "target"
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "haunter-spite",
+                    "name": "Spite",
+                    "skillimage": "assets/images/PokemonArena/gastley/haunterspite.webp",
+                    "skilldescription": "Deals 20 damage to one enemy and removes 1 random energy from the enemy team.",
+                    "description": "Deals 20 damage to one enemy and removes 1 random energy from the enemy team.",
+                    "energy": [
+                        "Genjutsu"
+                    ],
+                    "cooldown": 3,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Special",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "damage",
+                            "amount": 20,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true
+                            }
+                        },
+                        {
+                            "type": "drain_chakra",
+                            "amount": 1,
+                            "chakraType": "random",
+                            "scope": "target"
+                        }
+                    ]
+                }
             },
             {
                 "id": "gastly-glare",
-                "name": "Glare",
+                "name": "Vanish",
                 "skillimage": "assets/images/PokemonArena/gastley/glare.webp",
-                "skilldescription": "Guard Breaks one enemy and paralyzes their cooldowns for 2 turns. If that enemy uses a new skill while affected, they take 15 affliction damage.",
+                "skilldescription": "Gastly becomes invulnerable for 1 turn.",
+                "description": "Gastly becomes invulnerable for 1 turn.",
                 "energy": [
-                    "Genjutsu"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 2,
-                "classes": [
-                    "Normal",
-                    "Special",
-                    "Affliction",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "gastly_glare_lock",
-                        "duration": 2,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "guardBreak": true,
-                            "paralyzeCooldowns": true,
-                            "onOwnerUseSkillTrigger": true,
-                            "onOwnerUseSkillRequireNewSkill": true,
-                            "onOwnerUseSkillSelfDamage": 15,
-                            "statusIconUrl": "assets/images/PokemonArena/gastley/glare.webp",
-                            "tooltipText": "The next new skill this character uses deals 15 affliction damage to them."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "gastly-passive-evolution-haunter",
-                "name": "Evolution - Haunter",
-                "skillimage": "assets/images/PokemonArena/gastley/evolutionhaunter.webp",
-                "skilldescription": "After Gastly has lost 35 total HP during the battle, it evolves into Haunter. Haunter's skills are improved.",
-                "energy": [],
-                "target": "",
-                "damage": 0,
-                "cooldown": 0,
-                "classes": [
-                    "Ghost",
-                    "Passive",
-                    "Instant"
-                ]
-            },
-            {
-                "id": "haunter-lick",
-                "name": "Lick",
-                "actorCondition": {
-                    "statusId": "gastly_haunter_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/gastley/haunterlick.webp",
-                "skilldescription": "Deals 20 affliction damage to one enemy. This skill has a 2% chance to stun the target's harmful skills for 1 turn for each point of health Gastly is missing.",
-                "energy": [
-                    "Ninjutsu"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 0,
-                "classes": [
-                    "Ghost",
-                    "Special",
-                    "Affliction",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 20,
-                        "scope": "target",
-                        "metadata": {
-                            "afflictionDamage": true,
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "haunter_lick_lock",
-                        "duration": 1,
-                        "scope": "target",
-                        "chance": 2,
-                        "metadata": {
-                            "harmful": true,
-                            "chanceFromSourceMissingHpStep": 2,
-                            "chanceFromSourceMissingHpDivisor": 1,
-                            "cannotUseHarmfulSkills": true,
-                            "statusIconUrl": "assets/images/PokemonArena/gastley/haunterlick.webp",
-                            "tooltipText": "This character's harmful skills are stunned."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "haunter-curse",
-                "name": "Curse",
-                "actorCondition": {
-                    "statusId": "gastly_haunter_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/gastley/hauntercurse.webp",
-                "skilldescription": "Marks one enemy permanently. While marked, that enemy takes 20 affliction damage every turn. This damage cannot be ignored. Gastly loses 35 HP. Up to two enemies may be affected by Curse at the same time.",
-                "energy": [
-                    "Ninjutsu",
-                    "Genjutsu"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 0,
-                "classes": [
-                    "Ghost",
-                    "Special",
-                    "Affliction",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "amount": 20,
-                        "scope": "target",
-                        "metadata": {
-                            "afflictionDamage": true,
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true,
-                            "ignoreDamageImmunity": true,
-                            "ignoreAfflictionDamageImmunity": true,
-                            "harmful": true,
-                            "infiniteDuration": true,
-                            "turnEndDamage": 20,
-                            "ignoreTargetDamageReduction": true,
-                            "ignoreTargetDestructibleDefense": true,
-                            "statusIconUrl": "assets/images/PokemonArena/gastley/hauntercurse.webp",
-                            "tooltipText": "This character takes 15 affliction damage each turn from Curse."
-                        },
-                        "statusId": "gastly_curse_mark",
-                        "duration": 99
-                    },
-                    {
-                        "type": "damage",
-                        "statusId": "gastly_curse_mark",
-                        "duration": 99,
-                        "scope": "self",
-                        "metadata": {
-                            "harmful": true,
-                            "infiniteDuration": true,
-                            "turnEndDamage": 20,
-                            "afflictionDamage": true,
-                            "ignoreTargetDamageReduction": true,
-                            "ignoreTargetDestructibleDefense": true,
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true,
-                            "ignoreDamageImmunity": true,
-                            "ignoreAfflictionDamageImmunity": true,
-                            "statusIconUrl": "assets/images/PokemonArena/gastley/hauntercurse.webp",
-                            "tooltipText": "This character takes 15 affliction damage each turn from Curse."
-                        },
-                        "amount": 35
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 35,
-                        "scope": "self",
-                        "metadata": {
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true,
-                            "ignoreDamageImmunity": true
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "haunter-spite",
-                "name": "Spite",
-                "actorCondition": {
-                    "statusId": "gastly_haunter_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/gastley/haunterspite.webp",
-                "skilldescription": "For 2 turns, one enemy's damage is reduced by 75% and they take 15 additional damage from affliction skills.",
-                "energy": [
-                    "Genjutsu",
                     "Random"
                 ],
-                "target": "single-enemy",
+                "cooldown": 4,
+                "target": "self",
                 "damage": 0,
-                "cooldown": 3,
                 "classes": [
-                    "Ghost",
                     "Strategic",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "haunter_spite_dampen",
-                        "duration": 2,
-                        "scope": "target",
+                        "duration": 1,
+                        "scope": "self",
                         "metadata": {
-                            "harmful": true,
-                            "damageReductionPercent": 75,
-                            "damageTakenBonusFlat": 15,
-                            "statusIconUrl": "assets/images/PokemonArena/gastley/haunterspite.webp",
-                            "tooltipText": "This character's damage is heavily restricted and they take more affliction damage."
-                        }
+                            "invulnerable": true,
+                            "tooltipText": "Invulnerable."
+                        },
+                        "statusId": "gastly_glare_1"
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "gastly-glare-evolved",
+                    "name": "Vanish",
+                    "skillimage": "assets/images/PokemonArena/gastley/glare.webp",
+                    "skilldescription": "Haunter becomes invulnerable for 1 turn.",
+                    "description": "Haunter becomes invulnerable for 1 turn.",
+                    "energy": [
+                        "Random"
+                    ],
+                    "cooldown": 4,
+                    "target": "self",
+                    "damage": 0,
+                    "classes": [
+                        "Strategic",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "apply_status",
+                            "duration": 1,
+                            "scope": "self",
+                            "metadata": {
+                                "invulnerable": true,
+                                "tooltipText": "Invulnerable."
+                            },
+                            "statusId": "gastly_glare_evolved_1"
+                        }
+                    ]
+                }
             },
             {
-                "id": "haunter-glare",
-                "name": "Glare",
-                "actorCondition": {
-                    "statusId": "gastly_haunter_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/gastley/haunterglare.webp",
-                "skilldescription": "Guard Breaks one enemy and paralyzes their cooldowns for 3 turns. If that enemy uses a new skill while affected, they take 25 affliction damage instead.",
-                "energy": [
-                    "Genjutsu"
-                ],
-                "target": "single-enemy",
+                "id": "gastly-passive-evolution-haunter",
+                "name": "Evolution: Haunter",
+                "skillimage": "assets/images/PokemonArena/gastley/evolutionhaunter.webp",
+                "skilldescription": "At the start of its 4th turn, Gastly evolves into Haunter and its skills get stronger.",
+                "description": "At the start of its 4th turn, Gastly evolves into Haunter and its skills get stronger.",
+                "energy": [],
+                "cooldown": 0,
+                "target": "",
                 "damage": 0,
-                "cooldown": 3,
                 "classes": [
-                    "Normal",
-                    "Special",
-                    "Affliction",
+                    "Passive",
                     "Instant"
                 ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "haunter_glare_lock",
-                        "duration": 3,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "guardBreak": true,
-                            "paralyzeCooldowns": true,
-                            "onOwnerUseSkillTrigger": true,
-                            "onOwnerUseSkillRequireNewSkill": true,
-                            "onOwnerUseSkillSelfDamage": 25,
-                            "statusIconUrl": "assets/images/PokemonArena/gastley/haunterglare.webp",
-                            "tooltipText": "The next new skill this character uses deals 25 affliction damage to them."
-                        }
-                    }
-                ]
+                "effects": []
             }
-        ],
-        "role": "Disruptor",
-        "universe": "pokemon",
-        "arena": "pokemon",
-        "roleCategory": "Disruptor",
-        "description": "A mischievous Ghost-type Pokemon that turns missing health into pressure, punishes skill usage, and evolves into the far nastier Haunter.",
-        "descriptionHtml": "A mischievous Ghost-type Pokemon that turns missing health into pressure, punishes skill usage, and evolves into the far nastier Haunter.",
-        "characterdeescription": null,
-        "pokemonTypes": [
-            "Ghost",
-            "Poison"
         ]
     },
     {
@@ -24451,298 +22045,53 @@ const characters = [
         "characterId": "abra",
         "name": "Abra",
         "facePicture": "assets/images/PokemonArena/abra/abrafp.webp",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Psychic damage",
+        "roleCategory": "psychic-damage",
+        "description": "Fragile but powerful: teleports out of danger and hits hard with Psychic.",
+        "descriptionHtml": "Fragile but powerful: teleports out of danger and hits hard with Psychic.",
+        "characterdeescription": null,
+        "pokemonTypes": [
+            "Psychic"
+        ],
         "startStatuses": [
             {
                 "statusId": "abra_calm_mind_tracker",
-                "sourceSkillId": "abra-calm-mind",
-                "duration": 99,
+                "sourceSkillId": "abra-passive-evolution-kadabra",
+                "duration": 3,
                 "metadata": {
-                    "hidden": true,
-                    "infiniteDuration": true,
-                    "abraCalmMindUses": 0,
-                    "stackMetadataKey": "abraCalmMindUses",
-                    "stackDelta": 0,
-                    "stackMax": 3,
-                    "onOwnerUseSkillTrigger": true,
-                    "preserveOnOwnerUseSkillTrigger": true,
-                    "onOwnerUseSkillIdsAny": [
-                        "abra-calm-mind",
-                        "kadabra-calm-mind"
-                    ],
-                    "onOwnerUseSkillApplyStatusToOwner": {
-                        "statusId": "abra_calm_mind_tracker",
-                        "duration": 99,
-                        "metadata": {
-                            "hidden": true,
-                            "infiniteDuration": true,
-                            "abraCalmMindUses": 0,
-                            "stackMetadataKey": "abraCalmMindUses",
-                            "stackDelta": 1,
-                            "stackMax": 3,
-                            "statusIconUrl": "assets/images/PokemonArena/abra/calmmind.webp",
-                            "tooltipTextTemplate": "Abra has used Calm Mind {abraCalmMindUses}/3 times and will evolve into Kadabra at 3."
-                        }
-                    },
-                    "applyStatusAtStack": {
-                        "metadataKey": "abraCalmMindUses",
-                        "value": 3,
+                    "unremovable": true,
+                    "tooltipText": "Evolves into Kadabra at the start of its 4th turn.",
+                    "onExpireApplyStatusToSelf": {
                         "statusId": "abra_kadabra_evolution",
-                        "duration": 99,
+                        "duration": 999,
                         "metadata": {
-                            "hidden": true,
                             "infiniteDuration": true,
+                            "unremovable": true,
+                            "useEvolvedSkills": true,
                             "facePictureOverride": "assets/images/PokemonArena/abra/kadabrafp.webp",
-                            "skillReplacements": {
-                                "abra-future-sight": "kadabra-future-sight",
-                                "abra-psychic": "kadabra-psychic",
-                                "abra-calm-mind": "kadabra-calm-mind",
-                                "abra-teleport": "kadabra-teleport"
-                            },
-                            "tooltipText": "Abra has evolved into Kadabra. Kadabra's skills are improved.",
-                            "healOnApplyFlat": 10
+                            "tooltipText": "Abra has evolved into Kadabra."
                         }
-                    },
-                    "statusIconUrl": "assets/images/PokemonArena/abra/calmmind.webp",
-                    "tooltipTextTemplate": "Abra has used Calm Mind {abraCalmMindUses}/3 times and will evolve into Kadabra at 3."
+                    }
                 }
             }
         ],
         "skills": [
             {
-                "id": "abra-future-sight",
-                "name": "Future Sight",
-                "skillimage": "assets/images/PokemonArena/abra/futuresight.webp",
-                "skilldescription": "Marks an enemy for 2 turns. When the mark expires, the target takes 25 damage.",
-                "energy": [
-                    "Ninjutsu"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 2,
-                "classes": [
-                    "Psychic",
-                    "Special",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "abra_future_sight_mark",
-                        "duration": 2,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "infiniteDuration": false,
-                            "onExpireEffects": [
-                                {
-                                    "type": "damage",
-                                    "amount": 25,
-                                    "scope": "target",
-                                    "metadata": {
-                                        "ignoreDamageReduction": true,
-                                        "ignoreDestructibleDefense": true
-                                    }
-                                }
-                            ],
-                            "statusIconUrl": "assets/images/PokemonArena/abra/futuresight.webp",
-                            "tooltipText": "Future Sight will strike when the mark expires."
-                        }
-                    }
-                ]
-            },
-            {
                 "id": "abra-psychic",
                 "name": "Psychic",
                 "skillimage": "assets/images/PokemonArena/abra/psychic.webp",
-                "skilldescription": "Deals 25 damage to one enemy and Guard Breaks them for 2 turns. If Future Sight damages that enemy this turn, it deals an additional 20 damage.",
+                "skilldescription": "Deals 30 damage to one enemy.",
+                "description": "Deals 30 damage to one enemy.",
                 "energy": [
                     "Genjutsu",
                     "Random"
                 ],
+                "cooldown": 0,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 0,
                 "classes": [
-                    "Psychic",
-                    "Special",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 25,
-                        "scope": "target",
-                        "metadata": {
-                            "guardBreak": true
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 20,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "target",
-                            "statusId": "abra_future_sight_mark"
-                        },
-                        "metadata": {
-                            "guardBreak": true
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "abra-calm-mind",
-                "name": "Calm Mind",
-                "skillimage": "assets/images/PokemonArena/abra/calmmind.webp",
-                "skilldescription": "Abra gains 10% unpierceable damage reduction and deals 5 additional damage for 3 turns.",
-                "energy": [
-                    "Genjutsu"
-                ],
-                "target": "self",
-                "damage": 0,
-                "cooldown": 0,
-                "classes": [
-                    "Psychic",
-                    "Special",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "abra_calm_mind_state",
-                        "duration": 3,
-                        "scope": "self",
-                        "metadata": {
-                            "damageReductionPercent": 10,
-                            "damageBonusFlat": 5,
-                            "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/abra/calmmind.webp",
-                            "tooltipText": "Abra has 10% damage reduction and deals 5 additional damage."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "abra-teleport",
-                "name": "Teleport",
-                "skillimage": "assets/images/PokemonArena/abra/teleport.webp",
-                "skilldescription": "Abra and one selected ally become invulnerable for 1 turn. If Abra is alone, he can target himself.",
-                "energy": [
-                    "Random",
-                    "Random"
-                ],
-                "target": "self-or-single-ally",
-                "damage": 0,
-                "cooldown": 4,
-                "classes": [
-                    "Psychic",
-                    "Special",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "abra_teleport_cover",
-                        "duration": 1,
-                        "scope": "self",
-                        "metadata": {
-                            "invulnerable": true,
-                            "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/abra/teleport.webp",
-                            "tooltipText": "This character is invulnerable."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "abra_teleport_cover",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "invulnerable": true,
-                            "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/abra/teleport.webp",
-                            "tooltipText": "This character is invulnerable."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "abra-passive-evolution-kadabra",
-                "name": "Evolution - Kadabra",
-                "skillimage": "assets/images/PokemonArena/abra/evolutionkadabra.webp",
-                "skilldescription": "After Abra has used Calm Mind 3 times during the battle, it evolves into Kadabra. Kadabra's skills are improved.",
-                "energy": [],
-                "target": "",
-                "damage": 0,
-                "cooldown": 0,
-                "classes": [
-                    "Psychic",
-                    "Passive",
-                    "Instant"
-                ]
-            },
-            {
-                "id": "kadabra-future-sight",
-                "name": "Future Sight",
-                "actorCondition": {
-                    "statusId": "abra_kadabra_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/abra/kadabrafuturesight.webp",
-                "skilldescription": "Marks an enemy for 1 turn. When the mark expires, the target takes 30 damage.",
-                "energy": [
-                    "Ninjutsu"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 1,
-                "classes": [
-                    "Psychic",
-                    "Special",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "abra_future_sight_mark",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "infiniteDuration": false,
-                            "onExpireEffects": [
-                                {
-                                    "type": "damage",
-                                    "amount": 30,
-                                    "scope": "target",
-                                    "metadata": {
-                                        "ignoreDamageReduction": true,
-                                        "ignoreDestructibleDefense": true
-                                    }
-                                }
-                            ],
-                            "statusIconUrl": "assets/images/PokemonArena/abra/kadabrafuturesight.webp",
-                            "tooltipText": "Future Sight will strike when the mark expires."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "kadabra-psychic",
-                "name": "Psychic",
-                "actorCondition": {
-                    "statusId": "abra_kadabra_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/abra/kadabrapsychic.webp",
-                "skilldescription": "Deals 30 damage to one enemy and Guard Breaks them for 2 turns. If Future Sight damages that enemy this turn, it deals an additional 20 damage and stuns their skills for 1 turn.",
-                "energy": [
-                    "Genjutsu",
-                    "Random"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 0,
-                "classes": [
-                    "Psychic",
                     "Special",
                     "Instant"
                 ],
@@ -24752,149 +22101,231 @@ const characters = [
                         "amount": 30,
                         "scope": "target",
                         "metadata": {
-                            "guardBreak": true
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 20,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "target",
-                            "statusId": "abra_future_sight_mark"
-                        },
-                        "metadata": {
-                            "guardBreak": true
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "kadabra_psychic_stun",
-                        "duration": 1,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "target",
-                            "statusId": "abra_future_sight_mark"
-                        },
-                        "metadata": {
-                            "harmful": true,
-                            "cannotUseSkills": true,
-                            "statusIconUrl": "assets/images/PokemonArena/abra/kadabrapsychic.webp",
-                            "tooltipText": "This character's skills are stunned."
+                            "harmful": true
                         }
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "kadabra-psychic",
+                    "name": "Psychic",
+                    "skillimage": "assets/images/PokemonArena/abra/kadabrapsychic.webp",
+                    "skilldescription": "Deals 40 damage to one enemy.",
+                    "description": "Deals 40 damage to one enemy.",
+                    "energy": [
+                        "Genjutsu",
+                        "Random"
+                    ],
+                    "cooldown": 0,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Special",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "damage",
+                            "amount": 40,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true
+                            }
+                        }
+                    ]
+                }
             },
             {
-                "id": "kadabra-calm-mind",
+                "id": "abra-future-sight",
+                "name": "Future Sight",
+                "skillimage": "assets/images/PokemonArena/abra/futuresight.webp",
+                "skilldescription": "Deals 15 damage to all enemies.",
+                "description": "Deals 15 damage to all enemies.",
+                "energy": [
+                    "Ninjutsu"
+                ],
+                "cooldown": 2,
+                "target": "all-enemy",
+                "damage": 0,
+                "classes": [
+                    "Special",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "harmful": true
+                        }
+                    }
+                ],
+                "evolvesTo": {
+                    "id": "kadabra-future-sight",
+                    "name": "Future Sight",
+                    "skillimage": "assets/images/PokemonArena/abra/kadabrafuturesight.webp",
+                    "skilldescription": "Deals 20 damage to all enemies.",
+                    "description": "Deals 20 damage to all enemies.",
+                    "energy": [
+                        "Ninjutsu"
+                    ],
+                    "cooldown": 2,
+                    "target": "all-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Special",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "damage",
+                            "amount": 20,
+                            "scope": "all-enemy",
+                            "metadata": {
+                                "harmful": true
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "abra-calm-mind",
                 "name": "Calm Mind",
-                "actorCondition": {
-                    "statusId": "abra_kadabra_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/abra/kadabracalmmind.webp",
-                "skilldescription": "Kadabra gains 15% unpierceable damage reduction and deals 10 additional damage for 3 turns.",
+                "skillimage": "assets/images/PokemonArena/abra/calmmind.webp",
+                "skilldescription": "Abra deals 10 more damage for 2 turns.",
+                "description": "Abra deals 10 more damage for 2 turns.",
                 "energy": [
                     "Genjutsu"
                 ],
+                "cooldown": 3,
                 "target": "self",
                 "damage": 0,
-                "cooldown": 0,
                 "classes": [
-                    "Psychic",
-                    "Special",
+                    "Strategic",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "abra_calm_mind_state",
-                        "duration": 3,
+                        "duration": 2,
                         "scope": "self",
                         "metadata": {
-                            "damageReductionPercent": 15,
                             "damageBonusFlat": 10,
-                            "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/abra/kadabracalmmind.webp",
-                            "tooltipText": "Kadabra has 15% damage reduction and deals 10 additional damage."
-                        }
+                            "mergeNumericAddKeys": [
+                                "damageBonusFlat"
+                            ],
+                            "tooltipText": "Deals 10 more damage."
+                        },
+                        "statusId": "abra_calm_mind_1"
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "kadabra-calm-mind",
+                    "name": "Calm Mind",
+                    "skillimage": "assets/images/PokemonArena/abra/kadabracalmmind.webp",
+                    "skilldescription": "Kadabra deals 15 more damage for 2 turns.",
+                    "description": "Kadabra deals 15 more damage for 2 turns.",
+                    "energy": [
+                        "Genjutsu"
+                    ],
+                    "cooldown": 3,
+                    "target": "self",
+                    "damage": 0,
+                    "classes": [
+                        "Strategic",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "apply_status",
+                            "duration": 2,
+                            "scope": "self",
+                            "metadata": {
+                                "damageBonusFlat": 15,
+                                "mergeNumericAddKeys": [
+                                    "damageBonusFlat"
+                                ],
+                                "tooltipText": "Deals 15 more damage."
+                            },
+                            "statusId": "kadabra_calm_mind_1"
+                        }
+                    ]
+                }
             },
             {
-                "id": "kadabra-teleport",
+                "id": "abra-teleport",
                 "name": "Teleport",
-                "actorCondition": {
-                    "statusId": "abra_kadabra_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/abra/Kadabrateleport.webp",
-                "skilldescription": "Kadabra and one selected ally become invulnerable for 1 turn, and all enemy skills currently affecting them are removed. If Kadabra is alone, he can target himself.",
+                "skillimage": "assets/images/PokemonArena/abra/teleport.webp",
+                "skilldescription": "Abra becomes invulnerable for 1 turn.",
+                "description": "Abra becomes invulnerable for 1 turn.",
                 "energy": [
-                    "Random",
                     "Random"
                 ],
-                "target": "self-or-single-ally",
-                "damage": 0,
                 "cooldown": 4,
+                "target": "self",
+                "damage": 0,
                 "classes": [
-                    "Psychic",
-                    "Special",
+                    "Strategic",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "abra_teleport_cover",
                         "duration": 1,
                         "scope": "self",
                         "metadata": {
                             "invulnerable": true,
-                            "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/abra/Kadabrateleport.webp",
-                            "tooltipText": "This character is invulnerable."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "abra_teleport_cover",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "invulnerable": true,
-                            "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/abra/Kadabrateleport.webp",
-                            "tooltipText": "This character is invulnerable."
-                        }
-                    },
-                    {
-                        "type": "cleanse_statuses",
-                        "scope": "self",
-                        "sourceRelation": "enemy",
-                        "metadata": {
-                            "statusIconUrl": "assets/images/PokemonArena/abra/Kadabrateleport.webp",
-                            "tooltipText": "Enemy skills currently affecting this character are removed."
-                        }
-                    },
-                    {
-                        "type": "cleanse_statuses",
-                        "scope": "target",
-                        "sourceRelation": "enemy",
-                        "metadata": {
-                            "statusIconUrl": "assets/images/PokemonArena/abra/Kadabrateleport.webp",
-                            "tooltipText": "Enemy skills currently affecting this character are removed."
-                        }
+                            "tooltipText": "Invulnerable."
+                        },
+                        "statusId": "abra_teleport_1"
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "abra-teleport-evolved",
+                    "name": "Teleport",
+                    "skillimage": "assets/images/PokemonArena/abra/teleport.webp",
+                    "skilldescription": "Kadabra becomes invulnerable for 1 turn.",
+                    "description": "Kadabra becomes invulnerable for 1 turn.",
+                    "energy": [
+                        "Random"
+                    ],
+                    "cooldown": 4,
+                    "target": "self",
+                    "damage": 0,
+                    "classes": [
+                        "Strategic",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "apply_status",
+                            "duration": 1,
+                            "scope": "self",
+                            "metadata": {
+                                "invulnerable": true,
+                                "tooltipText": "Invulnerable."
+                            },
+                            "statusId": "abra_teleport_evolved_1"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "abra-passive-evolution-kadabra",
+                "name": "Evolution: Kadabra",
+                "skillimage": "assets/images/PokemonArena/abra/evolutionkadabra.webp",
+                "skilldescription": "At the start of its 4th turn, Abra evolves into Kadabra and its skills get stronger.",
+                "description": "At the start of its 4th turn, Abra evolves into Kadabra and its skills get stronger.",
+                "energy": [],
+                "cooldown": 0,
+                "target": "",
+                "damage": 0,
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ],
+                "effects": []
             }
-        ],
-        "role": "Controller",
-        "universe": "pokemon",
-        "arena": "pokemon",
-        "roleCategory": "controller",
-        "description": "A reserved Psychic-type Pokemon that turns setup into inevitability, then evolves into Kadabra after building Calm Mind three times.",
-        "descriptionHtml": "A reserved Psychic-type Pokemon that turns setup into inevitability, then evolves into Kadabra after building Calm Mind three times.",
-        "characterdeescription": null,
-        "pokemonTypes": [
-            "Psychic"
         ]
     },
     {
@@ -24902,36 +22333,52 @@ const characters = [
         "characterId": "krabby",
         "name": "Krabby",
         "facePicture": "assets/images/PokemonArena/Krabby/krabbyfp.png",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Bruiser",
+        "roleCategory": "bruiser",
+        "description": "Hard shell, huge claw: defends itself and crushes one target.",
+        "descriptionHtml": "Hard shell, huge claw: defends itself and crushes one target.",
         "characterdeescription": "A rugged Water-type Pokemon that stacks permanent armor, softens enemies for physical follow-up, and grows into Kingler after enough time behind Swim.",
+        "pokemonTypes": [
+            "Water"
+        ],
         "startStatuses": [
             {
                 "statusId": "krabby_harden_turn_tracker",
-                "duration": 99,
                 "sourceSkillId": "krabby-passive-evolution-kingler",
+                "duration": 3,
                 "metadata": {
-                    "infiniteDuration": true,
-                    "krabbyHardenTurns": 0,
-                    "stackMetadataKey": "krabbyHardenTurns",
-                    "stackMax": 3,
-                    "statusIconUrl": "assets/images/PokemonArena/Krabby/kinglerevolution.jpg",
-                    "tooltipTextTemplate": "Krabby has spent {krabbyHardenTurns}/3 turns with Swim defense and will evolve into Kingler at 3."
+                    "unremovable": true,
+                    "tooltipText": "Evolves into Kingler at the start of its 4th turn.",
+                    "onExpireApplyStatusToSelf": {
+                        "statusId": "krabby_kingler_evolution",
+                        "duration": 999,
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "useEvolvedSkills": true,
+                            "facePictureOverride": "assets/images/PokemonArena/Krabby/kinglerfp.webp",
+                            "tooltipText": "Krabby has evolved into Kingler."
+                        }
+                    }
                 }
             }
         ],
         "skills": [
             {
                 "id": "krabby-metal-claw",
-                "name": "Vice Grip",
+                "name": "Metal Claw",
                 "skillimage": "assets/images/PokemonArena/Krabby/krabbyskill1.jpg",
-                "skilldescription": "Deals 20 piercing damage to one enemy. This skill has a 30% chance to permanently increase the non-affliction damage of Krabby's skills by 5. This effect stacks.",
+                "skilldescription": "Deals 20 damage to one enemy.",
+                "description": "Deals 20 damage to one enemy.",
                 "energy": [
                     "Taijutsu"
                 ],
+                "cooldown": 0,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 0,
                 "classes": [
-                    "Steel",
                     "Physical",
                     "Instant"
                 ],
@@ -24939,422 +22386,230 @@ const characters = [
                     {
                         "type": "damage",
                         "amount": 20,
-                        "scope": "target",
-                        "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "krabby_metal_claw_bonus",
-                        "duration": 999,
-                        "scope": "self",
-                        "chance": 30,
-                        "metadata": {
-                            "infiniteDuration": true,
-                            "nonAfflictionDamageBonusFlat": 5,
-                            "mergeNumericAddKeys": [
-                                "nonAfflictionDamageBonusFlat"
-                            ],
-                            "statusIconUrl": "assets/images/PokemonArena/Krabby/krabbyskill1.jpg",
-                            "tooltipTextTemplate": "This character deals {nonAfflictionDamageBonusFlat} additional non-affliction damage from Vice Grip."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "krabby-leer",
-                "name": "Bubble",
-                "skillimage": "assets/images/PokemonArena/Krabby/krabbybubble.png",
-                "skilldescription": "Deals 20 damage to one enemy, increases their active cooldowns by 1, and drenches them for 2 turns. A drenched enemy takes 10 additional physical damage and their skills cost 1 additional random energy.",
-                "energy": [
-                    "Random"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 3,
-                "classes": [
-                    "Water",
-                    "Strategic",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 20,
-                        "scope": "target"
-                    },
-                    {
-                        "type": "modify_cooldowns",
-                        "operation": "add",
-                        "amount": 1,
                         "scope": "target",
                         "metadata": {
                             "harmful": true
                         }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "krabby_bubble_drenched",
-                        "duration": 2,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "physicalDamageTakenBonusFlat": 10,
-                            "randomCostIncrease": 1,
-                            "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/Krabby/krabbybubble.png",
-                            "tooltipTextTemplate": "This character is drenched, takes {physicalDamageTakenBonusFlat} additional physical damage, and their skills cost {randomCostIncrease} additional random energy."
-                        }
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "kingler-metal-claw",
+                    "name": "Metal Claw",
+                    "skillimage": "assets/images/PokemonArena/Krabby/kinglerskill1.jpg",
+                    "skilldescription": "Deals 25 damage to one enemy.",
+                    "description": "Deals 25 damage to one enemy.",
+                    "energy": [
+                        "Taijutsu"
+                    ],
+                    "cooldown": 0,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Physical",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "damage",
+                            "amount": 25,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true
+                            }
+                        }
+                    ]
+                }
             },
             {
                 "id": "krabby-crabhammer",
-                "name": "Stomp",
+                "name": "Crabhammer",
                 "skillimage": "assets/images/PokemonArena/Krabby/krabbyskill3.jpg",
-                "skilldescription": "Deals 25 damage to one enemy and stuns their skills for 1 turn. This skill has a 30% chance to critically strike, dealing 15 additional damage.",
-                "energy": [
-                    "Bloodline",
-                    "Random"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 2,
-                "classes": [
-                    "Water",
-                    "Physical",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 25,
-                        "scope": "target"
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "krabby_crabhammer_stun",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "cannotUseSkills": true,
-                            "statusIconUrl": "assets/images/PokemonArena/Krabby/krabbyskill3.jpg",
-                            "tooltipText": "This character's skills are stunned."
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 15,
-                        "scope": "target",
-                        "chance": 30
-                    }
-                ]
-            },
-            {
-                "id": "krabby-harden",
-                "name": "Swim",
-                "skillimage": "assets/images/PokemonArena/Krabby/krabbyskill4.jpg",
-                "skilldescription": "Krabby gains 20 permanent Shield and 25% damage reduction for 2 turns.",
-                "energy": [
-                    "Random"
-                ],
-                "target": "self",
-                "damage": 0,
-                "cooldown": 4,
-                "classes": [
-                    "Normal",
-                    "Strategic",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "krabby_harden_defense",
-                        "duration": 999,
-                        "scope": "self",
-                        "metadata": {
-                            "infiniteDuration": true,
-                            "destructibleDefensePoints": 20,
-                            "mergeNumericAddKeys": [
-                                "destructibleDefensePoints"
-                            ],
-                            "turnStartApplyStatusToOwner": {
-                                "statusId": "krabby_harden_turn_tracker",
-                                "duration": 99,
-                                "sourceSkillId": "krabby-passive-evolution-kingler",
-                                "allowExistingStatusStacking": true,
-                                "metadata": {
-                                    "infiniteDuration": true,
-                                    "stackMetadataKey": "krabbyHardenTurns",
-                                    "stackDelta": 1,
-                                    "stackMax": 3,
-                                    "applyStatusAtStack": {
-                                        "metadataKey": "krabbyHardenTurns",
-                                        "value": 3,
-                                        "statusId": "krabby_kingler_evolution",
-                                        "duration": 99,
-                                        "metadata": {
-                                            "infiniteDuration": true,
-                                            "removeStatusIdsOnApply": [
-                                                "krabby_harden_turn_tracker"
-                                            ],
-                                            "facePictureOverride": "assets/images/PokemonArena/Krabby/kinglerfp.webp",
-                                            "skillReplacements": {
-                                                "krabby-metal-claw": "kingler-metal-claw",
-                                                "krabby-leer": "kingler-leer",
-                                                "krabby-crabhammer": "kingler-crabhammer",
-                                                "krabby-harden": "kingler-harden"
-                                            },
-                                            "tooltipText": "Krabby has evolved into Kingler. Kingler's skills are improved.",
-                                            "healOnApplyFlat": 10
-                                        }
-                                    },
-                                    "statusIconUrl": "assets/images/PokemonArena/Krabby/kinglerevolution.jpg",
-                                    "tooltipTextTemplate": "Krabby has spent {krabbyHardenTurns}/3 turns with Swim Shield and will evolve into Kingler at 3."
-                                }
-                            },
-                            "statusIconUrl": "assets/images/PokemonArena/Krabby/krabbyskill4.jpg",
-                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} permanent Shield from Swim."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "krabby_harden_guard",
-                        "duration": 2,
-                        "scope": "self",
-                        "metadata": {
-                            "damageReductionPercent": 25,
-                            "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/Krabby/krabbyskill4.jpg",
-                            "tooltipText": "This character has 25% damage reduction."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "krabby-passive-evolution-kingler",
-                "name": "Evolution - Kingler",
-                "skillimage": "assets/images/PokemonArena/Krabby/kinglerevolution.jpg",
-                "skilldescription": "After Krabby has spent 3 turns with Shield granted by Swim, it evolves into Kingler. Kingler's skills are improved.",
-                "energy": [],
-                "target": "",
-                "damage": 0,
-                "cooldown": 0,
-                "classes": [
-                    "Water",
-                    "Passive",
-                    "Instant"
-                ]
-            },
-            {
-                "id": "kingler-metal-claw",
-                "name": "Vice Grip",
-                "actorCondition": {
-                    "statusId": "krabby_kingler_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/Krabby/kinglerskill1.jpg",
-                "skilldescription": "Deals 30 piercing damage to one enemy instead. This skill has a 30% chance to permanently increase the non-affliction damage of Kingler's skills by 10 instead. This effect stacks.",
+                "skilldescription": "Deals 35 damage to one enemy.",
+                "description": "Deals 35 damage to one enemy.",
                 "energy": [
                     "Taijutsu",
                     "Random"
                 ],
+                "cooldown": 1,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 0,
                 "classes": [
-                    "Steel",
                     "Physical",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 30,
-                        "scope": "target",
-                        "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "krabby_metal_claw_bonus",
-                        "duration": 999,
-                        "scope": "self",
-                        "chance": 30,
-                        "metadata": {
-                            "infiniteDuration": true,
-                            "nonAfflictionDamageBonusFlat": 10,
-                            "mergeNumericAddKeys": [
-                                "nonAfflictionDamageBonusFlat"
-                            ],
-                            "statusIconUrl": "assets/images/PokemonArena/Krabby/kinglerskill1.jpg",
-                            "tooltipTextTemplate": "This character deals {nonAfflictionDamageBonusFlat} additional non-affliction damage from Vice Grip."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "kingler-leer",
-                "name": "Bubble",
-                "actorCondition": {
-                    "statusId": "krabby_kingler_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/Krabby/kinglerbubble.jpg",
-                "skilldescription": "Deals 25 damage to one enemy and 10 damage to all other enemies. The main target's active cooldowns are increased by 2 and they are drenched for 2 turns. A drenched enemy takes 15 additional physical damage and their skills cost 1 additional random energy.",
-                "energy": [
-                    "Random"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 3,
-                "classes": [
-                    "Water",
-                    "Strategic",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 25,
-                        "scope": "target"
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 10,
-                        "scope": "other-enemies"
-                    },
-                    {
-                        "type": "modify_cooldowns",
-                        "operation": "add",
-                        "amount": 2,
+                        "amount": 35,
                         "scope": "target",
                         "metadata": {
                             "harmful": true
                         }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "kingler_bubble_drenched",
-                        "duration": 2,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "physicalDamageTakenBonusFlat": 15,
-                            "randomCostIncrease": 1,
-                            "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/Krabby/kinglerbubble.jpg",
-                            "tooltipTextTemplate": "This character is drenched, takes {physicalDamageTakenBonusFlat} additional physical damage, and their skills cost {randomCostIncrease} additional random energy."
-                        }
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "kingler-crabhammer",
+                    "name": "Crabhammer",
+                    "skillimage": "assets/images/PokemonArena/Krabby/kinglerskill3.jpg",
+                    "skilldescription": "Deals 45 damage to one enemy.",
+                    "description": "Deals 45 damage to one enemy.",
+                    "energy": [
+                        "Taijutsu",
+                        "Random"
+                    ],
+                    "cooldown": 1,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Physical",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "damage",
+                            "amount": 45,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true
+                            }
+                        }
+                    ]
+                }
             },
             {
-                "id": "kingler-crabhammer",
-                "name": "Hyper Beam",
-                "actorCondition": {
-                    "statusId": "krabby_kingler_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/Krabby/kinglerskill3.jpg",
-                "skilldescription": "Deals 40 damage to one enemy instead and stuns their skills for 1 turn. This skill still has a 30% chance to critically strike, dealing 15 additional damage.",
+                "id": "krabby-leer",
+                "name": "Leer",
+                "skillimage": "assets/images/PokemonArena/Krabby/krabbybubble.png",
+                "skilldescription": "One enemy takes 10 more damage for 2 turns.",
+                "description": "One enemy takes 10 more damage for 2 turns.",
                 "energy": [
-                    "Bloodline",
-                    "Bloodline"
+                    "Random"
                 ],
+                "cooldown": 2,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 2,
                 "classes": [
-                    "Water",
-                    "Physical",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
                     {
-                        "type": "damage",
-                        "amount": 40,
-                        "scope": "target"
-                    },
-                    {
                         "type": "apply_status",
-                        "statusId": "krabby_crabhammer_stun",
-                        "duration": 1,
+                        "duration": 2,
                         "scope": "target",
                         "metadata": {
                             "harmful": true,
-                            "cannotUseSkills": true,
-                            "statusIconUrl": "assets/images/PokemonArena/Krabby/kinglerskill3.jpg",
-                            "tooltipText": "This character's skills are stunned."
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 15,
-                        "scope": "target",
-                        "chance": 30
+                            "damageTakenBonusFlat": 10,
+                            "tooltipText": "Takes 10 more damage."
+                        },
+                        "statusId": "krabby_leer_1"
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "kingler-leer",
+                    "name": "Leer",
+                    "skillimage": "assets/images/PokemonArena/Krabby/kinglerbubble.jpg",
+                    "skilldescription": "One enemy takes 15 more damage for 2 turns.",
+                    "description": "One enemy takes 15 more damage for 2 turns.",
+                    "energy": [
+                        "Random"
+                    ],
+                    "cooldown": 2,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Special",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "apply_status",
+                            "duration": 2,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true,
+                                "damageTakenBonusFlat": 15,
+                                "tooltipText": "Takes 15 more damage."
+                            },
+                            "statusId": "kingler_leer_1"
+                        }
+                    ]
+                }
             },
             {
-                "id": "kingler-harden",
-                "name": "Swim",
-                "actorCondition": {
-                    "statusId": "krabby_kingler_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/Krabby/kinglerskill4.jpg",
-                "skilldescription": "Kingler gains 30 permanent Shield and 50% damage reduction for 2 turns instead.",
+                "id": "krabby-harden",
+                "name": "Harden",
+                "skillimage": "assets/images/PokemonArena/Krabby/krabbyskill4.jpg",
+                "skilldescription": "Krabby takes 10 less damage for 2 turns.",
+                "description": "Krabby takes 10 less damage for 2 turns.",
                 "energy": [
-                    "Random",
                     "Random"
                 ],
+                "cooldown": 3,
                 "target": "self",
                 "damage": 0,
-                "cooldown": 4,
                 "classes": [
-                    "Normal",
                     "Strategic",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "krabby_harden_defense",
-                        "duration": 999,
-                        "scope": "self",
-                        "metadata": {
-                            "infiniteDuration": true,
-                            "destructibleDefensePoints": 30,
-                            "mergeNumericAddKeys": [
-                                "destructibleDefensePoints"
-                            ],
-                            "statusIconUrl": "assets/images/PokemonArena/Krabby/kinglerskill4.jpg",
-                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} permanent Shield from Swim."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "krabby_harden_guard",
                         "duration": 2,
                         "scope": "self",
                         "metadata": {
-                            "damageReductionPercent": 50,
-                            "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/Krabby/kinglerskill4.jpg",
-                            "tooltipText": "This character has 50% damage reduction."
-                        }
+                            "damageReductionFlat": 10,
+                            "tooltipText": "Takes 10 less damage."
+                        },
+                        "statusId": "krabby_harden_1"
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "kingler-harden",
+                    "name": "Harden",
+                    "skillimage": "assets/images/PokemonArena/Krabby/kinglerskill4.jpg",
+                    "skilldescription": "Kingler takes 15 less damage for 2 turns.",
+                    "description": "Kingler takes 15 less damage for 2 turns.",
+                    "energy": [
+                        "Random"
+                    ],
+                    "cooldown": 3,
+                    "target": "self",
+                    "damage": 0,
+                    "classes": [
+                        "Strategic",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "apply_status",
+                            "duration": 2,
+                            "scope": "self",
+                            "metadata": {
+                                "damageReductionFlat": 15,
+                                "tooltipText": "Takes 15 less damage."
+                            },
+                            "statusId": "kingler_harden_1"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "krabby-passive-evolution-kingler",
+                "name": "Evolution: Kingler",
+                "skillimage": "assets/images/PokemonArena/Krabby/kinglerevolution.jpg",
+                "skilldescription": "At the start of its 4th turn, Krabby evolves into Kingler and its skills get stronger.",
+                "description": "At the start of its 4th turn, Krabby evolves into Kingler and its skills get stronger.",
+                "energy": [],
+                "cooldown": 0,
+                "target": "",
+                "damage": 0,
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ],
+                "effects": []
             }
-        ],
-        "role": "Bruiser",
-        "universe": "pokemon",
-        "arena": "pokemon",
-        "roleCategory": "bruiser",
-        "description": "A rugged Water-type Pokemon that stacks permanent armor, softens enemies for physical follow-up, and grows into Kingler after enough time behind Swim.",
-        "descriptionHtml": "A rugged Water-type Pokemon that stacks permanent armor, softens enemies for physical follow-up, and grows into Kingler after enough time behind Swim.",
-        "pokemonTypes": [
-            "Water"
         ]
     },
     {
@@ -25362,116 +22617,42 @@ const characters = [
         "characterId": "scyther",
         "name": "Scyther",
         "facePicture": "assets/images/PokemonArena/scyther/scytherfp.webp",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Assassin",
+        "roleCategory": "assassin",
+        "description": "Sharpens its blades, then slices through defenses.",
+        "descriptionHtml": "Sharpens its blades, then slices through defenses.",
+        "characterdeescription": null,
+        "pokemonTypes": [
+            "Bug",
+            "Flying"
+        ],
+        "startStatuses": [],
         "skills": [
             {
                 "id": "scyther-fury-cutter",
                 "name": "Fury Cutter",
                 "skillimage": "assets/images/PokemonArena/scyther/furycutter.webp",
-                "skilldescription": "Deals 15 damage to one enemy. This skill permanently gains 5 damage each time it is used, or gains 2 stacks each time it is used during Swords Dance. During Swords Dance, Fury Cutter also deals piercing damage.",
+                "skilldescription": "Deals 20 damage to one enemy.",
+                "description": "Deals 20 damage to one enemy.",
                 "energy": [
                     "Taijutsu"
                 ],
+                "cooldown": 0,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 0,
                 "classes": [
-                    "Bug",
                     "Physical",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 15,
+                        "amount": 20,
                         "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "missingStatusId": "scyther_swords_dance_active"
-                        },
                         "metadata": {
-                            "bonusPerStatusMetadata": {
-                                "scope": "self",
-                                "statusId": "scyther_fury_cutter_stacks",
-                                "metadataKey": "scytherFuryCutterStacks",
-                                "multiplier": 5
-                            },
-                            "onSuccessfulDamageApplyStatusToOwner": {
-                                "statusId": "scyther_fury_cutter_stacks",
-                                "duration": 99,
-                                "metadata": {
-                                    "hidden": true,
-                                    "infiniteDuration": true,
-                                    "scytherFuryCutterStacks": 0,
-                                    "stackMetadataKey": "scytherFuryCutterStacks",
-                                    "stackDelta": 1,
-                                    "stackMax": 99,
-                                    "statusIconUrl": "assets/images/PokemonArena/scyther/furycutter.webp",
-                                    "tooltipTextTemplate": "Fury Cutter has gained {scytherFuryCutterStacks} stack(s) and deals 5 more damage per stack."
-                                }
-                            }
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 15,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "scyther_swords_dance_active"
-                        },
-                        "metadata": {
-                            "ignoreDamageReduction": true,
-                            "bonusPerStatusMetadata": {
-                                "scope": "self",
-                                "statusId": "scyther_fury_cutter_stacks",
-                                "metadataKey": "scytherFuryCutterStacks",
-                                "multiplier": 5
-                            },
-                            "onSuccessfulDamageApplyStatusToOwner": {
-                                "statusId": "scyther_fury_cutter_stacks",
-                                "duration": 99,
-                                "metadata": {
-                                    "hidden": true,
-                                    "infiniteDuration": true,
-                                    "scytherFuryCutterStacks": 0,
-                                    "stackMetadataKey": "scytherFuryCutterStacks",
-                                    "stackDelta": 2,
-                                    "stackMax": 99,
-                                    "statusIconUrl": "assets/images/PokemonArena/scyther/furycutter.webp",
-                                    "tooltipTextTemplate": "Fury Cutter has gained {scytherFuryCutterStacks} stack(s) and deals 5 more damage per stack."
-                                }
-                            }
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "scyther-swords-dance",
-                "name": "Swords Dance",
-                "skillimage": "assets/images/PokemonArena/scyther/swordsdance.webp",
-                "skilldescription": "For 3 turns, Scyther's damaging skills deal 10 additional damage. During this time, Fury Cutter deals piercing damage and gains 2 stacks per use, while X-Cutter gains 25% critical chance and double casts when it critically strikes an enemy at 50 HP or less.",
-                "energy": [
-                    "Random"
-                ],
-                "target": "self",
-                "damage": 0,
-                "cooldown": 4,
-                "classes": [
-                    "Normal",
-                    "Physical",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "scyther_swords_dance_active",
-                        "duration": 3,
-                        "scope": "self",
-                        "metadata": {
-                            "damageBonusFlat": 10,
-                            "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/scyther/swordsdance.webp",
-                            "tooltipText": "Scyther's damaging skills deal 10 additional damage."
+                            "harmful": true
                         }
                     }
                 ]
@@ -25480,16 +22661,16 @@ const characters = [
                 "id": "scyther-x-cutter",
                 "name": "X-Cutter",
                 "skillimage": "assets/images/PokemonArena/scyther/x-scissor.webp",
-                "skilldescription": "Deals 40 piercing damage to one enemy. This skill has a 25% chance to critically strike for 15 additional piercing damage, increased to 50% against enemies at 50 HP or less and to 75% against them during Swords Dance. During Swords Dance, a critical strike against an enemy at 50 HP or less makes X-Cutter cast twice.",
+                "skilldescription": "Deals 40 piercing damage to one enemy.",
+                "description": "Deals 40 piercing damage to one enemy.",
                 "energy": [
                     "Taijutsu",
                     "Taijutsu"
                 ],
+                "cooldown": 1,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 2,
                 "classes": [
-                    "Bug",
                     "Physical",
                     "Instant"
                 ],
@@ -25499,32 +22680,42 @@ const characters = [
                         "amount": 40,
                         "scope": "target",
                         "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 15,
-                        "scope": "target",
-                        "chance": 25,
-                        "rollPerRecipient": true,
-                        "metadata": {
+                            "harmful": true,
                             "ignoreDamageReduction": true,
-                            "chanceBonusIfTargetCurrentHpAtMost": {
-                                "threshold": 50,
-                                "amount": 25
-                            },
-                            "chanceBonusIfActorStatus": {
-                                "statusId": "scyther_swords_dance_active",
-                                "amount": 25
-                            },
-                            "repeatCastOnSuccessfulChance": {
-                                "actorStatusId": "scyther_swords_dance_active",
-                                "targetCurrentHpAtMost": 50,
-                                "baseDamageAmount": 40,
-                                "includeTriggeringDamage": true
-                            }
+                            "ignoreDestructibleDefense": true
                         }
+                    }
+                ]
+            },
+            {
+                "id": "scyther-swords-dance",
+                "name": "Swords Dance",
+                "skillimage": "assets/images/PokemonArena/scyther/swordsdance.webp",
+                "skilldescription": "Scyther deals 15 more damage for 2 turns.",
+                "description": "Scyther deals 15 more damage for 2 turns.",
+                "energy": [
+                    "Random"
+                ],
+                "cooldown": 3,
+                "target": "self",
+                "damage": 0,
+                "classes": [
+                    "Strategic",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "duration": 2,
+                        "scope": "self",
+                        "metadata": {
+                            "damageBonusFlat": 15,
+                            "mergeNumericAddKeys": [
+                                "damageBonusFlat"
+                            ],
+                            "tooltipText": "Deals 15 more damage."
+                        },
+                        "statusId": "scyther_swords_dance_1"
                     }
                 ]
             },
@@ -25532,56 +22723,31 @@ const characters = [
                 "id": "scyther-double-team",
                 "name": "Double Team",
                 "skillimage": "assets/images/PokemonArena/scyther/doubleteam.webp",
-                "skilldescription": "Scyther gains 100% evasion for 2 turns. If Scyther defeats an enemy while this effect is active, its duration increases by 1 turn.",
+                "skilldescription": "Scyther becomes invulnerable for 1 turn.",
+                "description": "Scyther becomes invulnerable for 1 turn.",
                 "energy": [
                     "Random"
                 ],
+                "cooldown": 4,
                 "target": "self",
                 "damage": 0,
-                "cooldown": 5,
                 "classes": [
-                    "Normal",
-                    "Physical",
+                    "Strategic",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "scyther_double_team_active",
-                        "duration": 2,
+                        "duration": 1,
                         "scope": "self",
                         "metadata": {
-                            "evadeChancePercent": 100,
-                            "turnDurationAnchor": "source_turn",
-                            "onOwnerKillApplyStatusToSelf": {
-                                "statusId": "scyther_double_team_active",
-                                "duration": 1,
-                                "metadata": {
-                                    "addToExistingDuration": 1,
-                                    "evadeChancePercent": 100,
-                                    "turnDurationAnchor": "source_turn",
-                                    "statusIconUrl": "assets/images/PokemonArena/scyther/doubleteam.webp",
-                                    "tooltipText": "Scyther has 100% evasion."
-                                }
-                            },
-                            "statusIconUrl": "assets/images/PokemonArena/scyther/doubleteam.webp",
-                            "tooltipText": "Scyther has 100% evasion."
-                        }
+                            "invulnerable": true,
+                            "tooltipText": "Invulnerable."
+                        },
+                        "statusId": "scyther_double_team_1"
                     }
                 ]
             }
-        ],
-        "role": "Assassin",
-        "universe": "pokemon",
-        "arena": "pokemon",
-        "roleCategory": "Assassin",
-        "description": "A fast mantis Pokemon that stacks pressure through repeated slashes, evasion, and heavy burst windows after Swords Dance.",
-        "descriptionHtml": "A fast mantis Pokemon that stacks pressure through repeated slashes, evasion, and heavy burst windows after Swords Dance.",
-        "startStatuses": [],
-        "characterdeescription": null,
-        "pokemonTypes": [
-            "Bug",
-            "Flying"
         ]
     },
     {
@@ -25589,66 +22755,82 @@ const characters = [
         "characterId": "eevee",
         "name": "Eevee",
         "facePicture": "assets/images/PokemonArena/eevee/eevee/eeveefp.png",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "All-rounder",
+        "roleCategory": "all-rounder",
+        "description": "A balanced fighter that is easy to play.",
+        "descriptionHtml": "A balanced fighter that is easy to play.",
         "characterdeescription": "A plain, all-random Normal-type Pokemon that leans on basic survival, simple chip damage, and straightforward utility before its evolution mission eventually replaces it.",
+        "pokemonTypes": [
+            "Normal"
+        ],
+        "startStatuses": [],
         "skills": [
-            {
-                "id": "eevee-dig",
-                "name": "Dig",
-                "skillimage": "assets/images/PokemonArena/eevee/eevee/dig.png",
-                "skilldescription": "Eevee becomes invulnerable for 1 turn and deals 30 damage to one enemy.",
-                "energy": [
-                    "Random",
-                    "Random"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 2,
-                "classes": [
-                    "Ground",
-                    "Physical",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "eevee_dig_invulnerable",
-                        "duration": 1,
-                        "scope": "self",
-                        "metadata": {
-                            "invulnerable": true,
-                            "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/eevee/eevee/dig.png",
-                            "tooltipText": "Eevee is invulnerable."
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 30,
-                        "scope": "target"
-                    }
-                ]
-            },
             {
                 "id": "eevee-swift",
                 "name": "Swift",
                 "skillimage": "assets/images/PokemonArena/eevee/eevee/swift.png",
-                "skilldescription": "Deals 15 damage to all enemies.",
+                "skilldescription": "Deals 20 piercing damage to one enemy.",
+                "description": "Deals 20 piercing damage to one enemy.",
                 "energy": [
                     "Random"
                 ],
-                "target": "all-enemy",
+                "cooldown": 0,
+                "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 1,
                 "classes": [
-                    "Normal",
                     "Special",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 15,
-                        "scope": "all-enemy"
+                        "amount": 20,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "eevee-dig",
+                "name": "Dig",
+                "skillimage": "assets/images/PokemonArena/eevee/eevee/dig.png",
+                "skilldescription": "Eevee becomes invulnerable for 1 turn and deals 30 damage to one enemy.",
+                "description": "Eevee becomes invulnerable for 1 turn and deals 30 damage to one enemy.",
+                "energy": [
+                    "Taijutsu",
+                    "Random"
+                ],
+                "cooldown": 2,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "invulnerable": true,
+                            "tooltipText": "Invulnerable."
+                        },
+                        "statusId": "eevee_dig_1"
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 30,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true
+                        }
                     }
                 ]
             },
@@ -25656,44 +22838,27 @@ const characters = [
                 "id": "eevee-hidden-power",
                 "name": "Hidden Power",
                 "skillimage": "assets/images/PokemonArena/eevee/eevee/hiddenpower.png",
-                "skilldescription": "Deals 30 affliction damage to a random enemy, 20 piercing damage to a random enemy, and 10 Special damage to a random enemy.",
+                "skilldescription": "Deals 20 damage to all enemies.",
+                "description": "Deals 20 damage to all enemies.",
                 "energy": [
-                    "Random",
                     "Random",
                     "Random"
                 ],
-                "target": "random-enemy",
-                "damage": 0,
                 "cooldown": 2,
+                "target": "all-enemy",
+                "damage": 0,
                 "classes": [
-                    "Normal",
                     "Special",
-                    "Affliction",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 30,
-                        "scope": "random-enemy",
-                        "metadata": {
-                            "damageType": "affliction",
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true
-                        }
-                    },
-                    {
-                        "type": "damage",
                         "amount": 20,
-                        "scope": "random-enemy",
+                        "scope": "all-enemy",
                         "metadata": {
-                            "ignoreDamageReduction": true
+                            "harmful": true
                         }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 10,
-                        "scope": "random-enemy"
                     }
                 ]
             },
@@ -25701,43 +22866,31 @@ const characters = [
                 "id": "eevee-protect",
                 "name": "Protect",
                 "skillimage": "assets/images/PokemonArena/eevee/eevee/protect.png",
-                "skilldescription": "Eevee makes one ally, or herself, invulnerable for 1 turn.",
+                "skilldescription": "Eevee becomes invulnerable for 1 turn.",
+                "description": "Eevee becomes invulnerable for 1 turn.",
                 "energy": [
                     "Random"
                 ],
-                "target": "self-or-single-ally",
+                "cooldown": 4,
+                "target": "self",
                 "damage": 0,
-                "cooldown": 2,
                 "classes": [
-                    "Normal",
-                    "Special",
+                    "Strategic",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "eevee_protect_invulnerable",
                         "duration": 1,
-                        "scope": "target",
+                        "scope": "self",
                         "metadata": {
                             "invulnerable": true,
-                            "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/eevee/eevee/protect.png",
-                            "tooltipText": "This character is invulnerable."
-                        }
+                            "tooltipText": "Invulnerable."
+                        },
+                        "statusId": "eevee_protect_1"
                     }
                 ]
             }
-        ],
-        "role": "AOE DPS",
-        "universe": "pokemon",
-        "arena": "pokemon",
-        "roleCategory": "AOE-dps",
-        "description": "A plain, all-random Normal-type Pokemon that leans on basic survival, simple chip damage, and straightforward utility before its evolution mission eventually replaces it.",
-        "descriptionHtml": "A plain, all-random Normal-type Pokemon that leans on basic survival, simple chip damage, and straightforward utility before its evolution mission eventually replaces it.",
-        "startStatuses": [],
-        "pokemonTypes": [
-            "Normal"
         ]
     },
     {
@@ -25745,57 +22898,41 @@ const characters = [
         "characterId": "jolteon",
         "name": "Jolteon",
         "facePicture": "assets/images/PokemonArena/eevee/jolteon/jolteonfp.png",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Fast damage",
+        "roleCategory": "fast-damage",
+        "description": "The fastest Eeveelution: cheap, quick electric hits.",
+        "descriptionHtml": "The fastest Eeveelution: cheap, quick electric hits.",
         "characterdeescription": "A fast Electric-type Pokemon that uses piercing attacks, cooldown paralysis, and Charge to punish enemies who keep acting into its lightning.",
+        "pokemonTypes": [
+            "Electric"
+        ],
+        "startStatuses": [],
         "skills": [
             {
                 "id": "jolteon-pin-missile",
                 "name": "Pin Missile",
                 "skillimage": "assets/images/PokemonArena/eevee/jolteon/pinmissile.png",
-                "skilldescription": "Jolteon deals 15 piercing damage to one enemy team. For 1 turn, new skills those enemies use have their cooldown increased by 1, and any enemy that uses a new skill on Jolteon takes 15 piercing damage.",
+                "skilldescription": "Deals 20 damage to one enemy.",
+                "description": "Deals 20 damage to one enemy.",
                 "energy": [
                     "Taijutsu"
                 ],
-                "target": "all-enemy",
+                "cooldown": 0,
+                "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 1,
                 "classes": [
-                    "Bug",
                     "Physical",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 15,
-                        "scope": "all-enemy",
+                        "amount": 20,
+                        "scope": "target",
                         "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "jolteon_pin_missile_cooldown_increase",
-                        "duration": 1,
-                        "scope": "all-enemy",
-                        "metadata": {
-                            "harmful": true,
-                            "onEnemySkillTargetedDamageToSourceAmount": 15,
-                            "onEnemySkillTargetedDamageToSourceIgnoreDamageReduction": true,
-                            "statusIconUrl": "assets/images/PokemonArena/eevee/jolteon/pinmissile.png",
-                            "tooltipText": "New skills this character uses have their cooldown increased by 1.",
-                            "newSkillCooldownIncrease": 1
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "jolteon_pin_missile_static",
-                        "duration": 1,
-                        "scope": "self",
-                        "metadata": {
-                            "onEnemySkillTargetedDamageToSourceAmount": 15,
-                            "onEnemySkillTargetedDamageToSourceIgnoreDamageReduction": true,
-                            "statusIconUrl": "assets/images/PokemonArena/eevee/jolteon/pinmissile.png",
-                            "tooltipText": "Enemies who use new skills on Jolteon take 15 piercing damage."
+                            "harmful": true
                         }
                     }
                 ]
@@ -25804,44 +22941,26 @@ const characters = [
                 "id": "jolteon-thunderbolt",
                 "name": "Thunderbolt",
                 "skillimage": "assets/images/PokemonArena/eevee/jolteon/thunderbolt.png",
-                "skilldescription": "Deals 30 piercing damage to one enemy. For 1 turn, any enemy to use a new skill on Jolteon has their cooldowns paralyzed for 2 turns.",
+                "skilldescription": "Deals 35 damage to one enemy.",
+                "description": "Deals 35 damage to one enemy.",
                 "energy": [
                     "Genjutsu",
                     "Random"
                 ],
+                "cooldown": 0,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 1,
                 "classes": [
-                    "Electric",
                     "Special",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 30,
+                        "amount": 35,
                         "scope": "target",
                         "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "jolteon_thunderbolt_paralyze_trap",
-                        "duration": 1,
-                        "scope": "self",
-                        "metadata": {
-                            "triggerOnEnemyHarmfulSkill": true,
-                            "counterStatusId": "jolteon_thunderbolt_cooldown_paralysis",
-                            "counterStatusDuration": 2,
-                            "counterStatusMetadata": {
-                                "paralyzeCooldowns": true,
-                                "statusIconUrl": "assets/images/PokemonArena/eevee/jolteon/thunderbolt.png",
-                                "tooltipText": "This character's cooldowns are paralyzed."
-                            },
-                            "statusIconUrl": "assets/images/PokemonArena/eevee/jolteon/thunderbolt.png",
-                            "tooltipText": "The next enemy to use a new harmful skill on Jolteon has their cooldowns paralyzed."
+                            "harmful": true
                         }
                     }
                 ]
@@ -25850,215 +22969,17 @@ const characters = [
                 "id": "jolteon-thunder-fang",
                 "name": "Thunder Fang",
                 "skillimage": "assets/images/PokemonArena/eevee/jolteon/thunderfang.png",
-                "skilldescription": "Deals 35 piercing damage to one enemy and stuns their skills for 1 turn. For the rest of the game, new skills the target uses have their cooldown increased by 1.",
+                "skilldescription": "Deals 20 damage to one enemy and stuns the target for 1 turn.",
+                "description": "Deals 20 damage to one enemy and stuns the target for 1 turn.",
                 "energy": [
                     "Taijutsu",
                     "Genjutsu"
                 ],
+                "cooldown": 3,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 2,
                 "classes": [
-                    "Electric",
-                    "Special",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 35,
-                        "scope": "target",
-                        "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "jolteon_thunder_fang_stun",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "cannotUseSkills": true,
-                            "statusIconUrl": "assets/images/PokemonArena/eevee/jolteon/thunderfang.png",
-                            "tooltipText": "This character's skills are stunned."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "jolteon_thunder_fang_cooldown_increase",
-                        "duration": 999,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "infiniteDuration": true,
-                            "newSkillCooldownIncrease": 1,
-                            "statusIconUrl": "assets/images/PokemonArena/eevee/jolteon/thunderfang.png",
-                            "tooltipText": "New skills this character uses have their cooldown increased by 1."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "jolteon-charge",
-                "name": "Charge",
-                "skillimage": "assets/images/PokemonArena/eevee/jolteon/charge.png",
-                "skilldescription": "Jolteon gains 50% unpierceable damage reduction for 2 turns. During this time, his skills cost 1 less yellow energy and deal 5 more damage.",
-                "energy": [
-                    "Random"
-                ],
-                "target": "self",
-                "damage": 0,
-                "cooldown": 2,
-                "classes": [
-                    "Electric",
-                    "Strategic",
-                    "Channeled"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "jolteon_charge_active",
-                        "duration": 2,
-                        "scope": "self",
-                        "metadata": {
-                            "unpierceableDamageReductionPercent": 50,
-                            "damageBonusFlat": 5,
-                            "skillCostOverridesBySkillId": {
-                                "jolteon-thunderbolt": {
-                                    "energy": []
-                                },
-                                "jolteon-thunder-fang": {
-                                    "energy": [
-                                        "Taijutsu"
-                                    ]
-                                }
-                            },
-                            "statusIconUrl": "assets/images/PokemonArena/eevee/jolteon/charge.png",
-                            "tooltipText": "Jolteon has 50% unpierceable damage reduction, deals 5 additional damage, and his skills cost 1 less yellow energy."
-                        }
-                    }
-                ]
-            }
-        ],
-        "role": "Fast DPS",
-        "universe": "pokemon",
-        "arena": "pokemon",
-        "roleCategory": "fast-dps",
-        "description": "A fast Electric-type Pokemon that uses piercing attacks, cooldown paralysis, and Charge to punish enemies who keep acting into its lightning.",
-        "descriptionHtml": "A fast Electric-type Pokemon that uses piercing attacks, cooldown paralysis, and Charge to punish enemies who keep acting into its lightning.",
-        "startStatuses": [],
-        "pokemonTypes": [
-            "Electric"
-        ]
-    },
-    {
-        "id": "flareon",
-        "characterId": "flareon",
-        "name": "Flareon",
-        "facePicture": "assets/images/PokemonArena/eevee/flareon/flareonfp.png",
-        "characterdeescription": "A fiery Pokemon that builds permanent defense with heat, spreads flames, and converts burns into reliable damage over time.",
-        "skills": [
-            {
-                "id": "flareon-heating-up",
-                "name": "Heating Up",
-                "skillimage": "assets/images/PokemonArena/eevee/flareon/heatingup.png",
-                "skilldescription": "Flareon gains 20 points of permanent Shield. While Flareon has this Shield, she deals 5 affliction damage to the enemy team each turn. This does not stack.",
-                "energy": [
-                    "Bloodline"
-                ],
-                "target": "self",
-                "damage": 0,
-                "cooldown": 2,
-                "classes": [
-                    "Fire",
-                    "Special",
-                    "Affliction",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "flareon_heating_up_defense",
-                        "duration": 999,
-                        "scope": "self",
-                        "metadata": {
-                            "infiniteDuration": true,
-                            "destructibleDefensePoints": 20,
-                            "statusIconUrl": "assets/images/PokemonArena/eevee/flareon/heatingup.png",
-                            "tooltipTextTemplate": "Flareon has {destructibleDefensePoints} Shield."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "flareon_heating_up_burn_aura",
-                        "duration": 999,
-                        "scope": "all-enemy",
-                        "metadata": {
-                            "infiniteDuration": true,
-                            "turnEndDamage": 5,
-                            "damageType": "affliction",
-                            "endIfSourceDies": true,
-                            "statusIconUrl": "assets/images/PokemonArena/eevee/flareon/heatingup.png",
-                            "tooltipText": "This character takes 5 affliction damage each turn from Heating Up."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "flareon-fire-spin",
-                "name": "Fire Spin",
-                "skillimage": "assets/images/PokemonArena/eevee/flareon/firespin.png",
-                "skilldescription": "For 3 turns, one enemy becomes invulnerable to all helpful skills and takes 15 affliction damage each turn. This cannot be used on an already affected enemy.",
-                "energy": [
-                    "Bloodline",
-                    "Random"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 0,
-                "classes": [
-                    "Fire",
-                    "Special",
-                    "Affliction",
-                    "Action"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "flareon_fire_spin_burn",
-                        "duration": 3,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "target",
-                            "missingStatusId": "flareon_fire_spin_burn"
-                        },
-                        "metadata": {
-                            "invulnerableToHelpfulSkills": true,
-                            "turnEndDamage": 15,
-                            "damageType": "affliction",
-                            "endIfSourceDies": true,
-                            "statusIconUrl": "assets/images/PokemonArena/eevee/flareon/firespin.png",
-                            "tooltipText": "This character is invulnerable to helpful skills and takes 10 affliction damage each turn."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "flareon-fire-blast",
-                "name": "Fire Blast",
-                "skillimage": "assets/images/PokemonArena/eevee/flareon/fireblast.png",
-                "skilldescription": "Deals 20 affliction damage to one enemy, then causes them to take 10 affliction damage every turn for the rest of the battle. While that enemy is alive, all other enemies take 5 affliction damage each turn.",
-                "energy": [
-                    "Genjutsu",
-                    "Bloodline"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 2,
-                "classes": [
-                    "Fire",
-                    "Special",
-                    "Affliction",
+                    "Physical",
                     "Instant"
                 ],
                 "effects": [
@@ -26067,38 +22988,171 @@ const characters = [
                         "amount": 20,
                         "scope": "target",
                         "metadata": {
-                            "damageType": "affliction",
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true
+                            "harmful": true
                         }
                     },
                     {
                         "type": "apply_status",
-                        "statusId": "flareon_fire_blast_burn",
-                        "duration": 999,
+                        "duration": 1,
                         "scope": "target",
                         "metadata": {
-                            "infiniteDuration": true,
-                            "turnEndDamage": 10,
-                            "damageType": "affliction",
-                            "endIfSourceDies": true,
-                            "statusIconUrl": "assets/images/PokemonArena/eevee/flareon/fireblast.png",
-                            "tooltipText": "This character takes 10 affliction damage each turn."
+                            "harmful": true,
+                            "cannotUseSkills": true,
+                            "tooltipText": "Stunned: cannot use skills."
+                        },
+                        "statusId": "jolteon_thunder_fang_1"
+                    }
+                ]
+            },
+            {
+                "id": "jolteon-charge",
+                "name": "Agility",
+                "skillimage": "assets/images/PokemonArena/eevee/jolteon/charge.png",
+                "skilldescription": "Jolteon becomes invulnerable for 1 turn.",
+                "description": "Jolteon becomes invulnerable for 1 turn.",
+                "energy": [
+                    "Random"
+                ],
+                "cooldown": 4,
+                "target": "self",
+                "damage": 0,
+                "classes": [
+                    "Strategic",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "invulnerable": true,
+                            "tooltipText": "Invulnerable."
+                        },
+                        "statusId": "jolteon_charge_1"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "flareon",
+        "characterId": "flareon",
+        "name": "Flareon",
+        "facePicture": "assets/images/PokemonArena/eevee/flareon/flareonfp.png",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Damage over time",
+        "roleCategory": "damage-over-time",
+        "description": "Burns everything and powers itself up.",
+        "descriptionHtml": "Burns everything and powers itself up.",
+        "characterdeescription": "A fiery Pokemon that builds permanent defense with heat, spreads flames, and converts burns into reliable damage over time.",
+        "pokemonTypes": [
+            "Fire"
+        ],
+        "startStatuses": [],
+        "skills": [
+            {
+                "id": "flareon-fire-spin",
+                "name": "Fire Spin",
+                "skillimage": "assets/images/PokemonArena/eevee/flareon/firespin.png",
+                "skilldescription": "Deals 15 damage to one enemy and then 10 affliction damage each turn for 2 turns.",
+                "description": "Deals 15 damage to one enemy and then 10 affliction damage each turn for 2 turns.",
+                "energy": [
+                    "Bloodline"
+                ],
+                "cooldown": 1,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": [
+                    "Special",
+                    "Affliction",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true
                         }
                     },
                     {
                         "type": "apply_status",
-                        "statusId": "flareon_fire_blast_splash_burn",
-                        "duration": 999,
-                        "scope": "all-other-enemies",
+                        "duration": 2,
+                        "scope": "target",
                         "metadata": {
-                            "infiniteDuration": true,
-                            "turnEndDamage": 5,
-                            "damageType": "affliction",
-                            "endIfSourceDies": true,
-                            "statusIconUrl": "assets/images/PokemonArena/eevee/flareon/fireblast.png",
-                            "tooltipText": "This character takes 5 affliction damage each turn while Fire Blast's main target is alive."
+                            "harmful": true,
+                            "afflictionDamage": true,
+                            "turnEndDamage": 10,
+                            "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "Takes 10 affliction damage each turn."
+                        },
+                        "statusId": "flareon_fire_spin_1"
+                    }
+                ]
+            },
+            {
+                "id": "flareon-fire-blast",
+                "name": "Fire Blast",
+                "skillimage": "assets/images/PokemonArena/eevee/flareon/fireblast.png",
+                "skilldescription": "Deals 40 damage to one enemy.",
+                "description": "Deals 40 damage to one enemy.",
+                "energy": [
+                    "Bloodline",
+                    "Random"
+                ],
+                "cooldown": 2,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": [
+                    "Special",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 40,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true
                         }
+                    }
+                ]
+            },
+            {
+                "id": "flareon-heating-up",
+                "name": "Heating Up",
+                "skillimage": "assets/images/PokemonArena/eevee/flareon/heatingup.png",
+                "skilldescription": "Flareon deals 10 more damage for 3 turns.",
+                "description": "Flareon deals 10 more damage for 3 turns.",
+                "energy": [
+                    "Bloodline"
+                ],
+                "cooldown": 3,
+                "target": "self",
+                "damage": 0,
+                "classes": [
+                    "Strategic",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "duration": 3,
+                        "scope": "self",
+                        "metadata": {
+                            "damageBonusFlat": 10,
+                            "mergeNumericAddKeys": [
+                                "damageBonusFlat"
+                            ],
+                            "tooltipText": "Deals 10 more damage."
+                        },
+                        "statusId": "flareon_heating_up_1"
                     }
                 ]
             },
@@ -26107,42 +23161,30 @@ const characters = [
                 "name": "Double Team",
                 "skillimage": "assets/images/PokemonArena/eevee/flareon/doubleteam.png",
                 "skilldescription": "Flareon becomes invulnerable for 1 turn.",
+                "description": "Flareon becomes invulnerable for 1 turn.",
                 "energy": [
                     "Random"
                 ],
+                "cooldown": 4,
                 "target": "self",
                 "damage": 0,
-                "cooldown": 4,
                 "classes": [
-                    "Normal",
                     "Strategic",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "flareon_double_team_invulnerable",
                         "duration": 1,
                         "scope": "self",
                         "metadata": {
                             "invulnerable": true,
-                            "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/eevee/flareon/doubleteam.png",
-                            "tooltipText": "Flareon is invulnerable."
-                        }
+                            "tooltipText": "Invulnerable."
+                        },
+                        "statusId": "flareon_double_team_1"
                     }
                 ]
             }
-        ],
-        "role": "DOT DPS",
-        "universe": "pokemon",
-        "arena": "pokemon",
-        "roleCategory": "dot-dps",
-        "description": "A fiery Pokemon that builds permanent defense with heat, spreads flames, and converts burns into reliable damage over time.",
-        "descriptionHtml": "A fiery Pokemon that builds permanent defense with heat, spreads flames, and converts burns into reliable damage over time.",
-        "startStatuses": [],
-        "pokemonTypes": [
-            "Fire"
         ]
     },
     {
@@ -26150,21 +23192,31 @@ const characters = [
         "characterId": "vaporeon",
         "name": "Vaporeon",
         "facePicture": "assets/images/PokemonArena/eevee/vaporeon/vaporeonfp.png",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Healer",
+        "roleCategory": "healer",
+        "description": "Heals the team with water and protects itself with Acid Armor.",
+        "descriptionHtml": "Heals the team with water and protects itself with Acid Armor.",
         "characterdeescription": "A resilient Water-type Pokemon that weakens attackers, redirects pressure, heals the team, and ignores enemy skills with Acid Armor.",
+        "pokemonTypes": [
+            "Water"
+        ],
+        "startStatuses": [],
         "skills": [
             {
                 "id": "vaporeon-aurora-beam",
                 "name": "Aurora Beam",
                 "skillimage": "assets/images/PokemonArena/eevee/vaporeon/aurorabeam.png",
-                "skilldescription": "Deal 20 damage to one enemy and reduce their non-affliction damage by 5 for 1 turn or heal Vaporeon or one ally for 20 HP and increase their non-affliction damage by 5 for 1 turn.",
+                "skilldescription": "Deals 20 damage to one enemy.",
+                "description": "Deals 20 damage to one enemy.",
                 "energy": [
-                    "Taijutsu"
+                    "Ninjutsu"
                 ],
-                "target": "single-enemy-or-ally",
-                "damage": 0,
                 "cooldown": 0,
+                "target": "single-enemy",
+                "damage": 0,
                 "classes": [
-                    "Ice",
                     "Special",
                     "Instant"
                 ],
@@ -26173,100 +23225,8 @@ const characters = [
                         "type": "damage",
                         "amount": 20,
                         "scope": "target",
-                        "condition": {
-                            "targetRelation": "enemy"
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 10,
-                        "scope": "target",
-                        "condition": {
-                            "targetRelation": "enemy",
-                            "statusId": "vaporeon_sand_attack_blind"
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "vaporeon_aurora_beam_weakened",
-                        "duration": 1,
-                        "scope": "target",
-                        "condition": {
-                            "targetRelation": "enemy"
-                        },
                         "metadata": {
-                            "nonAfflictionDamageBonusFlat": -5,
-                            "statusIconUrl": "assets/images/PokemonArena/eevee/vaporeon/aurorabeam.png",
-                            "tooltipText": "This character deals 5 less non-affliction damage."
-                        }
-                    },
-                    {
-                        "type": "heal",
-                        "amount": 20,
-                        "scope": "target",
-                        "condition": {
-                            "targetRelation": "ally"
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "vaporeon_aurora_beam_empowered",
-                        "duration": 1,
-                        "scope": "target",
-                        "condition": {
-                            "targetRelation": "ally"
-                        },
-                        "metadata": {
-                            "nonAfflictionDamageBonusFlat": 5,
-                            "statusIconUrl": "assets/images/PokemonArena/eevee/vaporeon/aurorabeam.png",
-                            "tooltipText": "This character deals 5 additional non-affliction damage."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "vaporeon-sand-attack",
-                "name": "Sand-Attack",
-                "skillimage": "assets/images/PokemonArena/eevee/vaporeon/sandattack.png",
-                "skilldescription": "One enemy is blinded for 1 turn, causing their new harmful skills to randomly target your team. Aurora Beam deals 10 more damage to an affected enemy and makes Hydro Pump cost 1 less energy for 1 turn.",
-                "energy": [
-                    "Random"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 3,
-                "classes": [
-                    "Ground",
-                    "Physical",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "vaporeon_sand_attack_blind",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "harmfulBlind": true,
-                            "statusIconUrl": "assets/images/PokemonArena/eevee/vaporeon/sandattack.png",
-                            "tooltipText": "This character's new harmful skills randomly target your team."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "vaporeon_sand_attack_hydro_discount",
-                        "duration": 1,
-                        "scope": "self",
-                        "metadata": {
-                            "skillCostOverridesBySkillId": {
-                                "vaporeon-hydro-pump": {
-                                    "energy": [
-                                        "Taijutsu"
-                                    ]
-                                }
-                            },
-                            "statusIconUrl": "assets/images/PokemonArena/eevee/vaporeon/sandattack.png",
-                            "tooltipText": "Hydro Pump costs 1 less energy."
+                            "harmful": true
                         }
                     }
                 ]
@@ -26275,29 +23235,56 @@ const characters = [
                 "id": "vaporeon-hydro-pump",
                 "name": "Hydro Pump",
                 "skillimage": "assets/images/PokemonArena/eevee/vaporeon/hydropump.png",
-                "skilldescription": "Deals 35 damage to one enemy. Vaporeon's team heals 15 HP.",
+                "skilldescription": "Deals 35 damage to one enemy.",
+                "description": "Deals 35 damage to one enemy.",
                 "energy": [
-                    "Taijutsu",
-                    "Ninjutsu"
+                    "Ninjutsu",
+                    "Random"
                 ],
+                "cooldown": 1,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 2,
                 "classes": [
-                    "Water",
-                    "Physical",
+                    "Special",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "damage",
                         "amount": 35,
-                        "scope": "target"
-                    },
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "vaporeon-sand-attack",
+                "name": "Aqua Ring",
+                "skillimage": "assets/images/PokemonArena/eevee/vaporeon/sandattack.png",
+                "skilldescription": "Heals all allies for 10 each turn for 2 turns.",
+                "description": "Heals all allies for 10 each turn for 2 turns.",
+                "energy": [
+                    "Ninjutsu"
+                ],
+                "cooldown": 2,
+                "target": "all-allies",
+                "damage": 0,
+                "classes": [
+                    "Strategic",
+                    "Instant"
+                ],
+                "effects": [
                     {
-                        "type": "heal",
-                        "amount": 15,
-                        "scope": "all-allies"
+                        "type": "apply_status",
+                        "duration": 2,
+                        "scope": "all-allies",
+                        "metadata": {
+                            "turnEndHealFlat": 10,
+                            "tooltipText": "Heals 10 each turn."
+                        },
+                        "statusId": "vaporeon_sand_attack_1"
                     }
                 ]
             },
@@ -26305,52 +23292,31 @@ const characters = [
                 "id": "vaporeon-acid-armor",
                 "name": "Acid Armor",
                 "skillimage": "assets/images/PokemonArena/eevee/vaporeon/acidarmor.png",
-                "skilldescription": "Vaporeon ignores enemy skills for 1 turn. Vaporeon's team heals 5 HP for every new enemy skill used on her during this time.",
+                "skilldescription": "Vaporeon becomes invulnerable for 1 turn.",
+                "description": "Vaporeon becomes invulnerable for 1 turn.",
                 "energy": [
                     "Random"
                 ],
+                "cooldown": 4,
                 "target": "self",
                 "damage": 0,
-                "cooldown": 2,
                 "classes": [
-                    "Poison",
-                    "Special",
-                    "Instant",
-                    "Invisible"
+                    "Strategic",
+                    "Instant"
                 ],
                 "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "vaporeon_acid_armor_active",
                         "duration": 1,
                         "scope": "self",
                         "metadata": {
                             "invulnerable": true,
-                            "turnDurationAnchor": "source_turn",
-                            "triggerOnEnemyHarmfulSkill": true,
-                            "counterEffectsToSourceOwner": [
-                                {
-                                    "type": "heal",
-                                    "amount": 5,
-                                    "scope": "all-allies"
-                                }
-                            ],
-                            "statusIconUrl": "assets/images/PokemonArena/eevee/vaporeon/acidarmor.png",
-                            "tooltipText": "Vaporeon ignores enemy skills and heals when enemies use new harmful skills on her."
-                        }
+                            "tooltipText": "Invulnerable."
+                        },
+                        "statusId": "vaporeon_acid_armor_1"
                     }
                 ]
             }
-        ],
-        "role": "Heal Support",
-        "universe": "pokemon",
-        "arena": "pokemon",
-        "roleCategory": "heal-support",
-        "description": "A resilient Water-type Pokemon that weakens attackers, redirects pressure, heals the team, and ignores enemy skills with Acid Armor.",
-        "descriptionHtml": "A resilient Water-type Pokemon that weakens attackers, redirects pressure, heals the team, and ignores enemy skills with Acid Armor.",
-        "startStatuses": [],
-        "pokemonTypes": [
-            "Water"
         ]
     },
     {
@@ -26358,524 +23324,317 @@ const characters = [
         "characterId": "ekans",
         "name": "Ekans",
         "facePicture": "assets/images/PokemonArena/ekans/ekansfp.jpg",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Poison",
+        "roleCategory": "poison",
+        "description": "Poisons one enemy and squeezes them.",
+        "descriptionHtml": "Poisons one enemy and squeezes them.",
         "characterdeescription": "A venom-focused Pokemon that ramps poison pressure, punishes enemies for acting, and evolves into Arbok after landing a Constrict execution.",
+        "pokemonTypes": [
+            "Poison"
+        ],
+        "startStatuses": [
+            {
+                "statusId": "ekans_evolution_tracker",
+                "sourceSkillId": "ekans-passive-evolution-arbok",
+                "duration": 3,
+                "metadata": {
+                    "unremovable": true,
+                    "tooltipText": "Evolves into Arbok at the start of its 4th turn.",
+                    "onExpireApplyStatusToSelf": {
+                        "statusId": "ekans_arbok_evolution",
+                        "duration": 999,
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "useEvolvedSkills": true,
+                            "facePictureOverride": "assets/images/PokemonArena/ekans/arbokfp.jpg",
+                            "tooltipText": "Ekans has evolved into Arbok."
+                        }
+                    }
+                }
+            }
+        ],
         "skills": [
             {
                 "id": "ekans-poison-fang",
-                "name": "Bite",
+                "name": "Poison Fang",
                 "skillimage": "assets/images/PokemonArena/ekans/skill1.jpg",
-                "skilldescription": "Deals 10 physical damage and 15 affliction damage to one enemy. If the target is Badly Poisoned, they also take 3 permanent affliction damage. This effect stacks.",
+                "skilldescription": "Deals 20 damage to one enemy.",
+                "description": "Deals 20 damage to one enemy.",
                 "energy": [
                     "Bloodline"
                 ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 1,
-                "classes": [
-                    "Poison",
-                    "Physical",
-                    "Affliction",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 10,
-                        "scope": "target"
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 15,
-                        "scope": "target",
-                        "metadata": {
-                            "damageType": "affliction",
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "ekans_poison_fang_venom",
-                        "duration": 999,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "target",
-                            "statusIdsAny": [
-                                "ekans_badly_poison",
-                                "ekans_badly_poison_2"
-                            ]
-                        },
-                        "metadata": {
-                            "harmful": true,
-                            "infiniteDuration": true,
-                            "turnEndDamage": 3,
-                            "damageType": "affliction",
-                            "mergeNumericAddKeys": [
-                                "turnEndDamage"
-                            ],
-                            "statusIconUrl": "assets/images/PokemonArena/ekans/skill1.jpg",
-                            "tooltipTextTemplate": "This character takes {turnEndDamage} permanent affliction damage each turn from Bite."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "ekans-toxic",
-                "name": "Toxic",
-                "skillimage": "assets/images/PokemonArena/ekans/skill2.jpg",
-                "skilldescription": "Badly poisons one enemy, dealing 2 affliction damage. Whenever that enemy uses a new skill, this damage doubles. Each enemy may only have 1 stack of Badly Poison.",
-                "energy": [
-                    "Bloodline"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 2,
-                "classes": [
-                    "Poison",
-                    "Special",
-                    "Affliction",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 2,
-                        "scope": "target",
-                        "metadata": {
-                            "damageType": "affliction",
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "ekans_badly_poison",
-                        "duration": 999,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "target",
-                            "missingStatusId": "ekans_badly_poison"
-                        },
-                        "metadata": {
-                            "harmful": true,
-                            "infiniteDuration": true,
-                            "turnEndDamage": 2,
-                            "damageType": "affliction",
-                            "onOwnerUseSkillTrigger": true,
-                            "onOwnerUseSkillRequireNewSkill": true,
-                            "persistOnOwnerUseSkillTrigger": true,
-                            "onOwnerUseSkillApplyStatusToOwner": {
-                                "statusId": "ekans_badly_poison",
-                                "duration": 999,
-                                "metadata": {
-                                    "doubleNumericMetadataKeys": [
-                                        "turnEndDamage"
-                                    ]
-                                }
-                            },
-                            "statusIconUrl": "assets/images/PokemonArena/ekans/skill2.jpg",
-                            "tooltipTextTemplate": "This character takes {turnEndDamage} affliction damage each turn from Badly Poison."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "ekans-shed-skin",
-                "name": "Dig",
-                "skillimage": "assets/images/PokemonArena/ekans/skill3.jpg",
-                "skilldescription": "Removes all enemy affliction skills from Ekans and heals 15 HP each turn for 2 turns. Ekans is invulnerable during the first of those turns.",
-                "energy": [
-                    "Random"
-                ],
-                "target": "self",
-                "damage": 0,
-                "cooldown": 3,
-                "classes": [
-                    "Poison",
-                    "Physical",
-                    "Action"
-                ],
-                "effects": [
-                    {
-                        "type": "cleanse_statuses",
-                        "scope": "self",
-                        "sourceRelation": "enemy",
-                        "harmfulOnly": true
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "ekans_shed_skin_regen",
-                        "duration": 2,
-                        "scope": "self",
-                        "metadata": {
-                            "turnEndHealFlat": 15,
-                            "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/ekans/skill3.jpg",
-                            "tooltipTextTemplate": "Ekans heals {turnEndHealFlat} HP each turn from Dig."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "ekans_shed_skin_invulnerable",
-                        "duration": 1,
-                        "scope": "self",
-                        "metadata": {
-                            "invulnerable": true,
-                            "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/ekans/skill3.jpg",
-                            "tooltipText": "Ekans is invulnerable from Dig."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "ekans-crunch",
-                "name": "Constrict",
-                "skillimage": "assets/images/PokemonArena/ekans/skill4.jpg",
-                "skilldescription": "One enemy takes 10 additional damage from affliction-only damage this turn. If that enemy has 25 HP or less, they are executed.",
-                "energy": [
-                    "Bloodline"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 3,
-                "classes": [
-                    "Dark",
-                    "Special",
-                    "Affliction",
-                    "Instant",
-                    "Bypassing"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "ekans_crunch_mark",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "afflictionDamageTakenBonusFlat": 10,
-                            "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/ekans/skill4.jpg",
-                            "tooltipText": "This character takes 10 additional damage from affliction-only damage."
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 999,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "target",
-                            "sourceCurrentHpAtMost": 25
-                        },
-                        "metadata": {
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true,
-                            "onOwnerKillApplyStatusToSelf": {
-                                "statusId": "ekans_arbok_evolution",
-                                "duration": 999,
-                                "metadata": {
-                                    "infiniteDuration": true,
-                                    "facePictureOverride": "assets/images/PokemonArena/ekans/arbokfp.jpg",
-                                    "skillReplacements": {
-                                        "ekans-poison-fang": "arbok-poison-fang",
-                                        "ekans-toxic": "arbok-toxic",
-                                        "ekans-shed-skin": "arbok-shed-skin",
-                                        "ekans-crunch": "arbok-crunch"
-                                    },
-                                    "tooltipText": "Ekans has evolved into Arbok. Arbok's skills are improved.",
-                                    "healOnApplyFlat": 10
-                                }
-                            }
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "ekans-passive-evolution-arbok",
-                "name": "Evolution - Arbok",
-                "skillimage": "assets/images/PokemonArena/ekans/ekansevolution.png",
-                "skilldescription": "After Ekans executes an enemy with Constrict, it evolves into Arbok. Arbok's skills are improved.",
-                "energy": [],
-                "target": "",
-                "damage": 0,
                 "cooldown": 0,
-                "classes": [
-                    "Poison",
-                    "Passive",
-                    "Instant"
-                ]
-            },
-            {
-                "id": "arbok-poison-fang",
-                "name": "Poison Sting",
-                "actorCondition": {
-                    "statusId": "ekans_arbok_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/ekans/arbokskill1.jpg",
-                "skilldescription": "Deals 25 physical damage and 20 affliction damage to one enemy instead. If the target is Badly Poisoned, they also take 6 permanent affliction damage instead. This effect stacks.",
-                "energy": [
-                    "Bloodline",
-                    "Bloodline"
-                ],
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 1,
                 "classes": [
-                    "Poison",
                     "Physical",
-                    "Affliction",
                     "Instant"
                 ],
                 "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 25,
-                        "scope": "target"
-                    },
                     {
                         "type": "damage",
                         "amount": 20,
                         "scope": "target",
                         "metadata": {
-                            "damageType": "affliction",
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "ekans_poison_fang_venom",
-                        "duration": 999,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "target",
-                            "statusIdsAny": [
-                                "ekans_badly_poison",
-                                "ekans_badly_poison_2"
-                            ]
-                        },
-                        "metadata": {
-                            "harmful": true,
-                            "infiniteDuration": true,
-                            "turnEndDamage": 6,
-                            "damageType": "affliction",
-                            "mergeNumericAddKeys": [
-                                "turnEndDamage"
-                            ],
-                            "statusIconUrl": "assets/images/PokemonArena/ekans/arbokskill1.jpg",
-                            "tooltipTextTemplate": "This character takes {turnEndDamage} permanent affliction damage each turn from Poison Sting."
+                            "harmful": true
                         }
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "arbok-poison-fang",
+                    "name": "Poison Fang",
+                    "skillimage": "assets/images/PokemonArena/ekans/arbokskill1.jpg",
+                    "skilldescription": "Deals 25 damage to one enemy.",
+                    "description": "Deals 25 damage to one enemy.",
+                    "energy": [
+                        "Bloodline"
+                    ],
+                    "cooldown": 0,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Physical",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "damage",
+                            "amount": 25,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true
+                            }
+                        }
+                    ]
+                }
             },
             {
-                "id": "arbok-toxic",
+                "id": "ekans-toxic",
                 "name": "Toxic",
-                "actorCondition": {
-                    "statusId": "ekans_arbok_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/ekans/arbokskill2.jpg",
-                "skilldescription": "Badly poisons one enemy, dealing 2 affliction damage. Whenever that enemy uses a new skill, this damage doubles. Each enemy may have up to 2 stacks of Badly Poison instead.",
+                "skillimage": "assets/images/PokemonArena/ekans/skill2.jpg",
+                "skilldescription": "Deals 10 affliction damage to one enemy each turn for 3 turns.",
+                "description": "Deals 10 affliction damage to one enemy each turn for 3 turns.",
                 "energy": [
                     "Bloodline"
                 ],
+                "cooldown": 2,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 2,
                 "classes": [
-                    "Poison",
                     "Special",
                     "Affliction",
                     "Instant"
                 ],
                 "effects": [
                     {
-                        "type": "damage",
-                        "amount": 2,
-                        "scope": "target",
-                        "metadata": {
-                            "damageType": "affliction",
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true
-                        }
-                    },
-                    {
                         "type": "apply_status",
-                        "statusId": "ekans_badly_poison",
-                        "duration": 999,
+                        "duration": 3,
                         "scope": "target",
-                        "condition": {
-                            "scope": "target",
-                            "missingStatusId": "ekans_badly_poison"
-                        },
                         "metadata": {
                             "harmful": true,
-                            "infiniteDuration": true,
-                            "turnEndDamage": 2,
-                            "damageType": "affliction",
-                            "onOwnerUseSkillTrigger": true,
-                            "onOwnerUseSkillRequireNewSkill": true,
-                            "persistOnOwnerUseSkillTrigger": true,
-                            "onOwnerUseSkillApplyStatusToOwner": {
-                                "statusId": "ekans_badly_poison",
-                                "duration": 999,
-                                "metadata": {
-                                    "doubleNumericMetadataKeys": [
-                                        "turnEndDamage"
-                                    ]
-                                }
-                            },
-                            "statusIconUrl": "assets/images/PokemonArena/ekans/arbokskill2.jpg",
-                            "tooltipTextTemplate": "This character takes {turnEndDamage} affliction damage each turn from Badly Poison."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "ekans_badly_poison_2",
-                        "duration": 999,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "target",
-                            "statusId": "ekans_badly_poison",
-                            "missingStatusId": "ekans_badly_poison_2"
+                            "afflictionDamage": true,
+                            "turnEndDamage": 10,
+                            "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "Takes 10 affliction damage each turn."
                         },
-                        "metadata": {
-                            "harmful": true,
-                            "infiniteDuration": true,
-                            "turnEndDamage": 2,
-                            "damageType": "affliction",
-                            "onOwnerUseSkillTrigger": true,
-                            "onOwnerUseSkillRequireNewSkill": true,
-                            "persistOnOwnerUseSkillTrigger": true,
-                            "onOwnerUseSkillApplyStatusToOwner": {
-                                "statusId": "ekans_badly_poison_2",
-                                "duration": 999,
-                                "metadata": {
-                                    "doubleNumericMetadataKeys": [
-                                        "turnEndDamage"
-                                    ]
-                                }
-                            },
-                            "statusIconUrl": "assets/images/PokemonArena/ekans/arbokskill2.jpg",
-                            "tooltipTextTemplate": "This character takes {turnEndDamage} affliction damage each turn from Badly Poison."
-                        }
+                        "statusId": "ekans_toxic_1"
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "arbok-toxic",
+                    "name": "Toxic",
+                    "skillimage": "assets/images/PokemonArena/ekans/arbokskill2.jpg",
+                    "skilldescription": "Deals 15 affliction damage to one enemy each turn for 3 turns.",
+                    "description": "Deals 15 affliction damage to one enemy each turn for 3 turns.",
+                    "energy": [
+                        "Bloodline"
+                    ],
+                    "cooldown": 2,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Special",
+                        "Affliction",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "apply_status",
+                            "duration": 3,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true,
+                                "afflictionDamage": true,
+                                "turnEndDamage": 15,
+                                "ignoreTargetDamageReduction": true,
+                                "ignoreTargetDestructibleDefense": true,
+                                "turnEndTrigger": "source_turn",
+                                "turnDurationAnchor": "source_turn",
+                                "tooltipText": "Takes 15 affliction damage each turn."
+                            },
+                            "statusId": "arbok_toxic_1"
+                        }
+                    ]
+                }
             },
             {
-                "id": "arbok-shed-skin",
-                "name": "Dig",
-                "actorCondition": {
-                    "statusId": "ekans_arbok_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/ekans/arbokskill3.jpg",
-                "skilldescription": "Removes all enemy affliction skills from Arbok and heals 25 HP each turn for 2 turns instead. Arbok is invulnerable during the first of those turns.",
+                "id": "ekans-crunch",
+                "name": "Wrap",
+                "skillimage": "assets/images/PokemonArena/ekans/skill4.jpg",
+                "skilldescription": "Deals 15 damage to one enemy and stuns the target for 1 turn.",
+                "description": "Deals 15 damage to one enemy and stuns the target for 1 turn.",
                 "energy": [
-                    "Random",
+                    "Bloodline",
                     "Random"
                 ],
-                "target": "self",
-                "damage": 0,
                 "cooldown": 3,
+                "target": "single-enemy",
+                "damage": 0,
                 "classes": [
-                    "Poison",
                     "Physical",
-                    "Action"
+                    "Instant"
                 ],
                 "effects": [
                     {
-                        "type": "cleanse_statuses",
-                        "scope": "self",
-                        "sourceRelation": "enemy",
-                        "harmfulOnly": true
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "ekans_shed_skin_regen",
-                        "duration": 2,
-                        "scope": "self",
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
                         "metadata": {
-                            "turnEndHealFlat": 25,
-                            "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/ekans/arbokskill3.jpg",
-                            "tooltipTextTemplate": "Arbok heals {turnEndHealFlat} HP each turn from Dig."
+                            "harmful": true
                         }
                     },
                     {
                         "type": "apply_status",
-                        "statusId": "ekans_shed_skin_invulnerable",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseSkills": true,
+                            "tooltipText": "Stunned: cannot use skills."
+                        },
+                        "statusId": "ekans_crunch_1"
+                    }
+                ],
+                "evolvesTo": {
+                    "id": "arbok-crunch",
+                    "name": "Wrap",
+                    "skillimage": "assets/images/PokemonArena/ekans/arbokskill4.jpg",
+                    "skilldescription": "Deals 25 damage to one enemy and stuns the target for 1 turn.",
+                    "description": "Deals 25 damage to one enemy and stuns the target for 1 turn.",
+                    "energy": [
+                        "Bloodline",
+                        "Random"
+                    ],
+                    "cooldown": 3,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Physical",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "damage",
+                            "amount": 25,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true
+                            }
+                        },
+                        {
+                            "type": "apply_status",
+                            "duration": 1,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true,
+                                "cannotUseSkills": true,
+                                "tooltipText": "Stunned: cannot use skills."
+                            },
+                            "statusId": "arbok_crunch_1"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "ekans-shed-skin",
+                "name": "Shed Skin",
+                "skillimage": "assets/images/PokemonArena/ekans/skill3.jpg",
+                "skilldescription": "Ekans becomes invulnerable for 1 turn.",
+                "description": "Ekans becomes invulnerable for 1 turn.",
+                "energy": [
+                    "Random"
+                ],
+                "cooldown": 4,
+                "target": "self",
+                "damage": 0,
+                "classes": [
+                    "Strategic",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
                         "duration": 1,
                         "scope": "self",
                         "metadata": {
                             "invulnerable": true,
-                            "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/ekans/arbokskill3.jpg",
-                            "tooltipText": "Arbok is invulnerable from Dig."
-                        }
+                            "tooltipText": "Invulnerable."
+                        },
+                        "statusId": "ekans_shed_skin_1"
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "ekans-shed-skin-evolved",
+                    "name": "Shed Skin",
+                    "skillimage": "assets/images/PokemonArena/ekans/skill3.jpg",
+                    "skilldescription": "Arbok becomes invulnerable for 1 turn.",
+                    "description": "Arbok becomes invulnerable for 1 turn.",
+                    "energy": [
+                        "Random"
+                    ],
+                    "cooldown": 4,
+                    "target": "self",
+                    "damage": 0,
+                    "classes": [
+                        "Strategic",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "apply_status",
+                            "duration": 1,
+                            "scope": "self",
+                            "metadata": {
+                                "invulnerable": true,
+                                "tooltipText": "Invulnerable."
+                            },
+                            "statusId": "ekans_shed_skin_evolved_1"
+                        }
+                    ]
+                }
             },
             {
-                "id": "arbok-crunch",
-                "name": "Constrict",
-                "actorCondition": {
-                    "statusId": "ekans_arbok_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/ekans/arbokskill4.jpg",
-                "skilldescription": "One enemy takes 15 additional damage from affliction-only damage this turn instead. If that enemy has 35 HP or less, they are executed.",
-                "energy": [
-                    "Bloodline"
-                ],
-                "target": "single-enemy",
+                "id": "ekans-passive-evolution-arbok",
+                "name": "Evolution: Arbok",
+                "skillimage": "assets/images/PokemonArena/ekans/ekansevolution.png",
+                "skilldescription": "At the start of its 4th turn, Ekans evolves into Arbok and its skills get stronger.",
+                "description": "At the start of its 4th turn, Ekans evolves into Arbok and its skills get stronger.",
+                "energy": [],
+                "cooldown": 0,
+                "target": "",
                 "damage": 0,
-                "cooldown": 3,
                 "classes": [
-                    "Dark",
-                    "Special",
-                    "Affliction",
-                    "Instant",
-                    "Bypassing"
+                    "Passive",
+                    "Instant"
                 ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "ekans_crunch_mark",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "afflictionDamageTakenBonusFlat": 15,
-                            "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/ekans/arbokskill4.jpg",
-                            "tooltipText": "This character takes 15 additional damage from affliction-only damage."
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 999,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "target",
-                            "sourceCurrentHpAtMost": 35
-                        },
-                        "metadata": {
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true
-                        }
-                    }
-                ]
+                "effects": []
             }
-        ],
-        "role": "Assassin",
-        "universe": "pokemon",
-        "arena": "pokemon",
-        "roleCategory": "Assassin",
-        "description": "A venom-focused Pokemon that ramps poison pressure, punishes enemies for acting, and evolves into Arbok after landing a Constrict execution.",
-        "descriptionHtml": "A venom-focused Pokemon that ramps poison pressure, punishes enemies for acting, and evolves into Arbok after landing a Constrict execution.",
-        "startStatuses": [],
-        "pokemonTypes": [
-            "Poison"
         ]
     },
     {
@@ -26883,587 +23642,311 @@ const characters = [
         "characterId": "machop",
         "name": "Machop",
         "facePicture": "assets/images/PokemonArena/machop/machopfp.png",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Bruiser",
+        "roleCategory": "bruiser",
+        "description": "Punches hard and bulks up to take hits.",
+        "descriptionHtml": "Punches hard and bulks up to take hits.",
         "characterdeescription": "A Fighting-type bruiser that breaks armor, redirects enemy attacks, and evolves into Machoke after using Bulk Up twice.",
+        "pokemonTypes": [
+            "Fighting"
+        ],
+        "startStatuses": [
+            {
+                "statusId": "machop_evolution_tracker",
+                "sourceSkillId": "machop-passive-evolution-machoke",
+                "duration": 3,
+                "metadata": {
+                    "unremovable": true,
+                    "tooltipText": "Evolves into Machoke at the start of its 4th turn.",
+                    "onExpireApplyStatusToSelf": {
+                        "statusId": "machop_machoke_evolution",
+                        "duration": 999,
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "useEvolvedSkills": true,
+                            "facePictureOverride": "assets/images/PokemonArena/machop/machokefp.png",
+                            "tooltipText": "Machop has evolved into Machoke."
+                        }
+                    }
+                }
+            }
+        ],
         "skills": [
             {
                 "id": "machop-brick-break",
                 "name": "Brick Break",
                 "skillimage": "assets/images/PokemonArena/machop/machopbrickbreak.jpg",
-                "skilldescription": "Destroys all of one enemy's destructible defense and deals 20 damage to them, increased by 10 if any destructible defense was destroyed. Bulk Up can further increase this damage.",
+                "skilldescription": "Deals 20 piercing damage to one enemy.",
+                "description": "Deals 20 piercing damage to one enemy.",
                 "energy": [
-                    "Ninjutsu"
+                    "Taijutsu"
                 ],
+                "cooldown": 0,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 1,
                 "classes": [
-                    "Fighting",
                     "Physical",
                     "Instant"
                 ],
                 "effects": [
-                    {
-                        "type": "destroy_destructible_defense",
-                        "scope": "target",
-                        "metadata": {
-                            "onDestroyedApplyStatusToOwner": {
-                                "statusId": "machop_brick_break_destroyed_defense_bonus",
-                                "duration": 1,
-                                "metadata": {
-                                    "damageBonusFlat": 10,
-                                    "hidden": true
-                                }
-                            }
-                        }
-                    },
                     {
                         "type": "damage",
                         "amount": 20,
                         "scope": "target",
                         "metadata": {
-                            "bonusPerStatusMetadata": {
-                                "scope": "self",
-                                "statusId": "machop_bulk_up_bonus",
-                                "metadataKey": "machopBulkUpBonus",
-                                "multiplier": 1
-                            }
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "machop_bulk_up_spent",
-                        "duration": 0,
-                        "scope": "self",
-                        "metadata": {
-                            "removeStatusIdsOnApply": [
-                                "machop_bulk_up_bonus",
-                                "machop_brick_break_destroyed_defense_bonus"
-                            ],
-                            "tooltipText": "Brick Break's stored bonuses have been consumed."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "machop-counter",
-                "name": "Counter",
-                "skillimage": "assets/images/PokemonArena/machop/machopcounter.png",
-                "skilldescription": "Targets one enemy for 1 turn. The first new damaging skill they use is countered, and they take Physical damage equal to the damage their skill would have dealt. This skill is Invisible.",
-                "energy": [
-                    "Ninjutsu"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 3,
-                "classes": [
-                    "Fighting",
-                    "Physical",
-                    "Instant",
-                    "Invisible"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "machop_counter_mark",
-                        "duration": 999,
-                        "scope": "target",
-                        "metadata": {
                             "harmful": true,
-                            "infiniteDuration": true,
-                            "counterOwnerNextNewDamagingSkill": true,
-                            "counterDamageMultiplier": 1,
-                            "machopCounterDamage": 0,
-                            "stackMetadataKey": "machopCounterDamage",
-                            "stackDeltaFromDamageDealtToSourceOwner": true,
-                            "copyStatusMetadataToMetadataKeys": [
-                                {
-                                    "scope": "self",
-                                    "statusId": "machop_bulk_up_bonus",
-                                    "metadataKey": "machopBulkUpBonus",
-                                    "targetKey": "storedBulkUpBonus"
-                                }
-                            ],
-                            "onExpireEffects": [
-                                {
-                                    "type": "damage",
-                                    "amount": 0,
-                                    "scope": "target",
-                                    "metadata": {
-                                        "ignoreDamageReduction": true,
-                                        "ignoreDestructibleDefense": true,
-                                        "currentStatusMetadataBonus": {
-                                            "metadataKey": "machopCounterDamage",
-                                            "multiplier": 1
-                                        },
-                                        "onSuccessfulDamageApplyStatusToSourceOwner": {
-                                            "statusId": "machop_machoke_evolution",
-                                            "duration": 999,
-                                            "metadata": {
-                                                "infiniteDuration": true,
-                                                "facePictureOverride": "assets/images/PokemonArena/machop/machokefp.png",
-                                                "skillReplacements": {
-                                                    "machop-brick-break": "machoke-brick-break",
-                                                    "machop-counter": "machoke-counter",
-                                                    "machop-bulk-up": "machoke-bulk-up",
-                                                    "machop-taunt": "machoke-taunt"
-                                                },
-                                                "tooltipText": "Machop has evolved into Machoke. Machoke's skills are improved.",
-                                                "healOnApplyFlat": 10
-                                            }
-                                        }
-                                    }
-                                },
-                                {
-                                    "type": "damage",
-                                    "amount": 0,
-                                    "scope": "target",
-                                    "metadata": {
-                                        "ignoreDamageReduction": true,
-                                        "ignoreDestructibleDefense": true,
-                                        "currentStatusMetadataBonus": {
-                                            "metadataKey": "storedBulkUpBonus",
-                                            "multiplier": 1
-                                        },
-                                        "onSuccessfulDamageApplyStatusToSourceOwner": {
-                                            "statusId": "machop_machoke_evolution",
-                                            "duration": 999,
-                                            "metadata": {
-                                                "infiniteDuration": true,
-                                                "facePictureOverride": "assets/images/PokemonArena/machop/machokefp.png",
-                                                "skillReplacements": {
-                                                    "machop-brick-break": "machoke-brick-break",
-                                                    "machop-counter": "machoke-counter",
-                                                    "machop-bulk-up": "machoke-bulk-up",
-                                                    "machop-taunt": "machoke-taunt"
-                                                },
-                                                "tooltipText": "Machop has evolved into Machoke. Machoke's skills are improved.",
-                                                "healOnApplyFlat": 10
-                                            }
-                                        }
-                                    }
-                                },
-                                {
-                                    "type": "damage",
-                                    "amount": 5,
-                                    "scope": "target",
-                                    "metadata": {
-                                        "ignoreDamageReduction": true,
-                                        "ignoreDestructibleDefense": true,
-                                        "requireSourceOwnerAlive": true,
-                                        "onSuccessfulDamageApplyStatusToSourceOwner": {
-                                            "statusId": "machop_machoke_evolution",
-                                            "duration": 999,
-                                            "metadata": {
-                                                "infiniteDuration": true,
-                                                "facePictureOverride": "assets/images/PokemonArena/machop/machokefp.png",
-                                                "skillReplacements": {
-                                                    "machop-brick-break": "machoke-brick-break",
-                                                    "machop-counter": "machoke-counter",
-                                                    "machop-bulk-up": "machoke-bulk-up",
-                                                    "machop-taunt": "machoke-taunt"
-                                                },
-                                                "tooltipText": "Machop has evolved into Machoke. Machoke's skills are improved.",
-                                                "healOnApplyFlat": 10
-                                            }
-                                        }
-                                    }
-                                }
-                            ],
-                            "statusIconUrl": "assets/images/PokemonArena/machop/machopcounter.png",
-                            "tooltipText": "The next new damaging skill this character uses will be countered back at them."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "machop_bulk_up_spent",
-                        "duration": 0,
-                        "scope": "self",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "machop_counter_never_consume_bulk"
-                        },
-                        "metadata": {
-                            "removeStatusIdsOnApply": [
-                                "machop_bulk_up_bonus"
-                            ],
-                            "tooltipText": "Bulk Up has been consumed."
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
                         }
                     }
-                ]
-            },
-            {
-                "id": "machop-bulk-up",
-                "name": "Bulk Up",
-                "skillimage": "assets/images/PokemonArena/machop/machopbulkup.png",
-                "skilldescription": "Machop gains 10 permanent destructible defense and his next Brick Break deals 10 additional damage. This effect stacks. After Machop uses Bulk Up twice, he evolves into Machoke.",
-                "energy": [
-                    "Random"
                 ],
-                "target": "self",
-                "damage": 0,
-                "cooldown": 1,
-                "classes": [
-                    "Fighting",
-                    "Physical",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "machop_bulk_up_bonus",
-                        "duration": 999,
-                        "scope": "self",
-                        "metadata": {
-                            "infiniteDuration": true,
-                            "machopBulkUpBonus": 10,
-                            "stackMetadataKey": "machopBulkUpBonus",
-                            "stackDelta": 10,
-                            "stackMax": 99,
-                            "destructibleDefensePoints": 10,
-                            "mergeNumericAddKeys": [
-                                "destructibleDefensePoints"
-                            ],
-                            "statusIconUrl": "assets/images/PokemonArena/machop/machopbulkup.png",
-                            "tooltipTextTemplate": "Machop's next Brick Break deals {machopBulkUpBonus} additional damage, and Machop has {destructibleDefensePoints} permanent destructible defense from Bulk Up."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "machop_bulk_up_evolution_tracker",
-                        "duration": 999,
-                        "scope": "self",
-                        "metadata": {
-                            "hidden": true,
-                            "infiniteDuration": true,
-                            "machopBulkUpUses": 1,
-                            "stackMetadataKey": "machopBulkUpUses",
-                            "stackDelta": 1,
-                            "stackMax": 2,
-                            "applyStatusAtStack": {
-                                "metadataKey": "machopBulkUpUses",
-                                "value": 2,
-                                "statusId": "machop_machoke_evolution",
-                                "duration": 999,
-                                "metadata": {
-                                    "infiniteDuration": true,
-                                    "removeStatusIdsOnApply": [
-                                        "machop_bulk_up_evolution_tracker"
-                                    ],
-                                    "facePictureOverride": "assets/images/PokemonArena/machop/machokefp.png",
-                                    "skillReplacements": {
-                                        "machop-brick-break": "machoke-brick-break",
-                                        "machop-counter": "machoke-counter",
-                                        "machop-bulk-up": "machoke-bulk-up",
-                                        "machop-taunt": "machoke-taunt"
-                                    },
-                                    "tooltipText": "Machop has evolved into Machoke. Machoke's skills are improved.",
-                                    "healOnApplyFlat": 10
-                                }
+                "evolvesTo": {
+                    "id": "machoke-brick-break",
+                    "name": "Brick Break",
+                    "skillimage": "assets/images/PokemonArena/machop/machokebrickbreak.png",
+                    "skilldescription": "Deals 30 piercing damage to one enemy.",
+                    "description": "Deals 30 piercing damage to one enemy.",
+                    "energy": [
+                        "Taijutsu"
+                    ],
+                    "cooldown": 0,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Physical",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "damage",
+                            "amount": 30,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true,
+                                "ignoreDamageReduction": true,
+                                "ignoreDestructibleDefense": true
                             }
                         }
-                    }
-                ]
+                    ]
+                }
             },
             {
                 "id": "machop-taunt",
-                "name": "Taunt",
+                "name": "Karate Chop",
                 "skillimage": "assets/images/PokemonArena/machop/machoptaunt.png",
-                "skilldescription": "For 3 turns, one enemy may only use new skills on Machop and deals 25% less Physical damage.",
+                "skilldescription": "Deals 35 damage to one enemy.",
+                "description": "Deals 35 damage to one enemy.",
                 "energy": [
-                    "Genjutsu"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 2,
-                "classes": [
-                    "Dark",
-                    "Special",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "machop_taunt",
-                        "duration": 3,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "taunt": true,
-                            "damageMultiplierBySkillClass": {
-                                "Physical": 0.75
-                            },
-                            "tooltipText": "This character can only target Machop with new skills and deals 25% less Physical damage."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "machop-passive-evolution-machoke",
-                "name": "Evolution - Machoke",
-                "skillimage": "assets/images/PokemonArena/machop/evolutionmachoke.png",
-                "skilldescription": "After Machop uses Bulk Up twice, he evolves into Machoke. Machoke's skills are improved.",
-                "energy": [],
-                "target": "",
-                "damage": 0,
-                "cooldown": 0,
-                "classes": [
-                    "Fighting",
-                    "Passive",
-                    "Instant"
-                ]
-            },
-            {
-                "id": "machoke-brick-break",
-                "name": "Brick Break",
-                "actorCondition": {
-                    "statusId": "machop_machoke_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/machop/machokebrickbreak.png",
-                "skilldescription": "Destroys all of one enemy's destructible defense and deals 35 damage to them, increased by 10 if any destructible defense was destroyed. Bulk Up can further increase this damage.",
-                "energy": [
-                    "Ninjutsu",
+                    "Taijutsu",
                     "Random"
                 ],
+                "cooldown": 2,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 1,
                 "classes": [
-                    "Fighting",
                     "Physical",
                     "Instant"
                 ],
                 "effects": [
-                    {
-                        "type": "destroy_destructible_defense",
-                        "scope": "target",
-                        "metadata": {
-                            "onDestroyedApplyStatusToOwner": {
-                                "statusId": "machop_brick_break_destroyed_defense_bonus",
-                                "duration": 1,
-                                "metadata": {
-                                    "damageBonusFlat": 10,
-                                    "hidden": true
-                                }
-                            }
-                        }
-                    },
                     {
                         "type": "damage",
                         "amount": 35,
                         "scope": "target",
                         "metadata": {
-                            "bonusPerStatusMetadata": {
-                                "scope": "self",
-                                "statusId": "machop_bulk_up_bonus",
-                                "metadataKey": "machopBulkUpBonus",
-                                "multiplier": 1
+                            "harmful": true
+                        }
+                    }
+                ],
+                "evolvesTo": {
+                    "id": "machoke-taunt",
+                    "name": "Cross Chop",
+                    "skillimage": "assets/images/PokemonArena/machop/machoketaunt.png",
+                    "skilldescription": "Deals 45 damage to one enemy.",
+                    "description": "Deals 45 damage to one enemy.",
+                    "energy": [
+                        "Taijutsu",
+                        "Random"
+                    ],
+                    "cooldown": 2,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Physical",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "damage",
+                            "amount": 45,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true
                             }
                         }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "machop_bulk_up_spent",
-                        "duration": 0,
-                        "scope": "self",
-                        "metadata": {
-                            "removeStatusIdsOnApply": [
-                                "machop_bulk_up_bonus",
-                                "machop_brick_break_destroyed_defense_bonus"
-                            ],
-                            "tooltipText": "Brick Break's stored bonuses have been consumed."
-                        }
-                    }
-                ]
+                    ]
+                }
             },
             {
-                "id": "machoke-counter",
-                "name": "Counter",
-                "actorCondition": {
-                    "statusId": "machop_machoke_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/machop/machokecounter.png",
-                "skilldescription": "Targets one enemy for 1 turn. The first new damaging skill they use is countered, and they take twice the Physical damage their skill would have dealt. This skill is Invisible.",
-                "energy": [
-                    "Ninjutsu"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 3,
-                "classes": [
-                    "Fighting",
-                    "Physical",
-                    "Instant",
-                    "Invisible"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "machop_counter_mark",
-                        "duration": 999,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "infiniteDuration": true,
-                            "counterOwnerNextNewDamagingSkill": true,
-                            "counterDamageMultiplier": 2,
-                            "machopCounterDamage": 0,
-                            "stackMetadataKey": "machopCounterDamage",
-                            "stackDeltaFromDamageDealtToSourceOwner": true,
-                            "copyStatusMetadataToMetadataKeys": [
-                                {
-                                    "scope": "self",
-                                    "statusId": "machop_bulk_up_bonus",
-                                    "metadataKey": "machopBulkUpBonus",
-                                    "targetKey": "storedBulkUpBonus"
-                                }
-                            ],
-                            "onExpireEffects": [
-                                {
-                                    "type": "damage",
-                                    "amount": 0,
-                                    "scope": "target",
-                                    "metadata": {
-                                        "ignoreDamageReduction": true,
-                                        "ignoreDestructibleDefense": true,
-                                        "currentStatusMetadataBonus": {
-                                            "metadataKey": "machopCounterDamage",
-                                            "multiplier": 2
-                                        }
-                                    }
-                                },
-                                {
-                                    "type": "damage",
-                                    "amount": 0,
-                                    "scope": "target",
-                                    "metadata": {
-                                        "ignoreDamageReduction": true,
-                                        "ignoreDestructibleDefense": true,
-                                        "currentStatusMetadataBonus": {
-                                            "metadataKey": "storedBulkUpBonus",
-                                            "multiplier": 1
-                                        }
-                                    }
-                                },
-                                {
-                                    "type": "damage",
-                                    "amount": 10,
-                                    "scope": "target",
-                                    "metadata": {
-                                        "ignoreDamageReduction": true,
-                                        "ignoreDestructibleDefense": true,
-                                        "requireSourceOwnerAlive": true
-                                    }
-                                }
-                            ],
-                            "statusIconUrl": "assets/images/PokemonArena/machop/machokecounter.png",
-                            "tooltipText": "The next new damaging skill this character uses will be countered for twice its damage."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "machop_bulk_up_spent",
-                        "duration": 0,
-                        "scope": "self",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "machoke_counter_never_consume_bulk"
-                        },
-                        "metadata": {
-                            "removeStatusIdsOnApply": [
-                                "machop_bulk_up_bonus"
-                            ],
-                            "tooltipText": "Bulk Up has been consumed."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "machoke-bulk-up",
+                "id": "machop-bulk-up",
                 "name": "Bulk Up",
-                "actorCondition": {
-                    "statusId": "machop_machoke_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/machop/machokebulkup.png",
-                "skilldescription": "Machoke gains 15 permanent destructible defense and his next Brick Break deals 15 additional damage. This effect stacks.",
+                "skillimage": "assets/images/PokemonArena/machop/machopbulkup.png",
+                "skilldescription": "Machop takes 10 less damage for 2 turns and Machop deals 5 more damage for 2 turns.",
+                "description": "Machop takes 10 less damage for 2 turns and Machop deals 5 more damage for 2 turns.",
                 "energy": [
                     "Random"
                 ],
+                "cooldown": 3,
                 "target": "self",
                 "damage": 0,
-                "cooldown": 2,
                 "classes": [
-                    "Fighting",
-                    "Physical",
+                    "Strategic",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "machop_bulk_up_bonus",
-                        "duration": 999,
+                        "duration": 2,
                         "scope": "self",
                         "metadata": {
-                            "infiniteDuration": true,
-                            "machopBulkUpBonus": 15,
-                            "stackMetadataKey": "machopBulkUpBonus",
-                            "stackDelta": 15,
-                            "stackMax": 150,
-                            "destructibleDefensePoints": 15,
+                            "damageReductionFlat": 10,
+                            "tooltipText": "Takes 10 less damage."
+                        },
+                        "statusId": "machop_bulk_up_1"
+                    },
+                    {
+                        "type": "apply_status",
+                        "duration": 2,
+                        "scope": "self",
+                        "metadata": {
+                            "damageBonusFlat": 5,
                             "mergeNumericAddKeys": [
-                                "destructibleDefensePoints"
+                                "damageBonusFlat"
                             ],
-                            "statusIconUrl": "assets/images/PokemonArena/machop/machokebulkup.png",
-                            "tooltipTextTemplate": "Machoke's next Brick Break deals {machopBulkUpBonus} additional damage, and Machoke has {destructibleDefensePoints} permanent destructible defense from Bulk Up."
-                        }
+                            "tooltipText": "Deals 5 more damage."
+                        },
+                        "statusId": "machop_bulk_up_2"
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "machoke-bulk-up",
+                    "name": "Bulk Up",
+                    "skillimage": "assets/images/PokemonArena/machop/machokebulkup.png",
+                    "skilldescription": "Machoke takes 15 less damage for 2 turns and Machoke deals 10 more damage for 2 turns.",
+                    "description": "Machoke takes 15 less damage for 2 turns and Machoke deals 10 more damage for 2 turns.",
+                    "energy": [
+                        "Random"
+                    ],
+                    "cooldown": 3,
+                    "target": "self",
+                    "damage": 0,
+                    "classes": [
+                        "Strategic",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "apply_status",
+                            "duration": 2,
+                            "scope": "self",
+                            "metadata": {
+                                "damageReductionFlat": 15,
+                                "tooltipText": "Takes 15 less damage."
+                            },
+                            "statusId": "machoke_bulk_up_1"
+                        },
+                        {
+                            "type": "apply_status",
+                            "duration": 2,
+                            "scope": "self",
+                            "metadata": {
+                                "damageBonusFlat": 10,
+                                "mergeNumericAddKeys": [
+                                    "damageBonusFlat"
+                                ],
+                                "tooltipText": "Deals 10 more damage."
+                            },
+                            "statusId": "machoke_bulk_up_2"
+                        }
+                    ]
+                }
             },
             {
-                "id": "machoke-taunt",
-                "name": "Taunt",
-                "actorCondition": {
-                    "statusId": "machop_machoke_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/machop/machoketaunt.png",
-                "skilldescription": "For 3 turns, one enemy may only use new skills on Machoke and deals 25% less Physical damage.",
+                "id": "machop-counter",
+                "name": "Detect",
+                "skillimage": "assets/images/PokemonArena/machop/machopcounter.png",
+                "skilldescription": "Machop becomes invulnerable for 1 turn.",
+                "description": "Machop becomes invulnerable for 1 turn.",
                 "energy": [
-                    "Genjutsu"
+                    "Random"
                 ],
-                "target": "single-enemy",
+                "cooldown": 4,
+                "target": "self",
                 "damage": 0,
-                "cooldown": 3,
                 "classes": [
-                    "Dark",
-                    "Special",
+                    "Strategic",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "machop_taunt",
-                        "duration": 3,
-                        "scope": "target",
+                        "duration": 1,
+                        "scope": "self",
                         "metadata": {
-                            "harmful": true,
-                            "taunt": true,
-                            "damageMultiplierBySkillClass": {
-                                "Physical": 0.75
-                            },
-                            "tooltipText": "This character can only target Machoke with new skills and deals 25% less Physical damage."
-                        }
+                            "invulnerable": true,
+                            "tooltipText": "Invulnerable."
+                        },
+                        "statusId": "machop_counter_1"
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "machop-counter-evolved",
+                    "name": "Detect",
+                    "skillimage": "assets/images/PokemonArena/machop/machopcounter.png",
+                    "skilldescription": "Machoke becomes invulnerable for 1 turn.",
+                    "description": "Machoke becomes invulnerable for 1 turn.",
+                    "energy": [
+                        "Random"
+                    ],
+                    "cooldown": 4,
+                    "target": "self",
+                    "damage": 0,
+                    "classes": [
+                        "Strategic",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "apply_status",
+                            "duration": 1,
+                            "scope": "self",
+                            "metadata": {
+                                "invulnerable": true,
+                                "tooltipText": "Invulnerable."
+                            },
+                            "statusId": "machop_counter_evolved_1"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "machop-passive-evolution-machoke",
+                "name": "Evolution: Machoke",
+                "skillimage": "assets/images/PokemonArena/machop/evolutionmachoke.png",
+                "skilldescription": "At the start of its 4th turn, Machop evolves into Machoke and its skills get stronger.",
+                "description": "At the start of its 4th turn, Machop evolves into Machoke and its skills get stronger.",
+                "energy": [],
+                "cooldown": 0,
+                "target": "",
+                "damage": 0,
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ],
+                "effects": []
             }
-        ],
-        "role": "Bruiser",
-        "universe": "pokemon",
-        "arena": "pokemon",
-        "roleCategory": "bruiser",
-        "description": "A Fighting-type bruiser that breaks armor, redirects enemy attacks, and evolves into Machoke after using Bulk Up twice.",
-        "descriptionHtml": "A Fighting-type bruiser that breaks armor, redirects enemy attacks, and evolves into Machoke after using Bulk Up twice.",
-        "startStatuses": [],
-        "pokemonTypes": [
-            "Fighting"
         ]
     },
     {
@@ -27471,440 +23954,292 @@ const characters = [
         "characterId": "magikarp",
         "name": "Magikarp",
         "facePicture": "assets/images/PokemonArena/magikarp/magikarpfp.png",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Late bloomer",
+        "roleCategory": "late-bloomer",
+        "description": "Useless at first... until it evolves into a raging Gyarados.",
+        "descriptionHtml": "Useless at first... until it evolves into a raging Gyarados.",
+        "characterdeescription": "A famously weak Water-type Pokemon whose whole game plan is surviving long enough to become Gyarados, then cashing in with a completely different endgame kit.",
+        "pokemonTypes": [
+            "Water"
+        ],
         "startStatuses": [
             {
                 "statusId": "magikarp_evolution_tracker",
-                "duration": 999,
                 "sourceSkillId": "magikarp-passive-evolution-gyarados",
+                "duration": 3,
                 "metadata": {
-                    "hidden": true,
-                    "infiniteDuration": true,
-                    "magikarpTurnCount": 0,
-                    "stackMetadataKey": "magikarpTurnCount",
-                    "stackMax": 6,
-                    "turnStartApplyStatusToOwner": {
-                        "statusId": "magikarp_evolution_tracker",
+                    "unremovable": true,
+                    "tooltipText": "Evolves into Gyarados at the start of its 4th turn.",
+                    "onExpireApplyStatusToSelf": {
+                        "statusId": "magikarp_gyarados_evolution",
                         "duration": 999,
-                        "allowExistingStatusStacking": true,
                         "metadata": {
-                            "hidden": true,
                             "infiniteDuration": true,
-                            "stackMetadataKey": "magikarpTurnCount",
-                            "stackDelta": 1,
-                            "stackMax": 6,
-                            "applyStatusAtStack": {
-                                "metadataKey": "magikarpTurnCount",
-                                "value": 6,
-                                "statusId": "magikarp_gyarados_evolution",
-                                "duration": 999,
-                                "metadata": {
-                                    "infiniteDuration": true,
-                                    "removeStatusIdsOnApply": [
-                                        "magikarp_evolution_tracker"
-                                    ],
-                                    "facePictureOverride": "assets/images/PokemonArena/magikarp/gyaradosfp.png",
-                                    "skillReplacements": {
-                                        "magikarp-tackle": "gyarados-hyper-beam",
-                                        "magikarp-splash": "gyarados-dragon-rage",
-                                        "magikarp-flail": "gyarados-ice-fang",
-                                        "magikarp-struggle": "gyarados-hydro-pump"
-                                    },
-                                    "tooltipText": "Magikarp has evolved into Gyarados. Gyarados' skills are completely new.",
-                                    "healOnApplyFlat": 10
-                                }
-                            },
-                            "statusIconUrl": "assets/images/PokemonArena/magikarp/evolutiongyarados.png",
-                            "tooltipTextTemplate": "Magikarp is on turn {magikarpTurnCount}/6 and will evolve into Gyarados on turn 6."
+                            "unremovable": true,
+                            "useEvolvedSkills": true,
+                            "facePictureOverride": "assets/images/PokemonArena/magikarp/gyaradosfp.png",
+                            "tooltipText": "Magikarp has evolved into Gyarados."
                         }
-                    },
-                    "statusIconUrl": "assets/images/PokemonArena/magikarp/evolutiongyarados.png",
-                    "tooltipTextTemplate": "Magikarp is on turn {magikarpTurnCount}/6 and will evolve into Gyarados on turn 6."
+                    }
                 }
             }
         ],
-        "characterdeescription": "A famously weak Water-type Pokemon whose whole game plan is surviving long enough to become Gyarados, then cashing in with a completely different endgame kit.",
         "skills": [
             {
                 "id": "magikarp-tackle",
                 "name": "Tackle",
                 "skillimage": "assets/images/PokemonArena/magikarp/magikarptackle.png",
-                "skilldescription": "Deals 15 damage.",
+                "skilldescription": "Deals 10 damage to one enemy.",
+                "description": "Deals 10 damage to one enemy.",
                 "energy": [
                     "Random"
                 ],
+                "cooldown": 0,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 3,
                 "classes": [
-                    "Normal",
                     "Physical",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 15,
-                        "scope": "target"
-                    }
-                ]
-            },
-            {
-                "id": "magikarp-splash",
-                "name": "Splash",
-                "skillimage": "assets/images/PokemonArena/magikarp/magikarpsplash.png",
-                "skilldescription": "Magikarp will evolve one turn sooner.",
-                "energy": [],
-                "target": "self",
-                "damage": 0,
-                "cooldown": 3,
-                "classes": [
-                    "Normal",
-                    "Physical",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "magikarp_evolution_tracker",
-                        "duration": 999,
-                        "scope": "self",
+                        "amount": 10,
+                        "scope": "target",
                         "metadata": {
-                            "hidden": true,
-                            "infiniteDuration": true,
-                            "stackMetadataKey": "magikarpTurnCount",
-                            "stackDelta": 1,
-                            "stackMax": 6,
-                            "applyStatusAtStack": {
-                                "metadataKey": "magikarpTurnCount",
-                                "value": 6,
-                                "statusId": "magikarp_gyarados_evolution",
-                                "duration": 999,
-                                "metadata": {
-                                    "infiniteDuration": true,
-                                    "removeStatusIdsOnApply": [
-                                        "magikarp_evolution_tracker"
-                                    ],
-                                    "facePictureOverride": "assets/images/PokemonArena/magikarp/gyaradosfp.png",
-                                    "skillReplacements": {
-                                        "magikarp-tackle": "gyarados-hyper-beam",
-                                        "magikarp-splash": "gyarados-dragon-rage",
-                                        "magikarp-flail": "gyarados-ice-fang",
-                                        "magikarp-struggle": "gyarados-hydro-pump"
-                                    },
-                                    "tooltipText": "Magikarp has evolved into Gyarados. Gyarados' skills are completely new.",
-                                    "healOnApplyFlat": 10
-                                }
-                            },
-                            "statusIconUrl": "assets/images/PokemonArena/magikarp/magikarpsplash.png",
-                            "tooltipTextTemplate": "Magikarp is on turn {magikarpTurnCount}/6 and will evolve into Gyarados on turn 6."
+                            "harmful": true
                         }
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "gyarados-dragon-rage",
+                    "name": "Dragon Rage",
+                    "skillimage": "assets/images/PokemonArena/magikarp/dragonrage.png",
+                    "skilldescription": "Deals 40 damage to one enemy.",
+                    "description": "Deals 40 damage to one enemy.",
+                    "energy": [
+                        "Taijutsu",
+                        "Random"
+                    ],
+                    "cooldown": 0,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Physical",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "damage",
+                            "amount": 40,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true
+                            }
+                        }
+                    ]
+                }
             },
             {
                 "id": "magikarp-flail",
                 "name": "Flail",
                 "skillimage": "assets/images/PokemonArena/magikarp/magikarpflail.png",
-                "skilldescription": "Deals 25 damage.",
+                "skilldescription": "Deals 15 damage to one enemy.",
+                "description": "Deals 15 damage to one enemy.",
                 "energy": [
-                    "Random",
                     "Random"
                 ],
+                "cooldown": 1,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 3,
                 "classes": [
-                    "Normal",
                     "Physical",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 25,
-                        "scope": "target"
+                        "amount": 15,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true
+                        }
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "gyarados-hydro-pump",
+                    "name": "Hydro Pump",
+                    "skillimage": "assets/images/PokemonArena/magikarp/gyaradoshydropump.png",
+                    "skilldescription": "Deals 30 damage to all enemies.",
+                    "description": "Deals 30 damage to all enemies.",
+                    "energy": [
+                        "Ninjutsu",
+                        "Random",
+                        "Random"
+                    ],
+                    "cooldown": 2,
+                    "target": "all-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Special",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "damage",
+                            "amount": 30,
+                            "scope": "all-enemy",
+                            "metadata": {
+                                "harmful": true
+                            }
+                        }
+                    ]
+                }
             },
             {
                 "id": "magikarp-struggle",
                 "name": "Struggle",
                 "skillimage": "assets/images/PokemonArena/magikarp/magikarpstruggle.png",
-                "skilldescription": "Deals 25 damage but may only be used when all of Magikarp's other skills are on cooldown. Magikarp also loses 5 health.",
+                "skilldescription": "Gives Magikarp 20 destructible defense for 2 turns.",
+                "description": "Gives Magikarp 20 destructible defense for 2 turns.",
                 "energy": [
                     "Random"
                 ],
-                "target": "single-enemy",
+                "cooldown": 2,
+                "target": "self",
                 "damage": 0,
-                "cooldown": 0,
-                "actorCondition": {
-                    "allOtherSkillsOnCooldown": true
-                },
                 "classes": [
-                    "Normal",
-                    "Physical",
+                    "Strategic",
                     "Instant"
                 ],
                 "effects": [
                     {
-                        "type": "damage",
-                        "amount": 25,
-                        "scope": "target"
-                    },
-                    {
-                        "type": "HealthLoss",
-                        "amount": 5,
-                        "scope": "self"
+                        "type": "apply_status",
+                        "duration": 2,
+                        "scope": "self",
+                        "metadata": {
+                            "destructibleDefensePoints": 20,
+                            "tooltipText": "20 destructible defense."
+                        },
+                        "statusId": "magikarp_struggle_1"
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "gyarados-ice-fang",
+                    "name": "Ice Fang",
+                    "skillimage": "assets/images/PokemonArena/magikarp/icefang.png",
+                    "skilldescription": "Deals 25 damage to one enemy and stuns the target for 1 turn.",
+                    "description": "Deals 25 damage to one enemy and stuns the target for 1 turn.",
+                    "energy": [
+                        "Ninjutsu",
+                        "Random"
+                    ],
+                    "cooldown": 3,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Physical",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "damage",
+                            "amount": 25,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true
+                            }
+                        },
+                        {
+                            "type": "apply_status",
+                            "duration": 1,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true,
+                                "cannotUseSkills": true,
+                                "tooltipText": "Stunned: cannot use skills."
+                            },
+                            "statusId": "gyarados_ice_fang_1"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "magikarp-splash",
+                "name": "Splash",
+                "skillimage": "assets/images/PokemonArena/magikarp/magikarpsplash.png",
+                "skilldescription": "Magikarp becomes invulnerable for 1 turn.",
+                "description": "Magikarp becomes invulnerable for 1 turn.",
+                "energy": [
+                    "Random"
+                ],
+                "cooldown": 3,
+                "target": "self",
+                "damage": 0,
+                "classes": [
+                    "Strategic",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "invulnerable": true,
+                            "tooltipText": "Invulnerable."
+                        },
+                        "statusId": "magikarp_splash_1"
+                    }
+                ],
+                "evolvesTo": {
+                    "id": "gyarados-hyper-beam",
+                    "name": "Protect",
+                    "skillimage": "assets/images/PokemonArena/magikarp/hyperbeam.png",
+                    "skilldescription": "Gyarados becomes invulnerable for 1 turn.",
+                    "description": "Gyarados becomes invulnerable for 1 turn.",
+                    "energy": [
+                        "Random"
+                    ],
+                    "cooldown": 4,
+                    "target": "self",
+                    "damage": 0,
+                    "classes": [
+                        "Strategic",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "apply_status",
+                            "duration": 1,
+                            "scope": "self",
+                            "metadata": {
+                                "invulnerable": true,
+                                "tooltipText": "Invulnerable."
+                            },
+                            "statusId": "gyarados_hyper_beam_1"
+                        }
+                    ]
+                }
             },
             {
                 "id": "magikarp-passive-evolution-gyarados",
-                "name": "Evolution - Gyarados",
+                "name": "Evolution: Gyarados",
                 "skillimage": "assets/images/PokemonArena/magikarp/evolutiongyarados.png",
-                "skilldescription": "On Magikarp's 6th turn, it evolves into Gyarados. Gyarados has completely new skills.",
+                "skilldescription": "At the start of its 4th turn, Magikarp evolves into Gyarados and its skills get stronger.",
+                "description": "At the start of its 4th turn, Magikarp evolves into Gyarados and its skills get stronger.",
                 "energy": [],
+                "cooldown": 0,
                 "target": "",
                 "damage": 0,
-                "cooldown": 0,
                 "classes": [
-                    "Water",
                     "Passive",
                     "Instant"
-                ]
-            },
-            {
-                "id": "gyarados-hyper-beam",
-                "name": "Hyper Beam",
-                "actorCondition": {
-                    "statusId": "magikarp_gyarados_evolution",
-                    "missingStatusId": "gyarados_dragon_rage_active"
-                },
-                "skillimage": "assets/images/PokemonArena/magikarp/hyperbeam.png",
-                "skilldescription": "Deals 65 damage. Gyarados may not use a new skill for 1 turn.",
-                "energy": [
-                    "Random",
-                    "Random",
-                    "Random",
-                    "Random"
                 ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 3,
-                "classes": [
-                    "Normal",
-                    "Special",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 65,
-                        "scope": "target"
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "gyarados_hyper_beam_lock",
-                        "duration": 1,
-                        "scope": "self",
-                        "metadata": {
-                            "cannotUseSkills": true,
-                            "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/magikarp/hyperbeam.png",
-                            "tooltipText": "Gyarados may not use a new skill."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "gyarados-hyper-beam-affliction",
-                "name": "Hyper Beam",
-                "actorCondition": {
-                    "statusId": "magikarp_gyarados_evolution",
-                    "statusIdsAny": [
-                        "gyarados_dragon_rage_active"
-                    ]
-                },
-                "hiddenFromSelectionViewer": true,
-                "skillimage": "assets/images/PokemonArena/magikarp/hyperbeam.png",
-                "skilldescription": "Deals 65 affliction damage. Gyarados may not use a new skill for 1 turn.",
-                "energy": [
-                    "Random",
-                    "Random",
-                    "Random",
-                    "Random"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 3,
-                "classes": [
-                    "Normal",
-                    "Special",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 65,
-                        "scope": "target",
-                        "metadata": {
-                            "damageType": "affliction",
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "gyarados_hyper_beam_lock",
-                        "duration": 1,
-                        "scope": "self",
-                        "metadata": {
-                            "cannotUseSkills": true,
-                            "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/magikarp/hyperbeam.png",
-                            "tooltipText": "Gyarados may not use a new skill."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "gyarados-dragon-rage",
-                "name": "Dragon Rage",
-                "actorCondition": {
-                    "statusId": "magikarp_gyarados_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/magikarp/dragonrage.png",
-                "skilldescription": "Deals 20 affliction damage to one enemy at the end of Gyarados's turns for 3 turns and makes Hyper Beam deal affliction damage during this time.",
-                "energy": [
-                    "Taijutsu",
-                    "Random"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 3,
-                "classes": [
-                    "Dragon",
-                    "Special",
-                    "Action"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "gyarados_dragon_rage_burn",
-                        "duration": 3,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "turnEndDamage": 20,
-                            "turnEndTrigger": "source_turn",
-                            "turnDurationAnchor": "source_turn",
-                            "triggerOnApply": true,
-                            "damageType": "affliction",
-                            "statusIconUrl": "assets/images/PokemonArena/magikarp/dragonrage.png",
-                            "tooltipText": "This character takes 20 affliction damage at the end of Gyarados's turns from Dragon Rage."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "gyarados_dragon_rage_active",
-                        "duration": 3,
-                        "scope": "self",
-                        "metadata": {
-                            "skillReplacements": {
-                                "gyarados-hyper-beam": "gyarados-hyper-beam-affliction"
-                            },
-                            "statusIconUrl": "assets/images/PokemonArena/magikarp/dragonrage.png",
-                            "tooltipText": "Hyper Beam deals affliction damage during Dragon Rage."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "gyarados-ice-fang",
-                "name": "Ice Fang",
-                "actorCondition": {
-                    "statusId": "magikarp_gyarados_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/magikarp/icefang.png",
-                "skilldescription": "Deals 40 piercing damage to one enemy and stuns them for 1 turn.",
-                "energy": [
-                    "Ninjutsu",
-                    "Ninjutsu"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 1,
-                "classes": [
-                    "Ice",
-                    "Physical",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 45,
-                        "scope": "target",
-                        "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "gyarados_ice_fang_stun",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "cannotUseSkills": true,
-                            "statusIconUrl": "assets/images/PokemonArena/magikarp/icefang.png",
-                            "tooltipText": "This character's skills are stunned."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "gyarados-hydro-pump",
-                "name": "Hydro Pump",
-                "actorCondition": {
-                    "statusId": "magikarp_gyarados_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/magikarp/gyaradoshydropump.png",
-                "skilldescription": "Deals 45 damage to one enemy and 15 damage to the other enemies.",
-                "energy": [
-                    "Ninjutsu",
-                    "Random",
-                    "Random"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 3,
-                "classes": [
-                    "Water",
-                    "Physical",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 45,
-                        "scope": "target"
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 15,
-                        "scope": "all-other-enemies"
-                    }
-                ]
+                "effects": []
             }
-        ],
-        "role": "Hybrid",
-        "universe": "pokemon",
-        "arena": "pokemon",
-        "roleCategory": "Hybrid",
-        "description": "A famously weak Water-type Pokemon whose plan is surviving long enough to become Gyarados, then cashing in with overwhelming ranged pressure.",
-        "descriptionHtml": "A famously weak Water-type Pokemon whose plan is surviving long enough to become Gyarados, then cashing in with overwhelming ranged pressure.",
-        "pokemonTypes": [
-            "Water"
         ]
     },
     {
@@ -27912,145 +24247,43 @@ const characters = [
         "characterId": "mr-mime",
         "name": "Mr. Mime",
         "facePicture": "assets/images/PokemonArena/Mr.mime/fp.jpg",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Protector",
+        "roleCategory": "protector",
+        "description": "Builds invisible walls that shield the whole team.",
+        "descriptionHtml": "Builds invisible walls that shield the whole team.",
         "characterdeescription": "A trickster support Pokemon that turns odd protection timing into tempo. Mr. Mime softens teams with Dazzling Gleam, hands enemies Forcefield they have to burn through on their own turns, and keeps allies safe with layered Shields and Safeguard utility.",
+        "pokemonTypes": [
+            "Psychic",
+            "Fairy"
+        ],
+        "startStatuses": [],
         "skills": [
             {
                 "id": "mr-mime-dazzling-gleam",
                 "name": "Dazzling Gleam",
                 "skillimage": "assets/images/PokemonArena/Mr.mime/dazzlinggleam.png",
-                "skilldescription": "Deals 30 damage to one enemy and 10 damage to the other enemies. The next Forcefield or Light Screen grants 5 additional Barrier or Shield. This effect stacks.",
+                "skilldescription": "Deals 20 damage to all enemies.",
+                "description": "Deals 20 damage to all enemies.",
                 "energy": [
                     "Ninjutsu",
                     "Random"
                 ],
-                "target": "single-enemy",
+                "cooldown": 1,
+                "target": "all-enemy",
                 "damage": 0,
-                "cooldown": 0,
                 "classes": [
-                    "Fairy",
                     "Special",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 30,
-                        "scope": "target"
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 10,
-                        "scope": "all-other-enemies"
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "mr_mime_screen_charge",
-                        "duration": 999,
-                        "scope": "self",
-                        "metadata": {
-                            "infiniteDuration": true,
-                            "mimeScreenChargeStacks": 1,
-                            "stackMetadataKey": "mimeScreenChargeStacks",
-                            "stackDelta": 1,
-                            "stackMax": 20,
-                            "stackDerivedNumericKeys": {
-                                "mimeProtectionBonus": 5
-                            },
-                            "onOwnerUseSkillTrigger": true,
-                            "onOwnerUseSkillIdsAny": [
-                                "mr-mime-forcefield",
-                                "mr-mime-light-screen"
-                            ],
-                            "statusIconUrl": "assets/images/PokemonArena/Mr.mime/dazzlinggleam.png",
-                            "tooltipTextTemplate": "Mr. Mime's next Forcefield or Light Screen grants {mimeProtectionBonus} additional protection."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "mr-mime-forcefield",
-                "name": "Forcefield",
-                "skillimage": "assets/images/PokemonArena/Mr.mime/forcefield.jpg",
-                "skilldescription": "Applies 20 Barrier to every enemy for 1 turn. During the next turn, Light Screen costs 1 less Random energy.",
-                "energy": [
-                    "Random",
-                    "Random"
-                ],
-                "target": "all-enemy",
-                "damage": 0,
-                "cooldown": 3,
-                "classes": [
-                    "Psychic",
-                    "Special",
-                    "Instant",
-                    "Invisible"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "mr_mime_forcefield",
-                        "duration": 1,
-                        "durationFromStatusMetadata": {
-                            "scope": "self",
-                            "statusId": "mr_mime_safeguard",
-                            "metadataKey": "mrMimeScreenDuration"
-                        },
+                        "amount": 20,
                         "scope": "all-enemy",
                         "metadata": {
-                            "barrierPoints": 20,
-                            "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/Mr.mime/forcefield.jpg",
-                            "tooltipTextTemplate": "This character has {barrierPoints} barrier."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "mr_mime_forcefield_bonus",
-                        "duration": 1,
-                        "durationFromStatusMetadata": {
-                            "scope": "self",
-                            "statusId": "mr_mime_safeguard",
-                            "metadataKey": "mrMimeScreenDuration"
-                        },
-                        "scope": "all-enemy",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "mr_mime_screen_charge"
-                        },
-                        "metadata": {
-                            "barrierPoints": 0,
-                            "mimeScreenChargeStacks": 0,
-                            "stackMetadataKey": "mimeScreenChargeStacks",
-                            "stackDerivedNumericKeys": {
-                                "barrierPoints": 5,
-                                "mimeProtectionBonus": 5
-                            },
-                            "copyStatusMetadataToMetadataKeys": [
-                                {
-                                    "scope": "self",
-                                    "statusId": "mr_mime_screen_charge",
-                                    "metadataKey": "mimeScreenChargeStacks",
-                                    "targetKey": "mimeScreenChargeStacks"
-                                }
-                            ],
-                            "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/Mr.mime/forcefield.jpg",
-                            "tooltipTextTemplate": "This character has {barrierPoints} barrier from Dazzling Gleam."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "mr_mime_light_screen_discount",
-                        "duration": 1,
-                        "scope": "self",
-                        "metadata": {
-                            "skillCostOverridesBySkillId": {
-                                "mr-mime-light-screen": {
-                                    "requiredRandom": 1
-                                }
-                            },
-                            "statusIconUrl": "assets/images/PokemonArena/Mr.mime/forcefield.jpg",
-                            "tooltipText": "Light Screen costs 1 less random energy."
+                            "harmful": true
                         }
                     }
                 ]
@@ -28059,88 +24292,57 @@ const characters = [
                 "id": "mr-mime-light-screen",
                 "name": "Light Screen",
                 "skillimage": "assets/images/PokemonArena/Mr.mime/lightscreen.jpg",
-                "skilldescription": "Grants your team 20 Shield for 1 turn. During the next turn, Forcefield costs 1 less Random energy.",
+                "skilldescription": "Gives all allies 15 destructible defense for 2 turns.",
+                "description": "Gives all allies 15 destructible defense for 2 turns.",
                 "energy": [
-                    "Random",
-                    "Random"
+                    "Ninjutsu"
                 ],
+                "cooldown": 2,
                 "target": "all-allies",
                 "damage": 0,
-                "cooldown": 3,
                 "classes": [
-                    "Psychic",
-                    "Special",
-                    "Instant",
-                    "Invisible"
+                    "Strategic",
+                    "Instant"
                 ],
                 "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "mr_mime_light_screen",
-                        "duration": 1,
-                        "durationFromStatusMetadata": {
-                            "scope": "self",
-                            "statusId": "mr_mime_safeguard",
-                            "metadataKey": "mrMimeScreenDuration"
-                        },
+                        "duration": 2,
                         "scope": "all-allies",
                         "metadata": {
-                            "destructibleDefensePoints": 20,
-                            "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/Mr.mime/lightscreen.jpg",
-                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense."
-                        }
-                    },
+                            "destructibleDefensePoints": 15,
+                            "tooltipText": "15 destructible defense."
+                        },
+                        "statusId": "mr_mime_light_screen_1"
+                    }
+                ]
+            },
+            {
+                "id": "mr-mime-forcefield",
+                "name": "Barrier",
+                "skillimage": "assets/images/PokemonArena/Mr.mime/forcefield.jpg",
+                "skilldescription": "One ally takes 15 less damage for 2 turns.",
+                "description": "One ally takes 15 less damage for 2 turns.",
+                "energy": [
+                    "Random"
+                ],
+                "cooldown": 2,
+                "target": "self-or-single-ally",
+                "damage": 0,
+                "classes": [
+                    "Strategic",
+                    "Instant"
+                ],
+                "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "mr_mime_light_screen_bonus",
-                        "duration": 1,
-                        "durationFromStatusMetadata": {
-                            "scope": "self",
-                            "statusId": "mr_mime_safeguard",
-                            "metadataKey": "mrMimeScreenDuration"
-                        },
-                        "scope": "all-allies",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "mr_mime_screen_charge"
-                        },
+                        "duration": 2,
+                        "scope": "target",
                         "metadata": {
-                            "destructibleDefensePoints": 0,
-                            "mimeScreenChargeStacks": 0,
-                            "stackMetadataKey": "mimeScreenChargeStacks",
-                            "stackDerivedNumericKeys": {
-                                "destructibleDefensePoints": 5,
-                                "mimeProtectionBonus": 5
-                            },
-                            "copyStatusMetadataToMetadataKeys": [
-                                {
-                                    "scope": "self",
-                                    "statusId": "mr_mime_screen_charge",
-                                    "metadataKey": "mimeScreenChargeStacks",
-                                    "targetKey": "mimeScreenChargeStacks"
-                                }
-                            ],
-                            "allowShieldBonus": false,
-                            "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/Mr.mime/lightscreen.jpg",
-                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense from Dazzling Gleam."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "mr_mime_forcefield_discount",
-                        "duration": 1,
-                        "scope": "self",
-                        "metadata": {
-                            "skillCostOverridesBySkillId": {
-                                "mr-mime-forcefield": {
-                                    "requiredRandom": 1
-                                }
-                            },
-                            "statusIconUrl": "assets/images/PokemonArena/Mr.mime/lightscreen.jpg",
-                            "tooltipText": "Forcefield costs 1 less random energy."
-                        }
+                            "damageReductionFlat": 15,
+                            "tooltipText": "Takes 15 less damage."
+                        },
+                        "statusId": "mr_mime_forcefield_1"
                     }
                 ]
             },
@@ -28148,51 +24350,31 @@ const characters = [
                 "id": "mr-mime-safeguard",
                 "name": "Safeguard",
                 "skillimage": "assets/images/PokemonArena/Mr.mime/safeguard.jpg",
-                "skilldescription": "For 3 turns, stun effects on your team last 1 less turn, healing received by your team is increased by 25%, skills that grant Shield grant 5 additional Shield, and Forcefield and Light Screen last 1 additional turn while this skill is active.",
+                "skilldescription": "Mr. Mime becomes invulnerable for 1 turn.",
+                "description": "Mr. Mime becomes invulnerable for 1 turn.",
                 "energy": [
-                    "Ninjutsu"
+                    "Random"
                 ],
-                "target": "all-allies",
+                "cooldown": 4,
+                "target": "self",
                 "damage": 0,
-                "cooldown": 5,
                 "classes": [
-                    "Normal",
-                    "Special",
+                    "Strategic",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "mr_mime_safeguard",
-                        "duration": 3,
-                        "scope": "all-allies",
+                        "duration": 1,
+                        "scope": "self",
                         "metadata": {
-                            "healReceivedMultiplier": 1.25,
-                            "additionalIncomingShieldPoints": 5,
-                            "mrMimeScreenDuration": 2,
-                            "reduceIncomingStatusDuration": [
-                                {
-                                    "whenStatusHasMetadataFlag": "stunLikeEffect",
-                                    "by": 1
-                                }
-                            ],
-                            "statusIconUrl": "assets/images/PokemonArena/Mr.mime/safeguard.jpg",
-                            "tooltipText": "This character receives 25% more healing, shield-granting skills add 5 additional shield, Forcefield and Light Screen last 1 additional turn from Mr. Mime, and stun effects last 1 less turn."
-                        }
+                            "invulnerable": true,
+                            "tooltipText": "Invulnerable."
+                        },
+                        "statusId": "mr_mime_safeguard_1"
                     }
                 ]
             }
-        ],
-        "role": "Shield Support",
-        "universe": "pokemon",
-        "arena": "pokemon",
-        "roleCategory": "shield-support",
-        "description": "A trickster support Pokemon that manipulates protection timing, softens teams with Dazzling Gleam, and keeps allies stable with Light Screen and Safeguard.",
-        "descriptionHtml": "A trickster support Pokemon that manipulates protection timing, softens teams with Dazzling Gleam, and keeps allies stable with Light Screen and Safeguard.",
-        "startStatuses": [],
-        "pokemonTypes": [
-            "Psychic",
-            "Fairy"
         ]
     },
     {
@@ -28200,21 +24382,31 @@ const characters = [
         "characterId": "hitmonchan",
         "name": "Hitmonchan",
         "facePicture": "assets/images/PokemonArena/hitmonchan/fp.webp",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Fast damage",
+        "roleCategory": "fast-damage",
+        "description": "Elemental punches: one burns, one freezes, one stuns.",
+        "descriptionHtml": "Elemental punches: one burns, one freezes, one stuns.",
         "characterdeescription": "A relentless boxer Pokemon that strings together elemental punches to set up a crushing Mega Punch finisher.",
+        "pokemonTypes": [
+            "Fighting"
+        ],
+        "startStatuses": [],
         "skills": [
             {
-                "id": "hitmonchan-thunder-punch",
-                "name": "Thunder Punch",
-                "skillimage": "assets/images/PokemonArena/hitmonchan/thunderpunch.webp",
-                "skilldescription": "Deals 25 piercing damage to one enemy and 5 piercing damage to all other enemies, then paralyzes the primary target's cooldowns for 1 turn. The next Mega Punch deals 10 additional damage.",
+                "id": "hitmonchan-mega-punch",
+                "name": "Mega Punch",
+                "skillimage": "assets/images/PokemonArena/hitmonchan/megapunch.webp",
+                "skilldescription": "Deals 25 damage to one enemy.",
+                "description": "Deals 25 damage to one enemy.",
                 "energy": [
-                    "Genjutsu"
+                    "Taijutsu"
                 ],
+                "cooldown": 0,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 2,
                 "classes": [
-                    "Electric",
                     "Physical",
                     "Instant"
                 ],
@@ -28224,42 +24416,7 @@ const characters = [
                         "amount": 25,
                         "scope": "target",
                         "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 5,
-                        "scope": "other-enemies",
-                        "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "hitmonchan_thunder_punch_paralysis",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "paralyzeCooldowns": true,
-                            "statusIconUrl": "assets/images/PokemonArena/hitmonchan/thunderpunch.webp",
-                            "tooltipText": "This character's cooldowns are paralyzed."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "hitmonchan_mega_punch_bonus",
-                        "duration": 999,
-                        "scope": "self",
-                        "metadata": {
-                            "infiniteDuration": true,
-                            "hitmonchanMegaPunchBonus": 10,
-                            "stackMetadataKey": "hitmonchanMegaPunchBonus",
-                            "stackDelta": 10,
-                            "stackMax": 999,
-                            "statusIconUrl": "assets/images/PokemonArena/hitmonchan/megapunch.webp",
-                            "tooltipTextTemplate": "Hitmonchan's next Mega Punch deals {hitmonchanMegaPunchBonus} additional damage."
+                            "harmful": true
                         }
                     }
                 ]
@@ -28268,179 +24425,115 @@ const characters = [
                 "id": "hitmonchan-fire-punch",
                 "name": "Fire Punch",
                 "skillimage": "assets/images/PokemonArena/hitmonchan/firepunch.webp",
-                "skilldescription": "Deals 25 affliction damage to one enemy and applies 5 affliction damage to them each turn for 2 turns. The next Mega Punch deals 10 additional damage.",
+                "skilldescription": "Deals 20 damage to one enemy and then 10 affliction damage each turn for 2 turns.",
+                "description": "Deals 20 damage to one enemy and then 10 affliction damage each turn for 2 turns.",
                 "energy": [
+                    "Taijutsu",
                     "Bloodline"
                 ],
+                "cooldown": 1,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 2,
                 "classes": [
-                    "Fire",
+                    "Physical",
+                    "Affliction",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "duration": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "afflictionDamage": true,
+                            "turnEndDamage": 10,
+                            "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "Takes 10 affliction damage each turn."
+                        },
+                        "statusId": "hitmonchan_fire_punch_1"
+                    }
+                ]
+            },
+            {
+                "id": "hitmonchan-thunder-punch",
+                "name": "Thunder Punch",
+                "skillimage": "assets/images/PokemonArena/hitmonchan/thunderpunch.webp",
+                "skilldescription": "Deals 20 damage to one enemy and stuns the target for 1 turn.",
+                "description": "Deals 20 damage to one enemy and stuns the target for 1 turn.",
+                "energy": [
+                    "Taijutsu",
+                    "Genjutsu"
+                ],
+                "cooldown": 3,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": [
                     "Physical",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 25,
+                        "amount": 20,
                         "scope": "target",
                         "metadata": {
-                            "afflictionDamage": true,
-                            "ignoreDamageReduction": true
+                            "harmful": true
                         }
                     },
                     {
                         "type": "apply_status",
-                        "statusId": "hitmonchan_fire_punch_burn",
-                        "duration": 2,
+                        "duration": 1,
                         "scope": "target",
                         "metadata": {
                             "harmful": true,
-                            "turnEndDamage": 5,
-                            "afflictionDamage": true,
-                            "statusIconUrl": "assets/images/PokemonArena/hitmonchan/firepunch.webp",
-                            "tooltipText": "This character takes 5 affliction damage each turn from Fire Punch."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "hitmonchan_mega_punch_bonus",
-                        "duration": 999,
-                        "scope": "self",
-                        "metadata": {
-                            "infiniteDuration": true,
-                            "hitmonchanMegaPunchBonus": 10,
-                            "stackMetadataKey": "hitmonchanMegaPunchBonus",
-                            "stackDelta": 10,
-                            "stackMax": 999,
-                            "statusIconUrl": "assets/images/PokemonArena/hitmonchan/megapunch.webp",
-                            "tooltipTextTemplate": "Hitmonchan's next Mega Punch deals {hitmonchanMegaPunchBonus} additional damage."
-                        }
+                            "cannotUseSkills": true,
+                            "tooltipText": "Stunned: cannot use skills."
+                        },
+                        "statusId": "hitmonchan_thunder_punch_1"
                     }
                 ]
             },
             {
                 "id": "hitmonchan-ice-punch",
-                "name": "Ice Punch",
+                "name": "Detect",
                 "skillimage": "assets/images/PokemonArena/hitmonchan/icepunch.webp",
-                "skilldescription": "Deals 25 damage to one enemy, stuns their Physical skills for 1 turn, and increases the cooldown of new skills they use during that turn by 2. The next Mega Punch deals 10 additional damage.",
-                "energy": [
-                    "Ninjutsu"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 2,
-                "classes": [
-                    "Ice",
-                    "Physical",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 25,
-                        "scope": "target"
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "hitmonchan_ice_punch_stun",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "cannotUseSkillClasses": ["Physical"],
-                            "statusIconUrl": "assets/images/PokemonArena/hitmonchan/icepunch.webp",
-                            "tooltipText": "This character's Physical skills are stunned."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "hitmonchan_ice_punch_cooldown_increase",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "newSkillCooldownIncrease": 2,
-                            "statusIconUrl": "assets/images/PokemonArena/hitmonchan/icepunch.webp",
-                            "tooltipText": "This character's new skills have their cooldown increased by 2 turns."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "hitmonchan_mega_punch_bonus",
-                        "duration": 999,
-                        "scope": "self",
-                        "metadata": {
-                            "infiniteDuration": true,
-                            "hitmonchanMegaPunchBonus": 10,
-                            "stackMetadataKey": "hitmonchanMegaPunchBonus",
-                            "stackDelta": 10,
-                            "stackMax": 999,
-                            "statusIconUrl": "assets/images/PokemonArena/hitmonchan/megapunch.webp",
-                            "tooltipTextTemplate": "Hitmonchan's next Mega Punch deals {hitmonchanMegaPunchBonus} additional damage."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "hitmonchan-mega-punch",
-                "name": "Mega Punch",
-                "skillimage": "assets/images/PokemonArena/hitmonchan/megapunch.webp",
-                "skilldescription": "Deals 15 damage to one enemy. This skill deals 10 additional damage for each Thunder Punch, Fire Punch, and Ice Punch used since the last time Mega Punch was activated. After Mega Punch is used, this bonus is removed.",
+                "skilldescription": "Hitmonchan becomes invulnerable for 1 turn.",
+                "description": "Hitmonchan becomes invulnerable for 1 turn.",
                 "energy": [
                     "Random"
                 ],
-                "target": "single-enemy",
+                "cooldown": 4,
+                "target": "self",
                 "damage": 0,
-                "cooldown": 0,
                 "classes": [
-                    "Normal",
-                    "Physical",
+                    "Strategic",
                     "Instant"
                 ],
                 "effects": [
                     {
-                        "type": "damage",
-                        "amount": 15,
-                        "scope": "target",
-                        "metadata": {
-                            "bonusPerStatusMetadata": {
-                                "scope": "self",
-                                "statusId": "hitmonchan_mega_punch_bonus",
-                                "metadataKey": "hitmonchanMegaPunchBonus",
-                                "multiplier": 1
-                            }
-                        }
-                    },
-                    {
                         "type": "apply_status",
-                        "statusId": "hitmonchan_mega_punch_bonus_spent",
-                        "duration": 0,
+                        "duration": 1,
                         "scope": "self",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "hitmonchan_mega_punch_bonus"
-                        },
                         "metadata": {
-                            "removeStatusIdsOnApply": [
-                                "hitmonchan_mega_punch_bonus"
-                            ],
-                            "tooltipText": "Mega Punch bonus has been consumed."
-                        }
+                            "invulnerable": true,
+                            "tooltipText": "Invulnerable."
+                        },
+                        "statusId": "hitmonchan_ice_punch_1"
                     }
                 ]
             }
-        ],
-        "role": "Fast DPS",
-        "universe": "pokemon",
-        "arena": "pokemon",
-        "roleCategory": "fast-dps",
-        "description": "A disciplined boxer Pokemon that builds momentum through elemental punches, then cashes everything in with a massive finishing blow.",
-        "descriptionHtml": "A disciplined boxer Pokemon that builds momentum through elemental punches, then cashes everything in with a massive finishing blow.",
-        "startStatuses": [],
-        "pokemonTypes": [
-            "Fighting"
         ]
     },
     {
@@ -28448,182 +24541,41 @@ const characters = [
         "characterId": "hitmonlee",
         "name": "Hitmonlee",
         "facePicture": "assets/images/PokemonArena/hitmonlee/fp.webp",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Burst damage",
+        "roleCategory": "burst-damage",
+        "description": "Focuses, then lands one devastating kick.",
+        "descriptionHtml": "Focuses, then lands one devastating kick.",
         "characterdeescription": "A relentless kicking specialist Pokemon that alternates pressure between rapid strikes and crushing finishers.",
+        "pokemonTypes": [
+            "Fighting"
+        ],
+        "startStatuses": [],
         "skills": [
             {
                 "id": "hitmonlee-double-kick",
                 "name": "Double Kick",
                 "skillimage": "assets/images/PokemonArena/hitmonlee/doublekick.webp",
-                "skilldescription": "Deals 10 damage to one enemy twice. Each hit has a 25% chance to critically hit, dealing 5 additional damage. This skill swaps to Low Kick.",
+                "skilldescription": "Deals 20 damage to one enemy.",
+                "description": "Deals 20 damage to one enemy.",
                 "energy": [
                     "Taijutsu"
                 ],
-                "target": "single-enemy",
-                "damage": 0,
                 "cooldown": 0,
-                "classes": [
-                    "Fighting",
-                    "Physical",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 10,
-                        "scope": "target"
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 10,
-                        "scope": "target"
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 5,
-                        "scope": "target",
-                        "chance": 25,
-                        "condition": {
-                            "scope": "self",
-                            "missingStatusId": "hitmonlee_focus_energy"
-                        },
-                        "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 5,
-                        "scope": "target",
-                        "chance": 75,
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "hitmonlee_focus_energy"
-                        },
-                        "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 5,
-                        "scope": "target",
-                        "chance": 25,
-                        "condition": {
-                            "scope": "self",
-                            "missingStatusId": "hitmonlee_focus_energy"
-                        },
-                        "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 5,
-                        "scope": "target",
-                        "chance": 75,
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "hitmonlee_focus_energy"
-                        },
-                        "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "hitmonlee_double_kick_swap",
-                        "duration": 99,
-                        "scope": "self",
-                        "metadata": {
-                            "infiniteDuration": true,
-                            "skillReplacements": {
-                                "hitmonlee-double-kick": "hitmonlee-low-kick"
-                            },
-                            "removeStatusIdsOnApply": [
-                                "hitmonlee_low_kick_swap"
-                            ],
-                            "tooltipText": "Double Kick is replaced by Low Kick."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "hitmonlee-focus-energy",
-                "name": "Focus Energy",
-                "skillimage": "assets/images/PokemonArena/hitmonlee/focusenergy.webp",
-                "skilldescription": "For 2 turns, Hitmonlee's damaging skills gain 50% additional critical strike chance.",
-                "energy": [
-                    "Random"
-                ],
-                "target": "self",
-                "damage": 0,
-                "cooldown": 3,
-                "classes": [
-                    "Normal",
-                    "Physical",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "hitmonlee_focus_energy",
-                        "duration": 2,
-                        "scope": "self",
-                        "metadata": {
-                            "statusIconUrl": "assets/images/PokemonArena/hitmonlee/focusenergy.webp",
-                            "tooltipText": "Hitmonlee's damaging skills gain 50% additional critical strike chance."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "hitmonlee-mega-kick",
-                "name": "Mega Kick",
-                "skillimage": "assets/images/PokemonArena/hitmonlee/megakick.webp",
-                "skilldescription": "Deals 40 damage to one enemy. This skill has a 25% chance to critically hit, dealing 10 additional damage.",
-                "energy": [
-                    "Random",
-                    "Random",
-                    "Random"
-                ],
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 2,
                 "classes": [
-                    "Normal",
                     "Physical",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 40,
-                        "scope": "target"
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 5,
+                        "amount": 20,
                         "scope": "target",
-                        "chance": 25,
-                        "condition": {
-                            "scope": "self",
-                            "missingStatusId": "hitmonlee_focus_energy"
-                        },
                         "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 5,
-                        "scope": "target",
-                        "chance": 75,
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "hitmonlee_focus_energy"
-                        },
-                        "metadata": {
-                            "ignoreDamageReduction": true
+                            "harmful": true
                         }
                     }
                 ]
@@ -28632,178 +24584,102 @@ const characters = [
                 "id": "hitmonlee-high-jump-kick",
                 "name": "High Jump Kick",
                 "skillimage": "assets/images/PokemonArena/hitmonlee/high-jumpkick.webp",
-                "skilldescription": "Deals 45 damage to one enemy. This skill has a 30% chance to miss. If this skill misses, Hitmonlee loses 30 HP. This skill has a 25% chance to critically hit, dealing 5 additional damage and becoming Piercing.",
+                "skilldescription": "Deals 50 damage to one enemy and Hitmonlee takes 10 recoil damage.",
+                "description": "Deals 50 damage to one enemy and Hitmonlee takes 10 recoil damage.",
                 "energy": [
                     "Taijutsu",
                     "Taijutsu"
                 ],
+                "cooldown": 2,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 2,
                 "classes": [
-                    "Fighting",
                     "Physical",
                     "Instant"
                 ],
                 "effects": [
                     {
-                        "type": "apply_status",
-                        "statusId": "hitmonlee_high_jump_kick_hit_confirmed",
-                        "duration": 1,
+                        "type": "damage",
+                        "amount": 50,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
                         "scope": "self",
-                        "chance": 70,
                         "metadata": {
-                            "hideTooltipFromUnitOwner": true,
-                            "hideTooltipFromEnemy": true
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 45,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "hitmonlee_high_jump_kick_hit_confirmed"
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 5,
-                        "scope": "target",
-                        "chance": 25,
-                        "condition": {
-                            "scope": "self",
-                            "missingStatusId": "hitmonlee_focus_energy",
-                            "statusId": "hitmonlee_high_jump_kick_hit_confirmed"
-                        },
-                        "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 5,
-                        "scope": "target",
-                        "chance": 75,
-                        "condition": {
-                            "scope": "self",
-                            "statusIdsAll": [
-                                "hitmonlee_high_jump_kick_hit_confirmed",
-                                "hitmonlee_focus_energy"
-                            ]
-                        },
-                        "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 30,
-                        "scope": "self",
-                        "condition": {
-                            "scope": "self",
-                            "missingStatusId": "hitmonlee_high_jump_kick_hit_confirmed"
-                        },
-                        "metadata": {
-                            "fixedDamage": true,
+                            "harmful": false,
                             "ignoreDamageReduction": true,
                             "ignoreDestructibleDefense": true,
-                            "ignoreDamageImmunity": true
+                            "fixedDamage": true
                         }
                     }
                 ]
             },
             {
-                "id": "hitmonlee-low-kick",
-                "name": "Low Kick",
-                "actorCondition": {
-                    "statusId": "hitmonlee_double_kick_swap"
-                },
-                "skillimage": "assets/images/PokemonArena/hitmonlee/lowkick.webp",
-                "skilldescription": "Deals 20 damage to one enemy and reduces their non-affliction damage by 15 for 1 turn. This skill has a 25% chance to critically hit, dealing 10 additional damage. This skill swaps to Double Kick.",
+                "id": "hitmonlee-focus-energy",
+                "name": "Focus Energy",
+                "skillimage": "assets/images/PokemonArena/hitmonlee/focusenergy.webp",
+                "skilldescription": "Hitmonlee deals 15 more damage for 2 turns.",
+                "description": "Hitmonlee deals 15 more damage for 2 turns.",
                 "energy": [
-                    "Taijutsu"
+                    "Random"
                 ],
-                "target": "single-enemy",
+                "cooldown": 3,
+                "target": "self",
                 "damage": 0,
-                "cooldown": 0,
                 "classes": [
-                    "Fighting",
-                    "Physical",
+                    "Strategic",
                     "Instant"
                 ],
                 "effects": [
                     {
-                        "type": "damage",
-                        "amount": 20,
-                        "scope": "target"
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 10,
-                        "scope": "target",
-                        "chance": 25,
-                        "condition": {
-                            "scope": "self",
-                            "missingStatusId": "hitmonlee_focus_energy"
-                        },
-                        "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 10,
-                        "scope": "target",
-                        "chance": 75,
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "hitmonlee_focus_energy"
-                        },
-                        "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
                         "type": "apply_status",
-                        "statusId": "hitmonlee_low_kick_debuff",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "nonAfflictionDamageDebuffFlat": 15,
-                            "statusIconUrl": "assets/images/PokemonArena/hitmonlee/lowkick.webp",
-                            "tooltipText": "This character deals 15 less non-affliction damage."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "hitmonlee_low_kick_swap",
-                        "duration": 99,
+                        "duration": 2,
                         "scope": "self",
                         "metadata": {
-                            "infiniteDuration": true,
-                            "skillReplacements": {
-                                "hitmonlee-low-kick": "hitmonlee-double-kick"
-                            },
-                            "removeStatusIdsOnApply": [
-                                "hitmonlee_double_kick_swap"
+                            "damageBonusFlat": 15,
+                            "mergeNumericAddKeys": [
+                                "damageBonusFlat"
                             ],
-                            "tooltipText": "Low Kick is replaced by Double Kick."
-                        }
+                            "tooltipText": "Deals 15 more damage."
+                        },
+                        "statusId": "hitmonlee_focus_energy_1"
+                    }
+                ]
+            },
+            {
+                "id": "hitmonlee-mega-kick",
+                "name": "Detect",
+                "skillimage": "assets/images/PokemonArena/hitmonlee/megakick.webp",
+                "skilldescription": "Hitmonlee becomes invulnerable for 1 turn.",
+                "description": "Hitmonlee becomes invulnerable for 1 turn.",
+                "energy": [
+                    "Random"
+                ],
+                "cooldown": 4,
+                "target": "self",
+                "damage": 0,
+                "classes": [
+                    "Strategic",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "invulnerable": true,
+                            "tooltipText": "Invulnerable."
+                        },
+                        "statusId": "hitmonlee_mega_kick_1"
                     }
                 ]
             }
-        ],
-        "role": "Spike DPS",
-        "universe": "pokemon",
-        "arena": "pokemon",
-        "roleCategory": "Spike-DPS",
-        "description": "A precision kicking Pokemon that alternates tempo with stance changes, then cashes in Focus Energy through brutal finishers.",
-        "descriptionHtml": "A precision kicking Pokemon that alternates tempo with stance changes, then cashes in Focus Energy through brutal finishers.",
-        "startStatuses": [],
-        "pokemonTypes": [
-            "Fighting"
         ]
     },
     {
@@ -29103,544 +24979,291 @@ const characters = [
         "characterId": "magnemite",
         "name": "Magnemite",
         "facePicture": "assets/images/PokemonArena/mangemite/magnemitefp.webp",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Area damage",
+        "roleCategory": "area-damage",
+        "description": "Shocks the whole enemy team and can stun one of them.",
+        "descriptionHtml": "Shocks the whole enemy team and can stun one of them.",
+        "pokemonTypes": [
+            "Electric",
+            "Steel"
+        ],
+        "startStatuses": [
+            {
+                "statusId": "magnemite_evolution_tracker",
+                "sourceSkillId": "magnemite-passive-evolution-magneton",
+                "duration": 3,
+                "metadata": {
+                    "unremovable": true,
+                    "tooltipText": "Evolves into Magneton at the start of its 4th turn.",
+                    "onExpireApplyStatusToSelf": {
+                        "statusId": "magnemite_magneton_evolution",
+                        "duration": 999,
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "useEvolvedSkills": true,
+                            "facePictureOverride": "assets/images/PokemonArena/mangemite/magnetonfp.webp",
+                            "tooltipText": "Magnemite has evolved into Magneton."
+                        }
+                    }
+                }
+            }
+        ],
         "skills": [
             {
                 "id": "magnemite-spark",
                 "name": "Spark",
                 "skillimage": "assets/images/PokemonArena/mangemite/magnemitespark.webp",
-                "skilldescription": "Deals 10 piercing damage to one enemy and 5 piercing damage to all other enemies. If the target is affected by Thunder Wave, Spark deals 15 additional damage to that enemy.",
+                "skilldescription": "Deals 20 damage to one enemy.",
+                "description": "Deals 20 damage to one enemy.",
                 "energy": [
-                    "Random"
+                    "Genjutsu"
                 ],
+                "cooldown": 0,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 0,
                 "classes": [
-                    "Electric",
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true
+                        }
+                    }
+                ],
+                "evolvesTo": {
+                    "id": "magneton-spark",
+                    "name": "Spark",
+                    "skillimage": "assets/images/PokemonArena/mangemite/magnetonspark.webp",
+                    "skilldescription": "Deals 25 damage to one enemy.",
+                    "description": "Deals 25 damage to one enemy.",
+                    "energy": [
+                        "Genjutsu"
+                    ],
+                    "cooldown": 0,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Physical",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "damage",
+                            "amount": 25,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "magnemite-swift",
+                "name": "Discharge",
+                "skillimage": "assets/images/PokemonArena/mangemite/swift.webp",
+                "skilldescription": "Deals 15 damage to all enemies.",
+                "description": "Deals 15 damage to all enemies.",
+                "energy": [
+                    "Genjutsu",
+                    "Random"
+                ],
+                "cooldown": 1,
+                "target": "all-enemy",
+                "damage": 0,
+                "classes": [
                     "Special",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 10,
-                        "scope": "target",
-                        "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "damage",
                         "amount": 15,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "target",
-                            "statusId": "magnemite_thunder_wave_mark",
-                            "consumeOnMatch": true
-                        },
+                        "scope": "all-enemy",
                         "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 5,
-                        "scope": "other-enemies",
-                        "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "magnemite_used_spark_during_rise",
-                        "duration": 3,
-                        "scope": "self",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "magnemite_magnet_rise_active",
-                            "missingStatusId": "magnemite_used_spark_during_rise"
-                        },
-                        "metadata": {
-                            "hidden": true,
-                            "turnDurationAnchor": "source_turn"
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "magnemite_magneton_evolution",
-                        "duration": 99,
-                        "scope": "self",
-                        "condition": {
-                            "scope": "self",
-                            "statusIdsAll": [
-                                "magnemite_magnet_rise_active",
-                                "magnemite_used_thunder_wave_during_rise"
-                            ],
-                            "missingStatusId": "magnemite_magneton_evolution"
-                        },
-                        "metadata": {
-                            "hidden": true,
-                            "infiniteDuration": true,
-                            "facePictureOverride": "assets/images/PokemonArena/mangemite/magnetonfp.webp",
-                            "skillReplacements": {
-                                "magnemite-spark": "magneton-spark",
-                                "magnemite-thunder-wave": "magneton-thunder-wave",
-                                "magnemite-swift": "magneton-flash-cannon",
-                                "magnemite-magnet-rise": "magneton-magnet-rise"
-                            },
-                            "removeStatusIdsOnApply": [
-                                "magnemite_used_spark_during_rise",
-                                "magnemite_used_thunder_wave_during_rise"
-                            ],
-                            "tooltipText": "Magnemite has evolved into Magneton. Its skills are improved.",
-                            "healOnApplyFlat": 10
+                            "harmful": true
                         }
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "magneton-flash-cannon",
+                    "name": "Discharge",
+                    "skillimage": "assets/images/PokemonArena/mangemite/flashcannon.png",
+                    "skilldescription": "Deals 25 damage to all enemies.",
+                    "description": "Deals 25 damage to all enemies.",
+                    "energy": [
+                        "Genjutsu",
+                        "Random"
+                    ],
+                    "cooldown": 1,
+                    "target": "all-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Special",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "damage",
+                            "amount": 25,
+                            "scope": "all-enemy",
+                            "metadata": {
+                                "harmful": true
+                            }
+                        }
+                    ]
+                }
             },
             {
                 "id": "magnemite-thunder-wave",
                 "name": "Thunder Wave",
                 "skillimage": "assets/images/PokemonArena/mangemite/magnemitethunderwave.webp",
-                "skilldescription": "Stuns one enemy's harmful skills and paralyzes their cooldowns for 1 turn. During the next turn, Spark deals 15 additional damage to that enemy.",
+                "skilldescription": "Stuns one enemy for 1 turn.",
+                "description": "Stuns one enemy for 1 turn.",
                 "energy": [
                     "Genjutsu"
                 ],
-                "target": "single-enemy",
-                "damage": 0,
                 "cooldown": 3,
-                "classes": [
-                    "Electric",
-                    "Special",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "magnemite_thunder_wave_stun",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "cannotUseHarmfulSkills": true,
-                            "freezeCooldowns": true,
-                            "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/mangemite/magnemitethunderwave.webp",
-                            "tooltipText": "This character's harmful skills are stunned and their cooldowns are paralyzed."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "magnemite_thunder_wave_mark",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/mangemite/magnemitethunderwave.webp",
-                            "tooltipText": "Spark deals 15 additional damage to this character."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "magnemite_used_thunder_wave_during_rise",
-                        "duration": 3,
-                        "scope": "self",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "magnemite_magnet_rise_active",
-                            "missingStatusId": "magnemite_used_thunder_wave_during_rise"
-                        },
-                        "metadata": {
-                            "hidden": true,
-                            "turnDurationAnchor": "source_turn"
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "magnemite_magneton_evolution",
-                        "duration": 99,
-                        "scope": "self",
-                        "condition": {
-                            "scope": "self",
-                            "statusIdsAll": [
-                                "magnemite_magnet_rise_active",
-                                "magnemite_used_spark_during_rise"
-                            ],
-                            "missingStatusId": "magnemite_magneton_evolution"
-                        },
-                        "metadata": {
-                            "hidden": true,
-                            "infiniteDuration": true,
-                            "facePictureOverride": "assets/images/PokemonArena/mangemite/magnetonfp.webp",
-                            "skillReplacements": {
-                                "magnemite-spark": "magneton-spark",
-                                "magnemite-thunder-wave": "magneton-thunder-wave",
-                                "magnemite-swift": "magneton-flash-cannon",
-                                "magnemite-magnet-rise": "magneton-magnet-rise"
-                            },
-                            "removeStatusIdsOnApply": [
-                                "magnemite_used_spark_during_rise",
-                                "magnemite_used_thunder_wave_during_rise"
-                            ],
-                            "tooltipText": "Magnemite has evolved into Magneton. Its skills are improved.",
-                            "healOnApplyFlat": 10
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "magnemite-swift",
-                "name": "Swift",
-                "skillimage": "assets/images/PokemonArena/mangemite/swift.webp",
-                "skilldescription": "Deals 30 damage to one enemy. The next piercing damage they take is increased by 5.",
-                "energy": [
-                    "Random",
-                    "Random"
-                ],
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 1,
                 "classes": [
-                    "Normal",
                     "Special",
                     "Instant"
                 ],
                 "effects": [
                     {
-                        "type": "damage",
-                        "amount": 30,
-                        "scope": "target"
-                    },
-                    {
                         "type": "apply_status",
-                        "statusId": "magnemite_piercing_vulnerability",
-                        "duration": 99,
+                        "duration": 1,
                         "scope": "target",
                         "metadata": {
                             "harmful": true,
-                            "infiniteDuration": true,
-                            "magnemitePiercingBonus": 5,
-                            "stackMetadataKey": "magnemitePiercingBonus",
-                            "stackDelta": 5,
-                            "stackMax": 999,
-                            "statusIconUrl": "assets/images/PokemonArena/mangemite/swift.webp",
-                            "tooltipTextTemplate": "The next Spark or Flash Cannon from Magnemite gains {magnemitePiercingBonus} bonus damage against this character."
-                        }
+                            "cannotUseSkills": true,
+                            "tooltipText": "Stunned: cannot use skills."
+                        },
+                        "statusId": "magnemite_thunder_wave_1"
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "magneton-thunder-wave",
+                    "name": "Thunder Wave",
+                    "skillimage": "assets/images/PokemonArena/mangemite/magnetonthunderwave.webp",
+                    "skilldescription": "Deals 10 damage to one enemy and stuns the target for 1 turn.",
+                    "description": "Deals 10 damage to one enemy and stuns the target for 1 turn.",
+                    "energy": [
+                        "Genjutsu"
+                    ],
+                    "cooldown": 3,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Special",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "damage",
+                            "amount": 10,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true
+                            }
+                        },
+                        {
+                            "type": "apply_status",
+                            "duration": 1,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true,
+                                "cannotUseSkills": true,
+                                "tooltipText": "Stunned: cannot use skills."
+                            },
+                            "statusId": "magneton_thunder_wave_1"
+                        }
+                    ]
+                }
             },
             {
                 "id": "magnemite-magnet-rise",
                 "name": "Magnet Rise",
                 "skillimage": "assets/images/PokemonArena/mangemite/magnemitemagnetrise.webp",
-                "skilldescription": "For 3 turns, Magnemite ignores all enemy Physical skills. During this time, Magnemite deals 5 additional damage.",
+                "skilldescription": "Magnemite becomes invulnerable for 1 turn.",
+                "description": "Magnemite becomes invulnerable for 1 turn.",
                 "energy": [
-                    "Genjutsu"
+                    "Random"
                 ],
+                "cooldown": 4,
                 "target": "self",
                 "damage": 0,
-                "cooldown": 6,
                 "classes": [
-                    "Electric",
                     "Strategic",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "magnemite_magnet_rise_active",
-                        "duration": 3,
+                        "duration": 1,
                         "scope": "self",
                         "metadata": {
-                            "ignoreEnemyPhysicalSkills": true,
-                            "ignoreSkillClasses": [
-                                "physical"
-                            ],
-                            "damageBonusFlat": 5,
-                            "turnDurationAnchor": "source_turn",
-                            "removeStatusIdsOnApply": [
-                                "magnemite_used_spark_during_rise",
-                                "magnemite_used_thunder_wave_during_rise"
-                            ],
-                            "statusIconUrl": "assets/images/PokemonArena/mangemite/magnemitemagnetrise.webp",
-                            "tooltipText": "Magnemite ignores enemy Physical skills and deals 5 additional damage."
-                        }
+                            "invulnerable": true,
+                            "tooltipText": "Invulnerable."
+                        },
+                        "statusId": "magnemite_magnet_rise_1"
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "magneton-magnet-rise",
+                    "name": "Magnet Rise",
+                    "skillimage": "assets/images/PokemonArena/mangemite/magnetonmagnetrise.webp",
+                    "skilldescription": "Magneton becomes invulnerable for 1 turn.",
+                    "description": "Magneton becomes invulnerable for 1 turn.",
+                    "energy": [
+                        "Random"
+                    ],
+                    "cooldown": 4,
+                    "target": "self",
+                    "damage": 0,
+                    "classes": [
+                        "Strategic",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "apply_status",
+                            "duration": 1,
+                            "scope": "self",
+                            "metadata": {
+                                "invulnerable": true,
+                                "tooltipText": "Invulnerable."
+                            },
+                            "statusId": "magneton_magnet_rise_1"
+                        }
+                    ]
+                }
             },
             {
                 "id": "magnemite-passive-evolution-magneton",
-                "name": "Evolution - Magneton",
+                "name": "Evolution: Magneton",
                 "skillimage": "assets/images/PokemonArena/mangemite/evolutionmangeton.webp",
-                "skilldescription": "If Magnemite uses both Spark and Thunder Wave while Magnet Rise is active, it evolves into Magneton and heals 10 HP. Magneton's skills are improved.",
+                "skilldescription": "At the start of its 4th turn, Magnemite evolves into Magneton and its skills get stronger.",
+                "description": "At the start of its 4th turn, Magnemite evolves into Magneton and its skills get stronger.",
                 "energy": [],
+                "cooldown": 0,
                 "target": "",
                 "damage": 0,
-                "cooldown": 0,
                 "classes": [
-                    "Electric",
                     "Passive",
                     "Instant"
-                ]
-            },
-            {
-                "id": "magneton-spark",
-                "name": "Spark",
-                "actorCondition": {
-                    "statusId": "magnemite_magneton_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/mangemite/magnetonspark.webp",
-                "skilldescription": "Deals 10 piercing damage to one enemy and 5 piercing damage to all other enemies 3 times. If the target is affected by Thunder Wave, the first hit deals 15 additional damage.",
-                "energy": [
-                    "Random",
-                    "Random"
                 ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 0,
-                "classes": [
-                    "Electric",
-                    "Special",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 10,
-                        "scope": "target",
-                        "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 15,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "target",
-                            "statusId": "magnemite_thunder_wave_mark",
-                            "consumeOnMatch": true
-                        },
-                        "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 10,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "target",
-                            "statusId": "magnemite_piercing_vulnerability",
-                            "consumeOnMatch": true
-                        },
-                        "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 5,
-                        "scope": "other-enemies",
-                        "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 10,
-                        "scope": "target",
-                        "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 5,
-                        "scope": "other-enemies",
-                        "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 10,
-                        "scope": "target",
-                        "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 5,
-                        "scope": "other-enemies",
-                        "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "magneton-thunder-wave",
-                "name": "Thunder Wave",
-                "actorCondition": {
-                    "statusId": "magnemite_magneton_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/mangemite/magnetonthunderwave.webp",
-                "skilldescription": "Stuns the entire enemy team's harmful skills and paralyzes their cooldowns for 1 turn. During the next turn, Spark deals 15 additional damage to the chosen target.",
-                "energy": [
-                    "Genjutsu",
-                    "Genjutsu"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 3,
-                "classes": [
-                    "Electric",
-                    "Special",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "magneton_thunder_wave_stun",
-                        "duration": 1,
-                        "scope": "all-enemy",
-                        "metadata": {
-                            "harmful": true,
-                            "cannotUseHarmfulSkills": true,
-                            "freezeCooldowns": true,
-                            "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/mangemite/magnetonthunderwave.webp",
-                            "tooltipText": "This character's harmful skills are stunned and their cooldowns are paralyzed."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "magnemite_thunder_wave_mark",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/mangemite/magnetonthunderwave.webp",
-                            "tooltipText": "Spark deals 15 additional damage to this character."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "magneton-flash-cannon",
-                "name": "Flash Cannon",
-                "actorCondition": {
-                    "statusId": "magnemite_magneton_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/mangemite/flashcannon.png",
-                "skilldescription": "Deals 40 damage to one enemy. The next Spark or Flash Cannon Magneton uses against them deals 10 additional piercing damage.",
-                "energy": [
-                    "Random",
-                    "Random",
-                    "Random"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 1,
-                "classes": [
-                    "Steel",
-                    "Special",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 40,
-                        "scope": "target"
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 10,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "target",
-                            "statusId": "magnemite_piercing_vulnerability",
-                            "consumeOnMatch": true
-                        },
-                        "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "magnemite_piercing_vulnerability",
-                        "duration": 99,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "infiniteDuration": true,
-                            "magnemitePiercingBonus": 10,
-                            "stackMetadataKey": "magnemitePiercingBonus",
-                            "stackDelta": 10,
-                            "stackMax": 999,
-                            "statusIconUrl": "assets/images/PokemonArena/mangemite/flashcannon.png",
-                            "tooltipTextTemplate": "The next Spark or Flash Cannon from Magneton gains {magnemitePiercingBonus} bonus damage against this character."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "magneton-magnet-rise",
-                "name": "Magnet Rise",
-                "actorCondition": {
-                    "statusId": "magnemite_magneton_evolution"
-                },
-                "skillimage": "assets/images/PokemonArena/mangemite/magnetonmagnetrise.webp",
-                "skilldescription": "For 3 turns, Magneton ignores all enemy Physical skills. During this time, all of Magneton's damaging skills deal 10 additional damage.",
-                "energy": [
-                    "Genjutsu"
-                ],
-                "target": "self",
-                "damage": 0,
-                "cooldown": 6,
-                "classes": [
-                    "Electric",
-                    "Strategic",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "magnemite_magnet_rise_active",
-                        "duration": 3,
-                        "scope": "self",
-                        "metadata": {
-                            "ignoreEnemyPhysicalSkills": true,
-                            "ignoreSkillClasses": [
-                                "physical"
-                            ],
-                            "damageBonusFlat": 10,
-                            "turnDurationAnchor": "source_turn",
-                            "removeStatusIdsOnApply": [
-                                "magnemite_used_spark_during_rise",
-                                "magnemite_used_thunder_wave_during_rise"
-                            ],
-                            "statusIconUrl": "assets/images/PokemonArena/mangemite/magnetonmagnetrise.webp",
-                            "tooltipText": "Magneton ignores enemy Physical skills and deals 10 additional damage."
-                        }
-                    }
-                ]
+                "effects": []
             }
-        ],
-        "role": "AOE DPS",
-        "universe": "pokemon",
-        "arena": "pokemon",
-        "roleCategory": "aoe-dps",
-        "description": "An electric steel Pokemon that builds toward Magneton by pairing Spark and Thunder Wave during Magnet Rise, then overwhelms teams with repeated piercing bursts.",
-        "descriptionHtml": "An electric steel Pokemon that builds toward Magneton by pairing Spark and Thunder Wave during Magnet Rise, then overwhelms teams with repeated piercing bursts.",
-        "startStatuses": [],
-        "pokemonTypes": [
-            "Electric",
-            "Steel"
         ]
     },
     {
@@ -29648,54 +25271,42 @@ const characters = [
         "characterId": "onix",
         "name": "Onix",
         "facePicture": "assets/images/PokemonArena/onix/fp.webp",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Tank",
+        "roleCategory": "tank",
+        "description": "A huge rock wall that takes hits for the team.",
+        "descriptionHtml": "A huge rock wall that takes hits for the team.",
         "characterdeescription": "A towering Rock and Ground-type tank that stacks permanent damage reduction, punishes reckless skill use, and refuses to fall the first time it is broken.",
-        "startStatuses": [
-            {
-                "statusId": "onix_sturdy_passive",
-                "duration": 999,
-                "sourceSkillId": "onix-passive-sturdy",
-                "metadata": {
-                    "infiniteDuration": true,
-                    "minimumHp": 1,
-                    "consumeOnPreventedDeath": true,
-                    "ignoreExecutionEffects": true,
-                    "statusIconUrl": "assets/images/PokemonArena/onix/passive.webp",
-                    "tooltipText": "The first time Onix would be reduced to 0 HP, it survives at 1 HP instead. Onix ignores execute effects."
-                }
-            }
+        "pokemonTypes": [
+            "Rock",
+            "Ground"
         ],
+        "startStatuses": [],
         "skills": [
             {
                 "id": "onix-rock-throw",
                 "name": "Rock Throw",
                 "skillimage": "assets/images/PokemonArena/onix/rockthrow.webp",
-                "skilldescription": "Deals 15 damage to the enemy team. For 1 turn, Iron Tail grants 2 more damage reduction.",
+                "skilldescription": "Deals 20 damage to one enemy.",
+                "description": "Deals 20 damage to one enemy.",
                 "energy": [
-                    "Random"
+                    "Taijutsu"
                 ],
-                "target": "all-enemy",
+                "cooldown": 0,
+                "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 1,
                 "classes": [
-                    "Rock",
                     "Physical",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 15,
-                        "scope": "all-enemy"
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "onix_rock_throw_iron_tail_bonus",
-                        "duration": 1,
-                        "scope": "self",
+                        "amount": 20,
+                        "scope": "target",
                         "metadata": {
-                            "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/onix/rockthrow.webp",
-                            "tooltipText": "Iron Tail grants 2 additional permanent damage reduction this turn."
+                            "harmful": true
                         }
                     }
                 ]
@@ -29704,83 +25315,38 @@ const characters = [
                 "id": "onix-iron-tail",
                 "name": "Iron Tail",
                 "skillimage": "assets/images/PokemonArena/onix/irontail.webp",
-                "skilldescription": "Onix gains 3 permanent damage reduction, then deals 25 damage to one enemy. If Rock Throw was used last turn, Iron Tail grants 2 additional permanent damage reduction, for 5 total.",
+                "skilldescription": "Deals 25 damage to one enemy and the target deals 10 less damage for 2 turns.",
+                "description": "Deals 25 damage to one enemy and the target deals 10 less damage for 2 turns.",
                 "energy": [
-                    "Random",
+                    "Taijutsu",
                     "Random"
                 ],
+                "cooldown": 2,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 1,
                 "classes": [
-                    "Steel",
                     "Physical",
                     "Instant"
                 ],
                 "effects": [
                     {
-                        "type": "apply_status",
-                        "statusId": "onix_iron_tail_reduction",
-                        "duration": 999,
-                        "scope": "self",
-                        "metadata": {
-                            "infiniteDuration": true,
-                            "onixIronTailReduction": 3,
-                            "stackMetadataKey": "onixIronTailReduction",
-                            "stackDelta": 3,
-                            "stackMax": 999,
-                            "damageReductionFlat": 3,
-                            "mergeNumericAddKeys": [
-                                "onixIronTailReduction",
-                                "damageReductionFlat"
-                            ],
-                            "statusIconUrl": "assets/images/PokemonArena/onix/irontail.webp",
-                            "tooltipTextTemplate": "Onix has {damageReductionFlat} permanent damage reduction from Iron Tail."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "onix_iron_tail_reduction",
-                        "duration": 999,
-                        "scope": "self",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "onix_rock_throw_iron_tail_bonus"
-                        },
-                        "metadata": {
-                            "infiniteDuration": true,
-                            "onixIronTailReduction": 2,
-                            "stackMetadataKey": "onixIronTailReduction",
-                            "stackDelta": 2,
-                            "stackMax": 999,
-                            "damageReductionFlat": 2,
-                            "mergeNumericAddKeys": [
-                                "onixIronTailReduction",
-                                "damageReductionFlat"
-                            ],
-                            "statusIconUrl": "assets/images/PokemonArena/onix/irontail.webp",
-                            "tooltipTextTemplate": "Onix has {damageReductionFlat} permanent damage reduction from Iron Tail."
-                        }
-                    },
-                    {
                         "type": "damage",
                         "amount": 25,
-                        "scope": "target"
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true
+                        }
                     },
                     {
                         "type": "apply_status",
-                        "statusId": "onix_iron_tail_bonus_spent",
-                        "duration": 0,
-                        "scope": "self",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "onix_rock_throw_iron_tail_bonus"
-                        },
+                        "duration": 2,
+                        "scope": "target",
                         "metadata": {
-                            "removeStatusIdsOnApply": [
-                                "onix_rock_throw_iron_tail_bonus"
-                            ]
-                        }
+                            "harmful": true,
+                            "DamageDebuff": 10,
+                            "tooltipText": "Deals 10 less damage."
+                        },
+                        "statusId": "onix_iron_tail_1"
                     }
                 ]
             },
@@ -29788,81 +25354,44 @@ const characters = [
                 "id": "onix-stealth-rock",
                 "name": "Stealth Rock",
                 "skillimage": "assets/images/PokemonArena/onix/stealthrock.webp",
-                "skilldescription": "For 3 turns, the enemy team is marked. While marked, if an affected enemy uses a new skill, that skill's cooldown is increased by 1 turn, their non-affliction damage is reduced by 10 for 1 turn, and Stealth Rock's final burst deals 5 more damage to them, stacking. When the mark ends, affected enemies take 10 piercing damage plus any stacked bonus.",
+                "skilldescription": "Deals 10 damage to all enemies and then 5 affliction damage each turn for 3 turns.",
+                "description": "Deals 10 damage to all enemies and then 5 affliction damage each turn for 3 turns.",
                 "energy": [
                     "Random",
                     "Random"
                 ],
+                "cooldown": 3,
                 "target": "all-enemy",
                 "damage": 0,
-                "cooldown": 6,
                 "classes": [
-                    "Rock",
-                    "Physical",
-                    "Instant",
-                    "Invisible"
+                    "Special",
+                    "Affliction",
+                    "Instant"
                 ],
                 "effects": [
                     {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "harmful": true
+                        }
+                    },
+                    {
                         "type": "apply_status",
-                        "statusId": "onix_stealth_rock_mark",
                         "duration": 3,
                         "scope": "all-enemy",
                         "metadata": {
                             "harmful": true,
-                            "stealthRockEndDamageBonus": 0,
-                            "newSkillCooldownIncrease": 1,
-                            "onOwnerUseSkillTrigger": true,
-                            "onOwnerUseSkillRequireNewSkill": true,
-                            "persistOnOwnerUseSkillTrigger": true,
-                            "onOwnerUseSkillApplyStatusesToOwner": [
-                                {
-                                    "statusId": "onix_stealth_rock_damage_debuff",
-                                    "duration": 1,
-                                    "metadata": {
-                                        "harmful": true,
-                                        "nonAfflictionDamageDebuffFlat": 10,
-                                        "turnDurationAnchor": "source_turn",
-                                        "statusIconUrl": "assets/images/PokemonArena/onix/stealthrock.webp",
-                                        "tooltipText": "This character deals 10 less non-affliction damage."
-                                    }
-                                },
-                                {
-                                    "statusId": "onix_stealth_rock_mark",
-                                    "duration": 3,
-                                    "metadata": {
-                                        "harmful": true,
-                                        "stealthRockEndDamageBonus": 5,
-                                        "mergeNumericAddKeys": [
-                                            "stealthRockEndDamageBonus"
-                                        ],
-                                        "newSkillCooldownIncrease": 1,
-                                        "onOwnerUseSkillTrigger": true,
-                                        "onOwnerUseSkillRequireNewSkill": true,
-                                        "persistOnOwnerUseSkillTrigger": true,
-                                        "statusIconUrl": "assets/images/PokemonArena/onix/stealthrock.webp",
-                                        "tooltipTextTemplate": "Stealth Rock is active. This character's new skills gain 1 cooldown, they deal 10 less non-affliction damage for 1 turn when they act, and the final burst has {stealthRockEndDamageBonus} bonus damage."
-                                    }
-                                }
-                            ],
-                            "onExpireEffects": [
-                                {
-                                    "type": "damage",
-                                    "amount": 10,
-                                    "scope": "target",
-                                    "metadata": {
-                                        "ignoreDamageReduction": true,
-                                        "currentStatusMetadataBonus": {
-                                            "metadataKey": "stealthRockEndDamageBonus",
-                                            "multiplier": 1
-                                        }
-                                    }
-                                }
-                            ],
+                            "afflictionDamage": true,
+                            "turnEndDamage": 5,
+                            "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
+                            "turnEndTrigger": "source_turn",
                             "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/onix/stealthrock.webp",
-                            "tooltipTextTemplate": "Stealth Rock is active. This character's new skills gain 1 cooldown, they deal 10 less non-affliction damage for 1 turn when they act, and the final burst has {stealthRockEndDamageBonus} bonus damage."
-                        }
+                            "tooltipText": "Takes 5 affliction damage each turn."
+                        },
+                        "statusId": "onix_stealth_rock_1"
                     }
                 ]
             },
@@ -29870,84 +25399,31 @@ const characters = [
                 "id": "onix-harden",
                 "name": "Harden",
                 "skillimage": "assets/images/PokemonArena/onix/harden.webp",
-                "skilldescription": "Onix taunts the enemy team and gains 10 destructible defense for 1 turn. While active, up to 10 of Iron Tail's damage reduction becomes unpierceable.",
+                "skilldescription": "Gives Onix 30 destructible defense for 3 turns.",
+                "description": "Gives Onix 30 destructible defense for 3 turns.",
                 "energy": [
                     "Random"
                 ],
-                "target": "all-enemy",
+                "cooldown": 3,
+                "target": "self",
                 "damage": 0,
-                "cooldown": 4,
                 "classes": [
-                    "Normal",
-                    "Physical",
+                    "Strategic",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "onix_harden_taunt",
-                        "duration": 1,
-                        "scope": "all-enemy",
-                        "metadata": {
-                            "harmful": true,
-                            "taunt": true,
-                            "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/onix/harden.webp",
-                            "tooltipText": "This character is taunted and can only target Onix."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "onix_harden_active",
-                        "duration": 1,
+                        "duration": 3,
                         "scope": "self",
                         "metadata": {
-                            "destructibleDefensePoints": 10,
-                            "onixIronTailReduction": 0,
-                            "copyStatusMetadataToMetadataKeys": [
-                                {
-                                    "scope": "self",
-                                    "statusId": "onix_iron_tail_reduction",
-                                    "metadataKey": "onixIronTailReduction",
-                                    "targetKey": "onixIronTailReduction"
-                                }
-                            ],
-                            "unpierceableDamageReductionFlatPerStatusMetadataKey": "onixIronTailReduction",
-                            "unpierceableDamageReductionFlatPerStatusMetadataStep": 1,
-                            "unpierceableDamageReductionFlatPerStatusMetadataAmount": 1,
-                            "unpierceableDamageReductionFlatPerStatusMetadataMaximum": 10,
-                            "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/onix/harden.webp",
-                            "tooltipTextTemplate": "Onix has {destructibleDefensePoints} destructible defense and {currentUnpierceableDamageReductionFlat} unpierceable damage reduction from Harden."
-                        }
+                            "destructibleDefensePoints": 30,
+                            "tooltipText": "30 destructible defense."
+                        },
+                        "statusId": "onix_harden_1"
                     }
                 ]
-            },
-            {
-                "id": "onix-passive-sturdy",
-                "name": "Passive: Sturdy",
-                "skillimage": "assets/images/PokemonArena/onix/passive.webp",
-                "skilldescription": "The first time Onix's health drops to 0 HP, it is set to 1 HP instead. This can only happen once, and Onix ignores execute effects.",
-                "energy": [],
-                "target": "",
-                "damage": 0,
-                "cooldown": 0,
-                "classes": [
-                    "Rock",
-                    "Passive",
-                    "Instant"
-                ]
             }
-        ],
-        "role": "Tank",
-        "universe": "pokemon",
-        "arena": "pokemon",
-        "roleCategory": "tank",
-        "description": "A towering Rock and Ground-type tank that stacks permanent damage reduction, punishes reckless skill use, and refuses to fall the first time it is broken.",
-        "descriptionHtml": "A towering Rock and Ground-type tank that stacks permanent damage reduction, punishes reckless skill use, and refuses to fall the first time it is broken.",
-        "pokemonTypes": [
-            "Rock",
-            "Ground"
         ]
     },
     {
@@ -29955,194 +25431,105 @@ const characters = [
         "characterId": "meowth",
         "name": "Meowth",
         "facePicture": "assets/images/PokemonArena/Meowth/meowthnewfacepicture.png",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Energy thief",
+        "roleCategory": "energy-thief",
+        "description": "Steals energy with Pay Day and claws when the enemy is out of options.",
+        "descriptionHtml": "Steals energy with Pay Day and claws when the enemy is out of options.",
+        "pokemonTypes": [
+            "Normal"
+        ],
         "startStatuses": [
             {
                 "statusId": "meowth_persian_evolution_tracker",
                 "sourceSkillId": "meowth-passive-evolution-persian",
-                "duration": 99,
+                "duration": 3,
                 "metadata": {
-                    "hidden": true,
-                    "infiniteDuration": true,
-                    "meowthFurySwipesExtensions": 0,
-                    "stackMetadataKey": "meowthFurySwipesExtensions",
-                    "stackDelta": 0,
-                    "stackMax": 3,
-                    "applyStatusAtStack": {
-                        "metadataKey": "meowthFurySwipesExtensions",
-                        "value": 3,
+                    "unremovable": true,
+                    "tooltipText": "Evolves into Persian at the start of its 4th turn.",
+                    "onExpireApplyStatusToSelf": {
                         "statusId": "meowth_persian_evolution",
-                        "duration": 99,
+                        "duration": 999,
                         "metadata": {
-                            "hidden": true,
                             "infiniteDuration": true,
+                            "unremovable": true,
+                            "useEvolvedSkills": true,
                             "facePictureOverride": "assets/images/PokemonArena/Meowth/persiannewfacepicture.png",
-                            "skillReplacements": {
-                                "meowth-pay-day": "persian-pay-day",
-                                "meowth-fury-swipes": "persian-fury-swipes",
-                                "meowth-fake-out": "persian-fake-out",
-                                "meowth-night-slash": "persian-night-slash"
-                            },
-                            "healOnApplyFlat": 15,
-                            "statusIconUrl": "assets/images/PokemonArena/Meowth/evolutionpersian.png",
-                            "tooltipText": "Meowth has evolved into Persian. Persian's skills are improved."
+                            "tooltipText": "Meowth has evolved into Persian."
                         }
-                    },
-                    "statusIconUrl": "assets/images/PokemonArena/Meowth/evolutionpersian.png",
-                    "tooltipTextTemplate": "Meowth has extended Fury Swipes {meowthFurySwipesExtensions}/3 times and will evolve into Persian at 3."
+                    }
                 }
             }
         ],
         "skills": [
             {
-                "id": "meowth-pay-day",
-                "name": "Pay Day",
-                "skillimage": "assets/images/PokemonArena/Meowth/payday.png",
-                "skilldescription": "Steals 1 random energy from the enemy team. The stolen type becomes the cost of Meowth's next Night Slash. If the target is affected by Fury Swipes, it is extended by 1 turn.",
+                "id": "meowth-fury-swipes",
+                "name": "Fury Swipes",
+                "skillimage": "assets/images/PokemonArena/Meowth/furyswipes.png",
+                "skilldescription": "Deals 20 damage to one enemy.",
+                "description": "Deals 20 damage to one enemy.",
                 "energy": [
-                    "Random"
+                    "Taijutsu"
                 ],
+                "cooldown": 0,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 2,
                 "classes": [
-                    "Normal",
                     "Physical",
                     "Instant"
                 ],
                 "effects": [
                     {
-                        "type": "drain_chakra",
-                        "amount": 1,
-                        "chakraType": "random",
+                        "type": "damage",
+                        "amount": 20,
                         "scope": "target",
                         "metadata": {
-                            "onSuccessfulDrainApplySkillCostOverrideToOwner": {
-                                "statusId": "meowth_pay_day_night_slash_cost",
-                                "duration": 99,
-                                "skillIds": [
-                                    "meowth-night-slash",
-                                    "persian-night-slash"
-                                ],
-                                "preserveRandomForSkillIds": [
-                                    "persian-night-slash"
-                                ],
-                                "tooltipText": "Pay Day changed the colored cost of the next Night Slash."
-                            }
-                        }
-                    },
-                    {
-                        "type": "extend_status_duration",
-                        "scope": "target",
-                        "statusIds": [
-                            "meowth_fury_swipes_physical",
-                            "meowth_fury_swipes_affliction"
-                        ],
-                        "additionalTurns": 1,
-                        "sourceMustBeActor": true,
-                        "onSuccessfulExtensionApplyStatusToOwner": {
-                            "statusId": "meowth_persian_evolution_tracker",
-                            "duration": 99,
-                            "metadata": {
-                                "hidden": true,
-                                "infiniteDuration": true,
-                                "meowthFurySwipesExtensions": 0,
-                                "stackMetadataKey": "meowthFurySwipesExtensions",
-                                "stackDelta": 1,
-                                "stackMax": 3,
-                                "applyStatusAtStack": {
-                                    "metadataKey": "meowthFurySwipesExtensions",
-                                    "value": 3,
-                                    "statusId": "meowth_persian_evolution",
-                                    "duration": 99,
-                                    "metadata": {
-                                        "hidden": true,
-                                        "infiniteDuration": true,
-                                        "facePictureOverride": "assets/images/PokemonArena/Meowth/persiannewfacepicture.png",
-                                        "skillReplacements": {
-                                            "meowth-pay-day": "persian-pay-day",
-                                            "meowth-fury-swipes": "persian-fury-swipes",
-                                            "meowth-fake-out": "persian-fake-out",
-                                            "meowth-night-slash": "persian-night-slash"
-                                        },
-                                        "healOnApplyFlat": 15,
-                                        "statusIconUrl": "assets/images/PokemonArena/Meowth/evolutionpersian.png",
-                                        "tooltipText": "Meowth has evolved into Persian. Persian's skills are improved."
-                                    }
-                                },
-                                "statusIconUrl": "assets/images/PokemonArena/Meowth/evolutionpersian.png",
-                                "tooltipTextTemplate": "Meowth has extended Fury Swipes {meowthFurySwipesExtensions}/3 times and will evolve into Persian at 3."
-                            }
+                            "harmful": true
                         }
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "persian-fury-swipes",
+                    "name": "Fury Swipes",
+                    "skillimage": "assets/images/PokemonArena/Meowth/persianfuryswipes.png",
+                    "skilldescription": "Deals 30 damage to one enemy.",
+                    "description": "Deals 30 damage to one enemy.",
+                    "energy": [
+                        "Taijutsu"
+                    ],
+                    "cooldown": 0,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Physical",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "damage",
+                            "amount": 30,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true
+                            }
+                        }
+                    ]
+                }
             },
             {
-                "id": "meowth-fury-swipes",
-                "name": "Fury Swipes",
-                "skillimage": "assets/images/PokemonArena/Meowth/furyswipes.png",
-                "skilldescription": "Immediately deals 5 Physical and 5 Affliction damage to the enemy team, then repeats that damage each turn for 3 turns. Pay Day, Fake Out, or Night Slash used on an affected enemy extends Fury Swipes on them by 1 turn.",
+                "id": "meowth-pay-day",
+                "name": "Pay Day",
+                "skillimage": "assets/images/PokemonArena/Meowth/payday.png",
+                "skilldescription": "Deals 10 damage to one enemy, removes 1 random energy from the enemy team and gains 1 random energy.",
+                "description": "Deals 10 damage to one enemy, removes 1 random energy from the enemy team and gains 1 random energy.",
                 "energy": [
-                    "Random",
                     "Random"
                 ],
-                "target": "all-enemy",
-                "damage": 0,
-                "cooldown": 2,
-                "classes": [
-                    "Normal",
-                    "Physical",
-                    "Affliction",
-                    "Action"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "meowth_fury_swipes_physical",
-                        "duration": 3,
-                        "scope": "all-enemy",
-                        "metadata": {
-                            "harmful": true,
-                            "turnStartDamage": 5,
-                            "damageImmediatelyOnApply": true,
-                            "ongoingClass": "action",
-                            "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/Meowth/furyswipes.png",
-                            "tooltipText": "Takes 5 Physical damage each turn from Fury Swipes."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "meowth_fury_swipes_affliction",
-                        "duration": 3,
-                        "scope": "all-enemy",
-                        "metadata": {
-                            "harmful": true,
-                            "turnStartDamage": 5,
-                            "afflictionDamage": true,
-                            "damageImmediatelyOnApply": true,
-                            "ongoingClass": "action",
-                            "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/Meowth/furyswipes.png",
-                            "tooltipText": "Takes 5 Affliction damage each turn from Fury Swipes."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "meowth-fake-out",
-                "name": "Fake Out",
-                "skillimage": "assets/images/PokemonArena/Meowth/fakeout.png",
-                "skilldescription": "Deals 10 damage and fully stuns one enemy for 1 turn. This ignores invulnerability and cannot target the same enemy more than once per match. If the target is affected by Fury Swipes, it is extended by 1 turn.",
-                "energy": [],
+                "cooldown": 3,
                 "target": "single-enemy",
-                "targetCondition": {
-                    "missingStatusIdFromActorSource": "meowth_fake_out_target_history"
-                },
-                "ignoreInvulnerability": true,
                 "damage": 0,
-                "cooldown": 2,
                 "classes": [
-                    "Normal",
                     "Physical",
                     "Instant"
                 ],
@@ -30150,444 +25537,338 @@ const characters = [
                     {
                         "type": "damage",
                         "amount": 10,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true
+                        }
+                    },
+                    {
+                        "type": "drain_chakra",
+                        "amount": 1,
+                        "chakraType": "random",
                         "scope": "target"
                     },
                     {
-                        "type": "apply_status",
-                        "statusId": "meowth_fake_out_stun",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "cannotUseSkills": true,
-                            "statusIconUrl": "assets/images/PokemonArena/Meowth/fakeout.png",
-                            "tooltipText": "All skills are stunned."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "meowth_fake_out_target_history",
-                        "duration": 99,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "hidden": true,
-                            "unremovable": true,
-                            "infiniteDuration": true,
-                            "bypassTargetNonDamageIgnores": true
-                        }
-                    },
-                    {
-                        "type": "extend_status_duration",
-                        "scope": "target",
-                        "statusIds": [
-                            "meowth_fury_swipes_physical",
-                            "meowth_fury_swipes_affliction"
-                        ],
-                        "additionalTurns": 1,
-                        "sourceMustBeActor": true,
-                        "onSuccessfulExtensionApplyStatusToOwner": {
-                            "statusId": "meowth_persian_evolution_tracker",
-                            "duration": 99,
-                            "metadata": {
-                                "hidden": true,
-                                "infiniteDuration": true,
-                                "meowthFurySwipesExtensions": 0,
-                                "stackMetadataKey": "meowthFurySwipesExtensions",
-                                "stackDelta": 1,
-                                "stackMax": 3,
-                                "applyStatusAtStack": {
-                                    "metadataKey": "meowthFurySwipesExtensions",
-                                    "value": 3,
-                                    "statusId": "meowth_persian_evolution",
-                                    "duration": 99,
-                                    "metadata": {
-                                        "hidden": true,
-                                        "infiniteDuration": true,
-                                        "facePictureOverride": "assets/images/PokemonArena/Meowth/persiannewfacepicture.png",
-                                        "skillReplacements": {
-                                            "meowth-pay-day": "persian-pay-day",
-                                            "meowth-fury-swipes": "persian-fury-swipes",
-                                            "meowth-fake-out": "persian-fake-out",
-                                            "meowth-night-slash": "persian-night-slash"
-                                        },
-                                        "healOnApplyFlat": 15,
-                                        "statusIconUrl": "assets/images/PokemonArena/Meowth/evolutionpersian.png",
-                                        "tooltipText": "Meowth has evolved into Persian. Persian's skills are improved."
-                                    }
-                                },
-                                "statusIconUrl": "assets/images/PokemonArena/Meowth/evolutionpersian.png",
-                                "tooltipTextTemplate": "Meowth has extended Fury Swipes {meowthFurySwipesExtensions}/3 times and will evolve into Persian at 3."
-                            }
-                        }
+                        "type": "gain_chakra",
+                        "chakraType": "random",
+                        "amount": 1
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "persian-pay-day",
+                    "name": "Pay Day",
+                    "skillimage": "assets/images/PokemonArena/Meowth/persianpayday.png",
+                    "skilldescription": "Deals 20 damage to one enemy, removes 1 random energy from the enemy team and gains 1 random energy.",
+                    "description": "Deals 20 damage to one enemy, removes 1 random energy from the enemy team and gains 1 random energy.",
+                    "energy": [
+                        "Random"
+                    ],
+                    "cooldown": 3,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Physical",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "damage",
+                            "amount": 20,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true
+                            }
+                        },
+                        {
+                            "type": "drain_chakra",
+                            "amount": 1,
+                            "chakraType": "random",
+                            "scope": "target"
+                        },
+                        {
+                            "type": "gain_chakra",
+                            "chakraType": "random",
+                            "amount": 1
+                        }
+                    ]
+                }
             },
             {
                 "id": "meowth-night-slash",
                 "name": "Night Slash",
                 "skillimage": "assets/images/PokemonArena/Meowth/nightslash.png",
-                "skilldescription": "Deals 25 damage to one enemy. If the target is at or below 50 HP, this critically strikes for 35 Piercing damage. If the target is affected by Fury Swipes, it is extended by 1 turn.",
-                "energy": [
-                    "Taijutsu"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 1,
-                "classes": [
-                    "Dark",
-                    "Physical",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 35,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "target",
-                            "sourceCurrentHpAtMost": 50
-                        },
-                        "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 25,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "target",
-                            "sourceCurrentHpAtLeast": 51
-                        }
-                    },
-                    {
-                        "type": "extend_status_duration",
-                        "scope": "target",
-                        "statusIds": [
-                            "meowth_fury_swipes_physical",
-                            "meowth_fury_swipes_affliction"
-                        ],
-                        "additionalTurns": 1,
-                        "sourceMustBeActor": true,
-                        "onSuccessfulExtensionApplyStatusToOwner": {
-                            "statusId": "meowth_persian_evolution_tracker",
-                            "duration": 99,
-                            "metadata": {
-                                "hidden": true,
-                                "infiniteDuration": true,
-                                "meowthFurySwipesExtensions": 0,
-                                "stackMetadataKey": "meowthFurySwipesExtensions",
-                                "stackDelta": 1,
-                                "stackMax": 3,
-                                "applyStatusAtStack": {
-                                    "metadataKey": "meowthFurySwipesExtensions",
-                                    "value": 3,
-                                    "statusId": "meowth_persian_evolution",
-                                    "duration": 99,
-                                    "metadata": {
-                                        "hidden": true,
-                                        "infiniteDuration": true,
-                                        "facePictureOverride": "assets/images/PokemonArena/Meowth/persiannewfacepicture.png",
-                                        "skillReplacements": {
-                                            "meowth-pay-day": "persian-pay-day",
-                                            "meowth-fury-swipes": "persian-fury-swipes",
-                                            "meowth-fake-out": "persian-fake-out",
-                                            "meowth-night-slash": "persian-night-slash"
-                                        },
-                                        "healOnApplyFlat": 15,
-                                        "statusIconUrl": "assets/images/PokemonArena/Meowth/evolutionpersian.png",
-                                        "tooltipText": "Meowth has evolved into Persian. Persian's skills are improved."
-                                    }
-                                },
-                                "statusIconUrl": "assets/images/PokemonArena/Meowth/evolutionpersian.png",
-                                "tooltipTextTemplate": "Meowth has extended Fury Swipes {meowthFurySwipesExtensions}/3 times and will evolve into Persian at 3."
-                            }
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "meowth-passive-evolution-persian",
-                "name": "Evolution - Persian",
-                "skillimage": "assets/images/PokemonArena/Meowth/evolutionpersian.png",
-                "skilldescription": "After Meowth successfully extends Fury Swipes 3 times, it evolves into Persian and heals 15 HP. Persian's skills are improved.",
-                "energy": [],
-                "target": "",
-                "damage": 0,
-                "cooldown": 0,
-                "classes": [
-                    "Normal",
-                    "Passive",
-                    "Instant"
-                ]
-            },
-            {
-                "id": "persian-pay-day",
-                "name": "Persian Pay Day",
-                "actorCondition": {
-                    "statusId": "meowth_persian_evolution"
-                },
-                "useBaseSkillCooldown": true,
-                "skillimage": "assets/images/PokemonArena/Meowth/persianpayday.png",
-                "skilldescription": "Steals 1 random energy immediately. That type replaces only the Taijutsu cost of Persian's next Night Slash. For 1 turn, each other enemy that uses a new harmful skill has 1 additional random energy stolen once.",
-                "energy": [
-                    "Random",
-                    "Random"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 2,
-                "classes": [
-                    "Normal",
-                    "Physical",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "drain_chakra",
-                        "amount": 1,
-                        "chakraType": "random",
-                        "scope": "target",
-                        "metadata": {
-                            "onSuccessfulDrainApplySkillCostOverrideToOwner": {
-                                "statusId": "persian_pay_day_night_slash_cost",
-                                "duration": 99,
-                                "skillId": "persian-night-slash",
-                                "preserveRandomForSkillIds": [
-                                    "persian-night-slash"
-                                ],
-                                "tooltipText": "Persian Pay Day changed only the colored cost of the next Night Slash."
-                            }
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "persian_pay_day_reactive_theft",
-                        "duration": 1,
-                        "scope": "other-enemies",
-                        "metadata": {
-                            "harmful": true,
-                            "triggerOnEnemyHarmfulSkill": true,
-                            "triggerOnOwnerHarmfulSkillOnly": true,
-                            "counterStealRandomChakraToSourceOwner": 1,
-                            "statusIconUrl": "assets/images/PokemonArena/Meowth/persianpayday.png",
-                            "tooltipText": "Using a new harmful skill causes Persian to steal 1 random energy. This triggers once."
-                        }
-                    },
-                    {
-                        "type": "extend_status_duration",
-                        "scope": "target",
-                        "statusIds": [
-                            "meowth_fury_swipes_physical",
-                            "meowth_fury_swipes_affliction"
-                        ],
-                        "additionalTurns": 1,
-                        "sourceMustBeActor": true
-                    }
-                ]
-            },
-            {
-                "id": "persian-fury-swipes",
-                "name": "Persian Fury Swipes",
-                "actorCondition": {
-                    "statusId": "meowth_persian_evolution"
-                },
-                "useBaseSkillCooldown": true,
-                "skillimage": "assets/images/PokemonArena/Meowth/persianfuryswipes.png",
-                "skilldescription": "Immediately deals 5 Piercing Physical and 5 Affliction damage to the enemy team, then repeats that damage each turn for 3 turns. Pay Day, Fake Out, or Night Slash used on an affected enemy extends Fury Swipes by 1 turn.",
-                "energy": [
-                    "Random",
-                    "Random"
-                ],
-                "target": "all-enemy",
-                "damage": 0,
-                "cooldown": 2,
-                "classes": [
-                    "Normal",
-                    "Physical",
-                    "Affliction",
-                    "Action"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "meowth_fury_swipes_physical",
-                        "duration": 3,
-                        "scope": "all-enemy",
-                        "metadata": {
-                            "harmful": true,
-                            "turnStartDamage": 5,
-                            "ignoreTargetDamageReduction": true,
-                            "damageImmediatelyOnApply": true,
-                            "ongoingClass": "action",
-                            "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/Meowth/persianfuryswipes.png",
-                            "tooltipText": "Takes 5 Piercing Physical damage each turn from Persian Fury Swipes."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "meowth_fury_swipes_affliction",
-                        "duration": 3,
-                        "scope": "all-enemy",
-                        "metadata": {
-                            "harmful": true,
-                            "turnStartDamage": 5,
-                            "afflictionDamage": true,
-                            "damageImmediatelyOnApply": true,
-                            "ongoingClass": "action",
-                            "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/Meowth/persianfuryswipes.png",
-                            "tooltipText": "Takes 5 Affliction damage each turn from Persian Fury Swipes."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "persian-fake-out",
-                "name": "Persian Fake Out",
-                "actorCondition": {
-                    "statusId": "meowth_persian_evolution"
-                },
-                "useBaseSkillCooldown": true,
-                "skillimage": "assets/images/PokemonArena/Meowth/persianfakeout.png",
-                "skilldescription": "Deals 15 damage and fully stuns one enemy for 1 turn. This ignores invulnerability and cannot target the same enemy more than once per match; Meowth's previous targets remain unavailable. Extends Fury Swipes by 1 turn.",
-                "energy": [],
-                "target": "single-enemy",
-                "targetCondition": {
-                    "missingStatusIdFromActorSource": "meowth_fake_out_target_history"
-                },
-                "ignoreInvulnerability": true,
-                "damage": 0,
-                "cooldown": 1,
-                "classes": [
-                    "Normal",
-                    "Physical",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 15,
-                        "scope": "target"
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "persian_fake_out_stun",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "cannotUseSkills": true,
-                            "statusIconUrl": "assets/images/PokemonArena/Meowth/persianfakeout.png",
-                            "tooltipText": "All skills are stunned."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "meowth_fake_out_target_history",
-                        "duration": 99,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "hidden": true,
-                            "unremovable": true,
-                            "infiniteDuration": true,
-                            "bypassTargetNonDamageIgnores": true
-                        }
-                    },
-                    {
-                        "type": "extend_status_duration",
-                        "scope": "target",
-                        "statusIds": [
-                            "meowth_fury_swipes_physical",
-                            "meowth_fury_swipes_affliction"
-                        ],
-                        "additionalTurns": 1,
-                        "sourceMustBeActor": true
-                    }
-                ]
-            },
-            {
-                "id": "persian-night-slash",
-                "name": "Persian Night Slash",
-                "actorCondition": {
-                    "statusId": "meowth_persian_evolution"
-                },
-                "useBaseSkillCooldown": true,
-                "skillimage": "assets/images/PokemonArena/Meowth/persiannightslash.png",
-                "skilldescription": "Deals 30 damage to one enemy. At 50 HP or less, it critically strikes for 45 Piercing damage. Costs 1 Taijutsu and 1 Random; Persian Pay Day changes only the Taijutsu cost. Extends Fury Swipes by 1 turn.",
+                "skilldescription": "Deals 30 piercing damage to one enemy.",
+                "description": "Deals 30 piercing damage to one enemy.",
                 "energy": [
                     "Taijutsu",
                     "Random"
                 ],
+                "cooldown": 2,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 1,
                 "classes": [
-                    "Dark",
                     "Physical",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 45,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "target",
-                            "sourceCurrentHpAtMost": 50
-                        },
-                        "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "damage",
                         "amount": 30,
                         "scope": "target",
-                        "condition": {
-                            "scope": "target",
-                            "sourceCurrentHpAtLeast": 51
+                        "metadata": {
+                            "harmful": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
                         }
-                    },
-                    {
-                        "type": "extend_status_duration",
-                        "scope": "target",
-                        "statusIds": [
-                            "meowth_fury_swipes_physical",
-                            "meowth_fury_swipes_affliction"
-                        ],
-                        "additionalTurns": 1,
-                        "sourceMustBeActor": true
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "persian-night-slash",
+                    "name": "Night Slash",
+                    "skillimage": "assets/images/PokemonArena/Meowth/persiannightslash.png",
+                    "skilldescription": "Deals 40 piercing damage to one enemy.",
+                    "description": "Deals 40 piercing damage to one enemy.",
+                    "energy": [
+                        "Taijutsu",
+                        "Random"
+                    ],
+                    "cooldown": 2,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Physical",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "damage",
+                            "amount": 40,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true,
+                                "ignoreDamageReduction": true,
+                                "ignoreDestructibleDefense": true
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "meowth-fake-out",
+                "name": "Feint",
+                "skillimage": "assets/images/PokemonArena/Meowth/fakeout.png",
+                "skilldescription": "Meowth becomes invulnerable for 1 turn.",
+                "description": "Meowth becomes invulnerable for 1 turn.",
+                "energy": [
+                    "Random"
+                ],
+                "cooldown": 4,
+                "target": "self",
+                "damage": 0,
+                "classes": [
+                    "Strategic",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "invulnerable": true,
+                            "tooltipText": "Invulnerable."
+                        },
+                        "statusId": "meowth_fake_out_1"
+                    }
+                ],
+                "evolvesTo": {
+                    "id": "persian-fake-out",
+                    "name": "Feint",
+                    "skillimage": "assets/images/PokemonArena/Meowth/persianfakeout.png",
+                    "skilldescription": "Persian becomes invulnerable for 1 turn.",
+                    "description": "Persian becomes invulnerable for 1 turn.",
+                    "energy": [
+                        "Random"
+                    ],
+                    "cooldown": 4,
+                    "target": "self",
+                    "damage": 0,
+                    "classes": [
+                        "Strategic",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "apply_status",
+                            "duration": 1,
+                            "scope": "self",
+                            "metadata": {
+                                "invulnerable": true,
+                                "tooltipText": "Invulnerable."
+                            },
+                            "statusId": "persian_fake_out_1"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "meowth-passive-evolution-persian",
+                "name": "Evolution: Persian",
+                "skillimage": "assets/images/PokemonArena/Meowth/evolutionpersian.png",
+                "skilldescription": "At the start of its 4th turn, Meowth evolves into Persian and its skills get stronger.",
+                "description": "At the start of its 4th turn, Meowth evolves into Persian and its skills get stronger.",
+                "energy": [],
+                "cooldown": 0,
+                "target": "",
+                "damage": 0,
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ],
+                "effects": []
             }
-        ],
-        "role": "Specialist",
-        "universe": "pokemon",
-        "arena": "pokemon",
-        "roleCategory": "specialist",
-        "description": "A tempo specialist that steals energy and extends Fury Swipes before evolving into the faster, more lethal Persian.",
-        "descriptionHtml": "A tempo specialist that steals energy and extends Fury Swipes before evolving into the faster, more lethal Persian.",
-        "pokemonTypes": [
-            "Normal"
         ]
     },
     {
         "id": "clefairy",
         "characterId": "clefairy",
         "name": "Clefairy",
+        "facePicture": "assets/images/PokemonArena/clefairy/fp.webp",
         "arena": "pokemon",
         "universe": "pokemon",
-        "role": "Damage Support",
-        "roleCategory": "damage-support",
-        "facePicture": "assets/images/PokemonArena/clefairy/fp.webp",
+        "role": "Support",
+        "roleCategory": "support",
+        "description": "Heals allies, and Metronome casts a random surprise skill.",
+        "descriptionHtml": "Heals allies, and Metronome casts a random surprise skill.",
         "characterdeescription": "A restorative specialist that cleanses battlefield tricks, borrows skills with Metronome, and evolves after restoring 75 actual HP.",
-        "description": "A restorative specialist that cleanses battlefield tricks, borrows skills with Metronome, and evolves after restoring 75 actual HP.",
-        "descriptionHtml": "A restorative specialist that cleanses battlefield tricks, borrows skills with Metronome, and evolves after restoring 75 actual HP.",
+        "pokemonTypes": [
+            "Fairy"
+        ],
+        "startStatuses": [
+            {
+                "statusId": "clefairy_evolution_tracker",
+                "sourceSkillId": "clefairy-evolution-clefable",
+                "duration": 3,
+                "metadata": {
+                    "unremovable": true,
+                    "tooltipText": "Evolves into Clefable at the start of its 4th turn.",
+                    "onExpireApplyStatusToSelf": {
+                        "statusId": "clefairy_clefable_evolution",
+                        "duration": 999,
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "useEvolvedSkills": true,
+                            "facePictureOverride": "assets/images/PokemonArena/clefairy/clefablefp.webp",
+                            "tooltipText": "Clefairy has evolved into Clefable."
+                        }
+                    }
+                }
+            }
+        ],
         "skills": [
+            {
+                "id": "clefairy-double-slap",
+                "name": "Double Slap",
+                "skillimage": "assets/images/PokemonArena/clefairy/Double Slap.png",
+                "skilldescription": "Deals 20 damage to one enemy.",
+                "description": "Deals 20 damage to one enemy.",
+                "energy": [
+                    "Random"
+                ],
+                "cooldown": 0,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true
+                        }
+                    }
+                ],
+                "evolvesTo": {
+                    "id": "clefable-double-slap",
+                    "name": "Double Slap",
+                    "skillimage": "assets/images/PokemonArena/clefairy/clefabledoubleslap.webp",
+                    "skilldescription": "Deals 25 damage to one enemy.",
+                    "description": "Deals 25 damage to one enemy.",
+                    "energy": [
+                        "Random"
+                    ],
+                    "cooldown": 0,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Physical",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "damage",
+                            "amount": 25,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "clefairy-moonlight",
+                "name": "Moonlight",
+                "skillimage": "assets/images/PokemonArena/clefairy/moonlight.webp",
+                "skilldescription": "Heals one ally for 20.",
+                "description": "Heals one ally for 20.",
+                "energy": [
+                    "Bloodline"
+                ],
+                "cooldown": 1,
+                "target": "self-or-single-ally",
+                "damage": 0,
+                "classes": [
+                    "Strategic",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "heal",
+                        "amount": 20,
+                        "scope": "target"
+                    }
+                ],
+                "evolvesTo": {
+                    "id": "clefable-moonlight",
+                    "name": "Moonlight",
+                    "skillimage": "assets/images/PokemonArena/clefairy/clefablemoonlight.webp",
+                    "skilldescription": "Heals one ally for 30.",
+                    "description": "Heals one ally for 30.",
+                    "energy": [
+                        "Bloodline"
+                    ],
+                    "cooldown": 1,
+                    "target": "self-or-single-ally",
+                    "damage": 0,
+                    "classes": [
+                        "Strategic",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "heal",
+                            "amount": 30,
+                            "scope": "target"
+                        }
+                    ]
+                }
+            },
             {
                 "id": "clefairy-metronome",
                 "name": "Metronome",
@@ -30637,193 +25918,59 @@ const characters = [
                 }
             },
             {
-                "id": "clefairy-double-slap",
-                "name": "Double Slap",
-                "skillimage": "assets/images/PokemonArena/clefairy/Double Slap.png",
-                "skilldescription": "Deals 15 damage now and 15 more at the beginning of Clefairy's next turn.",
-                "description": "Deals 15 damage now and 15 more at the beginning of Clefairy's next turn.",
+                "id": "clefairy-disarming-voice",
+                "name": "Protect",
+                "skillimage": "assets/images/PokemonArena/clefairy/disarmingvoice.webp",
+                "skilldescription": "Clefairy becomes invulnerable for 1 turn.",
+                "description": "Clefairy becomes invulnerable for 1 turn.",
                 "energy": [
                     "Random"
                 ],
-                "cooldown": 2,
-                "target": "single-enemy",
+                "cooldown": 4,
+                "target": "self",
                 "damage": 0,
                 "classes": [
-                    "Normal",
-                    "Physical",
+                    "Strategic",
                     "Instant"
                 ],
                 "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 15,
-                        "scope": "target",
-                        "metadata": {}
-                    },
                     {
                         "type": "apply_status",
-                        "statusId": "clefairy_double_slap",
                         "duration": 1,
-                        "scope": "target",
+                        "scope": "self",
                         "metadata": {
-                            "turnEndTrigger": "source_turn",
-                            "turnEndDamage": 15,
-                            "harmful": true
-                        }
-                    }
-                ],
-                "evolvesTo": {
-                    "id": "clefable-double-slap",
-                    "name": "Clefable Double Slap",
-                    "skillimage": "assets/images/PokemonArena/clefairy/clefabledoubleslap.webp",
-                    "skilldescription": "Deals 20 damage now and 20 more at the beginning of Clefable's next turn.",
-                    "description": "Deals 20 damage now and 20 more at the beginning of Clefable's next turn.",
-                    "energy": [
-                        "Random",
-                        "Random"
-                    ],
-                    "cooldown": 2,
-                    "target": "single-enemy",
-                    "damage": 0,
-                    "classes": [
-                        "Normal",
-                        "Physical",
-                        "Instant"
-                    ],
-                    "effects": [
-                        {
-                            "type": "damage",
-                            "amount": 20,
-                            "scope": "target",
-                            "metadata": {}
+                            "invulnerable": true,
+                            "tooltipText": "Invulnerable."
                         },
-                        {
-                            "type": "apply_status",
-                            "statusId": "clefable_double_slap",
-                            "duration": 1,
-                            "scope": "target",
-                            "metadata": {
-                                "turnEndTrigger": "source_turn",
-                                "turnEndDamage": 20,
-                                "harmful": true
-                            }
-                        }
-                    ]
-                }
-            },
-            {
-                "id": "clefairy-disarming-voice",
-                "name": "Disarming Voice",
-                "skillimage": "assets/images/PokemonArena/clefairy/disarmingvoice.webp",
-                "skilldescription": "Removes allied accuracy reductions and enemy evasion, then deals 20 damage to all enemies.",
-                "description": "Removes allied accuracy reductions and enemy evasion, then deals 20 damage to all enemies.",
-                "energy": [
-                    "Random",
-                    "Random"
-                ],
-                "cooldown": 2,
-                "target": "all-enemy",
-                "damage": 0,
-                "classes": [
-                    "Fairy",
-                    "Physical",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "cleanse_accuracy_and_evasion"
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 20,
-                        "scope": "all-enemy",
-                        "metadata": {}
+                        "statusId": "clefairy_disarming_voice_1"
                     }
                 ],
                 "evolvesTo": {
                     "id": "clefable-disarming-voice",
-                    "name": "Clefable Disarming Voice",
+                    "name": "Protect",
                     "skillimage": "assets/images/PokemonArena/clefairy/clefabledisarmingvoice.webp",
-                    "skilldescription": "Removes and prevents allied accuracy reductions and enemy evasion for 2 turns, then deals 20 damage to all enemies.",
-                    "description": "Removes and prevents allied accuracy reductions and enemy evasion for 2 turns, then deals 20 damage to all enemies.",
+                    "skilldescription": "Clefable becomes invulnerable for 1 turn.",
+                    "description": "Clefable becomes invulnerable for 1 turn.",
                     "energy": [
-                        "Random",
-                        "Random",
                         "Random"
                     ],
-                    "cooldown": 2,
-                    "target": "all-enemy",
+                    "cooldown": 4,
+                    "target": "self",
                     "damage": 0,
                     "classes": [
-                        "Fairy",
-                        "Physical",
+                        "Strategic",
                         "Instant"
                     ],
                     "effects": [
-                        {
-                            "type": "cleanse_accuracy_and_evasion"
-                        },
-                        {
-                            "type": "damage",
-                            "amount": 20,
-                            "scope": "all-enemy",
-                            "metadata": {}
-                        },
                         {
                             "type": "apply_status",
-                            "statusId": "clefable_disarming_voice_field",
-                            "duration": 2,
+                            "duration": 1,
                             "scope": "self",
                             "metadata": {
-                                "preventTeamAccuracyReduction": true,
-                                "preventEnemyEvasion": true
-                            }
-                        }
-                    ]
-                }
-            },
-            {
-                "id": "clefairy-moonlight",
-                "name": "Moonlight",
-                "skillimage": "assets/images/PokemonArena/clefairy/moonlight.webp",
-                "skilldescription": "Heals an ally for 60% of current HP, then 40%, 20%, and 0% on consecutive uses. Cleanses Affliction effects.",
-                "description": "Heals an ally for 60% of current HP, then 40%, 20%, and 0% on consecutive uses. Cleanses Affliction effects.",
-                "energy": [
-                    "Bloodline"
-                ],
-                "cooldown": 0,
-                "target": "self-or-single-ally",
-                "damage": 0,
-                "classes": [
-                    "Fairy",
-                    "Special",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "moonlight"
-                    }
-                ],
-                "evolvesTo": {
-                    "id": "clefable-moonlight",
-                    "name": "Clefable Moonlight",
-                    "skillimage": "assets/images/PokemonArena/clefairy/clefablemoonlight.webp",
-                    "skilldescription": "Heals an ally for 60% of current HP, then 40%, 20%, and 0% on consecutive uses. Cleanses Affliction effects.",
-                    "description": "Heals an ally for 60% of current HP, then 40%, 20%, and 0% on consecutive uses. Cleanses Affliction effects.",
-                    "energy": [
-                        "Random"
-                    ],
-                    "cooldown": 0,
-                    "target": "self-or-single-ally",
-                    "damage": 0,
-                    "classes": [
-                        "Fairy",
-                        "Special",
-                        "Instant"
-                    ],
-                    "effects": [
-                        {
-                            "type": "moonlight"
+                                "invulnerable": true,
+                                "tooltipText": "Invulnerable."
+                            },
+                            "statusId": "clefable_disarming_voice_1"
                         }
                     ]
                 }
@@ -30832,118 +25979,108 @@ const characters = [
                 "id": "clefairy-evolution-clefable",
                 "name": "Evolution: Clefable",
                 "skillimage": "assets/images/PokemonArena/clefairy/evolutionclefable.webp",
-                "skilldescription": "After Clefairy restores 75 actual HP, it evolves into Clefable with improved skills.",
-                "description": "After Clefairy restores 75 actual HP, it evolves into Clefable with improved skills.",
+                "skilldescription": "At the start of its 4th turn, Clefairy evolves into Clefable and its skills get stronger.",
+                "description": "At the start of its 4th turn, Clefairy evolves into Clefable and its skills get stronger.",
                 "energy": [],
                 "cooldown": 0,
                 "target": "",
                 "damage": 0,
                 "classes": [
-                    "Fairy",
                     "Passive",
-                    "Strategic",
                     "Instant"
                 ],
                 "effects": []
             }
-        ],
-        "startStatuses": [
-            {
-                "statusId": "clefairy_evolution_tracker",
-                "sourceSkillId": "clefairy-evolution-clefable",
-                "duration": 999,
-                "metadata": {
-                    "infiniteDuration": true,
-                    "unremovable": true,
-                    "healingProgress": 0,
-                    "evolutionThreshold": 75,
-                    "evolutionStatusId": "clefairy_clefable_evolution",
-                    "evolvedFacePicture": "assets/images/PokemonArena/clefairy/clefablefp.webp"
-                }
-            }
-        ],
-                    "pokemonTypes": [
-                        "Fairy"
-                    ]
+        ]
     },
     {
         "id": "jigglypuff",
         "characterId": "jigglypuff",
         "name": "Jigglypuff",
+        "facePicture": "assets/images/PokemonArena/jigglypuff/fp.webp",
         "arena": "pokemon",
         "universe": "pokemon",
-        "role": "Utility Support",
-        "roleCategory": "utility-support",
-        "facePicture": "assets/images/PokemonArena/jigglypuff/fp.webp",
+        "role": "Controller",
+        "roleCategory": "controller",
+        "description": "Sings enemies to sleep and protects its friends.",
+        "descriptionHtml": "Sings enemies to sleep and protects its friends.",
         "characterdeescription": "A countdown controller that accelerates Perish Song and evolves into Wigglytuff after completing its execution.",
-        "description": "A countdown controller that accelerates Perish Song and evolves into Wigglytuff after completing its execution.",
-        "descriptionHtml": "A countdown controller that accelerates Perish Song and evolves into Wigglytuff after completing its execution.",
+        "pokemonTypes": [
+            "Normal",
+            "Fairy"
+        ],
+        "startStatuses": [
+            {
+                "statusId": "jigglypuff_evolution_tracker",
+                "sourceSkillId": "jigglypuff-evolution-wigglytuff",
+                "duration": 3,
+                "metadata": {
+                    "unremovable": true,
+                    "tooltipText": "Evolves into Wigglytuff at the start of its 4th turn.",
+                    "onExpireApplyStatusToSelf": {
+                        "statusId": "jigglypuff_wigglytuff_evolution",
+                        "duration": 999,
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "useEvolvedSkills": true,
+                            "facePictureOverride": "assets/images/PokemonArena/jigglypuff/wigglytufffp.webp",
+                            "tooltipText": "Jigglypuff has evolved into Wigglytuff."
+                        }
+                    }
+                }
+            }
+        ],
         "skills": [
             {
-                "id": "jigglypuff-perish-song",
-                "name": "Perish Song",
-                "skillimage": "assets/images/PokemonArena/jigglypuff/parishsong.webp",
-                "skilldescription": "Marks one enemy for 4 turns. When it expires, they are instantly defeated, even if Jigglypuff has died.",
-                "description": "Marks one enemy for 4 turns. When it expires, they are instantly defeated, even if Jigglypuff has died.",
+                "id": "jigglypuff-humiliate",
+                "name": "Pound",
+                "skillimage": "assets/images/PokemonArena/jigglypuff/humilate.webp",
+                "skilldescription": "Deals 20 damage to one enemy.",
+                "description": "Deals 20 damage to one enemy.",
                 "energy": [
-                    "Random",
-                    "Random",
                     "Random"
                 ],
                 "cooldown": 0,
                 "target": "single-enemy",
                 "damage": 0,
                 "classes": [
-                    "Normal",
-                    "Special",
+                    "Physical",
                     "Instant"
                 ],
                 "effects": [
                     {
-                        "type": "apply_status",
-                        "statusId": "jigglypuff_perish_song",
-                        "duration": 4,
+                        "type": "damage",
+                        "amount": 20,
                         "scope": "target",
                         "metadata": {
-                            "harmful": true,
-                            "visible": true,
-                            "unremovable": true,
-                            "instantKillOnExpire": true,
-                            "uniqueEnemyMarkFromSource": true
+                            "harmful": true
                         }
                     }
                 ],
                 "evolvesTo": {
-                    "id": "wigglytuff-perish-song",
-                    "name": "Wigglytuff Perish Song",
-                    "skillimage": "assets/images/PokemonArena/jigglypuff/wigglytuffparishsong.webp",
-                    "skilldescription": "Marks one enemy for 3 turns. When it expires, they are instantly defeated, even if Wigglytuff has died.",
-                    "description": "Marks one enemy for 3 turns. When it expires, they are instantly defeated, even if Wigglytuff has died.",
+                    "id": "wigglytuff-humiliate",
+                    "name": "Pound",
+                    "skillimage": "assets/images/PokemonArena/jigglypuff/wigglytuffhumilate.webp",
+                    "skilldescription": "Deals 25 damage to one enemy.",
+                    "description": "Deals 25 damage to one enemy.",
                     "energy": [
-                        "Random",
-                        "Random",
                         "Random"
                     ],
                     "cooldown": 0,
                     "target": "single-enemy",
                     "damage": 0,
                     "classes": [
-                        "Normal",
-                        "Special",
+                        "Physical",
                         "Instant"
                     ],
                     "effects": [
                         {
-                            "type": "apply_status",
-                            "statusId": "jigglypuff_perish_song",
-                            "duration": 3,
+                            "type": "damage",
+                            "amount": 25,
                             "scope": "target",
                             "metadata": {
-                                "harmful": true,
-                                "visible": true,
-                                "unremovable": true,
-                                "instantKillOnExpire": true,
-                                "uniqueEnemyMarkFromSource": true
+                                "harmful": true
                             }
                         }
                     ]
@@ -30953,8 +26090,8 @@ const characters = [
                 "id": "jigglypuff-sing",
                 "name": "Sing",
                 "skillimage": "assets/images/PokemonArena/jigglypuff/sing.webp",
-                "skilldescription": "Channels for 2 turns. Each turn, one enemy cannot use harmful skills and every enemy Perish Song advances once.",
-                "description": "Channels for 2 turns. Each turn, one enemy cannot use harmful skills and every enemy Perish Song advances once.",
+                "skilldescription": "Stuns one enemy for 1 turn.",
+                "description": "Stuns one enemy for 1 turn.",
                 "energy": [
                     "Ninjutsu",
                     "Random"
@@ -30963,73 +26100,50 @@ const characters = [
                 "target": "single-enemy",
                 "damage": 0,
                 "classes": [
-                    "Normal",
                     "Special",
-                    "Channeled"
+                    "Instant"
                 ],
                 "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "jigglypuff_sing",
-                        "duration": 2,
+                        "duration": 1,
                         "scope": "target",
                         "metadata": {
-                            "cannotUseHarmfulSkills": true,
-                            "harmful": true
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "jigglypuff_sing_channel",
-                        "duration": 2,
-                        "scope": "self",
-                        "metadata": {
-                            "advanceAllEnemyPerishEachTurn": true,
-                            "turnEndTrigger": "source_turn",
-                            "tooltipText": "Sing is channeling and advances every enemy Perish Song once each turn."
-                        }
+                            "harmful": true,
+                            "cannotUseSkills": true,
+                            "tooltipText": "Stunned: cannot use skills."
+                        },
+                        "statusId": "jigglypuff_sing_1"
                     }
                 ],
                 "evolvesTo": {
                     "id": "wigglytuff-sing",
-                    "name": "Wigglytuff Sing",
+                    "name": "Sing",
                     "skillimage": "assets/images/PokemonArena/jigglypuff/wigglytuffsing.webp",
-                    "skilldescription": "Channels for 2 turns. Each turn, all enemies cannot use harmful skills and every enemy Perish Song advances once.",
-                    "description": "Channels for 2 turns. Each turn, all enemies cannot use harmful skills and every enemy Perish Song advances once.",
+                    "skilldescription": "Stuns one enemy for 2 turns.",
+                    "description": "Stuns one enemy for 2 turns.",
                     "energy": [
-                        "Ninjutsu",
                         "Ninjutsu",
                         "Random"
                     ],
                     "cooldown": 3,
-                    "target": "all-enemy",
+                    "target": "single-enemy",
                     "damage": 0,
                     "classes": [
-                        "Normal",
                         "Special",
-                        "Channeled"
+                        "Instant"
                     ],
                     "effects": [
                         {
                             "type": "apply_status",
-                            "statusId": "jigglypuff_sing",
                             "duration": 2,
-                            "scope": "all-enemy",
+                            "scope": "target",
                             "metadata": {
-                                "cannotUseHarmfulSkills": true,
-                                "harmful": true
-                            }
-                        },
-                        {
-                            "type": "apply_status",
-                            "statusId": "jigglypuff_sing_channel",
-                            "duration": 2,
-                            "scope": "self",
-                            "metadata": {
-                                "advanceAllEnemyPerishEachTurn": true,
-                                "turnEndTrigger": "source_turn",
-                                "tooltipText": "Sing is channeling and advances every enemy Perish Song once each turn."
-                            }
+                                "harmful": true,
+                                "cannotUseSkills": true,
+                                "tooltipText": "Stunned: cannot use skills."
+                            },
+                            "statusId": "wigglytuff_sing_1"
                         }
                     ]
                 }
@@ -31038,8 +26152,8 @@ const characters = [
                 "id": "jigglypuff-wish",
                 "name": "Wish",
                 "skillimage": "assets/images/PokemonArena/jigglypuff/wish.webp",
-                "skilldescription": "Next turn, Jigglypuff or one ally heals 20 HP. Before it heals, a Perish Song target using a harmful skill on them advances its countdown once.",
-                "description": "Next turn, Jigglypuff or one ally heals 20 HP. Before it heals, a Perish Song target using a harmful skill on them advances its countdown once.",
+                "skilldescription": "Heals one ally for 10 each turn for 2 turns.",
+                "description": "Heals one ally for 10 each turn for 2 turns.",
                 "energy": [
                     "Random"
                 ],
@@ -31047,143 +26161,105 @@ const characters = [
                 "target": "self-or-single-ally",
                 "damage": 0,
                 "classes": [
-                    "Normal",
-                    "Special",
-                    "Instant",
-                    "Invisible"
+                    "Strategic",
+                    "Instant"
                 ],
                 "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "jigglypuff_wish",
-                        "duration": 1,
+                        "duration": 2,
                         "scope": "target",
                         "metadata": {
-                            "turnStartHeal": 20,
-                            "onOwnerTargetedBySkillTrigger": true,
-                            "onOwnerTargetedByEnemyOnly": true,
-                            "onOwnerTargetedByRequireNewSkill": true,
-                            "wishAdvancePerishOnHarmful": true
-                        }
+                            "turnEndHealFlat": 10,
+                            "tooltipText": "Heals 10 each turn."
+                        },
+                        "statusId": "jigglypuff_wish_1"
                     }
                 ],
                 "evolvesTo": {
                     "id": "wigglytuff-wish",
-                    "name": "Wigglytuff Wish",
+                    "name": "Wish",
                     "skillimage": "assets/images/PokemonArena/jigglypuff/wigglytuffwish.webp",
-                    "skilldescription": "Next turn, Wigglytuff's whole team heals 20 HP. Before it heals, a Perish Song target using a harmful skill on them advances its countdown once.",
-                    "description": "Next turn, Wigglytuff's whole team heals 20 HP. Before it heals, a Perish Song target using a harmful skill on them advances its countdown once.",
+                    "skilldescription": "Heals one ally for 15 each turn for 2 turns.",
+                    "description": "Heals one ally for 15 each turn for 2 turns.",
                     "energy": [
-                        "Random",
                         "Random"
                     ],
                     "cooldown": 2,
-                    "target": "all-allies",
+                    "target": "self-or-single-ally",
                     "damage": 0,
                     "classes": [
-                        "Normal",
-                        "Special",
-                        "Instant",
-                        "Invisible"
+                        "Strategic",
+                        "Instant"
                     ],
                     "effects": [
                         {
                             "type": "apply_status",
-                            "statusId": "jigglypuff_wish",
-                            "duration": 1,
-                            "scope": "all-allies",
+                            "duration": 2,
+                            "scope": "target",
                             "metadata": {
-                                "turnStartHeal": 20,
-                                "onOwnerTargetedBySkillTrigger": true,
-                                "onOwnerTargetedByEnemyOnly": true,
-                                "onOwnerTargetedByRequireNewSkill": true,
-                                "wishAdvancePerishOnHarmful": true
-                            }
+                                "turnEndHealFlat": 15,
+                                "tooltipText": "Heals 15 each turn."
+                            },
+                            "statusId": "wigglytuff_wish_1"
                         }
                     ]
                 }
             },
             {
-                "id": "jigglypuff-humiliate",
-                "name": "Humiliate",
-                "skillimage": "assets/images/PokemonArena/jigglypuff/humilate.webp",
-                "skilldescription": "Costs no chakra. If the target is affected by Sing, instantly gain 1 Random chakra. If they use a new harmful skill this turn, gain 1 Random chakra and advance Perish Song once.",
-                "description": "Costs no chakra. If the target is affected by Sing, instantly gain 1 Random chakra. If they use a new harmful skill this turn, gain 1 Random chakra and advance Perish Song once.",
-                "energy": [],
-                "cooldown": 2,
-                "target": "single-enemy",
+                "id": "jigglypuff-perish-song",
+                "name": "Protect",
+                "skillimage": "assets/images/PokemonArena/jigglypuff/parishsong.webp",
+                "skilldescription": "Jigglypuff becomes invulnerable for 1 turn.",
+                "description": "Jigglypuff becomes invulnerable for 1 turn.",
+                "energy": [
+                    "Random"
+                ],
+                "cooldown": 4,
+                "target": "self",
                 "damage": 0,
                 "classes": [
-                    "Normal",
-                    "Physical",
-                    "Instant",
-                    "Invisible"
+                    "Strategic",
+                    "Instant"
                 ],
                 "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "jigglypuff_humiliate",
                         "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "triggerOnOwnerUseSkill": true,
-                            "onOwnerUseSkillHarmfulOnly": true,
-                            "perishAcceleration": true,
-                            "gainRandomChakraForSource": true
-                        }
-                    },
-                    {
-                        "type": "gain_chakra",
-                        "chakraType": "random",
-                        "amount": 1,
                         "scope": "self",
-                        "evaluateBeforeChannelCancel": true,
-                        "condition": {
-                            "scope": "target",
-                            "statusId": "jigglypuff_sing"
-                        }
+                        "metadata": {
+                            "invulnerable": true,
+                            "tooltipText": "Invulnerable."
+                        },
+                        "statusId": "jigglypuff_perish_song_1"
                     }
                 ],
                 "evolvesTo": {
-                    "id": "wigglytuff-humiliate",
-                    "name": "Wigglytuff Humiliate",
-                    "skillimage": "assets/images/PokemonArena/jigglypuff/wigglytuffhumilate.webp",
-                    "skilldescription": "Costs no chakra. If the target is affected by Sing, instantly gain 1 Random chakra. If they use any new skill this turn, gain 1 Random chakra and advance Perish Song once.",
-                    "description": "Costs no chakra. If the target is affected by Sing, instantly gain 1 Random chakra. If they use any new skill this turn, gain 1 Random chakra and advance Perish Song once.",
-                    "energy": [],
-                    "cooldown": 2,
-                    "target": "single-enemy",
+                    "id": "wigglytuff-perish-song",
+                    "name": "Protect",
+                    "skillimage": "assets/images/PokemonArena/jigglypuff/wigglytuffparishsong.webp",
+                    "skilldescription": "Wigglytuff becomes invulnerable for 1 turn.",
+                    "description": "Wigglytuff becomes invulnerable for 1 turn.",
+                    "energy": [
+                        "Random"
+                    ],
+                    "cooldown": 4,
+                    "target": "self",
                     "damage": 0,
                     "classes": [
-                        "Normal",
-                        "Physical",
-                        "Instant",
-                        "Invisible"
+                        "Strategic",
+                        "Instant"
                     ],
                     "effects": [
                         {
                             "type": "apply_status",
-                            "statusId": "jigglypuff_humiliate",
                             "duration": 1,
-                            "scope": "target",
-                            "metadata": {
-                                "harmful": true,
-                                "triggerOnOwnerUseSkill": true,
-                                "perishAcceleration": true,
-                                "gainRandomChakraForSource": true
-                            }
-                        },
-                        {
-                            "type": "gain_chakra",
-                            "chakraType": "random",
-                            "amount": 1,
                             "scope": "self",
-                            "evaluateBeforeChannelCancel": true,
-                            "condition": {
-                                "scope": "target",
-                                "statusId": "jigglypuff_sing"
-                            }
+                            "metadata": {
+                                "invulnerable": true,
+                                "tooltipText": "Invulnerable."
+                            },
+                            "statusId": "wigglytuff_perish_song_1"
                         }
                     ]
                 }
@@ -31192,58 +26268,65 @@ const characters = [
                 "id": "jigglypuff-evolution-wigglytuff",
                 "name": "Evolution: Wigglytuff",
                 "skillimage": "assets/images/PokemonArena/jigglypuff/evolutionwigglytuff.webp",
-                "skilldescription": "When Perish Song defeats an enemy, Jigglypuff evolves into Wigglytuff and heals 10 HP.",
-                "description": "When Perish Song defeats an enemy, Jigglypuff evolves into Wigglytuff and heals 10 HP.",
+                "skilldescription": "At the start of its 4th turn, Jigglypuff evolves into Wigglytuff and its skills get stronger.",
+                "description": "At the start of its 4th turn, Jigglypuff evolves into Wigglytuff and its skills get stronger.",
                 "energy": [],
                 "cooldown": 0,
                 "target": "",
                 "damage": 0,
                 "classes": [
-                    "Normal",
                     "Passive",
-                    "Strategic",
                     "Instant"
                 ],
                 "effects": []
             }
-        ],
-        "startStatuses": [
-            {
-                "statusId": "jigglypuff_evolution_tracker",
-                "sourceSkillId": "jigglypuff-evolution-wigglytuff",
-                "duration": 999,
-                "metadata": {
-                    "infiniteDuration": true,
-                    "unremovable": true,
-                    "evolutionStatusId": "jigglypuff_wigglytuff_evolution",
-                    "evolvedFacePicture": "assets/images/PokemonArena/jigglypuff/wigglytufffp.webp"
-                }
-            }
-        ],
-                    "pokemonTypes": [
-                        "Normal",
-                        "Fairy"
-                    ]
+        ]
     },
     {
         "id": "beedrill",
         "characterId": "beedrill",
         "name": "Beedrill",
+        "facePicture": "assets/images/PokemonArena/beedrill/FP.png",
         "arena": "pokemon",
         "universe": "pokemon",
         "role": "Assassin",
         "roleCategory": "assassin",
-        "facePicture": "assets/images/PokemonArena/beedrill/FP.png",
+        "description": "Poison stings that pile up, then Mega Evolves into a living drill.",
+        "descriptionHtml": "Poison stings that pile up, then Mega Evolves into a living drill.",
         "characterdeescription": "A stacking affliction assassin that evolves into Mega Beedrill after using Envenom twice.",
-        "description": "A stacking affliction assassin that evolves into Mega Beedrill after using Envenom twice.",
-        "descriptionHtml": "A stacking affliction assassin that evolves into Mega Beedrill after using Envenom twice.",
+        "pokemonTypes": [
+            "Bug",
+            "Poison"
+        ],
+        "startStatuses": [
+            {
+                "statusId": "beedrill_evolution_tracker",
+                "sourceSkillId": "beedrill-evolution-mega",
+                "duration": 3,
+                "metadata": {
+                    "unremovable": true,
+                    "tooltipText": "Evolves into Mega Beedrill at the start of its 4th turn.",
+                    "onExpireApplyStatusToSelf": {
+                        "statusId": "beedrill_mega_evolution",
+                        "duration": 999,
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "useEvolvedSkills": true,
+                            "facePictureOverride": "assets/images/PokemonArena/beedrill/megafp.webp",
+                            "tooltipText": "Beedrill has evolved into Mega Beedrill."
+                        }
+                    }
+                }
+            }
+        ],
         "skills": [
             {
                 "id": "beedrill-poison-sting",
                 "name": "Poison Sting",
                 "skillimage": "assets/images/PokemonArena/beedrill/poisonsting.webp",
-                "skilldescription": "Immediately deals 5 stacking affliction damage, then permanently repeats the current stacked damage each turn.",
-                "description": "Immediately deals 5 stacking affliction damage, then permanently repeats the current stacked damage each turn.",
+                "skilldescription": "Deals 10 damage to one enemy and then 5 affliction damage each turn for 2 turns.",
+                "description": "Deals 10 damage to one enemy and then 5 affliction damage each turn for 2 turns.",
                 "energy": [
                     "Random"
                 ],
@@ -31251,37 +26334,42 @@ const characters = [
                 "target": "single-enemy",
                 "damage": 0,
                 "classes": [
-                    "Poison",
-                    "Special",
+                    "Physical",
                     "Affliction",
                     "Instant"
                 ],
                 "effects": [
                     {
-                        "type": "apply_status",
-                        "statusId": "beedrill_poison_sting",
-                        "duration": 999,
+                        "type": "damage",
+                        "amount": 10,
                         "scope": "target",
                         "metadata": {
-                            "infiniteDuration": true,
-                            "harmful": true,
-                            "turnStartDamage": 5,
-                            "afflictionDamage": true,
-                            "mergeNumericAddKeys": [
-                                "turnStartDamage"
-                            ],
-                            "poisonStingStacks": 1,
-                            "stackMetadataKey": "poisonStingStacks",
-                            "stackDelta": 1
+                            "harmful": true
                         }
+                    },
+                    {
+                        "type": "apply_status",
+                        "duration": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "afflictionDamage": true,
+                            "turnEndDamage": 5,
+                            "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "Takes 5 affliction damage each turn."
+                        },
+                        "statusId": "beedrill_poison_sting_1"
                     }
                 ],
                 "evolvesTo": {
                     "id": "mega-beedrill-poison-sting",
-                    "name": "Mega Poison Sting",
+                    "name": "Poison Sting",
                     "skillimage": "assets/images/PokemonArena/beedrill/poisonsting.webp",
-                    "skilldescription": "Deals 10 affliction damage, immediately adds the current Poison Sting damage, then permanently repeats that stacked damage each turn.",
-                    "description": "Deals 10 affliction damage, immediately adds the current Poison Sting damage, then permanently repeats that stacked damage each turn.",
+                    "skilldescription": "Deals 15 damage to one enemy and then 10 affliction damage each turn for 2 turns.",
+                    "description": "Deals 15 damage to one enemy and then 10 affliction damage each turn for 2 turns.",
                     "energy": [
                         "Random"
                     ],
@@ -31289,37 +26377,34 @@ const characters = [
                     "target": "single-enemy",
                     "damage": 0,
                     "classes": [
-                        "Poison",
-                        "Special",
+                        "Physical",
                         "Affliction",
                         "Instant"
                     ],
                     "effects": [
                         {
                             "type": "damage",
-                            "amount": 10,
+                            "amount": 15,
                             "scope": "target",
                             "metadata": {
-                                "afflictionDamage": true
+                                "harmful": true
                             }
                         },
                         {
                             "type": "apply_status",
-                            "statusId": "beedrill_poison_sting",
-                            "duration": 999,
+                            "duration": 2,
                             "scope": "target",
                             "metadata": {
-                                "infiniteDuration": true,
                                 "harmful": true,
-                                "turnStartDamage": 5,
                                 "afflictionDamage": true,
-                                "mergeNumericAddKeys": [
-                                    "turnStartDamage"
-                                ],
-                                "poisonStingStacks": 1,
-                                "stackMetadataKey": "poisonStingStacks",
-                                "stackDelta": 1
-                            }
+                                "turnEndDamage": 10,
+                                "ignoreTargetDamageReduction": true,
+                                "ignoreTargetDestructibleDefense": true,
+                                "turnEndTrigger": "source_turn",
+                                "turnDurationAnchor": "source_turn",
+                                "tooltipText": "Takes 10 affliction damage each turn."
+                            },
+                            "statusId": "mega_beedrill_poison_sting_1"
                         }
                     ]
                 }
@@ -31328,120 +26413,112 @@ const characters = [
                 "id": "beedrill-twinneedle",
                 "name": "Twinneedle",
                 "skillimage": "assets/images/PokemonArena/beedrill/twinneedle.webp",
-                "skilldescription": "Deals 15 damage twice and has a 25% chance to blind harmful skills for 1 turn.",
-                "description": "Deals 15 damage twice and has a 25% chance to blind harmful skills for 1 turn.",
+                "skilldescription": "Deals 30 damage to one enemy.",
+                "description": "Deals 30 damage to one enemy.",
                 "energy": [
-                    "Random",
+                    "Taijutsu",
                     "Random"
                 ],
                 "cooldown": 1,
                 "target": "single-enemy",
                 "damage": 0,
                 "classes": [
-                    "Bug",
                     "Physical",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 15,
-                        "scope": "target",
-                        "metadata": {}
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 15,
-                        "scope": "target",
-                        "metadata": {}
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "beedrill_twinneedle_blind",
-                        "duration": 1,
+                        "amount": 30,
                         "scope": "target",
                         "metadata": {
-                            "harmful": true,
-                            "harmfulBlind": true
-                        },
-                        "chance": 25
+                            "harmful": true
+                        }
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "beedrill-twinneedle-mega",
+                    "name": "Twinneedle",
+                    "skillimage": "assets/images/PokemonArena/beedrill/twinneedle.webp",
+                    "skilldescription": "Deals 40 damage to one enemy.",
+                    "description": "Deals 40 damage to one enemy.",
+                    "energy": [
+                        "Taijutsu",
+                        "Random"
+                    ],
+                    "cooldown": 1,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Physical",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "damage",
+                            "amount": 40,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true
+                            }
+                        }
+                    ]
+                }
             },
             {
                 "id": "beedrill-envenom",
                 "name": "Envenom",
                 "skillimage": "assets/images/PokemonArena/beedrill/envenom.webp",
-                "skilldescription": "Enemies affected by Poison Sting take 10 affliction damage plus 5 per Poison Sting stack and are blinded for 1 turn.",
-                "description": "Enemies affected by Poison Sting take 10 affliction damage plus 5 per Poison Sting stack and are blinded for 1 turn.",
+                "skilldescription": "One enemy takes 10 more damage for 2 turns.",
+                "description": "One enemy takes 10 more damage for 2 turns.",
                 "energy": [
                     "Ninjutsu"
                 ],
                 "cooldown": 2,
-                "target": "all-enemy",
+                "target": "single-enemy",
                 "damage": 0,
                 "classes": [
-                    "Poison",
                     "Special",
-                    "Affliction",
                     "Instant"
                 ],
                 "effects": [
                     {
-                        "type": "poison_sting_burst",
-                        "baseAmount": 10,
-                        "amountPerStack": 5,
-                        "scope": "all-enemy"
-                    },
-                    {
                         "type": "apply_status",
-                        "statusId": "beedrill_envenom_blind",
-                        "duration": 1,
-                        "scope": "all-enemy",
+                        "duration": 2,
+                        "scope": "target",
                         "metadata": {
                             "harmful": true,
-                            "harmfulBlind": true
+                            "damageTakenBonusFlat": 10,
+                            "tooltipText": "Takes 10 more damage."
                         },
-                        "condition": {
-                            "scope": "target",
-                            "statusId": "beedrill_poison_sting"
-                        }
+                        "statusId": "beedrill_envenom_1"
                     }
                 ],
                 "evolvesTo": {
                     "id": "mega-beedrill-fell-stinger",
                     "name": "Fell Stinger",
                     "skillimage": "assets/images/PokemonArena/beedrill/fellstinger.webp",
-                    "skilldescription": "Deals 20 affliction damage plus 10 per Poison Sting stack. If the target survives, they are permanently blinded.",
-                    "description": "Deals 20 affliction damage plus 10 per Poison Sting stack. If the target survives, they are permanently blinded.",
+                    "skilldescription": "Deals 30 piercing damage to one enemy.",
+                    "description": "Deals 30 piercing damage to one enemy.",
                     "energy": [
                         "Ninjutsu"
                     ],
-                    "cooldown": 3,
+                    "cooldown": 2,
                     "target": "single-enemy",
                     "damage": 0,
                     "classes": [
-                        "Bug",
                         "Special",
-                        "Affliction",
                         "Instant"
                     ],
                     "effects": [
                         {
-                            "type": "poison_sting_burst",
-                            "baseAmount": 20,
-                            "amountPerStack": 10,
-                            "scope": "target"
-                        },
-                        {
-                            "type": "apply_status",
-                            "statusId": "mega_beedrill_permanent_blind",
-                            "duration": 999,
+                            "type": "damage",
+                            "amount": 30,
                             "scope": "target",
                             "metadata": {
-                                "infiniteDuration": true,
                                 "harmful": true,
-                                "harmfulBlind": true
+                                "ignoreDamageReduction": true,
+                                "ignoreDestructibleDefense": true
                             }
                         }
                     ]
@@ -31451,188 +26528,102 @@ const characters = [
                 "id": "beedrill-hive-swarm",
                 "name": "Hive Swarm",
                 "skillimage": "assets/images/PokemonArena/beedrill/hiveswarm.webp",
-                "skilldescription": "For 3 turns, ignores the next 2 enemy damage effects and enemy stuns. Replaced by Hive Sting.",
-                "description": "For 3 turns, ignores the next 2 enemy damage effects and enemy stuns. Replaced by Hive Sting.",
+                "skilldescription": "Beedrill becomes invulnerable for 1 turn.",
+                "description": "Beedrill becomes invulnerable for 1 turn.",
                 "energy": [
                     "Random"
                 ],
-                "cooldown": 6,
+                "cooldown": 4,
                 "target": "self",
                 "damage": 0,
                 "classes": [
-                    "Bug",
                     "Strategic",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "beedrill_hive_swarm",
-                        "duration": 3,
+                        "duration": 1,
                         "scope": "self",
                         "metadata": {
-                            "ignoreNextEnemyDamageEffects": 2,
-                            "ignoreEnemyStuns": true,
-                            "skillReplacements": {
-                                "beedrill-hive-swarm": "beedrill-hive-sting"
-                            }
-                        }
+                            "invulnerable": true,
+                            "tooltipText": "Invulnerable."
+                        },
+                        "statusId": "beedrill_hive_swarm_1"
                     }
                 ],
                 "evolvesTo": {
                     "id": "beedrill-hive-swarm-mega",
-                    "name": "Mega Hive Swarm",
+                    "name": "Hive Swarm",
                     "skillimage": "assets/images/PokemonArena/beedrill/hiveswarm.webp",
-                    "skilldescription": "For 3 turns, ignores the next 2 enemy damage effects and enemy stuns. Replaced by Hive Sting.",
-                    "description": "For 3 turns, ignores the next 2 enemy damage effects and enemy stuns. Replaced by Hive Sting.",
+                    "skilldescription": "Mega Beedrill becomes invulnerable for 1 turn.",
+                    "description": "Mega Beedrill becomes invulnerable for 1 turn.",
                     "energy": [
                         "Random"
                     ],
-                    "cooldown": 6,
+                    "cooldown": 4,
                     "target": "self",
                     "damage": 0,
                     "classes": [
-                        "Bug",
                         "Strategic",
                         "Instant"
                     ],
                     "effects": [
                         {
                             "type": "apply_status",
-                            "statusId": "beedrill_hive_swarm",
-                            "duration": 3,
+                            "duration": 1,
                             "scope": "self",
                             "metadata": {
-                                "ignoreNextEnemyDamageEffects": 2,
-                                "ignoreEnemyStuns": true,
-                                "skillReplacements": {
-                                    "beedrill-hive-swarm-mega": "beedrill-hive-sting"
-                                }
-                            }
+                                "invulnerable": true,
+                                "tooltipText": "Invulnerable."
+                            },
+                            "statusId": "beedrill_hive_swarm_mega_1"
                         }
                     ]
                 }
-            },
-            {
-                "id": "beedrill-hive-sting",
-                "name": "Hive Sting",
-                "skillimage": "assets/images/PokemonArena/beedrill/hivesting.webp",
-                "skilldescription": "Casts Poison Sting on the entire enemy team.",
-                "description": "Casts Poison Sting on the entire enemy team.",
-                "energy": [
-                    "Random",
-                    "Random"
-                ],
-                "cooldown": 0,
-                "target": "all-enemy",
-                "damage": 0,
-                "classes": [
-                    "Bug",
-                    "Special",
-                    "Affliction",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "beedrill_poison_sting",
-                        "duration": 999,
-                        "scope": "all-enemy",
-                        "metadata": {
-                            "infiniteDuration": true,
-                            "harmful": true,
-                            "turnStartDamage": 5,
-                            "afflictionDamage": true,
-                            "mergeNumericAddKeys": [
-                                "turnStartDamage"
-                            ],
-                            "poisonStingStacks": 1,
-                            "stackMetadataKey": "poisonStingStacks",
-                            "stackDelta": 1
-                        }
-                    }
-                ]
             },
             {
                 "id": "beedrill-evolution-mega",
                 "name": "Evolution: Mega Beedrill",
                 "skillimage": "assets/images/PokemonArena/beedrill/passive.webp",
-                "skilldescription": "After Envenom is used twice, Beedrill evolves, heals 25 HP, gains permanent 10 unpierceable reduction, and Envenom becomes Fell Stinger.",
-                "description": "After Envenom is used twice, Beedrill evolves, heals 25 HP, gains permanent 10 unpierceable reduction, and Envenom becomes Fell Stinger.",
+                "skilldescription": "At the start of its 4th turn, Beedrill evolves into Mega Beedrill and its skills get stronger.",
+                "description": "At the start of its 4th turn, Beedrill evolves into Mega Beedrill and its skills get stronger.",
                 "energy": [],
                 "cooldown": 0,
                 "target": "",
                 "damage": 0,
                 "classes": [
-                    "Bug",
                     "Passive",
                     "Instant"
                 ],
                 "effects": []
             }
-        ],
-        "startStatuses": [
-            {
-                "statusId": "beedrill_evolution_tracker",
-                "sourceSkillId": "beedrill-evolution-mega",
-                "duration": 999,
-                "metadata": {
-                    "infiniteDuration": true,
-                    "unremovable": true,
-                    "envenomUses": 0,
-                    "evolutionStatusId": "beedrill_mega_evolution",
-                    "evolvedFacePicture": "assets/images/PokemonArena/beedrill/megafp.webp"
-                }
-            }
-        ],
-                    "pokemonTypes": [
-                        "Bug",
-                        "Poison"
-                    ]
+        ]
     },
     {
         "id": "articuno",
         "characterId": "articuno",
         "name": "Articuno",
+        "facePicture": "assets/images/PokemonArena/articuno/fp.png",
         "arena": "pokemon",
         "universe": "pokemon",
-        "role": "AOE DPS",
-        "roleCategory": "aoe-dps",
-        "facePicture": "assets/images/PokemonArena/articuno/fp.png",
+        "role": "Controller",
+        "roleCategory": "controller",
+        "description": "Freezes enemies and chills the whole team.",
+        "descriptionHtml": "Freezes enemies and chills the whole team.",
         "characterdeescription": "A legendary ice mage that chains cooldown paralysis and stuns into an escalating Sheer Cold.",
-        "description": "A legendary ice mage that chains cooldown paralysis and stuns into an escalating Sheer Cold.",
-        "descriptionHtml": "A legendary ice mage that chains cooldown paralysis and stuns into an escalating Sheer Cold.",
+        "pokemonTypes": [
+            "Ice",
+            "Flying"
+        ],
+        "startStatuses": [],
         "skills": [
-            {
-                "id": "articuno-blizzard",
-                "name": "Blizzard",
-                "skillimage": "assets/images/PokemonArena/articuno/blizzard.png",
-                "skilldescription": "Deals 15 damage to all enemies and delays their harmful skills by 1 turn.",
-                "description": "Deals 15 damage to all enemies and delays their harmful skills by 1 turn.",
-                "energy": [
-                    "Ninjutsu"
-                ],
-                "cooldown": 2,
-                "target": "all-enemy",
-                "damage": 0,
-                "classes": [
-                    "Ice",
-                    "Special",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "articuno_blizzard",
-                        "scope": "all-enemy"
-                    }
-                ]
-            },
             {
                 "id": "articuno-ice-beam",
                 "name": "Ice Beam",
                 "skillimage": "assets/images/PokemonArena/articuno/icebeam.png",
-                "skilldescription": "Deals 15 affliction damage and has a 50% chance to stun Special skills for 1 turn. Always stuns during a Snowstorm.",
-                "description": "Deals 15 affliction damage and has a 50% chance to stun Special skills for 1 turn. Always stuns during a Snowstorm.",
+                "skilldescription": "Deals 25 damage to one enemy.",
+                "description": "Deals 25 damage to one enemy.",
                 "energy": [
                     "Ninjutsu"
                 ],
@@ -31640,31 +26631,45 @@ const characters = [
                 "target": "single-enemy",
                 "damage": 0,
                 "classes": [
-                    "Ice",
                     "Special",
-                    "Affliction",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 15,
+                        "amount": 25,
                         "scope": "target",
                         "metadata": {
-                            "afflictionDamage": true
+                            "harmful": true
                         }
-                    },
+                    }
+                ]
+            },
+            {
+                "id": "articuno-blizzard",
+                "name": "Blizzard",
+                "skillimage": "assets/images/PokemonArena/articuno/blizzard.png",
+                "skilldescription": "Deals 20 damage to all enemies.",
+                "description": "Deals 20 damage to all enemies.",
+                "energy": [
+                    "Ninjutsu",
+                    "Random"
+                ],
+                "cooldown": 2,
+                "target": "all-enemy",
+                "damage": 0,
+                "classes": [
+                    "Special",
+                    "Instant"
+                ],
+                "effects": [
                     {
-                        "type": "apply_status",
-                        "statusId": "articuno_ice_beam_stun",
-                        "duration": 1,
-                        "scope": "target",
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "all-enemy",
                         "metadata": {
-                            "harmful": true,
-                            "cannotUseSkillClasses": ["Special"]
-                        },
-                        "chance": 50,
-                        "chanceCertainDuringWeatherKey": "snowstorm"
+                            "harmful": true
+                        }
                     }
                 ]
             },
@@ -31672,111 +26677,131 @@ const characters = [
                 "id": "articuno-sheer-cold",
                 "name": "Sheer Cold",
                 "skillimage": "assets/images/PokemonArena/articuno/sheercold.png",
-                "skilldescription": "Casts Blizzard then Ice Beam on the enemy team, summons a Snowstorm, and permanently gains 5 damage each use.",
-                "description": "Casts Blizzard then Ice Beam on the enemy team, summons a Snowstorm, and permanently gains 5 damage each use.",
+                "skilldescription": "Deals 15 damage to one enemy and stuns the target for 1 turn.",
+                "description": "Deals 15 damage to one enemy and stuns the target for 1 turn.",
                 "energy": [
-                    "Ninjutsu",
                     "Ninjutsu",
                     "Random"
                 ],
-                "cooldown": 2,
-                "target": "all-enemy",
+                "cooldown": 3,
+                "target": "single-enemy",
                 "damage": 0,
                 "classes": [
-                    "Ice",
                     "Special",
-                    "Affliction",
                     "Instant"
                 ],
                 "effects": [
                     {
-                        "type": "articuno_sheer_cold",
-                        "scope": "all-enemy"
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseSkills": true,
+                            "tooltipText": "Stunned: cannot use skills."
+                        },
+                        "statusId": "articuno_sheer_cold_1"
                     }
                 ]
             },
             {
                 "id": "articuno-snowstorm",
-                "name": "Snowstorm",
+                "name": "Mist",
                 "skillimage": "assets/images/PokemonArena/articuno/Snowstorm.png",
-                "skilldescription": "Summons a Snowstorm for 4 turns.",
-                "description": "Summons a Snowstorm for 4 turns: Ice and Water Pokemon take no damage, everyone else takes 3 each turn. Water skills become Ice-typed and deal piercing damage. Ice skills deal +5 damage and cannot be evaded. Fire skills deal -5 damage. Grass and Bug skills cost 1 more Random energy. Snowstorm cannot be refreshed while already active.",
+                "skilldescription": "Articuno becomes invulnerable for 1 turn.",
+                "description": "Articuno becomes invulnerable for 1 turn.",
                 "energy": [
-                    "Ninjutsu"
+                    "Random"
                 ],
                 "cooldown": 4,
                 "target": "self",
                 "damage": 0,
                 "classes": [
-                    "Weather",
-                    "Ice",
-                    "Special",
+                    "Strategic",
                     "Instant"
                 ],
                 "effects": [
                     {
-                        "type": "set_weather",
+                        "type": "apply_status",
+                        "duration": 1,
                         "scope": "self",
-                        "weather": {
-                            "key": "snowstorm",
-                            "name": "Snowstorm",
-                            "description": "Ice and Water Pokemon take no damage; everyone else takes 3 each turn. Water skills become Ice-typed and deal piercing damage. Ice skills deal +5 damage and cannot be evaded. Fire skills deal -5 damage. Grass and Bug skills cost 1 more Random energy.",
-                            "rounds": 4,
-                            "blockRefreshIfActive": true,
-                            "damageTypeModifiers": { "Ice": 5, "Fire": -5 },
-                            "costTypeModifiers": { "Grass": 1, "Bug": 1 },
-                            "evasionImmuneTypes": ["Ice"],
-                            "periodicNonTypeDamage": { "immuneTypes": ["Ice", "Water"], "amount": 3 },
-                            "transformMoveType": { "Water": "Ice" }
-                        }
+                        "metadata": {
+                            "invulnerable": true,
+                            "tooltipText": "Invulnerable."
+                        },
+                        "statusId": "articuno_snowstorm_1"
                     }
                 ]
             }
-        ],
-        "startStatuses": [
-            {
-                "statusId": "articuno_sheer_cold_tracker",
-                "sourceSkillId": "articuno-sheer-cold",
-                "duration": 999,
-                "metadata": {
-                    "infiniteDuration": true,
-                    "unremovable": true,
-                    "bonusDamage": 0
-                }
-            }
-        ],
-                    "pokemonTypes": [
-                        "Ice",
-                        "Flying"
-                    ]
+        ]
     },
     {
         "id": "moltres",
         "characterId": "moltres",
         "name": "Moltres",
+        "facePicture": "assets/images/PokemonArena/moltres/FP.png",
         "arena": "pokemon",
         "universe": "pokemon",
-        "role": "AOE DPS",
-        "roleCategory": "aoe-dps",
-        "facePicture": "assets/images/PokemonArena/moltres/FP.png",
+        "role": "Area damage",
+        "roleCategory": "area-damage",
+        "description": "Sets the whole enemy team on fire.",
+        "descriptionHtml": "Sets the whole enemy team on fire.",
         "characterdeescription": "A legendary fire attacker that builds Heat and spends it on a team-wide Overheat that weakens with every use.",
-        "description": "A legendary fire attacker that builds Heat and spends it on a team-wide Overheat that weakens with every use.",
-        "descriptionHtml": "A legendary fire attacker that builds Heat and spends it on a team-wide Overheat that weakens with every use.",
+        "pokemonTypes": [
+            "Fire",
+            "Flying"
+        ],
+        "startStatuses": [],
         "skills": [
+            {
+                "id": "moltres-heat-wave",
+                "name": "Heat Wave",
+                "skillimage": "assets/images/PokemonArena/moltres/heatwave.png",
+                "skilldescription": "Deals 20 damage to all enemies.",
+                "description": "Deals 20 damage to all enemies.",
+                "energy": [
+                    "Bloodline",
+                    "Random"
+                ],
+                "cooldown": 1,
+                "target": "all-enemy",
+                "damage": 0,
+                "classes": [
+                    "Special",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "harmful": true
+                        }
+                    }
+                ]
+            },
             {
                 "id": "moltres-fire-spin",
                 "name": "Fire Spin",
                 "skillimage": "assets/images/PokemonArena/moltres/firespin.png",
-                "skilldescription": "For 2 turns, the enemy team takes 5 affliction damage each turn, and enemies using a new harmful skill on Moltres' team take 10 affliction damage. Gains 1 Heat.",
-                "description": "For 2 turns, the enemy team takes 5 affliction damage each turn, and enemies using a new harmful skill on Moltres' team take 10 affliction damage. Gains 1 Heat.",
+                "skilldescription": "Deals 10 affliction damage to all enemies each turn for 2 turns.",
+                "description": "Deals 10 affliction damage to all enemies each turn for 2 turns.",
                 "energy": [
                     "Bloodline"
                 ],
-                "cooldown": 3,
-                "target": "self",
+                "cooldown": 2,
+                "target": "all-enemy",
                 "damage": 0,
                 "classes": [
-                    "Fire",
                     "Special",
                     "Affliction",
                     "Instant"
@@ -31784,101 +26809,19 @@ const characters = [
                 "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "moltres_fire_spin",
                         "duration": 2,
-                        "scope": "self",
+                        "scope": "all-enemy",
                         "metadata": {
-                            "teamTrapEnemyHarmfulDamage": 10,
-                            "enemyTeamTurnDamage": 5,
-                            "afflictionDamage": true
-                        }
-                    },
-                    {
-                        "type": "gain_heat",
-                        "amount": 1,
-                        "bonusFromWeather": { "weatherKey": "wildfire", "sourceMustMatch": true, "amount": 1 }
-                    }
-                ]
-            },
-            {
-                "id": "moltres-sunny-day",
-                "name": "Wildfire",
-                "skillimage": "assets/images/PokemonArena/moltres/sunnyday.png",
-                "skilldescription": "Summons Wildfire for 4 turns: Fire skills +5 damage and cost 1 less Random energy, Water skills -5 damage, Grass and Bug skills cost 1 more Random energy. While it lasts, Moltres gains 1 additional Heat from her skills. Gains 1 Heat.",
-                "description": "Summons Wildfire for 4 turns: Fire skills +5 damage and cost 1 less Random energy, Water skills -5 damage, Grass and Bug skills cost 1 more Random energy. While it lasts, Moltres gains 1 additional Heat from her skills. Gains 1 Heat.",
-                "energy": [
-                    "Bloodline"
-                ],
-                "cooldown": 4,
-                "target": "self",
-                "damage": 0,
-                "classes": [
-                    "Weather",
-                    "Fire",
-                    "Special",
-                    "Instant",
-                    "Bypassing"
-                ],
-                "effects": [
-                    {
-                        "type": "set_weather",
-                        "scope": "self",
-                        "weather": {
-                            "key": "wildfire",
-                            "name": "Wildfire",
-                            "description": "Fire skills +5 damage and cost 1 less Random energy, Water skills -5 damage, Grass and Bug skills cost 1 more Random energy.",
-                            "rounds": 4,
-                            "damageTypeModifiers": { "Fire": 5, "Water": -5 },
-                            "costTypeModifiers": { "Fire": -1, "Grass": 1, "Bug": 1 }
-                        }
-                    },
-                    {
-                        "type": "gain_heat",
-                        "amount": 1,
-                        "bonusFromWeather": { "weatherKey": "wildfire", "sourceMustMatch": true, "amount": 1 }
-                    }
-                ]
-            },
-            {
-                "id": "moltres-heat-wave",
-                "name": "Heat Wave",
-                "skillimage": "assets/images/PokemonArena/moltres/heatwave.png",
-                "skilldescription": "Deals 20 affliction damage to one enemy and 10 to all others. Gains 1 Heat.",
-                "description": "Deals 20 affliction damage to one enemy and 10 to all others. Gains 1 Heat.",
-                "energy": [
-                    "Bloodline",
-                    "Random"
-                ],
-                "cooldown": 0,
-                "target": "single-enemy",
-                "damage": 0,
-                "classes": [
-                    "Fire",
-                    "Special",
-                    "Affliction",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 20,
-                        "scope": "target",
-                        "metadata": {
-                            "afflictionDamage": true
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 10,
-                        "scope": "other-enemies",
-                        "metadata": {
-                            "afflictionDamage": true
-                        }
-                    },
-                    {
-                        "type": "gain_heat",
-                        "amount": 1,
-                        "bonusFromWeather": { "weatherKey": "wildfire", "sourceMustMatch": true, "amount": 1 }
+                            "harmful": true,
+                            "afflictionDamage": true,
+                            "turnEndDamage": 10,
+                            "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "Takes 10 affliction damage each turn."
+                        },
+                        "statusId": "moltres_fire_spin_1"
                     }
                 ]
             },
@@ -31886,171 +26829,37 @@ const characters = [
                 "id": "moltres-overheat",
                 "name": "Overheat",
                 "skillimage": "assets/images/PokemonArena/moltres/overheat.png",
-                "skilldescription": "Consumes all Heat to deal 15 affliction damage per Heat to all enemies. Damage per Heat permanently falls by 5 after every use, to 0. After the first use its Random cost is removed; after the second use it costs only 1 Red.",
-                "description": "Consumes all Heat to deal 15 affliction damage per Heat to all enemies. Damage per Heat permanently falls by 5 after every use, to 0. After the first use its Random cost is removed; after the second use it costs only 1 Red.",
+                "skilldescription": "Deals 55 damage to one enemy.",
+                "description": "Deals 55 damage to one enemy.",
                 "energy": [
                     "Bloodline",
                     "Bloodline",
                     "Random"
                 ],
-                "cooldown": 0,
-                "target": "all-enemy",
+                "cooldown": 3,
+                "target": "single-enemy",
                 "damage": 0,
                 "classes": [
-                    "Fire",
                     "Special",
-                    "Affliction",
                     "Instant"
                 ],
                 "effects": [
                     {
-                        "type": "moltres_overheat",
-                        "scope": "all-enemy"
-                    }
-                ]
-            },
-            {
-                "id": "moltres-heat",
-                "name": "Passive: Heat",
-                "skillimage": "assets/images/PokemonArena/moltres/warmingup.png",
-                "skilldescription": "Moltres stores up to 3 Heat from its skills. Overheat consumes every stored Heat.",
-                "description": "Moltres stores up to 3 Heat from its skills. Overheat consumes every stored Heat.",
-                "energy": [],
-                "cooldown": 0,
-                "target": "",
-                "damage": 0,
-                "classes": [
-                    "Fire",
-                    "Passive",
-                    "Instant"
-                ],
-                "effects": []
-            }
-        ],
-        "startStatuses": [
-            {
-                "statusId": "moltres_heat",
-                "sourceSkillId": "moltres-overheat",
-                "duration": 999,
-                "metadata": {
-                    "infiniteDuration": true,
-                    "unremovable": true,
-                    "heat": 0,
-                    "overheatPenalty": 0,
-                    "overheatUses": 0
-                }
-            }
-        ],
-                    "pokemonTypes": [
-                        "Fire",
-                        "Flying"
-                    ]
-    },
-    {
-        "id": "zapdos",
-        "characterId": "zapdos",
-        "name": "Zapdos",
-        "arena": "pokemon",
-        "universe": "pokemon",
-        "role": "Controller",
-        "roleCategory": "controller",
-        "facePicture": "assets/images/PokemonArena/zapdos/fp.png",
-        "characterdeescription": "A legendary electric controller that punishes harmful skills and detonates Thunderstorm into Zap Cannon.",
-        "description": "A legendary electric controller that punishes harmful skills and detonates Thunderstorm into Zap Cannon.",
-        "descriptionHtml": "A legendary electric controller that punishes harmful skills and detonates Thunderstorm into Zap Cannon.",
-        "skills": [
-            {
-                "id": "zapdos-charge",
-                "name": "Charge",
-                "skillimage": "assets/images/PokemonArena/zapdos/charge.webp",
-                "skilldescription": "Channels for 2 turns. Zapdos skills cost 1 less Yellow energy each turn; using another skill ends Charge. Zap Cannon resolves instantly once this has been active for 2 turns.",
-                "description": "Channels for 2 turns. Zapdos skills cost 1 less Yellow energy each turn; using another skill ends Charge. Zap Cannon resolves instantly once this has been active for 2 turns.",
-                "energy": [],
-                "cooldown": 1,
-                "target": "self",
-                "damage": 0,
-                "classes": [
-                    "Electric",
-                    "Special",
-                    "Channeled"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "zapdos_charge",
-                        "duration": 2,
-                        "scope": "self",
+                        "type": "damage",
+                        "amount": 55,
+                        "scope": "target",
                         "metadata": {
-                            "genjutsuCostReduction": 1,
-                            "increaseGenjutsuReductionEachTurn": 1,
-                            "onOwnerUseSkillTrigger": true,
-                            "persistOnOwnerUseSkillTrigger": false,
-                            "removeStatusIdsOnOwnerUseSkill": [
-                                "zapdos_charge"
-                            ]
+                            "harmful": true
                         }
                     }
                 ]
             },
             {
-                "id": "zapdos-thunderbolt",
-                "name": "Thunderstorm",
-                "skillimage": "assets/images/PokemonArena/zapdos/thunderbolt.webp",
-                "skilldescription": "Summons Thunderstorm for 4 turns: harmful enemy skills targeting Zapdos' team trigger 5 piercing damage and +1 cooldown, Electric skills besides Thunderstorm deal +5 damage, and each turn a random non-Electric, non-Ground Pokemon from either team takes 10 piercing damage and has its cooldowns paralyzed for 1 turn. Recast detonates for 15 piercing team damage, paralyzes cooldowns, and ends the weather.",
-                "description": "Summons Thunderstorm for 4 turns: harmful enemy skills targeting Zapdos' team trigger 5 piercing damage and +1 cooldown, Electric skills besides Thunderstorm deal +5 damage, and each turn a random non-Electric, non-Ground Pokemon from either team takes 10 piercing damage and has its cooldowns paralyzed for 1 turn. Recast detonates for 15 piercing team damage, paralyzes cooldowns, and ends the weather.",
-                "energy": [
-                    "Genjutsu"
-                ],
-                "cooldown": 0,
-                "target": "self",
-                "damage": 0,
-                "classes": [
-                    "Weather",
-                    "Electric",
-                    "Special",
-                    "Instant",
-                    "Bypassing"
-                ],
-                "effects": [
-                    {
-                        "type": "zapdos_thunderbolt"
-                    }
-                ]
-            },
-            {
-                "id": "zapdos-zap-cannon",
-                "name": "Zap Cannon",
-                "skillimage": "assets/images/PokemonArena/zapdos/zapcanon.png",
-                "skilldescription": "Marks an enemy for 3 turns. Thunderstorm triggers shorten it and add 10 damage. On expiry, deals 30 plus bonus piercing damage and stuns for 1 turn. Resolves instantly if Charge has been active for 2 turns.",
-                "description": "Marks an enemy for 3 turns. Thunderstorm triggers shorten it and add 10 damage. On expiry, deals 30 plus bonus piercing damage and stuns for 1 turn. Resolves instantly if Charge has been active for 2 turns.",
-                "energy": [
-                    "Genjutsu",
-                    "Genjutsu",
-                    "Random"
-                ],
-                "cooldown": 0,
-                "target": "single-enemy",
-                "damage": 0,
-                "classes": [
-                    "Electric",
-                    "Special",
-                    "Instant",
-                    "Uncounterable",
-                    "Unreflectable"
-                ],
-                "effects": [
-                    {
-                        "type": "zapdos_zap_cannon_cast",
-                        "scope": "target"
-                    }
-                ]
-            },
-            {
-                "id": "zapdos-flight",
-                "name": "Flight",
-                "skillimage": "assets/images/PokemonArena/zapdos/flight.webp",
-                "skilldescription": "For 2 turns, Zapdos is invulnerable to non-affliction enemy skills and Thunderstorm triggers deal 10 instead of 5.",
-                "description": "For 2 turns, Zapdos is invulnerable to non-affliction enemy skills and Thunderstorm triggers deal 10 instead of 5.",
+                "id": "moltres-sunny-day",
+                "name": "Roost",
+                "skillimage": "assets/images/PokemonArena/moltres/sunnyday.png",
+                "skilldescription": "Moltres becomes invulnerable for 1 turn.",
+                "description": "Moltres becomes invulnerable for 1 turn.",
                 "energy": [
                     "Random"
                 ],
@@ -32058,85 +26867,208 @@ const characters = [
                 "target": "self",
                 "damage": 0,
                 "classes": [
-                    "Flying",
-                    "Physical",
+                    "Strategic",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "zapdos_flight",
-                        "duration": 2,
+                        "duration": 1,
                         "scope": "self",
                         "metadata": {
-                            "invulnerableToNonAffliction": true,
-                            "zapdosThunderboltDamage": 10
-                        }
+                            "invulnerable": true,
+                            "tooltipText": "Invulnerable."
+                        },
+                        "statusId": "moltres_sunny_day_1"
                     }
                 ]
             }
-        ],
-        "startStatuses": [],
+        ]
+    },
+    {
+        "id": "zapdos",
+        "characterId": "zapdos",
+        "name": "Zapdos",
+        "facePicture": "assets/images/PokemonArena/zapdos/fp.png",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Burst damage",
+        "roleCategory": "burst-damage",
+        "description": "Charges up, then unleashes huge electric attacks.",
+        "descriptionHtml": "Charges up, then unleashes huge electric attacks.",
+        "characterdeescription": "A legendary electric controller that punishes harmful skills and detonates Thunderstorm into Zap Cannon.",
         "pokemonTypes": [
             "Electric",
             "Flying"
+        ],
+        "startStatuses": [],
+        "skills": [
+            {
+                "id": "zapdos-thunderbolt",
+                "name": "Thunderstorm",
+                "skillimage": "assets/images/PokemonArena/zapdos/thunderbolt.webp",
+                "skilldescription": "Deals 25 damage to one enemy.",
+                "description": "Deals 25 damage to one enemy.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "cooldown": 0,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": [
+                    "Special",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 25,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "zapdos-zap-cannon",
+                "name": "Zap Cannon",
+                "skillimage": "assets/images/PokemonArena/zapdos/zapcanon.png",
+                "skilldescription": "Deals 40 damage to one enemy and stuns the target for 1 turn.",
+                "description": "Deals 40 damage to one enemy and stuns the target for 1 turn.",
+                "energy": [
+                    "Genjutsu",
+                    "Genjutsu",
+                    "Random"
+                ],
+                "cooldown": 3,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": [
+                    "Special",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 40,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseSkills": true,
+                            "tooltipText": "Stunned: cannot use skills."
+                        },
+                        "statusId": "zapdos_zap_cannon_1"
+                    }
+                ]
+            },
+            {
+                "id": "zapdos-charge",
+                "name": "Charge",
+                "skillimage": "assets/images/PokemonArena/zapdos/charge.webp",
+                "skilldescription": "Zapdos deals 10 more damage for 2 turns and gains 1 random energy.",
+                "description": "Zapdos deals 10 more damage for 2 turns and gains 1 random energy.",
+                "energy": [
+                    "Random"
+                ],
+                "cooldown": 3,
+                "target": "self",
+                "damage": 0,
+                "classes": [
+                    "Strategic",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "duration": 2,
+                        "scope": "self",
+                        "metadata": {
+                            "damageBonusFlat": 10,
+                            "mergeNumericAddKeys": [
+                                "damageBonusFlat"
+                            ],
+                            "tooltipText": "Deals 10 more damage."
+                        },
+                        "statusId": "zapdos_charge_1"
+                    },
+                    {
+                        "type": "gain_chakra",
+                        "chakraType": "random",
+                        "amount": 1
+                    }
+                ]
+            },
+            {
+                "id": "zapdos-flight",
+                "name": "Fly",
+                "skillimage": "assets/images/PokemonArena/zapdos/flight.webp",
+                "skilldescription": "Zapdos becomes invulnerable for 1 turn.",
+                "description": "Zapdos becomes invulnerable for 1 turn.",
+                "energy": [
+                    "Random"
+                ],
+                "cooldown": 4,
+                "target": "self",
+                "damage": 0,
+                "classes": [
+                    "Strategic",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "invulnerable": true,
+                            "tooltipText": "Invulnerable."
+                        },
+                        "statusId": "zapdos_flight_1"
+                    }
+                ]
+            }
         ]
     },
     {
         "id": "mew",
         "characterId": "mew",
         "name": "Mew",
+        "facePicture": "assets/images/PokemonArena/mew/fp.png",
         "arena": "pokemon",
         "universe": "pokemon",
-        "role": "Shield Support",
-        "roleCategory": "shield-support",
-        "facePicture": "assets/images/PokemonArena/mew/fp.png",
+        "role": "Support",
+        "roleCategory": "support",
+        "description": "Shields and heals the team with psychic bubbles.",
+        "descriptionHtml": "Shields and heals the team with psychic bubbles.",
         "characterdeescription": "A mythical support that builds permanent barriers and converts accumulated shields into maximum HP.",
-        "description": "A mythical support that builds permanent barriers and converts accumulated shields into maximum HP.",
-        "descriptionHtml": "A mythical support that builds permanent barriers and converts accumulated shields into maximum HP.",
+        "pokemonTypes": [
+            "Psychic"
+        ],
+        "startStatuses": [],
         "skills": [
-            {
-                "id": "mew-psychic-barrier",
-                "name": "Psychic Barrier",
-                "skillimage": "assets/images/PokemonArena/mew/psychicbarrier.png",
-                "skilldescription": "Gives an enemy 15 permanent stacking Barrier. While any remains, their skills cost 1 additional Random.",
-                "description": "Gives an enemy 15 permanent stacking Barrier. While any remains, their skills cost 1 additional Random.",
-                "energy": [
-                    "Ninjutsu"
-                ],
-                "cooldown": 1,
-                "target": "single-enemy",
-                "damage": 0,
-                "classes": [
-                    "Psychic",
-                    "Special",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "grant_barrier",
-                        "amount": 15,
-                        "scope": "target",
-                        "statusId": "mew_psychic_barrier",
-                        "costIncrease": 1
-                    }
-                ]
-            },
             {
                 "id": "mew-psychic",
                 "name": "Psychic",
                 "skillimage": "assets/images/PokemonArena/mew/psychic.png",
-                "skilldescription": "Deals 30 damage. If Psychic Barrier remains, the target's harmful skills deal 0 damage for 1 turn.",
-                "description": "Deals 30 damage. If Psychic Barrier remains, the target's harmful skills deal 0 damage for 1 turn.",
+                "skilldescription": "Deals 30 damage to one enemy.",
+                "description": "Deals 30 damage to one enemy.",
                 "energy": [
                     "Ninjutsu",
                     "Random"
                 ],
-                "cooldown": 1,
+                "cooldown": 0,
                 "target": "single-enemy",
                 "damage": 0,
                 "classes": [
-                    "Psychic",
                     "Special",
                     "Instant"
                 ],
@@ -32145,20 +27077,8 @@ const characters = [
                         "type": "damage",
                         "amount": 30,
                         "scope": "target",
-                        "metadata": {}
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "mew_psychic_suppression",
-                        "duration": 1,
-                        "scope": "target",
                         "metadata": {
-                            "harmful": true,
-                            "damageDebuffFlat": 999
-                        },
-                        "condition": {
-                            "scope": "target",
-                            "statusId": "mew_psychic_barrier"
+                            "harmful": true
                         }
                     }
                 ]
@@ -32167,26 +27087,28 @@ const characters = [
                 "id": "mew-pink-bubble",
                 "name": "Pink Bubble",
                 "skillimage": "assets/images/PokemonArena/mew/pinkbarrier.png",
-                "skilldescription": "Gives an ally 15 permanent stacking Shield. While any remains, their skills cost 1 less Random.",
-                "description": "Gives an ally 15 permanent stacking Shield. While any remains, their skills cost 1 less Random.",
+                "skilldescription": "Gives one ally 25 destructible defense for 2 turns.",
+                "description": "Gives one ally 25 destructible defense for 2 turns.",
                 "energy": [
                     "Bloodline"
                 ],
-                "cooldown": 1,
+                "cooldown": 2,
                 "target": "self-or-single-ally",
                 "damage": 0,
                 "classes": [
-                    "Psychic",
-                    "Special",
+                    "Strategic",
                     "Instant"
                 ],
                 "effects": [
                     {
-                        "type": "grant_shield",
-                        "amount": 15,
+                        "type": "apply_status",
+                        "duration": 2,
                         "scope": "target",
-                        "statusId": "mew_pink_bubble",
-                        "costReduction": 1
+                        "metadata": {
+                            "destructibleDefensePoints": 25,
+                            "tooltipText": "25 destructible defense."
+                        },
+                        "statusId": "mew_pink_bubble_1"
                     }
                 ]
             },
@@ -32194,117 +27116,98 @@ const characters = [
                 "id": "mew-life-dew",
                 "name": "Life Dew",
                 "skillimage": "assets/images/PokemonArena/mew/lifedew.png",
-                "skilldescription": "Mew and one ally consume all Pink Bubble Shield, gain that much maximum HP, then heal 25% of updated maximum HP.",
-                "description": "Mew and one ally consume all Pink Bubble Shield, gain that much maximum HP, then heal 25% of updated maximum HP.",
+                "skilldescription": "Heals all allies for 15.",
+                "description": "Heals all allies for 15.",
                 "energy": [
                     "Bloodline",
                     "Random"
                 ],
                 "cooldown": 2,
-                "target": "self-or-single-ally",
+                "target": "all-allies",
                 "damage": 0,
                 "classes": [
-                    "Water",
-                    "Special",
+                    "Strategic",
                     "Instant"
                 ],
                 "effects": [
                     {
-                        "type": "mew_life_dew",
-                        "scope": "target",
-                        "includeSelf": true
+                        "type": "heal",
+                        "amount": 15,
+                        "scope": "all-allies"
+                    }
+                ]
+            },
+            {
+                "id": "mew-psychic-barrier",
+                "name": "Psychic Barrier",
+                "skillimage": "assets/images/PokemonArena/mew/psychicbarrier.png",
+                "skilldescription": "Mew becomes invulnerable for 1 turn.",
+                "description": "Mew becomes invulnerable for 1 turn.",
+                "energy": [
+                    "Random"
+                ],
+                "cooldown": 4,
+                "target": "self",
+                "damage": 0,
+                "classes": [
+                    "Strategic",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "invulnerable": true,
+                            "tooltipText": "Invulnerable."
+                        },
+                        "statusId": "mew_psychic_barrier_1"
                     }
                 ]
             }
-        ],
-        "startStatuses": [],
-        "pokemonTypes": [
-            "Psychic"
         ]
     },
     {
         "id": "mewtwo",
         "characterId": "mewtwo",
         "name": "Mewtwo",
+        "facePicture": "assets/images/PokemonArena/mewtwo/fp.png",
         "arena": "pokemon",
         "universe": "pokemon",
-        "role": "Specialist",
-        "roleCategory": "specialist",
-        "facePicture": "assets/images/PokemonArena/mewtwo/fp.png",
+        "role": "Burst damage",
+        "roleCategory": "burst-damage",
+        "description": "The strongest psychic Pokemon: big damage and self-healing.",
+        "descriptionHtml": "The strongest psychic Pokemon: big damage and self-healing.",
         "characterdeescription": "A deliberately direct bruiser with one efficient move for disruption, delay, sustain, and effect theft.",
-        "description": "A deliberately direct bruiser with one efficient move for disruption, delay, sustain, and effect theft.",
-        "descriptionHtml": "A deliberately direct bruiser with one efficient move for disruption, delay, sustain, and effect theft.",
+        "pokemonTypes": [
+            "Psychic"
+        ],
+        "startStatuses": [],
         "skills": [
             {
                 "id": "mewtwo-psychic",
                 "name": "Psychic",
                 "skillimage": "assets/images/PokemonArena/mewtwo/psychic.png",
-                "skilldescription": "Deals 20 damage and steals one copy-safe helpful active effect from the enemy for up to 2 turns. For 1 turn, Mewtwo's next Drain Punch or Shadow Ball deals 5 additional damage. If Recover was just used, this also heals Mewtwo for 5 HP.",
-                "description": "Deals 20 damage and steals one copy-safe helpful active effect from the enemy for up to 2 turns. For 1 turn, Mewtwo's next Drain Punch or Shadow Ball deals 5 additional damage. If Recover was just used, this also heals Mewtwo for 5 HP.",
+                "skilldescription": "Deals 25 damage to one enemy.",
+                "description": "Deals 25 damage to one enemy.",
                 "energy": [
                     "Ninjutsu"
                 ],
-                "cooldown": 1,
+                "cooldown": 0,
                 "target": "single-enemy",
                 "damage": 0,
                 "classes": [
-                    "Psychic",
                     "Special",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 20,
+                        "amount": 25,
                         "scope": "target",
-                        "metadata": {}
-                    },
-                    {
-                        "type": "steal_helpful_status",
-                        "scope": "target",
-                        "maxDuration": 2
-                    },
-                    {
-                        "type": "health_steal_damage",
-                        "amount": 5,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "mewtwo_drain_punch_followup",
-                            "consumeOnMatch": true
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 5,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "mewtwo_shadow_ball_followup",
-                            "consumeOnMatch": true
-                        },
                         "metadata": {
-                            "afflictionDamage": true
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "mewtwo_psychic_followup",
-                        "duration": 1,
-                        "scope": "self",
-                        "metadata": {
-                            "statusIconUrl": "assets/images/PokemonArena/mewtwo/psychic.png",
-                            "tooltipText": "Mewtwo's next Drain Punch or Shadow Ball deals 5 additional damage."
-                        }
-                    },
-                    {
-                        "type": "heal",
-                        "amount": 5,
-                        "scope": "self",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "mewtwo_recover_followup",
-                            "consumeOnMatch": true
+                            "harmful": true
                         }
                     }
                 ]
@@ -32313,70 +27216,28 @@ const characters = [
                 "id": "mewtwo-shadow-ball",
                 "name": "Shadow Ball",
                 "skillimage": "assets/images/PokemonArena/mewtwo/shadowball.png",
-                "skilldescription": "Deals 20 damage and delays the target's skills for 1 turn. For 1 turn, Mewtwo's next Drain Punch or Psychic deals 5 affliction damage. If Recover was just used, this also heals Mewtwo for 5 HP.",
-                "description": "Deals 20 damage and delays the target's skills for 1 turn. For 1 turn, Mewtwo's next Drain Punch or Psychic deals 5 affliction damage. If Recover was just used, this also heals Mewtwo for 5 HP.",
+                "skilldescription": "Deals 45 piercing damage to one enemy.",
+                "description": "Deals 45 piercing damage to one enemy.",
                 "energy": [
+                    "Ninjutsu",
                     "Bloodline"
                 ],
-                "cooldown": 1,
+                "cooldown": 2,
                 "target": "single-enemy",
                 "damage": 0,
                 "classes": [
-                    "Ghost",
                     "Special",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 20,
+                        "amount": 45,
                         "scope": "target",
-                        "metadata": {}
-                    },
-                    {
-                        "type": "modify_cooldowns",
-                        "scope": "target",
-                        "amount": 1,
-                        "includeAllCharacterSkills": true
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 5,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "mewtwo_psychic_followup",
-                            "consumeOnMatch": true
-                        }
-                    },
-                    {
-                        "type": "health_steal_damage",
-                        "amount": 5,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "mewtwo_drain_punch_followup",
-                            "consumeOnMatch": true
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "mewtwo_shadow_ball_followup",
-                        "duration": 1,
-                        "scope": "self",
                         "metadata": {
-                            "statusIconUrl": "assets/images/PokemonArena/mewtwo/shadowball.png",
-                            "tooltipText": "Mewtwo's next Drain Punch or Psychic deals 5 affliction damage."
-                        }
-                    },
-                    {
-                        "type": "heal",
-                        "amount": 5,
-                        "scope": "self",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "mewtwo_recover_followup",
-                            "consumeOnMatch": true
+                            "harmful": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
                         }
                     }
                 ]
@@ -32385,138 +27246,695 @@ const characters = [
                 "id": "mewtwo-drain-punch",
                 "name": "Drain Punch",
                 "skillimage": "assets/images/PokemonArena/mewtwo/drainpunch.png",
-                "skilldescription": "Steals 20 HP from one enemy. For 1 turn, Mewtwo's next Shadow Ball or Psychic steals 5 HP. If Recover was just used, this also heals Mewtwo for 5 HP.",
-                "description": "Steals 20 HP from one enemy. For 1 turn, Mewtwo's next Shadow Ball or Psychic steals 5 HP. If Recover was just used, this also heals Mewtwo for 5 HP.",
+                "skilldescription": "Deals 25 damage to one enemy and heals Mewtwo for 15.",
+                "description": "Deals 25 damage to one enemy and heals Mewtwo for 15.",
                 "energy": [
-                    "Genjutsu"
+                    "Genjutsu",
+                    "Random"
                 ],
-                "cooldown": 0,
+                "cooldown": 1,
                 "target": "single-enemy",
                 "damage": 0,
                 "classes": [
-                    "Fighting",
                     "Physical",
                     "Instant"
                 ],
                 "effects": [
                     {
-                        "type": "health_steal_damage",
-                        "amount": 20,
-                        "scope": "target"
-                    },
-                    {
                         "type": "damage",
-                        "amount": 5,
+                        "amount": 25,
                         "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "mewtwo_psychic_followup",
-                            "consumeOnMatch": true
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 5,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "mewtwo_shadow_ball_followup",
-                            "consumeOnMatch": true
-                        },
                         "metadata": {
-                            "afflictionDamage": true
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "mewtwo_drain_punch_followup",
-                        "duration": 1,
-                        "scope": "self",
-                        "metadata": {
-                            "statusIconUrl": "assets/images/PokemonArena/mewtwo/drainpunch.png",
-                            "tooltipText": "Mewtwo's next Shadow Ball or Psychic steals 5 HP."
+                            "harmful": true
                         }
                     },
                     {
                         "type": "heal",
-                        "amount": 5,
-                        "scope": "self",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "mewtwo_recover_followup",
-                            "consumeOnMatch": true
-                        }
+                        "amount": 15,
+                        "scope": "self"
                     }
                 ]
             },
             {
                 "id": "mewtwo-recover",
-                "name": "Recover",
+                "name": "Barrier",
                 "skillimage": "assets/images/PokemonArena/mewtwo/recover.png",
-                "skilldescription": "Heals Mewtwo for 20 HP. Consecutive uses heal 2 less HP each time, stacking down to 0; using another skill resets it. For 1 turn, Mewtwo's next Shadow Ball, Drain Punch, or Psychic also heals him for 5 HP.",
-                "description": "Heals Mewtwo for 20 HP. Consecutive uses heal 2 less HP each time, stacking down to 0; using another skill resets it. For 1 turn, Mewtwo's next Shadow Ball, Drain Punch, or Psychic also heals him for 5 HP.",
+                "skilldescription": "Mewtwo becomes invulnerable for 1 turn.",
+                "description": "Mewtwo becomes invulnerable for 1 turn.",
                 "energy": [
-                    "Taijutsu"
+                    "Random"
                 ],
-                "cooldown": 0,
+                "cooldown": 4,
                 "target": "self",
                 "damage": 0,
                 "classes": [
-                    "Normal",
-                    "Special",
+                    "Strategic",
                     "Instant"
                 ],
                 "effects": [
                     {
-                        "type": "mewtwo_recover",
-                        "scope": "self"
-                    },
-                    {
                         "type": "apply_status",
-                        "statusId": "mewtwo_recover_followup",
                         "duration": 1,
                         "scope": "self",
                         "metadata": {
-                            "statusIconUrl": "assets/images/PokemonArena/mewtwo/recover.png",
-                            "tooltipText": "Mewtwo's next Shadow Ball, Drain Punch, or Psychic also heals him for 5 HP."
-                        }
+                            "invulnerable": true,
+                            "tooltipText": "Invulnerable."
+                        },
+                        "statusId": "mewtwo_recover_1"
                     }
                 ]
             }
-        ],
-        "startStatuses": [],
-        "pokemonTypes": [
-            "Psychic"
         ]
     },
     {
         "id": "dragonite",
         "characterId": "dragonite",
         "name": "Dragonite",
+        "facePicture": "assets/images/PokemonArena/dragonite/fp.png",
         "arena": "pokemon",
         "universe": "pokemon",
         "role": "Tank",
         "roleCategory": "tank",
-        "facePicture": "assets/images/PokemonArena/dragonite/fp.png",
+        "description": "A gentle giant: very tough, and hits like a dragon.",
+        "descriptionHtml": "A gentle giant: very tough, and hits like a dragon.",
         "characterdeescription": "A durable controller that taunts enemies and refreshes Pressure whenever it uses a skill.",
-        "description": "A durable controller that taunts enemies and refreshes Pressure whenever it uses a skill.",
-        "descriptionHtml": "A durable controller that taunts enemies and refreshes Pressure whenever it uses a skill.",
+        "pokemonTypes": [
+            "Dragon",
+            "Flying"
+        ],
+        "startStatuses": [],
         "skills": [
             {
                 "id": "dragonite-dragon-claw",
                 "name": "Dragon Claw",
                 "skillimage": "assets/images/PokemonArena/dragonite/dragonclaw.png",
-                "skilldescription": "Deals 30 piercing damage, steals 1 random energy, and taunts the target for 1 turn.",
-                "description": "Deals 30 piercing damage, steals 1 random energy, and taunts the target for 1 turn.",
+                "skilldescription": "Deals 25 damage to one enemy.",
+                "description": "Deals 25 damage to one enemy.",
                 "energy": [
-                    "Taijutsu",
-                    "Ninjutsu"
+                    "Taijutsu"
                 ],
-                "cooldown": 2,
+                "cooldown": 0,
                 "target": "single-enemy",
                 "damage": 0,
                 "classes": [
-                    "Dragon",
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 25,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "dragonite-draco-meteor",
+                "name": "Draco Meteor",
+                "skillimage": "assets/images/PokemonArena/dragonite/draco meteor.png",
+                "skilldescription": "Deals 30 damage to all enemies.",
+                "description": "Deals 30 damage to all enemies.",
+                "energy": [
+                    "Ninjutsu",
+                    "Bloodline",
+                    "Random"
+                ],
+                "cooldown": 3,
+                "target": "all-enemy",
+                "damage": 0,
+                "classes": [
+                    "Special",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 30,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "harmful": true
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "dragonite-dragon-boost",
+                "name": "Dragon Dance",
+                "skillimage": "assets/images/PokemonArena/dragonite/skill 4.png",
+                "skilldescription": "Dragonite deals 10 more damage for 2 turns and Dragonite takes 10 less damage for 2 turns.",
+                "description": "Dragonite deals 10 more damage for 2 turns and Dragonite takes 10 less damage for 2 turns.",
+                "energy": [
+                    "Random"
+                ],
+                "cooldown": 3,
+                "target": "self",
+                "damage": 0,
+                "classes": [
+                    "Strategic",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "duration": 2,
+                        "scope": "self",
+                        "metadata": {
+                            "damageBonusFlat": 10,
+                            "mergeNumericAddKeys": [
+                                "damageBonusFlat"
+                            ],
+                            "tooltipText": "Deals 10 more damage."
+                        },
+                        "statusId": "dragonite_dragon_boost_1"
+                    },
+                    {
+                        "type": "apply_status",
+                        "duration": 2,
+                        "scope": "self",
+                        "metadata": {
+                            "damageReductionFlat": 10,
+                            "tooltipText": "Takes 10 less damage."
+                        },
+                        "statusId": "dragonite_dragon_boost_2"
+                    }
+                ]
+            },
+            {
+                "id": "dragonite-hyper-beam",
+                "name": "Protect",
+                "skillimage": "assets/images/PokemonArena/dragonite/hyperbeam.png",
+                "skilldescription": "Dragonite becomes invulnerable for 1 turn.",
+                "description": "Dragonite becomes invulnerable for 1 turn.",
+                "energy": [
+                    "Random"
+                ],
+                "cooldown": 4,
+                "target": "self",
+                "damage": 0,
+                "classes": [
+                    "Strategic",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "invulnerable": true,
+                            "tooltipText": "Invulnerable."
+                        },
+                        "statusId": "dragonite_hyper_beam_1"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "cyndaquil",
+        "characterId": "cyndaquil",
+        "name": "Cyndaquil",
+        "facePicture": "assets/images/PokemonArena/Cyndaquil/cyndaquilmaybefacepicture.png",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Damage over time",
+        "roleCategory": "damage-over-time",
+        "description": "Sets enemies alight; its earned evolutions upgrade Tackle into Flame Wheel.",
+        "descriptionHtml": "Sets enemies alight; its earned evolutions upgrade Tackle into Flame Wheel.",
+        "characterdeescription": "Cyndaquil protects itself by flaring up the flames on its back, building momentum whenever it uses a new skill.",
+        "pokemonTypes": [
+            "Fire"
+        ],
+        "startStatuses": [],
+        "skills": [
+            {
+                "id": "cyndaquil-aerial-tackle",
+                "name": "Tackle",
+                "skillimage": "assets/images/PokemonArena/Cyndaquil/S1.webp",
+                "skilldescription": "Deals 20 damage to one enemy.",
+                "description": "Deals 20 damage to one enemy.",
+                "energy": [
+                    "Random"
+                ],
+                "cooldown": 0,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "cyndaquil-aerial-flamethrower",
+                "name": "Ember",
+                "skillimage": "assets/images/PokemonArena/Cyndaquil/S2.webp",
+                "skilldescription": "Deals 10 damage to one enemy and then 10 affliction damage each turn for 2 turns.",
+                "description": "Deals 10 damage to one enemy and then 10 affliction damage each turn for 2 turns.",
+                "energy": [
+                    "Bloodline"
+                ],
+                "cooldown": 1,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": [
+                    "Special",
+                    "Affliction",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "duration": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "afflictionDamage": true,
+                            "turnEndDamage": 10,
+                            "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "Takes 10 affliction damage each turn."
+                        },
+                        "statusId": "cyndaquil_aerial_flamethrower_1"
+                    }
+                ]
+            },
+            {
+                "id": "cyndaquil-cynda-smokescreen",
+                "name": "Smokescreen",
+                "skillimage": "assets/images/PokemonArena/Cyndaquil/S3.webp",
+                "skilldescription": "All enemies deal 10 less damage for 1 turn.",
+                "description": "All enemies deal 10 less damage for 1 turn.",
+                "energy": [
+                    "Random"
+                ],
+                "cooldown": 3,
+                "target": "all-enemy",
+                "damage": 0,
+                "classes": [
+                    "Special",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "duration": 1,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "harmful": true,
+                            "DamageDebuff": 10,
+                            "tooltipText": "Deals 10 less damage."
+                        },
+                        "statusId": "cyndaquil_cynda_smokescreen_1"
+                    }
+                ]
+            },
+            {
+                "id": "cyndaquil-skyward-leap",
+                "name": "Protect",
+                "skillimage": "assets/images/PokemonArena/Cyndaquil/S4.webp",
+                "skilldescription": "Cyndaquil becomes invulnerable for 1 turn.",
+                "description": "Cyndaquil becomes invulnerable for 1 turn.",
+                "energy": [
+                    "Random"
+                ],
+                "cooldown": 4,
+                "target": "self",
+                "damage": 0,
+                "classes": [
+                    "Strategic",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "invulnerable": true,
+                            "tooltipText": "Invulnerable."
+                        },
+                        "statusId": "cyndaquil_skyward_leap_1"
+                    }
+                ]
+            },
+            {
+                "id": "cyndaquil-quilava-flame-wheel",
+                "name": "Flame Wheel",
+                "skillimage": "assets/images/PokemonArena/Cyndaquil/Quilava/quilavaflamewheel.png",
+                "skilldescription": "Deals 20 damage to one enemy and then 5 affliction damage each turn for 2 turns.",
+                "description": "Deals 20 damage to one enemy and then 5 affliction damage each turn for 2 turns.",
+                "energy": [
+                    "Bloodline"
+                ],
+                "cooldown": 0,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": [
+                    "Physical",
+                    "Affliction",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "duration": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "afflictionDamage": true,
+                            "turnEndDamage": 5,
+                            "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "Takes 5 affliction damage each turn."
+                        },
+                        "statusId": "cyndaquil_quilava_flame_wheel_1"
+                    }
+                ]
+            },
+            {
+                "id": "cyndaquil-typhlosion-flame-wheel",
+                "name": "Flame Wheel",
+                "skillimage": "assets/images/PokemonArena/Cyndaquil/typhlosion/typhlosionflamewheel.png",
+                "skilldescription": "Deals 25 damage to one enemy and then 10 affliction damage each turn for 2 turns.",
+                "description": "Deals 25 damage to one enemy and then 10 affliction damage each turn for 2 turns.",
+                "energy": [
+                    "Bloodline"
+                ],
+                "cooldown": 0,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": [
+                    "Physical",
+                    "Affliction",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 25,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "duration": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "afflictionDamage": true,
+                            "turnEndDamage": 10,
+                            "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "Takes 10 affliction damage each turn."
+                        },
+                        "statusId": "cyndaquil_typhlosion_flame_wheel_1"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "chikorita",
+        "characterId": "chikorita",
+        "name": "Chikorita",
+        "facePicture": "assets/images/PokemonArena/Cyndaquil/Chikorita/chikoritanewfacepicture.png",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Support",
+        "roleCategory": "support",
+        "description": "Shields allies with leaves and heals; its earned evolutions upgrade Razor Leaf into Magical Leaf.",
+        "descriptionHtml": "Shields allies with leaves and heals; its earned evolutions upgrade Razor Leaf into Magical Leaf.",
+        "characterdeescription": "Chikorita protects allies and cycles Sweet Scent through separate Physical, Special, and Affliction suppression.",
+        "pokemonTypes": [
+            "Grass"
+        ],
+        "startStatuses": [],
+        "skills": [
+            {
+                "id": "chikorita-aerial-razor-leaf",
+                "name": "Razor Leaf",
+                "skillimage": "assets/images/PokemonArena/Cyndaquil/Chikorita/s1.webp",
+                "skilldescription": "Deals 20 damage to one enemy.",
+                "description": "Deals 20 damage to one enemy.",
+                "energy": [
+                    "Taijutsu"
+                ],
+                "cooldown": 0,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "chikorita-light-screen",
+                "name": "Light Screen",
+                "skillimage": "assets/images/PokemonArena/Cyndaquil/Chikorita/s2.webp",
+                "skilldescription": "Gives all allies 10 destructible defense for 2 turns.",
+                "description": "Gives all allies 10 destructible defense for 2 turns.",
+                "energy": [
+                    "Random"
+                ],
+                "cooldown": 2,
+                "target": "all-allies",
+                "damage": 0,
+                "classes": [
+                    "Strategic",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "duration": 2,
+                        "scope": "all-allies",
+                        "metadata": {
+                            "destructibleDefensePoints": 10,
+                            "tooltipText": "10 destructible defense."
+                        },
+                        "statusId": "chikorita_light_screen_1"
+                    }
+                ]
+            },
+            {
+                "id": "chikorita-chikorita-solar-beam",
+                "name": "Synthesis",
+                "skillimage": "assets/images/PokemonArena/Cyndaquil/Chikorita/s3.webp",
+                "skilldescription": "Heals one ally for 20.",
+                "description": "Heals one ally for 20.",
+                "energy": [
+                    "Taijutsu",
+                    "Random"
+                ],
+                "cooldown": 2,
+                "target": "self-or-single-ally",
+                "damage": 0,
+                "classes": [
+                    "Strategic",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "heal",
+                        "amount": 20,
+                        "scope": "target"
+                    }
+                ]
+            },
+            {
+                "id": "chikorita-vine-defense",
+                "name": "Protect",
+                "skillimage": "assets/images/PokemonArena/Cyndaquil/Chikorita/s4.webp",
+                "skilldescription": "Chikorita becomes invulnerable for 1 turn.",
+                "description": "Chikorita becomes invulnerable for 1 turn.",
+                "energy": [
+                    "Random"
+                ],
+                "cooldown": 4,
+                "target": "self",
+                "damage": 0,
+                "classes": [
+                    "Strategic",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "invulnerable": true,
+                            "tooltipText": "Invulnerable."
+                        },
+                        "statusId": "chikorita_vine_defense_1"
+                    }
+                ]
+            },
+            {
+                "id": "chikorita-bayleaf-magical-leaf",
+                "name": "Magical Leaf",
+                "skillimage": "assets/images/PokemonArena/Cyndaquil/Chikorita/bayleaf/bayleefmagicalleaf.png",
+                "skilldescription": "Deals 25 piercing damage to one enemy.",
+                "description": "Deals 25 piercing damage to one enemy.",
+                "energy": [
+                    "Taijutsu"
+                ],
+                "cooldown": 0,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": [
+                    "Special",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 25,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "chikorita-meganium-magical-leaf",
+                "name": "Magical Leaf",
+                "skillimage": "assets/images/PokemonArena/Cyndaquil/Chikorita/meganium/meganiummagicalleaf.jpg",
+                "skilldescription": "Deals 30 piercing damage to one enemy.",
+                "description": "Deals 30 piercing damage to one enemy.",
+                "energy": [
+                    "Taijutsu"
+                ],
+                "cooldown": 0,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": [
+                    "Special",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 30,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "totodile",
+        "characterId": "totodile",
+        "name": "Totodile",
+        "facePicture": "assets/images/PokemonArena/Cyndaquil/Totodile/totodilenewfacepicture.png",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Bruiser",
+        "roleCategory": "bruiser",
+        "description": "Bites hard and scares enemies; its earned evolutions upgrade Scary Face into a big bite.",
+        "descriptionHtml": "Bites hard and scares enemies; its earned evolutions upgrade Scary Face into a big bite.",
+        "characterdeescription": "Totodile delays enemy skills, builds Water Rings, and converts them into a devastating Aqua Tail stun.",
+        "pokemonTypes": [
+            "Water"
+        ],
+        "startStatuses": [],
+        "skills": [
+            {
+                "id": "totodile-aerial-water-gun",
+                "name": "Water Gun",
+                "skillimage": "assets/images/PokemonArena/Cyndaquil/Totodile/S1.webp",
+                "skilldescription": "Deals 20 damage to one enemy.",
+                "description": "Deals 20 damage to one enemy.",
+                "energy": [
+                    "Ninjutsu"
+                ],
+                "cooldown": 0,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": [
+                    "Special",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "totodile-aqua-tail",
+                "name": "Aqua Tail",
+                "skillimage": "assets/images/PokemonArena/Cyndaquil/Totodile/S3.webp",
+                "skilldescription": "Deals 30 damage to one enemy.",
+                "description": "Deals 30 damage to one enemy.",
+                "energy": [
+                    "Ninjutsu",
+                    "Random"
+                ],
+                "cooldown": 1,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": [
                     "Physical",
                     "Instant"
                 ],
@@ -32526,45 +27944,123 @@ const characters = [
                         "amount": 30,
                         "scope": "target",
                         "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "drain_chakra",
-                        "scope": "target",
-                        "chakraType": "random",
-                        "amount": 1
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "dragonite_taunt",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "taunt": true,
-                            "refreshIfIgnoredOnce": true
+                            "harmful": true
                         }
                     }
                 ]
             },
             {
-                "id": "dragonite-hyper-beam",
-                "name": "Hyper Beam",
-                "skillimage": "assets/images/PokemonArena/dragonite/hyperbeam.png",
-                "skilldescription": "Deals 35 affliction damage, stuns helpful skills, and taunts the target for 1 turn.",
-                "description": "Deals 35 affliction damage, stuns helpful skills, and taunts the target for 1 turn.",
+                "id": "totodile-scary-face",
+                "name": "Scary Face",
+                "skillimage": "assets/images/PokemonArena/Cyndaquil/Totodile/S2.webp",
+                "skilldescription": "One enemy deals 15 less damage for 2 turns.",
+                "description": "One enemy deals 15 less damage for 2 turns.",
                 "energy": [
-                    "Ninjutsu",
-                    "Genjutsu"
+                    "Random"
+                ],
+                "cooldown": 3,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": [
+                    "Special",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "duration": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "DamageDebuff": 15,
+                            "tooltipText": "Deals 15 less damage."
+                        },
+                        "statusId": "totodile_scary_face_1"
+                    }
+                ]
+            },
+            {
+                "id": "totodile-superpower",
+                "name": "Protect",
+                "skillimage": "assets/images/PokemonArena/Cyndaquil/Totodile/S4.webp",
+                "skilldescription": "Totodile becomes invulnerable for 1 turn.",
+                "description": "Totodile becomes invulnerable for 1 turn.",
+                "energy": [
+                    "Random"
+                ],
+                "cooldown": 4,
+                "target": "self",
+                "damage": 0,
+                "classes": [
+                    "Strategic",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "invulnerable": true,
+                            "tooltipText": "Invulnerable."
+                        },
+                        "statusId": "totodile_superpower_1"
+                    }
+                ]
+            },
+            {
+                "id": "totodile-croconaw-bite",
+                "name": "Bite",
+                "skillimage": "assets/images/PokemonArena/Cyndaquil/Totodile/Croconaw/croconawbite.png",
+                "skilldescription": "Deals 20 damage to one enemy and the target deals 10 less damage for 1 turn.",
+                "description": "Deals 20 damage to one enemy and the target deals 10 less damage for 1 turn.",
+                "energy": [
+                    "Random"
                 ],
                 "cooldown": 2,
                 "target": "single-enemy",
                 "damage": 0,
                 "classes": [
-                    "Normal",
-                    "Special",
-                    "Affliction",
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "DamageDebuff": 10,
+                            "tooltipText": "Deals 10 less damage."
+                        },
+                        "statusId": "totodile_croconaw_bite_1"
+                    }
+                ]
+            },
+            {
+                "id": "totodile-feraligatr-dragon-claw",
+                "name": "Dragon Claw",
+                "skillimage": "assets/images/PokemonArena/Cyndaquil/Totodile/feraligatyr/feraligatyrdragonclaw.png",
+                "skilldescription": "Deals 35 damage to one enemy.",
+                "description": "Deals 35 damage to one enemy.",
+                "energy": [
+                    "Taijutsu",
+                    "Random"
+                ],
+                "cooldown": 2,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": [
+                    "Physical",
                     "Instant"
                 ],
                 "effects": [
@@ -32573,655 +28069,331 @@ const characters = [
                         "amount": 35,
                         "scope": "target",
                         "metadata": {
-                            "afflictionDamage": true
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "dragonite_hyper_beam_stun",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "cannotUseHelpfulSkills": true
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "dragonite_taunt",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "taunt": true,
-                            "refreshIfIgnoredOnce": true
+                            "harmful": true
                         }
                     }
                 ]
-            },
-            {
-                "id": "dragonite-draco-meteor",
-                "name": "Draco Meteor",
-                "skillimage": "assets/images/PokemonArena/dragonite/draco meteor.png",
-                "skilldescription": "Deals 15 damage to all enemies for 2 turns and taunts each target for 1 turn on cast.",
-                "description": "Deals 15 damage to all enemies for 2 turns and taunts each target for 1 turn on cast.",
-                "energy": [
-                    "Ninjutsu",
-                    "Bloodline",
-                    "Random"
-                ],
-                "cooldown": 3,
-                "target": "all-enemy",
-                "damage": 0,
-                "classes": [
-                    "Dragon",
-                    "Physical",
-                    "Action"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "dragonite_draco_meteor",
-                        "duration": 2,
-                        "scope": "all-enemy",
-                        "metadata": {
-                            "harmful": true,
-                            "turnStartDamage": 15
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "dragonite_taunt",
-                        "duration": 1,
-                        "scope": "all-enemy",
-                        "metadata": {
-                            "harmful": true,
-                            "taunt": true,
-                            "refreshIfIgnoredOnce": true
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "dragonite-dragon-boost",
-                "name": "Dragon Boost",
-                "skillimage": "assets/images/PokemonArena/dragonite/skill 4.png",
-                "skilldescription": "Dragonite gains 1 Blue energy.",
-                "description": "Dragonite gains 1 Blue energy.",
-                "energy": [
-                    "Random"
-                ],
-                "cooldown": 3,
-                "target": "self",
-                "damage": 0,
-                "classes": [
-                    "Dragon",
-                    "Special",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "gain_chakra",
-                        "chakraType": "ninjutsu",
-                        "amount": 1,
-                        "scope": "self"
-                    }
-                ]
-            },
-            {
-                "id": "dragonite-pressure",
-                "name": "Passive: Pressure",
-                "skillimage": "assets/images/PokemonArena/dragonite/passive.png",
-                "skilldescription": "After Dragonite uses a new skill, it gains a stacking 10 unpierceable damage reduction for 2 turns. If an enemy does not attack while taunted by Dragonite, that taunt refreshes once.",
-                "description": "After Dragonite uses a new skill, it gains a stacking 10 unpierceable damage reduction for 2 turns. If an enemy does not attack while taunted by Dragonite, that taunt refreshes once.",
-                "energy": [],
-                "cooldown": 0,
-                "target": "",
-                "damage": 0,
-                "classes": [
-                    "Dragon",
-                    "Passive",
-                    "Instant"
-                ],
-                "effects": []
             }
-        ],
-        "startStatuses": [
-            {
-                "statusId": "dragonite_pressure_passive",
-                "sourceSkillId": "dragonite-pressure",
-                "duration": 999,
-                "metadata": {
-                    "infiniteDuration": true,
-                    "unremovable": true,
-                    "onOwnerUseSkillTrigger": true,
-                    "persistOnOwnerUseSkillTrigger": true,
-                    "onOwnerUseSkillApplyStatusToOwner": {
-                        "statusId": "dragonite_pressure_reduction",
-                        "duration": 2,
-                        "metadata": {
-                            "unpierceableDamageReductionFlat": 10,
-                            "allowDuplicateStatusInstances": true
-                        }
-                    }
-                }
-            }
-        ],
-                            "pokemonTypes": [
-                                "Dragon",
-                                "Flying"
-                            ]
-    },
-    {
-        "id": "cyndaquil",
-        "characterId": "cyndaquil",
-        "name": "Cyndaquil",
-        "arena": "pokemon",
-        "universe": "pokemon",
-        "role": "Specialist",
-        "roleCategory": "specialist",
-        "facePicture": "assets/images/PokemonArena/Cyndaquil/cyndaquilmaybefacepicture.png",
-        "description": "Cyndaquil protects itself by flaring up the flames on its back, building momentum whenever it uses a new skill.",
-        "characterdeescription": "Cyndaquil protects itself by flaring up the flames on its back, building momentum whenever it uses a new skill.",
-        "skills": [
-            {
-                "id": "cyndaquil-aerial-tackle",
-                "name": "Aerial Tackle",
-                "skillimage": "assets/images/PokemonArena/Cyndaquil/S1.webp",
-                "skilldescription": "Deals 20 damage to one enemy and cancels any Control or Channeled skills they have active.",
-                "description": "Deals 20 damage to one enemy and cancels any Control or Channeled skills they have active.",
-                "energy": ["Random"],
-                "cooldown": 0,
-                "target": "single-enemy",
-                "damage": 0,
-                "classes": ["Normal", "Physical", "Instant"],
-                "effects": [
-                    { "type": "damage", "amount": 20, "scope": "target", "metadata": { "harmful": true } },
-                    { "type": "remove_source_control_statuses", "scope": "target" }
-                ]
-            },
-            {
-                "id": "cyndaquil-aerial-flamethrower",
-                "name": "Aerial Flamethrower",
-                "skillimage": "assets/images/PokemonArena/Cyndaquil/S2.webp",
-                "skilldescription": "Deals 10 affliction damage to all enemies. Enemies affected by Cynda-Smokescreen take 5 additional affliction damage next turn.",
-                "description": "Deals 10 affliction damage to all enemies. Enemies affected by Cynda-Smokescreen take 5 additional affliction damage next turn.",
-                "energy": ["Bloodline"],
-                "cooldown": 0,
-                "target": "all-enemy",
-                "damage": 0,
-                "classes": ["Fire", "Special", "Affliction", "Instant"],
-                "effects": [{ "type": "cyndaquil_flamethrower", "scope": "all-enemy" }]
-            },
-            {
-                "id": "cyndaquil-cynda-smokescreen",
-                "name": "Cynda-Smokescreen",
-                "skillimage": "assets/images/PokemonArena/Cyndaquil/S3.webp",
-                "skilldescription": "Fully blinds the enemy team for 1 turn. Aerial Flamethrower lasts 1 additional turn on affected enemies.",
-                "description": "Fully blinds the enemy team for 1 turn. Aerial Flamethrower lasts 1 additional turn on affected enemies.",
-                "energy": ["Random", "Random"],
-                "cooldown": 3,
-                "target": "all-enemy",
-                "damage": 0,
-                "classes": ["Normal", "Strategic", "Instant"],
-                "effects": [{ "type": "apply_status", "statusId": "cyndaquil_smokescreen", "duration": 1, "scope": "all-enemy", "metadata": { "harmful": true, "fullyBlind": true } }]
-            },
-            {
-                "id": "cyndaquil-skyward-leap",
-                "name": "Skyward Leap",
-                "skillimage": "assets/images/PokemonArena/Cyndaquil/S4.webp",
-                "skilldescription": "The next enemy skill used on Cyndaquil misses. After it misses, Cyndaquil deals 10 additional damage for 1 turn. Taking damage ends this effect.",
-                "description": "The next enemy skill used on Cyndaquil misses. After it misses, Cyndaquil deals 10 additional damage for 1 turn. Taking damage ends this effect.",
-                "energy": [],
-                "cooldown": 2,
-                "target": "self",
-                "damage": 0,
-                "classes": ["Fire", "Strategic", "Instant"],
-                "effects": [{ "type": "apply_status", "statusId": "cyndaquil_skyward_leap", "duration": 2, "scope": "self", "metadata": { "evadeChancePercent": 100, "consumeOnEvade": true, "onEvadeApplyStatus": { "statusId": "cyndaquil_skyward_bonus", "duration": 1, "metadata": { "damageBonusFlat": 10 } } } }]
-            },
-            {
-                "id": "cyndaquil-warming-up",
-                "name": "Passive: Warming-Up",
-                "skillimage": "assets/images/PokemonArena/Cyndaquil/S5.webp",
-                "skilldescription": "Whenever an enemy attacks Cyndaquil with a new skill, this passive deals 0 affliction damage to them. Whenever Cyndaquil uses a new skill, this passive permanently gains 5 damage (stacks).",
-                "description": "Whenever an enemy attacks Cyndaquil with a new skill, this passive deals 0 affliction damage to them. Whenever Cyndaquil uses a new skill, this passive permanently gains 5 damage (stacks).",
-                "energy": [],
-                "cooldown": 0,
-                "target": "",
-                "damage": 0,
-                "classes": ["Fire", "Special", "Affliction", "Passive", "Instant"],
-                "effects": []
-            },
-            {
-                "id": "cyndaquil-quilava-flame-wheel",
-                "name": "Quilava Flame Wheel",
-                "actorCondition": { "statusId": "cyndaquil_quilava_evolution" },
-                "hiddenFromSelectionViewer": true,
-                "skillimage": "assets/images/PokemonArena/Cyndaquil/Quilava/quilavaflamewheel.png",
-                "skilldescription": "Deals 20 affliction damage to one enemy and 5 affliction damage to the other enemies. For 1 turn, Quilava gains 10 unpierceable damage reduction and ignores enemy stun effects. Enemies affected by Cynda-Smokescreen take 5 additional damage next turn.",
-                "description": "Deals 20 affliction damage to one enemy and 5 affliction damage to the other enemies. For 1 turn, Quilava gains 10 unpierceable damage reduction and ignores enemy stun effects. Enemies affected by Cynda-Smokescreen take 5 additional damage next turn.",
-                "energy": ["Random", "Random"],
-                "cooldown": 1,
-                "target": "single-enemy",
-                "damage": 0,
-                "classes": ["Fire", "Physical", "Affliction", "Instant"],
-                "effects": [{ "type": "cyndaquil_quilava_flame_wheel", "scope": "target" }]
-            },
-            {
-                "id": "cyndaquil-typhlosion-flame-wheel",
-                "name": "Typhlosion Flame Wheel",
-                "actorCondition": { "statusId": "cyndaquil_typhlosion_evolution" },
-                "hiddenFromSelectionViewer": true,
-                "skillimage": "assets/images/PokemonArena/Cyndaquil/typhlosion/typhlosionflamewheel.png",
-                "skilldescription": "Deals 25 affliction damage to one enemy and 10 affliction damage to the other enemies. For 1 turn, Typhlosion gains 15 unpierceable damage reduction and ignores enemy stun effects. Enemies affected by Cynda-Smokescreen take 5 additional damage next turn.",
-                "description": "Deals 25 affliction damage to one enemy and 10 affliction damage to the other enemies. For 1 turn, Typhlosion gains 15 unpierceable damage reduction and ignores enemy stun effects. Enemies affected by Cynda-Smokescreen take 5 additional damage next turn.",
-                "energy": ["Random", "Random", "Random"],
-                "cooldown": 1,
-                "target": "single-enemy",
-                "damage": 0,
-                "classes": ["Fire", "Physical", "Affliction", "Instant"],
-                "effects": [{ "type": "cyndaquil_typhlosion_flame_wheel", "scope": "target" }]
-            }
-        ],
-        "startStatuses": [{ "statusId": "cyndaquil_warming_up", "sourceSkillId": "cyndaquil-warming-up", "duration": 999, "metadata": { "infiniteDuration": true, "unremovable": true, "cyndaquilWarmingUp": true, "onOwnerUseSkillTrigger": true, "persistOnOwnerUseSkillTrigger": true, "skillDamageBonuses": { "cyndaquil-warming-up": 0 } } }],
-        "pokemonTypes": [
-            "Fire"
-        ]
-    },
-    {
-        "id": "chikorita",
-        "characterId": "chikorita",
-        "name": "Chikorita",
-        "arena": "pokemon",
-        "universe": "pokemon",
-        "role": "Support",
-        "roleCategory": "support",
-        "facePicture": "assets/images/PokemonArena/Cyndaquil/Chikorita/chikoritanewfacepicture.png",
-        "description": "Chikorita protects allies and cycles Sweet Scent through separate Physical, Special, and Affliction suppression.",
-        "characterdeescription": "Chikorita protects allies and cycles Sweet Scent through separate Physical, Special, and Affliction suppression.",
-        "skills": [
-            {
-                "id": "chikorita-aerial-razor-leaf",
-                "name": "Aerial Razor Leaf",
-                "skillimage": "assets/images/PokemonArena/Cyndaquil/Chikorita/s1.webp",
-                "skilldescription": "Deals 20 piercing damage to one enemy and 15 damage to the others, then permanently lowers their damage for Sweet Scent's current class by 10 and 5 respectively.",
-                "description": "Deals 20 piercing damage to one enemy and 15 damage to the others, then permanently lowers their damage for Sweet Scent's current class by 10 and 5 respectively.",
-                "energy": ["Taijutsu"],
-                "cooldown": 1,
-                "target": "single-enemy",
-                "damage": 0,
-                "classes": ["Grass", "Physical", "Instant"],
-                "effects": [{ "type": "chikorita_razor_leaf", "scope": "target" }]
-            },
-            {
-                "id": "chikorita-light-screen",
-                "name": "Light Screen",
-                "skillimage": "assets/images/PokemonArena/Cyndaquil/Chikorita/s2.webp",
-                "skilldescription": "Grants Chikorita or an ally 25 destructible defense for 1 turn. Enemies using a new skill on them lose 5 damage for Sweet Scent's current class and add 1 Solar Beam stack.",
-                "description": "Grants Chikorita or an ally 25 destructible defense for 1 turn. Enemies using a new skill on them lose 5 damage for Sweet Scent's current class and add 1 Solar Beam stack.",
-                "energy": ["Random"],
-                "cooldown": 2,
-                "target": "self-or-single-ally",
-                "damage": 0,
-                "classes": ["Psychic", "Strategic", "Instant", "Invisible"],
-                "effects": [{ "type": "apply_status", "statusId": "chikorita_light_screen", "duration": 1, "scope": "target", "metadata": { "destructibleDefensePoints": 25, "chikoritaLightScreen": true, "onOwnerTargetedBySkillTrigger": true, "onOwnerTargetedByEnemyOnly": true, "onOwnerTargetedByRequireNewSkill": true } }]
-            },
-            {
-                "id": "chikorita-chikorita-solar-beam",
-                "name": "Chikorita Solar Beam",
-                "skillimage": "assets/images/PokemonArena/Cyndaquil/Chikorita/s3.webp",
-                "skilldescription": "Deals 35 damage plus 5 per Light Screen stack, consumes all stacks, and stuns the target's skills in Sweet Scent's current class for 3 turns.",
-                "description": "Deals 35 damage plus 5 per Light Screen stack, consumes all stacks, and stuns the target's skills in Sweet Scent's current class for 3 turns.",
-                "energy": ["Taijutsu", "Taijutsu"],
-                "cooldown": 3,
-                "target": "single-enemy",
-                "damage": 0,
-                "classes": ["Grass", "Special", "Instant"],
-                "effects": [{ "type": "chikorita_solar_beam", "scope": "target" }]
-            },
-            {
-                "id": "chikorita-vine-defense",
-                "name": "Vine Defense",
-                "skillimage": "assets/images/PokemonArena/Cyndaquil/Chikorita/s4.webp",
-                "skilldescription": "Chikorita becomes invulnerable for 1 turn.",
-                "description": "Chikorita becomes invulnerable for 1 turn.",
-                "energy": ["Random"],
-                "cooldown": 4,
-                "target": "self",
-                "damage": 0,
-                "classes": ["Grass", "Strategic", "Instant"],
-                "effects": [{ "type": "apply_status", "statusId": "chikorita_vine_defense", "duration": 1, "scope": "self", "metadata": { "invulnerable": true } }]
-            },
-            {
-                "id": "chikorita-sweet-scent",
-                "name": "Passive: Sweet Scent",
-                "skillimage": "assets/images/PokemonArena/Cyndaquil/Chikorita/s5.webp",
-                "skilldescription": "Lowers all enemy damage by 5 for one class each turn, cycling between Physical, Special, and Affliction. Affliction is reduced separately from its attached primary class.",
-                "description": "Lowers all enemy damage by 5 for one class each turn, cycling between Physical, Special, and Affliction. Affliction is reduced separately from its attached primary class.",
-                "energy": [],
-                "cooldown": 0,
-                "target": "",
-                "damage": 0,
-                "classes": ["Normal", "Passive", "Strategic", "Instant"],
-                "effects": []
-            },
-            {
-                "id": "chikorita-bayleaf-magical-leaf",
-                "name": "Magical Leaf",
-                "actorCondition": { "statusId": "chikorita_bayleaf_evolution" },
-                "hiddenFromSelectionViewer": true,
-                "skillimage": "assets/images/PokemonArena/Cyndaquil/Chikorita/bayleaf/bayleefmagicalleaf.png",
-                "skilldescription": "Deals 30 piercing damage to one enemy and 15 to the others, lowering the main target's damage by 15 and the others' by 10 for 1 turn.",
-                "description": "Deals 30 piercing damage to one enemy and 15 to the others, lowering the main target's damage by 15 and the others' by 10 for 1 turn.",
-                "energy": ["Taijutsu", "Random"],
-                "cooldown": 1,
-                "target": "single-enemy",
-                "damage": 0,
-                "classes": ["Grass", "Physical", "Instant"],
-                "effects": [
-                    { "type": "damage", "amount": 30, "scope": "target", "metadata": { "ignoreDamageReduction": true } },
-                    { "type": "damage", "amount": 15, "scope": "other-enemies" },
-                    { "type": "apply_status", "statusId": "chikorita_magical_leaf_debuff", "duration": 1, "scope": "target", "metadata": { "harmful": true, "DamageDebuff": 15 } },
-                    { "type": "apply_status", "statusId": "chikorita_magical_leaf_debuff", "duration": 1, "scope": "other-enemies", "metadata": { "harmful": true, "DamageDebuff": 10 } }
-                ]
-            },
-            {
-                "id": "chikorita-meganium-magical-leaf",
-                "name": "Magical Leaf",
-                "actorCondition": { "statusId": "chikorita_meganium_evolution" },
-                "hiddenFromSelectionViewer": true,
-                "skillimage": "assets/images/PokemonArena/Cyndaquil/Chikorita/meganium/meganiummagicalleaf.jpg",
-                "skilldescription": "Deals 35 piercing damage to one enemy and 25 to the others, lowering the main target's damage by 20 and the others' by 15 for 1 turn.",
-                "description": "Deals 35 piercing damage to one enemy and 25 to the others, lowering the main target's damage by 20 and the others' by 15 for 1 turn.",
-                "energy": ["Taijutsu", "Random", "Random"],
-                "cooldown": 1,
-                "target": "single-enemy",
-                "damage": 0,
-                "classes": ["Grass", "Physical", "Instant"],
-                "effects": [
-                    { "type": "damage", "amount": 35, "scope": "target", "metadata": { "ignoreDamageReduction": true } },
-                    { "type": "damage", "amount": 25, "scope": "other-enemies" },
-                    { "type": "apply_status", "statusId": "chikorita_magical_leaf_debuff", "duration": 1, "scope": "target", "metadata": { "harmful": true, "DamageDebuff": 20 } },
-                    { "type": "apply_status", "statusId": "chikorita_magical_leaf_debuff", "duration": 1, "scope": "other-enemies", "metadata": { "harmful": true, "DamageDebuff": 15 } }
-                ]
-            }
-        ],
-        "startStatuses": [{ "statusId": "chikorita_sweet_scent_tracker", "sourceSkillId": "chikorita-sweet-scent", "duration": 999, "metadata": { "infiniteDuration": true, "unremovable": true, "sweetScentClassIndex": 0, "solarBeamStacks": 0 } }],
-        "pokemonTypes": [
-            "Grass"
-        ]
-    },
-    {
-        "id": "totodile",
-        "characterId": "totodile",
-        "name": "Totodile",
-        "arena": "pokemon",
-        "universe": "pokemon",
-        "role": "Specialist",
-        "roleCategory": "specialist",
-        "facePicture": "assets/images/PokemonArena/Cyndaquil/Totodile/totodilenewfacepicture.png",
-        "description": "Totodile delays enemy skills, builds Water Rings, and converts them into a devastating Aqua Tail stun.",
-        "characterdeescription": "Totodile delays enemy skills, builds Water Rings, and converts them into a devastating Aqua Tail stun.",
-        "skills": [
-            {
-                "id": "totodile-aerial-water-gun",
-                "name": "Aerial Water Gun",
-                "skillimage": "assets/images/PokemonArena/Cyndaquil/Totodile/S1.webp",
-                "skilldescription": "Deals 15 damage to all enemies and gains 1 Water Ring. Delays the targeted enemy's harmful skills for 1 turn (2 if they have Scary Face).",
-                "description": "Deals 15 damage to all enemies and gains 1 Water Ring. Delays the targeted enemy's harmful skills for 1 turn (2 if they have Scary Face).",
-                "energy": ["Ninjutsu"],
-                "cooldown": 1,
-                "target": "single-enemy",
-                "damage": 0,
-                "classes": ["Water", "Special", "Instant"],
-                "effects": [{ "type": "totodile_water_gun", "scope": "all-enemy" }]
-            },
-            {
-                "id": "totodile-scary-face",
-                "name": "Scary Face",
-                "skillimage": "assets/images/PokemonArena/Cyndaquil/Totodile/S2.webp",
-                "skilldescription": "Guard Breaks one enemy and causes them to take 10 additional damage from Physical and Special skills for 2 turns.",
-                "description": "Guard Breaks one enemy and causes them to take 10 additional damage from Physical and Special skills for 2 turns.",
-                "energy": ["Random"],
-                "cooldown": 2,
-                "target": "single-enemy",
-                "damage": 0,
-                "classes": ["Normal", "Strategic", "Instant"],
-                "effects": [{ "type": "apply_status", "statusId": "totodile_scary_face", "duration": 2, "scope": "target", "metadata": { "harmful": true, "cannotReduceDamage": true, "tooltipText": "This character is Guard Broken and takes 10 additional damage from Physical and Special skills.", "additionalDamageTakenBySkillClass": { "physical": 10, "special": 10 } } }]
-            },
-            {
-                "id": "totodile-aqua-tail",
-                "name": "Aqua Tail",
-                "skillimage": "assets/images/PokemonArena/Cyndaquil/Totodile/S3.webp",
-                "skilldescription": "Deals 45 piercing damage to one enemy. Consumes all Water Rings to fully stun the target for 1 turn per ring.",
-                "description": "Deals 45 piercing damage to one enemy. Consumes all Water Rings to fully stun the target for 1 turn per ring.",
-                "energy": ["Ninjutsu", "Ninjutsu"],
-                "cooldown": 1,
-                "target": "single-enemy",
-                "damage": 0,
-                "classes": ["Water", "Physical", "Instant"],
-                "effects": [{ "type": "totodile_aqua_tail", "scope": "target" }]
-            },
-            {
-                "id": "totodile-superpower",
-                "name": "Superpower",
-                "skillimage": "assets/images/PokemonArena/Cyndaquil/Totodile/S4.webp",
-                "skilldescription": "Totodile becomes invulnerable for 1 turn. Its next Aqua Tail gains 10 damage, then Aqua Tail permanently loses 5 damage (stacks).",
-                "description": "Totodile becomes invulnerable for 1 turn. Its next Aqua Tail gains 10 damage, then Aqua Tail permanently loses 5 damage (stacks).",
-                "energy": ["Random"],
-                "cooldown": 4,
-                "target": "self",
-                "damage": 0,
-                "classes": ["Fighting", "Strategic", "Instant"],
-                "effects": [
-                    { "type": "apply_status", "statusId": "totodile_superpower_invulnerable", "duration": 1, "scope": "self", "metadata": { "invulnerable": true } },
-                    { "type": "totodile_superpower", "scope": "self" }
-                ]
-            },
-            {
-                "id": "totodile-water-rings",
-                "name": "Passive: Water Rings",
-                "skillimage": "assets/images/PokemonArena/Cyndaquil/Totodile/S5.webp",
-                "skilldescription": "Heals 5 HP each turn per Water Ring. Loses 1 ring whenever affected by a new non-Strategic skill.",
-                "description": "Heals 5 HP each turn per Water Ring. Loses 1 ring whenever affected by a new non-Strategic skill.",
-                "energy": [],
-                "cooldown": 0,
-                "target": "",
-                "damage": 0,
-                "classes": ["Water", "Passive", "Strategic", "Instant"],
-                "effects": []
-            },
-            {
-                "id": "totodile-croconaw-bite",
-                "name": "Croconaw Bite",
-                "actorCondition": { "statusId": "totodile_croconaw_evolution" },
-                "hiddenFromSelectionViewer": true,
-                "skillimage": "assets/images/PokemonArena/Cyndaquil/Totodile/Croconaw/croconawbite.png",
-                "skilldescription": "Deals 20 damage to one enemy and causes them to take 15 additional damage from Physical and Special skills for 2 turns.",
-                "description": "Deals 20 damage to one enemy and causes them to take 15 additional damage from Physical and Special skills for 2 turns.",
-                "energy": ["Random", "Random"],
-                "cooldown": 2,
-                "target": "single-enemy",
-                "damage": 0,
-                "classes": ["Water", "Physical", "Instant"],
-                "effects": [
-                    { "type": "damage", "amount": 20, "scope": "target" },
-                    { "type": "apply_status", "statusId": "totodile_croconaw_bite_debuff", "duration": 2, "scope": "target", "metadata": { "harmful": true, "cannotReduceDamage": true, "tooltipText": "This character takes 15 additional damage from Physical and Special skills.", "additionalDamageTakenBySkillClass": { "physical": 15, "special": 15 } } }
-                ]
-            },
-            {
-                "id": "totodile-feraligatr-dragon-claw",
-                "name": "Dragon Claw",
-                "actorCondition": { "statusId": "totodile_feraligatr_evolution" },
-                "hiddenFromSelectionViewer": true,
-                "skillimage": "assets/images/PokemonArena/Cyndaquil/Totodile/feraligatyr/feraligatyrdragonclaw.png",
-                "skilldescription": "Deals 30 piercing damage to one enemy and causes them to take 20 additional damage from Physical and Special skills for 2 turns.",
-                "description": "Deals 30 piercing damage to one enemy and causes them to take 20 additional damage from Physical and Special skills for 2 turns.",
-                "energy": ["Random", "Random", "Random"],
-                "cooldown": 2,
-                "target": "single-enemy",
-                "damage": 0,
-                "classes": ["Dragon", "Physical", "Instant"],
-                "effects": [
-                    { "type": "damage", "amount": 30, "scope": "target", "metadata": { "ignoreDamageReduction": true } },
-                    { "type": "apply_status", "statusId": "totodile_feraligatr_dragon_claw_debuff", "duration": 2, "scope": "target", "metadata": { "harmful": true, "cannotReduceDamage": true, "tooltipText": "This character takes 20 additional damage from Physical and Special skills.", "additionalDamageTakenBySkillClass": { "physical": 20, "special": 20 } } }
-                ]
-            }
-        ],
-        "startStatuses": [{ "statusId": "totodile_water_rings_tracker", "sourceSkillId": "totodile-water-rings", "duration": 999, "metadata": { "infiniteDuration": true, "unremovable": true, "waterRings": 0, "aquaTailPermanentPenalty": 0, "aquaTailEmpowered": false, "onOwnerTargetedBySkillTrigger": true, "onOwnerTargetedByRequireNewSkill": true } }],
-        "pokemonTypes": [
-            "Water"
         ]
     },
     {
         "id": "drowzee",
         "characterId": "drowzee",
         "name": "Drowzee",
+        "facePicture": "assets/images/PokemonArena/Drowzee/FP.webp",
         "arena": "pokemon",
         "universe": "pokemon",
-        "role": "Specialist",
-        "roleCategory": "specialist",
-        "facePicture": "assets/images/PokemonArena/Drowzee/FP.webp",
-        "description": "Drowzee traps an enemy in Hypnosis, then finishes them off with Nightmare and Dream Eater, evolving into Hypno once it has used both.",
+        "role": "Controller",
+        "roleCategory": "controller",
+        "description": "Puts enemies to sleep and feeds on their dreams.",
+        "descriptionHtml": "Puts enemies to sleep and feeds on their dreams.",
         "characterdeescription": "Drowzee traps an enemy in Hypnosis, then finishes them off with Nightmare and Dream Eater, evolving into Hypno once it has used both.",
+        "pokemonTypes": [
+            "Psychic"
+        ],
+        "startStatuses": [
+            {
+                "statusId": "drowzee_evolution_tracker",
+                "sourceSkillId": "drowzee-evolution",
+                "duration": 3,
+                "metadata": {
+                    "unremovable": true,
+                    "tooltipText": "Evolves into Hypno at the start of its 4th turn.",
+                    "onExpireApplyStatusToSelf": {
+                        "statusId": "hypno_evolution",
+                        "duration": 999,
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "useEvolvedSkills": true,
+                            "facePictureOverride": "assets/images/PokemonArena/Drowzee/hypnofp.webp",
+                            "tooltipText": "Drowzee has evolved into Hypno."
+                        }
+                    }
+                }
+            }
+        ],
         "skills": [
+            {
+                "id": "drowzee-dream-eater",
+                "name": "Dream Eater",
+                "skillimage": "assets/images/PokemonArena/Drowzee/S3.webp",
+                "skilldescription": "Deals 20 damage to one enemy and heals Drowzee for 10.",
+                "description": "Deals 20 damage to one enemy and heals Drowzee for 10.",
+                "energy": [
+                    "Ninjutsu"
+                ],
+                "cooldown": 0,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": [
+                    "Special",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true
+                        }
+                    },
+                    {
+                        "type": "heal",
+                        "amount": 10,
+                        "scope": "self"
+                    }
+                ],
+                "evolvesTo": {
+                    "id": "hypno-dream-eater",
+                    "name": "Dream Eater",
+                    "skillimage": "assets/images/PokemonArena/Drowzee/hypnos3.webp",
+                    "skilldescription": "Deals 25 damage to one enemy and heals Hypno for 15.",
+                    "description": "Deals 25 damage to one enemy and heals Hypno for 15.",
+                    "energy": [
+                        "Ninjutsu"
+                    ],
+                    "cooldown": 0,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Special",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "damage",
+                            "amount": 25,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true
+                            }
+                        },
+                        {
+                            "type": "heal",
+                            "amount": 15,
+                            "scope": "self"
+                        }
+                    ]
+                }
+            },
             {
                 "id": "drowzee-hypnosis",
                 "name": "Hypnosis",
                 "skillimage": "assets/images/PokemonArena/Drowzee/S1.webp",
-                "skilldescription": "Drowzee fully stuns one enemy for 1 turn. Cannot be used on an already affected enemy.",
-                "description": "Drowzee fully stuns one enemy for 1 turn. Cannot be used on an already affected enemy.",
-                "energy": ["Random"],
-                "cooldown": 2,
+                "skilldescription": "Stuns one enemy for 1 turn.",
+                "description": "Stuns one enemy for 1 turn.",
+                "energy": [
+                    "Genjutsu",
+                    "Random"
+                ],
+                "cooldown": 3,
                 "target": "single-enemy",
-                "targetCondition": { "missingStatusId": "drowzee_hypnosis_active" },
                 "damage": 0,
-                "classes": ["Psychic", "Special", "Instant"],
+                "classes": [
+                    "Special",
+                    "Instant"
+                ],
                 "effects": [
-                    { "type": "apply_status", "statusId": "drowzee_hypnosis_active", "duration": 1, "scope": "target", "metadata": { "harmful": true, "cannotUseSkills": true, "turnDurationAnchor": "source_turn", "tooltipText": "This character is fully stunned by Hypnosis, through Drowzee's next turn." } }
-                ]
+                    {
+                        "type": "apply_status",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseSkills": true,
+                            "tooltipText": "Stunned: cannot use skills."
+                        },
+                        "statusId": "drowzee_hypnosis_1"
+                    }
+                ],
+                "evolvesTo": {
+                    "id": "hypno-hypnosis",
+                    "name": "Hypnosis",
+                    "skillimage": "assets/images/PokemonArena/Drowzee/hypnos1.webp",
+                    "skilldescription": "Deals 15 damage to one enemy and stuns the target for 1 turn.",
+                    "description": "Deals 15 damage to one enemy and stuns the target for 1 turn.",
+                    "energy": [
+                        "Genjutsu",
+                        "Random"
+                    ],
+                    "cooldown": 3,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Special",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "damage",
+                            "amount": 15,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true
+                            }
+                        },
+                        {
+                            "type": "apply_status",
+                            "duration": 1,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true,
+                                "cannotUseSkills": true,
+                                "tooltipText": "Stunned: cannot use skills."
+                            },
+                            "statusId": "hypno_hypnosis_1"
+                        }
+                    ]
+                }
             },
             {
                 "id": "drowzee-nightmare",
                 "name": "Nightmare",
                 "skillimage": "assets/images/PokemonArena/Drowzee/S2.webp",
-                "skilldescription": "May only be used on an enemy affected by Hypnosis. Deals 10 affliction damage each turn for 2 turns, extends Hypnosis by 1 turn, and removes 1 random energy from the target's pool each turn this damage lands.",
-                "description": "May only be used on an enemy affected by Hypnosis. Deals 10 affliction damage each turn for 2 turns, extends Hypnosis by 1 turn, and removes 1 random energy from the target's pool each turn this damage lands.",
-                "energy": ["Bloodline"],
-                "cooldown": 3,
+                "skilldescription": "Deals 10 affliction damage to one enemy each turn for 2 turns.",
+                "description": "Deals 10 affliction damage to one enemy each turn for 2 turns.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "cooldown": 2,
                 "target": "single-enemy",
                 "damage": 0,
-                "targetCondition": { "statusId": "drowzee_hypnosis_active" },
-                "classes": ["Ghost", "Special", "Instant", "Affliction"],
-                "effects": [{ "type": "drowzee_nightmare", "scope": "target" }]
-            },
-            {
-                "id": "drowzee-dream-eater",
-                "name": "Dream Eater",
-                "skillimage": "assets/images/PokemonArena/Drowzee/S3.webp",
-                "skilldescription": "Drowzee deals 30 affliction damage to one enemy, and steals 1 random energy from them if they are affected by Hypnosis.",
-                "description": "Drowzee deals 30 affliction damage to one enemy, and steals 1 random energy from them if they are affected by Hypnosis.",
-                "energy": ["Ninjutsu", "Random"],
-                "cooldown": 1,
-                "target": "single-enemy",
-                "damage": 0,
-                "classes": ["Psychic", "Special", "Instant", "Affliction"],
-                "effects": [{ "type": "drowzee_dream_eater", "scope": "target" }]
+                "classes": [
+                    "Special",
+                    "Affliction",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "duration": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "afflictionDamage": true,
+                            "turnEndDamage": 10,
+                            "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "Takes 10 affliction damage each turn."
+                        },
+                        "statusId": "drowzee_nightmare_1"
+                    }
+                ],
+                "evolvesTo": {
+                    "id": "hypno-nightmare",
+                    "name": "Nightmare",
+                    "skillimage": "assets/images/PokemonArena/Drowzee/hypnos2.webp",
+                    "skilldescription": "Deals 15 affliction damage to one enemy each turn for 2 turns.",
+                    "description": "Deals 15 affliction damage to one enemy each turn for 2 turns.",
+                    "energy": [
+                        "Genjutsu"
+                    ],
+                    "cooldown": 2,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Special",
+                        "Affliction",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "apply_status",
+                            "duration": 2,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true,
+                                "afflictionDamage": true,
+                                "turnEndDamage": 15,
+                                "ignoreTargetDamageReduction": true,
+                                "ignoreTargetDestructibleDefense": true,
+                                "turnEndTrigger": "source_turn",
+                                "turnDurationAnchor": "source_turn",
+                                "tooltipText": "Takes 15 affliction damage each turn."
+                            },
+                            "statusId": "hypno_nightmare_1"
+                        }
+                    ]
+                }
             },
             {
                 "id": "drowzee-disable",
-                "name": "Disable",
+                "name": "Protect",
                 "skillimage": "assets/images/PokemonArena/Drowzee/S4.webp",
-                "skilldescription": "Drowzee stuns one enemy's last used skill for 2 turns and deals 10 affliction damage to them.",
-                "description": "Drowzee stuns one enemy's last used skill for 2 turns and deals 10 affliction damage to them.",
-                "energy": ["Random"],
-                "cooldown": 3,
-                "target": "single-enemy",
+                "skilldescription": "Drowzee becomes invulnerable for 1 turn.",
+                "description": "Drowzee becomes invulnerable for 1 turn.",
+                "energy": [
+                    "Random"
+                ],
+                "cooldown": 4,
+                "target": "self",
                 "damage": 0,
-                "classes": ["Normal", "Strategic", "Instant", "Affliction"],
-                "effects": [{ "type": "drowzee_disable", "scope": "target" }]
+                "classes": [
+                    "Strategic",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "invulnerable": true,
+                            "tooltipText": "Invulnerable."
+                        },
+                        "statusId": "drowzee_disable_1"
+                    }
+                ],
+                "evolvesTo": {
+                    "id": "hypno-disable",
+                    "name": "Protect",
+                    "skillimage": "assets/images/PokemonArena/Drowzee/hypnos4.webp",
+                    "skilldescription": "Hypno becomes invulnerable for 1 turn.",
+                    "description": "Hypno becomes invulnerable for 1 turn.",
+                    "energy": [
+                        "Random"
+                    ],
+                    "cooldown": 4,
+                    "target": "self",
+                    "damage": 0,
+                    "classes": [
+                        "Strategic",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "apply_status",
+                            "duration": 1,
+                            "scope": "self",
+                            "metadata": {
+                                "invulnerable": true,
+                                "tooltipText": "Invulnerable."
+                            },
+                            "statusId": "hypno_disable_1"
+                        }
+                    ]
+                }
             },
             {
                 "id": "drowzee-evolution",
-                "name": "Passive: Evolution",
+                "name": "Evolution: Hypno",
                 "skillimage": "assets/images/PokemonArena/Drowzee/S5.webp",
-                "skilldescription": "If Drowzee uses Nightmare and Dream Eater in a match, it evolves into Hypno and heals 10HP. Hypno's skills are improved.",
-                "description": "If Drowzee uses Nightmare and Dream Eater in a match, it evolves into Hypno and heals 10HP. Hypno's skills are improved.",
+                "skilldescription": "At the start of its 4th turn, Drowzee evolves into Hypno and its skills get stronger.",
+                "description": "At the start of its 4th turn, Drowzee evolves into Hypno and its skills get stronger.",
                 "energy": [],
                 "cooldown": 0,
                 "target": "",
                 "damage": 0,
-                "classes": ["Passive", "Psychic", "Instant"],
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ],
                 "effects": []
-            },
-            {
-                "id": "hypno-hypnosis",
-                "name": "Hypnosis",
-                "actorCondition": { "statusId": "hypno_evolution" },
-                "hiddenFromSelectionViewer": true,
-                "skillimage": "assets/images/PokemonArena/Drowzee/hypnos1.webp",
-                "skilldescription": "Hypno fully stuns one enemy for 2 turns. Cannot be used on an already affected enemy.",
-                "description": "Hypno fully stuns one enemy for 2 turns. Cannot be used on an already affected enemy.",
-                "energy": ["Random"],
-                "cooldown": 2,
-                "target": "single-enemy",
-                "targetCondition": { "missingStatusId": "drowzee_hypnosis_active" },
-                "damage": 0,
-                "classes": ["Psychic", "Special", "Instant"],
-                "effects": [
-                    { "type": "apply_status", "statusId": "drowzee_hypnosis_active", "duration": 2, "scope": "target", "metadata": { "harmful": true, "cannotUseSkills": true, "turnDurationAnchor": "source_turn", "tooltipText": "This character is fully stunned by Hypnosis, through Drowzee's next turn." } }
-                ]
-            },
-            {
-                "id": "hypno-nightmare",
-                "name": "Nightmare",
-                "actorCondition": { "statusId": "hypno_evolution" },
-                "hiddenFromSelectionViewer": true,
-                "skillimage": "assets/images/PokemonArena/Drowzee/hypnos2.webp",
-                "skilldescription": "May only be used on an enemy affected by Hypnosis. Deals 30 affliction damage each turn for 2 turns, extends Hypnosis by 1 turn, and removes 1 random energy from the target's pool each turn this damage lands.",
-                "description": "May only be used on an enemy affected by Hypnosis. Deals 30 affliction damage each turn for 2 turns, extends Hypnosis by 1 turn, and removes 1 random energy from the target's pool each turn this damage lands.",
-                "energy": ["Bloodline", "Bloodline"],
-                "cooldown": 3,
-                "target": "single-enemy",
-                "damage": 0,
-                "targetCondition": { "statusId": "drowzee_hypnosis_active" },
-                "classes": ["Ghost", "Special", "Instant", "Affliction"],
-                "effects": [{ "type": "hypno_nightmare", "scope": "target" }]
-            },
-            {
-                "id": "hypno-dream-eater",
-                "name": "Dream Eater",
-                "actorCondition": { "statusId": "hypno_evolution" },
-                "hiddenFromSelectionViewer": true,
-                "skillimage": "assets/images/PokemonArena/Drowzee/hypnos3.webp",
-                "skilldescription": "Hypno deals 30 affliction damage to one enemy, and always steals 1 random energy from them, even if they are not affected by Hypnosis.",
-                "description": "Hypno deals 30 affliction damage to one enemy, and always steals 1 random energy from them, even if they are not affected by Hypnosis.",
-                "energy": ["Ninjutsu", "Random"],
-                "cooldown": 1,
-                "target": "single-enemy",
-                "damage": 0,
-                "classes": ["Psychic", "Special", "Instant", "Affliction"],
-                "effects": [{ "type": "hypno_dream_eater", "scope": "target" }]
-            },
-            {
-                "id": "hypno-disable",
-                "name": "Disable",
-                "actorCondition": { "statusId": "hypno_evolution" },
-                "hiddenFromSelectionViewer": true,
-                "skillimage": "assets/images/PokemonArena/Drowzee/hypnos4.webp",
-                "skilldescription": "Hypno stuns one enemy's last used skill for 3 turns and deals 10 affliction damage to them.",
-                "description": "Hypno stuns one enemy's last used skill for 3 turns and deals 10 affliction damage to them.",
-                "energy": ["Random"],
-                "cooldown": 3,
-                "target": "single-enemy",
-                "damage": 0,
-                "classes": ["Normal", "Strategic", "Instant", "Affliction"],
-                "effects": [{ "type": "hypno_disable", "scope": "target" }]
             }
-        ],
-        "startStatuses": [{ "statusId": "drowzee_evolution_tracker", "sourceSkillId": "drowzee-evolution", "duration": 999, "metadata": { "infiniteDuration": true, "unremovable": true, "usedNightmare": false, "usedDreamEater": false } }],
-        "pokemonTypes": [
-            "Psychic"
         ]
     },
     {
@@ -35090,76 +30262,40 @@ const characters = [
         "characterId": "primeape",
         "name": "Primeape",
         "facePicture": "assets/images/PokemonArena/Primeape/Primeape-FP.jpg",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Berserker",
+        "roleCategory": "berserker",
+        "description": "Gets angrier and stronger the longer the fight goes.",
+        "descriptionHtml": "Gets angrier and stronger the longer the fight goes.",
+        "pokemonTypes": [
+            "Fighting"
+        ],
+        "startStatuses": [],
         "skills": [
             {
                 "id": "primeape-rock-smash",
                 "name": "Rock Smash",
                 "skillimage": "assets/images/PokemonArena/Primeape/Rock-Smash.jpg",
-                "skilldescription": "Destroys all Barrier on Primeape and all Shield on one enemy, then deals 20 damage to them. If Primeape destroys Barrier from himself this way, Rage Fist deals 10 additional damage for 1 turn.",
-                "description": "Destroys all Barrier on Primeape and all Shield on one enemy, then deals 20 damage to them. If Primeape destroys Barrier from himself this way, Rage Fist deals 10 additional damage for 1 turn.",
-                "energy": ["Genjutsu"],
+                "skilldescription": "Deals 20 damage to one enemy.",
+                "description": "Deals 20 damage to one enemy.",
+                "energy": [
+                    "Taijutsu"
+                ],
+                "cooldown": 0,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 0,
-                "classes": ["Fighting", "Physical", "Instant"],
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
                 "effects": [
-                    {
-                        "type": "primeape_rock_smash",
-                        "scope": "target"
-                    },
                     {
                         "type": "damage",
                         "amount": 20,
-                        "scope": "target"
-                    }
-                ]
-            },
-            {
-                "id": "primeape-knock-off",
-                "name": "Knock Off",
-                "skillimage": "assets/images/PokemonArena/Primeape/Knock-Off.jpg",
-                "skilldescription": "Deals 15 damage to one enemy and removes all helpful effects from them. For 2 turns, that enemy cannot gain Shield. If Knock Off removes a helpful effect, Rock Smash and Close Combat deal 10 additional damage to that enemy for 2 turns.",
-                "description": "Deals 15 damage to one enemy and removes all helpful effects from them. For 2 turns, that enemy cannot gain Shield. If Knock Off removes a helpful effect, Rock Smash and Close Combat deal 10 additional damage to that enemy for 2 turns.",
-                "energy": ["Genjutsu"],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 2,
-                "classes": ["Dark", "Physical", "Instant"],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 15,
-                        "scope": "target"
-                    },
-                    {
-                        "type": "primeape_knock_off",
-                        "scope": "target"
-                    }
-                ]
-            },
-            {
-                "id": "primeape-rage-fist",
-                "name": "Rage Fist",
-                "skillimage": "assets/images/PokemonArena/Primeape/Rage-Fist.jpg",
-                "skilldescription": "Deals 15 damage to one enemy. This deals 5 additional damage for every 15 HP Primeape has lost. If Anger Point is active, Rage Fist becomes Piercing.",
-                "description": "Deals 15 damage to one enemy. This deals 5 additional damage for every 15 HP Primeape has lost. If Anger Point is active, Rage Fist becomes Piercing.",
-                "energy": ["Random"],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 1,
-                "classes": ["Ghost", "Physical", "Instant"],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 15,
                         "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "primeape_anger_point_passive"
-                        },
                         "metadata": {
-                            "amountFromSourceMissingHpStep": 5,
-                            "amountFromSourceMissingHpDivisor": 15
+                            "harmful": true
                         }
                     }
                 ]
@@ -35168,146 +30304,179 @@ const characters = [
                 "id": "primeape-close-combat",
                 "name": "Close Combat",
                 "skillimage": "assets/images/PokemonArena/Primeape/Close-Combat.jpg",
-                "skilldescription": "Deals 35 Piercing damage to one enemy. For 1 turn afterward, Primeape takes 10 additional damage from enemy skills. If Primeape is below 50 HP, Close Combat deals 10 additional damage.",
-                "description": "Deals 35 Piercing damage to one enemy. For 1 turn afterward, Primeape takes 10 additional damage from enemy skills. If Primeape is below 50 HP, Close Combat deals 10 additional damage.",
-                "energy": ["Genjutsu", "Random"],
+                "skilldescription": "Deals 40 damage to one enemy and Primeape takes 10 more damage for 1 turn.",
+                "description": "Deals 40 damage to one enemy and Primeape takes 10 more damage for 1 turn.",
+                "energy": [
+                    "Taijutsu",
+                    "Random"
+                ],
+                "cooldown": 1,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 1,
-                "classes": ["Fighting", "Physical", "Instant"],
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 35,
+                        "amount": 40,
                         "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "sourceCurrentHpAtLeast": 50
-                        },
                         "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 45,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "sourceCurrentHpAtMost": 49
-                        },
-                        "metadata": {
-                            "ignoreDamageReduction": true
+                            "harmful": true
                         }
                     },
                     {
                         "type": "apply_status",
-                        "statusId": "primeape_close_combat_exposure",
                         "duration": 1,
                         "scope": "self",
                         "metadata": {
                             "harmful": true,
                             "damageTakenBonusFlat": 10,
-                            "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/Primeape/Close-Combat.jpg",
-                            "tooltipText": "Primeape takes 10 additional damage from enemy skills."
-                        }
+                            "tooltipText": "Takes 10 more damage."
+                        },
+                        "statusId": "primeape_close_combat_1"
                     }
                 ]
             },
             {
-                "id": "primeape-passive-anger-point",
-                "name": "Passive: Anger Point",
-                "skillimage": "assets/images/PokemonArena/Primeape/Anger-Point.jpg",
-                "skilldescription": "After Primeape is hit by a Super Effective skill or Critical Hit, Primeape deals 20 additional damage for 1 turn.",
-                "description": "After Primeape is hit by a Super Effective skill or Critical Hit, Primeape deals 20 additional damage for 1 turn.",
-                "energy": [],
+                "id": "primeape-rage-fist",
+                "name": "Rage",
+                "skillimage": "assets/images/PokemonArena/Primeape/Rage-Fist.jpg",
+                "skilldescription": "Primeape deals 10 more damage for 3 turns.",
+                "description": "Primeape deals 10 more damage for 3 turns.",
+                "energy": [
+                    "Random"
+                ],
+                "cooldown": 2,
                 "target": "self",
                 "damage": 0,
-                "cooldown": 0,
-                "classes": ["Fighting", "Passive", "Instant"],
-                "effects": []
-            }
-        ],
-        "startStatuses": [
-            {
-                "statusId": "primeape_anger_point_passive",
-                "sourceSkillId": "primeape-passive-anger-point",
-                "duration": 99,
-                "metadata": {
-                    "hidden": true,
-                    "passive": true,
-                    "unremovable": true,
-                    "infiniteDuration": true,
-                    "onOwnerHitBySuperEffectiveOrCritical": {
-                        "statusId": "primeape_anger_point_active",
-                        "duration": 1,
+                "classes": [
+                    "Strategic",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "duration": 3,
+                        "scope": "self",
                         "metadata": {
-                            "damageBonusFlat": 20,
-                            "ignoreDamageReductionForSkillIds": ["primeape-rage-fist"],
-                            "turnDurationAnchor": "source_turn",
-                            "statusIconUrl": "assets/images/PokemonArena/Primeape/Anger-Point.jpg",
-                            "tooltipText": "Anger Point is active. Primeape deals 20 additional damage, and Rage Fist is Piercing."
-                        }
+                            "damageBonusFlat": 10,
+                            "mergeNumericAddKeys": [
+                                "damageBonusFlat"
+                            ],
+                            "tooltipText": "Deals 10 more damage."
+                        },
+                        "statusId": "primeape_rage_fist_1"
                     }
-                }
+                ]
+            },
+            {
+                "id": "primeape-knock-off",
+                "name": "Detect",
+                "skillimage": "assets/images/PokemonArena/Primeape/Knock-Off.jpg",
+                "skilldescription": "Primeape becomes invulnerable for 1 turn.",
+                "description": "Primeape becomes invulnerable for 1 turn.",
+                "energy": [
+                    "Random"
+                ],
+                "cooldown": 4,
+                "target": "self",
+                "damage": 0,
+                "classes": [
+                    "Strategic",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "invulnerable": true,
+                            "tooltipText": "Invulnerable."
+                        },
+                        "statusId": "primeape_knock_off_1"
+                    }
+                ]
             }
-        ],
-        "arena": "pokemon",
-        "universe": "pokemon",
-        "category": "Pokemon Arena",
-        "hidden": false,
-        "hiddenFromSelection": false,
-        "roleCategory": "bruiser",
-        "description": "A relentless Fighting-type bruiser that tears down defenses and turns pain, type weakness, and critical hits into explosive damage.",
-        "descriptionHtml": "A relentless Fighting-type bruiser that tears down defenses and turns pain, type weakness, and critical hits into explosive damage.",
-        "pokemonTypes": ["Fighting"]
+        ]
     },
     {
         "id": "marowak",
         "characterId": "marowak",
         "name": "Marowak",
         "facePicture": "assets/images/PokemonArena/marowak/facepicture.jpg",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Bruiser",
+        "roleCategory": "bruiser",
+        "description": "Swings its bone club and throws it like a boomerang.",
+        "descriptionHtml": "Swings its bone club and throws it like a boomerang.",
+        "pokemonTypes": [
+            "Ground"
+        ],
+        "startStatuses": [],
         "skills": [
             {
                 "id": "marowak-bone-club",
                 "name": "Bone Club",
                 "skillimage": "assets/images/PokemonArena/marowak/boneclub.jpg",
-                "skilldescription": "Marowak equips a bone club, allowing the use of his other skills and granting him 20 damage reduction. Each time Marowak takes non-affliction damage, his damage reduction decreases by 5. When it reaches 0, Bone Club ends. Marowak can have up to 2 Bone Club stacks, but cannot use Bone Club while it is already active.",
-                "description": "Marowak equips a bone club, allowing the use of his other skills and granting him 20 damage reduction. Each time Marowak takes non-affliction damage, his damage reduction decreases by 5. When it reaches 0, Bone Club ends. Marowak can have up to 2 Bone Club stacks, but cannot use Bone Club while it is already active.",
-                "energy": [],
-                "target": "self",
-                "damage": 0,
+                "skilldescription": "Deals 20 damage to one enemy.",
+                "description": "Deals 20 damage to one enemy.",
+                "energy": [
+                    "Taijutsu"
+                ],
                 "cooldown": 0,
-                "actorCondition": { "missingStatusId": "marowak_bone_club_active" },
-                "classes": ["Ground", "Strategic", "Instant"],
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
                 "effects": [
                     {
-                        "type": "apply_status",
-                        "statusId": "marowak_bone_club_active",
-                        "duration": 99,
-                        "scope": "self",
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
                         "metadata": {
-                            "infiniteDuration": true,
-                            "unpierceableDamageReductionFlat": 20,
-                            "statusIconUrl": "assets/images/PokemonArena/marowak/boneclub.jpg",
-                            "tooltipTextTemplate": "Marowak has {unpierceableDamageReductionFlat} non-affliction damage reduction from Bone Club."
+                            "harmful": true
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "marowak-bonemerang",
+                "name": "Bonemerang",
+                "skillimage": "assets/images/PokemonArena/marowak/bonemerang.jpg",
+                "skilldescription": "Deals 20 damage to one enemy and 15 damage to another random enemy.",
+                "description": "Deals 20 damage to one enemy and 15 damage to another random enemy.",
+                "energy": [
+                    "Taijutsu",
+                    "Random"
+                ],
+                "cooldown": 1,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true
                         }
                     },
                     {
-                        "type": "apply_status",
-                        "statusId": "marowak_bone_club_stacks",
-                        "duration": 99,
-                        "scope": "self",
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "random-other-enemy",
                         "metadata": {
-                            "hidden": true,
-                            "infiniteDuration": true,
-                            "unremovable": true,
-                            "marowakBoneClubStacks": 1,
-                            "stackMetadataKey": "marowakBoneClubStacks",
-                            "stackDelta": 1,
-                            "stackMax": 2,
-                            "tooltipTextTemplate": "Marowak has cast Bone Club {marowakBoneClubStacks} time(s) this match."
+                            "harmful": true
                         }
                     }
                 ]
@@ -35316,335 +30485,291 @@ const characters = [
                 "id": "marowak-bone-rush",
                 "name": "Bone Rush",
                 "skillimage": "assets/images/PokemonArena/marowak/bonerush.jpg",
-                "skilldescription": "Deals 10 damage to one enemy 2-4 times. Requires Bone Club. Bone Club loses 5 damage reduction. This skill loses 5 damage after its second hit (if applicable). If Marowak has 2 Bone Club stacks, Bone Rush casts an additional time.",
-                "description": "Deals 10 damage to one enemy 2-4 times. Requires Bone Club. Bone Club loses 5 damage reduction. This skill loses 5 damage after its second hit (if applicable). If Marowak has 2 Bone Club stacks, Bone Rush casts an additional time.",
-                "energy": ["Bloodline"],
+                "skilldescription": "Deals 15 damage to one enemy and stuns the target for 1 turn.",
+                "description": "Deals 15 damage to one enemy and stuns the target for 1 turn.",
+                "energy": [
+                    "Taijutsu",
+                    "Random"
+                ],
+                "cooldown": 3,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 0,
-                "actorCondition": { "statusId": "marowak_bone_club_active" },
-                "classes": ["Ground", "Physical", "Instant"],
-                "effects": [{ "type": "marowak_bone_rush", "scope": "target" }]
-            },
-            {
-                "id": "marowak-bonemerang",
-                "name": "Bonemerang",
-                "skillimage": "assets/images/PokemonArena/marowak/bonemerang.jpg",
-                "skilldescription": "Deals 30 damage to one enemy this turn and 25 damage to a random enemy next turn. If this hits the same enemy twice they are fully stunned for 1 turn. Requires Bone Club. Bone Club and its damage reduction are removed from Marowak while this is active and then put back into him when it ends.",
-                "description": "Deals 30 damage to one enemy this turn and 25 damage to a random enemy next turn. If this hits the same enemy twice they are fully stunned for 1 turn. Requires Bone Club. Bone Club and its damage reduction are removed from Marowak while this is active and then put back into him when it ends.",
-                "energy": ["Bloodline", "Random"],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 0,
-                "actorCondition": { "statusId": "marowak_bone_club_active" },
-                "classes": ["Ground", "Physical", "Instant"],
-                "effects": [{ "type": "marowak_bonemerang", "scope": "target" }]
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseSkills": true,
+                            "tooltipText": "Stunned: cannot use skills."
+                        },
+                        "statusId": "marowak_bone_rush_1"
+                    }
+                ]
             },
             {
                 "id": "marowak-bone-guard",
                 "name": "Bone Guard",
                 "skillimage": "assets/images/PokemonArena/marowak/boneguard.jpg",
-                "skilldescription": "Marowak becomes invulnerable for 1 turn. Requires Bone Club.",
-                "description": "Marowak becomes invulnerable for 1 turn. Requires Bone Club.",
-                "energy": ["Random"],
+                "skilldescription": "Gives Marowak 25 destructible defense for 2 turns.",
+                "description": "Gives Marowak 25 destructible defense for 2 turns.",
+                "energy": [
+                    "Random"
+                ],
+                "cooldown": 3,
                 "target": "self",
                 "damage": 0,
-                "cooldown": 4,
-                "actorCondition": { "statusId": "marowak_bone_club_active" },
-                "classes": ["Ground", "Strategic", "Instant"],
+                "classes": [
+                    "Strategic",
+                    "Instant"
+                ],
                 "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "marowak_bone_guard_active",
-                        "duration": 1,
+                        "duration": 2,
                         "scope": "self",
                         "metadata": {
-                            "harmful": false,
-                            "invulnerable": true,
-                            "statusIconUrl": "assets/images/PokemonArena/marowak/boneguard.jpg",
-                            "tooltipText": "Marowak is invulnerable."
-                        }
+                            "destructibleDefensePoints": 25,
+                            "tooltipText": "25 destructible defense."
+                        },
+                        "statusId": "marowak_bone_guard_1"
                     }
                 ]
             }
-        ],
-        "arena": "pokemon",
-        "universe": "pokemon",
-        "category": "Pokemon Arena",
-        "hidden": false,
-        "hiddenFromSelection": false,
-        "roleCategory": "bruiser",
-        "description": "A tenacious Ground-type bruiser who equips a bone club to unlock a burst-heavy toolkit, trading his own damage reduction to fuel multi-hit rushes and a two-turn bonemerang combo.",
-        "descriptionHtml": "A tenacious Ground-type bruiser who equips a bone club to unlock a burst-heavy toolkit, trading his own damage reduction to fuel multi-hit rushes and a two-turn bonemerang combo.",
-        "pokemonTypes": ["Ground"]
+        ]
     },
     {
         "id": "pinsir",
         "characterId": "pinsir",
         "name": "Pinsir",
         "facePicture": "assets/images/PokemonArena/pinsir/facepicture.jpg",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Bruiser",
+        "roleCategory": "bruiser",
+        "description": "Crushes enemies in its horns.",
+        "descriptionHtml": "Crushes enemies in its horns.",
+        "pokemonTypes": [
+            "Bug"
+        ],
+        "startStatuses": [],
         "skills": [
             {
                 "id": "pinsir-vice-grip",
                 "name": "Vice Grip",
                 "skillimage": "assets/images/PokemonArena/pinsir/vicegrip.jpg",
-                "skilldescription": "Makes one enemy unable to reduce damage or become invulnerable for 1 turn and deals 20 damage to them. Guillotine has an 8% increased chance to hit (stacks). Swaps to \"Guillotine\" for 1 turn.",
-                "description": "Makes one enemy unable to reduce damage or become invulnerable for 1 turn and deals 20 damage to them. Guillotine has an 8% increased chance to hit (stacks). Swaps to \"Guillotine\" for 1 turn.",
-                "energy": ["Taijutsu"],
+                "skilldescription": "Deals 25 damage to one enemy.",
+                "description": "Deals 25 damage to one enemy.",
+                "energy": [
+                    "Taijutsu"
+                ],
+                "cooldown": 0,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 0,
-                "classes": ["Normal", "Physical", "Instant"],
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
                 "effects": [
                     {
-                        "type": "apply_status",
-                        "statusId": "pinsir_vice_grip_mark",
-                        "duration": 1,
+                        "type": "damage",
+                        "amount": 25,
                         "scope": "target",
                         "metadata": {
-                            "harmful": true,
-                            "cannotReduceDamage": true,
-                            "cannotBecomeInvulnerable": true,
-                            "tooltipText": "This character cannot reduce damage or become invulnerable."
+                            "harmful": true
                         }
-                    },
+                    }
+                ]
+            },
+            {
+                "id": "pinsir-x-scissor",
+                "name": "X-Scissor",
+                "skillimage": "assets/images/PokemonArena/pinsir/xscissor.jpg",
+                "skilldescription": "Deals 35 damage to one enemy.",
+                "description": "Deals 35 damage to one enemy.",
+                "energy": [
+                    "Taijutsu",
+                    "Random"
+                ],
+                "cooldown": 1,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
                     {
                         "type": "damage",
-                        "amount": 20,
+                        "amount": 35,
                         "scope": "target",
-                        "metadata": {}
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "pinsir_guillotine_bonus",
-                        "duration": 99,
-                        "scope": "self",
                         "metadata": {
-                            "infiniteDuration": true,
-                            "unremovable": true,
-                            "hidden": true,
-                            "pinsirGuillotineBonus": 8,
-                            "mergeNumericAddKeys": ["pinsirGuillotineBonus"],
-                            "tooltipTextTemplate": "Guillotine has a {pinsirGuillotineBonus}% increased chance to hit."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "pinsir_guillotine_swap",
-                        "duration": 1,
-                        "scope": "self",
-                        "metadata": {
-                            "harmful": false,
-                            "hidden": true,
-                            "skillReplacements": { "pinsir-vice-grip": "pinsir-guillotine" },
-                            "tooltipText": "Vice Grip has swapped to Guillotine for 1 turn."
+                            "harmful": true
                         }
                     }
                 ]
             },
             {
                 "id": "pinsir-seismic-toss",
-                "name": "Pinsir Seismic Toss",
+                "name": "Seismic Toss",
                 "skillimage": "assets/images/PokemonArena/pinsir/seismictoss.jpg",
-                "skilldescription": "Pinsir targets himself or an enemy for 1 turn. If an enemy uses a new skill on Pinsir (if on self) or if the target (if on enemy) uses a new harmful skill, they will be countered and dealt 5 damage for every 20 HP Pinsir has. If successful, \"Guillotine\" has a 16% increased chance to hit (stacks). Invisible.",
-                "description": "Pinsir targets himself or an enemy for 1 turn. If an enemy uses a new skill on Pinsir (if on self) or if the target (if on enemy) uses a new harmful skill, they will be countered and dealt 5 damage for every 20 HP Pinsir has. If successful, \"Guillotine\" has a 16% increased chance to hit (stacks). Invisible.",
-                "energy": ["Taijutsu"],
-                "target": "single-character",
-                "damage": 0,
-                "cooldown": 2,
-                "classes": ["Fighting", "Physical", "Instant", "Invisible"],
-                "effects": [{ "type": "pinsir_seismic_toss", "scope": "target" }]
-            },
-            {
-                "id": "pinsir-x-scissor",
-                "name": "X-Scissor",
-                "skillimage": "assets/images/PokemonArena/pinsir/xscissor.jpg",
-                "skilldescription": "Deals 15 piercing damage to one enemy. This has a 25% chance to critical hit for 15 additional damage. If the target is affected by \"Vice Grip\" or \"Struggle Bug\", this has a 100% chance to critical hit. \"Guillotine\" has an 8% increased chance to hit (stacks), which is increased to 16% if this skill critical hits.",
-                "description": "Deals 15 piercing damage to one enemy. This has a 25% chance to critical hit for 15 additional damage. If the target is affected by \"Vice Grip\" or \"Struggle Bug\", this has a 100% chance to critical hit. \"Guillotine\" has an 8% increased chance to hit (stacks), which is increased to 16% if this skill critical hits.",
-                "energy": ["Random"],
+                "skilldescription": "Deals 15 damage to one enemy and stuns the target for 1 turn.",
+                "description": "Deals 15 damage to one enemy and stuns the target for 1 turn.",
+                "energy": [
+                    "Taijutsu",
+                    "Random"
+                ],
+                "cooldown": 3,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 1,
-                "classes": ["Bug", "Physical", "Instant"],
-                "effects": [{ "type": "pinsir_x_scissor", "scope": "target" }]
-            },
-            {
-                "id": "pinsir-rock-tomb",
-                "name": "Rock Tomb",
-                "skillimage": "assets/images/PokemonArena/pinsir/rocktomb.jpg",
-                "skilldescription": "Pinsir becomes invulnerable for 1 turn and gains 30 points of permanent destructible defense. While he has this destructible defense, any enemy that targets him will increase the hit chance of \"Guillotine\" by 8% (stacks).",
-                "description": "Pinsir becomes invulnerable for 1 turn and gains 30 points of permanent destructible defense. While he has this destructible defense, any enemy that targets him will increase the hit chance of \"Guillotine\" by 8% (stacks).",
-                "energy": ["Random"],
-                "target": "self",
-                "damage": 0,
-                "cooldown": 6,
-                "classes": ["Rock", "Strategic", "Instant"],
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
                 "effects": [
                     {
-                        "type": "apply_status",
-                        "statusId": "pinsir_rock_tomb_invulnerable",
-                        "duration": 1,
-                        "scope": "self",
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
                         "metadata": {
-                            "harmful": false,
-                            "invulnerable": true,
-                            "tooltipText": "Pinsir is invulnerable."
+                            "harmful": true
                         }
                     },
                     {
                         "type": "apply_status",
-                        "statusId": "pinsir_rock_tomb_active",
-                        "duration": 999,
-                        "scope": "self",
-                        "metadata": {
-                            "infiniteDuration": true,
-                            "unremovable": true,
-                            "destructibleDefensePoints": 30,
-                            "mergeNumericAddKeys": ["destructibleDefensePoints"],
-                            "tooltipTextTemplate": "Pinsir has {destructibleDefensePoints} destructible defense from Rock Tomb."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "pinsir-guillotine",
-                "name": "Guillotine",
-                "skillimage": "assets/images/PokemonArena/pinsir/guillotine.jpg",
-                "skilldescription": "Has a 30% chance to instantly kill one enemy. If successful, this has a 15% increased chance to hit (stacks).",
-                "description": "Has a 30% chance to instantly kill one enemy. If successful, this has a 15% increased chance to hit (stacks).",
-                "energy": ["Random"],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 2,
-                "classes": ["Normal", "Physical", "Instant"],
-                "effects": [{ "type": "pinsir_guillotine", "scope": "target" }]
-            },
-            {
-                "id": "pinsir-mega-pinsir-passive",
-                "name": "Passive: Mega Pinsir",
-                "skillimage": "assets/images/PokemonArena/pinsir/megaevolution.jpg",
-                "skilldescription": "This skill activates if \"Guillotine\" is successful. When it does, Pinsir heals 25HP, gains 10 points of unpierceable damage reduction, and Vice Grip swaps to \"Struggle Bug\" permanently.",
-                "description": "This skill activates if \"Guillotine\" is successful. When it does, Pinsir heals 25HP, gains 10 points of unpierceable damage reduction, and Vice Grip swaps to \"Struggle Bug\" permanently.",
-                "energy": [],
-                "target": "",
-                "damage": 0,
-                "cooldown": 0,
-                "classes": ["Bug", "Strategic", "Passive", "Instant"],
-                "effects": []
-            },
-            {
-                "id": "pinsir-struggle-bug",
-                "name": "Struggle Bug",
-                "skillimage": "assets/images/PokemonArena/pinsir/strugglebug.jpg",
-                "skilldescription": "One enemy becomes permanently unable to reduce damage or become invulnerable and is dealt 30 damage. Guillotine has a 10% increased chance to hit (stacks). Swaps to \"Guillotine\" for 1 turn.",
-                "description": "One enemy becomes permanently unable to reduce damage or become invulnerable and is dealt 30 damage. Guillotine has a 10% increased chance to hit (stacks). Swaps to \"Guillotine\" for 1 turn.",
-                "energy": ["Taijutsu", "Random"],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 0,
-                "classes": ["Bug", "Physical", "Instant"],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "pinsir_struggle_bug_mark",
-                        "duration": 999,
+                        "duration": 1,
                         "scope": "target",
                         "metadata": {
                             "harmful": true,
-                            "infiniteDuration": true,
-                            "cannotReduceDamage": true,
-                            "cannotBecomeInvulnerable": true,
-                            "tooltipText": "This character can never reduce damage or become invulnerable."
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 30,
-                        "scope": "target",
-                        "metadata": {}
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "pinsir_guillotine_bonus",
-                        "duration": 99,
-                        "scope": "self",
-                        "metadata": {
-                            "infiniteDuration": true,
-                            "unremovable": true,
-                            "hidden": true,
-                            "pinsirGuillotineBonus": 10,
-                            "mergeNumericAddKeys": ["pinsirGuillotineBonus"],
-                            "tooltipTextTemplate": "Guillotine has a {pinsirGuillotineBonus}% increased chance to hit."
-                        }
-                    },
+                            "cannotUseSkills": true,
+                            "tooltipText": "Stunned: cannot use skills."
+                        },
+                        "statusId": "pinsir_seismic_toss_1"
+                    }
+                ]
+            },
+            {
+                "id": "pinsir-rock-tomb",
+                "name": "Detect",
+                "skillimage": "assets/images/PokemonArena/pinsir/rocktomb.jpg",
+                "skilldescription": "Pinsir becomes invulnerable for 1 turn.",
+                "description": "Pinsir becomes invulnerable for 1 turn.",
+                "energy": [
+                    "Random"
+                ],
+                "cooldown": 4,
+                "target": "self",
+                "damage": 0,
+                "classes": [
+                    "Strategic",
+                    "Instant"
+                ],
+                "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "pinsir_guillotine_swap",
                         "duration": 1,
                         "scope": "self",
                         "metadata": {
-                            "harmful": false,
-                            "hidden": true,
-                            "skillReplacements": { "pinsir-struggle-bug": "pinsir-guillotine" },
-                            "tooltipText": "Struggle Bug has swapped to Guillotine for 1 turn."
-                        }
+                            "invulnerable": true,
+                            "tooltipText": "Invulnerable."
+                        },
+                        "statusId": "pinsir_rock_tomb_1"
                     }
                 ]
             }
-        ],
-        "arena": "pokemon",
-        "universe": "pokemon",
-        "category": "Pokemon Arena",
-        "hidden": false,
-        "hiddenFromSelection": false,
-        "roleCategory": "spike-dps",
-        "description": "A gambler's bruiser that spends every skill feeding Guillotine's hit chance, snowballing toward a one-hit kill and a permanent Mega Pinsir upgrade the moment it lands.",
-        "descriptionHtml": "A gambler's bruiser that spends every skill feeding Guillotine's hit chance, snowballing toward a one-hit kill and a permanent Mega Pinsir upgrade the moment it lands.",
-        "pokemonTypes": ["Bug"]
+        ]
     },
     {
         "id": "tauros",
         "characterId": "tauros",
         "name": "Tauros",
         "facePicture": "assets/images/PokemonArena/tauros/facepicture.jpg",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Bruiser",
+        "roleCategory": "bruiser",
+        "description": "Charges straight through the enemy team.",
+        "descriptionHtml": "Charges straight through the enemy team.",
+        "pokemonTypes": [
+            "Normal"
+        ],
+        "startStatuses": [],
         "skills": [
             {
                 "id": "tauros-horn-attack",
                 "name": "Horn Attack",
                 "skillimage": "assets/images/PokemonArena/tauros/hornattack.jpg",
-                "skilldescription": "Destroys one enemy's Shield and damage reduction, stuns their physical skills for 1 turn, and deals 40 damage to them.",
-                "description": "Destroys one enemy's Shield and damage reduction, stuns their physical skills for 1 turn, and deals 40 damage to them.",
-                "energy": ["Taijutsu", "Taijutsu"],
+                "skilldescription": "Deals 25 damage to one enemy.",
+                "description": "Deals 25 damage to one enemy.",
+                "energy": [
+                    "Taijutsu"
+                ],
+                "cooldown": 0,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 1,
-                "classes": ["Normal", "Physical", "Instant"],
-                "effects": [{ "type": "tauros_horn_attack", "scope": "target" }]
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 25,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true
+                        }
+                    }
+                ]
             },
             {
                 "id": "tauros-take-down",
                 "name": "Take-Down",
                 "skillimage": "assets/images/PokemonArena/tauros/takedown.jpg",
-                "skilldescription": "Tauros gains 50% damage reduction and makes Horn Attack cost 1 less green energy for 2 turns. Tauros loses 15 health if Horn Attack is used.",
-                "description": "Tauros gains 50% damage reduction and makes Horn Attack cost 1 less green energy for 2 turns. Tauros loses 15 health if Horn Attack is used.",
-                "energy": ["Random"],
-                "target": "self",
+                "skilldescription": "Deals 40 damage to one enemy and Tauros takes 10 recoil damage.",
+                "description": "Deals 40 damage to one enemy and Tauros takes 10 recoil damage.",
+                "energy": [
+                    "Taijutsu",
+                    "Random"
+                ],
+                "cooldown": 1,
+                "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 2,
-                "classes": ["Normal", "Physical", "Instant"],
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
                 "effects": [
                     {
-                        "type": "apply_status",
-                        "statusId": "tauros_take_down_active",
-                        "duration": 2,
+                        "type": "damage",
+                        "amount": 40,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
                         "scope": "self",
                         "metadata": {
                             "harmful": false,
-                            "damageReductionPercent": 50,
-                            "skillCostOverridesBySkillId": {
-                                "tauros-horn-attack": { "energy": ["Taijutsu"] }
-                            },
-                            "tooltipText": "Tauros has 50% damage reduction and Horn Attack costs 1 less Taijutsu energy."
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true,
+                            "fixedDamage": true
                         }
                     }
                 ]
@@ -35653,38 +30778,61 @@ const characters = [
                 "id": "tauros-earthquake",
                 "name": "Earthquake",
                 "skillimage": "assets/images/PokemonArena/tauros/earthquake.jpg",
-                "skilldescription": "Tauros deals 10 damage to all characters except for himself this turn, 20 damage next turn, 30 damage the turn after that, and 40 damage the turn after that. This skill is channeled and ignores invulnerability.",
-                "description": "Tauros deals 10 damage to all characters except for himself this turn, 20 damage next turn, 30 damage the turn after that, and 40 damage the turn after that. This skill is channeled and ignores invulnerability.",
-                "energy": ["Random", "Random", "Random"],
-                "target": "self",
+                "skilldescription": "Deals 25 damage to all enemies.",
+                "description": "Deals 25 damage to all enemies.",
+                "energy": [
+                    "Taijutsu",
+                    "Random",
+                    "Random"
+                ],
+                "cooldown": 3,
+                "target": "all-enemy",
                 "damage": 0,
-                "cooldown": 4,
-                "classes": ["Ground", "Physical", "Channeled", "Bypassing"],
-                "effects": [{ "type": "tauros_earthquake", "scope": "self" }]
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 25,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "harmful": true
+                        }
+                    }
+                ]
             },
             {
                 "id": "tauros-stampede",
-                "name": "STAMPEDE!",
+                "name": "Protect",
                 "skillimage": "assets/images/PokemonArena/tauros/stampede.jpg",
-                "skilldescription": "For 2 turns, 20 damage to the enemy team and fully stun their skills each turn.",
-                "description": "For 2 turns, 20 damage to the enemy team and fully stun their skills each turn.",
-                "energy": ["Taijutsu", "Taijutsu", "Taijutsu"],
-                "target": "all-enemy",
+                "skilldescription": "Tauros becomes invulnerable for 1 turn.",
+                "description": "Tauros becomes invulnerable for 1 turn.",
+                "energy": [
+                    "Random"
+                ],
+                "cooldown": 4,
+                "target": "self",
                 "damage": 0,
-                "cooldown": 6,
-                "classes": ["Normal", "Physical", "Instant"],
-                "effects": [{ "type": "tauros_stampede", "scope": "all-enemy" }]
+                "classes": [
+                    "Strategic",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "invulnerable": true,
+                            "tooltipText": "Invulnerable."
+                        },
+                        "statusId": "tauros_stampede_1"
+                    }
+                ]
             }
-        ],
-        "arena": "pokemon",
-        "universe": "pokemon",
-        "category": "Pokemon Arena",
-        "hidden": false,
-        "hiddenFromSelection": false,
-        "roleCategory": "bruiser",
-        "description": "A headstrong Normal-type bruiser who trades his own health for a devastating Horn Attack, then buries the enemy team under a channeled Earthquake or a two-turn Stampede.",
-        "descriptionHtml": "A headstrong Normal-type bruiser who trades his own health for a devastating Horn Attack, then buries the enemy team under a channeled Earthquake or a two-turn Stampede.",
-        "pokemonTypes": ["Normal"]
+        ]
     },
     {
         "id": "darkrai",
@@ -36790,37 +31938,54 @@ const characters = [
         "id": "blaziken",
         "characterId": "blaziken",
         "name": "Blaziken",
-        "unlockRequirement": "Complete the Blaziken Blazing Kick Trial: win 10 games and 4 in a row with Charmander, and with Cyndaquil.",
         "facePicture": "assets/images/PokemonArena/blaziken/blazikenfp.webp",
-        "characterdeescription": "A blazing Fire/Fighting martial artist whose kicks grow hotter with every exchange. Once Blaziken lands a supercharged strike it Mega Evolves, trading Fiery Roar for the devastating Blaze Kick.",
-        "description": "A blazing Fire/Fighting martial artist whose kicks grow hotter with every exchange. Once Blaziken lands a supercharged strike it Mega Evolves, trading Fiery Roar for the devastating Blaze Kick.",
-        "descriptionHtml": "A blazing Fire/Fighting martial artist whose kicks grow hotter with every exchange. Once Blaziken lands a supercharged strike it Mega Evolves, trading Fiery Roar for the devastating Blaze Kick.",
-        "role": "DOT DPS",
-        "roleCategory": "dot-dps",
-        "universe": "pokemon",
         "arena": "pokemon",
-        "category": "Pokemon Arena",
-        "hidden": false,
-        "hiddenFromSelection": false,
+        "universe": "pokemon",
+        "role": "Damage over time",
+        "roleCategory": "damage-over-time",
+        "description": "Fiery kicks, and Mega Evolves on its 4th turn.",
+        "descriptionHtml": "Fiery kicks, and Mega Evolves on its 4th turn.",
+        "characterdeescription": "A blazing Fire/Fighting martial artist whose kicks grow hotter with every exchange. Once Blaziken lands a supercharged strike it Mega Evolves, trading Fiery Roar for the devastating Blaze Kick.",
         "pokemonTypes": [
             "Fire",
             "Fighting"
         ],
-        "startStatuses": [],
+        "startStatuses": [
+            {
+                "statusId": "blaziken_mega_tracker",
+                "sourceSkillId": "blaziken-passive-mega-blaziken",
+                "duration": 3,
+                "metadata": {
+                    "unremovable": true,
+                    "tooltipText": "Evolves into Mega Blaziken at the start of its 4th turn.",
+                    "onExpireApplyStatusToSelf": {
+                        "statusId": "blaziken_mega_evolution",
+                        "duration": 999,
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "useEvolvedSkills": true,
+                            "facePictureOverride": "assets/images/PokemonArena/blaziken/megablazikenfp.webp",
+                            "tooltipText": "Blaziken has evolved into Mega Blaziken."
+                        }
+                    }
+                }
+            }
+        ],
         "skills": [
             {
                 "id": "blaziken-smoldering-roundhouse",
-                "name": "Smoldering Roundhouse",
+                "name": "Blaze Kick",
                 "skillimage": "assets/images/PokemonArena/blaziken/smoldering-roundhouse.webp",
-                "skilldescription": "Deals 15 physical and 5 affliction damage to one enemy. Every time this is used, Blaziken permanently deals 5 more affliction damage with all of its skills.",
+                "skilldescription": "Deals 15 damage to one enemy and then 5 affliction damage each turn for 2 turns.",
+                "description": "Deals 15 damage to one enemy and then 5 affliction damage each turn for 2 turns.",
                 "energy": [
                     "Bloodline"
                 ],
+                "cooldown": 0,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 0,
                 "classes": [
-                    "Fire",
                     "Physical",
                     "Affliction",
                     "Instant"
@@ -36831,232 +31996,256 @@ const characters = [
                         "amount": 15,
                         "scope": "target",
                         "metadata": {
-                            "skillClasses": [
-                                "Fire",
-                                "Physical",
-                                "Instant"
-                            ]
+                            "harmful": true
                         }
                     },
                     {
-                        "type": "damage",
-                        "amount": 5,
+                        "type": "apply_status",
+                        "duration": 2,
                         "scope": "target",
                         "metadata": {
+                            "harmful": true,
                             "afflictionDamage": true,
-                            "onSuccessfulDamageApplyStatusToOwner": {
-                                "statusId": "blaziken_smoldering_heat",
-                                "duration": 999,
-                                "metadata": {
-                                    "infiniteDuration": true,
-                                    "damageBonusBySkillClass": {
-                                        "Affliction": 5
-                                    },
-                                    "blazikenHeat": 5,
-                                    "mergeNumericAddKeys": [
-                                        "blazikenHeat"
-                                    ],
-                                    "mergeObjectNumericAddKeys": [
-                                        "damageBonusBySkillClass"
-                                    ],
-                                    "statusIconUrl": "assets/images/PokemonArena/blaziken/smoldering-roundhouse.webp",
-                                    "tooltipTextTemplate": "Blaziken deals {blazikenHeat} additional affliction damage with all of its skills."
-                                }
-                            }
-                        }
+                            "turnEndDamage": 5,
+                            "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "Takes 5 affliction damage each turn."
+                        },
+                        "statusId": "blaziken_smoldering_roundhouse_1"
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "blaziken-blaze-kick",
+                    "name": "Blaze Kick",
+                    "skillimage": "assets/images/PokemonArena/blaziken/blaze-kick.webp",
+                    "skilldescription": "Deals 20 damage to one enemy and then 10 affliction damage each turn for 2 turns.",
+                    "description": "Deals 20 damage to one enemy and then 10 affliction damage each turn for 2 turns.",
+                    "energy": [
+                        "Bloodline"
+                    ],
+                    "cooldown": 0,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Physical",
+                        "Affliction",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "damage",
+                            "amount": 20,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true
+                            }
+                        },
+                        {
+                            "type": "apply_status",
+                            "duration": 2,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true,
+                                "afflictionDamage": true,
+                                "turnEndDamage": 10,
+                                "ignoreTargetDamageReduction": true,
+                                "ignoreTargetDestructibleDefense": true,
+                                "turnEndTrigger": "source_turn",
+                                "turnDurationAnchor": "source_turn",
+                                "tooltipText": "Takes 10 affliction damage each turn."
+                            },
+                            "statusId": "blaziken_blaze_kick_1"
+                        }
+                    ]
+                }
             },
             {
                 "id": "blaziken-sky-uppercut",
                 "name": "Sky Uppercut",
                 "skillimage": "assets/images/PokemonArena/blaziken/sky-uppercut.webp",
-                "skilldescription": "Deals 30 damage to one enemy. For 1 turn, the first new enemy skill that targets Blaziken is countered.",
+                "skilldescription": "Deals 35 damage to one enemy.",
+                "description": "Deals 35 damage to one enemy.",
                 "energy": [
-                    "Genjutsu",
+                    "Taijutsu",
                     "Random"
                 ],
+                "cooldown": 1,
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 2,
                 "classes": [
-                    "Fighting",
                     "Physical",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 30,
-                        "scope": "target"
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "blaziken_sky_uppercut_counter",
-                        "duration": 1,
-                        "sourceSkillId": "blaziken-sky-uppercut",
-                        "scope": "self",
+                        "amount": 35,
+                        "scope": "target",
                         "metadata": {
-                            "triggerOnEnemyHarmfulSkill": true,
-                            "counterCancelsSkill": true,
-                            "statusIconUrl": "assets/images/PokemonArena/blaziken/sky-uppercut.webp",
-                            "tooltipText": "The first new enemy skill that targets Blaziken is countered."
+                            "harmful": true
                         }
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "blaziken-sky-uppercut-mega",
+                    "name": "Sky Uppercut",
+                    "skillimage": "assets/images/PokemonArena/blaziken/sky-uppercut.webp",
+                    "skilldescription": "Deals 45 damage to one enemy.",
+                    "description": "Deals 45 damage to one enemy.",
+                    "energy": [
+                        "Taijutsu",
+                        "Random"
+                    ],
+                    "cooldown": 1,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Physical",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "damage",
+                            "amount": 45,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true
+                            }
+                        }
+                    ]
+                }
             },
             {
                 "id": "blaziken-fiery-roar",
-                "name": "Fiery Roar",
+                "name": "Heat Wave",
                 "skillimage": "assets/images/PokemonArena/blaziken/fiery-roar.webp",
-                "skilldescription": "Blaziken supercharges its heat, dealing 0 affliction damage to the enemy team and making its next harmful skill deal 30 additional affliction damage. This may not be used while active.",
+                "skilldescription": "Deals 15 damage to all enemies.",
+                "description": "Deals 15 damage to all enemies.",
                 "energy": [
                     "Bloodline",
                     "Random"
                 ],
+                "cooldown": 3,
                 "target": "all-enemy",
                 "damage": 0,
-                "cooldown": 3,
                 "classes": [
-                    "Fire",
                     "Special",
-                    "Affliction",
                     "Instant"
                 ],
-                "actorCondition": {
-                    "missingStatusId": "blaziken_fiery_roar_charge"
-                },
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 0,
+                        "amount": 15,
                         "scope": "all-enemy",
                         "metadata": {
-                            "afflictionDamage": true
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "blaziken_fiery_roar_charge",
-                        "duration": 999,
-                        "sourceSkillId": "blaziken-fiery-roar",
-                        "scope": "self",
-                        "metadata": {
-                            "infiniteDuration": true,
-                            "nextHarmfulSkillAfflictionBonus": 30,
-                            "nextHarmfulSkillBonusUses": 1,
-                            "nextHarmfulSkillBonusOnDealtApplyStatusToOwner": {
-                                "statusId": "blaziken_mega_evolution",
-                                "duration": 999,
-                                "metadata": {
-                                    "infiniteDuration": true,
-                                    "unremovable": true,
-                                    "healOnApplyFlat": 10,
-                                    "facePictureOverride": "assets/images/PokemonArena/blaziken/megablazikenfp.webp",
-                                    "skillReplacements": {
-                                        "blaziken-fiery-roar": "blaziken-blaze-kick"
-                                    },
-                                    "statusIconUrl": "assets/images/PokemonArena/blaziken/megablazikenfp.webp",
-                                    "tooltipText": "Blaziken has evolved into Mega Blaziken. Fiery Roar is replaced by Blaze Kick."
-                                }
-                            },
-                            "statusIconUrl": "assets/images/PokemonArena/blaziken/fiery-roar.webp",
-                            "tooltipText": "Blaziken's next harmful skill deals 30 additional affliction damage."
+                            "harmful": true
                         }
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "blaziken-fiery-roar-mega",
+                    "name": "Heat Wave",
+                    "skillimage": "assets/images/PokemonArena/blaziken/fiery-roar.webp",
+                    "skilldescription": "Deals 25 damage to all enemies.",
+                    "description": "Deals 25 damage to all enemies.",
+                    "energy": [
+                        "Bloodline",
+                        "Random"
+                    ],
+                    "cooldown": 3,
+                    "target": "all-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Special",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "damage",
+                            "amount": 25,
+                            "scope": "all-enemy",
+                            "metadata": {
+                                "harmful": true
+                            }
+                        }
+                    ]
+                }
             },
             {
                 "id": "blaziken-arm-guard",
-                "name": "Arm Guard",
+                "name": "Detect",
                 "skillimage": "assets/images/PokemonArena/blaziken/arm-guard.webp",
-                "skilldescription": "This skill makes Blaziken invulnerable for 1 turn.",
+                "skilldescription": "Blaziken becomes invulnerable for 1 turn.",
+                "description": "Blaziken becomes invulnerable for 1 turn.",
                 "energy": [
                     "Random"
                 ],
+                "cooldown": 4,
                 "target": "self",
                 "damage": 0,
-                "cooldown": 4,
                 "classes": [
-                    "Fighting",
                     "Strategic",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "blaziken_arm_guard",
                         "duration": 1,
                         "scope": "self",
                         "metadata": {
                             "invulnerable": true,
-                            "statusIconUrl": "assets/images/PokemonArena/blaziken/arm-guard.webp",
-                            "tooltipText": "Blaziken is invulnerable to enemy skills."
-                        }
+                            "tooltipText": "Invulnerable."
+                        },
+                        "statusId": "blaziken_arm_guard_1"
                     }
-                ]
+                ],
+                "evolvesTo": {
+                    "id": "blaziken-arm-guard-evolved",
+                    "name": "Detect",
+                    "skillimage": "assets/images/PokemonArena/blaziken/arm-guard.webp",
+                    "skilldescription": "Mega Blaziken becomes invulnerable for 1 turn.",
+                    "description": "Mega Blaziken becomes invulnerable for 1 turn.",
+                    "energy": [
+                        "Random"
+                    ],
+                    "cooldown": 4,
+                    "target": "self",
+                    "damage": 0,
+                    "classes": [
+                        "Strategic",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "apply_status",
+                            "duration": 1,
+                            "scope": "self",
+                            "metadata": {
+                                "invulnerable": true,
+                                "tooltipText": "Invulnerable."
+                            },
+                            "statusId": "blaziken_arm_guard_evolved_1"
+                        }
+                    ]
+                }
             },
             {
                 "id": "blaziken-passive-mega-blaziken",
-                "name": "Passive: Mega Blaziken",
+                "name": "Evolution: Mega Blaziken",
                 "skillimage": "assets/images/PokemonArena/blaziken/megablazikenfp.webp",
-                "skilldescription": "Once Blaziken has dealt the bonus damage granted by Fiery Roar to an enemy, it Mega Evolves into Mega Blaziken and heals 10 HP. While Mega Evolved, Fiery Roar becomes Blaze Kick.",
+                "skilldescription": "At the start of its 4th turn, Blaziken evolves into Mega Blaziken and its skills get stronger.",
+                "description": "At the start of its 4th turn, Blaziken evolves into Mega Blaziken and its skills get stronger.",
                 "energy": [],
+                "cooldown": 0,
                 "target": "",
                 "damage": 0,
-                "cooldown": 0,
                 "classes": [
-                    "Fire",
                     "Passive",
                     "Instant"
-                ]
-            },
-            {
-                "id": "blaziken-blaze-kick",
-                "name": "Blaze Kick",
-                "skillimage": "assets/images/PokemonArena/blaziken/blaze-kick.webp",
-                "skilldescription": "Blaziken deals 5 affliction damage to the enemy team and makes its next 2 harmful skills deal 35 additional affliction damage. This may not be used while active.",
-                "energy": [
-                    "Bloodline",
-                    "Bloodline"
                 ],
-                "target": "all-enemy",
-                "damage": 0,
-                "cooldown": 3,
-                "useBaseSkillCooldown": true,
-                    "classes": [
-                    "Fire",
-                    "Physical",
-                    "Affliction",
-                    "Instant"
-                ],
-                "actorCondition": {
-                    "missingStatusId": "blaziken_blaze_kick_charge"
-                },
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 5,
-                        "scope": "all-enemy",
-                        "metadata": {
-                            "afflictionDamage": true
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "blaziken_blaze_kick_charge",
-                        "duration": 999,
-                        "sourceSkillId": "blaziken-blaze-kick",
-                        "scope": "self",
-                        "metadata": {
-                            "infiniteDuration": true,
-                            "nextHarmfulSkillAfflictionBonus": 35,
-                            "nextHarmfulSkillBonusUses": 2,
-                            "statusIconUrl": "assets/images/PokemonArena/blaziken/blaze-kick.webp",
-                            "tooltipTextTemplate": "Blaziken's next {nextHarmfulSkillBonusUses} harmful skill(s) deal 35 additional affliction damage."
-                        }
-                    }
-                ]
+                "effects": []
             }
         ]
     }

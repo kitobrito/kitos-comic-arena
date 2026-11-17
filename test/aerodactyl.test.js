@@ -217,5 +217,5 @@ test('Client: the skill bar greys out area skills under Gust; the new status fla
     const server = fs.readFileSync(path.join(root, 'server.js'), 'utf8');
     assert.match(server, /'cannotUseAoeSkills',/);
     assert.match(server, /'aoeSkillDamageBonusFlat',/);
-    assert.match(server, /REWORKED_CHARACTER_IDS_IGNORING_OVERRIDES = new Set\(\['aerodactyl'\]\)/);
+    assert.match(server, /REWORKED_CHARACTER_IDS_IGNORING_OVERRIDES = new Set\(\['aerodactyl'/);
 });

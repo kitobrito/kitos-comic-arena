@@ -242,7 +242,8 @@ const skillsByType = {
     ],
 };
 
-const POKEMON_SKILL_TYPES = Object.freeze(
+const { POKEMON_REWORK_SKILL_TYPES } = require('./pokemonReworkData');
+const POKEMON_SKILL_TYPES_BASE = (
     Object.fromEntries(
         Object.entries(skillsByType).flatMap(([type, skillIds]) => skillIds.map((skillId) => [skillId, type]))
     )
@@ -297,6 +298,8 @@ const POKEMON_STATUS_TOOLTIPS = Object.freeze({
     ditto_transformation: { tooltipText: 'This character has transformed. Its copied skills deal 5 less damage and cost only Random energy.' },
     drowzee_evolution_tracker: { tooltipText: 'Drowzee evolves into Hypno after using both Nightmare and Dream Eater in this match.' },
 });
+// The Pokemon Arena rework (tools/pokemon-rework) sets the move type of every reworked skill.
+const POKEMON_SKILL_TYPES = Object.freeze({ ...POKEMON_SKILL_TYPES_BASE, ...POKEMON_REWORK_SKILL_TYPES });
 
 const applyPokemonStatusTooltips = (value, sourceSkillId = '', errors = []) => {
     if (!value || typeof value !== 'object') return;

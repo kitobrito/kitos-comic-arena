@@ -17,34 +17,6 @@ const skill = (character, id) => {
     return entry;
 };
 
-test('Krabby and Kingler Bubble only increase active cooldowns', () => {
-    const krabby = byId('krabby');
-    ['krabby-leer', 'kingler-leer'].forEach((skillId) => {
-        const bubble = skill(krabby, skillId);
-        const cooldownEffect = bubble.effects.find((effect) => effect.type === 'modify_cooldowns');
-        assert.ok(cooldownEffect);
-        assert.equal(cooldownEffect.includeAllCharacterSkills, undefined);
-        assert.match(bubble.skilldescription, /active cooldowns/);
-    });
-});
-
-test('Jolteon cooldown penalties wait for affected Pokemon to use a skill', () => {
-    const jolteon = byId('jolteon');
-    const pinMissile = skill(jolteon, 'jolteon-pin-missile').effects.find(
-        (effect) => effect.statusId === 'jolteon_pin_missile_cooldown_increase'
-    );
-    const thunderFang = skill(jolteon, 'jolteon-thunder-fang').effects.find(
-        (effect) => effect.statusId === 'jolteon_thunder_fang_cooldown_increase'
-    );
-
-    [pinMissile, thunderFang].forEach((effect) => {
-        assert.ok(effect);
-        assert.equal(effect.metadata.newSkillCooldownIncrease, 1);
-        assert.equal(effect.metadata.ownerTurnEndExtraCooldownTicksAllSkills, undefined);
-        assert.equal(effect.metadata.harmful, true);
-    });
-});
-
 test('classic battle chat opens clear of the skill description panel', () => {
     const root = path.join(__dirname, '..');
     const styles = fs.readFileSync(path.join(root, 'styles', 'style.css'), 'utf8');

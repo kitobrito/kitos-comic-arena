@@ -8995,7 +8995,9 @@ const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonical
 // Characters whose whole kit was reworked: a stored admin override was made for the old kit
 // (old skill ids would be appended to the new ones by the merge), so it is ignored and the kit
 // always comes from characters.js.
-const REWORKED_CHARACTER_IDS_IGNORING_OVERRIDES = new Set(['aerodactyl']);
+const { POKEMON_REWORKED_IDS } = require('./pokemonReworkData');
+// (The Pokemon Arena rework, tools/pokemon-rework, reworked most of the roster the same way.)
+const REWORKED_CHARACTER_IDS_IGNORING_OVERRIDES = new Set(['aerodactyl', ...POKEMON_REWORKED_IDS]);
 
 const applyCharacterOverrides = (baseCharacters = []) => {
     const nextCharacters = (Array.isArray(baseCharacters) ? baseCharacters : []).slice();
