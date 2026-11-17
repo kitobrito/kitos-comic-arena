@@ -5,7 +5,7 @@ const require = createRequire(import.meta.url);
 const jwt = require('jsonwebtoken');
 const { chromium, webkit } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const browserType = process.env.SCENE_BROWSER === 'webkit' ? webkit : chromium;
-const browser = await browserType.launch(browserType === chromium ? { executablePath: '/usr/bin/chromium', args: ['--no-sandbox'] } : {});
+const browser = await browserType.launch(browserType === chromium ? { executablePath: process.env.SCENE_CHROME || '/usr/bin/chromium', args: ['--no-sandbox'] } : {});
 const base = 'http://127.0.0.1:4197';
 const errors = [];
 for (const arena of ['pokemon', 'comic']) {

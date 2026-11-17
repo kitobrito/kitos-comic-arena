@@ -1,8 +1,8 @@
 # Admin full-body arena preview
 
 Private entry points:
+- `/arena-scene/` (opens Comic Arena)
 - `/arena-scene/?arena=pokemon`
-- `/arena-scene/?arena=comic`
 
 Every preview page and asset verifies the current session and database admin role.
 The underlying `/prototypes/arena-scene/` directory is denied by the static server.
@@ -14,6 +14,19 @@ BattleFX, turn coordinator and battle bot still own gameplay. `scene.js` adapts
 the existing full-body selection renders into a battlefield and proxies the real
 skill buttons into a responsive command bar. Evolutions and equipped skins reuse
 the same render catalog; an unavailable render falls back to its existing portrait.
+
+Battlefield presentation (all in `scene.js` / `scene.css`):
+- Each fighter stands on the floor at a foot position. Its render is trimmed to its visible
+  pixels and sized from real height (`COMIC_SIZES`, `POKEMON_METRES`), with depth scaling,
+  so Yoda is knee-high to the Hulk. Waist-up renders fade into the floor (`COMIC_CUT`) and
+  flyers hover (`COMIC_FLYERS`, `POKEMON_FLYERS`). Add new characters to these tables.
+- The invisible original portrait is the hitbox, exactly over the figure, so clicks,
+  BattleFX sprites and damage numbers land on the character.
+- Targets get a ground ring and an arrow over the head; nothing fades. The production
+  yellow target boxes are hidden here.
+- `BattleFX.cast/recoil/status/death/enter/victory` are wrapped: melee attackers dash to the
+  target with afterimages and hop back, ranged attackers kick back, and the target's hit,
+  damage number and health drop wait for the strike to land.
 
 Preview matches use the regular PvP starting health, energy economy and skills.
 The admin moves first; the bot uses its existing team builder and skill AI.

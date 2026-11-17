@@ -43,6 +43,12 @@ test('private wrappers retain production scripts with private scene assets and n
         assert.match(html, /scripts\/script.js/); assert.match(html, /\/arena-scene\/scene.js/);
     }
 });
+test('the preview opens on Comic Arena unless Pokémon is asked for', async () => {
+    const plain = await request('/arena-scene/', { redirect: 'manual' });
+    assert.equal(plain.status, 302); assert.match(plain.headers.get('location'), /selection\.html\?arena=comic$/);
+    const pokemon = await request('/arena-scene/?arena=pokemon', { redirect: 'manual' });
+    assert.match(pokemon.headers.get('location'), /arena=pokemon$/);
+});
 test('raw source, encoded aliases and test fixtures cannot bypass the private gate', async () => {
     for (const path of ['/prototypes/arena-scene/access.cjs', '//prototypes//arena-scene//scene.js', '/%70rototypes/arena-scene/scene.css', '/prototypes%2farena-scene/scene.js', '/prototypes/arena-scene/test/serve.cjs']) {
         assert.equal(isSceneSourcePath(path), true, path);
