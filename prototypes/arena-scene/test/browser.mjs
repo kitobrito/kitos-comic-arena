@@ -5,7 +5,7 @@ const require = createRequire(import.meta.url);
 const jwt = require('jsonwebtoken');
 const { chromium, webkit } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const browserType = process.env.SCENE_BROWSER === 'webkit' ? webkit : chromium;
-const browser = await browserType.launch(browserType === chromium ? { executablePath: '/usr/bin/chromium', args: ['--no-sandbox'] } : {});
+const browser = await browserType.launch(browserType === chromium ? { executablePath: process.env.SCENE_CHROME || '/usr/bin/chromium', args: ['--no-sandbox'] } : {});
 const base = 'http://127.0.0.1:4197';
 const errors = [];
 for (const arena of ['pokemon', 'comic']) {
@@ -33,7 +33,7 @@ for (const arena of ['pokemon', 'comic']) {
     assert.equal(teamSaves.length, 0);
     const matchId = new URL(page.url()).searchParams.get('matchId');
     async function endTurn() {
-        await page.locator('.ready-section').click();
+        await page.locator('.ready-text').click();
         await page.waitForFunction(() => getComputedStyle(document.querySelector('.ChakraChooseEndTurn')).visibility === 'visible');
         for (let i = 0; i < 12; i++) {
             const unresolved = Number(await page.locator('.chakrachoose .chakrachoosered').textContent());
@@ -63,8 +63,7 @@ for (const arena of ['pokemon', 'comic']) {
     }
     console.log(arena + ': real skill selected');
     assert.ok(chosen, 'A real skill must be usable on the second turn.');
-    await page.locator('.scene-team-tab').nth(chosen.actorSlot).click();
-    await page.locator('.scene-skill').nth(chosen.skillIndex).click();
+    await page.locator(`[data-slot="${chosen.actorSlot}"] .scene-skill:visible`).nth(chosen.skillIndex).click();
     await page.waitForSelector('.character-card.targetable');
     const side = await page.evaluate(target => target.username === window.ArenaSceneState.match.player.username ? 'player' : 'opponent', chosen.target);
     const target = page.locator(`.character-card[data-scene-side="${side}"][data-scene-slot="${chosen.target.slot}"] .character-face`);
@@ -81,13 +80,13 @@ for (const arena of ['pokemon', 'comic']) {
     assert.ok(state.turnNumber >= 4);
     await page.setViewportSize({ width: 390, height: 844 });
     await page.waitForTimeout(350);
-    const geometry = await page.evaluate(() => ({ viewport: innerWidth, scroll: document.documentElement.scrollWidth, field: document.querySelector('.scene-field').getBoundingClientRect().toJSON(), skills: [...document.querySelectorAll('.scene-skill')].map(e => e.getBoundingClientRect().toJSON()) }));
+    const geometry = await page.evaluate(() => ({ viewport: innerWidth, scroll: document.documentElement.scrollWidth, field: document.querySelector('.scene-field').getBoundingClientRect().toJSON(), skills: [...document.querySelectorAll('.scene-skill')].map(e => e.getBoundingClientRect().toJSON()).filter(r => r.width > 0) }));
     assert.ok(geometry.scroll <= geometry.viewport + 2, JSON.stringify(geometry));
     assert.ok(geometry.skills.every(r => r.width >= 70 && r.x >= 0 && r.right <= geometry.viewport));
     await page.screenshot({ path: `/tmp/arena-scene-${arena}-phone.png`, fullPage: true });
     await page.locator('.scene-team-tab').nth(2).tap();
     assert.equal(await page.locator('.scene-team-tab').nth(2).getAttribute('aria-pressed'), 'true');
-    await page.locator('.ready-section').tap();
+    await page.locator('.ready-text').tap();
     await page.waitForFunction(() => document.body.classList.contains('end-turn-modal-open'));
     const modal = await page.locator('.ChakraChooseEndTurn').boundingBox();
     assert.ok(modal.x >= 0 && modal.x + modal.width <= 391, JSON.stringify(modal));

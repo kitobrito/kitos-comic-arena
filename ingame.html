@@ -22,14 +22,26 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             document.documentElement.classList.add('battle-experimental');
         }
     </script>
+    <script>
+        // Experimental battlefield (beta): players opt in from Settings > Options in battle.
+        // It changes only how the battle looks; the classic view stays the default.
+        try {
+            if (!window.ARENA_SCENE_PREVIEW && localStorage.getItem('battleExperimentalView') === '1') {
+                window.ARENA_SCENE_VIEW = true;
+                document.documentElement.classList.add('arena-scene-preview', 'scene-live', 'battle-experimental');
+                document.write('<link rel="stylesheet" href="/arena-scene/scene.css?v=10">');
+            }
+        } catch (error) { /* storage blocked: classic view */ }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;700&family=Petra&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles/style.css?v=pokemon-battle-polish-v1&pokemon-type-classes-v1&scraggy-miss-v1&pokemon-logo-v1&battle-death-toggle-v1&community-animation-pass-v1&pokemon-trainer-capture-audio-v1&pokemon-evolution-cinematic-v2&sound-state-visibility-v1&classic-chat-clear-v1&target-damage-preview-v1&weather-vfx-sheet-v1&polluted-air-v2&skill-panel-zindex-fix-v1&sound-controller-layout-v1&polluted-air-fog-vfx-v1&confirmed-combat-fx-scale-down-v1&pinsir-guillotine-cinematic-v1&lance-team-preset-v1&revert-cache-bust-force-v1&genjutsu-yellow-v1&battle-fx-v1">
     <link rel="stylesheet" href="styles/battle-fx.css?v=battle-fx-v3">
     <link rel="stylesheet" href="styles/status-fx.css?v=status-fx-v1">
-    <link rel="stylesheet" href="styles/ingame-experimental.css?v=pokemon-gameplay-fixes-v4&pokemon-ui-polish-v1&pokemon-ui-polish-v2&battle-options-death-toggle-v1&mobile-battle-options-v2&cooldown-alignment-v1&sound-state-visibility-v1&sound-controller-layout-v3&roster-zindex-fix-v1&lance-side-render-v1&no-zoom-v1">
+    <link rel="stylesheet" href="styles/ingame-experimental.css?v=pokemon-gameplay-fixes-v4&pokemon-ui-polish-v1&pokemon-ui-polish-v2&battle-options-death-toggle-v1&mobile-battle-options-v2&cooldown-alignment-v1&sound-state-visibility-v1&sound-controller-layout-v3&roster-zindex-fix-v1&lance-side-render-v1&no-zoom-v1&options-inline-v1">
     <link rel="stylesheet" href="styles/pokemon-types.css?v=pokemon-type-badges-v1">
+    <link rel="stylesheet" href="styles/energy-fx.css?v=energy-fx-v1">
     <link rel="stylesheet" href="styles/ingame-arena-skin.css?v=battle-widescreen-v2">
 </head>
 <body class="app-loading app-loading-ingame ui-stable-ingame">
@@ -90,6 +102,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <button type="button" class="ingame-status-reveal-toggle" aria-pressed="false" title="Reveal all status details">Statuses</button>
         <input id="ingame-sound-volume" class="ingame-sound-volume" type="range" min="0" max="100" step="1" value="70" aria-label="Sound volume">
         <section class="ui-options-panel ingame-ui-options-panel" id="ingame-ui-options" aria-label="UI options" hidden>
+            <label class="scene-view-option"><input type="checkbox" data-scene-view-toggle> Experimental battlefield (beta)</label>
             <label><input type="checkbox" data-ui-setting="targetFade"> Fade invalid targets</label>
             <label><input type="checkbox" data-ui-setting="skillCastAnimations"> Skill animations</label>
             <label><input type="checkbox" data-ui-setting="skillIconProjectiles"> Flying skill icons</label>
@@ -530,7 +543,35 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <script src="characters.js?v=pokemon-target-fixes-v1&gen2-balance-v2&mewtwo-combos-v1&aegislash-special-classes-v1&ditto-community-v1&chikorita-affliction-cycle-v1&scraggy-community-v1&scraggy-balance-v2&dragapult-community-v2&nincada-community-v1&primeape-release-v1&jigglypuff-nincada-balance-v3&johto-evo-energy-v1&articuno-blizzard-snowstorm-v1&moltres-wildfire-firespin-v1&zapdos-flight-wildfire-grass-bug-v1&drowzee-hypno-rework-v1&koffing-polluted-air-v2&zubat-crobat-v1&metronome-flamewheel-fix-v1&lance-team-preset-v1&revert-cache-bust-force-v1&lance-water-pulse-v1&darkrai-slot-order-v1&pinsir-guillotine-buff-v1&darkrai-dark-portal-rework-v1&drowzee-nightmare-target-fix-v1&gyarados-outrage-free-cost-v1&ekans-arbok-skill-rename-v1&krabby-kingler-skill-rename-v1&deadpool-release-v1&blaziken-release-v1&deadpool-balance-v1&blaze-kick-visible-v1&abra-teleport-solo-v1&aerodactyl-rework-v1"></script>
 <script src="pokemon-wave-2-live.js?v=pokemon-balance-v3&aegislash-special-classes-v1&ditto-community-v1&jigglypuff-perish-v3"></script>
     <script src="scripts/battle-fx.js?v=battle-fx-v3"></script>
+    <script src="scripts/energy-fx.js?v=energy-fx-v1"></script>
     <script src="scripts/script.js?v=battle-widescreen-v1&pokemon-battle-polish-v2&gen2-missions-v2&pokemon-type-classes-v1&pokemon-ui-polish-v1&pokemon-ui-polish-v2&ui-stability-v1&ui-stability-v2&ios-audio-controls-v1&ditto-copy-ui-v1&scraggy-miss-v1&scraggy-evolution-ui-v1&battle-options-death-toggle-v1&community-animation-pass-v1&pokemon-trainer-capture-audio-v4&pokemon-evolution-cinematic-v2&mobile-battle-options-v2&cooldown-alignment-v1&matchmaking-spinner-restart-v1&chakra-queue-stability-v3&chakra-sync-batch-v1&match-sync-watchdog-v2&leech-seed-first-tick-v2&battle-intro-music-sync-v1&chakra-exchange-2-for-1-v1&nincada-community-v1&primeape-release-v1&energy-commit-guard-v1&jigglypuff-nincada-balance-v2&nincada-form-skills-v2&match-db-recovery-v1&target-damage-preview-v1&target-damage-flash-v1&damage-preview-blink-uncertain-v1&buff-debuff-burst-v1&skill-ready-glow-weather-burst-v1&weather-music-v1&weather-vfx-sheet-v1&polluted-air-v2&unlock-confirm-reset-v1&weather-scope-fix-v1&hp-ratio-fix-v1&sound-controller-layout-v3&polluted-air-fog-vfx-v1&arena-ladder-scope-fix-v1&pinsir-guillotine-cinematic-v1&pokemon-roster-dex-v2&mega-pinsir-copy-fix-v1&pinsir-struggle-bug-visible-v1&lance-champion-release-v1&lance-team-preset-v1&lance-preview-render-v3&store-character-bundles-v1&revert-cache-bust-force-v1&lance-side-render-v1&pokemon-arena-links-v1&trainer-red-champion-theme-v1&comic-selection-renders-v1&deadpool-release-v1&blaziken-release-v1&eevee-stays-v1&battle-fx-v1&no-zoom-v1&iphone-no-zoom-v1&aerodactyl-rework-v1&iphone-team-dbltap-v1"></script>
+    <script>
+        (function () {
+            // Experimental battlefield toggle (Settings > Options) and its presentation script.
+            // The phone options dock is a copy of this list, so every copy is kept in sync.
+            var on = false;
+            try { on = localStorage.getItem('battleExperimentalView') === '1'; } catch (error) { /* no storage */ }
+            var sync = function () {
+                document.querySelectorAll('[data-scene-view-toggle]').forEach(function (box) {
+                    box.checked = on || Boolean(window.ARENA_SCENE_PREVIEW);
+                    box.disabled = Boolean(window.ARENA_SCENE_PREVIEW);
+                });
+            };
+            sync();
+            window.addEventListener('load', sync);
+            document.addEventListener('change', function (event) {
+                if (!event.target.matches || !event.target.matches('[data-scene-view-toggle]')) return;
+                try { localStorage.setItem('battleExperimentalView', event.target.checked ? '1' : '0'); } catch (error) { return; }
+                window.location.reload();
+            });
+            if (window.ARENA_SCENE_VIEW && !window.ARENA_SCENE_PREVIEW) {
+                var script = document.createElement('script');
+                script.src = '/arena-scene/scene.js?v=10';
+                script.async = false;
+                document.body.appendChild(script);
+            }
+        }());
+    </script>
   <script src="./scripts/arena-navigation.js?v=hide-switch-ingame-v1&pokemon-home-link-v1&pokemon-page-bg-v1&pokemon-page-switch-fix-v1&comic-root-default-v1" defer></script>
 </body>
 </html>

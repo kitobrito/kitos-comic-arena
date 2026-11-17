@@ -25,14 +25,19 @@ const request = (url, { user = admin.username, body, ...options } = {}) => fetch
     ...(body ? { method: 'POST', body: JSON.stringify(body) } : {}),
 });
 test('guests and ordinary accounts cannot open or start either preview; current database role wins', async () => {
-    for (const path of ['/arena-scene/', '/arena-scene/selection.html?layout=experimental&arena=comic', '/arena-scene/ingame.html', '/arena-scene/scene.js', '/arena-scene/scene.css', '/arena-scene/forest.svg']) {
+    for (const path of ['/arena-scene/', '/arena-scene/selection.html?layout=experimental&arena=comic', '/arena-scene/ingame.html']) {
         assert.equal((await request(path, { user: null })).status, 401, path);
         assert.equal((await request(path, { user: member.username })).status, 403, path);
+    }
+    // The battlefield's files are public: any player can turn the experimental view on in battle.
+    for (const path of ['/arena-scene/scene.js', '/arena-scene/scene.css', '/arena-scene/forest.svg', '/arena-scene/arena.webp']) {
+        assert.equal((await request(path, { user: null })).status, 200, path);
+        assert.equal((await request(path, { user: member.username })).status, 200, path);
     }
     assert.equal((await request('/api/admin/arena-scene/start', { user: null, body: { team: teams.pokemon, arena: 'pokemon' } })).status, 401);
     assert.equal((await request('/api/admin/arena-scene/start', { user: member.username, body: { team: teams.pokemon, arena: 'pokemon' } })).status, 403);
     const user = users.docs.find(u => u.username === admin.username); user.role = 'player';
-    assert.equal((await request('/arena-scene/scene.js')).status, 403); user.role = 'admin';
+    assert.equal((await request('/arena-scene/ingame.html')).status, 403); user.role = 'admin';
 });
 test('private wrappers retain production scripts with private scene assets and no shared caching', async () => {
     for (const page of ['selection.html?arena=pokemon&layout=experimental', 'ingame.html?arena=comic']) {
@@ -42,6 +47,12 @@ test('private wrappers retain production scripts with private scene assets and n
         const html = await response.text(); assert.match(html, /<base href="\/">/); assert.match(html, /ARENA_SCENE_PREVIEW=true/);
         assert.match(html, /scripts\/script.js/); assert.match(html, /\/arena-scene\/scene.js/);
     }
+});
+test('the preview opens on Comic Arena unless Pokémon is asked for', async () => {
+    const plain = await request('/arena-scene/', { redirect: 'manual' });
+    assert.equal(plain.status, 302); assert.match(plain.headers.get('location'), /selection\.html\?arena=comic$/);
+    const pokemon = await request('/arena-scene/?arena=pokemon', { redirect: 'manual' });
+    assert.match(pokemon.headers.get('location'), /arena=pokemon$/);
 });
 test('raw source, encoded aliases and test fixtures cannot bypass the private gate', async () => {
     for (const path of ['/prototypes/arena-scene/access.cjs', '//prototypes//arena-scene//scene.js', '/%70rototypes/arena-scene/scene.css', '/prototypes%2farena-scene/scene.js', '/prototypes/arena-scene/test/serve.cjs']) {
@@ -84,6 +95,29 @@ test('an active ranked match is still recovered when a newer private preview exi
     const normal = { matchId: 'ranked-match', arena: 'pokemon', mode: 'ladder', status: 'active', players: [{ username: admin.username }], matchStartsAt: new Date(0), createdAt: new Date(0) };
     await matches.insertOne(normal);
     assert.equal((await engine.findMostRecentActiveMatchForUser(admin.username, 'pokemon')).matchId, normal.matchId);
+});
+test('a player sees the energy the enemy destroyed or stole from them, and only their own', async () => {
+    const battleLogic = require('../../../battleLogic.js');
+    const created = await engine.createAdminSceneMatch({ user: admin, team: teams.comic, arena: 'comic' });
+    const stored = matches.docs.find(m => m.matchId === created.matchId);
+    const bot = stored.players[1].username;
+    stored.chakraPools[admin.username] = { taijutsu: 1, bloodline: 0, ninjutsu: 0, genjutsu: 0 };
+    battleLogic.removeRandomChakraFromMatch({ match: stored, username: admin.username, amount: 1, sourceUsername: bot });
+    battleLogic.recordEnergyLoss(stored, { username: admin.username, type: 'genjutsu', kind: 'stolen', toUsername: bot, sourceSlot: 2 });
+    battleLogic.recordEnergyLoss(stored, { username: bot, type: 'ninjutsu', kind: 'destroyed' });
+    const payload = await (await request('/api/match/' + stored.matchId)).json();
+    assert.deepEqual(payload.energyLosses.map(l => [l.type, l.kind, l.toUsername]), [['taijutsu', 'destroyed', null], ['genjutsu', 'stolen', bot]]);
+    assert.ok(Array.isArray(payload.lastChakraGain[admin.username]));
+});
+test('every player can switch a real battle to the experimental battlefield and back', async () => {
+    const page = await (await request('/ingame.html', { user: member.username })).text();
+    assert.match(page, /data-scene-view-toggle> Experimental battlefield \(beta\)/);
+    assert.match(page, /localStorage\.getItem\('battleExperimentalView'\) === '1'/);
+    assert.match(page, /\/arena-scene\/scene\.css\?v=/);
+    assert.match(page, /\/arena-scene\/scene\.js\?v=/);
+    const script = await (await request('/arena-scene/scene.js', { user: member.username })).text();
+    assert.match(script, /scene-classic-view/);
+    assert.match(script, /battleExperimentalView', '0'/);
 });
 test('revoking admin role immediately denies an existing preview match API', async () => {
     const match = matches.docs.find(m => m.adminRenderPreview);

@@ -1,0 +1,34 @@
+/* EnergyFX (scripts/energy-fx.js): start-of-turn energy orbs, themed per arena. */
+.efx-layer { position:fixed; inset:0; z-index:9500; pointer-events:none; }
+.efx-orb { position:absolute; width:30px; height:30px; border-radius:50%; background:radial-gradient(circle at 35% 30%,#fff 0 12%,var(--c) 46%,color-mix(in srgb,var(--c) 55%,#000) 100%); box-shadow:0 0 0 2px #ffffffb8,0 0 16px var(--c),0 0 34px var(--c); }
+.efx-orb::after { content:''; position:absolute; inset:-9px; border-radius:50%; border:2px solid var(--c); opacity:.55; animation:efx-wave .9s ease-out infinite; }
+.efx-doomed { box-shadow:0 0 0 2px #ff6b5ad0,0 0 16px var(--c),0 0 30px #ff3b2a99; }
+.efx-cracking { background:radial-gradient(circle at 35% 30%,#fff 0 10%,var(--c) 40%,#3a0d08 100%),repeating-conic-gradient(#0000 0 22deg,#000a 22deg 25deg); background-blend-mode:multiply; }
+.efx-snatched::after { border-color:#ff3b2a; }
+.efx-burst { position:absolute; width:90px; height:90px; border-radius:50%; background:radial-gradient(closest-side,#fff 0 18%,#ffb06a 35%,#ff3b2a66 60%,transparent 72%); mix-blend-mode:screen; }
+.efx-burst-thief { background:radial-gradient(closest-side,#fff 0 15%,var(--c) 40%,#ff3b2a55 62%,transparent 74%); }
+.efx-shard { position:absolute; width:9px; height:5px; border-radius:2px; background:var(--c); box-shadow:0 0 6px var(--c); }
+.efx-streak { position:absolute; height:4px; margin-top:-2px; transform-origin:0 50%; border-radius:4px; background:linear-gradient(90deg,#ff3b2a00,#ff3b2acc 40%,#ffd0c4); box-shadow:0 0 10px #ff3b2a; }
+.efx-lost-label { position:absolute; font:800 10px/1 Arial,sans-serif; letter-spacing:1px; color:#ff8a78; text-shadow:0 1px 2px #000,0 0 6px #000; white-space:nowrap; }
+.efx-caption { position:absolute; display:flex; flex-direction:column; align-items:center; gap:4px; white-space:nowrap; }
+.efx-caption b { font:400 30px/1 Impact,'Arial Black',sans-serif; letter-spacing:3px; color:#fff3c4; text-shadow:0 2px 0 #4a2f05,0 0 14px #f5c54a,0 4px 10px #000; }
+.efx-caption span { font:800 12px/1 Arial,sans-serif; letter-spacing:1px; text-transform:uppercase; color:#ff9a88; text-shadow:0 1px 2px #000,0 0 6px #000; }
+
+/* Comic Arena: comic lettering on a halftone starburst. */
+.efx-comic .efx-caption b { font-family:'Pedra','Libre Franklin',Impact,sans-serif; font-size:34px; letter-spacing:1px; color:#ffe14a; -webkit-text-stroke:2px #000; text-shadow:3px 3px 0 #000,0 0 18px #ff3b2a99; transform:rotate(-4deg); }
+.efx-comic .efx-caption::before { content:''; position:absolute; z-index:-1; left:50%; top:50%; width:220px; height:110px; translate:-50% -58%; background:radial-gradient(#d4202a 30%,transparent 31%) 0 0/8px 8px,#ff3b2a; clip-path:polygon(50% 0,58% 28%,82% 8%,72% 36%,100% 30%,78% 52%,98% 74%,70% 66%,74% 96%,54% 74%,40% 100%,38% 72%,10% 88%,24% 60%,0 46%,26% 38%,12% 10%,40% 26%); opacity:.92; filter:drop-shadow(3px 3px 0 #000); }
+.efx-comic .efx-orb { box-shadow:0 0 0 3px #000,0 0 0 5px #fff,0 0 18px var(--c); }
+.efx-comic .efx-lost-label { font-family:'Pedra',Impact,sans-serif; font-size:14px; color:#ff3b2a; -webkit-text-stroke:1px #000; text-shadow:2px 2px 0 #000; }
+
+/* Pokémon Arena: clean condensed type and Poké-style rings. */
+.efx-pokemon .efx-caption b { font-family:'Arena Condensed','Roboto Condensed','Arial Narrow',sans-serif; font-weight:700; font-size:32px; letter-spacing:2px; color:#fff; text-shadow:0 2px 0 #1d3f8f,0 0 0 #000,0 0 16px #6fb4ff,0 3px 8px #000a; }
+.efx-pokemon .efx-orb { box-shadow:0 0 0 2px #fff,0 0 0 4px #1d3f8f,0 0 18px var(--c); }
+.efx-pokemon .efx-orb::before { content:''; position:absolute; left:-2px; right:-2px; top:50%; height:2px; margin-top:-1px; background:#1d3f8f99; border-radius:2px; }
+.efx-pokemon .efx-lost-label { font-family:'Arena Condensed','Arial Narrow',sans-serif; font-weight:700; font-size:12px; color:#ff8f7a; }
+
+@keyframes efx-wave { 0% { transform:scale(.7); opacity:.9; } 100% { transform:scale(1.35); opacity:0; } }
+@media (max-width:700px) { .efx-orb { width:24px; height:24px; } .efx-caption b { font-size:22px!important; } .efx-comic .efx-caption::before { width:160px; height:84px; } }
+.efx-comic .efx-caption span { color:#fff; font-family:'Pedra',Impact,sans-serif; font-size:13px; letter-spacing:.5px; -webkit-text-stroke:.6px #000; text-shadow:2px 2px 0 #000; margin-top:2px; }
+
+/* Settings > Options: the experimental battlefield switch stands out at the top of the list. */
+.ui-options-panel label.scene-view-option { color:#ffe39a; font-weight:700; border-bottom:1px solid #ffffff22; padding-bottom:8px; margin-bottom:4px; }

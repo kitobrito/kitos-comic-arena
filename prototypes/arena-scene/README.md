@@ -1,8 +1,14 @@
 # Admin full-body arena preview
 
-Private entry points:
+Players: any player can turn this view on in a real battle from Settings > Options >
+"Experimental battlefield (beta)" (stored as localStorage battleExperimentalView=1; ingame.html then
+loads scene.css/scene.js with window.ARENA_SCENE_VIEW). "Classic view" in the header switches back.
+The classic view stays the default. scene.js, scene.css and the backgrounds are served publicly;
+the preview pages below and bot matches stay admin-only.
+
+Admin preview entry points:
+- `/arena-scene/` (opens Comic Arena)
 - `/arena-scene/?arena=pokemon`
-- `/arena-scene/?arena=comic`
 
 Every preview page and asset verifies the current session and database admin role.
 The underlying `/prototypes/arena-scene/` directory is denied by the static server.
@@ -14,6 +20,35 @@ BattleFX, turn coordinator and battle bot still own gameplay. `scene.js` adapts
 the existing full-body selection renders into a battlefield and proxies the real
 skill buttons into a responsive command bar. Evolutions and equipped skins reuse
 the same render catalog; an unavailable render falls back to its existing portrait.
+
+Battlefield presentation (all in `scene.js` / `scene.css`):
+- Each fighter stands on the floor at a foot position. Its render is trimmed to its visible
+  pixels and sized from real height (`COMIC_SIZES`, `POKEMON_METRES`), with depth scaling,
+  so Yoda is knee-high to the Hulk. Waist-up renders fade into the floor (`COMIC_CUT`) and
+  flyers hover (`COMIC_FLYERS`, `POKEMON_FLYERS`). Add new characters to these tables.
+- The invisible original portrait is the hitbox, exactly over the figure, so clicks,
+  BattleFX sprites and damage numbers land on the character.
+- Targets get a ground ring and an arrow over the head; nothing fades. The production
+  yellow target boxes are hidden here.
+- `BattleFX.cast/recoil/status/death/enter/victory` are wrapped: melee attackers dash to the
+  target with afterimages and hop back, ranged attackers kick back, and the target's hit,
+  damage number and health drop wait for the strike to land.
+
+- Energy, exchange, timer and Ready sit in the battlefield's top bar. Only the Ready button
+  ends the turn.
+- Each of your fighters has a semi-transparent skill bar under its feet on the battlefield. It
+  folds into the chosen skill and its target once queued (tap to change). The area below the
+  battlefield is for reading the skill. Phones, too narrow for three bars, use stacked panels.
+
+- Enemies have greyed, read-only skill bars: tapping one shows the skill below, nothing is cast.
+- Comic Arena stands in a generated colosseum (`arena.webp`, built from `arena.svg` by
+  `tools/build-arena-bg.py` then `tools/render-arena-bg.mjs`).
+
+- "YOUR TURN" / "ENEMY TURN" is a large banner under the energy bar.
+- Start-of-turn energy (shared with the live battle page, `scripts/energy-fx.js`): new energy
+  appears as orbs and flies into its counters; energy the enemy destroyed shatters, energy it
+  stole is snatched into the thief. The server records losses in `match.economy.energyLosses`
+  (`battleLogic.recordEnergyLoss`) and sends each player only their own.
 
 Preview matches use the regular PvP starting health, energy economy and skills.
 The admin moves first; the bot uses its existing team builder and skill AI.

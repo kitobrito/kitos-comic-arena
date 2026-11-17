@@ -4234,6 +4234,7 @@ const maybeTriggerReactiveDefenses = ({
             const picked = available[Math.floor(battleRandom() * available.length)];
             targetPool[picked] = Math.max(0, (Number(targetPool[picked]) || 0) - 1);
             sourcePool[picked] = (Number(sourcePool[picked]) || 0) + 1;
+            recordEnergyLoss(match, { username: actingUsername, type: picked, kind: 'stolen', toUsername: trapStatus.sourceUsername, sourceSkillId: trapStatus.sourceSkillId, sourceSlot: trapStatus.sourceSlot });
         }
         match.chakraPools[actingUsername] = targetPool;
         match.chakraPools[trapStatus.sourceUsername] = sourcePool;
@@ -4587,6 +4588,7 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
                         match: context.match,
                         username: context.sourceUsername,
                         amount: 1,
+                        sourceUsername: context.targetUsername,
                     });
                 }
                 targetState.statuses.splice(i, 1);
@@ -6943,7 +6945,28 @@ const triggerOnOwnerTargetedBySkillBonuses = ({
     });
 };
 
-const removeRandomChakraFromMatch = ({ match, username, amount = 1 }) => {
+// A short record of energy taken from a player (destroyed, or stolen by the enemy) so the client can
+// show it at the start of that player's next turn. Presentation only: no rule reads it.
+const recordEnergyLoss = (match, { username, type, kind = 'destroyed', toUsername = null, sourceSkillId = null, sourceSlot = null } = {}) => {
+    if (!match || !username || !type) return;
+    match.economy = match.economy && typeof match.economy === 'object' ? match.economy : {};
+    const log = Array.isArray(match.economy.energyLosses) ? match.economy.energyLosses : [];
+    const seq = (Number(match.economy.energyLossSeq) || 0) + 1;
+    match.economy.energyLossSeq = seq;
+    log.push({
+        id: seq,
+        username,
+        type,
+        kind: kind === 'stolen' ? 'stolen' : 'destroyed',
+        toUsername: kind === 'stolen' ? toUsername || null : null,
+        sourceSkillId: sourceSkillId || null,
+        sourceSlot: Number.isInteger(sourceSlot) ? sourceSlot : null,
+        turn: Number(match.turnNumber) || 0,
+    });
+    match.economy.energyLosses = log.slice(-24);
+};
+
+const removeRandomChakraFromMatch = ({ match, username, amount = 1, sourceUsername = null, sourceSkillId = null, sourceSlot = null }) => {
     if (!match || !username) return 0;
     const lossAmount = Math.max(0, Number(amount) || 0);
     if (lossAmount <= 0) return 0;
@@ -6961,6 +6984,7 @@ const removeRandomChakraFromMatch = ({ match, username, amount = 1 }) => {
             const pick = available[Math.floor(battleRandom() * available.length)];
             pool[pick] = Math.max(0, (Number(pool[pick]) || 0) - 1);
             removed += 1;
+            recordEnergyLoss(match, { username, type: pick, sourceSkillId, sourceSlot, toUsername: sourceUsername });
             continue;
         }
         const assigned = randomAssignments
@@ -6969,6 +6993,7 @@ const removeRandomChakraFromMatch = ({ match, username, amount = 1 }) => {
         if (!assigned.length) break;
         const pick = assigned[Math.floor(battleRandom() * assigned.length)];
         randomAssignments[pick] = Math.max(0, (Number(randomAssignments[pick]) || 0) - 1);
+        recordEnergyLoss(match, { username, type: pick, sourceSkillId, sourceSlot, toUsername: sourceUsername });
         if (pending) {
             pending.unresolvedRandom = Math.max(0, (Number(pending.unresolvedRandom) || 0) + 1);
             match.pendingTurns[username] = pending;
@@ -12350,6 +12375,9 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         match,
                         username: recipient.username,
                         amount,
+                        sourceUsername: actingUsername,
+                        sourceSkillId: skill?.id || null,
+                        sourceSlot: Number.isInteger(actorSlot) ? actorSlot : null,
                     });
                 });
                 return;
@@ -12775,6 +12803,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         targetPool[picked] = Math.max(0, (Number(targetPool[picked]) || 0) - 1);
                         sourcePool[picked] = (Number(sourcePool[picked]) || 0) + 1;
                         drainedTypes.push(picked);
+                        recordEnergyLoss(match, { username: recipient.username, type: picked, kind: 'stolen', toUsername: actingUsername, sourceSkillId: skill?.id, sourceSlot: actorSlot });
                     }
                     match.chakraPools[recipient.username] = targetPool;
                     match.chakraPools[actingUsername] = sourcePool;
@@ -12876,6 +12905,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         const picked = available[Math.floor(battleRandom() * available.length)];
                         targetPool[picked] = Math.max(0, (Number(targetPool[picked]) || 0) - 1);
                         sourcePool[picked] = (Number(sourcePool[picked]) || 0) + 1;
+                        recordEnergyLoss(match, { username: recipient.username, type: picked, kind: 'stolen', toUsername: actingUsername, sourceSkillId: skill?.id, sourceSlot: actorSlot });
                     }
                     match.chakraPools[recipient.username] = targetPool;
                     match.chakraPools[actingUsername] = sourcePool;
@@ -12928,6 +12958,9 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     const drainAmount = Math.min(maxAmount, available);
                     targetPool[drainType] = available - drainAmount;
                     sourcePool[drainType] = (Number(sourcePool[drainType]) || 0) + drainAmount;
+                    for (let i = 0; i < drainAmount; i += 1) {
+                        recordEnergyLoss(match, { username: recipient.username, type: drainType, kind: 'stolen', toUsername: actingUsername, sourceSkillId: skill?.id, sourceSlot: actorSlot });
+                    }
                     match.chakraPools[recipient.username] = targetPool;
                     match.chakraPools[actingUsername] = sourcePool;
                 });
@@ -15778,6 +15811,8 @@ const reduceHulkRageForInactiveTurn = ({ match, endingUsername, pendingTurn }) =
 
 module.exports = {
     DEFAULT_HP,
+    recordEnergyLoss,
+    removeRandomChakraFromMatch,
     configureBattleRuntime,
     resetBattleRuntime,
     buildInitialBoard,
