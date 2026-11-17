@@ -375,3 +375,19 @@ html.arena-scene-preview body.scene-battle .scene-enemybar .scene-skill.scene-mi
 html.scene-arena-comic .scene-backdrop { background:url('/arena-scene/arena.webp') center bottom/cover; filter:saturate(.95) brightness(.88); }
 html.scene-arena-comic .scene-targeting .scene-backdrop { filter:saturate(.75) brightness(.66); }
 html.scene-arena-comic .scene-floor { background:linear-gradient(transparent 55%,#0a0a0d55); }
+
+/* ===== Halfway line between the teams =============================================================
+   A glowing line down the middle of the floor (wider at the front, for perspective), each half
+   faintly tinted in its team's colour, and a VS badge where the line meets the back wall. */
+.scene-field { --floor-top:52%; }
+html.scene-arena-comic .scene-field { --floor-top:41%; }
+.scene-halves { position:absolute; inset:var(--floor-top) 0 0; z-index:2; pointer-events:none; -webkit-mask-image:linear-gradient(transparent,#000 22%); mask-image:linear-gradient(transparent,#000 22%); }
+.scene-half { position:absolute; top:0; bottom:0; width:50%; }
+.scene-half-player { left:0; background:linear-gradient(270deg,#6fd08a2e,#6fd08a0f 45%,transparent 85%); }
+.scene-half-enemy { right:0; background:linear-gradient(90deg,#ff7a5a2e,#ff7a5a0f 45%,transparent 85%); }
+.scene-divider { position:absolute; left:50%; top:var(--floor-top); bottom:0; width:18px; translate:-50% 0; z-index:2; pointer-events:none; }
+.scene-divider-core,.scene-divider-glow { position:absolute; inset:0; clip-path:polygon(43% 0,57% 0,100% 100%,0 100%); }
+.scene-divider-core { background:linear-gradient(#fff4d600,#fff4d6 14%,#ffe7a8); }
+.scene-divider-glow { inset:0 -26px; clip-path:polygon(46% 0,54% 0,100% 100%,0 100%); background:linear-gradient(#ffd77a00,#ffd77a66 18%,#ffd77a33); filter:blur(8px); }
+.scene-divider-vs { position:absolute; left:50%; top:0; translate:-50% -55%; display:grid; place-items:center; width:38px; height:38px; border-radius:50%; background:radial-gradient(#3a2a12,#120d07); border:2px solid #ffd77a; color:#ffe7a8; font:900 13px/1 Impact,'Arial Black',sans-serif; letter-spacing:1px; box-shadow:0 0 16px #ffc84a88,0 4px 10px #000a; }
+@media (max-width:700px) { .scene-divider-vs { width:28px; height:28px; font-size:10px; } }

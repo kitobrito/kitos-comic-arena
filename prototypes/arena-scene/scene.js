@@ -101,7 +101,9 @@
         // ---- Battlefield shell --------------------------------------------------------------------
         const stage = $('.ingame-stage'); if (!stage) return;
         const field = document.createElement('section'); field.className = 'scene-field'; field.setAttribute('aria-label', 'Battlefield');
-        field.innerHTML = '<div class="scene-backdrop" aria-hidden="true"></div><div class="scene-floor" aria-hidden="true"></div>';
+        field.innerHTML = '<div class="scene-backdrop" aria-hidden="true"></div><div class="scene-floor" aria-hidden="true"></div>'
+            + '<div class="scene-halves" aria-hidden="true"><span class="scene-half scene-half-player"></span><span class="scene-half scene-half-enemy"></span></div>'
+            + '<div class="scene-divider" aria-hidden="true"><span class="scene-divider-glow"></span><span class="scene-divider-core"></span><span class="scene-divider-vs">VS</span></div>';
         const ribbon = document.createElement('div'); ribbon.className = 'scene-ribbon';
         ribbon.innerHTML = '<span class="scene-side-label">YOUR TEAM</span><div class="scene-hud"><p class="scene-turn" role="status">Preparing the battlefield…</p></div><span class="scene-side-label">SPARRING BOT</span>';
         field.append(ribbon);
