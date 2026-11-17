@@ -21,7 +21,7 @@ const ENERGY = [
     p('The Options list in battle Settings was also cut off and could not be seen on the current battle screen. It now opens properly inside the Settings panel.'),
 ];
 
-const CLOSING = p('This is a beta, so please tell me on Discord what you think and anything that looks off, especially on your phone. Phones currently show the skill bars as a list below the battlefield instead of under each fighter.');
+const CLOSING = p('This is a beta, so some things may still look a little off, especially on phones. Phones currently show the skill bars as a list below the battlefield instead of under each fighter.');
 
 const comicPost = {
     releaseVersion: 'experimental-battlefield-comic-v1',
