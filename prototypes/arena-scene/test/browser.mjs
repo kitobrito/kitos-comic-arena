@@ -63,7 +63,7 @@ for (const arena of ['pokemon', 'comic']) {
     }
     console.log(arena + ': real skill selected');
     assert.ok(chosen, 'A real skill must be usable on the second turn.');
-    await page.locator(`.scene-fighter[data-slot="${chosen.actorSlot}"] .scene-skill`).nth(chosen.skillIndex).click();
+    await page.locator(`[data-slot="${chosen.actorSlot}"] .scene-skill:visible`).nth(chosen.skillIndex).click();
     await page.waitForSelector('.character-card.targetable');
     const side = await page.evaluate(target => target.username === window.ArenaSceneState.match.player.username ? 'player' : 'opponent', chosen.target);
     const target = page.locator(`.character-card[data-scene-side="${side}"][data-scene-slot="${chosen.target.slot}"] .character-face`);

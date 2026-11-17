@@ -317,3 +317,47 @@ html.arena-scene-preview body.scene-battle .scene-details .skillinformation :is(
  html.arena-scene-preview body.scene-battle .scene-hud .chakra-display { justify-content:flex-start!important; overflow:hidden; }
  html.arena-scene-preview body.scene-battle .scene-hud .chakra-item[data-chakra-total] { display:none!important; }
 }
+
+/* ===== Skill bars on the battlefield (desktop and tablet) =========================================
+   One semi-transparent bar under each of your fighters. It folds to the chosen skill once a
+   target is picked. The command area below becomes the place to read what a skill does. */
+html.arena-scene-preview body.scene-battle .scene-field { height:clamp(500px,66vh,760px); }
+.scene-fieldbars { position:absolute; inset:0; z-index:88; pointer-events:none; }
+.scene-fieldbar { position:absolute; translate:-50% 0; pointer-events:auto; opacity:0; transition:opacity .3s ease, filter .3s; }
+.scene-fieldbar.scene-laid-out { opacity:1; }
+.scene-fieldbar-skills { display:flex; gap:5px; padding:5px; border-radius:13px; background:#08100dad; border:1px solid #ffffff1f; box-shadow:0 8px 20px #0007,inset 0 1px 0 #ffffff14; backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); }
+html.arena-scene-preview body.scene-battle .scene-fieldbar .scene-skill.scene-mini { all:unset; box-sizing:border-box; position:relative; display:block; width:42px; height:42px; border-radius:9px; cursor:pointer; transition:transform .12s ease, box-shadow .15s, filter .15s; }
+.scene-fieldbar .scene-mini img { display:block; width:100%; height:100%; object-fit:cover; border-radius:9px; border:1px solid #ffffff40; box-sizing:border-box; }
+.scene-fieldbar .scene-mini:hover:not(:disabled) { transform:translateY(-3px) scale(1.06); box-shadow:0 0 0 2px #e9d18a,0 6px 12px #0008; }
+.scene-fieldbar .scene-mini:focus-visible { outline:3px solid #f4d68b; outline-offset:2px; }
+.scene-fieldbar .scene-mini::after { content:attr(data-name); position:absolute; left:50%; top:calc(100% + 11px); translate:-50% -4px; padding:4px 8px; border-radius:6px; background:#0b1310f2; border:1px solid #e5cf8655; color:#f6edcf; font:700 11px/1.2 Arial,sans-serif; white-space:nowrap; pointer-events:none; opacity:0; transition:opacity .12s, translate .12s; z-index:2; }
+.scene-fieldbar .scene-mini:hover::after,.scene-fieldbar .scene-mini:focus-visible::after { opacity:1; translate:-50% 0; }
+.scene-fieldbar .scene-mini.scene-armed { box-shadow:0 0 0 2px #ffd96b,0 0 18px #ffcc45; animation:scene-armed-pulse 1.1s ease-in-out infinite; transform:translateY(-3px); }
+.scene-fieldbar .scene-mini.scene-armed::after { opacity:1; translate:-50% 0; content:attr(data-name) ' · pick a target'; border-color:#ffd96b; }
+.scene-fieldbar .scene-mini:is(.scene-unavailable,.scene-on-cooldown) img { filter:grayscale(.85) brightness(.6); }
+.scene-fieldbar .scene-mini:disabled { cursor:default; opacity:.45; }
+.scene-mini-cd { position:absolute; inset:0; display:grid; place-items:center; font:800 17px Arial,sans-serif; color:#fff; text-shadow:0 1px 3px #000,0 0 6px #000; pointer-events:none; }
+.scene-mini-cd:empty { display:none; }
+/* Folded: only the chosen skill and its target. */
+.scene-fieldbar-queued { all:unset; box-sizing:border-box; display:none; align-items:center; gap:7px; padding:4px 10px 4px 4px; border-radius:13px; cursor:pointer; background:#1d1c0fcc; border:1px solid #e3c56f; box-shadow:0 0 16px #f2c45a44,0 8px 18px #0007; backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); }
+.scene-fieldbar-queued img { width:38px; height:38px; border-radius:9px; object-fit:cover; border:1px solid #e3c56f; }
+.scene-fieldbar-target { font:700 12px/1.2 Arial,sans-serif; color:#ffe7a3; white-space:nowrap; max-width:130px; overflow:hidden; text-overflow:ellipsis; }
+.scene-fieldbar-change { font:700 14px Arial,sans-serif; color:#e3c56f; }
+.scene-fieldbar-queued:hover { background:#2c2a14dd; }
+.scene-fieldbar-queued:focus-visible { outline:3px solid #f4d68b; outline-offset:2px; }
+.scene-fieldbar.is-queued .scene-fieldbar-skills { display:none; }
+.scene-fieldbar.is-queued .scene-fieldbar-queued { display:flex; animation:scene-fold .28s cubic-bezier(.2,.9,.3,1.2); }
+.scene-fieldbar.is-out { display:none; }
+.scene-fieldbar.is-waiting:not(.is-queued) { opacity:.45; filter:saturate(.4); }
+/* While aiming, the other bars step back so the targets read clearly. */
+.scene-targeting .scene-fieldbar:not(:has(.scene-armed)) { opacity:.5; }
+/* With the bars on the field, the bottom is for reading the skill. */
+@media (min-width:701px) {
+ .scene-roster { display:none; }
+ .scene-details { margin-top:0; }
+ html.arena-scene-preview.battle-experimental body.scene-battle .scene-details .skillinformation { min-height:96px; }
+}
+@media (max-width:700px) {
+ .scene-fieldbars { display:none; }
+ html.arena-scene-preview body.scene-battle .scene-field { height:470px; }
+}

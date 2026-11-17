@@ -106,8 +106,11 @@
         ribbon.innerHTML = '<span class="scene-side-label">YOUR TEAM</span><div class="scene-hud"><p class="scene-turn" role="status">Preparing the battlefield…</p></div><span class="scene-side-label">SPARRING BOT</span>';
         field.append(ribbon);
         for (const s of ['.player-characters', '.enemy-characters']) { const team = $(s); if (team) field.append(team); }
+        // Each of your fighters gets a skill bar on the battlefield, under its feet.
+        const fieldbars = document.createElement('div'); fieldbars.className = 'scene-fieldbars'; fieldbars.setAttribute('aria-label', 'Skills on the battlefield');
+        field.append(fieldbars);
         const footer = document.createElement('section'); footer.className = 'scene-commandbar';
-        footer.innerHTML = '<div class="scene-plan-line"><p class="scene-hint" aria-live="polite">Pick a skill for each fighter, then pick its target on the battlefield.</p><p class="scene-queue" aria-live="polite"></p></div><div class="scene-roster" aria-label="Your fighters and their skills"></div><div class="scene-details"></div>';
+        footer.innerHTML = '<div class="scene-plan-line"><p class="scene-hint" aria-live="polite">Pick a skill for each fighter, then tap its target.</p><p class="scene-queue" aria-live="polite"></p></div><div class="scene-roster" aria-label="Your fighters and their skills"></div><div class="scene-details"></div>';
         // Energy, timer and Ready live in the battlefield's top bar, always in view while planning.
         const hud = $('.game-hud');
         const ready = $('.ready-section');
@@ -141,33 +144,47 @@
                 + '<button type="button" class="scene-fighter-queued"><img alt=""><span class="scene-queued-text"><b></b><span></span></span><span class="scene-queued-change">Change</span></button>';
             const head = $('.scene-fighter-head', panel);
             head.addEventListener('click', () => { selected = slot; card._showCharacterInfoFromPortrait?.(); syncControls(); });
-            const skills = Array.from({ length: 4 }, (_, index) => {
-                const button = document.createElement('button'); button.type = 'button'; button.className = 'scene-skill';
-                button.innerHTML = '<img alt=""><span class="scene-skill-name"></span><span class="scene-skill-state"></span>';
-                button.addEventListener('click', () => {
-                    selected = slot;
-                    const original = $$('.skillimage', card)[index];
-                    const wasArmed = armed.slot === slot && armed.index === index;
-                    armed.slot = wasArmed ? -1 : slot; armed.index = wasArmed ? -1 : index;
-                    fire(original);
-                    setTimeout(syncControls, 60);
-                });
-                $('.scene-fighter-skills', panel).append(button); return button;
-            });
-            // Tapping the folded button takes the skill back and opens the panel again.
-            $('.scene-fighter-queued', panel).addEventListener('click', () => {
+            const pick = index => {
+                selected = slot;
+                const original = $$('.skillimage', card)[index];
+                const wasArmed = armed.slot === slot && armed.index === index;
+                armed.slot = wasArmed ? -1 : slot; armed.index = wasArmed ? -1 : index;
+                fire(original);
+                setTimeout(syncControls, 60);
+            };
+            // Tapping the folded skill takes it back and opens the bar again.
+            const undo = () => {
                 selected = slot;
                 const queuedSkill = $$('.skillimage', card).find(img => img.classList.contains('selected-target'));
                 fire(queuedSkill); setTimeout(syncControls, 60);
+            };
+            const skills = Array.from({ length: 4 }, (_, index) => {
+                const button = document.createElement('button'); button.type = 'button'; button.className = 'scene-skill';
+                button.innerHTML = '<img alt=""><span class="scene-skill-name"></span><span class="scene-skill-state"></span>';
+                button.addEventListener('click', () => pick(index));
+                $('.scene-fighter-skills', panel).append(button); return button;
             });
+            $('.scene-fighter-queued', panel).addEventListener('click', undo);
             $('.scene-roster', footer).append(panel);
-            return { panel, head, skills, card };
+            const bar = document.createElement('div'); bar.className = 'scene-fieldbar'; bar.dataset.slot = String(slot);
+            bar.innerHTML = '<div class="scene-fieldbar-skills"></div><button type="button" class="scene-fieldbar-queued"><img alt=""><span class="scene-fieldbar-target"></span><span class="scene-fieldbar-change" aria-hidden="true">↺</span></button>';
+            // Bars sit over the field: keep their taps from reaching the cards underneath.
+            bar.addEventListener('pointerdown', e => e.stopPropagation());
+            const minis = Array.from({ length: 4 }, (_, index) => {
+                const button = document.createElement('button'); button.type = 'button'; button.className = 'scene-skill scene-mini';
+                button.innerHTML = '<img alt=""><span class="scene-mini-cd"></span>';
+                button.addEventListener('click', () => pick(index));
+                $('.scene-fieldbar-skills', bar).append(button); return button;
+            });
+            $('.scene-fieldbar-queued', bar).addEventListener('click', undo);
+            fieldbars.append(bar);
+            return { panel, head, skills, card, bar, minis };
         });
         const labels = panels.map(p => p.head);
 
         // ---- Actors ---------------------------------------------------------------------------------
         // Foot positions (percent of the field). Slot 1 stands at the front, 0 and 2 behind it.
-        const FORMATION = [{ x: 12, y: 67 }, { x: 26, y: 85 }, { x: 39.5, y: 71 }];
+        const FORMATION = [{ x: 12, y: 60 }, { x: 27, y: 79 }, { x: 41, y: 64 }];
         const FORMATION_NARROW = [{ x: 14, y: 57 }, { x: 25, y: 86 }, { x: 37, y: 63 }];
         const actors = new Map(); // card -> { side, slot, art, rig, body, id, names, bbox }
         for (const [side, cards] of Object.entries(teams)) cards.forEach((card, slot) => {
@@ -265,6 +282,13 @@
             card.classList.toggle('scene-flyer', lift > 0);
             card.classList.toggle('scene-cut', arena === 'comic' && COMIC_CUT.has(actor.id));
             card.classList.add('scene-laid-out');
+            const panel = panels.find(p => p.card === card);
+            if (panel) {
+                const plate = $('.scene-plate', card);
+                panel.bar.style.left = `${x}%`;
+                panel.bar.style.top = `calc(${y}% + ${12 + (plate?.offsetHeight || 30)}px)`;
+                panel.bar.classList.add('scene-laid-out');
+            }
         }
         const layoutAll = () => { for (const actor of actors.values()) layoutActor(actor); updateEffectClip(); };
         new ResizeObserver(layoutAll).observe(field);
@@ -315,7 +339,7 @@
             const ownTurn = state?.match?.currentTurn === state?.match?.player?.username && state?.match?.status !== 'ended';
             const hasTargets = $$('.character-card.targetable').length > 0;
             if (!hasTargets) { armed.slot = -1; armed.index = -1; }
-            panels.forEach(({ panel, head, skills, card }, slot) => {
+            panels.forEach(({ panel, head, skills, card, bar, minis }, slot) => {
                 const isSelected = selected === slot;
                 head.classList.toggle('selected', isSelected); head.setAttribute('aria-pressed', String(isSelected));
                 if (card.classList.contains('scene-selected') !== isSelected) card.classList.toggle('scene-selected', isSelected);
@@ -350,6 +374,28 @@
                     $('.scene-skill-state', button).textContent = button.classList.contains('scene-armed') ? 'Pick a target' : cooldown ? `Cooldown ${cooldown}` : '';
                     button.classList.toggle('scene-on-cooldown', Boolean(cooldown));
                 });
+                bar.classList.toggle('is-queued', queued && !out);
+                bar.classList.toggle('is-out', out);
+                bar.classList.toggle('is-waiting', !ownTurn);
+                minis.forEach((mini, index) => {
+                    const full = skills[index], source = images[index], image = $('img', mini);
+                    if (source?.src && image.src !== source.src) image.src = source.src;
+                    const skillName = $('.scene-skill-name', full).textContent;
+                    mini.dataset.name = skillName; mini.setAttribute('aria-label', full.getAttribute('aria-label') || skillName);
+                    mini.title = full.title; mini.disabled = full.disabled;
+                    for (const cls of ['scene-unavailable', 'scene-armed', 'scene-on-cooldown']) mini.classList.toggle(cls, full.classList.contains(cls));
+                    const cd = $(`.skill-cooldown-badge[data-skill-idx="${index}"]`, card);
+                    $('.scene-mini-cd', mini).textContent = full.classList.contains('scene-on-cooldown') && cd ? cd.textContent.trim() : '';
+                });
+                if (queued) {
+                    const chip = $('.scene-fieldbar-queued', bar), source = images[queuedIndex];
+                    if (source?.src && $('img', chip).src !== source.src) $('img', chip).src = source.src;
+                    const skillName = $('.scene-skill-name', skills[queuedIndex]).textContent;
+                    const target = targetLabel(entry?.targetSelection);
+                    $('.scene-fieldbar-target', chip).textContent = target ? `→ ${target}` : skillName;
+                    chip.title = `${skillName}${target ? ' → ' + target : ''} · tap to change`;
+                    chip.setAttribute('aria-label', `${name} will use ${skillName}${target ? ' on ' + target : ''}. Tap to change.`);
+                }
                 if (queued) {
                     const chip = $('.scene-fighter-queued', panel);
                     const source = images[queuedIndex];
@@ -363,7 +409,7 @@
             });
             field.classList.toggle('scene-targeting', hasTargets);
             const armedSkill = armed.slot >= 0 ? panels[armed.slot]?.skills[armed.index]?.querySelector('.scene-skill-name')?.textContent : '';
-            $('.scene-hint').textContent = hasTargets ? `${armedSkill || 'Skill'} · tap a glowing target on the battlefield` : ownTurn ? 'Pick a skill for each fighter, then pick its target on the battlefield.' : 'Bot is taking its turn…';
+            $('.scene-hint').textContent = hasTargets ? `${armedSkill || 'Skill'} · tap a glowing target on the battlefield` : ownTurn ? 'Pick a skill for each fighter, then tap its target.' : 'Bot is taking its turn…';
             const queuedCount = Object.keys(queuedBySlot).length;
             const able = panels.filter(p => !p.card.classList.contains('scene-knocked-out')).length;
             $('.scene-queue').textContent = queuedCount ? `${queuedCount} of ${able} queued · press Ready when done` : 'One skill per fighter';

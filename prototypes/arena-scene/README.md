@@ -29,8 +29,10 @@ Battlefield presentation (all in `scene.js` / `scene.css`):
   damage number and health drop wait for the strike to land.
 
 - Energy, exchange, timer and Ready sit in the battlefield's top bar. Only the Ready button
-  ends the turn. All three fighters' skill bars show at once in panels under the battlefield;
-  a panel folds into one button (skill → target, tap to change) once its skill is queued.
+  ends the turn.
+- Each of your fighters has a semi-transparent skill bar under its feet on the battlefield. It
+  folds into the chosen skill and its target once queued (tap to change). The area below the
+  battlefield is for reading the skill. Phones, too narrow for three bars, use stacked panels.
 
 Preview matches use the regular PvP starting health, energy economy and skills.
 The admin moves first; the bot uses its existing team builder and skill AI.
