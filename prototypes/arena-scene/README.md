@@ -34,6 +34,10 @@ Battlefield presentation (all in `scene.js` / `scene.css`):
   folds into the chosen skill and its target once queued (tap to change). The area below the
   battlefield is for reading the skill. Phones, too narrow for three bars, use stacked panels.
 
+- Enemies have greyed, read-only skill bars: tapping one shows the skill below, nothing is cast.
+- Comic Arena stands in a generated colosseum (`arena.webp`, built from `arena.svg` by
+  `tools/build-arena-bg.py` then `tools/render-arena-bg.mjs`).
+
 Preview matches use the regular PvP starting health, energy economy and skills.
 The admin moves first; the bot uses its existing team builder and skill AI.
 They have `scene-` IDs, `adminRenderPreview: true`, and `mode: pve`. Creation is

@@ -25,7 +25,7 @@ const request = (url, { user = admin.username, body, ...options } = {}) => fetch
     ...(body ? { method: 'POST', body: JSON.stringify(body) } : {}),
 });
 test('guests and ordinary accounts cannot open or start either preview; current database role wins', async () => {
-    for (const path of ['/arena-scene/', '/arena-scene/selection.html?layout=experimental&arena=comic', '/arena-scene/ingame.html', '/arena-scene/scene.js', '/arena-scene/scene.css', '/arena-scene/forest.svg']) {
+    for (const path of ['/arena-scene/', '/arena-scene/selection.html?layout=experimental&arena=comic', '/arena-scene/ingame.html', '/arena-scene/scene.js', '/arena-scene/scene.css', '/arena-scene/forest.svg', '/arena-scene/arena.webp']) {
         assert.equal((await request(path, { user: null })).status, 401, path);
         assert.equal((await request(path, { user: member.username })).status, 403, path);
     }

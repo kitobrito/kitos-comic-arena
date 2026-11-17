@@ -361,3 +361,17 @@ html.arena-scene-preview body.scene-battle .scene-fieldbar .scene-skill.scene-mi
  .scene-fieldbars { display:none; }
  html.arena-scene-preview body.scene-battle .scene-field { height:470px; }
 }
+
+/* Enemy bars: greyed and read-only. */
+.scene-enemybar .scene-fieldbar-skills { background:#0a0d10a0; border-color:#ffffff14; }
+html.arena-scene-preview body.scene-battle .scene-enemybar .scene-skill.scene-mini { width:34px; height:34px; }
+.scene-enemybar .scene-mini img { filter:grayscale(1) brightness(.7) contrast(.95); opacity:.85; transition:filter .15s, opacity .15s; }
+.scene-enemybar .scene-mini:hover img,.scene-enemybar .scene-mini.scene-reading img { filter:grayscale(.15) brightness(.95); opacity:1; }
+.scene-enemybar .scene-mini.scene-reading { box-shadow:0 0 0 2px #9fc4ff,0 0 12px #6fa6ff88; }
+.scene-enemybar .scene-mini::after { border-color:#9fc4ff55; }
+.scene-enemybar.is-waiting { opacity:1; filter:none; }
+
+/* The arena backdrop. */
+html.scene-arena-comic .scene-backdrop { background:url('/arena-scene/arena.webp') center bottom/cover; filter:saturate(.95) brightness(.88); }
+html.scene-arena-comic .scene-targeting .scene-backdrop { filter:saturate(.75) brightness(.66); }
+html.scene-arena-comic .scene-floor { background:linear-gradient(transparent 55%,#0a0a0d55); }

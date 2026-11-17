@@ -26,12 +26,12 @@ module.exports = function createSceneHandler({ resolveUser, repositoryRoot = joi
                 html = html.replace('<head>', '<head><base href="/"><script>window.ARENA_SCENE_PREVIEW=true;document.documentElement.classList.add("arena-scene-preview");</script>');
                 html = html.replace('src="scripts/battle-fx.js?v=', 'src="scripts/battle-fx.js?v=arena-scene-v1&');
                 html = html.replace('src="scripts/script.js?v=', 'src="scripts/script.js?v=arena-scene-v1&');
-                html = html.replace('</head>', '<link rel="stylesheet" href="/arena-scene/scene.css?v=5"></head>');
-                html = html.replace('</body>', '<script src="/arena-scene/scene.js?v=5"></script></body>');
+                html = html.replace('</head>', '<link rel="stylesheet" href="/arena-scene/scene.css?v=6"></head>');
+                html = html.replace('</body>', '<script src="/arena-scene/scene.js?v=6"></script></body>');
                 res.setHeader('Content-Type', 'text/html; charset=utf-8');
                 res.end(req.method === 'HEAD' ? undefined : html); return;
             }
-            const files = { 'scene.js': 'text/javascript; charset=utf-8', 'scene.css': 'text/css; charset=utf-8', 'forest.svg': 'image/svg+xml' };
+            const files = { 'scene.js': 'text/javascript; charset=utf-8', 'scene.css': 'text/css; charset=utf-8', 'forest.svg': 'image/svg+xml', 'arena.webp': 'image/webp' };
             if (!files[name]) { res.statusCode = 404; res.end('Not found.'); return; }
             const content = await readFile(join(repositoryRoot, 'prototypes', 'arena-scene', name));
             res.setHeader('Content-Type', files[name]); res.end(req.method === 'HEAD' ? undefined : content);

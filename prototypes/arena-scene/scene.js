@@ -181,6 +181,41 @@
             return { panel, head, skills, card, bar, minis };
         });
         const labels = panels.map(p => p.head);
+        // Enemies get greyed, read-only bars: tap a skill to read it below, nothing is cast.
+        const enemyBars = teams.opponent.map((card, slot) => {
+            const bar = document.createElement('div'); bar.className = 'scene-fieldbar scene-enemybar'; bar.dataset.enemySlot = String(slot);
+            bar.innerHTML = '<div class="scene-fieldbar-skills"></div>';
+            bar.addEventListener('pointerdown', e => e.stopPropagation());
+            fieldbars.append(bar);
+            return { bar, card, signature: '' };
+        });
+        function readEnemySkill(entry, button, index) {
+            entry.card._showCharacterInfoFromPortrait?.();
+            for (const other of $$('.scene-enemybar .scene-reading', fieldbars)) other.classList.remove('scene-reading');
+            button.classList.add('scene-reading');
+            requestAnimationFrame(() => $(`.skillinformation .skill-browser-icon[data-skill-idx="${index}"]`)?.click());
+            $('.scene-hint').textContent = `Reading ${$('.scene-actor-name', entry.card).textContent}'s ${button.dataset.name}`;
+        }
+        function syncEnemyBar(entry, unit) {
+            const skills = (unit?.character?.skills || []).map((skill, index) => ({ skill, index }))
+                .filter(({ skill }) => skill && !skill.hiddenFromSelectionViewer && skill.skillimage);
+            const seen = new Set();
+            const shown = skills.filter(({ skill }) => { const k = skill.skillimage; if (seen.has(k)) return false; seen.add(k); return true; }).slice(0, 6);
+            const signature = shown.map(({ skill, index }) => `${index}:${skill.id || skill.name}`).join('|');
+            entry.bar.classList.toggle('is-out', entry.card.classList.contains('scene-knocked-out'));
+            if (signature === entry.signature) return;
+            entry.signature = signature;
+            const holder = $('.scene-fieldbar-skills', entry.bar); holder.textContent = '';
+            for (const { skill, index } of shown) {
+                const button = document.createElement('button'); button.type = 'button'; button.className = 'scene-skill scene-mini';
+                button.innerHTML = '<img alt="">';
+                $('img', button).src = skill.skillimage;
+                button.dataset.name = skill.name || 'Skill';
+                button.setAttribute('aria-label', `Read enemy skill: ${skill.name || 'Skill'}`);
+                button.addEventListener('click', () => readEnemySkill(entry, button, index));
+                holder.append(button);
+            }
+        }
 
         // ---- Actors ---------------------------------------------------------------------------------
         // Foot positions (percent of the field). Slot 1 stands at the front, 0 and 2 behind it.
@@ -282,7 +317,7 @@
             card.classList.toggle('scene-flyer', lift > 0);
             card.classList.toggle('scene-cut', arena === 'comic' && COMIC_CUT.has(actor.id));
             card.classList.add('scene-laid-out');
-            const panel = panels.find(p => p.card === card);
+            const panel = panels.find(p => p.card === card) || enemyBars.find(e => e.card === card);
             if (panel) {
                 const plate = $('.scene-plate', card);
                 panel.bar.style.left = `${x}%`;
@@ -672,6 +707,7 @@
                 if (gauge && gauge.parentNode !== plate) plate.append(gauge);
                 face?.setAttribute('aria-label', `${evolved || name}, ${entry.unit.hp} health. Select fighter or skill target.`);
                 card.classList.toggle('scene-knocked-out', entry.unit.alive === false || entry.unit.hp <= 0);
+                if (side === 'opponent') syncEnemyBar(enemyBars[slot], entry);
             });
             requestAnimationFrame(() => {
                 for (const card of allCards()) {
