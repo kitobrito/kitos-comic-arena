@@ -13,7 +13,10 @@
  */
 (() => {
     'use strict';
-    if (!window.ARENA_SCENE_PREVIEW) return;
+    // Runs in the admin preview (/arena-scene/) and in real battles for players who turned on the
+    // experimental battlefield (Settings > Options). It only changes presentation.
+    if (!window.ARENA_SCENE_VIEW && !window.ARENA_SCENE_PREVIEW) return;
+    const live = !window.ARENA_SCENE_PREVIEW;
 
     // Height of each figure in "adult human" units (1 = about 1.8 m), measured over what the
     // render actually shows. A waist-up render of a normal person is about 0.6.
@@ -70,13 +73,13 @@
         const $ = (s, root = document) => root.querySelector(s);
         const $$ = (s, root = document) => [...root.querySelectorAll(s)];
         const params = new URLSearchParams(location.search);
-        const arena = params.get('arena') === 'pokemon' ? 'pokemon' : 'comic';
+        const arena = params.get('arena') === 'pokemon' || (!params.get('arena') && document.body.classList.contains('arena-mode-pokemon')) ? 'pokemon' : 'comic';
         const isBattle = location.pathname.endsWith('ingame.html');
         const motionOK = () => !matchMedia('(prefers-reduced-motion: reduce)').matches;
         document.body.classList.add(isBattle ? 'scene-battle' : 'scene-selection');
         document.documentElement.classList.add(`scene-arena-${arena}`);
         const header = document.createElement('header'); header.className = 'scene-header';
-        header.innerHTML = `<div><span class="scene-eyebrow">ADMIN LAB · BOT BATTLE</span><h1>${arena === 'pokemon' ? 'Pokémon' : 'Comic'} Arena <span>Living battlefield</span></h1></div><nav aria-label="Preview navigation"><a href="/arena-scene/?arena=comic" ${arena === 'comic' ? 'aria-current="page"' : ''}>Comic</a><a href="/arena-scene/?arena=pokemon" ${arena === 'pokemon' ? 'aria-current="page"' : ''}>Pokémon</a>${isBattle ? `<a href="/arena-scene/?arena=${arena}">Choose team</a>` : `<button type="button" class="scene-start">Fight the bot →</button>`}</nav>`;
+        header.innerHTML = live ? `<div><span class="scene-eyebrow">EXPERIMENTAL BATTLEFIELD · BETA</span><h1>${arena === 'pokemon' ? 'Pokémon' : 'Comic'} Arena <span>Living battlefield</span></h1></div><nav aria-label="Battlefield view"><button type="button" class="scene-classic-view">Classic view</button></nav>` : `<div><span class="scene-eyebrow">ADMIN LAB · BOT BATTLE</span><h1>${arena === 'pokemon' ? 'Pokémon' : 'Comic'} Arena <span>Living battlefield</span></h1></div><nav aria-label="Preview navigation"><a href="/arena-scene/?arena=comic" ${arena === 'comic' ? 'aria-current="page"' : ''}>Comic</a><a href="/arena-scene/?arena=pokemon" ${arena === 'pokemon' ? 'aria-current="page"' : ''}>Pokémon</a>${isBattle ? `<a href="/arena-scene/?arena=${arena}">Choose team</a>` : `<button type="button" class="scene-start">Fight the bot →</button>`}</nav>`;
         if (!isBattle) {
             document.body.prepend(header);
             const notice = document.createElement('p'); notice.className = 'scene-selection-notice';
@@ -105,7 +108,7 @@
             + '<div class="scene-halves" aria-hidden="true"><span class="scene-half scene-half-player"></span><span class="scene-half scene-half-enemy"></span></div>'
             + '<div class="scene-divider" aria-hidden="true"><span class="scene-divider-glow"></span><span class="scene-divider-core"></span><span class="scene-divider-vs">VS</span></div>';
         const ribbon = document.createElement('div'); ribbon.className = 'scene-ribbon';
-        ribbon.innerHTML = '<span class="scene-side-label">YOUR TEAM</span><div class="scene-hud"><p class="scene-turn" role="status">Preparing the battlefield…</p></div><span class="scene-side-label">SPARRING BOT</span>';
+        ribbon.innerHTML = `<span class="scene-side-label">YOUR TEAM</span><div class="scene-hud"><p class="scene-turn" role="status">Preparing the battlefield…</p></div><span class="scene-side-label">${live ? 'OPPONENT' : 'SPARRING BOT'}</span>`;
         field.append(ribbon);
         for (const s of ['.player-characters', '.enemy-characters']) { const team = $(s); if (team) field.append(team); }
         // Each of your fighters gets a skill bar on the battlefield, under its feet.
@@ -125,7 +128,19 @@
         if (hud) ribbon.querySelector('.scene-hud').append(hud);
         const info = $('.skillinformation'); if (info) footer.querySelector('.scene-details').append(info);
         stage.prepend(header); stage.append(field, footer);
-        const returnNote = document.createElement('p'); returnNote.className = 'scene-footnote'; returnNote.textContent = 'PRIVATE PREVIEW · Original battle engine · No rewards, rankings or mission progress'; stage.append(returnNote);
+        const returnNote = document.createElement('p'); returnNote.className = 'scene-footnote';
+        returnNote.textContent = live ? 'EXPERIMENTAL BATTLEFIELD (BETA) · Same match and rules · Switch back any time with Classic view or Settings › Options' : 'PRIVATE PREVIEW · Original battle engine · No rewards, rankings or mission progress';
+        stage.append(returnNote);
+        // Real battles keep Surrender, Chat and Settings: they move up beside Classic view.
+        if (live) {
+            const nav = $('nav', header), controls = $('.bottomgame'), chat = $('.match-chat');
+            if (controls) nav.prepend(controls);
+            if (chat) (controls ? controls.insertBefore(chat, $('.battle-settings-button', controls)) : nav.prepend(chat));
+        }
+        $('.scene-classic-view', header)?.addEventListener('click', () => {
+            try { localStorage.setItem('battleExperimentalView', '0'); } catch { /* storage blocked */ }
+            location.reload();
+        });
         const updateEffectClip = () => {
             const r = field.getBoundingClientRect();
             document.documentElement.style.setProperty('--scene-fx-clip', `inset(${Math.max(0, r.top)}px ${Math.max(0, innerWidth - r.right)}px ${Math.max(0, innerHeight - r.bottom)}px ${Math.max(0, r.left)}px)`);

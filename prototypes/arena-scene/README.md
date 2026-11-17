@@ -1,6 +1,12 @@
 # Admin full-body arena preview
 
-Private entry points:
+Players: any player can turn this view on in a real battle from Settings > Options >
+"Experimental battlefield (beta)" (stored as localStorage battleExperimentalView=1; ingame.html then
+loads scene.css/scene.js with window.ARENA_SCENE_VIEW). "Classic view" in the header switches back.
+The classic view stays the default. scene.js, scene.css and the backgrounds are served publicly;
+the preview pages below and bot matches stay admin-only.
+
+Admin preview entry points:
 - `/arena-scene/` (opens Comic Arena)
 - `/arena-scene/?arena=pokemon`
 

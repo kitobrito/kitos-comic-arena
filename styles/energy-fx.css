@@ -29,3 +29,6 @@
 @keyframes efx-wave { 0% { transform:scale(.7); opacity:.9; } 100% { transform:scale(1.35); opacity:0; } }
 @media (max-width:700px) { .efx-orb { width:24px; height:24px; } .efx-caption b { font-size:22px!important; } .efx-comic .efx-caption::before { width:160px; height:84px; } }
 .efx-comic .efx-caption span { color:#fff; font-family:'Pedra',Impact,sans-serif; font-size:13px; letter-spacing:.5px; -webkit-text-stroke:.6px #000; text-shadow:2px 2px 0 #000; margin-top:2px; }
+
+/* Settings > Options: the experimental battlefield switch stands out at the top of the list. */
+.ui-options-panel label.scene-view-option { color:#ffe39a; font-weight:700; border-bottom:1px solid #ffffff22; padding-bottom:8px; margin-bottom:4px; }

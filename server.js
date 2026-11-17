@@ -60,6 +60,7 @@ const { syncPokemonDittoRelease } = require('./sync_pokemon_ditto_release');
 const { syncPokemonDragapultRelease } = require('./sync_pokemon_dragapult_release');
 const { syncPokemonNincadaRelease } = require('./sync_pokemon_nincada_release');
 const { syncArenaPortalUpdateNews } = require('./sync_arena_portal_update_news');
+const { syncExperimentalBattlefieldNews } = require('./sync_experimental_battlefield_news');
 const { syncPatchNotes } = require('./sync_patch_notes');
 const {
     EVENT_DURATION_MS: PRIMEAPE_EVENT_DURATION_MS,
@@ -14656,6 +14657,8 @@ async function initDb() {
     await syncArenaPortalUpdateNews(db);
     await syncPatchNotes(db);
     console.log('Synced the Arena Portal update news posts (Deadpool, Blaziken).');
+    await syncExperimentalBattlefieldNews(db);
+    console.log('Synced the Experimental Battlefield beta news posts.');
     const compensationSync = await syncPokemonCompensationGrant(db);
     if (compensationSync.migrated) {
         console.log(

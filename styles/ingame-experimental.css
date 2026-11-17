@@ -1008,3 +1008,14 @@ body {
         touch-action: pan-x pan-y;
     }
 }
+
+/* The settings panel is a scrolling overlay, which clips anything positioned outside it, so the
+   Options list (which opened upward) was invisible. Show it inside the panel instead. */
+html.battle-experimental .ingame-sound-controller .ingame-ui-options-panel:not([hidden]) {
+    position: static;
+    inset: auto;
+    width: auto;
+    max-height: none;
+    margin: 2px 0 0;
+    overflow: visible;
+}

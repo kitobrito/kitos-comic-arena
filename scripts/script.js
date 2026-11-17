@@ -1967,7 +1967,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         }
         return `${encodeURI(`/assets/images/selection-featured/PokemonArena/BIB/${filename}`)}?v=kanto-skins-renders-v1`;
     };
-    if (window.ARENA_SCENE_PREVIEW) window.ArenaSceneArt = {
+    if (window.ARENA_SCENE_VIEW) window.ArenaSceneArt = {
         pokemon: POKEMON_SELECTION_FEATURED_RENDER_BY_ID,
         evolutions: POKEMON_SELECTION_EVOLUTION_RENDER_BY_ID,
         forms: POKEMON_SELECTION_BATTLE_FORM_RENDERS_BY_ID,
@@ -9928,7 +9928,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         };
 
         const queuePokemonEvolutionCinematic = (card, previousUnit, nextUnit, status) => {
-            if (window.ARENA_SCENE_PREVIEW) return;
+            if (window.ARENA_SCENE_VIEW) return;
             pokemonEvolutionCinematicQueue.push({ card, previousUnit, nextUnit, status });
             runNextPokemonEvolutionCinematic();
         };
@@ -10062,7 +10062,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         };
 
         const queuePinsirGuillotineCinematic = (card, faceSrc, victimName) => {
-            if (window.ARENA_SCENE_PREVIEW) return;
+            if (window.ARENA_SCENE_VIEW) return;
             pinsirGuillotineCinematicQueue.push({ card, faceSrc, victimName });
             runNextPinsirGuillotineCinematic();
         };
@@ -11180,7 +11180,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         };
         const formatHealthText = (hp, hpCap, displayMaxHp) =>
             hpCap < displayMaxHp ? `${hp}/${hpCap}` : `${hp}/${displayMaxHp}`;
-        const healthBarWidthForCard = (card) => window.ARENA_SCENE_PREVIEW
+        const healthBarWidthForCard = (card) => window.ARENA_SCENE_VIEW
             ? card?.querySelector('.health-bar-container')?.clientWidth || HEALTH_BAR_MAX_WIDTH
             : HEALTH_BAR_MAX_WIDTH;
         const healthPxWidth = (hp, displayMaxHp, card) =>
@@ -13052,7 +13052,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             }
             // Presentation hooks (scripts/energy-fx.js) read every match state from this event.
             window.dispatchEvent(new CustomEvent('battle-match-state', { detail: data }));
-            if (window.ARENA_SCENE_PREVIEW) {
+            if (window.ARENA_SCENE_VIEW) {
                 const units = {};
                 for (const side of ['player', 'opponent']) {
                     const owner = data[side];
