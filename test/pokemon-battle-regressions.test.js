@@ -81,6 +81,177 @@ test('Sand-Attack redirects the blinded caster, not attacks aimed at the blinded
     assert.equal(match.board.Gary[0].hp, 90);
 });
 
+test('Abra Teleport protects Abra and the selected ally', () => {
+    const abraIndex = characters.findIndex((character) => character.id === 'abra');
+    const allyIndex = characters.findIndex((character) => character.id === 'pikachu');
+    const enemyIndex = characters.findIndex((character) => character.id === 'charmander');
+    const teleportIndex = characters[abraIndex].skills.findIndex((skill) => skill.id === 'abra-teleport');
+    const players = [{ username: 'Ash', team: [abraIndex, allyIndex] }, { username: 'Gary', team: [enemyIndex] }];
+    const match = makeMatch(players);
+    match.pendingTurns.Ash = {
+        queueOrder: ['0'],
+        queuedByActorSlot: {
+            0: { skillIndex: teleportIndex, targetSelection: [{ username: 'Ash', slot: 1 }] },
+        },
+    };
+
+    resolvePendingTurnSkills({ match, actingUsername: 'Ash', characters });
+
+    assert.ok(match.board.Ash[0].state.statuses.some((status) => status.id === 'abra_teleport_cover'));
+    assert.ok(match.board.Ash[1].state.statuses.some((status) => status.id === 'abra_teleport_cover'));
+});
+
+test('Abra Teleport works when Abra is the last one standing: he can target himself', () => {
+    const abraIndex = characters.findIndex((character) => character.id === 'abra');
+    const allyIndex = characters.findIndex((character) => character.id === 'pikachu');
+    const enemyIndex = characters.findIndex((character) => character.id === 'charmander');
+    const abra = characters[abraIndex];
+    const teleportIndex = abra.skills.findIndex((skill) => skill.id === 'abra-teleport');
+    assert.equal(abra.skills[teleportIndex].target, 'self-or-single-ally');
+    const players = [{ username: 'Ash', team: [abraIndex, allyIndex] }, { username: 'Gary', team: [enemyIndex] }];
+    const match = makeMatch(players);
+    match.board.Ash[1].alive = false;
+    match.board.Ash[1].hp = 0;
+    const options = computeTargetOptions({ match, actingUsername: 'Ash', actorSlot: 0, skillIndex: teleportIndex, characters });
+    assert.ok(options.targets.some((t) => t.username === 'Ash' && t.slot === 0), 'Abra is a valid target for himself');
+    match.pendingTurns.Ash = {
+        queueOrder: ['0'],
+        queuedByActorSlot: { 0: { skillIndex: teleportIndex, targetSelection: [{ username: 'Ash', slot: 0 }] } },
+    };
+    resolvePendingTurnSkills({ match, actingUsername: 'Ash', characters });
+    assert.ok(match.board.Ash[0].state.statuses.some((status) => status.id === 'abra_teleport_cover'));
+});
+
+test('Kadabra Teleport protects and cleanses Kadabra and the selected ally', () => {
+    const abraIndex = characters.findIndex((character) => character.id === 'abra');
+    const allyIndex = characters.findIndex((character) => character.id === 'pikachu');
+    const enemyIndex = characters.findIndex((character) => character.id === 'charmander');
+    const teleportIndex = characters[abraIndex].skills.findIndex((skill) => skill.id === 'abra-teleport');
+    const players = [{ username: 'Ash', team: [abraIndex, allyIndex] }, { username: 'Gary', team: [enemyIndex] }];
+    const match = makeMatch(players);
+    match.board.Ash[0].state.statuses.push({
+        id: 'abra_kadabra_evolution',
+        remainingTurns: 99,
+        metadata: {
+            infiniteDuration: true,
+            skillReplacements: { 'abra-teleport': 'kadabra-teleport' },
+        },
+    });
+    [0, 1].forEach((slot) => match.board.Ash[slot].state.statuses.push({
+        id: `enemy_effect_${slot}`,
+        remainingTurns: 2,
+        sourceUsername: 'Gary',
+        metadata: { harmful: true },
+    }));
+    match.pendingTurns.Ash = {
+        queueOrder: ['0'],
+        queuedByActorSlot: {
+            0: { skillIndex: teleportIndex, targetSelection: [{ username: 'Ash', slot: 1 }] },
+        },
+    };
+
+    resolvePendingTurnSkills({ match, actingUsername: 'Ash', characters });
+
+    [0, 1].forEach((slot) => {
+        assert.ok(match.board.Ash[slot].state.statuses.some((status) => status.id === 'abra_teleport_cover'));
+        assert.ok(!match.board.Ash[slot].state.statuses.some((status) => status.id === `enemy_effect_${slot}`));
+    });
+});
+
+test('Wartortle Shell Guard protects Wartortle and one ally without restoring evolution tracking', () => {
+    const squirtleIndex = characters.findIndex((character) => character.id === 'squirtle');
+    const allyIndex = characters.findIndex((character) => character.id === 'pikachu');
+    const enemyIndex = characters.findIndex((character) => character.id === 'charmander');
+    const withdrawIndex = characters[squirtleIndex].skills.findIndex((skill) => skill.id === 'squirtle-withdraw');
+    const players = [{ username: 'Ash', team: [squirtleIndex, allyIndex] }, { username: 'Gary', team: [enemyIndex] }];
+    const match = makeMatch(players);
+    match.board.Ash[0].state.statuses = [{
+        id: 'squirtle_wartortle_evolution',
+        remainingTurns: 99,
+        metadata: {
+            infiniteDuration: true,
+            skillReplacements: { 'squirtle-withdraw': 'wartortle-shell-guard' },
+        },
+    }];
+    match.pendingTurns.Ash = {
+        queueOrder: ['0'],
+        queuedByActorSlot: {
+            0: { skillIndex: withdrawIndex, targetSelection: [{ username: 'Ash', slot: 1 }] },
+        },
+    };
+
+    resolvePendingTurnSkills({ match, actingUsername: 'Ash', characters });
+
+    [0, 1].forEach((slot) => {
+        assert.ok(match.board.Ash[slot].state.statuses.some((status) => status.id === 'wartortle_shell_guard'));
+        assert.ok(!match.board.Ash[slot].state.statuses.some((status) => status.id === 'squirtle_evolution_tracker'));
+    });
+});
+
+test("Blissey's Emergency Life Support revives its selected defeated ally with 50 HP", () => {
+    const chanseyIndex = characters.findIndex((character) => character.id === 'chansey');
+    const allyIndex = characters.findIndex((character) => character.id === 'pikachu');
+    const enemyIndex = characters.findIndex((character) => character.id === 'charmander');
+    const emergencyLifeSupportIndex = characters[chanseyIndex].skills.findIndex(
+        (skill) => skill.id === 'chansey-emergency-life-support'
+    );
+    const evolutionStatus = characters[chanseyIndex].startStatuses
+        .find((status) => status.statusId === 'chansey_evolution_tracker')
+        .metadata.applyStatusAtStack;
+    const players = [
+        { username: 'Ash', team: [chanseyIndex, allyIndex] },
+        { username: 'Gary', team: [enemyIndex] },
+    ];
+    const match = makeMatch(players);
+    match.board.Ash[0].state.statuses.push({
+        id: evolutionStatus.statusId,
+        remainingTurns: evolutionStatus.duration,
+        metadata: structuredClone(evolutionStatus.metadata),
+    });
+    match.board.Ash[1].alive = false;
+    match.board.Ash[1].hp = 0;
+    match.pendingTurns.Ash = {
+        queueOrder: ['0'],
+        queuedByActorSlot: {
+            0: {
+                skillIndex: emergencyLifeSupportIndex,
+                targetSelection: [{ username: 'Ash', slot: 1 }],
+            },
+        },
+    };
+
+    resolvePendingTurnSkills({ match, actingUsername: 'Ash', characters });
+
+    assert.equal(match.board.Ash[1].alive, true);
+    assert.equal(match.board.Ash[1].hp, 50);
+});
+
+test('Flareon ongoing effects end when Flareon is defeated', () => {
+    const flareonIndex = characters.findIndex((character) => character.id === 'flareon');
+    const enemyIndex = characters.findIndex((character) => character.id === 'pikachu');
+    const players = [{ username: 'Ash', team: [flareonIndex] }, { username: 'Gary', team: [enemyIndex] }];
+    const match = makeMatch(players);
+    match.board.Ash[0].alive = false;
+    match.board.Ash[0].hp = 0;
+    match.board.Gary[0].state.statuses.push({
+        id: 'flareon_fire_spin_burn',
+        remainingTurns: 3,
+        sourceSkillId: 'flareon-fire-spin',
+        sourceUsername: 'Ash',
+        sourceSlot: 0,
+        metadata: { harmful: true, endIfSourceDies: true, turnEndDamage: 15 },
+    });
+
+    tickStatusesForTurnEnd({ match, endingUsername: 'Gary' });
+
+    assert.ok(!match.board.Gary[0].state.statuses.some((status) => status.id === 'flareon_fire_spin_burn'));
+    const flareon = characters[flareonIndex];
+    flareon.skills
+        .flatMap((skill) => skill.effects || [])
+        .filter((effect) => String(effect.statusId || '').startsWith('flareon_') && effect.scope !== 'self')
+        .forEach((effect) => assert.equal(effect.metadata.endIfSourceDies, true, effect.statusId));
+});
+
 test('Perish Song persists and defeats its target after Jigglypuff is defeated', () => {
     const jigglypuffIndex = characters.findIndex((character) => character.id === 'jigglypuff');
     const enemyIndex = characters.findIndex((character) => character.id === 'pikachu');
@@ -141,6 +312,156 @@ test('Sing advances every enemy Perish Song once on each of its two channeled tu
         match.board.Gary[1].state.statuses.find((status) => status.id === 'jigglypuff_perish_song').remainingTurns,
         2
     );
+});
+
+test('Humiliate instantly grants Random chakra when its target is affected by Sing', () => {
+    const jigglypuffIndex = characters.findIndex((character) => character.id === 'jigglypuff');
+    const enemyIndex = characters.findIndex((character) => character.id === 'pikachu');
+    const humiliateIndex = characters[jigglypuffIndex].skills.findIndex(
+        (skill) => skill.id === 'jigglypuff-humiliate'
+    );
+    const players = [{ username: 'Ash', team: [jigglypuffIndex] }, { username: 'Gary', team: [enemyIndex] }];
+    const match = makeMatch(players);
+    match.board.Gary[0].state.statuses.push({
+        id: 'jigglypuff_sing',
+        remainingTurns: 2,
+        sourceSkillId: 'jigglypuff-sing',
+        sourceUsername: 'Ash',
+        sourceSlot: 0,
+        metadata: { harmful: true, cannotUseHarmfulSkills: true, ongoingClass: 'channeled' },
+    });
+    match.pendingTurns.Ash = {
+        queueOrder: ['0'],
+        queuedByActorSlot: {
+            0: { skillIndex: humiliateIndex, targetSelection: [{ username: 'Gary', slot: 0 }] },
+        },
+    };
+
+    const originalRandom = Math.random;
+    Math.random = () => 0;
+    try {
+        resolvePendingTurnSkills({ match, actingUsername: 'Ash', characters });
+    } finally {
+        Math.random = originalRandom;
+    }
+
+    assert.equal(match.chakraPools.Ash.taijutsu, 6);
+});
+
+test('stored Abra overrides keep custom fields while canonical two-target Teleport survives', () => {
+    const canonicalAbra = characters.find((character) => character.id === 'abra');
+    const staleAbra = {
+        characterId: 'abra',
+        customCharacterOverride: true,
+        skills: [{
+            id: 'abra-teleport',
+            target: 'single-ally',
+            skilldescription: 'Old stored text.',
+            customSkillOverride: true,
+            effects: [{
+                type: 'apply_status',
+                statusId: 'abra_teleport_cover',
+                duration: 1,
+                scope: 'self-or-single-ally',
+                metadata: { customStatusOverride: true },
+            }],
+        }],
+    };
+
+    const [corrected] = applyRequiredCanonicalSkillCorrections([staleAbra], [canonicalAbra]);
+    const teleport = corrected.skills[0];
+
+    assert.equal(corrected.customCharacterOverride, true);
+    assert.equal(teleport.customSkillOverride, true);
+    // The canonical target (Abra or one ally, so he can still use it when alone) and text always win.
+    assert.equal(teleport.target, 'self-or-single-ally');
+    assert.match(teleport.skilldescription, /If Abra is alone, he can target himself/);
+    assert.deepEqual(teleport.effects.map((effect) => effect.scope), ['self', 'target']);
+    teleport.effects.forEach((effect) => assert.equal(effect.metadata.customStatusOverride, true));
+});
+
+test('Zubat and Golbat Leech Life steal their increased base HP amounts', () => {
+    const zubatIndex = characters.findIndex((character) => character.id === 'zubat');
+    const leechLifeIndex = characters[zubatIndex].skills.findIndex(
+        (skill) => skill.id === 'zubat-leech-life'
+    );
+    const roster = [characters[zubatIndex], {
+        id: 'neutral-pokemon-target',
+        arena: 'pokemon',
+        universe: 'pokemon',
+        pokemonTypes: ['Normal'],
+        skills: [],
+    }];
+    const players = [{ username: 'Ash', team: [0] }, { username: 'Gary', team: [1] }];
+
+    const useLeechLife = (evolved) => {
+        const match = makeMatch(players, roster);
+        match.board.Ash[0].hp = 40;
+        if (evolved) {
+            match.board.Ash[0].state.statuses.push({
+                id: 'zubat_golbat_evolution',
+                remainingTurns: 99,
+                sourceSkillId: 'zubat-passive-evolution-golbat',
+                metadata: {
+                    infiniteDuration: true,
+                    skillReplacements: { 'zubat-leech-life': 'golbat-leech-life' },
+                },
+            });
+        }
+        match.pendingTurns.Ash = {
+            queueOrder: ['0'],
+            queuedByActorSlot: {
+                0: { skillIndex: leechLifeIndex, targetSelection: [{ username: 'Gary', slot: 0 }] },
+            },
+        };
+
+        resolvePendingTurnSkills({ match, actingUsername: 'Ash', characters: roster });
+        return match;
+    };
+
+    const zubatMatch = useLeechLife(false);
+    assert.equal(zubatMatch.board.Gary[0].hp, 75);
+    assert.equal(zubatMatch.board.Ash[0].hp, 65);
+
+    const golbatMatch = useLeechLife(true);
+    assert.equal(golbatMatch.board.Gary[0].hp, 70);
+    assert.equal(golbatMatch.board.Ash[0].hp, 70);
+});
+
+test('stored Zubat overrides keep custom effects while canonical Leech Life base steals survive', () => {
+    const canonicalZubat = characters.find((character) => character.id === 'zubat');
+    const staleZubat = {
+        characterId: 'zubat',
+        customCharacterOverride: true,
+        skills: ['zubat-leech-life', 'golbat-leech-life'].map((id) => ({
+            id,
+            skilldescription: 'Stale description',
+            customSkillOverride: true,
+            effects: [{
+                type: 'health_steal_damage',
+                amount: 1,
+                scope: 'target',
+                metadata: { customEffectOverride: true },
+            }, {
+                type: 'custom_override_effect',
+                amount: 99,
+            }],
+        })),
+    };
+
+    const [corrected] = applyRequiredCanonicalSkillCorrections([staleZubat], [canonicalZubat]);
+
+    assert.equal(corrected.customCharacterOverride, true);
+    assert.deepEqual(
+        corrected.skills.map((skill) => skill.effects[0].amount),
+        [25, 30]
+    );
+    corrected.skills.forEach((skill) => {
+        assert.equal(skill.customSkillOverride, true);
+        assert.equal(skill.effects[0].metadata.customEffectOverride, true);
+        assert.equal(skill.effects[1].type, 'custom_override_effect');
+        assert.notEqual(skill.skilldescription, 'Stale description');
+    });
 });
 
 test('battle polish outlines black energy and signs without routine queue-sync popups', () => {

@@ -26,8 +26,7 @@ const getSkill = (character, skillId) => {
         ? character.skills.find((entry) => entry && entry.id === skillId)
         : null;
     if (!skill) {
-        // A later rework can remove a skill this old post showed: keep the post (and the server boot) working.
-        return { id: skillId, name: skillId, skillimage: '', skilldescription: '', description: '', energy: [], cooldown: 0, classes: [], effects: [] };
+        throw new Error(`Missing skill ${skillId} for ${character.name}`);
     }
     return skill;
 };

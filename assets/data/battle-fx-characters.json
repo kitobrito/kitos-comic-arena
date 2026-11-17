@@ -3266,7 +3266,7 @@
      "element": "normal",
      "windup": null,
      "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
+     "impact": "fantasy-spells/spell_defense_up_001",
      "kill": null
     },
     "charmander-passive-evolution-charmeleon": {
@@ -3274,6 +3274,102 @@
      "windup": null,
      "travel": null,
      "impact": null,
+     "kill": null
+    },
+    "charmander-fire-punch": {
+     "delivery": "melee",
+     "element": "fire",
+     "windup": "type/fire",
+     "travel": null,
+     "impact": "explosions/epic_explosion_001",
+     "kill": "burn"
+    },
+    "charmander-dragon-claw": {
+     "delivery": "melee",
+     "element": "dragon",
+     "windup": null,
+     "travel": null,
+     "impact": "type/dragon",
+     "kill": "dragon-claw"
+    },
+    "charmander-charmeleon-flamethrower": {
+     "delivery": "area",
+     "element": "fire",
+     "windup": "type/fire",
+     "travel": null,
+     "impact": "explosions/epic_explosion_001",
+     "kill": "burn"
+    },
+    "charmander-charmeleon-rage": {
+     "delivery": "self",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "charmander-charizard-x-fire-punch": {
+     "delivery": "melee",
+     "element": "fire",
+     "windup": "type/fire",
+     "travel": null,
+     "impact": "explosions/epic_explosion_001",
+     "kill": "burn"
+    },
+    "charmander-charizard-x-dragon-claw": {
+     "delivery": "melee",
+     "element": "dragon",
+     "windup": null,
+     "travel": null,
+     "impact": "type/dragon",
+     "kill": "dragon-claw"
+    },
+    "charmander-charizard-x-flamethrower": {
+     "delivery": "area",
+     "element": "fire",
+     "windup": "type/fire",
+     "travel": null,
+     "impact": "explosions/epic_explosion_001",
+     "kill": "burn"
+    },
+    "charmander-charizard-x-rage": {
+     "delivery": "self",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "charmander-charizard-y-fire-punch": {
+     "delivery": "melee",
+     "element": "fire",
+     "windup": "type/fire",
+     "travel": null,
+     "impact": "explosions/epic_explosion_001",
+     "kill": "burn"
+    },
+    "charmander-charizard-y-dragon-claw": {
+     "delivery": "melee",
+     "element": "dragon",
+     "windup": null,
+     "travel": null,
+     "impact": "type/dragon",
+     "kill": "dragon-claw"
+    },
+    "charmander-charizard-y-flamethrower": {
+     "delivery": "area",
+     "element": "fire",
+     "windup": "type/fire",
+     "travel": null,
+     "impact": "explosions/epic_explosion_001",
+     "kill": "burn"
+    },
+    "charmander-charizard-y-rage": {
+     "delivery": "self",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
      "kill": null
     }
    }
@@ -3286,15 +3382,15 @@
    "defeat": "type/faint",
    "kill": "wave",
    "skills": {
-    "squirtle-withdraw": {
-     "delivery": "self",
+    "squirtle-water-gun": {
+     "delivery": "projectile",
      "element": "water",
      "windup": null,
-     "travel": null,
-     "impact": "fantasy-spells/spell_defense_up_001",
-     "kill": null
+     "travel": "type/water",
+     "impact": "type/water",
+     "kill": "wave"
     },
-    "squirtle-water-gun": {
+    "squirtle-withdraw": {
      "delivery": "projectile",
      "element": "water",
      "windup": null,
@@ -3311,12 +3407,12 @@
      "kill": "wave"
     },
     "squirtle-rapid-spin": {
-     "delivery": "self",
+     "delivery": "area",
      "element": "normal",
      "windup": null,
      "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
-     "kill": null
+     "impact": "type/normal",
+     "kill": "shatter"
     },
     "squirtle-passive-evolution-wartortle": {
      "delivery": "passive",
@@ -3324,6 +3420,38 @@
      "travel": null,
      "impact": null,
      "kill": null
+    },
+    "wartortle-shell-guard": {
+     "delivery": "support",
+     "element": "water",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "wartortle-hydro-pump": {
+     "delivery": "projectile",
+     "element": "water",
+     "windup": null,
+     "travel": "type/water",
+     "impact": "type/water",
+     "kill": "wave"
+    },
+    "wartortle-bubblebeam": {
+     "delivery": "area",
+     "element": "water",
+     "windup": null,
+     "travel": null,
+     "impact": "type/water",
+     "kill": "wave"
+    },
+    "wartortle-aqua-spin": {
+     "delivery": "area",
+     "element": "water",
+     "windup": null,
+     "travel": null,
+     "impact": "type/water",
+     "kill": "wave"
     }
    }
   },
@@ -3336,15 +3464,23 @@
    "kill": "vines",
    "skills": {
     "bulbasaur-leech-seed": {
-     "delivery": "projectile",
+     "delivery": "melee",
      "element": "grass",
      "windup": null,
-     "travel": "type/grass",
+     "travel": null,
      "impact": "type/grass",
      "kill": "vines"
     },
     "bulbasaur-vine-whip": {
      "delivery": "melee",
+     "element": "grass",
+     "windup": null,
+     "travel": null,
+     "impact": "type/grass",
+     "kill": "vines"
+    },
+    "bulbasaur-razor-leaf": {
+     "delivery": "area",
      "element": "grass",
      "windup": null,
      "travel": null,
@@ -3359,20 +3495,44 @@
      "impact": "type/grass",
      "kill": "vines"
     },
-    "bulbasaur-razor-leaf": {
-     "delivery": "self",
-     "element": "grass",
-     "windup": null,
-     "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
-     "kill": null
-    },
     "bulbasaur-passive-evolution-ivysaur": {
      "delivery": "passive",
      "windup": null,
      "travel": null,
      "impact": null,
      "kill": null
+    },
+    "ivysaur-leech-seed": {
+     "delivery": "melee",
+     "element": "grass",
+     "windup": null,
+     "travel": null,
+     "impact": "type/grass",
+     "kill": "vines"
+    },
+    "ivysaur-vine-whip": {
+     "delivery": "melee",
+     "element": "grass",
+     "windup": null,
+     "travel": null,
+     "impact": "type/grass",
+     "kill": "vines"
+    },
+    "ivysaur-razor-leaf": {
+     "delivery": "area",
+     "element": "grass",
+     "windup": null,
+     "travel": null,
+     "impact": "type/grass",
+     "kill": "vines"
+    },
+    "ivysaur-solar-beam": {
+     "delivery": "projectile",
+     "element": "grass",
+     "windup": null,
+     "travel": "type/grass",
+     "impact": "type/grass",
+     "kill": "vines"
     }
    }
   },
@@ -3393,10 +3553,10 @@
      "kill": "electrocute"
     },
     "pikachu-volt-tackle": {
-     "delivery": "melee",
+     "delivery": "projectile",
      "element": "electric",
      "windup": "sci-fi/scifi_charge_up_001",
-     "travel": null,
+     "travel": "type/electric",
      "impact": "type/electric",
      "kill": "electrocute"
     },
@@ -3410,10 +3570,17 @@
     },
     "pikachu-agility": {
      "delivery": "self",
-     "element": "normal",
+     "element": "psychic",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "pikachu-passive-static": {
+     "delivery": "passive",
      "windup": null,
      "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
+     "impact": null,
      "kill": null
     }
    }
@@ -3426,14 +3593,6 @@
    "defeat": "type/faint",
    "kill": "swarm",
    "skills": {
-    "butterfree-sleep-powder": {
-     "delivery": "area",
-     "element": "grass",
-     "windup": null,
-     "travel": null,
-     "impact": "type/grass",
-     "kill": "vines"
-    },
     "butterfree-confusion": {
      "delivery": "projectile",
      "element": "psychic",
@@ -3442,21 +3601,37 @@
      "impact": "type/psychic",
      "kill": "warp"
     },
-    "butterfree-stun-spore": {
+    "butterfree-psybeam": {
      "delivery": "projectile",
+     "element": "psychic",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": "type/psychic",
+     "impact": "type/psychic",
+     "kill": "warp"
+    },
+    "butterfree-stun-spore": {
+     "delivery": "melee",
      "element": "grass",
      "windup": null,
-     "travel": "type/grass",
+     "travel": null,
      "impact": "type/grass",
      "kill": "vines"
     },
     "butterfree-whirlwind": {
-     "delivery": "self",
+     "delivery": "support",
      "element": "normal",
      "windup": null,
      "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
+     "impact": "type/buffApply",
      "kill": null
+    },
+    "butterfree-sleep-powder": {
+     "delivery": "melee",
+     "element": "grass",
+     "windup": null,
+     "travel": null,
+     "impact": "type/grass",
+     "kill": "vines"
     }
    }
   },
@@ -3542,7 +3717,15 @@
    "defeat": "type/faint",
    "kill": "shatter",
    "skills": {
-    "chansey-softboil": {
+    "chansey-eggbomb": {
+     "delivery": "projectile",
+     "element": "normal",
+     "windup": null,
+     "travel": "type/normal",
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "chansey-pokemon-center-healing": {
      "delivery": "support",
      "element": "normal",
      "windup": null,
@@ -3550,15 +3733,7 @@
      "impact": "fantasy-spells/spell_heal_001",
      "kill": null
     },
-    "chansey-eggbomb": {
-     "delivery": "melee",
-     "element": "normal",
-     "windup": null,
-     "travel": null,
-     "impact": "type/normal",
-     "kill": "shatter"
-    },
-    "chansey-pokemon-center-healing": {
+    "chansey-softboil": {
      "delivery": "support",
      "element": "normal",
      "windup": null,
@@ -3571,7 +3746,7 @@
      "element": "normal",
      "windup": null,
      "travel": null,
-     "impact": "fantasy-spells/spell_defense_up_001",
+     "impact": "fantasy-spells/spell_heal_001",
      "kill": null
     },
     "chansey-passive-evolution-blissey": {
@@ -3579,6 +3754,38 @@
      "windup": null,
      "travel": null,
      "impact": null,
+     "kill": null
+    },
+    "blissey-eggbomb": {
+     "delivery": "projectile",
+     "element": "normal",
+     "windup": null,
+     "travel": "type/normal",
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "blissey-pokemon-center-healing": {
+     "delivery": "support",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_heal_001",
+     "kill": null
+    },
+    "blissey-softboil": {
+     "delivery": "support",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_heal_001",
+     "kill": null
+    },
+    "blissey-emergency-life-support": {
+     "delivery": "support",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_heal_001",
      "kill": null
     }
    }
@@ -3673,20 +3880,20 @@
    "kill": "dissolve",
    "skills": {
     "koffing-smog": {
-     "delivery": "projectile",
-     "element": "poison",
-     "windup": null,
-     "travel": "type/poison",
-     "impact": "type/poison",
-     "kill": "dissolve"
-    },
-    "koffing-smokescreen": {
      "delivery": "area",
      "element": "poison",
      "windup": null,
      "travel": null,
      "impact": "type/poison",
      "kill": "dissolve"
+    },
+    "koffing-haze": {
+     "delivery": "support",
+     "element": "ice",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
     },
     "koffing-self-destruct": {
      "delivery": "area",
@@ -3696,12 +3903,19 @@
      "impact": "type/normal",
      "kill": "shatter"
     },
-    "koffing-haze": {
+    "koffing-smokescreen": {
      "delivery": "self",
-     "element": "normal",
+     "element": "poison",
      "windup": null,
      "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "koffing-passive-poison-gas": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
      "kill": null
     },
     "koffing-passive-evolution-weezing": {
@@ -3709,6 +3923,45 @@
      "windup": null,
      "travel": null,
      "impact": null,
+     "kill": null
+    },
+    "koffing-weezing-passive-poison-gas": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    },
+    "koffing-weezing-smog": {
+     "delivery": "area",
+     "element": "poison",
+     "windup": null,
+     "travel": null,
+     "impact": "type/poison",
+     "kill": "dissolve"
+    },
+    "koffing-weezing-haze": {
+     "delivery": "support",
+     "element": "ice",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "koffing-weezing-self-destruct": {
+     "delivery": "area",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "koffing-weezing-smokescreen": {
+     "delivery": "self",
+     "element": "poison",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
      "kill": null
     }
    }
@@ -3721,6 +3974,14 @@
    "defeat": "type/faint",
    "kill": "dissolve",
    "skills": {
+    "zubat-leech-life": {
+     "delivery": "melee",
+     "element": "bug",
+     "windup": null,
+     "travel": null,
+     "impact": "type/bug",
+     "kill": "swarm"
+    },
     "zubat-supersonic": {
      "delivery": "projectile",
      "element": "normal",
@@ -3737,20 +3998,12 @@
      "impact": "type/dark",
      "kill": "shadow"
     },
-    "zubat-leech-life": {
-     "delivery": "melee",
-     "element": "bug",
-     "windup": null,
-     "travel": null,
-     "impact": "type/bug",
-     "kill": "swarm"
-    },
     "zubat-draining-fangs": {
      "delivery": "self",
-     "element": "normal",
+     "element": "dark",
      "windup": null,
      "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
+     "impact": "type/buffApply",
      "kill": null
     },
     "zubat-passive-evolution-golbat": {
@@ -3758,6 +4011,38 @@
      "windup": null,
      "travel": null,
      "impact": null,
+     "kill": null
+    },
+    "golbat-leech-life": {
+     "delivery": "melee",
+     "element": "bug",
+     "windup": null,
+     "travel": null,
+     "impact": "type/bug",
+     "kill": "swarm"
+    },
+    "golbat-supersonic": {
+     "delivery": "projectile",
+     "element": "normal",
+     "windup": null,
+     "travel": "type/normal",
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "golbat-bite": {
+     "delivery": "melee",
+     "element": "dark",
+     "windup": null,
+     "travel": null,
+     "impact": "type/dark",
+     "kill": "shadow"
+    },
+    "golbat-draining-fangs": {
+     "delivery": "self",
+     "element": "dark",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
      "kill": null
     }
    }
@@ -3770,7 +4055,7 @@
    "defeat": "type/faint",
    "kill": "haunt",
    "skills": {
-    "gastly-curse": {
+    "gastly-lick": {
      "delivery": "projectile",
      "element": "ghost",
      "windup": null,
@@ -3778,11 +4063,11 @@
      "impact": "type/ghost",
      "kill": "haunt"
     },
-    "gastly-lick": {
-     "delivery": "melee",
+    "gastly-curse": {
+     "delivery": "projectile",
      "element": "ghost",
      "windup": null,
-     "travel": null,
+     "travel": "type/ghost",
      "impact": "type/ghost",
      "kill": "haunt"
     },
@@ -3795,12 +4080,12 @@
      "kill": "haunt"
     },
     "gastly-glare": {
-     "delivery": "self",
+     "delivery": "projectile",
      "element": "normal",
      "windup": null,
-     "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
-     "kill": null
+     "travel": "type/normal",
+     "impact": "type/normal",
+     "kill": "shatter"
     },
     "gastly-passive-evolution-haunter": {
      "delivery": "passive",
@@ -3808,6 +4093,38 @@
      "travel": null,
      "impact": null,
      "kill": null
+    },
+    "haunter-lick": {
+     "delivery": "projectile",
+     "element": "ghost",
+     "windup": null,
+     "travel": "type/ghost",
+     "impact": "type/ghost",
+     "kill": "haunt"
+    },
+    "haunter-curse": {
+     "delivery": "projectile",
+     "element": "ghost",
+     "windup": null,
+     "travel": "type/ghost",
+     "impact": "type/ghost",
+     "kill": "haunt"
+    },
+    "haunter-spite": {
+     "delivery": "projectile",
+     "element": "ghost",
+     "windup": null,
+     "travel": "type/ghost",
+     "impact": "type/ghost",
+     "kill": "haunt"
+    },
+    "haunter-glare": {
+     "delivery": "projectile",
+     "element": "normal",
+     "windup": null,
+     "travel": "type/normal",
+     "impact": "type/normal",
+     "kill": "shatter"
     }
    }
   },
@@ -3819,13 +4136,13 @@
    "defeat": "type/faint",
    "kill": "warp",
    "skills": {
-    "abra-calm-mind": {
-     "delivery": "self",
+    "abra-future-sight": {
+     "delivery": "projectile",
      "element": "psychic",
      "windup": "sci-fi/scifi_warp_001",
-     "travel": null,
-     "impact": "type/buffApply",
-     "kill": null
+     "travel": "type/psychic",
+     "impact": "type/psychic",
+     "kill": "warp"
     },
     "abra-psychic": {
      "delivery": "projectile",
@@ -3835,20 +4152,20 @@
      "impact": "type/psychic",
      "kill": "warp"
     },
-    "abra-future-sight": {
-     "delivery": "area",
+    "abra-calm-mind": {
+     "delivery": "self",
      "element": "psychic",
      "windup": "sci-fi/scifi_warp_001",
      "travel": null,
-     "impact": "type/psychic",
-     "kill": "warp"
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
     },
     "abra-teleport": {
-     "delivery": "self",
-     "element": "normal",
-     "windup": null,
+     "delivery": "support",
+     "element": "psychic",
+     "windup": "sci-fi/scifi_warp_001",
      "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
+     "impact": "fantasy-spells/spell_defense_up_001",
      "kill": null
     },
     "abra-passive-evolution-kadabra": {
@@ -3856,6 +4173,38 @@
      "windup": null,
      "travel": null,
      "impact": null,
+     "kill": null
+    },
+    "kadabra-future-sight": {
+     "delivery": "projectile",
+     "element": "psychic",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": "type/psychic",
+     "impact": "type/psychic",
+     "kill": "warp"
+    },
+    "kadabra-psychic": {
+     "delivery": "projectile",
+     "element": "psychic",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": "type/psychic",
+     "impact": "type/psychic",
+     "kill": "warp"
+    },
+    "kadabra-calm-mind": {
+     "delivery": "self",
+     "element": "psychic",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "kadabra-teleport": {
+     "delivery": "support",
+     "element": "psychic",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
      "kill": null
     }
    }
@@ -3868,14 +4217,6 @@
    "defeat": "type/faint",
    "kill": "wave",
    "skills": {
-    "krabby-leer": {
-     "delivery": "projectile",
-     "element": "normal",
-     "windup": null,
-     "travel": "type/normal",
-     "impact": "type/normal",
-     "kill": "shatter"
-    },
     "krabby-metal-claw": {
      "delivery": "melee",
      "element": "steel",
@@ -3883,6 +4224,14 @@
      "travel": null,
      "impact": "type/steel",
      "kill": "slice"
+    },
+    "krabby-leer": {
+     "delivery": "projectile",
+     "element": "water",
+     "windup": null,
+     "travel": "type/water",
+     "impact": "type/water",
+     "kill": "wave"
     },
     "krabby-crabhammer": {
      "delivery": "melee",
@@ -3897,7 +4246,7 @@
      "element": "normal",
      "windup": null,
      "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
+     "impact": "fantasy-spells/spell_defense_up_001",
      "kill": null
     },
     "krabby-passive-evolution-kingler": {
@@ -3905,6 +4254,38 @@
      "windup": null,
      "travel": null,
      "impact": null,
+     "kill": null
+    },
+    "kingler-metal-claw": {
+     "delivery": "melee",
+     "element": "steel",
+     "windup": null,
+     "travel": null,
+     "impact": "type/steel",
+     "kill": "slice"
+    },
+    "kingler-leer": {
+     "delivery": "projectile",
+     "element": "water",
+     "windup": null,
+     "travel": "type/water",
+     "impact": "type/water",
+     "kill": "wave"
+    },
+    "kingler-crabhammer": {
+     "delivery": "melee",
+     "element": "water",
+     "windup": null,
+     "travel": null,
+     "impact": "type/water",
+     "kill": "wave"
+    },
+    "kingler-harden": {
+     "delivery": "self",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
      "kill": null
     }
    }
@@ -3917,14 +4298,6 @@
    "defeat": "type/faint",
    "kill": "swarm",
    "skills": {
-    "scyther-swords-dance": {
-     "delivery": "self",
-     "element": "normal",
-     "windup": null,
-     "travel": null,
-     "impact": "type/buffApply",
-     "kill": null
-    },
     "scyther-fury-cutter": {
      "delivery": "melee",
      "element": "bug",
@@ -3932,6 +4305,14 @@
      "travel": null,
      "impact": "type/bug",
      "kill": "swarm"
+    },
+    "scyther-swords-dance": {
+     "delivery": "self",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
     },
     "scyther-x-cutter": {
      "delivery": "melee",
@@ -3946,7 +4327,7 @@
      "element": "normal",
      "windup": null,
      "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
+     "impact": "type/buffApply",
      "kill": null
     }
    }
@@ -3959,14 +4340,6 @@
    "defeat": "type/faint",
    "kill": "shatter",
    "skills": {
-    "eevee-swift": {
-     "delivery": "projectile",
-     "element": "normal",
-     "windup": null,
-     "travel": "type/normal",
-     "impact": "type/normal",
-     "kill": "shatter"
-    },
     "eevee-dig": {
      "delivery": "melee",
      "element": "ground",
@@ -3975,7 +4348,7 @@
      "impact": "type/ground",
      "kill": "fissure"
     },
-    "eevee-hidden-power": {
+    "eevee-swift": {
      "delivery": "area",
      "element": "normal",
      "windup": null,
@@ -3983,12 +4356,20 @@
      "impact": "type/normal",
      "kill": "shatter"
     },
+    "eevee-hidden-power": {
+     "delivery": "projectile",
+     "element": "normal",
+     "windup": null,
+     "travel": "type/normal",
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
     "eevee-protect": {
-     "delivery": "self",
+     "delivery": "support",
      "element": "normal",
      "windup": null,
      "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
+     "impact": "fantasy-spells/spell_defense_up_001",
      "kill": null
     }
    }
@@ -4002,7 +4383,7 @@
    "kill": "electrocute",
    "skills": {
     "jolteon-pin-missile": {
-     "delivery": "melee",
+     "delivery": "area",
      "element": "bug",
      "windup": null,
      "travel": null,
@@ -4018,19 +4399,19 @@
      "kill": "electrocute"
     },
     "jolteon-thunder-fang": {
-     "delivery": "melee",
+     "delivery": "projectile",
      "element": "electric",
      "windup": "sci-fi/scifi_charge_up_001",
-     "travel": null,
+     "travel": "type/electric",
      "impact": "type/electric",
      "kill": "electrocute"
     },
     "jolteon-charge": {
      "delivery": "self",
-     "element": "normal",
-     "windup": null,
+     "element": "electric",
+     "windup": "sci-fi/scifi_charge_up_001",
      "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
+     "impact": "fantasy-spells/spell_defense_up_001",
      "kill": null
     }
    }
@@ -4043,13 +4424,21 @@
    "defeat": "type/faint",
    "kill": "burn",
    "skills": {
-    "flareon-fire-spin": {
-     "delivery": "projectile",
+    "flareon-heating-up": {
+     "delivery": "self",
      "element": "fire",
      "windup": "type/fire",
-     "travel": "type/fire",
-     "impact": "explosions/epic_explosion_001",
-     "kill": "burn"
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "flareon-fire-spin": {
+     "delivery": "support",
+     "element": "fire",
+     "windup": "type/fire",
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
     },
     "flareon-fire-blast": {
      "delivery": "projectile",
@@ -4059,20 +4448,12 @@
      "impact": "explosions/epic_explosion_001",
      "kill": "burn"
     },
-    "flareon-heating-up": {
-     "delivery": "area",
-     "element": "fire",
-     "windup": "type/fire",
-     "travel": null,
-     "impact": "explosions/epic_explosion_001",
-     "kill": "burn"
-    },
     "flareon-double-team": {
      "delivery": "self",
      "element": "normal",
      "windup": null,
      "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
+     "impact": "fantasy-spells/spell_defense_up_001",
      "kill": null
     }
    }
@@ -4085,14 +4466,6 @@
    "defeat": "type/faint",
    "kill": "wave",
    "skills": {
-    "vaporeon-sand-attack": {
-     "delivery": "support",
-     "element": "water",
-     "windup": null,
-     "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
-     "kill": null
-    },
     "vaporeon-aurora-beam": {
      "delivery": "projectile",
      "element": "ice",
@@ -4101,11 +4474,19 @@
      "impact": "type/ice",
      "kill": "freeze"
     },
+    "vaporeon-sand-attack": {
+     "delivery": "support",
+     "element": "ground",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
     "vaporeon-hydro-pump": {
-     "delivery": "projectile",
+     "delivery": "melee",
      "element": "water",
      "windup": null,
-     "travel": "type/water",
+     "travel": null,
      "impact": "type/water",
      "kill": "wave"
     },
@@ -4114,7 +4495,7 @@
      "element": "poison",
      "windup": null,
      "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
+     "impact": "fantasy-spells/spell_defense_up_001",
      "kill": null
     }
    }
@@ -4127,14 +4508,6 @@
    "defeat": "type/faint",
    "kill": "dissolve",
    "skills": {
-    "ekans-toxic": {
-     "delivery": "projectile",
-     "element": "poison",
-     "windup": null,
-     "travel": "type/poison",
-     "impact": "type/poison",
-     "kill": "dissolve"
-    },
     "ekans-poison-fang": {
      "delivery": "melee",
      "element": "poison",
@@ -4143,21 +4516,29 @@
      "impact": "type/poison",
      "kill": "dissolve"
     },
-    "ekans-crunch": {
-     "delivery": "melee",
-     "element": "normal",
+    "ekans-toxic": {
+     "delivery": "projectile",
+     "element": "poison",
      "windup": null,
-     "travel": null,
-     "impact": "type/normal",
-     "kill": "shatter"
+     "travel": "type/poison",
+     "impact": "type/poison",
+     "kill": "dissolve"
     },
     "ekans-shed-skin": {
      "delivery": "self",
-     "element": "normal",
+     "element": "poison",
      "windup": null,
      "travel": null,
      "impact": "fantasy-spells/spell_heal_001",
      "kill": null
+    },
+    "ekans-crunch": {
+     "delivery": "projectile",
+     "element": "dark",
+     "windup": null,
+     "travel": "type/dark",
+     "impact": "type/dark",
+     "kill": "shadow"
     },
     "ekans-passive-evolution-arbok": {
      "delivery": "passive",
@@ -4165,6 +4546,38 @@
      "travel": null,
      "impact": null,
      "kill": null
+    },
+    "arbok-poison-fang": {
+     "delivery": "melee",
+     "element": "poison",
+     "windup": null,
+     "travel": null,
+     "impact": "type/poison",
+     "kill": "dissolve"
+    },
+    "arbok-toxic": {
+     "delivery": "projectile",
+     "element": "poison",
+     "windup": null,
+     "travel": "type/poison",
+     "impact": "type/poison",
+     "kill": "dissolve"
+    },
+    "arbok-shed-skin": {
+     "delivery": "self",
+     "element": "poison",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_heal_001",
+     "kill": null
+    },
+    "arbok-crunch": {
+     "delivery": "projectile",
+     "element": "dark",
+     "windup": null,
+     "travel": "type/dark",
+     "impact": "type/dark",
+     "kill": "shadow"
     }
    }
   },
@@ -4176,14 +4589,6 @@
    "defeat": "type/faint",
    "kill": "pummel",
    "skills": {
-    "machop-bulk-up": {
-     "delivery": "self",
-     "element": "fighting",
-     "windup": null,
-     "travel": null,
-     "impact": "fantasy-spells/spell_defense_up_001",
-     "kill": null
-    },
     "machop-brick-break": {
      "delivery": "melee",
      "element": "fighting",
@@ -4192,7 +4597,7 @@
      "impact": "type/fighting",
      "kill": "pummel"
     },
-    "machop-taunt": {
+    "machop-counter": {
      "delivery": "melee",
      "element": "fighting",
      "windup": null,
@@ -4200,13 +4605,21 @@
      "impact": "type/fighting",
      "kill": "pummel"
     },
-    "machop-counter": {
+    "machop-bulk-up": {
      "delivery": "self",
-     "element": "normal",
+     "element": "fighting",
      "windup": null,
      "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
+     "impact": "fantasy-spells/spell_defense_up_001",
      "kill": null
+    },
+    "machop-taunt": {
+     "delivery": "projectile",
+     "element": "dark",
+     "windup": null,
+     "travel": "type/dark",
+     "impact": "type/dark",
+     "kill": "shadow"
     },
     "machop-passive-evolution-machoke": {
      "delivery": "passive",
@@ -4214,6 +4627,38 @@
      "travel": null,
      "impact": null,
      "kill": null
+    },
+    "machoke-brick-break": {
+     "delivery": "melee",
+     "element": "fighting",
+     "windup": null,
+     "travel": null,
+     "impact": "type/fighting",
+     "kill": "pummel"
+    },
+    "machoke-counter": {
+     "delivery": "melee",
+     "element": "fighting",
+     "windup": null,
+     "travel": null,
+     "impact": "type/fighting",
+     "kill": "pummel"
+    },
+    "machoke-bulk-up": {
+     "delivery": "self",
+     "element": "fighting",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "machoke-taunt": {
+     "delivery": "projectile",
+     "element": "dark",
+     "windup": null,
+     "travel": "type/dark",
+     "impact": "type/dark",
+     "kill": "shadow"
     }
    }
   },
@@ -4225,14 +4670,6 @@
    "defeat": "type/faint",
    "kill": "wave",
    "skills": {
-    "magikarp-splash": {
-     "delivery": "self",
-     "element": "water",
-     "windup": null,
-     "travel": null,
-     "impact": "fantasy-spells/spell_defense_up_001",
-     "kill": null
-    },
     "magikarp-tackle": {
      "delivery": "melee",
      "element": "normal",
@@ -4240,6 +4677,14 @@
      "travel": null,
      "impact": "type/normal",
      "kill": "shatter"
+    },
+    "magikarp-splash": {
+     "delivery": "self",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
     },
     "magikarp-flail": {
      "delivery": "melee",
@@ -4250,12 +4695,12 @@
      "kill": "shatter"
     },
     "magikarp-struggle": {
-     "delivery": "self",
+     "delivery": "melee",
      "element": "normal",
      "windup": null,
      "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
-     "kill": null
+     "impact": "type/normal",
+     "kill": "shatter"
     },
     "magikarp-passive-evolution-gyarados": {
      "delivery": "passive",
@@ -4263,6 +4708,46 @@
      "travel": null,
      "impact": null,
      "kill": null
+    },
+    "gyarados-hyper-beam": {
+     "delivery": "projectile",
+     "element": "normal",
+     "windup": null,
+     "travel": "type/normal",
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "gyarados-hyper-beam-affliction": {
+     "delivery": "projectile",
+     "element": "normal",
+     "windup": null,
+     "travel": "type/normal",
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "gyarados-dragon-rage": {
+     "delivery": "projectile",
+     "element": "dragon",
+     "windup": null,
+     "travel": "type/dragon",
+     "impact": "type/dragon",
+     "kill": "dragon-claw"
+    },
+    "gyarados-ice-fang": {
+     "delivery": "melee",
+     "element": "ice",
+     "windup": null,
+     "travel": null,
+     "impact": "type/ice",
+     "kill": "freeze"
+    },
+    "gyarados-hydro-pump": {
+     "delivery": "melee",
+     "element": "water",
+     "windup": null,
+     "travel": null,
+     "impact": "type/water",
+     "kill": "wave"
     }
    }
   },
@@ -4274,19 +4759,11 @@
    "defeat": "type/faint",
    "kill": "warp",
    "skills": {
-    "mr-mime-light-screen": {
-     "delivery": "support",
-     "element": "psychic",
-     "windup": "sci-fi/scifi_warp_001",
-     "travel": null,
-     "impact": "fantasy-spells/spell_defense_up_001",
-     "kill": null
-    },
     "mr-mime-dazzling-gleam": {
-     "delivery": "area",
+     "delivery": "projectile",
      "element": "fairy",
      "windup": null,
-     "travel": null,
+     "travel": "type/fairy",
      "impact": "type/fairy",
      "kill": "sparkle"
     },
@@ -4295,15 +4772,23 @@
      "element": "psychic",
      "windup": "sci-fi/scifi_warp_001",
      "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "mr-mime-light-screen": {
+     "delivery": "support",
+     "element": "psychic",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": null,
      "impact": "fantasy-spells/spell_defense_up_001",
      "kill": null
     },
     "mr-mime-safeguard": {
-     "delivery": "self",
+     "delivery": "support",
      "element": "normal",
      "windup": null,
      "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
+     "impact": "type/buffApply",
      "kill": null
     }
    }
@@ -4316,22 +4801,6 @@
    "defeat": "type/faint",
    "kill": "pummel",
    "skills": {
-    "hitmonchan-fire-punch": {
-     "delivery": "melee",
-     "element": "fire",
-     "windup": "type/fire",
-     "travel": null,
-     "impact": "explosions/epic_explosion_001",
-     "kill": "burn"
-    },
-    "hitmonchan-mega-punch": {
-     "delivery": "melee",
-     "element": "normal",
-     "windup": null,
-     "travel": null,
-     "impact": "type/normal",
-     "kill": "shatter"
-    },
     "hitmonchan-thunder-punch": {
      "delivery": "melee",
      "element": "electric",
@@ -4340,13 +4809,29 @@
      "impact": "type/electric",
      "kill": "electrocute"
     },
+    "hitmonchan-fire-punch": {
+     "delivery": "melee",
+     "element": "fire",
+     "windup": "type/fire",
+     "travel": null,
+     "impact": "explosions/epic_explosion_001",
+     "kill": "burn"
+    },
     "hitmonchan-ice-punch": {
-     "delivery": "self",
+     "delivery": "melee",
+     "element": "ice",
+     "windup": null,
+     "travel": null,
+     "impact": "type/ice",
+     "kill": "freeze"
+    },
+    "hitmonchan-mega-punch": {
+     "delivery": "melee",
      "element": "normal",
      "windup": null,
      "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
-     "kill": null
+     "impact": "type/normal",
+     "kill": "shatter"
     }
    }
   },
@@ -4358,6 +4843,14 @@
    "defeat": "type/faint",
    "kill": "pummel",
    "skills": {
+    "hitmonlee-double-kick": {
+     "delivery": "melee",
+     "element": "fighting",
+     "windup": null,
+     "travel": null,
+     "impact": "type/fighting",
+     "kill": "pummel"
+    },
     "hitmonlee-focus-energy": {
      "delivery": "self",
      "element": "normal",
@@ -4366,13 +4859,13 @@
      "impact": "type/buffApply",
      "kill": null
     },
-    "hitmonlee-double-kick": {
+    "hitmonlee-mega-kick": {
      "delivery": "melee",
-     "element": "fighting",
+     "element": "normal",
      "windup": null,
      "travel": null,
-     "impact": "type/fighting",
-     "kill": "pummel"
+     "impact": "type/normal",
+     "kill": "shatter"
     },
     "hitmonlee-high-jump-kick": {
      "delivery": "melee",
@@ -4382,13 +4875,13 @@
      "impact": "type/fighting",
      "kill": "pummel"
     },
-    "hitmonlee-mega-kick": {
-     "delivery": "self",
-     "element": "normal",
+    "hitmonlee-low-kick": {
+     "delivery": "melee",
+     "element": "fighting",
      "windup": null,
      "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
-     "kill": null
+     "impact": "type/fighting",
+     "kill": "pummel"
     }
    }
   },
@@ -4456,6 +4949,14 @@
    "defeat": "type/faint",
    "kill": "electrocute",
    "skills": {
+    "magnemite-spark": {
+     "delivery": "projectile",
+     "element": "electric",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": "type/electric",
+     "impact": "type/electric",
+     "kill": "electrocute"
+    },
     "magnemite-thunder-wave": {
      "delivery": "projectile",
      "element": "electric",
@@ -4464,28 +4965,20 @@
      "impact": "type/electric",
      "kill": "electrocute"
     },
-    "magnemite-spark": {
-     "delivery": "melee",
-     "element": "electric",
-     "windup": "sci-fi/scifi_charge_up_001",
-     "travel": null,
-     "impact": "type/electric",
-     "kill": "electrocute"
-    },
     "magnemite-swift": {
-     "delivery": "area",
+     "delivery": "projectile",
      "element": "normal",
      "windup": null,
-     "travel": null,
+     "travel": "type/normal",
      "impact": "type/normal",
      "kill": "shatter"
     },
     "magnemite-magnet-rise": {
      "delivery": "self",
-     "element": "normal",
-     "windup": null,
+     "element": "electric",
+     "windup": "sci-fi/scifi_charge_up_001",
      "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
+     "impact": "type/buffApply",
      "kill": null
     },
     "magnemite-passive-evolution-magneton": {
@@ -4493,6 +4986,38 @@
      "windup": null,
      "travel": null,
      "impact": null,
+     "kill": null
+    },
+    "magneton-spark": {
+     "delivery": "projectile",
+     "element": "electric",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": "type/electric",
+     "impact": "type/electric",
+     "kill": "electrocute"
+    },
+    "magneton-thunder-wave": {
+     "delivery": "area",
+     "element": "electric",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": null,
+     "impact": "type/electric",
+     "kill": "electrocute"
+    },
+    "magneton-flash-cannon": {
+     "delivery": "projectile",
+     "element": "steel",
+     "windup": null,
+     "travel": "type/steel",
+     "impact": "type/steel",
+     "kill": "slice"
+    },
+    "magneton-magnet-rise": {
+     "delivery": "self",
+     "element": "electric",
+     "windup": "sci-fi/scifi_charge_up_001",
+     "travel": null,
+     "impact": "type/buffApply",
      "kill": null
     }
    }
@@ -4505,16 +5030,8 @@
    "defeat": "type/faint",
    "kill": "crush",
    "skills": {
-    "onix-harden": {
-     "delivery": "self",
-     "element": "normal",
-     "windup": null,
-     "travel": null,
-     "impact": "fantasy-spells/spell_defense_up_001",
-     "kill": null
-    },
     "onix-rock-throw": {
-     "delivery": "melee",
+     "delivery": "area",
      "element": "rock",
      "windup": null,
      "travel": null,
@@ -4536,6 +5053,21 @@
      "travel": null,
      "impact": "type/rock",
      "kill": "crush"
+    },
+    "onix-harden": {
+     "delivery": "area",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "onix-passive-sturdy": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
     }
    }
   },
@@ -4556,6 +5088,14 @@
      "kill": "shatter"
     },
     "meowth-fury-swipes": {
+     "delivery": "area",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "meowth-fake-out": {
      "delivery": "melee",
      "element": "normal",
      "windup": null,
@@ -4571,20 +5111,44 @@
      "impact": "type/dark",
      "kill": "shadow"
     },
-    "meowth-fake-out": {
-     "delivery": "self",
-     "element": "normal",
-     "windup": null,
-     "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
-     "kill": null
-    },
     "meowth-passive-evolution-persian": {
      "delivery": "passive",
      "windup": null,
      "travel": null,
      "impact": null,
      "kill": null
+    },
+    "persian-pay-day": {
+     "delivery": "melee",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "persian-fury-swipes": {
+     "delivery": "area",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "persian-fake-out": {
+     "delivery": "melee",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
+    "persian-night-slash": {
+     "delivery": "melee",
+     "element": "dark",
+     "windup": null,
+     "travel": null,
+     "impact": "type/dark",
+     "kill": "shadow"
     }
    }
   },
@@ -4596,12 +5160,12 @@
    "defeat": "type/faint",
    "kill": "sparkle",
    "skills": {
-    "clefairy-moonlight": {
+    "clefairy-metronome": {
      "delivery": "support",
-     "element": "fairy",
+     "element": "normal",
      "windup": null,
      "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
+     "impact": "type/buffApply",
      "kill": null
     },
     "clefairy-double-slap": {
@@ -4612,20 +5176,20 @@
      "impact": "type/normal",
      "kill": "shatter"
     },
-    "clefairy-metronome": {
-     "delivery": "support",
-     "element": "normal",
-     "windup": null,
-     "travel": null,
-     "impact": "type/buffApply",
-     "kill": null
-    },
     "clefairy-disarming-voice": {
-     "delivery": "self",
+     "delivery": "area",
      "element": "fairy",
      "windup": null,
      "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
+     "impact": "type/fairy",
+     "kill": "sparkle"
+    },
+    "clefairy-moonlight": {
+     "delivery": "support",
+     "element": "fairy",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
      "kill": null
     },
     "clefairy-evolution-clefable": {
@@ -4645,6 +5209,14 @@
    "defeat": "type/faint",
    "kill": "shatter",
    "skills": {
+    "jigglypuff-perish-song": {
+     "delivery": "projectile",
+     "element": "normal",
+     "windup": null,
+     "travel": "type/normal",
+     "impact": "type/normal",
+     "kill": "shatter"
+    },
     "jigglypuff-sing": {
      "delivery": "projectile",
      "element": "normal",
@@ -4653,6 +5225,14 @@
      "impact": "type/normal",
      "kill": "shatter"
     },
+    "jigglypuff-wish": {
+     "delivery": "support",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
     "jigglypuff-humiliate": {
      "delivery": "melee",
      "element": "normal",
@@ -4660,22 +5240,6 @@
      "travel": null,
      "impact": "type/normal",
      "kill": "shatter"
-    },
-    "jigglypuff-wish": {
-     "delivery": "support",
-     "element": "fairy",
-     "windup": null,
-     "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
-     "kill": null
-    },
-    "jigglypuff-perish-song": {
-     "delivery": "self",
-     "element": "normal",
-     "windup": null,
-     "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
-     "kill": null
     },
     "jigglypuff-evolution-wigglytuff": {
      "delivery": "passive",
@@ -4695,10 +5259,10 @@
    "kill": "swarm",
    "skills": {
     "beedrill-poison-sting": {
-     "delivery": "melee",
+     "delivery": "projectile",
      "element": "poison",
      "windup": null,
-     "travel": null,
+     "travel": "type/poison",
      "impact": "type/poison",
      "kill": "dissolve"
     },
@@ -4711,10 +5275,10 @@
      "kill": "swarm"
     },
     "beedrill-envenom": {
-     "delivery": "projectile",
+     "delivery": "area",
      "element": "poison",
      "windup": null,
-     "travel": "type/poison",
+     "travel": null,
      "impact": "type/poison",
      "kill": "dissolve"
     },
@@ -4723,8 +5287,16 @@
      "element": "bug",
      "windup": null,
      "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
+     "impact": "type/buffApply",
      "kill": null
+    },
+    "beedrill-hive-sting": {
+     "delivery": "area",
+     "element": "bug",
+     "windup": null,
+     "travel": null,
+     "impact": "type/bug",
+     "kill": "swarm"
     },
     "beedrill-evolution-mega": {
      "delivery": "passive",
@@ -4744,12 +5316,12 @@
    "kill": "freeze",
    "skills": {
     "articuno-blizzard": {
-     "delivery": "area",
+     "delivery": "support",
      "element": "ice",
      "windup": null,
      "travel": null,
-     "impact": "type/ice",
-     "kill": "freeze"
+     "impact": "type/buffApply",
+     "kill": null
     },
     "articuno-ice-beam": {
      "delivery": "projectile",
@@ -4760,19 +5332,19 @@
      "kill": "freeze"
     },
     "articuno-sheer-cold": {
-     "delivery": "projectile",
+     "delivery": "support",
      "element": "ice",
      "windup": null,
-     "travel": "type/ice",
-     "impact": "type/ice",
-     "kill": "freeze"
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
     },
     "articuno-snowstorm": {
      "delivery": "self",
-     "element": "normal",
+     "element": "ice",
      "windup": null,
      "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
+     "impact": "type/buffApply",
      "kill": null
     }
    }
@@ -4786,22 +5358,22 @@
    "kill": "burn",
    "skills": {
     "moltres-fire-spin": {
-     "delivery": "area",
+     "delivery": "self",
      "element": "fire",
      "windup": "type/fire",
      "travel": null,
-     "impact": "explosions/epic_explosion_001",
-     "kill": "burn"
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "moltres-sunny-day": {
+     "delivery": "self",
+     "element": "fire",
+     "windup": "type/fire",
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
     },
     "moltres-heat-wave": {
-     "delivery": "area",
-     "element": "fire",
-     "windup": "type/fire",
-     "travel": null,
-     "impact": "explosions/epic_explosion_001",
-     "kill": "burn"
-    },
-    "moltres-overheat": {
      "delivery": "projectile",
      "element": "fire",
      "windup": "type/fire",
@@ -4809,12 +5381,19 @@
      "impact": "explosions/epic_explosion_001",
      "kill": "burn"
     },
-    "moltres-sunny-day": {
-     "delivery": "self",
-     "element": "normal",
+    "moltres-overheat": {
+     "delivery": "support",
+     "element": "fire",
+     "windup": "type/fire",
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "moltres-heat": {
+     "delivery": "passive",
      "windup": null,
      "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
+     "impact": null,
      "kill": null
     }
    }
@@ -4836,27 +5415,27 @@
      "kill": null
     },
     "zapdos-thunderbolt": {
-     "delivery": "projectile",
+     "delivery": "self",
      "element": "electric",
      "windup": "sci-fi/scifi_charge_up_001",
-     "travel": "type/electric",
-     "impact": "type/electric",
-     "kill": "electrocute"
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
     },
     "zapdos-zap-cannon": {
-     "delivery": "projectile",
+     "delivery": "support",
      "element": "electric",
      "windup": "sci-fi/scifi_charge_up_001",
-     "travel": "type/electric",
-     "impact": "type/electric",
-     "kill": "electrocute"
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
     },
     "zapdos-flight": {
      "delivery": "self",
-     "element": "normal",
+     "element": "flying",
      "windup": null,
      "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
+     "impact": "type/buffApply",
      "kill": null
     }
    }
@@ -4869,12 +5448,12 @@
    "defeat": "type/faint",
    "kill": "warp",
    "skills": {
-    "mew-pink-bubble": {
+    "mew-psychic-barrier": {
      "delivery": "support",
      "element": "psychic",
      "windup": "sci-fi/scifi_warp_001",
      "travel": null,
-     "impact": "fantasy-spells/spell_defense_up_001",
+     "impact": "type/buffApply",
      "kill": null
     },
     "mew-psychic": {
@@ -4885,20 +5464,20 @@
      "impact": "type/psychic",
      "kill": "warp"
     },
+    "mew-pink-bubble": {
+     "delivery": "support",
+     "element": "psychic",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
     "mew-life-dew": {
      "delivery": "support",
      "element": "water",
      "windup": null,
      "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
-     "kill": null
-    },
-    "mew-psychic-barrier": {
-     "delivery": "self",
-     "element": "normal",
-     "windup": null,
-     "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
+     "impact": "type/buffApply",
      "kill": null
     }
    }
@@ -4940,7 +5519,7 @@
      "element": "normal",
      "windup": null,
      "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
+     "impact": "type/buffApply",
      "kill": null
     }
    }
@@ -4953,14 +5532,6 @@
    "defeat": "type/faint",
    "kill": "dragon-claw",
    "skills": {
-    "dragonite-dragon-boost": {
-     "delivery": "self",
-     "element": "dragon",
-     "windup": null,
-     "travel": null,
-     "impact": "fantasy-spells/spell_defense_up_001",
-     "kill": null
-    },
     "dragonite-dragon-claw": {
      "delivery": "melee",
      "element": "dragon",
@@ -4968,6 +5539,14 @@
      "travel": null,
      "impact": "type/dragon",
      "kill": "dragon-claw"
+    },
+    "dragonite-hyper-beam": {
+     "delivery": "projectile",
+     "element": "normal",
+     "windup": null,
+     "travel": "type/normal",
+     "impact": "type/normal",
+     "kill": "shatter"
     },
     "dragonite-draco-meteor": {
      "delivery": "area",
@@ -4977,12 +5556,19 @@
      "impact": "type/dragon",
      "kill": "dragon-claw"
     },
-    "dragonite-hyper-beam": {
+    "dragonite-dragon-boost": {
      "delivery": "self",
-     "element": "normal",
+     "element": "dragon",
      "windup": null,
      "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "dragonite-pressure": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
      "kill": null
     }
    }
@@ -4995,14 +5581,6 @@
    "defeat": "type/faint",
    "kill": "burn",
    "skills": {
-    "cyndaquil-aerial-flamethrower": {
-     "delivery": "projectile",
-     "element": "fire",
-     "windup": "type/fire",
-     "travel": "type/fire",
-     "impact": "explosions/epic_explosion_001",
-     "kill": "burn"
-    },
     "cyndaquil-aerial-tackle": {
      "delivery": "melee",
      "element": "normal",
@@ -5010,6 +5588,14 @@
      "travel": null,
      "impact": "type/normal",
      "kill": "shatter"
+    },
+    "cyndaquil-aerial-flamethrower": {
+     "delivery": "support",
+     "element": "fire",
+     "windup": "type/fire",
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
     },
     "cyndaquil-cynda-smokescreen": {
      "delivery": "area",
@@ -5021,27 +5607,34 @@
     },
     "cyndaquil-skyward-leap": {
      "delivery": "self",
-     "element": "normal",
+     "element": "fire",
+     "windup": "type/fire",
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "cyndaquil-warming-up": {
+     "delivery": "passive",
      "windup": null,
      "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
+     "impact": null,
      "kill": null
     },
     "cyndaquil-quilava-flame-wheel": {
-     "delivery": "melee",
+     "delivery": "support",
      "element": "fire",
      "windup": "type/fire",
      "travel": null,
-     "impact": "explosions/epic_explosion_001",
-     "kill": "burn"
+     "impact": "type/buffApply",
+     "kill": null
     },
     "cyndaquil-typhlosion-flame-wheel": {
-     "delivery": "melee",
+     "delivery": "support",
      "element": "fire",
      "windup": "type/fire",
      "travel": null,
-     "impact": "explosions/epic_explosion_001",
-     "kill": "burn"
+     "impact": "type/buffApply",
+     "kill": null
     }
    }
   },
@@ -5053,6 +5646,14 @@
    "defeat": "type/faint",
    "kill": "vines",
    "skills": {
+    "chikorita-aerial-razor-leaf": {
+     "delivery": "support",
+     "element": "grass",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
     "chikorita-light-screen": {
      "delivery": "support",
      "element": "psychic",
@@ -5061,20 +5662,12 @@
      "impact": "fantasy-spells/spell_defense_up_001",
      "kill": null
     },
-    "chikorita-aerial-razor-leaf": {
-     "delivery": "melee",
-     "element": "grass",
-     "windup": null,
-     "travel": null,
-     "impact": "type/grass",
-     "kill": "vines"
-    },
     "chikorita-chikorita-solar-beam": {
      "delivery": "support",
      "element": "grass",
      "windup": null,
      "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
+     "impact": "type/buffApply",
      "kill": null
     },
     "chikorita-vine-defense": {
@@ -5082,22 +5675,29 @@
      "element": "grass",
      "windup": null,
      "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "chikorita-sweet-scent": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
      "kill": null
     },
     "chikorita-bayleaf-magical-leaf": {
-     "delivery": "projectile",
+     "delivery": "melee",
      "element": "grass",
      "windup": null,
-     "travel": "type/grass",
+     "travel": null,
      "impact": "type/grass",
      "kill": "vines"
     },
     "chikorita-meganium-magical-leaf": {
-     "delivery": "projectile",
+     "delivery": "melee",
      "element": "grass",
      "windup": null,
-     "travel": "type/grass",
+     "travel": null,
      "impact": "type/grass",
      "kill": "vines"
     }
@@ -5111,6 +5711,14 @@
    "defeat": "type/faint",
    "kill": "wave",
    "skills": {
+    "totodile-aerial-water-gun": {
+     "delivery": "support",
+     "element": "water",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
     "totodile-scary-face": {
      "delivery": "projectile",
      "element": "normal",
@@ -5119,37 +5727,36 @@
      "impact": "type/normal",
      "kill": "shatter"
     },
-    "totodile-aerial-water-gun": {
-     "delivery": "projectile",
-     "element": "water",
-     "windup": null,
-     "travel": "type/water",
-     "impact": "type/water",
-     "kill": "wave"
-    },
     "totodile-aqua-tail": {
-     "delivery": "melee",
+     "delivery": "support",
      "element": "water",
      "windup": null,
      "travel": null,
-     "impact": "type/water",
-     "kill": "wave"
+     "impact": "type/buffApply",
+     "kill": null
     },
     "totodile-superpower": {
      "delivery": "self",
      "element": "fighting",
      "windup": null,
      "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "totodile-water-rings": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
      "kill": null
     },
     "totodile-croconaw-bite": {
      "delivery": "melee",
-     "element": "dark",
+     "element": "water",
      "windup": null,
      "travel": null,
-     "impact": "type/dark",
-     "kill": "shadow"
+     "impact": "type/water",
+     "kill": "wave"
     },
     "totodile-feraligatr-dragon-claw": {
      "delivery": "melee",
@@ -5177,28 +5784,28 @@
      "impact": "type/psychic",
      "kill": "warp"
     },
-    "drowzee-dream-eater": {
-     "delivery": "projectile",
-     "element": "psychic",
-     "windup": "sci-fi/scifi_warp_001",
-     "travel": "type/psychic",
-     "impact": "type/psychic",
-     "kill": "warp"
-    },
     "drowzee-nightmare": {
-     "delivery": "projectile",
+     "delivery": "support",
      "element": "ghost",
      "windup": null,
-     "travel": "type/ghost",
-     "impact": "type/ghost",
-     "kill": "haunt"
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "drowzee-dream-eater": {
+     "delivery": "support",
+     "element": "psychic",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
     },
     "drowzee-disable": {
-     "delivery": "self",
+     "delivery": "support",
      "element": "normal",
      "windup": null,
      "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
+     "impact": "type/buffApply",
      "kill": null
     },
     "drowzee-evolution": {
@@ -5206,6 +5813,38 @@
      "windup": null,
      "travel": null,
      "impact": null,
+     "kill": null
+    },
+    "hypno-hypnosis": {
+     "delivery": "projectile",
+     "element": "psychic",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": "type/psychic",
+     "impact": "type/psychic",
+     "kill": "warp"
+    },
+    "hypno-nightmare": {
+     "delivery": "support",
+     "element": "ghost",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "hypno-dream-eater": {
+     "delivery": "support",
+     "element": "psychic",
+     "windup": "sci-fi/scifi_warp_001",
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "hypno-disable": {
+     "delivery": "support",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
      "kill": null
     }
    }
@@ -5547,14 +6186,6 @@
    "defeat": "type/faint",
    "kill": "pummel",
    "skills": {
-    "primeape-rage-fist": {
-     "delivery": "self",
-     "element": "ghost",
-     "windup": null,
-     "travel": null,
-     "impact": "type/buffApply",
-     "kill": null
-    },
     "primeape-rock-smash": {
      "delivery": "melee",
      "element": "fighting",
@@ -5562,6 +6193,22 @@
      "travel": null,
      "impact": "type/fighting",
      "kill": "pummel"
+    },
+    "primeape-knock-off": {
+     "delivery": "melee",
+     "element": "dark",
+     "windup": null,
+     "travel": null,
+     "impact": "type/dark",
+     "kill": "shadow"
+    },
+    "primeape-rage-fist": {
+     "delivery": "melee",
+     "element": "ghost",
+     "windup": null,
+     "travel": null,
+     "impact": "type/ghost",
+     "kill": "haunt"
     },
     "primeape-close-combat": {
      "delivery": "melee",
@@ -5571,12 +6218,11 @@
      "impact": "type/fighting",
      "kill": "pummel"
     },
-    "primeape-knock-off": {
-     "delivery": "self",
-     "element": "normal",
+    "primeape-passive-anger-point": {
+     "delivery": "passive",
      "windup": null,
      "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
+     "impact": null,
      "kill": null
     }
    }
@@ -5589,6 +6235,30 @@
    "defeat": "type/faint",
    "kill": "fissure",
    "skills": {
+    "marowak-bone-club": {
+     "delivery": "self",
+     "element": "ground",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "marowak-bone-rush": {
+     "delivery": "support",
+     "element": "ground",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "marowak-bonemerang": {
+     "delivery": "support",
+     "element": "ground",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
     "marowak-bone-guard": {
      "delivery": "self",
      "element": "ground",
@@ -5596,30 +6266,6 @@
      "travel": null,
      "impact": "fantasy-spells/spell_defense_up_001",
      "kill": null
-    },
-    "marowak-bone-club": {
-     "delivery": "melee",
-     "element": "ground",
-     "windup": null,
-     "travel": null,
-     "impact": "type/ground",
-     "kill": "fissure"
-    },
-    "marowak-bonemerang": {
-     "delivery": "melee",
-     "element": "ground",
-     "windup": null,
-     "travel": null,
-     "impact": "type/ground",
-     "kill": "fissure"
-    },
-    "marowak-bone-rush": {
-     "delivery": "melee",
-     "element": "ground",
-     "windup": null,
-     "travel": null,
-     "impact": "type/ground",
-     "kill": "fissure"
     }
    }
   },
@@ -5639,29 +6285,52 @@
      "impact": "type/normal",
      "kill": "shatter"
     },
+    "pinsir-seismic-toss": {
+     "delivery": "support",
+     "element": "fighting",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
     "pinsir-x-scissor": {
+     "delivery": "support",
+     "element": "bug",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "pinsir-rock-tomb": {
+     "delivery": "self",
+     "element": "rock",
+     "windup": null,
+     "travel": null,
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "pinsir-guillotine": {
+     "delivery": "support",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "pinsir-mega-pinsir-passive": {
+     "delivery": "passive",
+     "windup": null,
+     "travel": null,
+     "impact": null,
+     "kill": null
+    },
+    "pinsir-struggle-bug": {
      "delivery": "melee",
      "element": "bug",
      "windup": null,
      "travel": null,
      "impact": "type/bug",
      "kill": "swarm"
-    },
-    "pinsir-seismic-toss": {
-     "delivery": "melee",
-     "element": "fighting",
-     "windup": null,
-     "travel": null,
-     "impact": "type/fighting",
-     "kill": "pummel"
-    },
-    "pinsir-rock-tomb": {
-     "delivery": "self",
-     "element": "normal",
-     "windup": null,
-     "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
-     "kill": null
     }
    }
   },
@@ -5674,35 +6343,35 @@
    "kill": "shatter",
    "skills": {
     "tauros-horn-attack": {
-     "delivery": "melee",
+     "delivery": "support",
      "element": "normal",
      "windup": null,
      "travel": null,
-     "impact": "type/normal",
-     "kill": "shatter"
+     "impact": "type/buffApply",
+     "kill": null
     },
     "tauros-take-down": {
-     "delivery": "melee",
-     "element": "normal",
-     "windup": null,
-     "travel": null,
-     "impact": "type/normal",
-     "kill": "shatter"
-    },
-    "tauros-earthquake": {
-     "delivery": "area",
-     "element": "ground",
-     "windup": null,
-     "travel": null,
-     "impact": "type/ground",
-     "kill": "fissure"
-    },
-    "tauros-stampede": {
      "delivery": "self",
      "element": "normal",
      "windup": null,
      "travel": null,
-     "impact": "fantasy-spells/spell_heal_001",
+     "impact": "fantasy-spells/spell_defense_up_001",
+     "kill": null
+    },
+    "tauros-earthquake": {
+     "delivery": "self",
+     "element": "ground",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
+     "kill": null
+    },
+    "tauros-stampede": {
+     "delivery": "support",
+     "element": "normal",
+     "windup": null,
+     "travel": null,
+     "impact": "type/buffApply",
      "kill": null
     }
    }

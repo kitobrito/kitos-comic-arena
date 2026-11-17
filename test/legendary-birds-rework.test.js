@@ -41,6 +41,155 @@ const makeMatch = ({ casterUnit, enemyUnits = [makeUnit(dummyEnemyIndex)], skill
 const findSkillIndex = (characterIndex, skillId) =>
     characters[characterIndex].skills.findIndex((skill) => skill?.id === skillId);
 
+test('Articuno Blizzard deals 15 damage to all enemies and applies a 1-turn cooldown-paralysis mark, not an outright cooldown lock', () => {
+    const casterUnit = makeUnit(articunoIndex);
+    const enemyUnit = makeUnit(dummyEnemyIndex);
+    const skillIndex = findSkillIndex(articunoIndex, 'articuno-blizzard');
+    const match = makeMatch({ casterUnit, enemyUnits: [enemyUnit], skillIndex, targetSelection: [] });
+
+    resolvePendingTurnSkills({ match, actingUsername: 'ash', characters });
+
+    assert.equal(enemyUnit.hp, 85);
+    assert.equal(match.weather, null, 'Blizzard no longer summons weather on its own');
+    // Blizzard must apply the same articuno_blizzard/paralyzeCooldowns status Sheer
+    // Cold applies for the identical stated effect, rather than directly bumping every
+    // harmful skill's cooldown -- the latter would lock the target out of casting any
+    // harmful skill this turn, which "delays their harmful skills by 1 turn" does not
+    // mean (a skill they haven't used yet was never on cooldown to begin with).
+    const mark = enemyUnit.state.statuses.find((status) => status?.id === 'articuno_blizzard');
+    assert.ok(mark, 'Blizzard should apply the articuno_blizzard status to its targets');
+    assert.equal(mark.metadata?.paralyzeCooldowns, true);
+    assert.equal(
+        enemyUnit.state.cooldowns['iron-man-repulsor-blast'],
+        undefined,
+        'an unused harmful skill must not be force-locked onto cooldown by Blizzard'
+    );
+});
+
+test('Articuno Snowstorm summons the weather by itself, dealing no direct damage', () => {
+    const casterUnit = makeUnit(articunoIndex);
+    const enemyUnit = makeUnit(dummyEnemyIndex);
+    const skillIndex = findSkillIndex(articunoIndex, 'articuno-snowstorm');
+    const match = makeMatch({ casterUnit, enemyUnits: [enemyUnit], skillIndex, targetSelection: [] });
+
+    resolvePendingTurnSkills({ match, actingUsername: 'ash', characters });
+
+    assert.equal(enemyUnit.hp, 100, 'Snowstorm deals no direct damage');
+    assert.ok(match.weather);
+    assert.equal(match.weather.key, 'snowstorm');
+    assert.equal(match.weather.roundsRemaining, 4);
+    assert.equal(match.weather.blockRefreshIfActive, true);
+    assert.equal(match.weather.damageTypeModifiers.Ice, 5);
+    assert.equal(match.weather.damageTypeModifiers.Fire, -5);
+    assert.deepEqual(match.weather.transformMoveType, { Water: 'Ice' });
+});
+
+test('Articuno Ice Beam stun is guaranteed during an active Snowstorm even on an unlucky roll', () => {
+    const casterUnit = makeUnit(articunoIndex);
+    const enemyUnit = makeUnit(dummyEnemyIndex);
+    const skillIndex = findSkillIndex(articunoIndex, 'articuno-ice-beam');
+    const match = makeMatch({
+        casterUnit,
+        enemyUnits: [enemyUnit],
+        skillIndex,
+        targetSelection: [{ username: 'gary', slot: 0 }],
+    });
+    match.weather = {
+        key: 'snowstorm',
+        name: 'Snowstorm',
+        roundsRemaining: 4,
+        totalRounds: 4,
+        sourcePlayer: 'ash',
+        sourceSlot: 0,
+    };
+
+    const originalRandom = Math.random;
+    Math.random = () => 0.99; // would normally fail a 50% roll
+    try {
+        resolvePendingTurnSkills({ match, actingUsername: 'ash', characters });
+    } finally {
+        Math.random = originalRandom;
+    }
+
+    assert.equal(enemyUnit.hp, 85);
+    assert.ok(
+        enemyUnit.state.statuses.some((status) => status.id === 'articuno_ice_beam_stun'),
+        'stun should be certain during Snowstorm regardless of the roll'
+    );
+});
+
+test('Articuno Sheer Cold escalates and keeps its Ice Beam stun weather-certain while Snowstorm is up', () => {
+    const casterUnit = makeUnit(articunoIndex, {
+        state: {
+            statuses: [
+                {
+                    id: 'articuno_sheer_cold_tracker',
+                    sourceSkillId: 'articuno-sheer-cold',
+                    remainingTurns: 999,
+                    duration: 999,
+                    metadata: { infiniteDuration: true, unremovable: true, bonusDamage: 5 },
+                },
+            ],
+            cooldowns: {},
+            skillUses: {},
+            snapshots: {},
+        },
+    });
+    const enemyUnit = makeUnit(dummyEnemyIndex);
+    const skillIndex = findSkillIndex(articunoIndex, 'articuno-sheer-cold');
+    const match = makeMatch({ casterUnit, enemyUnits: [enemyUnit], skillIndex, targetSelection: [] });
+    // Simulates a recast after Blizzard already summoned Snowstorm: the stun-chance check inside
+    // the articuno_sheer_cold branch runs before its own set-weather call (matching the
+    // prototype's authored effect order), so weather-certainty only kicks in when Snowstorm was
+    // already active going into this cast.
+    match.weather = {
+        key: 'snowstorm',
+        name: 'Snowstorm',
+        roundsRemaining: 3,
+        totalRounds: 4,
+        sourcePlayer: 'ash',
+        sourceSlot: 0,
+        excludeSkillId: 'articuno-blizzard',
+        damageTypeModifiers: { Ice: 5, Fire: -5 },
+    };
+
+    const originalRandom = Math.random;
+    Math.random = () => 0.99;
+    try {
+        resolvePendingTurnSkills({ match, actingUsername: 'ash', characters });
+    } finally {
+        Math.random = originalRandom;
+    }
+
+    assert.equal(
+        enemyUnit.hp,
+        60,
+        '30 base + 5 existing tracker bonus + 5 Ice weather bonus ' +
+            '(excludeSkillId is articuno-blizzard, not articuno-sheer-cold, so Sheer Cold is not exempt)'
+    );
+    const tracker = casterUnit.state.statuses.find((status) => status.id === 'articuno_sheer_cold_tracker');
+    assert.equal(tracker.metadata.bonusDamage, 10, 'bonus should escalate by 5 again');
+    assert.ok(enemyUnit.state.statuses.some((status) => status.id === 'articuno_ice_beam_stun'));
+    assert.ok(match.weather);
+    assert.equal(match.weather.key, 'snowstorm');
+});
+
+test('Moltres Fire Spin deals 5 affliction damage to the enemy team each turn it is active', () => {
+    const casterUnit = makeUnit(moltresIndex);
+    const enemyUnit = makeUnit(dummyEnemyIndex);
+    const skillIndex = findSkillIndex(moltresIndex, 'moltres-fire-spin');
+    const match = makeMatch({ casterUnit, enemyUnits: [enemyUnit], skillIndex, targetSelection: [] });
+
+    resolvePendingTurnSkills({ match, actingUsername: 'ash', characters });
+    assert.equal(enemyUnit.hp, 100, 'casting Fire Spin deals no immediate damage');
+
+    resolveMoltresFireSpinTeamDamage(match);
+    assert.equal(enemyUnit.hp, 95, 'first tick deals 5 affliction damage');
+
+    resolveMoltresFireSpinTeamDamage(match);
+    assert.equal(enemyUnit.hp, 90, 'second tick deals another 5 while the status is still active');
+});
+
 test('resolveMoltresFireSpinTeamDamage is a no-op when Fire Spin is not active', () => {
     const casterUnit = makeUnit(moltresIndex);
     const enemyUnit = makeUnit(dummyEnemyIndex);
@@ -51,3 +200,212 @@ test('resolveMoltresFireSpinTeamDamage is a no-op when Fire Spin is not active',
     assert.equal(enemyUnit.hp, 100);
 });
 
+test('Moltres Wildfire summons weather and grants bonus Heat from its own cast', () => {
+    const casterUnit = makeUnit(moltresIndex, {
+        state: {
+            statuses: [
+                {
+                    id: 'moltres_heat',
+                    sourceSkillId: 'moltres-overheat',
+                    remainingTurns: 999,
+                    duration: 999,
+                    metadata: { infiniteDuration: true, unremovable: true, heat: 0, overheatPenalty: 0, overheatUses: 0 },
+                },
+            ],
+            cooldowns: {},
+            skillUses: {},
+            snapshots: {},
+        },
+    });
+    const skillIndex = findSkillIndex(moltresIndex, 'moltres-sunny-day');
+    const match = makeMatch({ casterUnit, skillIndex, targetSelection: [] });
+
+    resolvePendingTurnSkills({ match, actingUsername: 'ash', characters });
+
+    assert.ok(match.weather);
+    assert.equal(match.weather.key, 'wildfire');
+    assert.equal(match.weather.damageTypeModifiers.Fire, 5);
+    assert.equal(match.weather.damageTypeModifiers.Water, -5);
+    assert.deepEqual(
+        match.weather.costTypeModifiers,
+        { Fire: -1, Grass: 1, Bug: 1 },
+        'Wildfire discounts Fire costs and taxes Grass/Bug costs, no longer touches Electric'
+    );
+    const heat = casterUnit.state.statuses.find((status) => status.id === 'moltres_heat');
+    assert.equal(heat.metadata.heat, 2, '1 base Heat + 1 weather-synergy bonus from casting Wildfire itself');
+});
+
+test('Moltres Heat Wave gains bonus Heat only while her own Wildfire is active', () => {
+    const makeCaster = () =>
+        makeUnit(moltresIndex, {
+            state: {
+                statuses: [
+                    {
+                        id: 'moltres_heat',
+                        sourceSkillId: 'moltres-overheat',
+                        remainingTurns: 999,
+                        duration: 999,
+                        metadata: { infiniteDuration: true, unremovable: true, heat: 0, overheatPenalty: 0, overheatUses: 0 },
+                    },
+                ],
+                cooldowns: {},
+                skillUses: {},
+                snapshots: {},
+            },
+        });
+    const skillIndex = findSkillIndex(moltresIndex, 'moltres-heat-wave');
+
+    const casterWithoutWeather = makeCaster();
+    const matchWithoutWeather = makeMatch({
+        casterUnit: casterWithoutWeather,
+        skillIndex,
+        targetSelection: [{ username: 'gary', slot: 0 }],
+    });
+    resolvePendingTurnSkills({ match: matchWithoutWeather, actingUsername: 'ash', characters });
+    assert.equal(
+        casterWithoutWeather.state.statuses.find((s) => s.id === 'moltres_heat').metadata.heat,
+        1
+    );
+
+    const casterWithWeather = makeCaster();
+    const matchWithWeather = makeMatch({
+        casterUnit: casterWithWeather,
+        skillIndex,
+        targetSelection: [{ username: 'gary', slot: 0 }],
+    });
+    matchWithWeather.weather = { key: 'wildfire', sourcePlayer: 'ash', sourceSlot: 0, roundsRemaining: 4, totalRounds: 4 };
+    resolvePendingTurnSkills({ match: matchWithWeather, actingUsername: 'ash', characters });
+    assert.equal(
+        casterWithWeather.state.statuses.find((s) => s.id === 'moltres_heat').metadata.heat,
+        2,
+        'own Wildfire should add the extra Heat'
+    );
+});
+
+test('Zapdos Thunderstorm (Thunderbolt) activates weather on first cast and clears it on detonation', () => {
+    const casterUnit = makeUnit(zapdosIndex);
+    const enemyUnit = makeUnit(dummyEnemyIndex);
+    const skillIndex = findSkillIndex(zapdosIndex, 'zapdos-thunderbolt');
+    const match = makeMatch({ casterUnit, enemyUnits: [enemyUnit], skillIndex, targetSelection: [] });
+
+    resolvePendingTurnSkills({ match, actingUsername: 'ash', characters });
+    assert.ok(match.weather);
+    assert.equal(match.weather.key, 'thunderstorm');
+    assert.equal(match.weather.damageTypeModifiers.Electric, 5);
+    assert.equal(match.weather.periodicRandomTargetDamage.amount, 10);
+    assert.deepEqual(match.weather.periodicRandomTargetDamage.immuneTypes, ['Electric', 'Ground']);
+    assert.ok(
+        casterUnit.state.statuses.some((status) => status.id === 'zapdos_thunderbolt_active')
+    );
+
+    match.pendingTurns.ash = { queueOrder: ['0'], queuedByActorSlot: { '0': { skillIndex, targetSelection: [] } } };
+    resolvePendingTurnSkills({ match, actingUsername: 'ash', characters });
+    assert.equal(enemyUnit.hp, 85, 'detonation deals 15 piercing team damage');
+    assert.equal(match.weather, null, 'detonating should end the weather it started');
+});
+
+test('Zapdos Zap Cannon applies the normal 3-turn mark without Charge', () => {
+    const casterUnit = makeUnit(zapdosIndex);
+    const enemyUnit = makeUnit(dummyEnemyIndex);
+    const skillIndex = findSkillIndex(zapdosIndex, 'zapdos-zap-cannon');
+    const match = makeMatch({
+        casterUnit,
+        enemyUnits: [enemyUnit],
+        skillIndex,
+        targetSelection: [{ username: 'gary', slot: 0 }],
+    });
+
+    resolvePendingTurnSkills({ match, actingUsername: 'ash', characters });
+
+    assert.equal(enemyUnit.hp, 100, 'no immediate damage without a ready Charge');
+    assert.ok(enemyUnit.state.statuses.some((status) => status.id === 'zapdos_zap_cannon'));
+});
+
+test('Zapdos Zap Cannon resolves instantly once Charge has ticked down to its last turn', () => {
+    const casterUnit = makeUnit(zapdosIndex, {
+        state: {
+            statuses: [
+                {
+                    id: 'zapdos_charge',
+                    sourceSkillId: 'zapdos-charge',
+                    remainingTurns: 1,
+                    duration: 2,
+                    metadata: {
+                        genjutsuCostReduction: 1,
+                        increaseGenjutsuReductionEachTurn: 1,
+                        onOwnerUseSkillTrigger: true,
+                        persistOnOwnerUseSkillTrigger: false,
+                        removeStatusIdsOnOwnerUseSkill: ['zapdos_charge'],
+                    },
+                },
+            ],
+            cooldowns: {},
+            skillUses: {},
+            snapshots: {},
+        },
+    });
+    const enemyUnit = makeUnit(dummyEnemyIndex);
+    const skillIndex = findSkillIndex(zapdosIndex, 'zapdos-zap-cannon');
+    const match = makeMatch({
+        casterUnit,
+        enemyUnits: [enemyUnit],
+        skillIndex,
+        targetSelection: [{ username: 'gary', slot: 0 }],
+    });
+
+    resolvePendingTurnSkills({ match, actingUsername: 'ash', characters });
+
+    assert.equal(enemyUnit.hp, 70, 'instant 30 damage should resolve immediately');
+    assert.ok(
+        enemyUnit.state.statuses.some((status) => status.id === 'zapdos_zap_cannon_expire_stun'),
+        'the instant path should stun immediately instead of leaving a delayed mark'
+    );
+    assert.ok(
+        !enemyUnit.state.statuses.some((status) => status.id === 'zapdos_zap_cannon'),
+        'the delayed mark should not be applied on the instant-resolve path'
+    );
+    assert.ok(
+        !casterUnit.state.statuses.some((status) => status.id === 'zapdos_charge'),
+        'Charge should be consumed by casting another skill, as it already was before this change'
+    );
+});
+
+test('Zapdos Zap Cannon gets the Thunderstorm Electric damage bonus on the instant-resolve path', () => {
+    const casterUnit = makeUnit(zapdosIndex, {
+        state: {
+            statuses: [
+                {
+                    id: 'zapdos_charge',
+                    sourceSkillId: 'zapdos-charge',
+                    remainingTurns: 1,
+                    duration: 2,
+                    metadata: { onOwnerUseSkillTrigger: true, removeStatusIdsOnOwnerUseSkill: ['zapdos_charge'] },
+                },
+            ],
+            cooldowns: {},
+            skillUses: {},
+            snapshots: {},
+        },
+    });
+    const enemyUnit = makeUnit(dummyEnemyIndex);
+    const skillIndex = findSkillIndex(zapdosIndex, 'zapdos-zap-cannon');
+    const match = makeMatch({
+        casterUnit,
+        enemyUnits: [enemyUnit],
+        skillIndex,
+        targetSelection: [{ username: 'gary', slot: 0 }],
+    });
+    match.weather = {
+        key: 'thunderstorm',
+        sourcePlayer: 'ash',
+        sourceSlot: 0,
+        excludeSkillId: 'zapdos-thunderbolt',
+        roundsRemaining: 4,
+        totalRounds: 4,
+        damageTypeModifiers: { Electric: 5 },
+    };
+
+    resolvePendingTurnSkills({ match, actingUsername: 'ash', characters });
+
+    assert.equal(enemyUnit.hp, 65, '30 base + 5 Electric weather bonus');
+});
