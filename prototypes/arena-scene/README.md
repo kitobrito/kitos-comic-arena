@@ -77,3 +77,9 @@ The fixture pages and test sources are not served by production.
 Browser checks cover team selection and private launch, actual skill targeting,
 energy spending, player/bot turns, reload, narrow layouts and reduced motion in
 both arenas. Use `SCENE_BROWSER=webkit` to run the same checks with WebKit.
+
+UI rework (November 2026): the "Battlefield UI rework" block at the end of `scene.css` restyles the top bar (framed energy
+pill, green timer, Exchange Energy pill with a cycle icon, gold Ready button), the YOUR TURN title, team banners, ground
+rings, name pills and health bars, the hint bar and the gold skill card. `scene.js` adds the banner icons, the hint icon,
+the Exchange Energy icon and "×N" counts (re-applied whenever the live page rebuilds the energy bar), groups the card's
+energy/classes/cooldown into `.scene-chips`, and adds a pager that steps through the existing skill browser.

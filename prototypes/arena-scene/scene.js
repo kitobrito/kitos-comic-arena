@@ -108,14 +108,15 @@
             + '<div class="scene-halves" aria-hidden="true"><span class="scene-half scene-half-player"></span><span class="scene-half scene-half-enemy"></span></div>'
             + '<div class="scene-divider" aria-hidden="true"><span class="scene-divider-glow"></span><span class="scene-divider-core"></span><span class="scene-divider-vs">VS</span></div>';
         const ribbon = document.createElement('div'); ribbon.className = 'scene-ribbon';
-        ribbon.innerHTML = `<span class="scene-side-label">YOUR TEAM</span><div class="scene-hud"><p class="scene-turn" role="status">Preparing the battlefield…</p></div><span class="scene-side-label">${live ? 'OPPONENT' : 'SPARRING BOT'}</span>`;
+        const teamIcon = '<svg class="scene-team-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.4"/><path d="M2.5 19c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6z"/><circle cx="16.6" cy="7.4" r="2.7"/><path d="M15.2 12.6c3.4-.5 6.3 1.6 6.3 5.4h-4.6c0-2.2-.6-4-1.7-5.4z"/></svg>';
+        ribbon.innerHTML = `<span class="scene-side-label scene-side-player">${teamIcon}<span>YOUR TEAM</span></span><div class="scene-hud"><p class="scene-turn" role="status">Preparing the battlefield…</p></div><span class="scene-side-label scene-side-enemy"><span>ENEMY TEAM</span>${teamIcon}</span>`;
         field.append(ribbon);
         for (const s of ['.player-characters', '.enemy-characters']) { const team = $(s); if (team) field.append(team); }
         // Each of your fighters gets a skill bar on the battlefield, under its feet.
         const fieldbars = document.createElement('div'); fieldbars.className = 'scene-fieldbars'; fieldbars.setAttribute('aria-label', 'Skills on the battlefield');
         field.append(fieldbars);
         const footer = document.createElement('section'); footer.className = 'scene-commandbar';
-        footer.innerHTML = '<div class="scene-plan-line"><p class="scene-hint" aria-live="polite">Pick a skill for each fighter, then tap its target.</p><p class="scene-queue" aria-live="polite"></p></div><div class="scene-roster" aria-label="Your fighters and their skills"></div><div class="scene-details"></div>';
+        footer.innerHTML = '<div class="scene-plan-line"><span class="scene-info-icon" aria-hidden="true">i</span><p class="scene-hint" aria-live="polite">Pick a skill for each fighter, then tap its target.</p><p class="scene-queue" aria-live="polite"></p></div><div class="scene-roster" aria-label="Your fighters and their skills"></div><div class="scene-details"></div>';
         // Energy, timer and Ready live in the battlefield's top bar, always in view while planning.
         const hud = $('.game-hud');
         const ready = $('.ready-section');
@@ -127,6 +128,41 @@
         }
         if (hud) ribbon.querySelector('.scene-hud').append(hud);
         const info = $('.skillinformation'); if (info) footer.querySelector('.scene-details').append(info);
+        // Exchange Energy gets its cycle icon; energy counts read "×2" like the rest of the battlefield.
+        // The live battle page rebuilds parts of the energy bar, so this re-applies whenever it changes.
+        const hudRoot = ribbon.querySelector('.scene-hud');
+        const enhanceHud = () => {
+            const exchange = $('.exchange-label', hudRoot);
+            if (exchange && !$('.scene-exchange-icon', exchange)) exchange.insertAdjacentHTML('afterbegin', '<svg class="scene-exchange-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 9A8 8 0 0 0 5.2 7.2M4.5 15a8 8 0 0 0 14.3 1.8"/><path d="M19.8 3.6V9h-5.4M4.2 20.4V15h5.4"/></svg>');
+            for (const count of $$('.chakra-count', hudRoot)) { const t = count.textContent.replace(/^\s*x\s*/i, '×'); if (t !== count.textContent) count.textContent = t; }
+        };
+        enhanceHud();
+        new MutationObserver(enhanceHud).observe(hudRoot, { childList: true, characterData: true, subtree: true });
+        // The skill card pages through the shown fighter's skills: arrows and one dot per skill.
+        if (info && !$('.scene-chips', info)) {
+            const chips = document.createElement('div'); chips.className = 'scene-chips';
+            for (const sel of ['.energytext', '.ingameclasses', '.ingamecooldown']) { const el = $(sel, info); if (el) chips.append(el); }
+            $('.ingameskilldescription', info)?.before(chips);
+        }
+        const skillBrowser = info ? $('.skill-browser-icons', info) : null;
+        if (info && skillBrowser) {
+            const pager = document.createElement('div'); pager.className = 'scene-pager';
+            pager.innerHTML = '<button type="button" class="scene-pager-prev" aria-label="Previous skill">‹</button><span class="scene-pager-dots" aria-hidden="true"></span><button type="button" class="scene-pager-next" aria-label="Next skill">›</button>';
+            info.append(pager);
+            const icons = () => $$('.skill-browser-icon', skillBrowser);
+            const syncPager = () => {
+                const list = icons(), active = list.findIndex(b => b.classList.contains('active'));
+                pager.hidden = list.length < 2;
+                const dots = $('.scene-pager-dots', pager);
+                if (dots.childElementCount !== list.length) dots.innerHTML = list.map(() => '<i></i>').join('');
+                [...dots.children].forEach((dot, i) => dot.classList.toggle('on', i === Math.max(0, active)));
+            };
+            const step = dir => { const list = icons(); if (!list.length) return; const at = list.findIndex(b => b.classList.contains('active')); list[((at < 0 ? 0 : at) + dir + list.length) % list.length].click(); };
+            $('.scene-pager-prev', pager).addEventListener('click', () => step(-1));
+            $('.scene-pager-next', pager).addEventListener('click', () => step(1));
+            new MutationObserver(syncPager).observe(skillBrowser, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
+            syncPager();
+        }
         stage.prepend(header); stage.append(field, footer);
         const returnNote = document.createElement('p'); returnNote.className = 'scene-footnote';
         returnNote.textContent = live ? 'EXPERIMENTAL BATTLEFIELD (BETA) · Same match and rules · Switch back any time with Classic view or Settings › Options' : 'PRIVATE PREVIEW · Original battle engine · No rewards, rankings or mission progress';
