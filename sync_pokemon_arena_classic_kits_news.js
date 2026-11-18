@@ -13,6 +13,12 @@ const paragraphs = [
     'That means the original skills, costs, cooldowns and evolution conditions for every Pokemon, including Charmander, Squirtle, Bulbasaur, Pidgey and the legendary birds. Blaziken, the community characters, Aerodactyl, Pokemon Trainer and Lance were never changed and stay as they are.',
     'Thanks to everyone who tried the rework. Nothing about your account, missions or unlocks has changed.',
 ];
+// The rolled-back update's posts come down so the news page doesn't describe kits that no longer exist.
+const removedPostTitles = [
+    'Pokemon Arena Update V.4.0: Roster Rework',
+    'Pokemon Arena Update V.4.1: Combos & Crits',
+    'Pokemon Arena Update V.4.2: Balance Pass',
+];
 const newsPost = {
     title: 'Pokemon Arena: The Classic Kits Are Back',
     arena: 'pokemon',
@@ -25,12 +31,14 @@ const newsPost = {
 async function syncPokemonArenaClassicKitsNews(db, options = {}) {
     if (!db) throw new Error('A MongoDB database connection is required.');
     const timestamp = options.now instanceof Date ? options.now : new Date();
-    await db.collection(newsCollectionName).updateOne(
+    const posts = db.collection(newsCollectionName);
+    const removed = await posts.deleteMany({ arena: 'pokemon', title: { $in: removedPostTitles } });
+    await posts.updateOne(
         { title: newsPost.title },
         { $set: { ...newsPost, updatedAt: timestamp }, $setOnInsert: { createdAt: timestamp } },
         { upsert: true }
     );
-    return { posts: 1 };
+    return { posts: 1, removed: removed?.deletedCount ?? 0 };
 }
 
 async function runPokemonArenaClassicKitsNews() {
@@ -45,7 +53,7 @@ async function runPokemonArenaClassicKitsNews() {
     }
 }
 
-module.exports = { newsPost, syncPokemonArenaClassicKitsNews };
+module.exports = { newsPost, removedPostTitles, syncPokemonArenaClassicKitsNews };
 if (require.main === module) {
     runPokemonArenaClassicKitsNews().catch((error) => { console.error(error); process.exit(1); });
 }
