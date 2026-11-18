@@ -659,3 +659,11 @@ html.arena-scene-preview.battle-experimental body.scene-battle .scene-hud .chakr
  html.arena-scene-preview.battle-experimental body.scene-battle .scene-hud .chakra-display .chakra-item .chakra-box { width:17px!important; height:17px!important; }
  html.arena-scene-preview.battle-experimental body.scene-battle .scene-hud .chakra-display .chakra-item .chakra-count { font-size:13px!important; }
 }
+/* Phones: scene.js sizes the field so the front fighter stands clear of the back pair's skill squares. */
+@media (max-width:700px) {
+ html.arena-scene-preview body.scene-battle .scene-field { height:var(--scene-narrow-h,640px)!important; }
+}
+/* The skill card's chips never push past its edge. */
+html.arena-scene-preview.battle-experimental body.scene-battle .scene-details .skillinformation { grid-template-columns:auto minmax(0,1fr) auto!important; }
+.scene-chips { min-width:0; }
+html.arena-scene-preview body.scene-battle .scene-details .skillinformation .scene-chips > * { flex:0 1 auto!important; min-width:0!important; box-sizing:border-box; }

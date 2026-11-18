@@ -85,7 +85,7 @@ for (const arena of ['pokemon', 'comic']) {
         const shown = e => e.getBoundingClientRect().width > 0 && getComputedStyle(e).display !== 'none';
         const bars = sel => [...document.querySelectorAll(sel)].filter(shown).map(b => ({ rect: b.getBoundingClientRect().toJSON(), skills: [...b.querySelectorAll('.scene-mini')].filter(shown).map(m => m.getBoundingClientRect().toJSON()) }));
         return { viewport: innerWidth, scroll: document.documentElement.scrollWidth, field: document.querySelector('.scene-field').getBoundingClientRect().toJSON(),
-            mine: bars('.scene-fieldbar:not(.scene-enemybar)'), theirs: bars('.scene-enemybar'), alive: document.querySelectorAll('.scene-fieldbar:not(.scene-enemybar):not(.is-out)').length, out: [...document.querySelectorAll('.scene-fieldbar:not(.scene-enemybar).is-out')].map(b => window.ArenaSceneState.match.player.team?.[Number(b.dataset.slot)]?.hp ?? b.dataset.slot), stacked: [...document.querySelectorAll('.scene-roster')].some(shown) };
+            figures: [...document.querySelectorAll('.character-card[data-scene-side]:not(.scene-knocked-out)')].map(c => ({ side: c.dataset.sceneSide, slot: c.dataset.sceneSlot, rect: c.getBoundingClientRect().toJSON() })), mine: bars('.scene-fieldbar:not(.scene-enemybar)'), theirs: bars('.scene-enemybar'), alive: document.querySelectorAll('.scene-fieldbar:not(.scene-enemybar):not(.is-out)').length, out: [...document.querySelectorAll('.scene-fieldbar:not(.scene-enemybar).is-out')].map(b => window.ArenaSceneState.match.player.team?.[Number(b.dataset.slot)]?.hp ?? b.dataset.slot), stacked: [...document.querySelectorAll('.scene-roster')].some(shown) };
     });
     assert.ok(geometry.scroll <= geometry.viewport + 2, JSON.stringify(geometry));
     assert.equal(geometry.stacked, false, 'the stacked skill panels are gone on phones');
@@ -103,6 +103,11 @@ for (const arena of ['pokemon', 'comic']) {
     for (let i = 0; i < all.length; i++) for (let j = i + 1; j < all.length; j++) {
         const a = all[i], b = all[j];
         assert.ok(a.right <= b.left || b.right <= a.left || a.bottom <= b.top || b.bottom <= a.top, `skill squares do not overlap ${JSON.stringify([a, b])}`);
+    }
+    // No skill square covers any fighter.
+    for (const r of all) for (const f of geometry.figures) {
+        const a = r, b = f.rect, pad = 2;
+        assert.ok(a.right <= b.left + pad || b.right <= a.left + pad || a.bottom <= b.top + pad || b.bottom <= a.top + pad, `a skill square overlaps the ${f.side} fighter in slot ${f.slot}: ${JSON.stringify([a, b])}`);
     }
     await page.screenshot({ path: `/tmp/arena-scene-${arena}-phone.png`, fullPage: true });
     // Play a skill from a square with taps: it folds down to the chosen skill and its target.

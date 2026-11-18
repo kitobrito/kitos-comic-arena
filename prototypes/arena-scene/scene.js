@@ -297,7 +297,7 @@
             if (face) { face.setAttribute('tabindex', '0'); face.setAttribute('role', 'button'); face.addEventListener('keydown', event => {
                 if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); face.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, button: 0 })); }
             }); }
-            art.addEventListener('load', () => { actor.bbox = measure(art); layoutActor(actor); });
+            art.addEventListener('load', () => { actor.bbox = measure(art); layoutAll(); });
             art.addEventListener('error', () => {
                 const portrait = face?.src;
                 if (!portrait || art.src === portrait) return;
@@ -341,15 +341,15 @@
         function isFlyer(actor) {
             return arena === 'comic' ? COMIC_FLYERS.has(actor.id) : Boolean(lookup(Object.fromEntries([...POKEMON_FLYERS].map(k => [k, 1])), ...actor.names.slice(0, 1)));
         }
-        function layoutActor(actor) {
+        function layoutActor(actor, yOverride) {
             const { card, art, side, slot } = actor;
-            const box = actor.bbox; if (!box) return;
-            const fw = field.clientWidth, fh = field.clientHeight; if (!fw || !fh) return;
+            const box = actor.bbox; if (!box) return null;
+            const fw = field.clientWidth, fh = field.clientHeight; if (!fw || !fh) return null;
             const narrow = fw < 700;
             const formation = narrow ? FORMATION_NARROW : FORMATION;
             const spot = formation[slot] || formation[0];
             let x = side === 'player' ? spot.x : 100 - spot.x;
-            const y = spot.y;
+            const y = yOverride ?? spot.y;
             const depth = 0.42 + 0.62 * (y / 100);
             const unit = Math.min(fh * 0.47, fw * (narrow ? 0.27 : 0.19));
             let height = unit * sizeFor(actor) * depth;
@@ -373,14 +373,46 @@
             card.classList.toggle('scene-cut', arena === 'comic' && COMIC_CUT.has(actor.id));
             card.classList.add('scene-laid-out');
             const panel = panels.find(p => p.card === card) || enemyBars.find(e => e.card === card);
+            const plateH = $('.scene-plate', card)?.offsetHeight || 30;
             if (panel) {
-                const plate = $('.scene-plate', card);
                 panel.bar.style.left = `${x}%`;
-                panel.bar.style.top = `calc(${y}% + ${12 + (plate?.offsetHeight || 30)}px)`;
+                panel.bar.style.top = `calc(${y}% + ${12 + plateH}px)`;
                 panel.bar.classList.add('scene-laid-out');
             }
+            // Where this fighter's pieces sit, in px from the top of the field.
+            const foot = fh * y / 100;
+            const barH = panel && !panel.bar.classList.contains('is-out') ? panel.bar.offsetHeight : 0;
+            return { foot, height, lift, top: foot - height - lift, bottom: foot + 12 + plateH + barH };
         }
-        const layoutAll = () => { for (const actor of actors.values()) layoutActor(actor); updateEffectClip(); };
+        // Phones: the front fighter stands below the back pair's skill squares (never under them), and
+        // the field grows tall enough for everything. Wider screens use the fixed formation.
+        const STATUS_ROOM = 34; // status icons above a head
+        let narrowHeight = 0;
+        const layoutAll = () => {
+            const fw = field.clientWidth, fh = field.clientHeight;
+            if (fw >= 700 || !fh) {
+                if (narrowHeight) { narrowHeight = 0; field.style.removeProperty('--scene-narrow-h'); }
+                for (const actor of actors.values()) layoutActor(actor);
+                updateEffectClip(); return;
+            }
+            let needed = 0;
+            for (const side of ['player', 'opponent']) {
+                const team = [...actors.values()].filter(a => a.side === side);
+                const front = team.find(a => a.slot === 1);
+                let backBottom = 0;
+                for (const actor of team) if (actor !== front) { const r = layoutActor(actor); if (r) backBottom = Math.max(backBottom, r.bottom); }
+                if (!front) continue;
+                const first = layoutActor(front); if (!first) continue;
+                // The whole front fighter (and its status icons) starts below the lowest back square.
+                const foot = Math.max(first.foot, backBottom + 10 + STATUS_ROOM + first.height + first.lift);
+                const placed = layoutActor(front, foot / fh * 100);
+                if (placed) needed = Math.max(needed, placed.bottom + 14);
+            }
+            // Grow (or shrink back) the field to fit, in whole steps so it settles in one more pass.
+            const target = Math.max(640, Math.ceil(needed / 10) * 10);
+            if (Math.abs(target - fh) > 4 && target !== narrowHeight) { narrowHeight = target; field.style.setProperty('--scene-narrow-h', `${target}px`); }
+            updateEffectClip();
+        };
         new ResizeObserver(layoutAll).observe(field);
 
         // ---- Fighter panels ------------------------------------------------------------------------------
@@ -760,7 +792,7 @@
                 actor.names = [form, evolved, entry.character?.name, actor.id].filter(Boolean);
                 if (source && actor.art.dataset.source !== source) {
                     actor.art.dataset.source = source; card.classList.remove('scene-portrait-fallback'); actor.bbox = null; actor.art.src = source;
-                } else if (actor.bbox) layoutActor(actor);
+                } else if (actor.bbox) layoutAll();
                 $('.scene-actor-name', card).textContent = evolved || name;
                 // Per-character gauges (Hulk's rage) belong on the plate with the health bar.
                 const plate = $('.scene-plate', card), gauge = $('.rage-bar-container', card);
