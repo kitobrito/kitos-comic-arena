@@ -137,7 +137,7 @@
             for (const count of $$('.chakra-count', hudRoot)) { const t = count.textContent.replace(/^\s*x\s*/i, '×'); if (t !== count.textContent) count.textContent = t; }
         };
         enhanceHud();
-        new MutationObserver(enhanceHud).observe(hudRoot, { childList: true, characterData: true, subtree: true });
+        new MutationObserver(() => { enhanceHud(); if (typeof fitBanners === 'function') fitBanners(); }).observe(hudRoot, { childList: true, characterData: true, subtree: true });
         // The skill card pages through the shown fighter's skills: arrows and one dot per skill.
         if (info && !$('.scene-chips', info)) {
             const chips = document.createElement('div'); chips.className = 'scene-chips';
@@ -387,7 +387,16 @@
         // Phones: the front fighter stands below the back pair's skill squares (never under them), and
         // the field grows tall enough for everything. Wider screens use the fixed formation.
         const STATUS_ROOM = 34; // status icons above a head
-        let narrowHeight = 0;
+        let narrowHeight = 0, compactWidth = 0, compactRetry = false;
+        // Team banners show only when they fit beside the energy bar (they never slide under it).
+        function fitBanners() {
+            const hudBox = $('.ready-section', ribbon); if (!hudBox) return;
+            ribbon.classList.remove('scene-no-banners');
+            const h = hudBox.getBoundingClientRect();
+            const clash = $$('.scene-side-label', ribbon).some(label => { const r = label.getBoundingClientRect();
+                return r.width > 0 && !(r.right <= h.left - 10 || h.right <= r.left - 10 || r.bottom <= h.top || h.bottom <= r.top); });
+            ribbon.classList.toggle('scene-no-banners', clash);
+        }
         const layoutAll = () => {
             const fw = field.clientWidth, fh = field.clientHeight;
             if (fw >= 700 || !fh) {
@@ -398,24 +407,39 @@
                 for (const actor of actors.values()) { const r = layoutActor(actor); if (r) { placed.set(actor, r); lowest = Math.max(lowest, r.bottom); } }
                 // The front fighter stands between the back pair; if their skill bars would cover it, centre it
                 // in the gap between those bars and narrow it to fit.
-                const fieldTop = field.getBoundingClientRect().top;
+                const fieldBox = field.getBoundingClientRect(), fieldTop = fieldBox.top, fieldLeft = fieldBox.left;
                 for (const side of ['player', 'opponent']) {
                     const team = [...placed.keys()].filter(a => a.side === side);
                     const front = team.find(a => a.slot === 1); if (!front) continue;
                     const me = placed.get(front);
                     const bars = team.filter(a => a !== front).map(a => placed.get(a).bar).filter(Boolean).map(b => b.getBoundingClientRect())
                         .filter(r => r.bottom - fieldTop > me.top && r.top - fieldTop < me.foot);
-                    const left = Math.max(0, ...bars.filter(r => r.left + r.width / 2 < me.x).map(r => r.right));
-                    const right = Math.min(fw, ...bars.filter(r => r.left + r.width / 2 >= me.x).map(r => r.left));
+                    // Bar edges in field coordinates (the field can sit inside a wider page).
+                    const left = Math.max(0, ...bars.filter(r => r.left - fieldLeft + r.width / 2 < me.x).map(r => r.right - fieldLeft));
+                    const right = Math.min(fw, ...bars.filter(r => r.left - fieldLeft + r.width / 2 >= me.x).map(r => r.left - fieldLeft));
                     if (me.x - me.width / 2 >= left + 4 && me.x + me.width / 2 <= right - 4) continue;
                     const r = layoutActor(front, undefined, { x: (left + right) / 2 / fw * 100, maxWidth: Math.max(60, right - left - 16) });
                     if (r) { placed.set(front, r); lowest = Math.max(lowest, r.bottom); }
                 }
+                // If any skill bar still runs into another bar or a fighter at this width, fold the bars into
+                // compact squares (as on phones) and lay out again; unfold once the screen is wide enough.
+                if (!compactRetry) {
+                    const rect = el => el.getBoundingClientRect();
+                    const apart = (a, b) => a.right <= b.left + 2 || b.right <= a.left + 2 || a.bottom <= b.top + 2 || b.bottom <= a.top + 2;
+                    const barRects = [...placed.values()].map(r => r.bar).filter(Boolean).map(rect);
+                    const figures = [...placed.keys()].filter(a => !a.card.classList.contains('scene-knocked-out')).map(a => rect(a.card));
+                    const clash = barRects.some((b, i) => barRects.slice(i + 1).some(o => !apart(b, o)) || figures.some(f => !apart(b, f)));
+                    const compact = field.classList.contains('scene-compact-bars');
+                    if (clash && !compact) { compactWidth = fw; field.classList.add('scene-compact-bars'); compactRetry = true; layoutAll(); compactRetry = false; return; }
+                    if (compact && fw > compactWidth + 120) { field.classList.remove('scene-compact-bars'); compactRetry = true; layoutAll(); compactRetry = false; return; }
+                }
                 const fit = lowest ? Math.ceil((lowest + 14) / 10) * 10 : 0;
                 const current = parseFloat(field.style.getPropertyValue('--scene-fit-h')) || 0;
                 if (fit > fh + 4 || (current && Math.abs(fit - current) > 20)) field.style.setProperty('--scene-fit-h', `${Math.max(fit, current && fit > fh ? fit : 0)}px`);
+                fitBanners();
                 updateEffectClip(); return;
             }
+            field.classList.remove('scene-compact-bars'); compactWidth = 0;
             let needed = 0;
             for (const side of ['player', 'opponent']) {
                 const team = [...actors.values()].filter(a => a.side === side);
