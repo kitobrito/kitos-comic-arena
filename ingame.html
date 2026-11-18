@@ -29,7 +29,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             if (!window.ARENA_SCENE_PREVIEW && localStorage.getItem('battleExperimentalView') === '1') {
                 window.ARENA_SCENE_VIEW = true;
                 document.documentElement.classList.add('arena-scene-preview', 'scene-live', 'battle-experimental');
-                document.write('<link rel="stylesheet" href="/arena-scene/scene.css?v=14">');
+                document.write('<link rel="stylesheet" href="/arena-scene/scene.css?v=16">');
             }
         } catch (error) { /* storage blocked: classic view */ }
     </script>
@@ -566,7 +566,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             });
             if (window.ARENA_SCENE_VIEW && !window.ARENA_SCENE_PREVIEW) {
                 var script = document.createElement('script');
-                script.src = '/arena-scene/scene.js?v=14';
+                script.src = '/arena-scene/scene.js?v=16';
                 script.async = false;
                 document.body.appendChild(script);
             }

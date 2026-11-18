@@ -789,6 +789,76 @@
         });
         for (const card of allCards()) revealObserver.observe(card, { childList: true });
 
+        // ---- Evolution scene -------------------------------------------------------------------------------
+        // The field dims and a pillar of light in the Pokemon's type colours rises around it; it turns into a
+        // glowing silhouette that flickers between its old and new forms, faster and faster, until a flash and
+        // a shockwave reveal the evolved form. Banners call it like the games do.
+        const TYPE_GLOW = { bug: '#a8d936', dark: '#8d7a6e', dragon: '#7867ff', electric: '#ffe45b', fairy: '#ff9de2', fighting: '#ff684e', fire: '#ff633f', flying: '#79bfff', ghost: '#9676dc', grass: '#68dd70', ground: '#d9a75f', ice: '#86f1ff', normal: '#e6e2d0', poison: '#cf70df', psychic: '#ff66aa', rock: '#cdb66c', steel: '#aabbd4', water: '#4e9dff' };
+        const evolutionQueue = [];
+        let evolutionBusy = false;
+        function playEvolution(actor, before, newName, types) {
+            evolutionQueue.push({ actor, before, newName, types });
+            if (!evolutionBusy) nextEvolution();
+        }
+        function nextEvolution() {
+            const job = evolutionQueue.shift();
+            if (!job) { evolutionBusy = false; return; }
+            evolutionBusy = true;
+            const { actor, before, newName, types } = job;
+            const card = actor.card;
+            const colours = [].concat(types).map(t => TYPE_GLOW[String(t).toLowerCase()]).filter(Boolean);
+            const a = colours[0] || '#7fe3ff', b = colours[1] || colours[0] || '#fff0a8';
+            const fb = field.getBoundingClientRect();
+            const r = before.rect;
+            const cx = r.left + r.width / 2 - fb.left, foot = card.getBoundingClientRect().bottom - fb.top;
+            const layer = document.createElement('div');
+            layer.className = 'scene-evo';
+            layer.style.setProperty('--evo-a', a); layer.style.setProperty('--evo-b', b);
+            layer.style.setProperty('--evo-x', `${cx}px`); layer.style.setProperty('--evo-foot', `${foot}px`);
+            layer.innerHTML = '<div class="scene-evo-dim"></div><div class="scene-evo-pillar"></div><div class="scene-evo-ground"><i></i><i></i><i></i></div>'
+                + '<div class="scene-evo-sparks">' + Array.from({ length: 22 }, (_, i) => `<i style="--i:${i};--d:${(i * 137) % 1000}ms;--s:${0.6 + (i % 5) * 0.18}"></i>`).join('') + '</div>'
+                + '<p class="scene-evo-banner"><span></span></p><div class="scene-evo-flash"></div><div class="scene-evo-wave"></div>';
+            // The old form stays on screen as its own silhouette while the new render loads underneath.
+            const ghost = document.createElement('img');
+            ghost.className = 'scene-evo-old'; ghost.alt = ''; ghost.src = before.src;
+            Object.assign(ghost.style, { left: `${r.left - fb.left}px`, top: `${r.top - fb.top}px`, width: `${r.width}px`, height: `${r.height}px`, transform: before.transform === 'none' ? '' : before.transform });
+            layer.append(ghost);
+            field.append(layer);
+            card.classList.add('scene-evolving');
+            const banner = $('.scene-evo-banner span', layer);
+            banner.textContent = `What? ${before.name} is evolving!`;
+            try { window.ArenaSceneSound?.('pokemon-evolution'); } catch { /* sound is optional */ }
+            const finish = () => {
+                card.classList.remove('scene-evolving', 'scene-evo-showing-new', 'scene-evo-revealed');
+                layer.remove();
+                layoutAll();
+                nextEvolution();
+            };
+            if (!motionOK()) {
+                card.classList.add('scene-evo-revealed');
+                layer.classList.add('scene-evo-quick');
+                banner.textContent = `${before.name} evolved into ${newName}!`;
+                setTimeout(finish, 1600);
+                return;
+            }
+            // Old and new silhouettes trade places, faster and faster.
+            const beats = [520, 440, 360, 300, 240, 190, 150, 120, 95, 75, 60, 50, 42, 36];
+            let t = 900, showNew = false;
+            for (const gap of beats) {
+                t += gap; showNew = !showNew; const now = showNew;
+                setTimeout(() => { card.classList.toggle('scene-evo-showing-new', now); layer.classList.toggle('scene-evo-new', now); }, t);
+            }
+            setTimeout(() => { card.classList.add('scene-evo-showing-new'); layer.classList.add('scene-evo-new', 'scene-evo-charge'); }, t + 40);
+            const reveal = t + 420;
+            setTimeout(() => {
+                layer.classList.add('scene-evo-boom');
+                card.classList.add('scene-evo-revealed');
+                banner.textContent = `${before.name} evolved into ${newName}!`;
+                field.animate([{ translate: '0 0' }, { translate: '-6px 3px' }, { translate: '5px -4px' }, { translate: '-3px 2px' }, { translate: '0 0' }], { duration: 380, easing: 'ease-out' });
+            }, reveal);
+            setTimeout(finish, reveal + 2100);
+        }
+
         // ---- State --------------------------------------------------------------------------------------
         function applyState(next) {
             if (!next?.match) return;
@@ -811,9 +881,15 @@
                 const name = entry.character?.name || entry.baseCharacter?.name || `Fighter ${slot + 1}`;
                 actor.id = String(entry.baseCharacter?.characterId || entry.character?.characterId || entry.character?.id || '').toLowerCase();
                 actor.names = [form, evolved, entry.character?.name, actor.id].filter(Boolean);
+                // Evolving during the match (not on a reload that is already evolved) plays the evolution scene.
+                const evolutionKey = evolved || '';
+                const evolvingNow = actor.evolutionKey !== undefined && evolutionKey && evolutionKey !== actor.evolutionKey && arena === 'pokemon';
+                const before = evolvingNow ? { src: actor.art.currentSrc || actor.art.src, rect: actor.art.getBoundingClientRect(), transform: getComputedStyle(actor.art).transform, name: $('.scene-actor-name', card).textContent || name } : null;
+                actor.evolutionKey = evolutionKey;
                 if (source && actor.art.dataset.source !== source) {
                     actor.art.dataset.source = source; card.classList.remove('scene-portrait-fallback'); actor.bbox = null; actor.art.src = source;
                 } else if (actor.bbox) layoutAll();
+                if (before) playEvolution(actor, before, evolutionKey, entry.character?.pokemonTypes || entry.character?.types || []);
                 $('.scene-actor-name', card).textContent = evolved || name;
                 // Per-character gauges (Hulk's rage) belong on the plate with the health bar.
                 const plate = $('.scene-plate', card), gauge = $('.rage-bar-container', card);
