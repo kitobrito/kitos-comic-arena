@@ -454,7 +454,8 @@ html.scene-live body.scene-battle .scene-classic-view { padding:9px 14px; border
  html.arena-scene-preview body.scene-battle .scene-field { height:640px; }
  html.arena-scene-preview body.scene-battle .scene-fieldbar .scene-skill.scene-mini { width:34px; height:34px; }
  html.arena-scene-preview body.scene-battle .scene-enemybar .scene-skill.scene-mini { width:26px; height:26px; }
- .scene-fieldbar .scene-mini.scene-armed::after { font-size:10px; top:calc(100% + 6px); }
+ /* The line under the battlefield already says which skill is aimed; a tag here would run off the screen. */
+ .scene-fieldbar .scene-mini.scene-armed::after { display:none; }
  /* Folded: the chosen skill over its target, no wider than the square was. */
  .scene-fieldbar.is-queued .scene-fieldbar-queued { flex-direction:column; gap:2px; padding:4px 5px; max-width:84px; }
  .scene-fieldbar-target { max-width:74px; font-size:10px; text-align:center; }
