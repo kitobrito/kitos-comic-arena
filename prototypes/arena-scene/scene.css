@@ -667,3 +667,8 @@ html.arena-scene-preview.battle-experimental body.scene-battle .scene-hud .chakr
 html.arena-scene-preview.battle-experimental body.scene-battle .scene-details .skillinformation { grid-template-columns:auto minmax(0,1fr) auto!important; }
 .scene-chips { min-width:0; }
 html.arena-scene-preview body.scene-battle .scene-details .skillinformation .scene-chips > * { flex:0 1 auto!important; min-width:0!important; box-sizing:border-box; }
+
+/* Wider screens: the field grows if its lowest skill bar would otherwise be cut off (scene.js). */
+html.arena-scene-preview body.scene-battle .scene-field { min-height:var(--scene-fit-h,0px); }
+/* Team banners only where there is room beside the energy bar. */
+@media (max-width:1099px) { html.arena-scene-preview body.scene-battle .scene-ribbon .scene-side-label { display:none!important; } }

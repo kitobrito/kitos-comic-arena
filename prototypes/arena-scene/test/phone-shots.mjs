@@ -38,7 +38,16 @@ for (const arena of (process.env.ARENAS || 'pokemon,comic').split(',')) {
                 faces: [...document.querySelectorAll('.character-card .character-face')].map(rect),
             };
         });
-        console.log(`${arena} ${name}: ${JSON.stringify({ viewport: geo.viewport, scroll: geo.scroll, bars: geo.fieldbars.length, enemyBars: geo.enemybars.length, skillButtons: geo.minis, stackedList: geo.roster })}`);
+        const fit = await page.evaluate(() => {
+            const field = document.querySelector('.scene-field').getBoundingClientRect();
+            const bars = [...document.querySelectorAll('.scene-fieldbar')].filter(b => b.getBoundingClientRect().width > 0 && getComputedStyle(b).display !== 'none').map(b => b.getBoundingClientRect());
+            const figures = [...document.querySelectorAll('.character-card[data-scene-side]:not(.scene-knocked-out)')].map(c => c.getBoundingClientRect());
+            const apart = (a, b) => a.right <= b.left + 2 || b.right <= a.left + 2 || a.bottom <= b.top + 2 || b.bottom <= a.top + 2;
+            return { clipped: bars.filter(r => r.bottom > field.bottom + 1 || r.top < field.top || r.left < 0 || r.right > innerWidth).length,
+                coveringFighters: bars.reduce((n, r) => n + figures.filter(f => !apart(r, f)).length, 0),
+                barsOverlapping: bars.reduce((n, r, i) => n + bars.slice(i + 1).filter(o => !apart(r, o)).length, 0) };
+        });
+        console.log(`${arena} ${name}: ${JSON.stringify({ viewport: geo.viewport, scroll: geo.scroll, bars: geo.fieldbars.length, enemyBars: geo.enemybars.length, skillButtons: geo.minis, stackedList: geo.roster, ...fit })}`);
         if (process.env.GEO) console.log(JSON.stringify(geo));
         await page.screenshot({ path: `${out}scene-${arena}-${name}.png`, fullPage: true });
     }

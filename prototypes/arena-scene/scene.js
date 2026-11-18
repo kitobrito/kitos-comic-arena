@@ -341,20 +341,20 @@
         function isFlyer(actor) {
             return arena === 'comic' ? COMIC_FLYERS.has(actor.id) : Boolean(lookup(Object.fromEntries([...POKEMON_FLYERS].map(k => [k, 1])), ...actor.names.slice(0, 1)));
         }
-        function layoutActor(actor, yOverride) {
+        function layoutActor(actor, yOverride, fit = {}) {
             const { card, art, side, slot } = actor;
             const box = actor.bbox; if (!box) return null;
             const fw = field.clientWidth, fh = field.clientHeight; if (!fw || !fh) return null;
             const narrow = fw < 700;
             const formation = narrow ? FORMATION_NARROW : FORMATION;
             const spot = formation[slot] || formation[0];
-            let x = side === 'player' ? spot.x : 100 - spot.x;
+            let x = fit.x ?? (side === 'player' ? spot.x : 100 - spot.x);
             const y = yOverride ?? spot.y;
             const depth = 0.42 + 0.62 * (y / 100);
             const unit = Math.min(fh * 0.47, fw * (narrow ? 0.27 : 0.19));
             let height = unit * sizeFor(actor) * depth;
             let width = height * box.w / box.h;
-            const maxWidth = fw * (narrow ? 0.3 : 0.185) * depth;
+            const maxWidth = Math.min(fw * (narrow ? 0.3 : 0.185) * depth, fit.maxWidth ?? Infinity);
             if (width > maxWidth) { height *= maxWidth / width; width = maxWidth; }
             // Keep the figure and its name plate inside the field.
             const half = Math.max(width, narrow ? 74 : 96) / 2 + 3;
@@ -382,7 +382,7 @@
             // Where this fighter's pieces sit, in px from the top of the field.
             const foot = fh * y / 100;
             const barH = panel && !panel.bar.classList.contains('is-out') ? panel.bar.offsetHeight : 0;
-            return { foot, height, lift, top: foot - height - lift, bottom: foot + 12 + plateH + barH };
+            return { foot, height, lift, width, x: fw * x / 100, top: foot - height - lift, bottom: foot + 12 + plateH + barH, bar: panel && !panel.bar.classList.contains('is-out') ? panel.bar : null };
         }
         // Phones: the front fighter stands below the back pair's skill squares (never under them), and
         // the field grows tall enough for everything. Wider screens use the fixed formation.
@@ -392,7 +392,28 @@
             const fw = field.clientWidth, fh = field.clientHeight;
             if (fw >= 700 || !fh) {
                 if (narrowHeight) { narrowHeight = 0; field.style.removeProperty('--scene-narrow-h'); }
-                for (const actor of actors.values()) layoutActor(actor);
+                // Wider screens keep the formation; the field only grows if the lowest skill bar would be cut off.
+                let lowest = 0;
+                const placed = new Map();
+                for (const actor of actors.values()) { const r = layoutActor(actor); if (r) { placed.set(actor, r); lowest = Math.max(lowest, r.bottom); } }
+                // The front fighter stands between the back pair; if their skill bars would cover it, centre it
+                // in the gap between those bars and narrow it to fit.
+                const fieldTop = field.getBoundingClientRect().top;
+                for (const side of ['player', 'opponent']) {
+                    const team = [...placed.keys()].filter(a => a.side === side);
+                    const front = team.find(a => a.slot === 1); if (!front) continue;
+                    const me = placed.get(front);
+                    const bars = team.filter(a => a !== front).map(a => placed.get(a).bar).filter(Boolean).map(b => b.getBoundingClientRect())
+                        .filter(r => r.bottom - fieldTop > me.top && r.top - fieldTop < me.foot);
+                    const left = Math.max(0, ...bars.filter(r => r.left + r.width / 2 < me.x).map(r => r.right));
+                    const right = Math.min(fw, ...bars.filter(r => r.left + r.width / 2 >= me.x).map(r => r.left));
+                    if (me.x - me.width / 2 >= left + 4 && me.x + me.width / 2 <= right - 4) continue;
+                    const r = layoutActor(front, undefined, { x: (left + right) / 2 / fw * 100, maxWidth: Math.max(60, right - left - 16) });
+                    if (r) { placed.set(front, r); lowest = Math.max(lowest, r.bottom); }
+                }
+                const fit = lowest ? Math.ceil((lowest + 14) / 10) * 10 : 0;
+                const current = parseFloat(field.style.getPropertyValue('--scene-fit-h')) || 0;
+                if (fit > fh + 4 || (current && Math.abs(fit - current) > 20)) field.style.setProperty('--scene-fit-h', `${Math.max(fit, current && fit > fh ? fit : 0)}px`);
                 updateEffectClip(); return;
             }
             let needed = 0;

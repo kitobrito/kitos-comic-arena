@@ -59,7 +59,10 @@ for (const arena of ['pokemon', 'comic']) {
     for (let actorSlot = 0; actorSlot < 3 && !chosen; actorSlot++) for (let skillIndex = 0; skillIndex < 4 && !chosen; skillIndex++) {
         const result = await context.request.post(`${base}/api/match/${matchId}/skill/targets`, { data: { actorSlot, skillIndex } });
         const options = await result.json();
-        if (result.ok() && options.targets?.length) chosen = { actorSlot, skillIndex, target: options.targets[0] };
+        // Only a skill the battlefield shows as usable (the server's list ignores stuns and missing energy).
+        const usable = await page.evaluate(([slot, index]) => { const b = [...document.querySelectorAll(`[data-slot="${slot}"] .scene-skill`)].filter(e => e.getBoundingClientRect().width > 0)[index];
+            return Boolean(b) && !b.disabled && !b.matches('.scene-unavailable,.scene-on-cooldown'); }, [actorSlot, skillIndex]);
+        if (usable && result.ok() && options.targets?.length) chosen = { actorSlot, skillIndex, target: options.targets[0] };
     }
     console.log(arena + ': real skill selected');
     assert.ok(chosen, 'A real skill must be usable on the second turn.');
