@@ -108,14 +108,15 @@
             + '<div class="scene-halves" aria-hidden="true"><span class="scene-half scene-half-player"></span><span class="scene-half scene-half-enemy"></span></div>'
             + '<div class="scene-divider" aria-hidden="true"><span class="scene-divider-glow"></span><span class="scene-divider-core"></span><span class="scene-divider-vs">VS</span></div>';
         const ribbon = document.createElement('div'); ribbon.className = 'scene-ribbon';
-        ribbon.innerHTML = `<span class="scene-side-label">YOUR TEAM</span><div class="scene-hud"><p class="scene-turn" role="status">Preparing the battlefield…</p></div><span class="scene-side-label">${live ? 'OPPONENT' : 'SPARRING BOT'}</span>`;
+        const teamIcon = '<svg class="scene-team-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.4"/><path d="M2.5 19c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6z"/><circle cx="16.6" cy="7.4" r="2.7"/><path d="M15.2 12.6c3.4-.5 6.3 1.6 6.3 5.4h-4.6c0-2.2-.6-4-1.7-5.4z"/></svg>';
+        ribbon.innerHTML = `<span class="scene-side-label scene-side-player">${teamIcon}<span>YOUR TEAM</span></span><div class="scene-hud"><p class="scene-turn" role="status">Preparing the battlefield…</p></div><span class="scene-side-label scene-side-enemy"><span>ENEMY TEAM</span>${teamIcon}</span>`;
         field.append(ribbon);
         for (const s of ['.player-characters', '.enemy-characters']) { const team = $(s); if (team) field.append(team); }
         // Each of your fighters gets a skill bar on the battlefield, under its feet.
         const fieldbars = document.createElement('div'); fieldbars.className = 'scene-fieldbars'; fieldbars.setAttribute('aria-label', 'Skills on the battlefield');
         field.append(fieldbars);
         const footer = document.createElement('section'); footer.className = 'scene-commandbar';
-        footer.innerHTML = '<div class="scene-plan-line"><p class="scene-hint" aria-live="polite">Pick a skill for each fighter, then tap its target.</p><p class="scene-queue" aria-live="polite"></p></div><div class="scene-roster" aria-label="Your fighters and their skills"></div><div class="scene-details"></div>';
+        footer.innerHTML = '<div class="scene-plan-line"><span class="scene-info-icon" aria-hidden="true">i</span><p class="scene-hint" aria-live="polite">Pick a skill for each fighter, then tap its target.</p><p class="scene-queue" aria-live="polite"></p></div><div class="scene-roster" aria-label="Your fighters and their skills"></div><div class="scene-details"></div>';
         // Energy, timer and Ready live in the battlefield's top bar, always in view while planning.
         const hud = $('.game-hud');
         const ready = $('.ready-section');
@@ -127,6 +128,41 @@
         }
         if (hud) ribbon.querySelector('.scene-hud').append(hud);
         const info = $('.skillinformation'); if (info) footer.querySelector('.scene-details').append(info);
+        // Exchange Energy gets its cycle icon; energy counts read "×2" like the rest of the battlefield.
+        // The live battle page rebuilds parts of the energy bar, so this re-applies whenever it changes.
+        const hudRoot = ribbon.querySelector('.scene-hud');
+        const enhanceHud = () => {
+            const exchange = $('.exchange-label', hudRoot);
+            if (exchange && !$('.scene-exchange-icon', exchange)) exchange.insertAdjacentHTML('afterbegin', '<svg class="scene-exchange-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 9A8 8 0 0 0 5.2 7.2M4.5 15a8 8 0 0 0 14.3 1.8"/><path d="M19.8 3.6V9h-5.4M4.2 20.4V15h5.4"/></svg>');
+            for (const count of $$('.chakra-count', hudRoot)) { const t = count.textContent.replace(/^\s*x\s*/i, '×'); if (t !== count.textContent) count.textContent = t; }
+        };
+        enhanceHud();
+        new MutationObserver(enhanceHud).observe(hudRoot, { childList: true, characterData: true, subtree: true });
+        // The skill card pages through the shown fighter's skills: arrows and one dot per skill.
+        if (info && !$('.scene-chips', info)) {
+            const chips = document.createElement('div'); chips.className = 'scene-chips';
+            for (const sel of ['.energytext', '.ingameclasses', '.ingamecooldown']) { const el = $(sel, info); if (el) chips.append(el); }
+            $('.ingameskilldescription', info)?.before(chips);
+        }
+        const skillBrowser = info ? $('.skill-browser-icons', info) : null;
+        if (info && skillBrowser) {
+            const pager = document.createElement('div'); pager.className = 'scene-pager';
+            pager.innerHTML = '<button type="button" class="scene-pager-prev" aria-label="Previous skill">‹</button><span class="scene-pager-dots" aria-hidden="true"></span><button type="button" class="scene-pager-next" aria-label="Next skill">›</button>';
+            info.append(pager);
+            const icons = () => $$('.skill-browser-icon', skillBrowser);
+            const syncPager = () => {
+                const list = icons(), active = list.findIndex(b => b.classList.contains('active'));
+                pager.hidden = list.length < 2;
+                const dots = $('.scene-pager-dots', pager);
+                if (dots.childElementCount !== list.length) dots.innerHTML = list.map(() => '<i></i>').join('');
+                [...dots.children].forEach((dot, i) => dot.classList.toggle('on', i === Math.max(0, active)));
+            };
+            const step = dir => { const list = icons(); if (!list.length) return; const at = list.findIndex(b => b.classList.contains('active')); list[((at < 0 ? 0 : at) + dir + list.length) % list.length].click(); };
+            $('.scene-pager-prev', pager).addEventListener('click', () => step(-1));
+            $('.scene-pager-next', pager).addEventListener('click', () => step(1));
+            new MutationObserver(syncPager).observe(skillBrowser, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
+            syncPager();
+        }
         stage.prepend(header); stage.append(field, footer);
         const returnNote = document.createElement('p'); returnNote.className = 'scene-footnote';
         returnNote.textContent = live ? 'EXPERIMENTAL BATTLEFIELD (BETA) · Same match and rules · Switch back any time with Classic view or Settings › Options' : 'PRIVATE PREVIEW · Original battle engine · No rewards, rankings or mission progress';
@@ -237,7 +273,9 @@
         // ---- Actors ---------------------------------------------------------------------------------
         // Foot positions (percent of the field). Slot 1 stands at the front, 0 and 2 behind it.
         const FORMATION = [{ x: 12, y: 60 }, { x: 27, y: 79 }, { x: 41, y: 64 }];
-        const FORMATION_NARROW = [{ x: 14, y: 57 }, { x: 25, y: 86 }, { x: 37, y: 63 }];
+        // Phones: a taller field with the back pair high and the front fighter low, so each fighter's
+        // 2×2 skill square has room under its feet without covering a teammate.
+        const FORMATION_NARROW = [{ x: 15, y: 40 }, { x: 26, y: 76 }, { x: 37, y: 47 }];
         const actors = new Map(); // card -> { side, slot, art, rig, body, id, names, bbox }
         for (const [side, cards] of Object.entries(teams)) cards.forEach((card, slot) => {
             card.dataset.sceneSlot = String(slot); card.dataset.sceneSide = side;
@@ -259,7 +297,7 @@
             if (face) { face.setAttribute('tabindex', '0'); face.setAttribute('role', 'button'); face.addEventListener('keydown', event => {
                 if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); face.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, button: 0 })); }
             }); }
-            art.addEventListener('load', () => { actor.bbox = measure(art); layoutActor(actor); });
+            art.addEventListener('load', () => { actor.bbox = measure(art); layoutAll(); });
             art.addEventListener('error', () => {
                 const portrait = face?.src;
                 if (!portrait || art.src === portrait) return;
@@ -303,20 +341,20 @@
         function isFlyer(actor) {
             return arena === 'comic' ? COMIC_FLYERS.has(actor.id) : Boolean(lookup(Object.fromEntries([...POKEMON_FLYERS].map(k => [k, 1])), ...actor.names.slice(0, 1)));
         }
-        function layoutActor(actor) {
+        function layoutActor(actor, yOverride, fit = {}) {
             const { card, art, side, slot } = actor;
-            const box = actor.bbox; if (!box) return;
-            const fw = field.clientWidth, fh = field.clientHeight; if (!fw || !fh) return;
+            const box = actor.bbox; if (!box) return null;
+            const fw = field.clientWidth, fh = field.clientHeight; if (!fw || !fh) return null;
             const narrow = fw < 700;
             const formation = narrow ? FORMATION_NARROW : FORMATION;
             const spot = formation[slot] || formation[0];
-            let x = side === 'player' ? spot.x : 100 - spot.x;
-            const y = spot.y;
+            let x = fit.x ?? (side === 'player' ? spot.x : 100 - spot.x);
+            const y = yOverride ?? spot.y;
             const depth = 0.42 + 0.62 * (y / 100);
-            const unit = Math.min(fh * 0.47, fw * (narrow ? 0.3 : 0.19));
+            const unit = Math.min(fh * 0.47, fw * (narrow ? 0.27 : 0.19));
             let height = unit * sizeFor(actor) * depth;
             let width = height * box.w / box.h;
-            const maxWidth = fw * (narrow ? 0.3 : 0.185) * depth;
+            const maxWidth = Math.min(fw * (narrow ? 0.3 : 0.185) * depth, fit.maxWidth ?? Infinity);
             if (width > maxWidth) { height *= maxWidth / width; width = maxWidth; }
             // Keep the figure and its name plate inside the field.
             const half = Math.max(width, narrow ? 74 : 96) / 2 + 3;
@@ -335,14 +373,67 @@
             card.classList.toggle('scene-cut', arena === 'comic' && COMIC_CUT.has(actor.id));
             card.classList.add('scene-laid-out');
             const panel = panels.find(p => p.card === card) || enemyBars.find(e => e.card === card);
+            const plateH = $('.scene-plate', card)?.offsetHeight || 30;
             if (panel) {
-                const plate = $('.scene-plate', card);
                 panel.bar.style.left = `${x}%`;
-                panel.bar.style.top = `calc(${y}% + ${12 + (plate?.offsetHeight || 30)}px)`;
+                panel.bar.style.top = `calc(${y}% + ${12 + plateH}px)`;
                 panel.bar.classList.add('scene-laid-out');
             }
+            // Where this fighter's pieces sit, in px from the top of the field.
+            const foot = fh * y / 100;
+            const barH = panel && !panel.bar.classList.contains('is-out') ? panel.bar.offsetHeight : 0;
+            return { foot, height, lift, width, x: fw * x / 100, top: foot - height - lift, bottom: foot + 12 + plateH + barH, bar: panel && !panel.bar.classList.contains('is-out') ? panel.bar : null };
         }
-        const layoutAll = () => { for (const actor of actors.values()) layoutActor(actor); updateEffectClip(); };
+        // Phones: the front fighter stands below the back pair's skill squares (never under them), and
+        // the field grows tall enough for everything. Wider screens use the fixed formation.
+        const STATUS_ROOM = 34; // status icons above a head
+        let narrowHeight = 0;
+        const layoutAll = () => {
+            const fw = field.clientWidth, fh = field.clientHeight;
+            if (fw >= 700 || !fh) {
+                if (narrowHeight) { narrowHeight = 0; field.style.removeProperty('--scene-narrow-h'); }
+                // Wider screens keep the formation; the field only grows if the lowest skill bar would be cut off.
+                let lowest = 0;
+                const placed = new Map();
+                for (const actor of actors.values()) { const r = layoutActor(actor); if (r) { placed.set(actor, r); lowest = Math.max(lowest, r.bottom); } }
+                // The front fighter stands between the back pair; if their skill bars would cover it, centre it
+                // in the gap between those bars and narrow it to fit.
+                const fieldTop = field.getBoundingClientRect().top;
+                for (const side of ['player', 'opponent']) {
+                    const team = [...placed.keys()].filter(a => a.side === side);
+                    const front = team.find(a => a.slot === 1); if (!front) continue;
+                    const me = placed.get(front);
+                    const bars = team.filter(a => a !== front).map(a => placed.get(a).bar).filter(Boolean).map(b => b.getBoundingClientRect())
+                        .filter(r => r.bottom - fieldTop > me.top && r.top - fieldTop < me.foot);
+                    const left = Math.max(0, ...bars.filter(r => r.left + r.width / 2 < me.x).map(r => r.right));
+                    const right = Math.min(fw, ...bars.filter(r => r.left + r.width / 2 >= me.x).map(r => r.left));
+                    if (me.x - me.width / 2 >= left + 4 && me.x + me.width / 2 <= right - 4) continue;
+                    const r = layoutActor(front, undefined, { x: (left + right) / 2 / fw * 100, maxWidth: Math.max(60, right - left - 16) });
+                    if (r) { placed.set(front, r); lowest = Math.max(lowest, r.bottom); }
+                }
+                const fit = lowest ? Math.ceil((lowest + 14) / 10) * 10 : 0;
+                const current = parseFloat(field.style.getPropertyValue('--scene-fit-h')) || 0;
+                if (fit > fh + 4 || (current && Math.abs(fit - current) > 20)) field.style.setProperty('--scene-fit-h', `${Math.max(fit, current && fit > fh ? fit : 0)}px`);
+                updateEffectClip(); return;
+            }
+            let needed = 0;
+            for (const side of ['player', 'opponent']) {
+                const team = [...actors.values()].filter(a => a.side === side);
+                const front = team.find(a => a.slot === 1);
+                let backBottom = 0;
+                for (const actor of team) if (actor !== front) { const r = layoutActor(actor); if (r) backBottom = Math.max(backBottom, r.bottom); }
+                if (!front) continue;
+                const first = layoutActor(front); if (!first) continue;
+                // The whole front fighter (and its status icons) starts below the lowest back square.
+                const foot = Math.max(first.foot, backBottom + 10 + STATUS_ROOM + first.height + first.lift);
+                const placed = layoutActor(front, foot / fh * 100);
+                if (placed) needed = Math.max(needed, placed.bottom + 14);
+            }
+            // Grow (or shrink back) the field to fit, in whole steps so it settles in one more pass.
+            const target = Math.max(640, Math.ceil(needed / 10) * 10);
+            if (Math.abs(target - fh) > 4 && target !== narrowHeight) { narrowHeight = target; field.style.setProperty('--scene-narrow-h', `${target}px`); }
+            updateEffectClip();
+        };
         new ResizeObserver(layoutAll).observe(field);
 
         // ---- Fighter panels ------------------------------------------------------------------------------
@@ -722,7 +813,7 @@
                 actor.names = [form, evolved, entry.character?.name, actor.id].filter(Boolean);
                 if (source && actor.art.dataset.source !== source) {
                     actor.art.dataset.source = source; card.classList.remove('scene-portrait-fallback'); actor.bbox = null; actor.art.src = source;
-                } else if (actor.bbox) layoutActor(actor);
+                } else if (actor.bbox) layoutAll();
                 $('.scene-actor-name', card).textContent = evolved || name;
                 // Per-character gauges (Hulk's rage) belong on the plate with the health bar.
                 const plate = $('.scene-plate', card), gauge = $('.rage-bar-container', card);

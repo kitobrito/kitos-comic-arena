@@ -38,7 +38,8 @@ Battlefield presentation (all in `scene.js` / `scene.css`):
   ends the turn.
 - Each of your fighters has a semi-transparent skill bar under its feet on the battlefield. It
   folds into the chosen skill and its target once queued (tap to change). The area below the
-  battlefield is for reading the skill. Phones, too narrow for three bars, use stacked panels.
+  battlefield is for reading the skill. Below 1000px wide each bar folds into a 2x2 square so the
+  three fit side by side; upright phones get a taller field with the fighters spread out for room.
 
 - Enemies have greyed, read-only skill bars: tapping one shows the skill below, nothing is cast.
 - Comic Arena stands in a generated colosseum (`arena.webp`, built from `arena.svg` by
@@ -64,6 +65,8 @@ npm run test:arena-scene
 node prototypes/arena-scene/test/serve.cjs
 # In another terminal; uses the real app, signed local fixture sessions, and bot engine:
 PLAYWRIGHT_MODULE=/path/to/playwright/index.mjs node prototypes/arena-scene/test/browser.mjs
+# Phone (upright and sideways) and desktop screenshots of both arenas:
+PLAYWRIGHT_MODULE=/path/to/playwright/index.mjs OUT=/tmp/ node prototypes/arena-scene/test/phone-shots.mjs
 ```
 
 The fixture server binds only to `127.0.0.1:4197`, uses in-memory collections and
@@ -74,3 +77,9 @@ The fixture pages and test sources are not served by production.
 Browser checks cover team selection and private launch, actual skill targeting,
 energy spending, player/bot turns, reload, narrow layouts and reduced motion in
 both arenas. Use `SCENE_BROWSER=webkit` to run the same checks with WebKit.
+
+UI rework (November 2026): the "Battlefield UI rework" block at the end of `scene.css` restyles the top bar (framed energy
+pill, green timer, Exchange Energy pill with a cycle icon, gold Ready button), the YOUR TURN title, team banners, ground
+rings, name pills and health bars, the hint bar and the gold skill card. `scene.js` adds the banner icons, the hint icon,
+the Exchange Energy icon and "×N" counts (re-applied whenever the live page rebuilds the energy bar), groups the card's
+energy/classes/cooldown into `.scene-chips`, and adds a pager that steps through the existing skill browser.

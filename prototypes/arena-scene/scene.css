@@ -424,3 +424,251 @@ html.scene-live body.scene-battle .scene-classic-view { padding:9px 14px; border
  html.scene-live.battle-experimental body.scene-battle .scene-header .bottomgame > :is(.surrenderbutton,.battle-settings-button), html.scene-live body.scene-battle .scene-classic-view { padding:8px 10px!important; font-size:11px!important; }
  html.scene-live.battle-experimental body.scene-battle .ingame-sound-controller { top:120px!important; right:10px!important; left:10px!important; }
 }
+
+/* ===== Phones and small tablets: the four skills sit in a 2×2 square under each fighter ===========
+   A row of four is too wide for three fighters side by side on a small screen (the bars ran into each
+   other), so below 1000px each bar folds into a compact square. Phones held upright use the same bars
+   on a taller field (scene.js spreads the fighters out) instead of the stacked panels below it. */
+@media (max-width:1000px) {
+ .scene-fieldbar-skills { display:grid; grid-template-columns:repeat(2,auto); gap:4px; padding:4px; border-radius:11px; }
+ html.arena-scene-preview body.scene-battle .scene-fieldbar .scene-skill.scene-mini { width:36px; height:36px; border-radius:8px; }
+ .scene-fieldbar .scene-mini img { border-radius:8px; }
+ html.arena-scene-preview body.scene-battle .scene-enemybar .scene-skill.scene-mini { width:28px; height:28px; border-radius:7px; }
+ .scene-mini-cd { font-size:14px; }
+ .scene-fieldbar-queued img { width:32px; height:32px; }
+ .scene-fieldbar-target { font-size:11px; max-width:96px; }
+ /* Only the buttons catch taps, so a bar never blocks tapping the fighter behind it. */
+ .scene-fieldbar { pointer-events:none; }
+ html.arena-scene-preview body.scene-battle .scene-fieldbar :is(.scene-skill.scene-mini,.scene-fieldbar-queued) { pointer-events:auto; }
+ /* Skill names on hover are for mice; on touch they would stick after a tap. */
+ .scene-fieldbar .scene-mini:not(.scene-armed)::after { display:none; }
+}
+/* Tablets and phones held sideways: room under the front fighter for its square. */
+@media (max-width:1000px) and (min-width:701px) {
+ html.arena-scene-preview body.scene-battle .scene-field { height:max(630px,66vh); }
+}
+@media (max-width:700px) {
+ .scene-fieldbars { display:block; }
+ .scene-roster { display:none; }
+ .scene-details { margin-top:0; }
+ html.arena-scene-preview body.scene-battle .scene-field { height:640px; }
+ html.arena-scene-preview body.scene-battle .scene-fieldbar .scene-skill.scene-mini { width:34px; height:34px; }
+ html.arena-scene-preview body.scene-battle .scene-enemybar .scene-skill.scene-mini { width:26px; height:26px; }
+ /* The line under the battlefield already says which skill is aimed; a tag here would run off the screen. */
+ .scene-fieldbar .scene-mini.scene-armed::after { display:none; }
+ /* Folded: the chosen skill over its target, no wider than the square was. */
+ .scene-fieldbar.is-queued .scene-fieldbar-queued { flex-direction:column; gap:2px; padding:4px 5px; max-width:84px; }
+ .scene-fieldbar-target { max-width:74px; font-size:10px; text-align:center; }
+ .scene-fieldbar-change { display:none; }
+}
+
+/* ===== Battlefield UI rework (November 2026) ========================================================
+   Glowing, rounded game UI: a framed energy bar with a green timer, an Exchange Energy pill and a big
+   gold Ready button; a bold YOUR TURN with gold wings; team banners; glowing ground rings; name pills
+   and chunky health bars; an info bar and a gold-framed skill card that pages through the skills. */
+:root { --ui-gold:#f6cf4a; --ui-gold-hi:#ffe98a; --ui-gold-lo:#c9901c; --ui-panel:#0b1c17; --ui-line:#ffffff2e; --ui-teal:#3fb39c; }
+html.arena-scene-preview body.scene-battle .scene-ribbon { background:linear-gradient(#071510d9,#07151000); padding:10px 22px 0; align-items:start; }
+
+/* Team banners (desktop). */
+.scene-side-label { display:inline-flex; align-items:center; gap:9px; font:800 15px/1 'Arial Black',Arial,sans-serif; letter-spacing:.6px; color:#f3fff6; text-shadow:0 1px 2px #0009; }
+.scene-team-icon { width:24px; height:24px; fill:currentColor; flex:none; }
+html.arena-scene-preview body.scene-battle .scene-ribbon .scene-side-label { position:absolute; top:0; padding:11px 44px 11px 18px; }
+html.arena-scene-preview body.scene-battle .scene-ribbon .scene-side-player { left:0; color:#eafff0; background:linear-gradient(90deg,#11613a,#16804a 70%,#127041); clip-path:polygon(0 0,100% 0,calc(100% - 26px) 100%,0 100%); box-shadow:inset 0 -2px 0 #3be08a66; }
+html.arena-scene-preview body.scene-battle .scene-ribbon .scene-side-player .scene-team-icon { color:#6dffa8; }
+html.arena-scene-preview body.scene-battle .scene-ribbon .scene-side-enemy { right:0; padding:11px 18px 11px 44px; color:#fff1ee; background:linear-gradient(270deg,#6e1712,#8c2219 70%,#7a1a14); clip-path:polygon(0 0,100% 0,100% 100%,26px 100%); box-shadow:inset 0 -2px 0 #ff6a5466; }
+
+/* The energy bar: one framed pill on desktop. */
+html.arena-scene-preview.battle-experimental body.scene-battle .scene-hud .ready-section { gap:14px!important; padding:7px 7px 7px 18px!important; border:2px solid #3e7a5c!important; background:linear-gradient(#0f2a20f2,#0a1d16f2)!important; box-shadow:0 0 0 1px #000a,0 10px 26px #000a,inset 0 1px 0 #ffffff1a!important; }
+html.arena-scene-preview body.scene-battle .scene-hud .chakra-display { gap:16px!important; padding-right:16px!important; border-right:2px solid #ffffff2a!important; }
+html.arena-scene-preview body.scene-battle .scene-hud .chakra-item[data-chakra-total] { display:none!important; }
+html.arena-scene-preview body.scene-battle .scene-hud .chakra-item { gap:6px!important; }
+html.arena-scene-preview body.scene-battle .scene-hud .chakra-box { width:22px!important; height:22px!important; border-radius:6px!important; box-shadow:inset 0 2px 0 #ffffff66,inset 0 -3px 0 #0005,0 0 0 1.5px #0008,0 2px 6px #0008!important; }
+html.arena-scene-preview body.scene-battle .scene-hud .chakra-count { font:800 17px/1 Arial,sans-serif!important; color:#fff!important; letter-spacing:.3px; }
+html.arena-scene-preview body.scene-battle .scene-hud .exchange-label { display:inline-flex!important; align-items:center; gap:9px; padding:9px 18px!important; border:2px solid #3e7a5c!important; background:linear-gradient(#123226,#0b2119)!important; color:#f2fff6!important; font:800 13px/1.05 Arial,sans-serif!important; letter-spacing:.5px; box-shadow:inset 0 1px 0 #ffffff1a; }
+html.arena-scene-preview body.scene-battle .scene-hud .exchange-label:hover { border-color:#6fd39a!important; background:linear-gradient(#174032,#0e2a20)!important; }
+.scene-exchange-icon { width:22px; height:22px; flex:none; fill:none; stroke:#7ef0a8; stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round; }
+html.arena-scene-preview body.scene-battle .scene-hud .timer-track { width:66px!important; height:38px!important; border:2px solid #b7e36f!important; background:linear-gradient(#4f9a35,#2d6b22)!important; box-shadow:0 0 12px #8fd45a55,inset 0 2px 0 #ffffff40!important; }
+html.arena-scene-preview body.scene-battle .scene-hud .timer-bar { display:none!important; }
+html.arena-scene-preview body.scene-battle .scene-hud .timer-countdown { font:800 20px/34px Arial,sans-serif!important; color:#f4ffdc!important; text-shadow:0 1px 2px #1a3a10!important; }
+html.arena-scene-preview body.scene-battle .scene-hud .ready-text { display:inline-flex!important; align-items:center; justify-content:center; gap:12px; padding:11px 26px!important; border:2px solid #fff1a6!important; background:linear-gradient(#ffe67a,#f7c531 55%,#e5a31c)!important; color:#1d1503!important; font:900 18px/1 'Arial Black',Arial,sans-serif!important; letter-spacing:.6px; box-shadow:0 0 0 2px #8a5d0a,0 0 22px #ffc93c99,inset 0 2px 0 #fff8!important; }
+html.arena-scene-preview body.scene-battle .scene-hud .ready-text::before { content:''; width:0; height:0; border-left:16px solid #1d1503; border-top:10px solid transparent; border-bottom:10px solid transparent; }
+.scene-bot-turn .scene-hud .ready-text::before { border-left-color:#cfcfc4!important; }
+
+/* YOUR TURN: bold gold with wings. */
+html.arena-scene-preview body.scene-battle .scene-hud .scene-turn { position:relative; display:inline-block; align-self:center; padding:0 6px; font:900 54px/1.05 'Arial Black',Arial,sans-serif!important; letter-spacing:3px!important; background:linear-gradient(#fff6b0,#ffd23f 45%,#d98a12)!important; -webkit-background-clip:text!important; background-clip:text!important; filter:drop-shadow(0 2px 0 #5a3500) drop-shadow(0 0 10px #ffcc3a88) drop-shadow(0 4px 8px #000b)!important; }
+html.arena-scene-preview body.scene-battle .scene-hud .scene-turn::before, html.arena-scene-preview body.scene-battle .scene-hud .scene-turn::after { content:''; position:absolute; top:52%; width:clamp(60px,12vw,170px); height:4px; border-radius:4px; }
+html.arena-scene-preview body.scene-battle .scene-hud .scene-turn::before { right:100%; margin-right:14px; background:linear-gradient(90deg,transparent,#ffd84f); clip-path:polygon(0 35%,92% 0,100% 50%,92% 100%,0 65%); }
+html.arena-scene-preview body.scene-battle .scene-hud .scene-turn::after { left:100%; margin-left:14px; background:linear-gradient(270deg,transparent,#ffd84f); clip-path:polygon(0 50%,8% 0,100% 35%,100% 65%,8% 100%); }
+
+/* VS badge. */
+.scene-divider-vs { width:56px!important; height:56px!important; border:3px solid #ffd45a!important; background:radial-gradient(#3d2a0c,#140d04)!important; font:900 20px/1 'Arial Black',Arial,sans-serif!important; color:#ffe39a!important; box-shadow:0 0 0 2px #0009,0 0 22px #ffc84acc!important; }
+
+/* Glowing ground rings: green for your team, red for theirs; gold (the target ring) when aimable. */
+html.arena-scene-preview body.scene-battle .scene-shadow { bottom:-12px; width:max(115%,74px); height:24px; border-radius:50%; filter:none; background:radial-gradient(closest-side,#0008,#0000 70%); }
+html.arena-scene-preview body.scene-battle .scene-shadow::after { content:''; position:absolute; inset:0; border-radius:50%; border:3px solid #4dffa0; box-shadow:0 0 12px #32f08a,inset 0 0 10px #32f08a88; }
+html.arena-scene-preview body.scene-battle .enemy-characters .scene-shadow::after { border-color:#ff7a68; box-shadow:0 0 12px #ff5a46,inset 0 0 10px #ff5a4688; }
+html.arena-scene-preview body.scene-battle .targetable .scene-shadow::after, html.arena-scene-preview body.scene-battle .scene-knocked-out .scene-shadow::after { opacity:0; }
+.scene-target-ring { bottom:-12px!important; width:max(125%,84px)!important; height:28px!important; }
+.scene-target-ring::before { border-width:4px!important; }
+
+/* Name pill and chunky health bar. */
+.scene-plate { gap:4px!important; width:clamp(104px,110%,170px)!important; }
+html.arena-scene-preview body.scene-battle .scene-actor-name { justify-self:center; align-self:center; padding:3px 14px; border-radius:999px; background:#0a1914d9; border:1px solid #ffffff24; font:700 14px/1.2 Arial,sans-serif!important; color:#fff!important; text-shadow:none!important; box-shadow:0 2px 6px #0007; }
+html.arena-scene-preview body.scene-battle .scene-selected:not(.targetable) .scene-actor-name { color:#ffe39a!important; }
+html.arena-scene-preview.battle-experimental body.scene-battle .scene-plate .health-bar-container { height:17px!important; border:2px solid #061009!important; border-radius:999px!important; background:#0b140fe6!important; box-shadow:0 0 0 1px #ffffff2a,0 3px 8px #0009!important; }
+html.arena-scene-preview.battle-experimental body.scene-battle .health-bar { border-radius:999px!important; background:linear-gradient(#8ff07a,#3fbf3f 55%,#24902c)!important; box-shadow:inset 0 2px 0 #ffffff66!important; }
+html.arena-scene-preview.battle-experimental body.scene-battle .enemy-characters .health-bar { background:linear-gradient(#ff9a7c,#e8533a 55%,#b52f1f)!important; }
+html.arena-scene-preview.battle-experimental body.scene-battle .health-text { font:800 11px/13px Arial,sans-serif!important; text-shadow:0 1px 2px #000,0 0 3px #000!important; }
+
+/* Skill bars: rounded glass panels, bigger tiles. */
+.scene-fieldbar-skills { gap:7px!important; padding:7px!important; border-radius:14px!important; background:#0c1b16d9!important; border:1.5px solid #ffffff2e!important; box-shadow:0 10px 24px #0009,inset 0 1px 0 #ffffff1a!important; }
+html.arena-scene-preview body.scene-battle .scene-fieldbar .scene-skill.scene-mini { width:44px; height:44px; border-radius:11px; }
+.scene-fieldbar .scene-mini img { border-radius:11px!important; border:1.5px solid #ffffff3a!important; }
+html.arena-scene-preview body.scene-battle .scene-enemybar .scene-skill.scene-mini { width:36px; height:36px; }
+.scene-fieldbar .scene-mini:is(.scene-unavailable,.scene-on-cooldown) img { filter:grayscale(1) brightness(.55)!important; }
+
+/* Info bar: the hint, with the queue on the right. */
+html.arena-scene-preview body.scene-battle .scene-commandbar { padding:14px 26px 22px; background:linear-gradient(#0a1813,#08130f); border-bottom:0; }
+.scene-plan-line { align-items:center!important; gap:16px!important; margin:0 0 14px!important; padding:12px 22px 12px 14px; border:2px solid #2f8f7a; border-radius:18px; background:linear-gradient(#0e2a23,#0a1f1a); box-shadow:inset 0 1px 0 #ffffff14,0 6px 18px #0007; }
+.scene-info-icon { flex:none; display:grid; place-items:center; width:30px; height:30px; border-radius:50%; border:2.5px solid var(--ui-gold); color:var(--ui-gold); font:900 17px/1 Georgia,serif; box-shadow:0 0 8px #f6cf4a55; }
+.scene-hint { flex:1; font:700 18px/1.3 Arial,sans-serif!important; color:#f4fff8!important; }
+.scene-queue { padding-left:18px; border-left:2px solid #ffffff26; font:700 16px/1.3 Arial,sans-serif!important; color:var(--ui-gold)!important; letter-spacing:0!important; }
+
+/* Skill card: gold frame, picture, title, chips, pager and the description. */
+html.arena-scene-preview.battle-experimental body.scene-battle .scene-details .skillinformation { display:grid!important; grid-template-columns:auto auto auto auto 1fr auto; grid-template-areas:"img name name name name pager" "img role role role role role" "img en cl cd . ." "desc desc desc desc desc desc"; column-gap:14px; row-gap:0; align-items:center; padding:18px 24px 18px!important; border:2.5px solid var(--ui-gold)!important; border-radius:20px!important; background:linear-gradient(#0d221b,#091812)!important; box-shadow:0 0 18px #f6cf4a55,inset 0 0 22px #f6cf4a14,0 10px 26px #0009!important; }
+html.arena-scene-preview body.scene-battle .skillinformation .skillviewimage { display:block!important; grid-area:img; align-self:start; width:96px!important; height:96px!important; margin:0 12px 0 0!important; object-fit:cover; border-radius:12px; border:2.5px solid var(--ui-gold); box-shadow:0 0 14px #f6cf4a66; position:static!important; transform:none!important; }
+html.arena-scene-preview body.scene-battle .scene-details .skillinformation .ingameskillname { grid-area:name; font:800 30px/1.15 Arial,sans-serif!important; color:#fff7e0!important; margin:0 0 10px!important; }
+html.arena-scene-preview body.scene-battle .scene-details .skillinformation .ingamecharacterrole { grid-area:role; margin:0 0 8px!important; }
+html.arena-scene-preview body.scene-battle .scene-details .skillinformation .energytext { grid-area:en; }
+html.arena-scene-preview body.scene-battle .scene-details .skillinformation .ingameclasses { grid-area:cl; }
+html.arena-scene-preview body.scene-battle .scene-details .skillinformation .ingamecooldown { grid-area:cd; }
+html.arena-scene-preview body.scene-battle .scene-details .skillinformation :is(.energytext,.ingameclasses,.ingamecooldown) { display:inline-flex!important; align-items:center; gap:7px; justify-self:start; margin:0!important; padding:8px 18px!important; border:1.5px solid #ffffff30!important; border-radius:999px!important; background:#ffffff0a!important; font:700 15px/1.25 Arial,sans-serif!important; color:#eef6ef!important; }
+html.arena-scene-preview body.scene-battle .scene-details .skillinformation .ingameskilldescription { grid-area:desc; margin:16px 0 0!important; padding-top:14px!important; border-top:1.5px solid #ffffff22; font:400 18px/1.45 Arial,sans-serif!important; color:#f1f5ee!important; }
+.scene-pager { grid-area:pager; justify-self:end; align-self:start; display:flex; align-items:center; gap:10px; }
+.scene-pager[hidden] { display:none; }
+.scene-pager button { all:unset; box-sizing:border-box; display:grid; place-items:center; width:40px; height:40px; border-radius:50%; background:#13261f; border:1.5px solid #ffffff26; color:var(--ui-gold); font:700 26px/1 Arial,sans-serif; cursor:pointer; box-shadow:0 3px 8px #0008; }
+.scene-pager button:hover { border-color:var(--ui-gold); }
+.scene-pager button:focus-visible { outline:3px solid #f4d68b; outline-offset:2px; }
+.scene-pager-dots { display:flex; gap:7px; }
+.scene-pager-dots i { width:10px; height:10px; border-radius:50%; background:#5d6b64; }
+.scene-pager-dots i.on { background:var(--ui-gold); box-shadow:0 0 8px #f6cf4a; }
+
+/* ----- Phones: two-row energy bar, smaller type, stacked info bar, compact card. ----- */
+@media (max-width:700px) {
+ html.arena-scene-preview body.scene-battle .scene-ribbon { padding:8px 10px 0; }
+ html.arena-scene-preview.battle-experimental body.scene-battle .scene-hud .ready-section { display:grid!important; grid-template-columns:minmax(0,1fr) auto auto!important; grid-template-areas:"chakra timer exchange" "ready ready ready"!important; gap:10px 8px!important; padding:0!important; border:0!important; background:none!important; box-shadow:none!important; backdrop-filter:none; }
+ html.arena-scene-preview.battle-experimental body.scene-battle .scene-hud .ready-section::before { content:''!important; display:block!important; grid-area:1/1/2/-1; position:relative; z-index:0; margin:-6px -4px; border:2px solid #3e7a5c; border-radius:18px; background:linear-gradient(#0f2a20f2,#0a1d16f2); box-shadow:0 8px 20px #0009,inset 0 1px 0 #ffffff1a; }
+ html.arena-scene-preview body.scene-battle .scene-hud .ready-section > * { position:relative; z-index:1; }
+ html.arena-scene-preview body.scene-battle .scene-hud .chakra-display { gap:9px!important; padding:0 10px 0 6px!important; justify-content:flex-start!important; }
+ html.arena-scene-preview body.scene-battle .scene-hud .chakra-box { width:17px!important; height:17px!important; border-radius:5px!important; }
+ html.arena-scene-preview body.scene-battle .scene-hud .chakra-count { font-size:13px!important; }
+ html.arena-scene-preview body.scene-battle .scene-hud .chakra-item { gap:3px!important; }
+ html.arena-scene-preview body.scene-battle .scene-hud .timer-track { width:50px!important; height:30px!important; }
+ html.arena-scene-preview body.scene-battle .scene-hud .timer-countdown { font-size:15px!important; line-height:26px!important; }
+ html.arena-scene-preview body.scene-battle .scene-hud .exchange-label { padding:5px 10px 5px 8px!important; gap:6px; font-size:9.5px!important; line-height:1.1!important; white-space:normal!important; width:84px!important; text-align:left!important; }
+ .scene-exchange-icon { width:17px; height:17px; }
+ html.arena-scene-preview body.scene-battle .scene-hud .ready-text { padding:11px 12px!important; font-size:16px!important; gap:10px; }
+ html.arena-scene-preview body.scene-battle .scene-hud .ready-text::before { border-left-width:13px; border-top-width:8px; border-bottom-width:8px; }
+ html.arena-scene-preview body.scene-battle .scene-hud .scene-turn { font-size:30px!important; letter-spacing:2px!important; margin-top:2px!important; }
+ html.arena-scene-preview body.scene-battle .scene-hud .scene-turn::before, html.arena-scene-preview body.scene-battle .scene-hud .scene-turn::after { width:52px; height:3px; }
+ .scene-divider-vs { width:38px!important; height:38px!important; font-size:14px!important; }
+ html.arena-scene-preview body.scene-battle .scene-actor-name { font-size:11px!important; padding:2px 10px; }
+ html.arena-scene-preview.battle-experimental body.scene-battle .scene-plate .health-bar-container { height:13px!important; }
+ html.arena-scene-preview.battle-experimental body.scene-battle .health-text { font-size:8.5px!important; line-height:10px!important; }
+ .scene-plate { width:clamp(76px,100%,108px)!important; }
+ html.arena-scene-preview body.scene-battle .scene-shadow { height:16px; bottom:-8px; }
+ html.arena-scene-preview body.scene-battle .scene-shadow::after { border-width:2px; }
+ .scene-fieldbar-skills { gap:5px!important; padding:5px!important; border-radius:12px!important; }
+ html.arena-scene-preview body.scene-battle .scene-fieldbar .scene-skill.scene-mini { width:34px; height:34px; border-radius:9px; }
+ .scene-fieldbar .scene-mini img { border-radius:9px!important; }
+ html.arena-scene-preview body.scene-battle .scene-enemybar .scene-skill.scene-mini { width:28px; height:28px; }
+ html.arena-scene-preview body.scene-battle .scene-commandbar { padding:12px 10px 18px; }
+ .scene-plan-line { flex-wrap:wrap; gap:2px 12px!important; padding:10px 14px!important; border-radius:14px; }
+ .scene-info-icon { width:26px; height:26px; font-size:15px; grid-row:span 2; }
+ .scene-plan-line { display:grid!important; grid-template-columns:auto 1fr; }
+ .scene-info-icon { grid-row:1/3; }
+ .scene-hint { font-size:14px!important; }
+ .scene-queue { grid-column:2; padding-left:0; border-left:0; font:400 12.5px/1.3 Arial,sans-serif!important; color:#dfe9e2!important; }
+ html.arena-scene-preview.battle-experimental body.scene-battle .scene-details .skillinformation { grid-template-columns:auto auto auto 1fr auto; grid-template-areas:"img name name name pager" "img role role role role" "img en cl cd cd" "desc desc desc desc desc"; column-gap:8px; padding:14px 14px!important; border-radius:16px!important; }
+ html.arena-scene-preview body.scene-battle .skillinformation .skillviewimage { width:56px!important; height:56px!important; margin:0 4px 0 0!important; border-radius:10px; }
+ html.arena-scene-preview body.scene-battle .scene-details .skillinformation .ingameskillname { font-size:20px!important; margin-bottom:8px!important; }
+ html.arena-scene-preview body.scene-battle .scene-details .skillinformation :is(.energytext,.ingameclasses,.ingamecooldown) { padding:6px 9px!important; font-size:11.5px!important; border-radius:10px!important; }
+ html.arena-scene-preview body.scene-battle .scene-details .skillinformation .ingameskilldescription { font-size:14px!important; margin-top:12px!important; padding-top:10px!important; }
+ .scene-pager { gap:5px; }
+ .scene-pager button { width:28px; height:28px; font-size:19px; }
+ .scene-pager-dots { gap:4px; }
+ .scene-pager-dots i { width:7px; height:7px; }
+}
+@media (max-width:1000px) and (min-width:701px) {
+ html.arena-scene-preview body.scene-battle .scene-ribbon .scene-side-label { font-size:11px; padding:8px 30px 8px 12px; }
+ html.arena-scene-preview body.scene-battle .scene-ribbon .scene-side-enemy { padding:8px 12px 8px 30px; }
+ .scene-team-icon { width:18px; height:18px; }
+ html.arena-scene-preview.battle-experimental body.scene-battle .scene-hud .ready-section { gap:8px!important; padding:5px 5px 5px 12px!important; }
+ html.arena-scene-preview body.scene-battle .scene-hud .chakra-display { gap:8px!important; padding-right:8px!important; }
+ html.arena-scene-preview body.scene-battle .scene-hud .chakra-box { width:16px!important; height:16px!important; }
+ html.arena-scene-preview body.scene-battle .scene-hud .chakra-count { font-size:13px!important; }
+ html.arena-scene-preview body.scene-battle .scene-hud .exchange-label { padding:6px 10px!important; font-size:10px!important; }
+ html.arena-scene-preview body.scene-battle .scene-hud .timer-track { width:48px!important; height:30px!important; }
+ html.arena-scene-preview body.scene-battle .scene-hud .timer-countdown { font-size:15px!important; line-height:26px!important; }
+ html.arena-scene-preview body.scene-battle .scene-hud .ready-text { padding:8px 14px!important; font-size:13px!important; }
+ html.arena-scene-preview body.scene-battle .scene-hud .scene-turn { font-size:38px!important; }
+ html.arena-scene-preview body.scene-battle .scene-fieldbar .scene-skill.scene-mini { width:38px; height:38px; }
+ html.arena-scene-preview body.scene-battle .scene-enemybar .scene-skill.scene-mini { width:30px; height:30px; }
+}
+/* Rework follow-ups: centred top bar, chip row, phone energy frame, no banners on phones. */
+html.arena-scene-preview body.scene-battle .scene-ribbon { grid-template-columns:1fr!important; justify-items:center; }
+html.arena-scene-preview body.scene-battle .scene-ribbon .scene-hud { grid-column:1; justify-self:center; }
+html.arena-scene-preview.battle-experimental body.scene-battle .scene-details .skillinformation { grid-template-columns:auto 1fr auto!important; grid-template-areas:"img name pager" "img role role" "img chips chips" "desc desc desc"!important; }
+.scene-chips { grid-area:chips; display:flex; flex-wrap:wrap; align-items:center; gap:10px 12px; }
+html.arena-scene-preview body.scene-battle .scene-details .skillinformation .scene-chips > * { grid-area:auto!important; }
+@media (max-width:700px) {
+ html.arena-scene-preview body.scene-battle .scene-ribbon .scene-side-label { display:none!important; }
+ html.arena-scene-preview.battle-experimental body.scene-battle .scene-hud .ready-section::before { align-self:stretch!important; justify-self:stretch!important; min-height:40px; }
+ html.arena-scene-preview body.scene-battle .scene-hud .chakra-display { overflow:visible!important; }
+ .scene-chips { gap:7px; }
+}
+/* Rework polish: nothing clipped, chips fit their text, health numbers centred on the whole bar. */
+html.arena-scene-preview body.scene-battle .scene-hud .chakra-display { overflow:visible!important; flex:none!important; width:auto!important; max-width:none!important; }
+html.arena-scene-preview body.scene-battle .scene-details .skillinformation .scene-chips > * { width:auto!important; min-width:0!important; max-width:none!important; flex:none; white-space:nowrap; }
+html.arena-scene-preview.battle-experimental body.scene-battle .scene-plate .health-bar { position:static!important; }
+html.arena-scene-preview.battle-experimental body.scene-battle .scene-plate .health-text { z-index:2; }
+@media (max-width:700px) {
+ html.arena-scene-preview body.scene-battle .scene-hud .exchange-label { width:auto!important; padding:5px 11px 5px 9px!important; }
+ .scene-chips { flex-wrap:nowrap; gap:6px; }
+ html.arena-scene-preview body.scene-battle .scene-details .skillinformation .scene-chips > * { padding:6px 8px!important; font-size:11px!important; }
+ html.arena-scene-preview body.scene-battle .scene-details .skillinformation .scene-chips > .ingameclasses { white-space:normal; max-width:118px!important; line-height:1.2!important; }
+}
+@media (max-width:700px) {
+ html.arena-scene-preview body.scene-battle .scene-hud .exchange-label { white-space:normal!important; max-width:96px!important; padding:5px 10px 5px 8px!important; font-size:9.5px!important; letter-spacing:.3px!important; line-height:1.1!important; text-align:left!important; }
+ .scene-chips { flex-wrap:wrap; gap:6px; }
+ html.arena-scene-preview body.scene-battle .scene-details .skillinformation .scene-chips > * { padding:5px 8px!important; font-size:10.5px!important; }
+ html.arena-scene-preview body.scene-battle .scene-details .skillinformation .scene-chips > .ingameclasses { max-width:100px!important; }
+}
+/* Chips wrap inside themselves when a skill has many classes (type badge plus several classes). */
+html.arena-scene-preview body.scene-battle .scene-details .skillinformation .scene-chips > * { flex-wrap:wrap; max-width:100%!important; row-gap:3px; }
+html.arena-scene-preview body.scene-battle .scene-details .skillinformation .scene-chips > .ingameclasses { white-space:normal!important; }
+@media (max-width:700px) { html.arena-scene-preview body.scene-battle .scene-details .skillinformation .scene-chips > .ingameclasses { max-width:100%!important; } }
+/* Every energy square and count the same size in both arenas (Comic Arena styles its white energy differently). */
+html.arena-scene-preview.battle-experimental body.scene-battle .scene-hud .chakra-display .chakra-item .chakra-box { width:22px!important; height:22px!important; min-width:0!important; min-height:0!important; transform:none!important; }
+html.arena-scene-preview.battle-experimental body.scene-battle .scene-hud .chakra-display .chakra-item .chakra-count { font-size:17px!important; transform:none!important; }
+@media (max-width:1000px) and (min-width:701px) {
+ html.arena-scene-preview.battle-experimental body.scene-battle .scene-hud .chakra-display .chakra-item .chakra-box { width:16px!important; height:16px!important; }
+ html.arena-scene-preview.battle-experimental body.scene-battle .scene-hud .chakra-display .chakra-item .chakra-count { font-size:13px!important; }
+}
+@media (max-width:700px) {
+ html.arena-scene-preview.battle-experimental body.scene-battle .scene-hud .chakra-display .chakra-item .chakra-box { width:17px!important; height:17px!important; }
+ html.arena-scene-preview.battle-experimental body.scene-battle .scene-hud .chakra-display .chakra-item .chakra-count { font-size:13px!important; }
+}
+/* Phones: scene.js sizes the field so the front fighter stands clear of the back pair's skill squares. */
+@media (max-width:700px) {
+ html.arena-scene-preview body.scene-battle .scene-field { height:var(--scene-narrow-h,640px)!important; }
+}
+/* The skill card's chips never push past its edge. */
+html.arena-scene-preview.battle-experimental body.scene-battle .scene-details .skillinformation { grid-template-columns:auto minmax(0,1fr) auto!important; }
+.scene-chips { min-width:0; }
+html.arena-scene-preview body.scene-battle .scene-details .skillinformation .scene-chips > * { flex:0 1 auto!important; min-width:0!important; box-sizing:border-box; }
+
+/* Wider screens: the field grows if its lowest skill bar would otherwise be cut off (scene.js). */
+html.arena-scene-preview body.scene-battle .scene-field { min-height:var(--scene-fit-h,0px); }
+/* Team banners only where there is room beside the energy bar. */
+@media (max-width:1099px) { html.arena-scene-preview body.scene-battle .scene-ribbon .scene-side-label { display:none!important; } }
