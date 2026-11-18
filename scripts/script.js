@@ -9927,6 +9927,8 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             }, duration);
         };
 
+        // The experimental battlefield plays its own evolution scene and borrows this sound for it.
+        if (window.ARENA_SCENE_VIEW && typeof playGeneratedIngameSound === 'function') window.ArenaSceneSound = playGeneratedIngameSound;
         const queuePokemonEvolutionCinematic = (card, previousUnit, nextUnit, status) => {
             if (window.ARENA_SCENE_VIEW) return;
             pokemonEvolutionCinematicQueue.push({ card, previousUnit, nextUnit, status });
