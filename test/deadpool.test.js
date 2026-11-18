@@ -170,15 +170,9 @@ test('the release script adds a staged character and its mission, once', () => {
     const stagedMission = { missionId: 'test-hero', title: 'Test', reward_character: 'test-hero', goals: [{ type: 'win_matches', character_id: 'wolverine', character_name: 'Wolverine', wins: 3 }] };
     fs.writeFileSync(path.join(tmp, 'staging', 'test-hero.js'), `module.exports = ${JSON.stringify({ character: clone, mission: stagedMission })};`);
     fs.copyFileSync(path.join(root, 'characters.js'), path.join(tmp, 'characters.js'));
-    // characters.js's local requires, and theirs (pokemonTypeSystem -> pokemonReworkData).
-    const pending = ['characters.js'], copied = new Set(pending);
-    while (pending.length) {
-        for (const dep of fs.readFileSync(path.join(root, pending.pop()), 'utf8').matchAll(/require\('\.\/([^']+)'\)/g)) {
-            const file = dep[1].endsWith('.js') ? dep[1] : `${dep[1]}.js`;
-            if (copied.has(file)) continue;
-            copied.add(file); pending.push(file);
-            fs.copyFileSync(path.join(root, file), path.join(tmp, file));
-        }
+    for (const dep of fs.readFileSync(path.join(root, 'characters.js'), 'utf8').matchAll(/require\('\.\/([^']+)'\)/g)) {
+        const file = dep[1].endsWith('.js') ? dep[1] : `${dep[1]}.js`;
+        fs.copyFileSync(path.join(root, file), path.join(tmp, file));
     }
     fs.copyFileSync(path.join(root, 'server.js'), path.join(tmp, 'server.js'));
     releaseCharacter('test-hero', { root: tmp });

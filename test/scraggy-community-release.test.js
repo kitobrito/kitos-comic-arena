@@ -258,6 +258,37 @@ test('Pokemon Trainer Rare Candy can immediately evolve an allied Scraggy', () =
     ));
 });
 
+test('Koffing Poison Gas is owner-only and Smog triggers on immediate and later packets', () => {
+    const koffing = characters[koffingIndex];
+    const passive = koffing.startStatuses.find(
+        (status) => status.statusId === 'koffing_poison_gas_base'
+    );
+    assert.equal(passive.metadata.onTeamMemberSuccessfulDamageOwnerOnly, true);
+
+    const match = makeMatch({ ash: [koffingIndex], gary: [scraggyIndex] });
+    const originalRandom = Math.random;
+    Math.random = () => 0;
+    try {
+        queueSkill(match, 'ash', 0, 'gary');
+        resolvePendingTurnSkills({ match, actingUsername: 'ash', characters });
+        assert.equal(match.board.gary[0].hp, 95);
+        assert.ok(match.board.gary[0].state.statuses.some(
+            (status) => status.id === 'koffing_poison_gas_harmful_blind'
+        ));
+        match.board.gary[0].state.statuses = match.board.gary[0].state.statuses.filter(
+            (status) => status.id !== 'koffing_poison_gas_harmful_blind'
+        );
+        tickStatusesForTurnEnd({ match, endingUsername: 'ash' });
+        tickStatusesForTurnEnd({ match, endingUsername: 'ash' });
+    } finally {
+        Math.random = originalRandom;
+    }
+    assert.equal(match.board.gary[0].hp, 90);
+    assert.ok(match.board.gary[0].state.statuses.some(
+        (status) => status.id === 'koffing_poison_gas_harmful_blind'
+    ));
+});
+
 test('Scraggy release assets remain branded while the new UI hides its selection logo', () => {
     const mission = ensureRequiredMissionCatalogEntries([]).find(
         (entry) => entry.reward_character === 'scraggy'

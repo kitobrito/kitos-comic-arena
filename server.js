@@ -61,9 +61,7 @@ const { syncPokemonDragapultRelease } = require('./sync_pokemon_dragapult_releas
 const { syncPokemonNincadaRelease } = require('./sync_pokemon_nincada_release');
 const { syncArenaPortalUpdateNews } = require('./sync_arena_portal_update_news');
 const { syncExperimentalBattlefieldNews } = require('./sync_experimental_battlefield_news');
-const { syncPokemonArenaReworkNews } = require('./sync_pokemon_arena_rework_news');
-const { syncPokemonArenaCombosNews } = require('./sync_pokemon_arena_combos_news');
-const { syncPokemonArenaBalanceNews } = require('./sync_pokemon_arena_balance_news');
+const { syncPokemonArenaClassicKitsNews } = require('./sync_pokemon_arena_classic_kits_news');
 const { syncPatchNotes } = require('./sync_patch_notes');
 const {
     EVENT_DURATION_MS: PRIMEAPE_EVENT_DURATION_MS,
@@ -8708,8 +8706,6 @@ const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonical
     const requiredCharacterFieldsByCharacterId = {
         ekans: ['description', 'descriptionHtml', 'characterdeescription', 'facePicture'],
         krabby: ['description', 'descriptionHtml', 'characterdeescription', 'startStatuses'],
-        // Pidgey evolves on turn 4 (Pokemon Arena V.4.0): its evolution timer must come from characters.js.
-        pidgey: ['startStatuses'],
     };
     const canonicalById = new Map(
         (Array.isArray(canonicalCharacters) ? canonicalCharacters : []).map((character) => [
@@ -9000,9 +8996,7 @@ const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonical
 // Characters whose whole kit was reworked: a stored admin override was made for the old kit
 // (old skill ids would be appended to the new ones by the merge), so it is ignored and the kit
 // always comes from characters.js.
-const { POKEMON_REWORKED_IDS } = require('./pokemonReworkData');
-// (The Pokemon Arena rework, tools/pokemon-rework, reworked most of the roster the same way.)
-const REWORKED_CHARACTER_IDS_IGNORING_OVERRIDES = new Set(['aerodactyl', ...POKEMON_REWORKED_IDS]);
+const REWORKED_CHARACTER_IDS_IGNORING_OVERRIDES = new Set(['aerodactyl']);
 
 const applyCharacterOverrides = (baseCharacters = []) => {
     const nextCharacters = (Array.isArray(baseCharacters) ? baseCharacters : []).slice();
@@ -14666,12 +14660,8 @@ async function initDb() {
     console.log('Synced the Arena Portal update news posts (Deadpool, Blaziken).');
     await syncExperimentalBattlefieldNews(db);
     console.log('Synced the Experimental Battlefield beta news posts.');
-    await syncPokemonArenaReworkNews(db);
-    console.log('Synced Pokemon Arena V.4.0 roster rework news.');
-    await syncPokemonArenaCombosNews(db);
-    console.log('Synced Pokemon Arena V.4.1 combos news.');
-    await syncPokemonArenaBalanceNews(db);
-    console.log('Synced Pokemon Arena V.4.2 balance news.');
+    await syncPokemonArenaClassicKitsNews(db);
+    console.log('Synced Pokemon Arena classic kits news.');
     const compensationSync = await syncPokemonCompensationGrant(db);
     if (compensationSync.migrated) {
         console.log(

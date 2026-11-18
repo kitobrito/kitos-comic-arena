@@ -50,6 +50,21 @@ test('client exchange chooser enforces a single energy color', () => {
     assert.match(ingameSource, /CHOOSE <span class="chakrachoosered">0<\/span> OF ONE ENERGY COLOR/);
 });
 
+test('Beedrill stacking poison is valued as persistent bot damage', () => {
+    const beedrill = characters.find((character) => character.id === 'beedrill');
+    const poisonSting = beedrill.skills.find((skill) => skill.id === 'beedrill-poison-sting');
+    assert.equal(estimateBattleBotPersistentDamage(poisonSting), 5);
+    assert.match(poisonSting.skilldescription, /permanently repeats/);
+});
+
+test('Hive Swarm ignores two enemy damage effects in both forms', () => {
+    const beedrill = characters.find((character) => character.id === 'beedrill');
+    const hiveSwarm = beedrill.skills.find((skill) => skill.id === 'beedrill-hive-swarm');
+    assert.equal(hiveSwarm.effects[0].metadata.ignoreNextEnemyDamageEffects, 2);
+    assert.equal(hiveSwarm.evolvesTo.effects[0].metadata.ignoreNextEnemyDamageEffects, 2);
+    assert.doesNotMatch(hiveSwarm.skilldescription, /next 3 enemy/);
+});
+
 test('Trainer capture targeting uses confirmed selections and case-insensitive slots', () => {
     assert.match(scriptSource, /if \(usernamesMatch\(username, currentPlayerUsername\)\)/);
     assert.match(scriptSource, /const getPokemonTrainerBallTargetKey = \(username, slot\)/);
