@@ -424,3 +424,39 @@ html.scene-live body.scene-battle .scene-classic-view { padding:9px 14px; border
  html.scene-live.battle-experimental body.scene-battle .scene-header .bottomgame > :is(.surrenderbutton,.battle-settings-button), html.scene-live body.scene-battle .scene-classic-view { padding:8px 10px!important; font-size:11px!important; }
  html.scene-live.battle-experimental body.scene-battle .ingame-sound-controller { top:120px!important; right:10px!important; left:10px!important; }
 }
+
+/* ===== Phones and small tablets: the four skills sit in a 2×2 square under each fighter ===========
+   A row of four is too wide for three fighters side by side on a small screen (the bars ran into each
+   other), so below 1000px each bar folds into a compact square. Phones held upright use the same bars
+   on a taller field (scene.js spreads the fighters out) instead of the stacked panels below it. */
+@media (max-width:1000px) {
+ .scene-fieldbar-skills { display:grid; grid-template-columns:repeat(2,auto); gap:4px; padding:4px; border-radius:11px; }
+ html.arena-scene-preview body.scene-battle .scene-fieldbar .scene-skill.scene-mini { width:36px; height:36px; border-radius:8px; }
+ .scene-fieldbar .scene-mini img { border-radius:8px; }
+ html.arena-scene-preview body.scene-battle .scene-enemybar .scene-skill.scene-mini { width:28px; height:28px; border-radius:7px; }
+ .scene-mini-cd { font-size:14px; }
+ .scene-fieldbar-queued img { width:32px; height:32px; }
+ .scene-fieldbar-target { font-size:11px; max-width:96px; }
+ /* Only the buttons catch taps, so a bar never blocks tapping the fighter behind it. */
+ .scene-fieldbar { pointer-events:none; }
+ html.arena-scene-preview body.scene-battle .scene-fieldbar :is(.scene-skill.scene-mini,.scene-fieldbar-queued) { pointer-events:auto; }
+ /* Skill names on hover are for mice; on touch they would stick after a tap. */
+ .scene-fieldbar .scene-mini:not(.scene-armed)::after { display:none; }
+}
+/* Tablets and phones held sideways: room under the front fighter for its square. */
+@media (max-width:1000px) and (min-width:701px) {
+ html.arena-scene-preview body.scene-battle .scene-field { height:max(630px,66vh); }
+}
+@media (max-width:700px) {
+ .scene-fieldbars { display:block; }
+ .scene-roster { display:none; }
+ .scene-details { margin-top:0; }
+ html.arena-scene-preview body.scene-battle .scene-field { height:640px; }
+ html.arena-scene-preview body.scene-battle .scene-fieldbar .scene-skill.scene-mini { width:34px; height:34px; }
+ html.arena-scene-preview body.scene-battle .scene-enemybar .scene-skill.scene-mini { width:26px; height:26px; }
+ .scene-fieldbar .scene-mini.scene-armed::after { font-size:10px; top:calc(100% + 6px); }
+ /* Folded: the chosen skill over its target, no wider than the square was. */
+ .scene-fieldbar.is-queued .scene-fieldbar-queued { flex-direction:column; gap:2px; padding:4px 5px; max-width:84px; }
+ .scene-fieldbar-target { max-width:74px; font-size:10px; text-align:center; }
+ .scene-fieldbar-change { display:none; }
+}

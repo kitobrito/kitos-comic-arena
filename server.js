@@ -61,6 +61,7 @@ const { syncPokemonDragapultRelease } = require('./sync_pokemon_dragapult_releas
 const { syncPokemonNincadaRelease } = require('./sync_pokemon_nincada_release');
 const { syncArenaPortalUpdateNews } = require('./sync_arena_portal_update_news');
 const { syncExperimentalBattlefieldNews } = require('./sync_experimental_battlefield_news');
+const { syncExperimentalBattlefieldPhoneNews } = require('./sync_experimental_battlefield_phone_news');
 const { syncPokemonArenaClassicKitsNews } = require('./sync_pokemon_arena_classic_kits_news');
 const { syncPatchNotes } = require('./sync_patch_notes');
 const {
@@ -14660,6 +14661,8 @@ async function initDb() {
     console.log('Synced the Arena Portal update news posts (Deadpool, Blaziken).');
     await syncExperimentalBattlefieldNews(db);
     console.log('Synced the Experimental Battlefield beta news posts.');
+    await syncExperimentalBattlefieldPhoneNews(db);
+    console.log('Synced the Experimental Battlefield phone skills news posts.');
     await syncPokemonArenaClassicKitsNews(db);
     console.log('Synced Pokemon Arena classic kits news.');
     const compensationSync = await syncPokemonCompensationGrant(db);

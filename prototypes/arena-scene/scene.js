@@ -237,7 +237,9 @@
         // ---- Actors ---------------------------------------------------------------------------------
         // Foot positions (percent of the field). Slot 1 stands at the front, 0 and 2 behind it.
         const FORMATION = [{ x: 12, y: 60 }, { x: 27, y: 79 }, { x: 41, y: 64 }];
-        const FORMATION_NARROW = [{ x: 14, y: 57 }, { x: 25, y: 86 }, { x: 37, y: 63 }];
+        // Phones: a taller field with the back pair high and the front fighter low, so each fighter's
+        // 2×2 skill square has room under its feet without covering a teammate.
+        const FORMATION_NARROW = [{ x: 15, y: 40 }, { x: 26, y: 76 }, { x: 37, y: 47 }];
         const actors = new Map(); // card -> { side, slot, art, rig, body, id, names, bbox }
         for (const [side, cards] of Object.entries(teams)) cards.forEach((card, slot) => {
             card.dataset.sceneSlot = String(slot); card.dataset.sceneSide = side;
@@ -313,7 +315,7 @@
             let x = side === 'player' ? spot.x : 100 - spot.x;
             const y = spot.y;
             const depth = 0.42 + 0.62 * (y / 100);
-            const unit = Math.min(fh * 0.47, fw * (narrow ? 0.3 : 0.19));
+            const unit = Math.min(fh * 0.47, fw * (narrow ? 0.27 : 0.19));
             let height = unit * sizeFor(actor) * depth;
             let width = height * box.w / box.h;
             const maxWidth = fw * (narrow ? 0.3 : 0.185) * depth;

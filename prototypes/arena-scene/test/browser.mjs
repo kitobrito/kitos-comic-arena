@@ -79,13 +79,56 @@ for (const arena of ['pokemon', 'comic']) {
     const state = await page.evaluate(() => window.ArenaSceneState.match);
     assert.ok(state.turnNumber >= 4);
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.waitForTimeout(350);
-    const geometry = await page.evaluate(() => ({ viewport: innerWidth, scroll: document.documentElement.scrollWidth, field: document.querySelector('.scene-field').getBoundingClientRect().toJSON(), skills: [...document.querySelectorAll('.scene-skill')].map(e => e.getBoundingClientRect().toJSON()).filter(r => r.width > 0) }));
+    await page.waitForTimeout(500);
+    // Phones: each fighter keeps its skills in a 2x2 square under its feet on the battlefield.
+    const geometry = await page.evaluate(() => {
+        const shown = e => e.getBoundingClientRect().width > 0 && getComputedStyle(e).display !== 'none';
+        const bars = sel => [...document.querySelectorAll(sel)].filter(shown).map(b => ({ rect: b.getBoundingClientRect().toJSON(), skills: [...b.querySelectorAll('.scene-mini')].filter(shown).map(m => m.getBoundingClientRect().toJSON()) }));
+        return { viewport: innerWidth, scroll: document.documentElement.scrollWidth, field: document.querySelector('.scene-field').getBoundingClientRect().toJSON(),
+            mine: bars('.scene-fieldbar:not(.scene-enemybar)'), theirs: bars('.scene-enemybar'), alive: document.querySelectorAll('.scene-fieldbar:not(.scene-enemybar):not(.is-out)').length, out: [...document.querySelectorAll('.scene-fieldbar:not(.scene-enemybar).is-out')].map(b => window.ArenaSceneState.match.player.team?.[Number(b.dataset.slot)]?.hp ?? b.dataset.slot), stacked: [...document.querySelectorAll('.scene-roster')].some(shown) };
+    });
     assert.ok(geometry.scroll <= geometry.viewport + 2, JSON.stringify(geometry));
-    assert.ok(geometry.skills.every(r => r.width >= 70 && r.x >= 0 && r.right <= geometry.viewport));
+    assert.equal(geometry.stacked, false, 'the stacked skill panels are gone on phones');
+    assert.equal(geometry.mine.length, geometry.alive, `one skill square per fighter still standing (knocked out: ${JSON.stringify(geometry.out)})`);
+    assert.ok(geometry.alive >= 1);
+    if (geometry.out.length) console.log(`${arena}: knocked-out fighters hide their square: ${JSON.stringify(geometry.out)}`);
+    for (const bar of geometry.mine) {
+        assert.equal(bar.skills.length, 4, 'four skills under each fighter');
+        assert.ok(bar.skills.every(r => r.width >= 30), 'skills stay big enough to tap');
+        const cols = new Set(bar.skills.map(r => Math.round(r.x))).size, rows = new Set(bar.skills.map(r => Math.round(r.y))).size;
+        assert.ok(cols === 2 && rows === 2, `a 2x2 square (${cols}x${rows})`);
+    }
+    const all = [...geometry.mine, ...geometry.theirs].map(b => b.rect);
+    for (const r of all) assert.ok(r.left >= 0 && r.right <= geometry.viewport && r.top >= geometry.field.top && r.bottom <= geometry.field.bottom + 1, `inside the battlefield ${JSON.stringify(r)}`);
+    for (let i = 0; i < all.length; i++) for (let j = i + 1; j < all.length; j++) {
+        const a = all[i], b = all[j];
+        assert.ok(a.right <= b.left || b.right <= a.left || a.bottom <= b.top || b.bottom <= a.top, `skill squares do not overlap ${JSON.stringify([a, b])}`);
+    }
     await page.screenshot({ path: `/tmp/arena-scene-${arena}-phone.png`, fullPage: true });
-    await page.locator('.scene-team-tab').nth(2).tap();
-    assert.equal(await page.locator('.scene-team-tab').nth(2).getAttribute('aria-pressed'), 'true');
+    // Play a skill from a square with taps: it folds down to the chosen skill and its target.
+    let phoneChoice;
+    for (let actorSlot = 0; actorSlot < 3 && !phoneChoice; actorSlot++) for (let skillIndex = 0; skillIndex < 4 && !phoneChoice; skillIndex++) {
+        const result = await context.request.post(`${base}/api/match/${matchId}/skill/targets`, { data: { actorSlot, skillIndex } });
+        const options = await result.json();
+        if (result.ok() && options.targets?.length) phoneChoice = { actorSlot, skillIndex, target: options.targets[0] };
+    }
+    assert.ok(phoneChoice, 'A real skill must be usable on the phone turn.');
+    await page.locator(`.scene-fieldbar[data-slot="${phoneChoice.actorSlot}"] .scene-mini`).nth(phoneChoice.skillIndex).tap();
+    try { await page.waitForSelector('.character-card.targetable', { timeout: 8000 }); } catch (error) {
+        await page.screenshot({ path: `/tmp/arena-scene-${arena}-phone-debug.png`, fullPage: true });
+        console.log('DEBUG', JSON.stringify(phoneChoice), await page.evaluate(slot => ({
+            bar: document.querySelector(`.scene-fieldbar[data-slot="${slot}"]`)?.className,
+            minis: [...document.querySelectorAll(`.scene-fieldbar[data-slot="${slot}"] .scene-mini`)].map(m => `${m.dataset.name}|${m.className}|${m.disabled}`),
+            armed: document.querySelector('.scene-armed')?.dataset.name, queued: window.ArenaSceneState.match.pendingTurn,
+        }), phoneChoice.actorSlot));
+        throw error;
+    }
+    const phoneSide = await page.evaluate(target => target.username === window.ArenaSceneState.match.player.username ? 'player' : 'opponent', phoneChoice.target);
+    await page.locator(`.character-card[data-scene-side="${phoneSide}"][data-scene-slot="${phoneChoice.target.slot}"] .character-face`).tap({ force: true });
+    const phonePick = page.locator('.class-choice-popup.visible .class-choice-popup-options button').first();
+    if (await phonePick.isVisible()) await phonePick.tap();
+    await page.waitForSelector(`.scene-fieldbar[data-slot="${phoneChoice.actorSlot}"].is-queued`);
+    await page.screenshot({ path: `/tmp/arena-scene-${arena}-phone-queued.png`, fullPage: true });
     await page.locator('.ready-text').tap();
     await page.waitForFunction(() => document.body.classList.contains('end-turn-modal-open'));
     const modal = await page.locator('.ChakraChooseEndTurn').boundingBox();
@@ -99,7 +142,7 @@ for (const arena of ['pokemon', 'comic']) {
     await page.waitForFunction(() => window.ArenaSceneState && !document.body.classList.contains('app-loading'));
     assert.equal(new URL(page.url()).searchParams.get('matchId'), matchId);
     await context.request.post(`${base}/api/match/${matchId}/surrender`);
-    console.log(`${arena}: team selection, private start, targeting, two full player/bot turns, phone layout, reduced motion and reload passed`);
+    console.log(`${arena}: team selection, private start, targeting, two full player/bot turns, phone skill squares, reduced motion and reload passed`);
     await context.close();
 }
 assert.deepEqual(errors, []);
