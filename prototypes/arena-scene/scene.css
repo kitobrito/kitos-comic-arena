@@ -671,6 +671,17 @@ html.arena-scene-preview body.scene-battle .scene-details .skillinformation .sce
 /* Wider screens: the field grows if its lowest skill bar would otherwise be cut off (scene.js). */
 html.arena-scene-preview body.scene-battle .scene-field { min-height:var(--scene-fit-h,0px); }
 /* Team banners only where there is room beside the energy bar. */
+/* Banners hide only when they would touch the energy bar (scene.js measures). */
+html.arena-scene-preview body.scene-battle .scene-ribbon.scene-no-banners .scene-side-label { display:none!important; }
+
+/* Compact squares on wider screens too, when one-row skill bars would collide at this width (scene.js). */
+@media (min-width:1001px) {
+ .scene-field.scene-compact-bars .scene-fieldbar-skills { display:grid!important; grid-template-columns:repeat(2,auto); gap:5px!important; padding:5px!important; }
+ html.arena-scene-preview body.scene-battle .scene-field.scene-compact-bars .scene-fieldbar .scene-skill.scene-mini { width:40px; height:40px; }
+ html.arena-scene-preview body.scene-battle .scene-field.scene-compact-bars .scene-enemybar .scene-skill.scene-mini { width:32px; height:32px; }
+}
+
+/* ===== Evolution scene =============================================================================
    scene.js adds .scene-evo over the field and .scene-evolving on the card. Timeline: dim + pillar
    (0-0.9s), silhouettes flicker old/new faster and faster (~0.9-3.4s), charge, flash + shockwave and the
    coloured reveal, then everything fades. --evo-a / --evo-b are the Pokemon's type colours. */
@@ -720,16 +731,3 @@ html.arena-scene-preview body.scene-battle .character-card.scene-evolving.scene-
 @keyframes scene-evo-pop { 0% { transform:scale(.82); } 55% { transform:scale(1.08); } 100% { transform:none; } }
 @keyframes scene-evo-banner { from { opacity:0; transform:translateY(-14px) scale(.9); } to { opacity:1; transform:none; } }
 @keyframes scene-evo-banner-swap { 0% { opacity:1; transform:scale(1); } 40% { transform:scale(1.12); } 100% { opacity:1; transform:none; } }
-=======
-/* Banners hide only when they would touch the energy bar (scene.js measures). */
-html.arena-scene-preview body.scene-battle .scene-ribbon.scene-no-banners .scene-side-label { display:none!important; }
-
-/* Compact squares on wider screens too, when one-row skill bars would collide at this width (scene.js). */
-@media (min-width:1001px) {
- .scene-field.scene-compact-bars .scene-fieldbar-skills { display:grid!important; grid-template-columns:repeat(2,auto); gap:5px!important; padding:5px!important; }
- html.arena-scene-preview body.scene-battle .scene-field.scene-compact-bars .scene-fieldbar .scene-skill.scene-mini { width:40px; height:40px; }
- html.arena-scene-preview body.scene-battle .scene-field.scene-compact-bars .scene-enemybar .scene-skill.scene-mini { width:32px; height:32px; }
-}
-@media (max-width:1099px) { html.arena-scene-preview body.scene-battle .scene-ribbon .scene-side-label { display:none!important; } }
-
-/* ===== Evolution scene ======================================================================
