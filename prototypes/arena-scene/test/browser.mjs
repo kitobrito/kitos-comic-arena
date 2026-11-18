@@ -110,7 +110,10 @@ for (const arena of ['pokemon', 'comic']) {
     for (let actorSlot = 0; actorSlot < 3 && !phoneChoice; actorSlot++) for (let skillIndex = 0; skillIndex < 4 && !phoneChoice; skillIndex++) {
         const result = await context.request.post(`${base}/api/match/${matchId}/skill/targets`, { data: { actorSlot, skillIndex } });
         const options = await result.json();
-        if (result.ok() && options.targets?.length) phoneChoice = { actorSlot, skillIndex, target: options.targets[0] };
+        // Only a skill the battlefield shows as usable right now (not stunned, on cooldown or short of energy).
+        const usable = await page.evaluate(([slot, index]) => { const b = document.querySelectorAll(`.scene-fieldbar[data-slot="${slot}"] .scene-mini`)[index];
+            return Boolean(b) && !b.disabled && !b.matches('.scene-unavailable,.scene-on-cooldown'); }, [actorSlot, skillIndex]);
+        if (usable && result.ok() && options.targets?.length) phoneChoice = { actorSlot, skillIndex, target: options.targets[0] };
     }
     assert.ok(phoneChoice, 'A real skill must be usable on the phone turn.');
     await page.locator(`.scene-fieldbar[data-slot="${phoneChoice.actorSlot}"] .scene-mini`).nth(phoneChoice.skillIndex).tap();
