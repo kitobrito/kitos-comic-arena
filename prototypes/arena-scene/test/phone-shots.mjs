@@ -24,7 +24,7 @@ for (const arena of (process.env.ARENAS || 'pokemon,comic').split(',')) {
     await page.waitForURL('**/arena-scene/ingame.html?**', { waitUntil: 'domcontentloaded' });
     await page.waitForFunction(() => window.ArenaSceneState && !document.body.classList.contains('app-loading'));
     await page.waitForFunction(() => [...document.querySelectorAll('.scene-actor-art')].every(i => i.complete && i.naturalWidth > 0), { timeout: 25000 });
-    for (const [name, size] of [['portrait', { width: 390, height: 844 }], ['landscape', { width: 844, height: 390 }], ['desktop', { width: 1365, height: 1000 }]]) {
+    for (const [name, size] of (process.env.SIZES ? JSON.parse(process.env.SIZES) : [['portrait', { width: 390, height: 844 }], ['landscape', { width: 844, height: 390 }], ['desktop', { width: 1365, height: 1000 }]])) {
         await page.setViewportSize(size); await page.waitForTimeout(700);
         const geo = await page.evaluate(() => {
             const vis = (e) => { const r = e.getBoundingClientRect(); return r.width > 0 && getComputedStyle(e).display !== 'none' && getComputedStyle(e).visibility !== 'hidden'; };
@@ -39,11 +39,14 @@ for (const arena of (process.env.ARENAS || 'pokemon,comic').split(',')) {
             };
         });
         const fit = await page.evaluate(() => {
+            const hud = document.querySelector('.scene-hud .ready-section')?.getBoundingClientRect();
+            const banners = [...document.querySelectorAll('.scene-side-label')].filter(b => getComputedStyle(b).display !== 'none').map(b => b.getBoundingClientRect());
+            const bannerHits = hud ? banners.filter(b => !(b.right <= hud.left || hud.right <= b.left || b.bottom <= hud.top || hud.bottom <= b.top)).length : 0;
             const field = document.querySelector('.scene-field').getBoundingClientRect();
             const bars = [...document.querySelectorAll('.scene-fieldbar')].filter(b => b.getBoundingClientRect().width > 0 && getComputedStyle(b).display !== 'none').map(b => b.getBoundingClientRect());
             const figures = [...document.querySelectorAll('.character-card[data-scene-side]:not(.scene-knocked-out)')].map(c => c.getBoundingClientRect());
             const apart = (a, b) => a.right <= b.left + 2 || b.right <= a.left + 2 || a.bottom <= b.top + 2 || b.bottom <= a.top + 2;
-            return { clipped: bars.filter(r => r.bottom > field.bottom + 1 || r.top < field.top || r.left < 0 || r.right > innerWidth).length,
+            return { bannerHits, clipped: bars.filter(r => r.bottom > field.bottom + 1 || r.top < field.top || r.left < 0 || r.right > innerWidth).length,
                 coveringFighters: bars.reduce((n, r) => n + figures.filter(f => !apart(r, f)).length, 0),
                 barsOverlapping: bars.reduce((n, r, i) => n + bars.slice(i + 1).filter(o => !apart(r, o)).length, 0) };
         });
