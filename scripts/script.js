@@ -1758,7 +1758,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         'poison-ivy': 'assets/images/BIB/comic/poison-ivy.png',
         'predalien': 'assets/images/BIB/comic/predalien.png',
         'predator-stalker': 'assets/images/BIB/comic/predator-stalker.png',
-        'rage-infected': 'assets/images/BIB/comic/rage-infected.png',
+        'rage-infected': 'assets/images/BIB/comic/rage-infected-full.webp',
         'rex-splode': 'assets/images/BIB/comic/rex-splode.webp',
         'rick-grimes': 'assets/images/BIB/comic/rick-grimes.gif',
         'saint-walker': 'assets/images/BIB/comic/saint-walker.png',
