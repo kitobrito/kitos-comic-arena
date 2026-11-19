@@ -1734,7 +1734,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         'carnage': 'assets/images/BIB/comic/carnage.png',
         'darth-maul': 'assets/images/BIB/comic/darth-maul-full.webp',
         'deadpool': 'assets/images/BIB/comic/deadpool.webp',
-        'darth-sidious': 'assets/images/BIB/comic/darth-sidious.png',
+        'darth-sidious': 'assets/images/BIB/comic/darth-sidious-full.webp',
         'darth-vader': 'assets/images/BIB/comic/darth-vader.png',
         'doctor-doom': 'assets/images/BIB/comic/doctor-doom.png',
         'doctor-fate': 'assets/images/BIB/comic/doctor-fate.png',

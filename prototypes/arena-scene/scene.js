@@ -23,7 +23,7 @@
     const COMIC_SIZES = {
         'andrea': 1.18, 'angstrom-levy': 1, 'aquaman': 1.18, 'atom-eve': 0.86, 'atrocitus': 0.78, 'batman': 0.82,
         'billy-butcher': 0.96, 'boba-fett': 1, 'captain-america': 1.03, 'carnage': 1.12, 'darth-maul': 1.04,
-        'darth-sidious': 0.6, 'darth-vader': 0.74, 'deadpool': 1.02, 'doctor-doom': 1.06, 'doctor-fate': 1.08,
+        'darth-sidious': 0.94, 'darth-vader': 0.74, 'deadpool': 1.02, 'doctor-doom': 1.06, 'doctor-fate': 1.08,
         'doctor-octopus': 1.38, 'doctor-strange': 0.62, 'general-grievous': 1.1, 'ghost-rider': 1.04,
         'grand-master-yoda': 0.42, 'green-lantern-hal-jordan': 1, 'hershel-greene': 0.44, 'homelander': 0.74,
         'indigo-1': 0.82, 'invincible': 0.98, 'iron-man': 1.02, 'john-stewart': 0.62, 'mysterio': 1.1, 'negan': 0.56,
@@ -34,7 +34,7 @@
         'venom': 1.24, 'walker': 0.62, 'wolverine': 0.84, 'wonder-woman': 1.02, 'xenomorph-drone': 1.12,
     };
     // Waist-up renders: the bottom edge is softened into the floor instead of a hard cut.
-    const COMIC_CUT = new Set(['batman', 'darth-sidious', 'darth-vader', 'hershel-greene', 'homelander',
+    const COMIC_CUT = new Set(['batman', 'darth-vader', 'hershel-greene', 'homelander',
         'john-stewart', 'negan', 'obi-wan-kenobi', 'parasite', 'rage-infected', 'walker',
         'sandman', 'atrocitus', 'iron-man']);
     const COMIC_FLYERS = new Set(['iron-man', 'superman', 'invincible', 'omni-man', 'green-lantern-hal-jordan', 'doctor-strange',
