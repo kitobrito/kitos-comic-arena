@@ -29,13 +29,14 @@
         'indigo-1': 0.82, 'invincible': 0.98, 'iron-man': 1.02, 'john-stewart': 0.62, 'mysterio': 1.1, 'negan': 0.56,
         'obi-wan-kenobi': 0.56, 'omni-man': 1.08, 'parasite': 0.66, 'poison-ivy': 0.96, 'predalien': 1.12,
         'predator-stalker': 1.16, 'rage-infected': 0.5, 'rex-splode': 0.98, 'rick-grimes': 1, 'saint-walker': 0.66,
-        'sandman': 1.18, 'scorpion': 0.92, 'sinestro': 1.08, 'sorrow': 1.06, 'spider-man': 0.62, 'storm': 1.04,
+        'sandman': 1.18, 'scorpion': 0.92, 'sinestro': 1.08, 'sorrow': 1.06, 'space-marine-infantry': 0.98, 'space-marine-medic': 0.96, 'space-marine-smartgunner': 1.06, 'spider-man': 0.62, 'storm': 1.04,
         'superman': 1.06, 'the-flash-barry-allen': 0.98, 'the-green-goblin': 1.06, 'the-hulk': 1.42, 'the-joker': 0.96,
         'venom': 1.24, 'walker': 0.62, 'wolverine': 0.84, 'wonder-woman': 1.02, 'xenomorph-drone': 1.32,
     };
     // Waist-up renders: the bottom edge is softened into the floor instead of a hard cut.
     const COMIC_CUT = new Set(['batman', 'billy-butcher', 'darth-sidious', 'darth-vader', 'hershel-greene', 'homelander',
-        'john-stewart', 'negan', 'obi-wan-kenobi', 'parasite', 'rage-infected', 'walker', 'darth-maul']);
+        'john-stewart', 'negan', 'obi-wan-kenobi', 'parasite', 'rage-infected', 'walker', 'darth-maul',
+        'general-grievous', 'sinestro', 'sandman', 'atrocitus', 'iron-man']);
     const COMIC_FLYERS = new Set(['iron-man', 'superman', 'invincible', 'omni-man', 'green-lantern-hal-jordan', 'doctor-strange',
         'saint-walker', 'atom-eve', 'indigo-1', 'the-green-goblin', 'homelander', 'mysterio', 'doctor-fate', 'parasite']);
     // Real Pokédex heights in metres, keyed by the form's name without spaces or punctuation.

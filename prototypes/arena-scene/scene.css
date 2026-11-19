@@ -731,3 +731,7 @@ html.arena-scene-preview body.scene-battle .character-card.scene-evolving.scene-
 @keyframes scene-evo-pop { 0% { transform:scale(.82); } 55% { transform:scale(1.08); } 100% { transform:none; } }
 @keyframes scene-evo-banner { from { opacity:0; transform:translateY(-14px) scale(.9); } to { opacity:1; transform:none; } }
 @keyframes scene-evo-banner-swap { 0% { opacity:1; transform:scale(1); } 40% { transform:scale(1.12); } 100% { opacity:1; transform:none; } }
+/* Phones: long names (Sergeant William Hillford) wrap onto two lines instead of being cut off. */
+@media (max-width:700px) {
+ html.arena-scene-preview body.scene-battle .scene-actor-name { width:max-content; max-width:min(112px,29vw); white-space:normal!important; overflow-wrap:normal; word-break:normal; line-height:1.1!important; text-align:center; box-sizing:border-box; }
+}

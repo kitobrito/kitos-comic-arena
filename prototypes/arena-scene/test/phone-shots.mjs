@@ -15,7 +15,7 @@ for (const arena of (process.env.ARENAS || 'pokemon,comic').split(',')) {
     const page = await context.newPage(); page.on('pageerror', error => errors.push(error.message));
     await page.goto(`${base}/arena-scene/?arena=${arena}`, { waitUntil: 'domcontentloaded' });
     await page.waitForFunction(() => window.ArenaSceneSelection && document.querySelector('.slot-item[data-index]:not(.slot-empty)'));
-    const team = arena === 'pokemon' ? ['charmander', 'bulbasaur', 'pikachu'] : ['iron-man', 'spider-man', 'captain-america'];
+    const team = process.env.TEAM ? process.env.TEAM.split(',') : arena === 'pokemon' ? ['charmander', 'bulbasaur', 'pikachu'] : ['iron-man', 'spider-man', 'captain-america'];
     const indices = await page.evaluate(ids => ids.map(id => window.characters.findIndex(c => c.characterId === id)), team);
     await page.waitForTimeout(2000);
     for (const index of indices) await page.locator(`.slot-item[data-index="${index}"]`).dblclick();

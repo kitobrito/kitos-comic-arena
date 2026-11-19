@@ -1719,8 +1719,8 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
     });
     // Comic Arena featured renders for the selection screen's Character
     // Overview panel. Values are full repo-relative paths (getSelectionRenderSource
-    // passes anything containing a "/" through verbatim). No render yet for
-    // batman or the three space-marine characters -- they fall back to facePicture.
+    // passes anything containing a "/" through verbatim). Every Comic Arena character has one;
+    // a character missing from this list falls back to its facePicture.
     const COMIC_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         'andrea': 'assets/images/BIB/comic/andrea.png',
         'angstrom-levy': 'assets/images/BIB/comic/angstrom-levy.png',
@@ -1766,6 +1766,9 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         'scorpion': 'assets/images/BIB/comic/scorpion.png',
         'sinestro': 'assets/images/BIB/comic/sinestro.png',
         'sorrow': 'assets/images/BIB/comic/sorrow.png',
+        'space-marine-infantry': 'assets/images/BIB/comic/space-marine-infantry.webp',
+        'space-marine-medic': 'assets/images/BIB/comic/space-marine-medic.webp',
+        'space-marine-smartgunner': 'assets/images/BIB/comic/space-marine-smartgunner.webp',
         'spider-man': 'assets/images/BIB/comic/spider-man.png',
         'storm': 'assets/images/BIB/comic/storm.png',
         'superman': 'assets/images/BIB/comic/superman.png',
