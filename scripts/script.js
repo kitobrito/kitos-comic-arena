@@ -1740,7 +1740,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         'doctor-fate': 'assets/images/BIB/comic/doctor-fate.png',
         'doctor-octopus': 'assets/images/BIB/comic/doctor-octopus.png',
         'doctor-strange': 'assets/images/BIB/comic/doctor-strange.webp',
-        'general-grievous': 'assets/images/BIB/comic/general-grievous.png',
+        'general-grievous': 'assets/images/BIB/comic/general-grievous-full.webp',
         'ghost-rider': 'assets/images/BIB/comic/ghost-rider.webp',
         'grand-master-yoda': 'assets/images/BIB/comic/grand-master-yoda.png',
         'green-lantern-hal-jordan': 'assets/images/BIB/comic/green-lantern-hal-jordan.png',
