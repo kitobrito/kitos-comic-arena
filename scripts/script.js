@@ -1762,7 +1762,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         'rex-splode': 'assets/images/BIB/comic/rex-splode.webp',
         'rick-grimes': 'assets/images/BIB/comic/rick-grimes.gif',
         'saint-walker': 'assets/images/BIB/comic/saint-walker.png',
-        'sandman': 'assets/images/BIB/comic/sandman.webp',
+        'sandman': 'assets/images/BIB/comic/sandman-full.webp',
         'scorpion': 'assets/images/BIB/comic/scorpion.png',
         'sinestro': 'assets/images/BIB/comic/sinestro-full.webp',
         'sorrow': 'assets/images/BIB/comic/sorrow.png',
