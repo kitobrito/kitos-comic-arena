@@ -63,6 +63,7 @@ const { syncArenaPortalUpdateNews } = require('./sync_arena_portal_update_news')
 const { syncExperimentalBattlefieldNews } = require('./sync_experimental_battlefield_news');
 const { syncExperimentalBattlefieldPhoneNews } = require('./sync_experimental_battlefield_phone_news');
 const { syncPokemonEvolutionSceneNews } = require('./sync_pokemon_evolution_scene_news');
+const { syncExperimentalBattlefieldPollNews } = require('./sync_experimental_battlefield_poll_news');
 const { syncPokemonArenaClassicKitsNews } = require('./sync_pokemon_arena_classic_kits_news');
 const { syncPatchNotes } = require('./sync_patch_notes');
 const {
@@ -10233,6 +10234,7 @@ const PUBLIC_SCRIPTS_FILES = new Set([
     '/scripts/script.js',
     '/scripts/battle-fx.js',
     '/scripts/energy-fx.js',
+    '/scripts/ui-poll.js',
     '/scripts/tri-portal.js',
     '/scripts/shattered-portal.js',
     '/scripts/split-hub.js',
@@ -14666,6 +14668,8 @@ async function initDb() {
     console.log('Synced the Experimental Battlefield phone skills news posts.');
     await syncPokemonEvolutionSceneNews(db);
     console.log('Synced the Pokemon evolution scene news post.');
+    await syncExperimentalBattlefieldPollNews(db);
+    console.log('Synced the Experimental Battlefield poll news posts.');
     await syncPokemonArenaClassicKitsNews(db);
     console.log('Synced Pokemon Arena classic kits news.');
     const compensationSync = await syncPokemonCompensationGrant(db);
@@ -16690,6 +16694,47 @@ app.get('/api/me', requireSession, async (req, res) => {
         savedTeamIndicesByArena,
     };
     res.json({ ok: true, user: serializeUserForClient(hydratedUser) });
+});
+
+// Player polls shown on the character select screen. One vote per account (it can be changed); the vote lives
+// on the account (user.polls[pollId]) so totals are a count over accounts and no extra collection is needed.
+const PLAYER_POLLS = Object.freeze({
+    'experimental-battlefield-2026-11': {
+        question: 'Do you like the Experimental Battlefield?',
+        hint: 'The new full-body battle view (Settings › Options › Experimental battlefield).',
+        options: [
+            { id: 'like', label: 'Yes, I like it' },
+            { id: 'dislike', label: 'No, I prefer the classic view' },
+            { id: 'untried', label: "I haven't tried it yet" },
+        ],
+    },
+});
+const pollState = async (pollId, user) => {
+    const poll = PLAYER_POLLS[pollId];
+    const totals = {};
+    await Promise.all(poll.options.map(async ({ id }) => {
+        totals[id] = await usersCollection.countDocuments({ [`polls.${pollId}.choice`]: id });
+    }));
+    const myVote = user?.polls?.[pollId]?.choice || null;
+    return { ok: true, pollId, question: poll.question, hint: poll.hint, options: poll.options, myVote, totals: myVote ? totals : null };
+};
+app.get('/api/polls/:pollId', requireSession, async (req, res) => {
+    const pollId = String(req.params.pollId || '');
+    if (!Object.prototype.hasOwnProperty.call(PLAYER_POLLS, pollId)) return res.status(404).json({ error: 'Unknown poll.' });
+    const user = await usersCollection.findOne({ username: req.authUser.username });
+    if (!user) return res.status(401).json({ error: 'Unauthorized.' });
+    res.json(await pollState(pollId, user));
+});
+app.post('/api/polls/:pollId/vote', requireSession, async (req, res) => {
+    const pollId = String(req.params.pollId || '');
+    if (!Object.prototype.hasOwnProperty.call(PLAYER_POLLS, pollId)) return res.status(404).json({ error: 'Unknown poll.' });
+    const choice = String(req.body?.choice || '');
+    if (!PLAYER_POLLS[pollId].options.some((option) => option.id === choice)) return res.status(400).json({ error: 'Invalid choice.' });
+    const arena = req.body?.arena === 'pokemon' ? 'pokemon' : 'comic';
+    const user = await usersCollection.findOne({ username: req.authUser.username });
+    if (!user) return res.status(401).json({ error: 'Unauthorized.' });
+    await usersCollection.updateOne({ _id: user._id, username: user.username }, { $set: { [`polls.${pollId}`]: { choice, arena, votedAt: new Date() } } });
+    res.json(await pollState(pollId, { ...user, polls: { ...(user.polls || {}), [pollId]: { choice } } }));
 });
 
 app.post('/api/activity', requireSession, async (req, res) => {
