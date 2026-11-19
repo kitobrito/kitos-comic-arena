@@ -21,12 +21,12 @@
     // Height of each figure in "adult human" units (1 = about 1.8 m), measured over what the
     // render actually shows. A waist-up render of a normal person is about 0.6.
     const COMIC_SIZES = {
-        'andrea': 1.18, 'angstrom-levy': 1, 'aquaman': 1.18, 'atom-eve': 0.86, 'atrocitus': 0.78, 'batman': 0.82,
+        'andrea': 1.18, 'angstrom-levy': 1, 'aquaman': 1.18, 'atom-eve': 0.86, 'atrocitus': 0.78, 'batman': 1.02,
         'billy-butcher': 0.96, 'boba-fett': 1, 'captain-america': 1.03, 'carnage': 1.12, 'darth-maul': 1.04,
         'darth-sidious': 0.94, 'darth-vader': 1.08, 'deadpool': 1.02, 'doctor-doom': 1.06, 'doctor-fate': 1.08,
         'doctor-octopus': 1.38, 'doctor-strange': 0.62, 'general-grievous': 1.1, 'ghost-rider': 1.04,
-        'grand-master-yoda': 0.42, 'green-lantern-hal-jordan': 1, 'hershel-greene': 0.96, 'homelander': 0.74,
-        'indigo-1': 0.82, 'invincible': 0.98, 'iron-man': 1.02, 'john-stewart': 0.62, 'mysterio': 1.1, 'negan': 0.98,
+        'grand-master-yoda': 0.42, 'green-lantern-hal-jordan': 1, 'hershel-greene': 0.96, 'homelander': 1.02,
+        'indigo-1': 0.82, 'invincible': 0.98, 'iron-man': 1.02, 'john-stewart': 1.0, 'mysterio': 1.1, 'negan': 0.98,
         'obi-wan-kenobi': 0.56, 'omni-man': 1.08, 'parasite': 0.66, 'poison-ivy': 0.96, 'predalien': 1.12,
         'predator-stalker': 1.16, 'rage-infected': 0.96, 'rex-splode': 0.98, 'rick-grimes': 1, 'saint-walker': 0.66,
         'sandman': 1.18, 'scorpion': 0.92, 'sinestro': 1.08, 'sorrow': 1.06, 'space-marine-infantry': 0.98, 'space-marine-medic': 0.96, 'space-marine-smartgunner': 1.06, 'spider-man': 0.62, 'storm': 1.04,
@@ -34,9 +34,7 @@
         'venom': 1.24, 'walker': 0.92, 'wolverine': 0.84, 'wonder-woman': 1.02, 'xenomorph-drone': 1.12,
     };
     // Waist-up renders: the bottom edge is softened into the floor instead of a hard cut.
-    const COMIC_CUT = new Set(['batman', 'homelander',
-        'john-stewart', 'obi-wan-kenobi', 'parasite',
-        'sandman', 'atrocitus', 'iron-man']);
+    const COMIC_CUT = new Set(['obi-wan-kenobi', 'parasite', 'sandman', 'atrocitus', 'iron-man']);
     const COMIC_FLYERS = new Set(['iron-man', 'superman', 'invincible', 'omni-man', 'green-lantern-hal-jordan', 'doctor-strange',
         'saint-walker', 'atom-eve', 'indigo-1', 'the-green-goblin', 'homelander', 'mysterio', 'doctor-fate', 'parasite']);
     // Real Pokédex heights in metres, keyed by the form's name without spaces or punctuation.
