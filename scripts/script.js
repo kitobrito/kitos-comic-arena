@@ -1719,28 +1719,28 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
     });
     // Comic Arena featured renders for the selection screen's Character
     // Overview panel. Values are full repo-relative paths (getSelectionRenderSource
-    // passes anything containing a "/" through verbatim). No render yet for
-    // batman or the three space-marine characters -- they fall back to facePicture.
+    // passes anything containing a "/" through verbatim). Every Comic Arena character has one;
+    // a character missing from this list falls back to its facePicture.
     const COMIC_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
-        'andrea': 'assets/images/BIB/comic/andrea.png',
+        'andrea': 'assets/images/BIB/comic/andrea.webp',
         'angstrom-levy': 'assets/images/BIB/comic/angstrom-levy.png',
         'aquaman': 'assets/images/BIB/comic/aquaman.png',
         'atom-eve': 'assets/images/BIB/comic/atom-eve.png',
         'atrocitus': 'assets/images/BIB/comic/atrocitus.png',
         'batman': 'assets/images/BIB/comic/batman.webp',
-        'billy-butcher': 'assets/images/BIB/comic/billy-butcher.webp',
+        'billy-butcher': 'assets/images/BIB/comic/billy-butcher-full.webp',
         'boba-fett': 'assets/images/BIB/comic/boba-fett.png',
         'captain-america': 'assets/images/BIB/comic/captain-america.png',
         'carnage': 'assets/images/BIB/comic/carnage.png',
-        'darth-maul': 'assets/images/BIB/comic/darth-maul.png',
+        'darth-maul': 'assets/images/BIB/comic/darth-maul-full.webp',
         'deadpool': 'assets/images/BIB/comic/deadpool.webp',
-        'darth-sidious': 'assets/images/BIB/comic/darth-sidious.png',
+        'darth-sidious': 'assets/images/BIB/comic/darth-sidious-full.webp',
         'darth-vader': 'assets/images/BIB/comic/darth-vader.png',
         'doctor-doom': 'assets/images/BIB/comic/doctor-doom.png',
         'doctor-fate': 'assets/images/BIB/comic/doctor-fate.png',
         'doctor-octopus': 'assets/images/BIB/comic/doctor-octopus.png',
         'doctor-strange': 'assets/images/BIB/comic/doctor-strange.webp',
-        'general-grievous': 'assets/images/BIB/comic/general-grievous.png',
+        'general-grievous': 'assets/images/BIB/comic/general-grievous-full.webp',
         'ghost-rider': 'assets/images/BIB/comic/ghost-rider.webp',
         'grand-master-yoda': 'assets/images/BIB/comic/grand-master-yoda.png',
         'green-lantern-hal-jordan': 'assets/images/BIB/comic/green-lantern-hal-jordan.png',
@@ -1764,8 +1764,11 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         'saint-walker': 'assets/images/BIB/comic/saint-walker.png',
         'sandman': 'assets/images/BIB/comic/sandman.webp',
         'scorpion': 'assets/images/BIB/comic/scorpion.png',
-        'sinestro': 'assets/images/BIB/comic/sinestro.png',
+        'sinestro': 'assets/images/BIB/comic/sinestro-full.webp',
         'sorrow': 'assets/images/BIB/comic/sorrow.png',
+        'space-marine-infantry': 'assets/images/BIB/comic/space-marine-infantry.webp',
+        'space-marine-medic': 'assets/images/BIB/comic/space-marine-medic.webp',
+        'space-marine-smartgunner': 'assets/images/BIB/comic/space-marine-smartgunner.webp',
         'spider-man': 'assets/images/BIB/comic/spider-man.png',
         'storm': 'assets/images/BIB/comic/storm.png',
         'superman': 'assets/images/BIB/comic/superman.png',
@@ -1777,7 +1780,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         'walker': 'assets/images/BIB/comic/walker.png',
         'wolverine': 'assets/images/BIB/comic/wolverine.webp',
         'wonder-woman': 'assets/images/BIB/comic/wonder-woman.webp',
-        'xenomorph-drone': 'assets/images/BIB/comic/xenomorph-drone.png',
+        'xenomorph-drone': 'assets/images/BIB/comic/xenomorph-drone-full.webp',
     });
     const POKEMON_SELECTION_EVOLUTION_RENDER_BY_ID = Object.freeze({
         aegislash: { name: 'Blade Stance', filename: 'aegislashnopassive.webp', label: 'Blade Stance' },
