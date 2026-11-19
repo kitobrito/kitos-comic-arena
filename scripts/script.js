@@ -1764,7 +1764,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         'saint-walker': 'assets/images/BIB/comic/saint-walker.png',
         'sandman': 'assets/images/BIB/comic/sandman.webp',
         'scorpion': 'assets/images/BIB/comic/scorpion.png',
-        'sinestro': 'assets/images/BIB/comic/sinestro.png',
+        'sinestro': 'assets/images/BIB/comic/sinestro-full.webp',
         'sorrow': 'assets/images/BIB/comic/sorrow.png',
         'space-marine-infantry': 'assets/images/BIB/comic/space-marine-infantry.webp',
         'space-marine-medic': 'assets/images/BIB/comic/space-marine-medic.webp',
@@ -1780,7 +1780,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         'walker': 'assets/images/BIB/comic/walker.png',
         'wolverine': 'assets/images/BIB/comic/wolverine.webp',
         'wonder-woman': 'assets/images/BIB/comic/wonder-woman.webp',
-        'xenomorph-drone': 'assets/images/BIB/comic/xenomorph-drone.png',
+        'xenomorph-drone': 'assets/images/BIB/comic/xenomorph-drone-full.webp',
     });
     const POKEMON_SELECTION_EVOLUTION_RENDER_BY_ID = Object.freeze({
         aegislash: { name: 'Blade Stance', filename: 'aegislashnopassive.webp', label: 'Blade Stance' },
