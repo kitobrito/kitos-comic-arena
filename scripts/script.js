@@ -1722,7 +1722,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
     // passes anything containing a "/" through verbatim). Every Comic Arena character has one;
     // a character missing from this list falls back to its facePicture.
     const COMIC_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
-        'andrea': 'assets/images/BIB/comic/andrea.png',
+        'andrea': 'assets/images/BIB/comic/andrea.webp',
         'angstrom-levy': 'assets/images/BIB/comic/angstrom-levy.png',
         'aquaman': 'assets/images/BIB/comic/aquaman.png',
         'atom-eve': 'assets/images/BIB/comic/atom-eve.png',

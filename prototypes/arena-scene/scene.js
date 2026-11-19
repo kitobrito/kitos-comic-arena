@@ -21,7 +21,7 @@
     // Height of each figure in "adult human" units (1 = about 1.8 m), measured over what the
     // render actually shows. A waist-up render of a normal person is about 0.6.
     const COMIC_SIZES = {
-        'andrea': 0.95, 'angstrom-levy': 1, 'aquaman': 1.18, 'atom-eve': 0.86, 'atrocitus': 0.78, 'batman': 0.82,
+        'andrea': 1.18, 'angstrom-levy': 1, 'aquaman': 1.18, 'atom-eve': 0.86, 'atrocitus': 0.78, 'batman': 0.82,
         'billy-butcher': 0.64, 'boba-fett': 1, 'captain-america': 1.03, 'carnage': 1.12, 'darth-maul': 0.92,
         'darth-sidious': 0.6, 'darth-vader': 0.74, 'deadpool': 1.02, 'doctor-doom': 1.06, 'doctor-fate': 1.08,
         'doctor-octopus': 1.38, 'doctor-strange': 0.62, 'general-grievous': 0.98, 'ghost-rider': 1.04,
