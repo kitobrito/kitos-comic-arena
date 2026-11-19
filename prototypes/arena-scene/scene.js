@@ -25,17 +25,17 @@
         'billy-butcher': 0.96, 'boba-fett': 1, 'captain-america': 1.03, 'carnage': 1.12, 'darth-maul': 1.04,
         'darth-sidious': 0.94, 'darth-vader': 0.74, 'deadpool': 1.02, 'doctor-doom': 1.06, 'doctor-fate': 1.08,
         'doctor-octopus': 1.38, 'doctor-strange': 0.62, 'general-grievous': 1.1, 'ghost-rider': 1.04,
-        'grand-master-yoda': 0.42, 'green-lantern-hal-jordan': 1, 'hershel-greene': 0.44, 'homelander': 0.74,
+        'grand-master-yoda': 0.42, 'green-lantern-hal-jordan': 1, 'hershel-greene': 0.96, 'homelander': 0.74,
         'indigo-1': 0.82, 'invincible': 0.98, 'iron-man': 1.02, 'john-stewart': 0.62, 'mysterio': 1.1, 'negan': 0.56,
         'obi-wan-kenobi': 0.56, 'omni-man': 1.08, 'parasite': 0.66, 'poison-ivy': 0.96, 'predalien': 1.12,
         'predator-stalker': 1.16, 'rage-infected': 0.5, 'rex-splode': 0.98, 'rick-grimes': 1, 'saint-walker': 0.66,
         'sandman': 1.18, 'scorpion': 0.92, 'sinestro': 1.08, 'sorrow': 1.06, 'space-marine-infantry': 0.98, 'space-marine-medic': 0.96, 'space-marine-smartgunner': 1.06, 'spider-man': 0.62, 'storm': 1.04,
         'superman': 1.06, 'the-flash-barry-allen': 0.98, 'the-green-goblin': 1.06, 'the-hulk': 1.42, 'the-joker': 0.96,
-        'venom': 1.24, 'walker': 0.62, 'wolverine': 0.84, 'wonder-woman': 1.02, 'xenomorph-drone': 1.12,
+        'venom': 1.24, 'walker': 0.92, 'wolverine': 0.84, 'wonder-woman': 1.02, 'xenomorph-drone': 1.12,
     };
     // Waist-up renders: the bottom edge is softened into the floor instead of a hard cut.
-    const COMIC_CUT = new Set(['batman', 'darth-vader', 'hershel-greene', 'homelander',
-        'john-stewart', 'negan', 'obi-wan-kenobi', 'parasite', 'rage-infected', 'walker',
+    const COMIC_CUT = new Set(['batman', 'darth-vader', 'homelander',
+        'john-stewart', 'negan', 'obi-wan-kenobi', 'parasite', 'rage-infected',
         'sandman', 'atrocitus', 'iron-man']);
     const COMIC_FLYERS = new Set(['iron-man', 'superman', 'invincible', 'omni-man', 'green-lantern-hal-jordan', 'doctor-strange',
         'saint-walker', 'atom-eve', 'indigo-1', 'the-green-goblin', 'homelander', 'mysterio', 'doctor-fate', 'parasite']);
