@@ -14,6 +14,14 @@ for (const arena of (process.env.ARENAS || 'pokemon,comic').split(',')) {
     await context.addCookies([{ name: 'comic_session', value: jwt.sign({ username: 'SceneAdmin' }, 'arena-scene-local-test-only'), domain: '127.0.0.1', path: '/' }]);
     await context.route('**/*', r => r.request().resourceType() === 'media' || /googletagmanager|googleapis|gstatic/.test(r.request().url()) ? r.abort() : r.continue());
     const page = await context.newPage(); page.on('pageerror', e => errors.push(e.message));
+    // POSE_AS=<render name>: every render borrows that render's pose frames (checks placement on both sides).
+    if (process.env.POSE_AS) {
+        const { listRenders } = require('../../../scripts/build-scene-poses.js');
+        const book = JSON.parse(require('node:fs').readFileSync(new URL('../../../assets/data/scene-poses.json', import.meta.url), 'utf8')).poses;
+        const renders = listRenders(), from = renders.find(r => r.name === process.env.POSE_AS).render;
+        const poses = Object.fromEntries(renders.map(r => [r.render, book[from]]));
+        await context.route('**/scene-poses.json*', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ poses }) }));
+    }
     await page.addInitScript(() => { window.__buzz = []; navigator.vibrate = p => { window.__buzz.push(p); return true; }; });
     await page.goto(`${base}/arena-scene/?arena=${arena}`, { waitUntil: 'domcontentloaded' });
     await page.waitForFunction(() => window.ArenaSceneSelection && document.querySelector('.slot-item[data-index]:not(.slot-empty)'));
@@ -72,9 +80,14 @@ for (const arena of (process.env.ARENAS || 'pokemon,comic').split(',')) {
         await page.waitForTimeout(n ? 10 : 60);
     }
     if (process.env.KO) {
-        await page.evaluate(() => window.BattleFX.death(document.querySelector('.player-characters .character-card[data-scene-slot="1"]')));
-        await page.waitForTimeout(1600);
-        await page.screenshot({ path: `${out}ko-${arena}-${size.width}.png` });
+        await page.evaluate(([side, slot]) => { window.__koSide = side; window.__koSlot = Number(slot); }, (process.env.KO + ':1').split(':'));
+        await page.evaluate(() => window.BattleFX.death(document.querySelector(`.${(window.__koSide || 'player')}-characters .character-card[data-scene-slot="${window.__koSlot ?? 1}"]`)));
+        // Snap the frame while the KO pose is up (a live state update clears it from a fighter who isn't really out).
+        for (let i = 0; i < 40; i++) {
+            const up = await page.evaluate(() => document.querySelector(`.${window.__koSide}-characters .character-card[data-scene-slot="${window.__koSlot}"]`)?.classList.contains('scene-posing') && document.querySelector(`.${window.__koSide}-characters .character-card[data-scene-slot="${window.__koSlot}"]`).dataset.pose === 'ko');
+            if (up) { await page.waitForTimeout(i ? 0 : 0); await page.screenshot({ path: `${out}ko-${arena}-${size.width}.png` }); break; }
+            await page.waitForTimeout(40);
+        }
     }
     report[arena] = { poses: [...new Set(await page.evaluate(() => window.__poses))], aimed: rows, ...afterAim, shotsSeen, frames, casts: await page.evaluate(() => window.__casts), turn: await page.evaluate(() => [window.ArenaSceneState.match.currentTurn, window.ArenaSceneState.match.turnNumber, document.querySelector('.scene-hint')?.textContent]) };
     const matchId = new URL(page.url()).searchParams.get('matchId');

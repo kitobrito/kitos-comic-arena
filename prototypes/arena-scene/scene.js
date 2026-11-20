@@ -768,9 +768,15 @@
             recentMotion.set(castKey, now);
             if (recentMotion.size > 60) recentMotion.delete(recentMotion.keys().next().value);
             if (!motionOK() || !settingsAllowMotion()) return;
-            // The attack pose from late in the wind-up until the strike has landed.
+            // The attack pose from late in the wind-up until the strike has landed. With several frames
+            // the first is the wind-up (an aim), the next lands as the hit leaves, the rest follow it.
             const strikeEnds = melee ? windup + 140 + 170 : delivery === 'self' || !foe ? windup + 300 : windup + 280;
-            setTimeout(() => showPose(actor, 'attack', strikeEnds - windup * 0.55), windup * 0.55);
+            const attackFrames = posesOf(actors.get(actor))?.attack?.length || 0;
+            if (attackFrames === 1) playPoseFrames(actor, 'attack', [[windup * 0.55, strikeEnds]]);
+            else if (attackFrames > 1) {
+                const step = (strikeEnds + 260 - windup) / (attackFrames - 1);
+                playPoseFrames(actor, 'attack', Array.from({ length: attackFrames }, (_, i) => (i ? [windup + (i - 1) * step, windup + i * step] : [0, windup])));
+            }
             const dir = foe ? Math.sign(foot(target).x - a.x) || (sideOf(actor) === 'player' ? 1 : -1) : (sideOf(actor) === 'player' ? 1 : -1);
             if (melee) {
                 const b = foot(target);
@@ -826,25 +832,40 @@
         let poseBook = {};
         fetch('/assets/data/scene-poses.json?v=1', { cache: 'no-cache' }).then(r => (r.ok ? r.json() : null))
             .then(data => { poseBook = data?.poses || {}; for (const actor of actors.values()) preloadPoses(actor); }).catch(() => {});
-        const renderKey = actor => { try { return decodeURIComponent(new URL(actor.art.currentSrc || actor.art.src, location.href).pathname).replace(/^\/+/, ''); } catch { return ''; } };
+        const renderKey = actor => { try { const p = decodeURIComponent(new URL(actor.art.currentSrc || actor.art.src, location.href).pathname); return p.slice(Math.max(0, p.indexOf('assets/'))); } catch { return ''; } };
         const posesOf = actor => (actor?.art?.src ? poseBook[renderKey(actor)] : null) || null;
         const posePreloaded = new Set();
         function preloadPoses(actor) {
-            for (const url of Object.values(posesOf(actor) || {})) if (!posePreloaded.has(url)) { posePreloaded.add(url); const img = new Image(); img.decoding = 'async'; img.src = url; }
+            for (const frames of Object.values(posesOf(actor) || {})) for (const { src } of frames) {
+                if (!posePreloaded.has(src)) { posePreloaded.add(src); const img = new Image(); img.decoding = 'async'; img.src = src; }
+            }
         }
-        function fitPose(actor) { for (const p of ['left', 'top', 'width', 'height']) actor.pose.style[p] = actor.art.style[p]; }
-        function showPose(card, kind, ms) {
-            const actor = actors.get(card), url = posesOf(actor)?.[kind];
-            if (!url || (card.dataset.pose === 'ko' && kind !== 'ko')) return false;
+        // A frame covers the render's canvas, or its own box (fractions of that canvas), mirrored for the enemy side.
+        function fitPose(actor) {
+            const art = actor.art, pose = actor.pose, box = pose.box || [0, 0, 1, 1];
+            const left = parseFloat(art.style.left) || 0, top = parseFloat(art.style.top) || 0;
+            const w = parseFloat(art.style.width) || 0, h = parseFloat(art.style.height) || 0;
+            const fx = actor.side === 'opponent' ? 1 - box[0] - box[2] : box[0];
+            pose.style.left = `${left + fx * w}px`; pose.style.top = `${top + box[1] * h}px`;
+            pose.style.width = `${box[2] * w}px`; pose.style.height = `${box[3] * h}px`;
+        }
+        /** Shows frame `index` of a pose for `ms` (Infinity keeps it until cleared). */
+        function showPose(card, kind, ms, index = 0) {
+            const actor = actors.get(card), frame = posesOf(actor)?.[kind]?.[index];
+            if (!frame || (card.dataset.pose === 'ko' && kind !== 'ko')) return false;
             if (!actor.pose) { actor.pose = document.createElement('img'); actor.pose.className = 'scene-pose'; actor.pose.alt = ''; actor.pose.draggable = false; actor.body.append(actor.pose); }
-            const img = actor.pose; fitPose(actor);
+            const img = actor.pose; img.box = frame.box; fitPose(actor);
             clearTimeout(actor.poseTimer);
             card.dataset.pose = kind;
             const reveal = () => { if (card.dataset.pose === kind) card.classList.add('scene-posing'); };
-            if (img.getAttribute('src') !== url) { img.onload = reveal; img.src = url; }
+            if (img.getAttribute('src') !== frame.src) { img.onload = reveal; img.src = frame.src; }
             if (img.complete && img.naturalWidth) reveal();
             if (Number.isFinite(ms)) actor.poseTimer = setTimeout(() => clearPose(card, kind), ms);
             return true;
+        }
+        /** Plays every frame of a pose in turn: [startMs, endMs] per frame. */
+        function playPoseFrames(card, kind, spans) {
+            spans.forEach(([from, to], i) => setTimeout(() => showPose(card, kind, i === spans.length - 1 ? to - from : to - from + 60, i), from));
         }
         function clearPose(card, kind) {
             const actor = actors.get(card); if (!actor || !card.dataset.pose || (kind && card.dataset.pose !== kind)) return;

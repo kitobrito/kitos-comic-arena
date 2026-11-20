@@ -1,3 +1,57 @@
 {
- "poses": {}
+ "poses": {
+  "assets/images/BIB/comic/rick-grimes.gif": {
+   "attack": [
+    {
+     "src": "/assets/images/poses/rick-grimes-attack.webp",
+     "box": [
+      -0.1211,
+      0.1797,
+      2.1451,
+      0.8203
+     ]
+    },
+    {
+     "src": "/assets/images/poses/rick-grimes-attack-2.webp",
+     "box": [
+      -0.1211,
+      0.1797,
+      2.1517,
+      0.8203
+     ]
+    },
+    {
+     "src": "/assets/images/poses/rick-grimes-attack-3.webp",
+     "box": [
+      -0.1211,
+      0.1797,
+      2.0967,
+      0.8203
+     ]
+    }
+   ],
+   "hit": [
+    {
+     "src": "/assets/images/poses/rick-grimes-hit.webp",
+     "box": [
+      0.184,
+      0.05,
+      1.3126,
+      0.95
+     ]
+    }
+   ],
+   "ko": [
+    {
+     "src": "/assets/images/poses/rick-grimes-ko.webp",
+     "box": [
+      -0.6672,
+      0.7552,
+      2.3365,
+      0.2448
+     ]
+    }
+   ]
+  }
+ }
 }
