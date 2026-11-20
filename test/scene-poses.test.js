@@ -38,6 +38,7 @@ test('the shipped pose art is all matched and present', () => {
     assert.equal(poses['assets/images/BIB/comic/rick-grimes.gif'].attack.length, 3);
     assert.equal(poses['assets/images/BIB/comic/rage-infected-full.webp'].attack.length, 4);
     assert.deepEqual(Object.keys(poses['assets/images/BIB/comic/rage-infected-full.webp']).sort(), ['attack', 'hit', 'ko']);
+    assert.equal(poses['assets/images/BIB/comic/walker-full.webp'].attack.length, 4);
 });
 
 test('the battlefield swaps in poses only where art exists', () => {

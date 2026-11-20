@@ -10,9 +10,10 @@ const dbName = process.env.MONGODB_DB || 'comic-arena';
 const newsCollectionName = process.env.MONGODB_NEWS_POSTS_COLLECTION || 'news_posts';
 
 const paragraphs = [
-    'Characters on the Experimental Battlefield are starting to get their own battle frames, starting with Rick Grimes and the Rage Infected.',
+    'Characters on the Experimental Battlefield are starting to get their own battle frames, starting with Rick Grimes, the Rage Infected and the Walker.',
     'When Rick attacks he raises his shotgun and aims, fires with a flash from the barrel, then pumps it and kicks out the spent shell. When he takes a hit he reels back, and when he is knocked out he drops to the ground and stays down until he is revived.',
     'The Rage Infected lunges in and claws wildly with a flurry of swipes, throws his head back screaming when he is hit, and collapses in a heap when he is knocked out.',
+    'The Walker shambles forward, reaches out and lunges in to grab, reels back with a scream when she is hit, and drops to the ground when she is knocked out.',
     'More characters will get attack, hit and knockout frames over time. Characters without them move the same way they always have.',
     'The sword-and-plus effect that popped up over a fighter whenever they got a buff is gone, in both the classic and experimental views. Buffed fighters now just get a short gold glow, so it no longer covers the action.',
     'To try the Experimental Battlefield, open Settings in any battle, press Options, and turn on Experimental battlefield (beta).',
@@ -29,7 +30,7 @@ const pokemonPost = {
     author: 'kito',
 };
 const newsPost = {
-    title: 'Comic Arena: Rick Grimes and the Rage Infected Get Battle Frames',
+    title: 'Comic Arena: Rick Grimes, the Rage Infected and the Walker Get Battle Frames',
     arena: 'comic',
     blocks: paragraphs.map((text) => ({ type: 'paragraph', text })),
     paragraphs,
