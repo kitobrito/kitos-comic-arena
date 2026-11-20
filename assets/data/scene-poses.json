@@ -90,6 +90,142 @@
     }
    ]
   },
+  "assets/images/BIB/comic/negan-full.webp": {
+   "impact": [
+    {
+     "src": "/assets/images/poses/negan-fx-blood.webp",
+     "skills": [
+      "negan-you-got-no-guts"
+     ],
+     "anchor": [
+      0.766,
+      0.544
+     ],
+     "size": 1.1,
+     "faces": -1
+    },
+    {
+     "src": "/assets/images/poses/negan-fx-burn.webp",
+     "skills": [
+      "negan-the-iron"
+     ],
+     "anchor": [
+      0.5,
+      0.795
+     ],
+     "size": 0.55,
+     "faces": 1
+    }
+   ],
+   "hit": [
+    {
+     "src": "/assets/images/poses/negan-hit.webp",
+     "box": [
+      -0.6027,
+      0.1168,
+      1.5564,
+      0.8832
+     ]
+    }
+   ],
+   "attack": [
+    {
+     "src": "/assets/images/poses/negan-iron.webp",
+     "box": [
+      -0.3323,
+      0.1846,
+      2.6446,
+      0.8154
+     ],
+     "skills": [
+      "negan-the-iron"
+     ]
+    },
+    {
+     "src": "/assets/images/poses/negan-knife.webp",
+     "box": [
+      -0.7774,
+      0.1916,
+      2.6314,
+      0.8084
+     ],
+     "skills": [
+      "negan-you-got-no-guts"
+     ]
+    },
+    {
+     "src": "/assets/images/poses/negan-raise.webp",
+     "box": [
+      -0.6488,
+      0.0607,
+      1.807,
+      0.9393
+     ],
+     "skills": [
+      "negan-bat-smashes-knives"
+     ]
+    },
+    {
+     "src": "/assets/images/poses/negan-windup.webp",
+     "box": [
+      -0.5565,
+      -0.0304,
+      1.7938,
+      1.0304
+     ],
+     "skills": [
+      "negan-you-re-already-fucked"
+     ]
+    },
+    {
+     "src": "/assets/images/poses/negan-smash.webp",
+     "box": [
+      -0.329,
+      0.2453,
+      1.7279,
+      0.7547
+     ],
+     "skills": [
+      "negan-bat-smashes-knives"
+     ]
+    },
+    {
+     "src": "/assets/images/poses/negan-swing.webp",
+     "box": [
+      -0.4279,
+      0.0748,
+      2.2159,
+      0.9252
+     ],
+     "skills": [
+      "negan-you-re-already-fucked"
+     ]
+    },
+    {
+     "src": "/assets/images/poses/negan-low.webp",
+     "box": [
+      -0.7181,
+      0.1005,
+      2.0379,
+      0.8995
+     ],
+     "skills": [
+      "negan-you-re-already-fucked"
+     ]
+    }
+   ],
+   "ko": [
+    {
+     "src": "/assets/images/poses/negan-ko.webp",
+     "box": [
+      -0.8685,
+      0.736,
+      2.7369,
+      0.264
+     ]
+    }
+   ]
+  },
   "assets/images/BIB/comic/rage-infected-full.webp": {
    "attack": [
     {
