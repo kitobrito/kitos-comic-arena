@@ -69,6 +69,13 @@ test('impact art pops up on the target and sprays away from the attacker', () =>
     assert.deepEqual(poses['x.png'].impact, [{ src: '/assets/images/poses/x-fx.webp', skills: ['s'], anchor: [0.2, 0.5], size: 0.8, faces: -1 }]);
 });
 
+test('an attacker\'s whole team comes forward while it strikes, so its weapon is never behind the target', () => {
+    const scene = fs.readFileSync(path.join(__dirname, '..', 'prototypes', 'arena-scene', 'scene.js'), 'utf8');
+    const css = fs.readFileSync(path.join(__dirname, '..', 'prototypes', 'arena-scene', 'scene.css'), 'utf8');
+    assert.ok(scene.includes("team?.classList.add('scene-team-acting')"));
+    assert.match(css, /:is\(\.player-characters,\.enemy-characters\)\.scene-team-acting \{ z-index:4!important; \}/);
+});
+
 test('the Negan battle frames news post publishes at server startup', async () => {
     assert.equal(negan.newsPost.arena, 'comic');
     assert.deepEqual(negan.newsPost.blocks.map((b) => b.text), negan.newsPost.paragraphs);

@@ -650,9 +650,15 @@
             return animation;
         }
         function raise(card, ms) {
-            card.classList.add('scene-acting');
+            // Each team is its own layer, so the attacker's whole team comes forward too: otherwise a strike
+            // reaching into the other team (an arm, a weapon) slides behind the target.
+            const team = card.closest('.player-characters, .enemy-characters');
+            card.classList.add('scene-acting'); team?.classList.add('scene-team-acting');
             clearTimeout(card._sceneLower);
-            card._sceneLower = setTimeout(() => card.classList.remove('scene-acting'), ms);
+            card._sceneLower = setTimeout(() => {
+                card.classList.remove('scene-acting');
+                if (team && !team.querySelector('.scene-acting')) team.classList.remove('scene-team-acting');
+            }, ms);
         }
         function afterimages(card, frames, options) {
             const actor = actors.get(card); if (!actor) return;
