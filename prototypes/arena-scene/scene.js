@@ -650,9 +650,15 @@
             return animation;
         }
         function raise(card, ms) {
-            card.classList.add('scene-acting');
+            // Each team is its own layer, so the attacker's whole team comes forward too: otherwise a strike
+            // reaching into the other team (an arm, a weapon) slides behind the target.
+            const team = card.closest('.player-characters, .enemy-characters');
+            card.classList.add('scene-acting'); team?.classList.add('scene-team-acting');
             clearTimeout(card._sceneLower);
-            card._sceneLower = setTimeout(() => card.classList.remove('scene-acting'), ms);
+            card._sceneLower = setTimeout(() => {
+                card.classList.remove('scene-acting');
+                if (team && !team.querySelector('.scene-acting')) team.classList.remove('scene-team-acting');
+            }, ms);
         }
         function afterimages(card, frames, options) {
             const actor = actors.get(card); if (!actor) return;
@@ -765,6 +771,14 @@
                     if (beam) drawBeam(actor, t, beam, { launchIn: Math.max(0, hit - now - flight), flight });
                     else shoot(actor, t, { element: profile.element, area: delivery === 'area', launchIn: Math.max(0, hit - now - flight), flight });
                 }
+                // Art drawn for the skill's hit (a blood spray, a burn) pops up on the target as it lands.
+                const impact = foe && sideOf(t) !== sideOf(actor) && impactFor(actors.get(actor), skillId);
+                const impactKey = `${shotKey}:impact`;
+                if (impact && actors.has(t) && !(shotSeen.get(impactKey) > now - 900) && motionOK() && settingsAllowMotion()) {
+                    shotSeen.set(impactKey, now);
+                    if (shotSeen.size > 60) shotSeen.delete(shotSeen.keys().next().value);
+                    drawImpact(actor, t, impact, Math.max(0, impactAt.get(t) - now));
+                }
             });
             if (recentMotion.get(castKey) > now - 900) return; // one skill reported once per target
             recentMotion.set(castKey, now);
@@ -837,7 +851,7 @@
         // an attack pose while striking, a hit pose when damaged, a ko pose while knocked out. The pose
         // sits exactly where the render is; fighters without pose art keep their normal movement.
         let poseBook = {};
-        fetch('/assets/data/scene-poses.json?v=1', { cache: 'no-cache' }).then(r => (r.ok ? r.json() : null))
+        fetch('/assets/data/scene-poses.json?v=2', { cache: 'no-cache' }).then(r => (r.ok ? r.json() : null))
             .then(data => { poseBook = data?.poses || {}; for (const actor of actors.values()) preloadPoses(actor); }).catch(() => {});
         const renderKey = actor => { try { const p = decodeURIComponent(new URL(actor.art.currentSrc || actor.art.src, location.href).pathname); return p.slice(Math.max(0, p.indexOf('assets/'))); } catch { return ''; } };
         const posesOf = actor => (actor?.art?.src ? poseBook[renderKey(actor)] : null) || null;
@@ -863,6 +877,7 @@
             return own.length ? own : frames.filter(f => !f.skills);
         }
         const beamFor = (actor, skillId) => (posesOf(actor)?.beam || []).find(b => b.skills?.includes(skillId)) || null;
+        const impactFor = (actor, skillId) => (posesOf(actor)?.impact || []).find(f => f.skills?.includes(skillId)) || null;
         /** Shows one frame of a pose for `ms` (Infinity keeps it until cleared). */
         function showPose(card, kind, ms, frame = (posesOf(actors.get(card))?.[kind] || []).find(f => !f.skills)) {
             const actor = actors.get(card);
@@ -899,6 +914,34 @@
                 el.animate([{ clipPath: 'inset(0 100% 0 0)', opacity: 1 }, { clipPath: 'inset(0 0 0 0)', opacity: 1 }], { duration: Math.max(90, flight), easing: 'ease-in', fill: 'forwards' });
                 setTimeout(() => el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, fill: 'forwards' }).finished.catch(() => {}).then(() => el.remove()), Math.max(90, flight) + 260);
             }, launchIn);
+        }
+        /** A hit drawn on the target (a blood spray, a burn): its anchor sits on the body, it sprays away
+         *  from the attacker, pops in as the hit lands, holds a moment, then fades. */
+        function drawImpact(actor, target, impact, landIn) {
+            setTimeout(() => {
+                if (!actors.has(target)) return;
+                const art = actors.get(target)?.art; if (!art) return;
+                const r = field.getBoundingClientRect(), t = art.getBoundingClientRect(), a = foot(actor);
+                const b = { x: t.left + t.width / 2, y: t.top + t.height * 0.45 };
+                const away = Math.sign(b.x - a.x) || (sideOf(actor) === 'player' ? 1 : -1);
+                const flip = away * (impact.faces || 1) < 0;
+                const [ax, ay] = impact.anchor || [0.5, 0.5];
+                const w = t.height * (impact.size || 0.6);
+                const el = document.createElement('img'); el.className = 'scene-impact'; el.alt = ''; el.src = impact.src;
+                el.style.width = `${w}px`;
+                el.style.left = `${b.x - r.left - ax * w}px`;
+                el.style.top = `${b.y - r.top}px`;
+                el.style.transformOrigin = `${ax * 100}% ${ay * 100}%`; // mirrored about its anchor, which stays on the body
+                el.onload = () => { el.style.marginTop = `${-ay * el.offsetHeight}px`; };
+                const mirror = flip ? 'scaleX(-1) ' : '';
+                field.append(el);
+                el.animate([
+                    { transform: `${mirror}scale(.35)`, opacity: 0 },
+                    { transform: `${mirror}scale(1.08)`, opacity: 1, offset: 0.35 },
+                    { transform: `${mirror}scale(1)`, opacity: 1, offset: 0.7 },
+                    { transform: `${mirror}scale(1.02)`, opacity: 0 },
+                ], { duration: 820, easing: 'ease-out', fill: 'forwards' }).finished.catch(() => {}).then(() => el.remove());
+            }, landIn);
         }
         function clearPose(card, kind) {
             const actor = actors.get(card); if (!actor || !card.dataset.pose || (kind && card.dataset.pose !== kind)) return;
