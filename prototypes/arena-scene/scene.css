@@ -735,3 +735,52 @@ html.arena-scene-preview body.scene-battle .character-card.scene-evolving.scene-
 @media (max-width:700px) {
  html.arena-scene-preview body.scene-battle .scene-actor-name { width:max-content; max-width:min(112px,29vw); white-space:normal!important; overflow-wrap:normal; word-break:normal; line-height:1.1!important; text-align:center; box-sizing:border-box; }
 }
+
+/* ===== Shots: ranged skills fly from caster to target in their element's colour (scene.js shoot) ===== */
+.scene-shot { position:absolute; z-index:40; width:var(--size); height:var(--size); pointer-events:none; border-radius:50%; background:radial-gradient(circle,#fff 0 22%,var(--shot) 46%,transparent 72%); filter:drop-shadow(0 0 6px var(--shot)) drop-shadow(0 0 14px var(--shot)); will-change:transform; }
+.scene-shot::before { content:''; position:absolute; right:50%; top:50%; width:calc(var(--size)*2.6); height:calc(var(--size)*.46); translate:0 -50%; border-radius:999px; background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--shot) 55%,transparent) 55%,#fffc); filter:blur(1.5px); }
+.scene-shot-area { width:calc(var(--size)*1.25); height:calc(var(--size)*2.2); border-radius:45%; background:radial-gradient(ellipse at 70% 50%,#fff 0 14%,var(--shot) 40%,transparent 70%); }
+.scene-shot-area::before { width:calc(var(--size)*2); height:calc(var(--size)*1.4); border-radius:50%; }
+.scene-shot-bullet { border-radius:40%; }
+.scene-shot-bullet::before { width:calc(var(--size)*4); height:calc(var(--size)*.4); }
+.scene-shot-pop { position:absolute; z-index:40; width:var(--size); height:var(--size); pointer-events:none; border-radius:50%; background:radial-gradient(circle,#fff 0 12%,var(--shot) 30%,transparent 62%); box-shadow:0 0 0 3px color-mix(in srgb,var(--shot) 60%,transparent) inset; mix-blend-mode:screen; }
+
+/* ===== Damage preview: "−30" and the slice of health a target would lose while a skill is aimed ===== */
+.scene-dmg-ghost { position:absolute; left:50%; bottom:calc(100% + 4px); translate:-50% 0; z-index:3; padding:1px 9px 2px; border-radius:999px; background:#1a0705ee; border:1.5px solid #ff7a5c; color:#ffe1d6; font:900 15px/1.2 Arial,sans-serif; letter-spacing:.3px; white-space:nowrap; text-shadow:0 1px 2px #000; box-shadow:0 3px 10px #000a,0 0 10px #ff5a3a66; animation:scene-dmg-in .22s cubic-bezier(.2,.9,.3,1.3); }
+.scene-dmg-ghost.is-effective { border-color:#ffd24a; color:#fff3c2; box-shadow:0 3px 10px #000a,0 0 12px #ffc93a99; }
+.scene-dmg-ghost.is-varies { border-color:#ffb08f; }
+.scene-dmg-ghost.is-resisted { border-color:#9fb0c0; color:#dfe7ee; box-shadow:0 3px 10px #000a; }
+.scene-dmg-lethal .scene-dmg-ghost { background:#3a0606f2; border-color:#ff3b30; color:#fff; }
+.scene-dmg-lethal .scene-dmg-ghost::after { content:' KO'; color:#ff6b5e; font-size:11px; }
+.scene-dmg-chunk { position:absolute; top:0; bottom:0; z-index:1; pointer-events:none; background:repeating-linear-gradient(-45deg,#fff 0 3px,#ffd2c4 3px 6px); animation:scene-dmg-blink .9s ease-in-out infinite; }
+.character-card.targetable:hover .scene-dmg-ghost { transform:scale(1.15); }
+@keyframes scene-dmg-blink { 50% { opacity:.35; } }
+@keyframes scene-dmg-in { from { transform:translateY(6px) scale(.7); opacity:0; } }
+/* The game's own hover card says the same thing; the plate label replaces it on the battlefield. */
+html.arena-scene-preview body.scene-battle .character-card:has(.scene-dmg-ghost) .target-damage-preview { display:none!important; }
+
+/* ===== Touch screens: bigger skill buttons with extra invisible room around each one ===== */
+@media (max-width:1000px) and (pointer:coarse) {
+ html.arena-scene-preview body.scene-battle .scene-fieldbar .scene-skill.scene-mini::before { content:''; position:absolute; inset:-2px; }
+ html.arena-scene-preview body.scene-battle .scene-fieldbar:not(.scene-enemybar) .scene-mini:nth-child(odd)::before { left:-7px; }
+ html.arena-scene-preview body.scene-battle .scene-fieldbar:not(.scene-enemybar) .scene-mini:nth-child(even)::before { right:-7px; }
+ html.arena-scene-preview body.scene-battle .scene-fieldbar:not(.scene-enemybar) .scene-mini:nth-child(-n+2)::before { top:-7px; }
+ html.arena-scene-preview body.scene-battle .scene-fieldbar:not(.scene-enemybar) .scene-mini:nth-child(n+3)::before { bottom:-7px; }
+ .scene-fieldbar .scene-mini:active:not(:disabled) { transform:scale(.92); }
+ .scene-dmg-ghost { font-size:11.5px; padding:1px 7px 2px; }
+}
+/* Sideways phones and tablets have room for bigger buttons; upright phones keep the size and use the extra tap room. */
+@media (max-width:1000px) and (min-width:701px) and (pointer:coarse) {
+ html.arena-scene-preview body.scene-battle .scene-fieldbar:not(.scene-enemybar) .scene-skill.scene-mini { width:40px; height:40px; }
+}
+@media (max-width:700px) and (pointer:coarse) {
+ html.arena-scene-preview body.scene-battle .scene-fieldbar:not(.scene-enemybar) .scene-mini:nth-child(odd)::before { left:-4px; }
+ html.arena-scene-preview body.scene-battle .scene-fieldbar:not(.scene-enemybar) .scene-mini:nth-child(even)::before { right:-4px; }
+ html.arena-scene-preview body.scene-battle .scene-fieldbar:not(.scene-enemybar) .scene-mini:nth-child(-n+2)::before { top:-9px; }
+ html.arena-scene-preview body.scene-battle .scene-fieldbar:not(.scene-enemybar) .scene-mini:nth-child(n+3)::before { bottom:-9px; }
+}
+@media (prefers-reduced-motion:reduce) { .scene-dmg-chunk, .scene-dmg-ghost { animation:none; } }
+/* The narrowest phones: a touch smaller so neighbouring squares never meet. */
+@media (max-width:380px) {
+ html.arena-scene-preview body.scene-battle .scene-fieldbar:not(.scene-enemybar) .scene-skill.scene-mini { width:31px; height:31px; }
+}

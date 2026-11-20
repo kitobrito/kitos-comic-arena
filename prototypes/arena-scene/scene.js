@@ -189,6 +189,9 @@
         let selected = 0, state = null;
         const armed = { slot: -1, index: -1 }; // the skill waiting for a target
         const fire = el => el?.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, button: 0 }));
+        // A short tap of vibration on phones when a skill or a target is picked (touch screens only).
+        const touch = matchMedia('(pointer: coarse)');
+        const buzz = ms => { try { if (touch.matches) navigator.vibrate?.(ms); } catch { /* not supported */ } };
         // One panel per fighter, all on screen. A panel folds into one button once its skill is queued.
         const panels = teams.player.map((card, slot) => {
             const panel = document.createElement('div'); panel.className = 'scene-fighter'; panel.dataset.slot = String(slot);
@@ -198,7 +201,7 @@
             const head = $('.scene-fighter-head', panel);
             head.addEventListener('click', () => { selected = slot; card._showCharacterInfoFromPortrait?.(); syncControls(); });
             const pick = index => {
-                selected = slot;
+                selected = slot; buzz(10);
                 const original = $$('.skillimage', card)[index];
                 const wasArmed = armed.slot === slot && armed.index === index;
                 armed.slot = wasArmed ? -1 : slot; armed.index = wasArmed ? -1 : index;
@@ -292,7 +295,10 @@
             card.prepend(ring, rig); card.append(arrow, plate);
             const actor = { side, slot, card, art, rig, body: $('.scene-body', rig), id: '', names: [], bbox: null };
             actors.set(card, actor);
-            card.addEventListener('pointerdown', () => { if (side === 'player') { selected = slot; queueMicrotask(syncControls); } }, true);
+            card.addEventListener('pointerdown', () => {
+                if (card.classList.contains('targetable')) buzz([14, 40, 14]);
+                if (side === 'player') { selected = slot; queueMicrotask(syncControls); }
+            }, true);
             const face = $('.character-face', card);
             if (face) { face.setAttribute('tabindex', '0'); face.setAttribute('role', 'button'); face.addEventListener('keydown', event => {
                 if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); face.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, button: 0 })); }
@@ -580,6 +586,37 @@
             const queuedCount = Object.keys(queuedBySlot).length;
             const able = panels.filter(p => !p.card.classList.contains('scene-knocked-out')).length;
             $('.scene-queue').textContent = queuedCount ? `${queuedCount} of ${able} queued · press Ready when done` : 'One skill per fighter';
+            syncDamagePreview();
+        }
+        // While a skill is aimed, every glowing target shows what it would lose: "−30" over its
+        // health bar and the matching slice of the bar blinking. Read from the game's own preview.
+        function syncDamagePreview() {
+            for (const card of allCards()) {
+                const plate = $('.scene-plate', card), bar = $('.health-bar-container', plate || card);
+                if (!plate || !bar) continue;
+                let ghost = $('.scene-dmg-ghost', plate), chunk = $('.scene-dmg-chunk', bar);
+                const total = card.classList.contains('targetable') ? $('.target-damage-preview-total', card) : null;
+                const text = total?.textContent || '';
+                const damage = Number(text.match(/(\d+)\s*damage/i)?.[1] || 0);
+                const varies = !damage && /varies/i.test(text);
+                if (!damage && !varies) { ghost?.remove(); chunk?.remove(); continue; }
+                if (!ghost) { ghost = document.createElement('span'); ghost.className = 'scene-dmg-ghost'; ghost.setAttribute('aria-hidden', 'true'); plate.prepend(ghost); }
+                if (varies) { if (ghost.textContent !== '−?') ghost.textContent = '−?'; ghost.className = 'scene-dmg-ghost is-varies'; chunk?.remove(); plate.classList.remove('scene-dmg-lethal'); continue; }
+                if (!chunk) { chunk = document.createElement('span'); chunk.className = 'scene-dmg-chunk'; bar.append(chunk); }
+                ghost.classList.remove('is-varies');
+                const tip = total.parentElement;
+                const effective = Boolean($('.is-effective', tip)), resisted = Boolean($('.is-resisted', tip));
+                const label = `${/up to/i.test(text) ? 'up to ' : ''}−${damage}${effective ? '!' : ''}`;
+                if (ghost.textContent !== label) ghost.textContent = label;
+                ghost.classList.toggle('is-effective', effective); ghost.classList.toggle('is-resisted', resisted);
+                const unit = state?.units?.[sideOf(card)]?.[actors.get(card)?.slot]?.unit;
+                const hp = Number.isFinite(parseFloat(card.dataset.renderedHp)) ? parseFloat(card.dataset.renderedHp) : Number(unit?.hp ?? 100);
+                const max = parseFloat(card.dataset.renderedDisplayMaxHp) || Number(unit?.maxHp) || 100;
+                const now = Math.max(0, Math.min(100, hp / max * 100));
+                const lost = Math.min(now, damage / max * 100);
+                chunk.style.left = `${now - lost}%`; chunk.style.width = `${lost}%`;
+                plate.classList.toggle('scene-dmg-lethal', damage >= hp);
+            }
         }
         let controlsScheduled = false;
         const observer = new MutationObserver(() => {
@@ -590,7 +627,8 @@
         for (const card of teams.player) {
             const holder = $('.skillholder', card); if (holder) observer.observe(holder, { subtree: true, attributes: true, childList: true, characterData: true });
         }
-        for (const card of allCards()) observer.observe(card, { attributes: true, attributeFilter: ['class'] });
+        // childList: the game pins its damage preview to a card right after marking it targetable.
+        for (const card of allCards()) observer.observe(card, { attributes: true, attributeFilter: ['class'], childList: true });
 
         // ---- Motion -------------------------------------------------------------------------------------
         // Every motion is written relative to the figure's resting spot and runs on its rig, so the
@@ -647,6 +685,54 @@
                 .finished.catch(() => {}).then(() => el.remove());
         }
 
+        // Ranged skills fire a glowing shot in their element's colour from the caster to each target.
+        // It lands on the same frame as the hit (impactAt), so the damage number and recoil meet it.
+        const SHOT_COLORS = {
+            fire: '#ff7a2a', hellfire: '#ff4618', solar: '#ffd23c', explosive: '#ff9a3a', water: '#3ca8ff', ice: '#a6ecff',
+            electric: '#ffe53c', lightning: '#d2ecff', grass: '#62da5a', poison: '#b85ad8', toxin: '#94e23c', acid: '#bcf23c',
+            psychic: '#ff5ac8', arcane: '#b47aff', illusion: '#d48aff', ghost: '#8c6ce0', dark: '#7a52a8', shadow: '#6a42a0',
+            fear: '#ffd23c', willpower: '#3cff74', divine: '#fff2b0', blood: '#e0202e', drain: '#c03cff', dragon: '#6e5cff',
+            fairy: '#ffaee4', flying: '#c8e4ff', steel: '#d8e2ec', rock: '#c8a46a', fighting: '#ff8a4a', bug: '#a6d83c',
+            laser: '#ff3c5c', repulsor: '#a6ecff', portal: '#ffa040', gunfire: '#ffd88a', web: '#f4f4f4', gadget: '#7ad8ff',
+            force: '#9ad0ff', 'force-choke': '#c03cff', 'dark-force': '#e0302e', 'fourth-wall': '#ff4a8a', normal: '#fff0cc',
+        };
+        const shotSeen = new Map();
+        function shoot(actor, target, { element, area, launchIn, flight }) {
+            const r = field.getBoundingClientRect(), a = foot(actor), b = foot(target);
+            const from = { x: a.x - r.left, y: a.y - r.top - a.h * 0.55 }, to = { x: b.x - r.left, y: b.y - r.top - b.h * 0.5 };
+            const dx = to.x - from.x, dy = to.y - from.y, angle = Math.atan2(dy, dx) * 180 / Math.PI;
+            const color = SHOT_COLORS[element] || '#ffe7a0';
+            const size = Math.max(24, Math.min(50, a.h * (area ? 0.3 : 0.2)));
+            const volley = element === 'gunfire' ? 3 : 1;
+            for (let n = 0; n < volley; n++) {
+                const el = document.createElement('span');
+                el.className = `scene-shot${area ? ' scene-shot-area' : ''}${volley > 1 ? ' scene-shot-bullet' : ''}`;
+                el.style.setProperty('--shot', color); el.style.setProperty('--size', `${volley > 1 ? size * 0.5 : size}px`);
+                el.style.left = `${from.x}px`; el.style.top = `${from.y}px`;
+                const lift = area ? 0 : Math.min(40, Math.abs(dx) * 0.06); // a slight arc
+                const delay = Math.max(0, launchIn - (volley - 1 - n) * 70);
+                const at = (t, extra = '') => `translate(${dx * t}px,${dy * t - Math.sin(Math.PI * t) * lift}px) translate(-50%,-50%) rotate(${angle}deg)${extra}`;
+                el.style.opacity = '0';
+                field.append(el);
+                const anim = el.animate([
+                    { offset: 0, transform: at(0, ' scale(.4)'), opacity: 1 },
+                    { offset: 0.15, transform: at(0.15, ' scale(1)'), opacity: 1 },
+                    { offset: 0.5, transform: at(0.5) },
+                    { offset: 1, transform: at(1, area ? ' scale(1.6,1.2)' : ' scale(1.1)'), opacity: 1 },
+                ], { duration: flight, delay, easing: 'cubic-bezier(.45,.05,.85,.6)', fill: 'backwards' });
+                anim.finished.catch(() => {}).then(() => {
+                    el.remove();
+                    if (n !== volley - 1) return;
+                    const pop = document.createElement('span'); pop.className = 'scene-shot-pop';
+                    pop.style.setProperty('--shot', color); pop.style.setProperty('--size', `${size * (area ? 3.2 : 2.4)}px`);
+                    pop.style.left = `${to.x}px`; pop.style.top = `${to.y}px`;
+                    field.append(pop);
+                    pop.animate([{ transform: 'translate(-50%,-50%) scale(.2)', opacity: 1 }, { transform: 'translate(-50%,-50%) scale(1.25)', opacity: 0 }], { duration: 340, easing: 'cubic-bezier(.1,.8,.3,1)' })
+                        .finished.catch(() => {}).then(() => pop.remove());
+                });
+            }
+        }
+
         /** The caster's visible move. Returns how long until its hit lands on the first target. */
         function castMotion({ actor, targets = [], characterId, skillId, key }) {
             if (!actor || !actors.has(actor)) return;
@@ -666,6 +752,16 @@
                 const travel = melee ? 140 : profile?.travel ? Math.min(620, Math.max(260, Math.hypot(b.x - a.x, b.y - a.y) * 0.9)) : 60;
                 const at = now + (recentMotion.get(castKey) > now - 900 ? 90 : windup) + travel + Math.min(i, 3) * 90;
                 if (!impactAt.get(t) || impactAt.get(t) < now) impactAt.set(t, at);
+                // The shot: projectiles fly for the engine's travel time; area blasts sweep out during the wind-up.
+                const ranged = profile && !melee && (delivery === 'projectile' || delivery === 'ranged' || delivery === 'area') && sideOf(t) !== sideOf(actor);
+                const shotKey = `${castKey}>${sideOf(t)}${actors.get(t)?.slot}`;
+                if (ranged && actors.has(t) && !(shotSeen.get(shotKey) > now - 900) && motionOK() && settingsAllowMotion()) {
+                    shotSeen.set(shotKey, now);
+                    if (shotSeen.size > 60) shotSeen.delete(shotSeen.keys().next().value);
+                    const hit = impactAt.get(t);
+                    const flight = profile.travel ? travel : Math.min(240, Math.max(140, hit - now - 40));
+                    shoot(actor, t, { element: profile.element, area: delivery === 'area', launchIn: Math.max(0, hit - now - flight), flight });
+                }
             });
             if (recentMotion.get(castKey) > now - 900) return; // one skill reported once per target
             recentMotion.set(castKey, now);
