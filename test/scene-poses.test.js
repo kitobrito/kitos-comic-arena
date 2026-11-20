@@ -36,6 +36,8 @@ test('the shipped pose art is all matched and present', () => {
     assert.deepEqual(JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'assets', 'data', 'scene-poses.json'), 'utf8')).poses, poses, 'run node scripts/build-scene-poses.js');
     for (const kinds of Object.values(poses)) for (const frames of Object.values(kinds)) for (const { src } of frames) assert.ok(fs.existsSync(path.join(__dirname, '..', src)), src);
     assert.equal(poses['assets/images/BIB/comic/rick-grimes.gif'].attack.length, 3);
+    assert.equal(poses['assets/images/BIB/comic/rage-infected-full.webp'].attack.length, 4);
+    assert.deepEqual(Object.keys(poses['assets/images/BIB/comic/rage-infected-full.webp']).sort(), ['attack', 'hit', 'ko']);
 });
 
 test('the battlefield swaps in poses only where art exists', () => {
