@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const { listRenders, buildManifest } = require('../scripts/build-scene-poses');
-const { newsPost, syncExperimentalBattlefieldPosesNews } = require('../sync_experimental_battlefield_poses_news');
+const { newsPost, pokemonPost, syncExperimentalBattlefieldPosesNews } = require('../sync_experimental_battlefield_poses_news');
 
 test('every battlefield render has a pack name poses can be matched to', () => {
     const renders = listRenders();
@@ -49,11 +49,14 @@ test('the battlefield swaps in poses only where art exists', () => {
 
 test('the battle frames news post publishes once at server startup', async () => {
     assert.equal(newsPost.arena, 'comic');
-    assert.deepEqual(newsPost.blocks.map((b) => b.text), newsPost.paragraphs);
-    assert.doesNotMatch(JSON.stringify(newsPost), /\p{Extended_Pictographic}/u, 'no emojis');
+    assert.equal(pokemonPost.arena, 'pokemon');
+    for (const post of [newsPost, pokemonPost]) {
+        assert.deepEqual(post.blocks.map((b) => b.text), post.paragraphs);
+        assert.doesNotMatch(JSON.stringify(post), /\p{Extended_Pictographic}/u, 'no emojis');
+    }
     const docs = new Map();
     const db = { collection: () => ({ async updateOne(filter, update) { docs.set(filter.title, { ...(docs.get(filter.title) || update.$setOnInsert), ...update.$set }); } }) };
     await syncExperimentalBattlefieldPosesNews(db); await syncExperimentalBattlefieldPosesNews(db);
-    assert.equal(docs.size, 1);
+    assert.equal(docs.size, 2);
     assert.match(fs.readFileSync(path.join(__dirname, '..', 'server.js'), 'utf8'), /await syncExperimentalBattlefieldPosesNews\(db\)/);
 });

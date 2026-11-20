@@ -35,3 +35,10 @@ test('the engine centres the status burst on the character-face rect and picks t
     assert.match(engine, /const faceOf = \(card\) => card\?\.querySelector\?\.\('\.character-face'\) \|\| card;/);
     assert.match(engine, /key: harmful \? 'type\/debuffApply' : 'type\/buffApply'/);
 });
+
+test('the sword-and-plus buff sprites no longer play', () => {
+    const engine = fs.readFileSync(path.join(__dirname, '..', 'scripts', 'battle-fx.js'), 'utf8');
+    assert.match(engine, /'type\/buffApply': null/);
+    assert.match(engine, /'fantasy-spells\/spell_attack_up_001': null/);
+    assert.match(engine, /if \(!key\) return Promise\.resolve\(\);/);
+});

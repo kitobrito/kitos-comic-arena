@@ -40,7 +40,7 @@
     const CHARACTERS_URL = 'assets/data/battle-fx-characters.json';
     const MAX_SPRITES = 32;
     const MAX_SHEETS = 64;
-    const VERSION = 'battle-fx-v3';
+    const VERSION = 'battle-fx-v4';
 
     const settings = {
         casts: () => true,     // replaced by configure(): the "Skill animations" setting
@@ -147,7 +147,15 @@
      *  loop: repeat frames until duration ends (projectiles)
      *  angle: degrees to rotate (directional effects point along their travel)
      *  Resolves when the sprite finishes. */
-    const playSprite = ({ key, x, y, from, to, size = 120, duration, loop = false, angle = 0, easing = 'outCubic', blend }) => {
+    // Retired looks: the sword-and-plus "buff" sprites (gold for Pokemon, red for Comic) no longer play.
+    // A buffed fighter still gets the glow from its card animator (and the battlefield's gold flash).
+    const SPRITE_SWAPS = {
+        'type/buffApply': null,
+        'fantasy-spells/spell_attack_up_001': null,
+    };
+    const playSprite = ({ key: requested, x, y, from, to, size = 120, duration, loop = false, angle = 0, easing = 'outCubic', blend }) => {
+        const key = requested in SPRITE_SWAPS ? SPRITE_SWAPS[requested] : requested;
+        if (!key) return Promise.resolve();
         if (window.ARENA_SCENE_VIEW) size = Math.min(size, Math.max(60, Math.min(125, innerWidth * .2)));
         const effect = manifest.effects[key];
         if (!effect || liveSprites >= MAX_SPRITES) return Promise.resolve();
@@ -963,9 +971,9 @@
                 const c = characterProfile(id);
                 if (!c) return;
                 keys.push(c.entry, c.victory, c.defeat);
-                Object.values(c.skills).forEach((s) => keys.push(s.windup, s.travel, s.impact));
+                Object.values(c.skills).forEach((s) => keys.push(...[s.windup, s.travel, s.impact].filter((k) => !(k in SPRITE_SWAPS))));
             });
-            keys.push('type/buffApply', 'type/debuffApply', 'fantasy-spells/spell_heal_001', 'impacts/directional_impact_002');
+            keys.push('type/debuffApply', 'fantasy-spells/spell_heal_001', 'impacts/directional_impact_002');
             preloadArt();
             return preloadKeys(keys);
         },
