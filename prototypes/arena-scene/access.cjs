@@ -37,8 +37,8 @@ module.exports = function createSceneHandler({ resolveUser, repositoryRoot = joi
                 html = html.replace('<head>', '<head><base href="/"><script>window.ARENA_SCENE_PREVIEW=true;window.ARENA_SCENE_VIEW=true;document.documentElement.classList.add("arena-scene-preview","scene-admin-preview");</script>');
                 html = html.replace('src="scripts/battle-fx.js?v=', 'src="scripts/battle-fx.js?v=arena-scene-v1&');
                 html = html.replace('src="scripts/script.js?v=', 'src="scripts/script.js?v=arena-scene-v1&');
-                html = html.replace('</head>', '<link rel="stylesheet" href="/arena-scene/scene.css?v=18"></head>');
-                html = html.replace('</body>', '<script src="/arena-scene/scene.js?v=18"></script></body>');
+                html = html.replace('</head>', '<link rel="stylesheet" href="/arena-scene/scene.css?v=20"></head>');
+                html = html.replace('</body>', '<script src="/arena-scene/scene.js?v=20"></script></body>');
                 res.setHeader('Content-Type', 'text/html; charset=utf-8');
                 res.end(req.method === 'HEAD' ? undefined : html); return;
             }

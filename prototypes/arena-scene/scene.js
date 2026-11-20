@@ -370,6 +370,7 @@
             art.style.width = `${box.nw * k}px`; art.style.height = `${box.nh * k}px`;
             art.style.left = `${-(flipped ? box.nw - box.x - box.w : box.x) * k}px`;
             art.style.top = `${-box.y * k}px`;
+            if (actor.pose) fitPose(actor);
             const lift = isFlyer(actor) ? Math.round(height * 0.07) : 0;
             card.style.setProperty('--x', x); card.style.setProperty('--y', y);
             card.style.setProperty('--w', Math.round(width)); card.style.setProperty('--h', Math.round(height));
@@ -671,10 +672,10 @@
             $$(':scope > .scene-backdrop, :scope > .player-characters, :scope > .enemy-characters', field).forEach(el => el.animate(frames, { duration: 260, easing: 'ease-out' }));
         }
         function flash(card, kind) {
-            const art = actors.get(card)?.art; if (!art?.animate) return;
+            const actor = actors.get(card), art = actor?.art; if (!art?.animate) return;
             const tint = { hit: 'brightness(2.8) saturate(0)', heal: 'brightness(1.35) drop-shadow(0 0 16px #8dffb0)', buff: 'brightness(1.3) drop-shadow(0 0 14px #ffe08a)', debuff: 'brightness(.9) sepia(1) hue-rotate(220deg) saturate(2.6)' }[kind];
             const after = kind === 'hit' ? 'brightness(1.05) sepia(.45) saturate(2.4) hue-rotate(-32deg)' : tint;
-            art.animate([{ offset: 0.12, filter: tint }, { offset: 0.4, filter: after }], { duration: kind === 'hit' ? 420 : 700, easing: 'ease-out' });
+            for (const el of [art, actor.pose].filter(Boolean)) el.animate([{ offset: 0.12, filter: tint }, { offset: 0.4, filter: after }], { duration: kind === 'hit' ? 420 : 700, easing: 'ease-out' });
         }
         function spark(card, heal) {
             const f = foot(card), r = field.getBoundingClientRect();
@@ -760,13 +761,29 @@
                     if (shotSeen.size > 60) shotSeen.delete(shotSeen.keys().next().value);
                     const hit = impactAt.get(t);
                     const flight = profile.travel ? travel : Math.min(240, Math.max(140, hit - now - 40));
-                    shoot(actor, t, { element: profile.element, area: delivery === 'area', launchIn: Math.max(0, hit - now - flight), flight });
+                    const beam = beamFor(actors.get(actor), skillId);
+                    if (beam) drawBeam(actor, t, beam, { launchIn: Math.max(0, hit - now - flight), flight });
+                    else shoot(actor, t, { element: profile.element, area: delivery === 'area', launchIn: Math.max(0, hit - now - flight), flight });
                 }
             });
             if (recentMotion.get(castKey) > now - 900) return; // one skill reported once per target
             recentMotion.set(castKey, now);
             if (recentMotion.size > 60) recentMotion.delete(recentMotion.keys().next().value);
             if (!motionOK() || !settingsAllowMotion()) return;
+            // The attack pose from late in the wind-up until the strike has landed. With several frames
+            // the first is the wind-up (an aim), the next lands as the hit leaves, the rest follow it.
+            const strikeEnds = melee ? windup + 140 + 170 : delivery === 'self' || !foe ? windup + 300 : windup + 280;
+            // A melee skill holds its first frame through the dash (a flying pose), then strikes.
+            // The last frame holds until the hit has landed (a long beam or shot can outlast the strike).
+            const attack = attackFramesFor(actors.get(actor), skillId);
+            const firstHit = Math.max(0, (impactAt.get(targets.find(t => t && t !== actor)) || 0) - now);
+            const tail = Math.max(strikeEnds + 260, firstHit + 300);
+            if (attack.length === 1) playPoseFrames(actor, 'attack', [[windup * 0.55, Math.max(strikeEnds, firstHit + 200)]], attack);
+            else if (attack.length > 1) {
+                const first = melee ? windup + 140 : windup;
+                const step = (tail - first) / (attack.length - 1);
+                playPoseFrames(actor, 'attack', attack.map((_, i) => (i ? [first + (i - 1) * step, first + i * step] : [0, first])), attack);
+            }
             const dir = foe ? Math.sign(foot(target).x - a.x) || (sideOf(actor) === 'player' ? 1 : -1) : (sideOf(actor) === 'player' ? 1 : -1);
             if (melee) {
                 const b = foot(target);
@@ -814,6 +831,79 @@
             setTimeout(() => { const art = actors.get(actor)?.art; art?.animate?.([{ offset: 0.2, filter: 'brightness(1.5)' }], { duration: 260 }); }, windup);
         }
         const settingsAllowMotion = () => !document.body.classList.contains('ui-disable-skill-cast-animations');
+
+        // ---- Poses ------------------------------------------------------------------------------------
+        // Optional extra art per render (assets/images/poses, listed in assets/data/scene-poses.json):
+        // an attack pose while striking, a hit pose when damaged, a ko pose while knocked out. The pose
+        // sits exactly where the render is; fighters without pose art keep their normal movement.
+        let poseBook = {};
+        fetch('/assets/data/scene-poses.json?v=1', { cache: 'no-cache' }).then(r => (r.ok ? r.json() : null))
+            .then(data => { poseBook = data?.poses || {}; for (const actor of actors.values()) preloadPoses(actor); }).catch(() => {});
+        const renderKey = actor => { try { const p = decodeURIComponent(new URL(actor.art.currentSrc || actor.art.src, location.href).pathname); return p.slice(Math.max(0, p.indexOf('assets/'))); } catch { return ''; } };
+        const posesOf = actor => (actor?.art?.src ? poseBook[renderKey(actor)] : null) || null;
+        const posePreloaded = new Set();
+        function preloadPoses(actor) {
+            for (const frames of Object.values(posesOf(actor) || {})) for (const { src } of frames) {
+                if (!posePreloaded.has(src)) { posePreloaded.add(src); const img = new Image(); img.decoding = 'async'; img.src = src; }
+            }
+        }
+        // A frame covers the render's canvas, or its own box (fractions of that canvas), mirrored for the enemy side.
+        function fitPose(actor) {
+            const art = actor.art, pose = actor.pose, box = pose.box || [0, 0, 1, 1];
+            const left = parseFloat(art.style.left) || 0, top = parseFloat(art.style.top) || 0;
+            const w = parseFloat(art.style.width) || 0, h = parseFloat(art.style.height) || 0;
+            const fx = actor.side === 'opponent' ? 1 - box[0] - box[2] : box[0];
+            pose.style.left = `${left + fx * w}px`; pose.style.top = `${top + box[1] * h}px`;
+            pose.style.width = `${box[2] * w}px`; pose.style.height = `${box[3] * h}px`;
+        }
+        /** The attack frames for one skill: frames made for it, else the frames made for no skill in particular. */
+        function attackFramesFor(actor, skillId) {
+            const frames = posesOf(actor)?.attack || [];
+            const own = frames.filter(f => f.skills?.includes(skillId));
+            return own.length ? own : frames.filter(f => !f.skills);
+        }
+        const beamFor = (actor, skillId) => (posesOf(actor)?.beam || []).find(b => b.skills?.includes(skillId)) || null;
+        /** Shows one frame of a pose for `ms` (Infinity keeps it until cleared). */
+        function showPose(card, kind, ms, frame = (posesOf(actors.get(card))?.[kind] || []).find(f => !f.skills)) {
+            const actor = actors.get(card);
+            if (!actor || !frame || (card.dataset.pose === 'ko' && kind !== 'ko')) return false;
+            if (!actor.pose) { actor.pose = document.createElement('img'); actor.pose.className = 'scene-pose'; actor.pose.alt = ''; actor.pose.draggable = false; actor.body.append(actor.pose); }
+            const img = actor.pose; img.box = frame.box; fitPose(actor);
+            clearTimeout(actor.poseTimer);
+            card.dataset.pose = kind;
+            const reveal = () => { if (card.dataset.pose === kind) card.classList.add('scene-posing'); };
+            if (img.getAttribute('src') !== frame.src) { img.onload = reveal; img.src = frame.src; }
+            if (img.complete && img.naturalWidth) reveal();
+            if (Number.isFinite(ms)) actor.poseTimer = setTimeout(() => clearPose(card, kind), ms);
+            return true;
+        }
+        /** Plays frames in turn: [startMs, endMs] per frame. */
+        function playPoseFrames(card, kind, spans, frames) {
+            spans.forEach(([from, to], i) => setTimeout(() => showPose(card, kind, i === spans.length - 1 ? to - from : to - from + 60, frames[i]), from));
+        }
+        /** A beam from the caster's eyes (its origin on the render) to the target: it reaches out over
+         *  the flight, holds as the hit lands, then fades. */
+        function drawBeam(actor, target, beam, { launchIn, flight }) {
+            const art = actors.get(actor)?.art; if (!art) return;
+            setTimeout(() => {
+                const r = field.getBoundingClientRect(), a = art.getBoundingClientRect(), b = foot(target);
+                const flipped = sideOf(actor) === 'opponent';
+                const ox = a.left + (flipped ? 1 - beam.origin[0] : beam.origin[0]) * a.width - r.left, oy = a.top + beam.origin[1] * a.height - r.top;
+                const tx = b.x - r.left, ty = b.y - r.top - b.h * 0.55;
+                const length = Math.hypot(tx - ox, ty - oy), angle = Math.atan2(ty - oy, tx - ox) * 180 / Math.PI;
+                const el = document.createElement('img'); el.className = 'scene-beam'; el.alt = ''; el.src = beam.src;
+                el.style.left = `${ox}px`; el.style.top = `${oy}px`; el.style.width = `${length}px`;
+                el.style.height = `${Math.max(10, a.height * (beam.thickness || 0.05))}px`;
+                el.style.transform = `translateY(-50%) rotate(${angle}deg)`;
+                field.append(el);
+                el.animate([{ clipPath: 'inset(0 100% 0 0)', opacity: 1 }, { clipPath: 'inset(0 0 0 0)', opacity: 1 }], { duration: Math.max(90, flight), easing: 'ease-in', fill: 'forwards' });
+                setTimeout(() => el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, fill: 'forwards' }).finished.catch(() => {}).then(() => el.remove()), Math.max(90, flight) + 260);
+            }, launchIn);
+        }
+        function clearPose(card, kind) {
+            const actor = actors.get(card); if (!actor || !card.dataset.pose || (kind && card.dataset.pose !== kind)) return;
+            clearTimeout(actor.poseTimer); card.classList.remove('scene-posing'); delete card.dataset.pose;
+        }
         const delayFor = card => Math.max(0, (impactAt.get(card) || 0) - performance.now());
 
         function recoilMotion(card, amount) {
@@ -833,7 +923,7 @@
                     { offset: 0.62, transform: `translate(${away * 4 * s}px,0) rotate(${away * s}deg)` },
                     { transform: 'none' },
                 ], { duration: 460 + 200 * s, easing: 'cubic-bezier(.25,.7,.35,1)' });
-                flash(card, 'hit'); spark(card, false);
+                flash(card, 'hit'); spark(card, false); showPose(card, 'hit', 480);
                 if (Math.abs(amount) >= 25) shake(Math.abs(amount) / 25);
             }, delayFor(card));
         }
@@ -841,13 +931,15 @@
             if (!actors.has(card)) return;
             const run = () => {
                 card.classList.add('scene-falling');
+                // A ko pose already lies down, so the figure only drops back instead of tipping over.
+                const t = showPose(card, 'ko', Infinity) ? 0 : 1;
                 const away = sideOf(card) === 'player' ? -1 : 1;
                 if (motionOK()) {
                     play(card, [
                         { transform: 'none' },
-                        { offset: 0.14, transform: `translate(${away * 34}px,-16px) rotate(${away * 10}deg)` },
-                        { offset: 0.5, transform: `translate(${away * 18}px,4px) rotate(${away * 16}deg) scaleY(.9)` },
-                        { transform: `translateY(6px) rotate(${away * 12}deg) scaleY(.92)` },
+                        { offset: 0.14, transform: `translate(${away * 34}px,-16px) rotate(${away * 10 * t}deg)` },
+                        { offset: 0.5, transform: `translate(${away * 18}px,4px) rotate(${away * 16 * t}deg) scaleY(${t ? 0.9 : 0.97})` },
+                        { transform: t ? `translateY(6px) rotate(${away * 12}deg) scaleY(.92)` : 'translateY(4px)' },
                     ], { duration: 900, easing: 'cubic-bezier(.3,.6,.3,1)', ko: true });
                     flash(card, 'hit'); shake(1.1);
                 }
@@ -888,7 +980,15 @@
             const guard = (name, fn) => { try { fn(); } catch (e) { console.warn('[arena-scene]', name, e); } };
             const wrap = (name, wrapper) => { const original = fx[name]?.bind(fx); if (original) fx[name] = (...args) => wrapper(original, ...args); };
             const later = (card, fn) => { const ms = actors.has(card) ? delayFor(card) : 0; if (ms > 16) setTimeout(fn, ms); else fn(); };
-            wrap('cast', (original, opts) => { guard('cast', () => castMotion(opts || {})); return original(opts); });
+            wrap('cast', (original, opts) => {
+                guard('cast', () => castMotion(opts || {}));
+                // A skill drawn as a beam on the battlefield skips the engine's own travelling sprite.
+                // A fighter with its own attack frames shows its wind-up itself, so the charge-up sprite would only cover it.
+                const actor = opts?.actor && actors.has(opts.actor) ? actors.get(opts.actor) : null;
+                const beamed = actor && beamFor(actor, opts.skillId);
+                const posed = actor && attackFramesFor(actor, opts.skillId).length > 0;
+                return original(beamed || posed ? { ...opts, ...(beamed ? { skipTravel: true } : {}), ...(posed ? { skipWindup: true } : {}) } : opts);
+            });
             wrap('recoil', (original, card, amount, extra) => { guard('recoil', () => recoilMotion(card, amount)); later(card, () => original(card, amount, extra)); });
             wrap('status', (original, card, harmful) => later(card, () => { guard('status', () => { if (actors.has(card) && motionOK()) flash(card, harmful ? 'debuff' : 'buff'); }); original(card, harmful); }));
             wrap('death', (original, card, opts) => { guard('death', () => koMotion(card)); return new Promise(done => later(card, () => Promise.resolve(original(card, opts)).then(done, done))); });
@@ -1016,6 +1116,8 @@
                 if (gauge && gauge.parentNode !== plate) plate.append(gauge);
                 face?.setAttribute('aria-label', `${evolved || name}, ${entry.unit.hp} health. Select fighter or skill target.`);
                 card.classList.toggle('scene-knocked-out', entry.unit.alive === false || entry.unit.hp <= 0);
+                if (card.dataset.pose === 'ko' && !card.classList.contains('scene-knocked-out')) clearPose(card, 'ko');
+                preloadPoses(actor);
                 if (side === 'opponent') syncEnemyBar(enemyBars[slot], entry);
             });
             requestAnimationFrame(() => {

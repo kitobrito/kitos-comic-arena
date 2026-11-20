@@ -784,3 +784,14 @@ html.arena-scene-preview body.scene-battle .character-card:has(.scene-dmg-ghost)
 @media (max-width:380px) {
  html.arena-scene-preview body.scene-battle .scene-fieldbar:not(.scene-enemybar) .scene-skill.scene-mini { width:31px; height:31px; }
 }
+
+/* ===== Poses: optional attack / hit / ko art laid exactly over the render (scene.js showPose) ===== */
+html.arena-scene-preview body.scene-battle .scene-pose { position:absolute; display:none; max-width:none; max-height:none; margin:0; object-fit:contain; object-position:50% 100%; pointer-events:none; user-select:none; filter:drop-shadow(0 0 1px #000c) drop-shadow(0 6px 6px #0007); }
+html.arena-scene-preview body.scene-battle .enemy-characters .scene-pose { transform:scaleX(-1); }
+html.arena-scene-preview body.scene-battle .scene-posing .scene-pose { display:block; }
+html.arena-scene-preview body.scene-battle .scene-posing .scene-actor-art { visibility:hidden; }
+html.arena-scene-preview body.scene-battle .scene-knocked-out .scene-pose { filter:grayscale(1) brightness(.55) drop-shadow(0 4px 4px #0007); opacity:.62; }
+.scene-knocked-out[data-pose="ko"] .scene-rig { transform:translateY(4px); }
+.scene-cut .scene-pose { -webkit-mask-image:linear-gradient(to top,transparent 0,#000 18%); mask-image:linear-gradient(to top,transparent 0,#000 18%); }
+/* A character's own beam art (Homelander's eye lasers), stretched from the eyes to the target. */
+.scene-beam { position:absolute; z-index:41; transform-origin:0 50%; pointer-events:none; object-fit:fill; filter:drop-shadow(0 0 6px #ff2a2a) drop-shadow(0 0 14px #ff000088); }

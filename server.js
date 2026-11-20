@@ -65,6 +65,7 @@ const { syncExperimentalBattlefieldPhoneNews } = require('./sync_experimental_ba
 const { syncPokemonEvolutionSceneNews } = require('./sync_pokemon_evolution_scene_news');
 const { syncExperimentalBattlefieldPollNews } = require('./sync_experimental_battlefield_poll_news');
 const { syncExperimentalBattlefieldShotsNews } = require('./sync_experimental_battlefield_shots_news');
+const { syncExperimentalBattlefieldPosesNews } = require('./sync_experimental_battlefield_poses_news');
 const { syncPokemonArenaClassicKitsNews } = require('./sync_pokemon_arena_classic_kits_news');
 const { syncPatchNotes } = require('./sync_patch_notes');
 const {
@@ -14673,6 +14674,8 @@ async function initDb() {
     console.log('Synced the Experimental Battlefield poll news posts.');
     await syncExperimentalBattlefieldShotsNews(db);
     console.log('Synced the Experimental Battlefield shots news posts.');
+    await syncExperimentalBattlefieldPosesNews(db);
+    console.log('Synced the Experimental Battlefield battle frames news post.');
     await syncPokemonArenaClassicKitsNews(db);
     console.log('Synced Pokemon Arena classic kits news.');
     const compensationSync = await syncPokemonCompensationGrant(db);

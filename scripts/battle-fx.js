@@ -40,7 +40,7 @@
     const CHARACTERS_URL = 'assets/data/battle-fx-characters.json';
     const MAX_SPRITES = 32;
     const MAX_SHEETS = 64;
-    const VERSION = 'battle-fx-v3';
+    const VERSION = 'battle-fx-v5';
 
     const settings = {
         casts: () => true,     // replaced by configure(): the "Skill animations" setting
@@ -147,7 +147,15 @@
      *  loop: repeat frames until duration ends (projectiles)
      *  angle: degrees to rotate (directional effects point along their travel)
      *  Resolves when the sprite finishes. */
-    const playSprite = ({ key, x, y, from, to, size = 120, duration, loop = false, angle = 0, easing = 'outCubic', blend }) => {
+    // Retired looks: the sword-and-plus "buff" sprites (gold for Pokemon, red for Comic) no longer play.
+    // A buffed fighter still gets the glow from its card animator (and the battlefield's gold flash).
+    const SPRITE_SWAPS = {
+        'type/buffApply': null,
+        'fantasy-spells/spell_attack_up_001': null,
+    };
+    const playSprite = ({ key: requested, x, y, from, to, size = 120, duration, loop = false, angle = 0, easing = 'outCubic', blend }) => {
+        const key = requested in SPRITE_SWAPS ? SPRITE_SWAPS[requested] : requested;
+        if (!key) return Promise.resolve();
         if (window.ARENA_SCENE_VIEW) size = Math.min(size, Math.max(60, Math.min(125, innerWidth * .2)));
         const effect = manifest.effects[key];
         if (!effect || liveSprites >= MAX_SPRITES) return Promise.resolve();
@@ -963,9 +971,9 @@
                 const c = characterProfile(id);
                 if (!c) return;
                 keys.push(c.entry, c.victory, c.defeat);
-                Object.values(c.skills).forEach((s) => keys.push(s.windup, s.travel, s.impact));
+                Object.values(c.skills).forEach((s) => keys.push(...[s.windup, s.travel, s.impact].filter((k) => !(k in SPRITE_SWAPS))));
             });
-            keys.push('type/buffApply', 'type/debuffApply', 'fantasy-spells/spell_heal_001', 'impacts/directional_impact_002');
+            keys.push('type/debuffApply', 'fantasy-spells/spell_heal_001', 'impacts/directional_impact_002');
             preloadArt();
             return preloadKeys(keys);
         },
@@ -987,8 +995,9 @@
 
         /** A skill is cast: wind-up on the caster, then travel, then impact on every target.
          *  skipTravel: the skill draws its own bespoke cast effect (only the impact is added).
+         *  skipWindup: the caster shows its own wind-up (pose art), so no charge-up sprite over it.
          *  Resolves when the last impact lands. */
-        async cast({ actor, targets = [], characterId, skillId, skipTravel = false, key = '' } = {}) {
+        async cast({ actor, targets = [], characterId, skillId, skipTravel = false, skipWindup = false, key = '' } = {}) {
             if (!settings.casts()) return;
             await loadData();
             const profile = skillProfile(characterId, skillId);
@@ -1011,7 +1020,7 @@
                 await wait(Math.max(0, windupMs - (now - recent.at)) + Math.min(order, 3) * 90);
             } else {
                 actorAnim?.go('windup', { duration: windupMs });
-                if (profile.windup && from) playSprite({ key: profile.windup, x: from.x, y: from.y, size: from.h * 1.15 });
+                if (profile.windup && from && !skipWindup) playSprite({ key: profile.windup, x: from.x, y: from.y, size: from.h * 1.15 });
                 await wait(windupMs);
                 actorAnim?.go('impact', { melee });
             }

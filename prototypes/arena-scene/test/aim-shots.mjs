@@ -14,6 +14,14 @@ for (const arena of (process.env.ARENAS || 'pokemon,comic').split(',')) {
     await context.addCookies([{ name: 'comic_session', value: jwt.sign({ username: 'SceneAdmin' }, 'arena-scene-local-test-only'), domain: '127.0.0.1', path: '/' }]);
     await context.route('**/*', r => r.request().resourceType() === 'media' || /googletagmanager|googleapis|gstatic/.test(r.request().url()) ? r.abort() : r.continue());
     const page = await context.newPage(); page.on('pageerror', e => errors.push(e.message));
+    // POSE_AS=<render name>: every render borrows that render's pose frames (checks placement on both sides).
+    if (process.env.POSE_AS) {
+        const { listRenders } = require('../../../scripts/build-scene-poses.js');
+        const book = JSON.parse(require('node:fs').readFileSync(new URL('../../../assets/data/scene-poses.json', import.meta.url), 'utf8')).poses;
+        const renders = listRenders(), from = renders.find(r => r.name === process.env.POSE_AS).render;
+        const poses = Object.fromEntries(renders.map(r => [r.render, book[from]]));
+        await context.route('**/scene-poses.json*', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ poses }) }));
+    }
     await page.addInitScript(() => { window.__buzz = []; navigator.vibrate = p => { window.__buzz.push(p); return true; }; });
     await page.goto(`${base}/arena-scene/?arena=${arena}`, { waitUntil: 'domcontentloaded' });
     await page.waitForFunction(() => window.ArenaSceneSelection && document.querySelector('.slot-item[data-index]:not(.slot-empty)'));
@@ -27,6 +35,8 @@ for (const arena of (process.env.ARENAS || 'pokemon,comic').split(',')) {
     await page.waitForFunction(() => window.ArenaSceneState && !document.body.classList.contains('app-loading'));
     await page.waitForFunction(() => [...document.querySelectorAll('.scene-actor-art')].every(i => i.complete && i.naturalWidth > 0), { timeout: 25000 });
     await page.setViewportSize(size); await page.waitForTimeout(900);
+    // Record every pose shown (only visible when pose art exists for a fighter).
+    await page.evaluate(() => { window.__poses = []; new MutationObserver(rs => rs.forEach(r => { const c = r.target; if (c.classList.contains('scene-posing')) window.__poses.push(`${c.dataset.sceneSide}${c.dataset.sceneSlot}:${c.dataset.pose}`); })).observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'] }); });
     const tap = async loc => phone ? loc.tap() : loc.click();
     const rows = [];
     for (let slot = 0; slot < 3; slot++) {
@@ -65,11 +75,21 @@ for (const arena of (process.env.ARENAS || 'pokemon,comic').split(',')) {
     await page.locator('.ok-buttonendturn').click();
     let shotsSeen = 0, frames = 0;
     for (let t = 0; t < 140; t++) {
-        const n = await page.evaluate(() => document.querySelectorAll('.scene-shot').length);
+        const n = await page.evaluate(() => document.querySelectorAll('.scene-shot, .scene-posing').length);
         if (n) { shotsSeen = Math.max(shotsSeen, n); if (frames < 14) { await page.screenshot({ path: `${out}shot-${arena}-${size.width}-${frames}.png` }); frames++; } }
         await page.waitForTimeout(n ? 10 : 60);
     }
-    report[arena] = { aimed: rows, ...afterAim, shotsSeen, frames, casts: await page.evaluate(() => window.__casts), turn: await page.evaluate(() => [window.ArenaSceneState.match.currentTurn, window.ArenaSceneState.match.turnNumber, document.querySelector('.scene-hint')?.textContent]) };
+    if (process.env.KO) {
+        await page.evaluate(([side, slot]) => { window.__koSide = side; window.__koSlot = Number(slot); }, (process.env.KO + ':1').split(':'));
+        await page.evaluate(() => window.BattleFX.death(document.querySelector(`.${(window.__koSide || 'player')}-characters .character-card[data-scene-slot="${window.__koSlot ?? 1}"]`)));
+        // Snap the frame while the KO pose is up (a live state update clears it from a fighter who isn't really out).
+        for (let i = 0; i < 40; i++) {
+            const up = await page.evaluate(() => document.querySelector(`.${window.__koSide}-characters .character-card[data-scene-slot="${window.__koSlot}"]`)?.classList.contains('scene-posing') && document.querySelector(`.${window.__koSide}-characters .character-card[data-scene-slot="${window.__koSlot}"]`).dataset.pose === 'ko');
+            if (up) { await page.waitForTimeout(i ? 0 : 0); await page.screenshot({ path: `${out}ko-${arena}-${size.width}.png` }); break; }
+            await page.waitForTimeout(40);
+        }
+    }
+    report[arena] = { poses: [...new Set(await page.evaluate(() => window.__poses))], aimed: rows, ...afterAim, shotsSeen, frames, casts: await page.evaluate(() => window.__casts), turn: await page.evaluate(() => [window.ArenaSceneState.match.currentTurn, window.ArenaSceneState.match.turnNumber, document.querySelector('.scene-hint')?.textContent]) };
     const matchId = new URL(page.url()).searchParams.get('matchId');
     await context.request.post(`${base}/api/match/${matchId}/surrender`);
     await context.close();

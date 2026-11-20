@@ -1,0 +1,271 @@
+{
+ "poses": {
+  "assets/images/BIB/comic/homelander-full.webp": {
+   "beam": [
+    {
+     "src": "/assets/images/poses/homelander-beam.webp",
+     "skills": [
+      "homelander-laser-death-beam",
+      "homelander-laser-death-beam-empowered"
+     ],
+     "origin": [
+      0.7931,
+      0.0993
+     ],
+     "thickness": 0.055
+    }
+   ],
+   "attack": [
+    {
+     "src": "/assets/images/poses/homelander-fly.webp",
+     "box": [
+      -0.4641,
+      0.1133,
+      1.9034,
+      0.7667
+     ],
+     "skills": [
+      "homelander-flying-assault"
+     ]
+    },
+    {
+     "src": "/assets/images/poses/homelander-laser-1.webp",
+     "box": [
+      0.0477,
+      0,
+      0.9881,
+      1
+     ],
+     "skills": [
+      "homelander-laser-death-beam",
+      "homelander-laser-death-beam-empowered"
+     ]
+    },
+    {
+     "src": "/assets/images/poses/homelander-stand.webp",
+     "box": [
+      -0.1746,
+      0,
+      1.0269,
+      1
+     ],
+     "skills": [
+      "homelander-unbreakable-body"
+     ]
+    },
+    {
+     "src": "/assets/images/poses/homelander-punch.webp",
+     "box": [
+      -0.9085,
+      0.14,
+      1.4288,
+      0.86
+     ],
+     "skills": [
+      "homelander-flying-assault",
+      "homelander-god-s-fist"
+     ]
+    }
+   ],
+   "hit": [
+    {
+     "src": "/assets/images/poses/homelander-hit.webp",
+     "box": [
+      -0.3652,
+      0,
+      1.7774,
+      1
+     ]
+    }
+   ],
+   "ko": [
+    {
+     "src": "/assets/images/poses/homelander-ko.webp",
+     "box": [
+      -0.5572,
+      0.6057,
+      2.1145,
+      0.3943
+     ]
+    }
+   ]
+  },
+  "assets/images/BIB/comic/rage-infected-full.webp": {
+   "attack": [
+    {
+     "src": "/assets/images/poses/rage-infected-attack.webp",
+     "box": [
+      -0.6064,
+      -0.0145,
+      1.4493,
+      1.0145
+     ]
+    },
+    {
+     "src": "/assets/images/poses/rage-infected-attack-2.webp",
+     "box": [
+      -0.6026,
+      -0.1363,
+      1.3333,
+      1.1363
+     ]
+    },
+    {
+     "src": "/assets/images/poses/rage-infected-attack-3.webp",
+     "box": [
+      -0.6114,
+      0.0378,
+      1.4267,
+      0.9622
+     ]
+    },
+    {
+     "src": "/assets/images/poses/rage-infected-attack-4.webp",
+     "box": [
+      -0.6077,
+      0.0078,
+      1.4493,
+      0.9922
+     ]
+    }
+   ],
+   "hit": [
+    {
+     "src": "/assets/images/poses/rage-infected-hit.webp",
+     "box": [
+      -0.0183,
+      -0.1039,
+      1.124,
+      1.1039
+     ]
+    }
+   ],
+   "ko": [
+    {
+     "src": "/assets/images/poses/rage-infected-ko.webp",
+     "box": [
+      -0.2222,
+      0.7196,
+      1.4444,
+      0.2804
+     ]
+    }
+   ]
+  },
+  "assets/images/BIB/comic/rick-grimes.gif": {
+   "attack": [
+    {
+     "src": "/assets/images/poses/rick-grimes-attack.webp",
+     "box": [
+      -0.1211,
+      0.1797,
+      2.1451,
+      0.8203
+     ]
+    },
+    {
+     "src": "/assets/images/poses/rick-grimes-attack-2.webp",
+     "box": [
+      -0.1211,
+      0.1797,
+      2.1517,
+      0.8203
+     ]
+    },
+    {
+     "src": "/assets/images/poses/rick-grimes-attack-3.webp",
+     "box": [
+      -0.1211,
+      0.1797,
+      2.0967,
+      0.8203
+     ]
+    }
+   ],
+   "hit": [
+    {
+     "src": "/assets/images/poses/rick-grimes-hit.webp",
+     "box": [
+      0.184,
+      0.05,
+      1.3126,
+      0.95
+     ]
+    }
+   ],
+   "ko": [
+    {
+     "src": "/assets/images/poses/rick-grimes-ko.webp",
+     "box": [
+      -0.6672,
+      0.7552,
+      2.3365,
+      0.2448
+     ]
+    }
+   ]
+  },
+  "assets/images/BIB/comic/walker-full.webp": {
+   "attack": [
+    {
+     "src": "/assets/images/poses/walker-attack.webp",
+     "box": [
+      0.0892,
+      -0.1061,
+      0.9604,
+      1.1061
+     ]
+    },
+    {
+     "src": "/assets/images/poses/walker-attack-2.webp",
+     "box": [
+      0.0117,
+      0.037,
+      1.1128,
+      0.963
+     ]
+    },
+    {
+     "src": "/assets/images/poses/walker-attack-3.webp",
+     "box": [
+      -0.0862,
+      0.0218,
+      1.1291,
+      0.9782
+     ]
+    },
+    {
+     "src": "/assets/images/poses/walker-attack-4.webp",
+     "box": [
+      0.044,
+      -0.0092,
+      1.1003,
+      1.0092
+     ]
+    }
+   ],
+   "hit": [
+    {
+     "src": "/assets/images/poses/walker-hit.webp",
+     "box": [
+      0.3095,
+      -0.0919,
+      1.0721,
+      1.0919
+     ]
+    }
+   ],
+   "ko": [
+    {
+     "src": "/assets/images/poses/walker-ko.webp",
+     "box": [
+      -0.0608,
+      0.7724,
+      1.1216,
+      0.2276
+     ]
+    }
+   ]
+  }
+ }
+}
