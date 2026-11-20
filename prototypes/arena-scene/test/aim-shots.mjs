@@ -27,6 +27,8 @@ for (const arena of (process.env.ARENAS || 'pokemon,comic').split(',')) {
     await page.waitForFunction(() => window.ArenaSceneState && !document.body.classList.contains('app-loading'));
     await page.waitForFunction(() => [...document.querySelectorAll('.scene-actor-art')].every(i => i.complete && i.naturalWidth > 0), { timeout: 25000 });
     await page.setViewportSize(size); await page.waitForTimeout(900);
+    // Record every pose shown (only visible when pose art exists for a fighter).
+    await page.evaluate(() => { window.__poses = []; new MutationObserver(rs => rs.forEach(r => { const c = r.target; if (c.classList.contains('scene-posing')) window.__poses.push(`${c.dataset.sceneSide}${c.dataset.sceneSlot}:${c.dataset.pose}`); })).observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'] }); });
     const tap = async loc => phone ? loc.tap() : loc.click();
     const rows = [];
     for (let slot = 0; slot < 3; slot++) {
@@ -65,11 +67,16 @@ for (const arena of (process.env.ARENAS || 'pokemon,comic').split(',')) {
     await page.locator('.ok-buttonendturn').click();
     let shotsSeen = 0, frames = 0;
     for (let t = 0; t < 140; t++) {
-        const n = await page.evaluate(() => document.querySelectorAll('.scene-shot').length);
+        const n = await page.evaluate(() => document.querySelectorAll('.scene-shot, .scene-posing').length);
         if (n) { shotsSeen = Math.max(shotsSeen, n); if (frames < 14) { await page.screenshot({ path: `${out}shot-${arena}-${size.width}-${frames}.png` }); frames++; } }
         await page.waitForTimeout(n ? 10 : 60);
     }
-    report[arena] = { aimed: rows, ...afterAim, shotsSeen, frames, casts: await page.evaluate(() => window.__casts), turn: await page.evaluate(() => [window.ArenaSceneState.match.currentTurn, window.ArenaSceneState.match.turnNumber, document.querySelector('.scene-hint')?.textContent]) };
+    if (process.env.KO) {
+        await page.evaluate(() => window.BattleFX.death(document.querySelector('.player-characters .character-card[data-scene-slot="1"]')));
+        await page.waitForTimeout(1600);
+        await page.screenshot({ path: `${out}ko-${arena}-${size.width}.png` });
+    }
+    report[arena] = { poses: [...new Set(await page.evaluate(() => window.__poses))], aimed: rows, ...afterAim, shotsSeen, frames, casts: await page.evaluate(() => window.__casts), turn: await page.evaluate(() => [window.ArenaSceneState.match.currentTurn, window.ArenaSceneState.match.turnNumber, document.querySelector('.scene-hint')?.textContent]) };
     const matchId = new URL(page.url()).searchParams.get('matchId');
     await context.request.post(`${base}/api/match/${matchId}/surrender`);
     await context.close();

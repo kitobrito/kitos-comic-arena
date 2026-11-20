@@ -370,6 +370,7 @@
             art.style.width = `${box.nw * k}px`; art.style.height = `${box.nh * k}px`;
             art.style.left = `${-(flipped ? box.nw - box.x - box.w : box.x) * k}px`;
             art.style.top = `${-box.y * k}px`;
+            if (actor.pose) fitPose(actor);
             const lift = isFlyer(actor) ? Math.round(height * 0.07) : 0;
             card.style.setProperty('--x', x); card.style.setProperty('--y', y);
             card.style.setProperty('--w', Math.round(width)); card.style.setProperty('--h', Math.round(height));
@@ -671,10 +672,10 @@
             $$(':scope > .scene-backdrop, :scope > .player-characters, :scope > .enemy-characters', field).forEach(el => el.animate(frames, { duration: 260, easing: 'ease-out' }));
         }
         function flash(card, kind) {
-            const art = actors.get(card)?.art; if (!art?.animate) return;
+            const actor = actors.get(card), art = actor?.art; if (!art?.animate) return;
             const tint = { hit: 'brightness(2.8) saturate(0)', heal: 'brightness(1.35) drop-shadow(0 0 16px #8dffb0)', buff: 'brightness(1.3) drop-shadow(0 0 14px #ffe08a)', debuff: 'brightness(.9) sepia(1) hue-rotate(220deg) saturate(2.6)' }[kind];
             const after = kind === 'hit' ? 'brightness(1.05) sepia(.45) saturate(2.4) hue-rotate(-32deg)' : tint;
-            art.animate([{ offset: 0.12, filter: tint }, { offset: 0.4, filter: after }], { duration: kind === 'hit' ? 420 : 700, easing: 'ease-out' });
+            for (const el of [art, actor.pose].filter(Boolean)) el.animate([{ offset: 0.12, filter: tint }, { offset: 0.4, filter: after }], { duration: kind === 'hit' ? 420 : 700, easing: 'ease-out' });
         }
         function spark(card, heal) {
             const f = foot(card), r = field.getBoundingClientRect();
@@ -767,6 +768,9 @@
             recentMotion.set(castKey, now);
             if (recentMotion.size > 60) recentMotion.delete(recentMotion.keys().next().value);
             if (!motionOK() || !settingsAllowMotion()) return;
+            // The attack pose from late in the wind-up until the strike has landed.
+            const strikeEnds = melee ? windup + 140 + 170 : delivery === 'self' || !foe ? windup + 300 : windup + 280;
+            setTimeout(() => showPose(actor, 'attack', strikeEnds - windup * 0.55), windup * 0.55);
             const dir = foe ? Math.sign(foot(target).x - a.x) || (sideOf(actor) === 'player' ? 1 : -1) : (sideOf(actor) === 'player' ? 1 : -1);
             if (melee) {
                 const b = foot(target);
@@ -814,6 +818,38 @@
             setTimeout(() => { const art = actors.get(actor)?.art; art?.animate?.([{ offset: 0.2, filter: 'brightness(1.5)' }], { duration: 260 }); }, windup);
         }
         const settingsAllowMotion = () => !document.body.classList.contains('ui-disable-skill-cast-animations');
+
+        // ---- Poses ------------------------------------------------------------------------------------
+        // Optional extra art per render (assets/images/poses, listed in assets/data/scene-poses.json):
+        // an attack pose while striking, a hit pose when damaged, a ko pose while knocked out. The pose
+        // sits exactly where the render is; fighters without pose art keep their normal movement.
+        let poseBook = {};
+        fetch('/assets/data/scene-poses.json?v=1', { cache: 'no-cache' }).then(r => (r.ok ? r.json() : null))
+            .then(data => { poseBook = data?.poses || {}; for (const actor of actors.values()) preloadPoses(actor); }).catch(() => {});
+        const renderKey = actor => { try { return decodeURIComponent(new URL(actor.art.currentSrc || actor.art.src, location.href).pathname).replace(/^\/+/, ''); } catch { return ''; } };
+        const posesOf = actor => (actor?.art?.src ? poseBook[renderKey(actor)] : null) || null;
+        const posePreloaded = new Set();
+        function preloadPoses(actor) {
+            for (const url of Object.values(posesOf(actor) || {})) if (!posePreloaded.has(url)) { posePreloaded.add(url); const img = new Image(); img.decoding = 'async'; img.src = url; }
+        }
+        function fitPose(actor) { for (const p of ['left', 'top', 'width', 'height']) actor.pose.style[p] = actor.art.style[p]; }
+        function showPose(card, kind, ms) {
+            const actor = actors.get(card), url = posesOf(actor)?.[kind];
+            if (!url || (card.dataset.pose === 'ko' && kind !== 'ko')) return false;
+            if (!actor.pose) { actor.pose = document.createElement('img'); actor.pose.className = 'scene-pose'; actor.pose.alt = ''; actor.pose.draggable = false; actor.body.append(actor.pose); }
+            const img = actor.pose; fitPose(actor);
+            clearTimeout(actor.poseTimer);
+            card.dataset.pose = kind;
+            const reveal = () => { if (card.dataset.pose === kind) card.classList.add('scene-posing'); };
+            if (img.getAttribute('src') !== url) { img.onload = reveal; img.src = url; }
+            if (img.complete && img.naturalWidth) reveal();
+            if (Number.isFinite(ms)) actor.poseTimer = setTimeout(() => clearPose(card, kind), ms);
+            return true;
+        }
+        function clearPose(card, kind) {
+            const actor = actors.get(card); if (!actor || !card.dataset.pose || (kind && card.dataset.pose !== kind)) return;
+            clearTimeout(actor.poseTimer); card.classList.remove('scene-posing'); delete card.dataset.pose;
+        }
         const delayFor = card => Math.max(0, (impactAt.get(card) || 0) - performance.now());
 
         function recoilMotion(card, amount) {
@@ -833,7 +869,7 @@
                     { offset: 0.62, transform: `translate(${away * 4 * s}px,0) rotate(${away * s}deg)` },
                     { transform: 'none' },
                 ], { duration: 460 + 200 * s, easing: 'cubic-bezier(.25,.7,.35,1)' });
-                flash(card, 'hit'); spark(card, false);
+                flash(card, 'hit'); spark(card, false); showPose(card, 'hit', 480);
                 if (Math.abs(amount) >= 25) shake(Math.abs(amount) / 25);
             }, delayFor(card));
         }
@@ -841,13 +877,15 @@
             if (!actors.has(card)) return;
             const run = () => {
                 card.classList.add('scene-falling');
+                // A ko pose already lies down, so the figure only drops back instead of tipping over.
+                const t = showPose(card, 'ko', Infinity) ? 0 : 1;
                 const away = sideOf(card) === 'player' ? -1 : 1;
                 if (motionOK()) {
                     play(card, [
                         { transform: 'none' },
-                        { offset: 0.14, transform: `translate(${away * 34}px,-16px) rotate(${away * 10}deg)` },
-                        { offset: 0.5, transform: `translate(${away * 18}px,4px) rotate(${away * 16}deg) scaleY(.9)` },
-                        { transform: `translateY(6px) rotate(${away * 12}deg) scaleY(.92)` },
+                        { offset: 0.14, transform: `translate(${away * 34}px,-16px) rotate(${away * 10 * t}deg)` },
+                        { offset: 0.5, transform: `translate(${away * 18}px,4px) rotate(${away * 16 * t}deg) scaleY(${t ? 0.9 : 0.97})` },
+                        { transform: t ? `translateY(6px) rotate(${away * 12}deg) scaleY(.92)` : 'translateY(4px)' },
                     ], { duration: 900, easing: 'cubic-bezier(.3,.6,.3,1)', ko: true });
                     flash(card, 'hit'); shake(1.1);
                 }
@@ -1016,6 +1054,8 @@
                 if (gauge && gauge.parentNode !== plate) plate.append(gauge);
                 face?.setAttribute('aria-label', `${evolved || name}, ${entry.unit.hp} health. Select fighter or skill target.`);
                 card.classList.toggle('scene-knocked-out', entry.unit.alive === false || entry.unit.hp <= 0);
+                if (card.dataset.pose === 'ko' && !card.classList.contains('scene-knocked-out')) clearPose(card, 'ko');
+                preloadPoses(actor);
                 if (side === 'opponent') syncEnemyBar(enemyBars[slot], entry);
             });
             requestAnimationFrame(() => {

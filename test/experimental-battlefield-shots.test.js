@@ -30,5 +30,5 @@ test('ranged skills fire a shot timed to the hit, and aiming previews the damage
     assert.match(scene, /pointer: coarse/, 'vibration only on touch screens');
     const css = read('prototypes', 'arena-scene', 'scene.css');
     for (const part of ['.scene-shot', '.scene-shot-pop', '.scene-dmg-ghost', '.scene-dmg-chunk']) assert.ok(css.includes(part), part);
-    assert.match(read('ingame.html'), /scene\.js\?v=18/);
+    assert.match(read('ingame.html'), /scene\.js\?v=19/);
 });
