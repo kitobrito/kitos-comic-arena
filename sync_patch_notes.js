@@ -35,6 +35,20 @@ const IPHONE_TEAM_TAP = [
 
 const POSTS = [
     {
+        releaseVersion: 'patch-2026-11-20-front-page-comic',
+        title: 'Comic Arena: Front Page Tidy-Up',
+        arena: 'comic',
+        author: 'kito',
+        blocks: [p('The Anime-Arena banner has been taken off the front page of the website. Everything else on the home page is where it was: missions, characters and the community page are still one tap away.')],
+    },
+    {
+        releaseVersion: 'patch-2026-11-20-front-page-pokemon',
+        title: 'Pokemon Arena: Front Page Tidy-Up',
+        arena: 'pokemon',
+        author: 'kito',
+        blocks: [p('The Anime-Arena banner has been taken off the front page of the website. Everything else on the home page is where it was: missions, characters and the community page are still one tap away.')],
+    },
+    {
         releaseVersion: 'patch-2026-11-12-pidgey-fix-iphone-team-pokemon',
         title: 'Pokemon Arena: Pidgey\'s New Costs Are Live, iPhone Team Fix',
         arena: 'pokemon',
