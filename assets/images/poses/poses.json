@@ -134,5 +134,107 @@
    1.1216,
    0.2276
   ]
+ },
+ "homelander-stand.webp": {
+  "box": [
+   -0.3106,
+   0.0,
+   1.0433,
+   1.0
+  ],
+  "of": "homelander",
+  "pose": "attack",
+  "order": 1,
+  "skills": [
+   "homelander-unbreakable-body"
+  ]
+ },
+ "homelander-punch.webp": {
+  "box": [
+   -0.7089,
+   0.0938,
+   2.006,
+   0.9062
+  ],
+  "of": "homelander",
+  "pose": "attack",
+  "order": 2,
+  "skills": [
+   "homelander-flying-assault",
+   "homelander-god-s-fist"
+  ]
+ },
+ "homelander-laser-1.webp": {
+  "box": [
+   -0.3403,
+   0.0344,
+   1.1917,
+   0.9656
+  ],
+  "of": "homelander",
+  "pose": "attack",
+  "order": 1,
+  "skills": [
+   "homelander-laser-death-beam",
+   "homelander-laser-death-beam-empowered"
+  ]
+ },
+ "homelander-hit.webp": {
+  "box": [
+   -0.3145,
+   0.0766,
+   1.6413,
+   0.9234
+  ]
+ },
+ "homelander-fly.webp": {
+  "box": [
+   -0.697,
+   0.1047,
+   2.2096,
+   0.575
+  ],
+  "of": "homelander",
+  "pose": "attack",
+  "order": 1,
+  "skills": [
+   "homelander-flying-assault"
+  ]
+ },
+ "homelander-ko.webp": {
+  "box": [
+   -0.6917,
+   0.7266,
+   2.3835,
+   0.2734
+  ]
+ },
+ "homelander-laser-2.webp": {
+  "box": [
+   0.0386,
+   0.0,
+   0.9873,
+   1.0
+  ],
+  "of": "homelander",
+  "pose": "attack",
+  "order": 2,
+  "skills": [
+   "homelander-laser-death-beam",
+   "homelander-laser-death-beam-empowered"
+  ]
+ },
+ "homelander-beam.webp": {
+  "of": "homelander",
+  "pose": "beam",
+  "skills": [
+   "homelander-laser-death-beam",
+   "homelander-laser-death-beam-empowered"
+  ],
+  "origin": [
+   0.7304,
+   0.0869
+  ],
+  "thickness": 0.055
  }
 }

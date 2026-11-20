@@ -40,7 +40,7 @@
     const CHARACTERS_URL = 'assets/data/battle-fx-characters.json';
     const MAX_SPRITES = 32;
     const MAX_SHEETS = 64;
-    const VERSION = 'battle-fx-v4';
+    const VERSION = 'battle-fx-v5';
 
     const settings = {
         casts: () => true,     // replaced by configure(): the "Skill animations" setting
@@ -995,8 +995,9 @@
 
         /** A skill is cast: wind-up on the caster, then travel, then impact on every target.
          *  skipTravel: the skill draws its own bespoke cast effect (only the impact is added).
+         *  skipWindup: the caster shows its own wind-up (pose art), so no charge-up sprite over it.
          *  Resolves when the last impact lands. */
-        async cast({ actor, targets = [], characterId, skillId, skipTravel = false, key = '' } = {}) {
+        async cast({ actor, targets = [], characterId, skillId, skipTravel = false, skipWindup = false, key = '' } = {}) {
             if (!settings.casts()) return;
             await loadData();
             const profile = skillProfile(characterId, skillId);
@@ -1019,7 +1020,7 @@
                 await wait(Math.max(0, windupMs - (now - recent.at)) + Math.min(order, 3) * 90);
             } else {
                 actorAnim?.go('windup', { duration: windupMs });
-                if (profile.windup && from) playSprite({ key: profile.windup, x: from.x, y: from.y, size: from.h * 1.15 });
+                if (profile.windup && from && !skipWindup) playSprite({ key: profile.windup, x: from.x, y: from.y, size: from.h * 1.15 });
                 await wait(windupMs);
                 actorAnim?.go('impact', { melee });
             }

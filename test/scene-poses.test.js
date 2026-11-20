@@ -39,13 +39,20 @@ test('the shipped pose art is all matched and present', () => {
     assert.equal(poses['assets/images/BIB/comic/rage-infected-full.webp'].attack.length, 4);
     assert.deepEqual(Object.keys(poses['assets/images/BIB/comic/rage-infected-full.webp']).sort(), ['attack', 'hit', 'ko']);
     assert.equal(poses['assets/images/BIB/comic/walker-full.webp'].attack.length, 4);
+    const homelander = poses['assets/images/BIB/comic/homelander-full.webp'];
+    const forSkill = (id) => homelander.attack.filter((f) => f.skills?.includes(id)).map((f) => path.basename(f.src));
+    assert.deepEqual(forSkill('homelander-laser-death-beam'), ['homelander-laser-1.webp', 'homelander-laser-2.webp']);
+    assert.deepEqual(forSkill('homelander-flying-assault'), ['homelander-fly.webp', 'homelander-punch.webp']);
+    assert.deepEqual(forSkill('homelander-god-s-fist'), ['homelander-punch.webp']);
+    assert.equal(homelander.beam[0].origin.length, 2);
+    assert.ok(homelander.beam[0].skills.includes('homelander-laser-death-beam-empowered'));
 });
 
 test('the battlefield swaps in poses only where art exists', () => {
     const scene = fs.readFileSync(path.join(__dirname, '..', 'prototypes', 'arena-scene', 'scene.js'), 'utf8');
     assert.match(scene, /scene-poses\.json/);
-    for (const call of ["playPoseFrames(actor, 'attack'", "showPose(card, 'hit'", "showPose(card, 'ko', Infinity)"]) assert.ok(scene.includes(call), call);
-    assert.match(scene, /if \(!frame \|\| \(card\.dataset\.pose === 'ko'/, 'no art, no swap; a ko pose is not interrupted');
+    for (const call of ["playPoseFrames(actor, 'attack'", "showPose(card, 'hit'", "showPose(card, 'ko', Infinity)", 'attackFramesFor(actors.get(actor), skillId)', 'drawBeam(actor, t, beam']) assert.ok(scene.includes(call), call);
+    assert.match(scene, /if \(!actor \|\| !frame \|\| \(card\.dataset\.pose === 'ko'/, 'no art, no swap; a ko pose is not interrupted');
     const manifest = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'assets', 'data', 'scene-poses.json'), 'utf8'));
     assert.ok(manifest.poses && typeof manifest.poses === 'object');
 });

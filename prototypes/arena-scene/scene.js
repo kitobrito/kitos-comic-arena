@@ -761,7 +761,9 @@
                     if (shotSeen.size > 60) shotSeen.delete(shotSeen.keys().next().value);
                     const hit = impactAt.get(t);
                     const flight = profile.travel ? travel : Math.min(240, Math.max(140, hit - now - 40));
-                    shoot(actor, t, { element: profile.element, area: delivery === 'area', launchIn: Math.max(0, hit - now - flight), flight });
+                    const beam = beamFor(actors.get(actor), skillId);
+                    if (beam) drawBeam(actor, t, beam, { launchIn: Math.max(0, hit - now - flight), flight });
+                    else shoot(actor, t, { element: profile.element, area: delivery === 'area', launchIn: Math.max(0, hit - now - flight), flight });
                 }
             });
             if (recentMotion.get(castKey) > now - 900) return; // one skill reported once per target
@@ -771,11 +773,16 @@
             // The attack pose from late in the wind-up until the strike has landed. With several frames
             // the first is the wind-up (an aim), the next lands as the hit leaves, the rest follow it.
             const strikeEnds = melee ? windup + 140 + 170 : delivery === 'self' || !foe ? windup + 300 : windup + 280;
-            const attackFrames = posesOf(actors.get(actor))?.attack?.length || 0;
-            if (attackFrames === 1) playPoseFrames(actor, 'attack', [[windup * 0.55, strikeEnds]]);
-            else if (attackFrames > 1) {
-                const step = (strikeEnds + 260 - windup) / (attackFrames - 1);
-                playPoseFrames(actor, 'attack', Array.from({ length: attackFrames }, (_, i) => (i ? [windup + (i - 1) * step, windup + i * step] : [0, windup])));
+            // A melee skill holds its first frame through the dash (a flying pose), then strikes.
+            // The last frame holds until the hit has landed (a long beam or shot can outlast the strike).
+            const attack = attackFramesFor(actors.get(actor), skillId);
+            const firstHit = Math.max(0, (impactAt.get(targets.find(t => t && t !== actor)) || 0) - now);
+            const tail = Math.max(strikeEnds + 260, firstHit + 300);
+            if (attack.length === 1) playPoseFrames(actor, 'attack', [[windup * 0.55, Math.max(strikeEnds, firstHit + 200)]], attack);
+            else if (attack.length > 1) {
+                const first = melee ? windup + 140 : windup;
+                const step = (tail - first) / (attack.length - 1);
+                playPoseFrames(actor, 'attack', attack.map((_, i) => (i ? [first + (i - 1) * step, first + i * step] : [0, first])), attack);
             }
             const dir = foe ? Math.sign(foot(target).x - a.x) || (sideOf(actor) === 'player' ? 1 : -1) : (sideOf(actor) === 'player' ? 1 : -1);
             if (melee) {
@@ -849,10 +856,17 @@
             pose.style.left = `${left + fx * w}px`; pose.style.top = `${top + box[1] * h}px`;
             pose.style.width = `${box[2] * w}px`; pose.style.height = `${box[3] * h}px`;
         }
-        /** Shows frame `index` of a pose for `ms` (Infinity keeps it until cleared). */
-        function showPose(card, kind, ms, index = 0) {
-            const actor = actors.get(card), frame = posesOf(actor)?.[kind]?.[index];
-            if (!frame || (card.dataset.pose === 'ko' && kind !== 'ko')) return false;
+        /** The attack frames for one skill: frames made for it, else the frames made for no skill in particular. */
+        function attackFramesFor(actor, skillId) {
+            const frames = posesOf(actor)?.attack || [];
+            const own = frames.filter(f => f.skills?.includes(skillId));
+            return own.length ? own : frames.filter(f => !f.skills);
+        }
+        const beamFor = (actor, skillId) => (posesOf(actor)?.beam || []).find(b => b.skills?.includes(skillId)) || null;
+        /** Shows one frame of a pose for `ms` (Infinity keeps it until cleared). */
+        function showPose(card, kind, ms, frame = (posesOf(actors.get(card))?.[kind] || []).find(f => !f.skills)) {
+            const actor = actors.get(card);
+            if (!actor || !frame || (card.dataset.pose === 'ko' && kind !== 'ko')) return false;
             if (!actor.pose) { actor.pose = document.createElement('img'); actor.pose.className = 'scene-pose'; actor.pose.alt = ''; actor.pose.draggable = false; actor.body.append(actor.pose); }
             const img = actor.pose; img.box = frame.box; fitPose(actor);
             clearTimeout(actor.poseTimer);
@@ -863,9 +877,28 @@
             if (Number.isFinite(ms)) actor.poseTimer = setTimeout(() => clearPose(card, kind), ms);
             return true;
         }
-        /** Plays every frame of a pose in turn: [startMs, endMs] per frame. */
-        function playPoseFrames(card, kind, spans) {
-            spans.forEach(([from, to], i) => setTimeout(() => showPose(card, kind, i === spans.length - 1 ? to - from : to - from + 60, i), from));
+        /** Plays frames in turn: [startMs, endMs] per frame. */
+        function playPoseFrames(card, kind, spans, frames) {
+            spans.forEach(([from, to], i) => setTimeout(() => showPose(card, kind, i === spans.length - 1 ? to - from : to - from + 60, frames[i]), from));
+        }
+        /** A beam from the caster's eyes (its origin on the render) to the target: it reaches out over
+         *  the flight, holds as the hit lands, then fades. */
+        function drawBeam(actor, target, beam, { launchIn, flight }) {
+            const art = actors.get(actor)?.art; if (!art) return;
+            setTimeout(() => {
+                const r = field.getBoundingClientRect(), a = art.getBoundingClientRect(), b = foot(target);
+                const flipped = sideOf(actor) === 'opponent';
+                const ox = a.left + (flipped ? 1 - beam.origin[0] : beam.origin[0]) * a.width - r.left, oy = a.top + beam.origin[1] * a.height - r.top;
+                const tx = b.x - r.left, ty = b.y - r.top - b.h * 0.55;
+                const length = Math.hypot(tx - ox, ty - oy), angle = Math.atan2(ty - oy, tx - ox) * 180 / Math.PI;
+                const el = document.createElement('img'); el.className = 'scene-beam'; el.alt = ''; el.src = beam.src;
+                el.style.left = `${ox}px`; el.style.top = `${oy}px`; el.style.width = `${length}px`;
+                el.style.height = `${Math.max(10, a.height * (beam.thickness || 0.05))}px`;
+                el.style.transform = `translateY(-50%) rotate(${angle}deg)`;
+                field.append(el);
+                el.animate([{ clipPath: 'inset(0 100% 0 0)', opacity: 1 }, { clipPath: 'inset(0 0 0 0)', opacity: 1 }], { duration: Math.max(90, flight), easing: 'ease-in', fill: 'forwards' });
+                setTimeout(() => el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, fill: 'forwards' }).finished.catch(() => {}).then(() => el.remove()), Math.max(90, flight) + 260);
+            }, launchIn);
         }
         function clearPose(card, kind) {
             const actor = actors.get(card); if (!actor || !card.dataset.pose || (kind && card.dataset.pose !== kind)) return;
@@ -947,7 +980,15 @@
             const guard = (name, fn) => { try { fn(); } catch (e) { console.warn('[arena-scene]', name, e); } };
             const wrap = (name, wrapper) => { const original = fx[name]?.bind(fx); if (original) fx[name] = (...args) => wrapper(original, ...args); };
             const later = (card, fn) => { const ms = actors.has(card) ? delayFor(card) : 0; if (ms > 16) setTimeout(fn, ms); else fn(); };
-            wrap('cast', (original, opts) => { guard('cast', () => castMotion(opts || {})); return original(opts); });
+            wrap('cast', (original, opts) => {
+                guard('cast', () => castMotion(opts || {}));
+                // A skill drawn as a beam on the battlefield skips the engine's own travelling sprite.
+                // A fighter with its own attack frames shows its wind-up itself, so the charge-up sprite would only cover it.
+                const actor = opts?.actor && actors.has(opts.actor) ? actors.get(opts.actor) : null;
+                const beamed = actor && beamFor(actor, opts.skillId);
+                const posed = actor && attackFramesFor(actor, opts.skillId).length > 0;
+                return original(beamed || posed ? { ...opts, ...(beamed ? { skipTravel: true } : {}), ...(posed ? { skipWindup: true } : {}) } : opts);
+            });
             wrap('recoil', (original, card, amount, extra) => { guard('recoil', () => recoilMotion(card, amount)); later(card, () => original(card, amount, extra)); });
             wrap('status', (original, card, harmful) => later(card, () => { guard('status', () => { if (actors.has(card) && motionOK()) flash(card, harmful ? 'debuff' : 'buff'); }); original(card, harmful); }));
             wrap('death', (original, card, opts) => { guard('death', () => koMotion(card)); return new Promise(done => later(card, () => Promise.resolve(original(card, opts)).then(done, done))); });

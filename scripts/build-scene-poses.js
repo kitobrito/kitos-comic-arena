@@ -49,6 +49,9 @@ function listRenders(source = fs.readFileSync(path.join(ROOT, 'scripts', 'script
 }
 
 /**
+ * A frame with "skills" plays only for those skills (one attack set for a punch, another for a laser);
+ * frames without it play for every other skill. A "beam" frame is drawn stretched from "origin" (a
+ * point on the render's canvas, as fractions) to the target while its skills land.
  * poses[render][pose] is a list of frames, played in order: charmander-attack.png, then
  * charmander-attack-2.png, -3 ... (an aim, a shot and a reload, say). Each frame can carry a box
  * from assets/images/poses/poses.json: [left, top, width, height] as fractions of its render's
@@ -63,12 +66,18 @@ function buildManifest({
     const found = {}, unmatched = [];
     for (const file of files.sort()) {
         if (/^readme|^poses\.json$/i.test(file)) continue;
-        const match = file.match(/^(.+)-(attack|hit|ko)(?:-(\d+))?\.(png|webp)$/i);
-        const render = match && byName.get(match[1].toLowerCase());
-        if (!render) { unmatched.push(file); continue; }
+        const meta = boxes[file] || {};
+        // A frame named in poses.json with "of" (the render's pack name) and "pose" can have any file
+        // name: homelander-laser-2.webp is attack frame 2 of homelander, for its laser skills only.
+        const match = meta.of ? [file, meta.of, meta.pose, meta.order] : file.match(/^(.+)-(attack|hit|ko)(?:-(\d+))?\.(png|webp)$/i);
+        const render = match && byName.get(String(match[1]).toLowerCase());
+        if (!render || !/^(attack|hit|ko|beam)$/i.test(match[2] || '')) { unmatched.push(file); continue; }
         const frame = { src: `/assets/images/poses/${file}`, order: Number(match[3] || 1) };
-        const box = boxes[file]?.box;
+        const box = meta.box;
         if (Array.isArray(box) && box.length === 4 && box.every(Number.isFinite)) frame.box = box;
+        if (Array.isArray(meta.skills) && meta.skills.length) frame.skills = meta.skills.map(String);
+        if (Array.isArray(meta.origin) && meta.origin.length === 2 && meta.origin.every(Number.isFinite)) frame.origin = meta.origin;
+        if (Number.isFinite(meta.thickness)) frame.thickness = meta.thickness;
         ((found[render] ||= {})[match[2].toLowerCase()] ||= []).push(frame);
     }
     const poses = {};

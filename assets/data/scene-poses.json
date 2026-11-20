@@ -1,5 +1,108 @@
 {
  "poses": {
+  "assets/images/BIB/comic/homelander-full.webp": {
+   "beam": [
+    {
+     "src": "/assets/images/poses/homelander-beam.webp",
+     "skills": [
+      "homelander-laser-death-beam",
+      "homelander-laser-death-beam-empowered"
+     ],
+     "origin": [
+      0.7304,
+      0.0869
+     ],
+     "thickness": 0.055
+    }
+   ],
+   "attack": [
+    {
+     "src": "/assets/images/poses/homelander-fly.webp",
+     "box": [
+      -0.697,
+      0.1047,
+      2.2096,
+      0.575
+     ],
+     "skills": [
+      "homelander-flying-assault"
+     ]
+    },
+    {
+     "src": "/assets/images/poses/homelander-laser-1.webp",
+     "box": [
+      -0.3403,
+      0.0344,
+      1.1917,
+      0.9656
+     ],
+     "skills": [
+      "homelander-laser-death-beam",
+      "homelander-laser-death-beam-empowered"
+     ]
+    },
+    {
+     "src": "/assets/images/poses/homelander-stand.webp",
+     "box": [
+      -0.3106,
+      0,
+      1.0433,
+      1
+     ],
+     "skills": [
+      "homelander-unbreakable-body"
+     ]
+    },
+    {
+     "src": "/assets/images/poses/homelander-laser-2.webp",
+     "box": [
+      0.0386,
+      0,
+      0.9873,
+      1
+     ],
+     "skills": [
+      "homelander-laser-death-beam",
+      "homelander-laser-death-beam-empowered"
+     ]
+    },
+    {
+     "src": "/assets/images/poses/homelander-punch.webp",
+     "box": [
+      -0.7089,
+      0.0938,
+      2.006,
+      0.9062
+     ],
+     "skills": [
+      "homelander-flying-assault",
+      "homelander-god-s-fist"
+     ]
+    }
+   ],
+   "hit": [
+    {
+     "src": "/assets/images/poses/homelander-hit.webp",
+     "box": [
+      -0.3145,
+      0.0766,
+      1.6413,
+      0.9234
+     ]
+    }
+   ],
+   "ko": [
+    {
+     "src": "/assets/images/poses/homelander-ko.webp",
+     "box": [
+      -0.6917,
+      0.7266,
+      2.3835,
+      0.2734
+     ]
+    }
+   ]
+  },
   "assets/images/BIB/comic/rage-infected-full.webp": {
    "attack": [
     {
