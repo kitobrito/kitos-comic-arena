@@ -41,7 +41,7 @@ test('the shipped pose art is all matched and present', () => {
     assert.equal(poses['assets/images/BIB/comic/walker-full.webp'].attack.length, 4);
     const homelander = poses['assets/images/BIB/comic/homelander-full.webp'];
     const forSkill = (id) => homelander.attack.filter((f) => f.skills?.includes(id)).map((f) => path.basename(f.src));
-    assert.deepEqual(forSkill('homelander-laser-death-beam'), ['homelander-laser-1.webp', 'homelander-laser-2.webp']);
+    assert.deepEqual(forSkill('homelander-laser-death-beam'), ['homelander-laser-1.webp']);
     assert.deepEqual(forSkill('homelander-flying-assault'), ['homelander-fly.webp', 'homelander-punch.webp']);
     assert.deepEqual(forSkill('homelander-god-s-fist'), ['homelander-punch.webp']);
     assert.equal(homelander.beam[0].origin.length, 2);
