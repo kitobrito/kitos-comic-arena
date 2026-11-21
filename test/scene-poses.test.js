@@ -5,6 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { listRenders, buildManifest } = require('../scripts/build-scene-poses');
 const { newsPost, pokemonPost, syncExperimentalBattlefieldPosesNews } = require('../sync_experimental_battlefield_poses_news');
+const negan = require('../sync_negan_battle_frames_news');
 
 test('every battlefield render has a pack name poses can be matched to', () => {
     const renders = listRenders();
@@ -46,6 +47,44 @@ test('the shipped pose art is all matched and present', () => {
     assert.deepEqual(forSkill('homelander-god-s-fist'), ['homelander-punch.webp']);
     assert.equal(homelander.beam[0].origin.length, 2);
     assert.ok(homelander.beam[0].skills.includes('homelander-laser-death-beam-empowered'));
+    const n = poses['assets/images/BIB/comic/negan-full.webp'];
+    const neganFor = (id) => n.attack.filter((f) => f.skills?.includes(id)).map((f) => path.basename(f.src));
+    assert.deepEqual(neganFor('negan-you-re-already-fucked'), ['negan-windup.webp', 'negan-swing.webp', 'negan-low.webp']);
+    assert.deepEqual(neganFor('negan-you-got-no-guts'), ['negan-knife.webp']);
+    assert.deepEqual(neganFor('negan-the-iron'), ['negan-iron.webp']);
+    assert.deepEqual(neganFor('negan-bat-smashes-knives'), ['negan-raise.webp', 'negan-smash.webp']);
+    assert.deepEqual(n.impact.map((f) => [path.basename(f.src), f.skills[0], f.anchor.length, f.size > 0]), [
+        ['negan-fx-blood.webp', 'negan-you-got-no-guts', 2, true], ['negan-fx-burn.webp', 'negan-the-iron', 2, true]]);
+    assert.equal(n.impact[0].faces, -1, 'the spray is drawn going left, so it is mirrored to fly away from Negan');
+    assert.equal(n.hit.length, 1); assert.equal(n.ko.length, 1);
+});
+
+test('impact art pops up on the target and sprays away from the attacker', () => {
+    const scene = fs.readFileSync(path.join(__dirname, '..', 'prototypes', 'arena-scene', 'scene.js'), 'utf8');
+    assert.ok(scene.includes('drawImpact(actor, t, impact'), 'drawn as the hit lands');
+    assert.match(scene, /const flip = away \* \(impact\.faces \|\| 1\) < 0/);
+    assert.match(scene, /transformOrigin = `\$\{ax \* 100\}%/, 'mirrored about its anchor, which stays on the body');
+    const { buildManifest } = require('../scripts/build-scene-poses');
+    const { poses } = buildManifest({ renders: [{ name: 'x', render: 'x.png' }], files: ['x-fx.webp'], boxes: { 'x-fx.webp': { of: 'x', pose: 'impact', skills: ['s'], anchor: [0.2, 0.5], size: 0.8, faces: -1 } } });
+    assert.deepEqual(poses['x.png'].impact, [{ src: '/assets/images/poses/x-fx.webp', skills: ['s'], anchor: [0.2, 0.5], size: 0.8, faces: -1 }]);
+});
+
+test('an attacker\'s whole team comes forward while it strikes, so its weapon is never behind the target', () => {
+    const scene = fs.readFileSync(path.join(__dirname, '..', 'prototypes', 'arena-scene', 'scene.js'), 'utf8');
+    const css = fs.readFileSync(path.join(__dirname, '..', 'prototypes', 'arena-scene', 'scene.css'), 'utf8');
+    assert.ok(scene.includes("team?.classList.add('scene-team-acting')"));
+    assert.match(css, /:is\(\.player-characters,\.enemy-characters\)\.scene-team-acting \{ z-index:4!important; \}/);
+});
+
+test('the Negan battle frames news post publishes at server startup', async () => {
+    assert.equal(negan.newsPost.arena, 'comic');
+    assert.deepEqual(negan.newsPost.blocks.map((b) => b.text), negan.newsPost.paragraphs);
+    assert.doesNotMatch(JSON.stringify(negan.newsPost), /\p{Extended_Pictographic}/u, 'no emojis');
+    const docs = new Map();
+    const db = { collection: () => ({ async updateOne(filter, update) { docs.set(filter.title, { ...(docs.get(filter.title) || update.$setOnInsert), ...update.$set }); } }) };
+    await negan.syncNeganBattleFramesNews(db); await negan.syncNeganBattleFramesNews(db);
+    assert.equal(docs.size, 1);
+    assert.match(fs.readFileSync(path.join(__dirname, '..', 'server.js'), 'utf8'), /await syncNeganBattleFramesNews\(db\)/);
 });
 
 test('the battlefield swaps in poses only where art exists', () => {

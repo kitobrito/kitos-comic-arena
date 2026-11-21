@@ -56,6 +56,9 @@ function listRenders(source = fs.readFileSync(path.join(ROOT, 'scripts', 'script
  * charmander-attack-2.png, -3 ... (an aim, a shot and a reload, say). Each frame can carry a box
  * from assets/images/poses/poses.json: [left, top, width, height] as fractions of its render's
  * canvas, for art drawn at another size or reaching past the render (a muzzle flash, a body lying down).
+ * An "impact" frame (a blood spray, a burn) pops up on the target as its skill lands: "anchor" is the
+ * point of the art placed on the target's body, "size" its width as a share of the target's height,
+ * and "faces": -1 marks art that sprays to the left (it is mirrored to spray away from the attacker).
  */
 function buildManifest({
     renders = listRenders(),
@@ -71,13 +74,16 @@ function buildManifest({
         // name: homelander-laser-2.webp is attack frame 2 of homelander, for its laser skills only.
         const match = meta.of ? [file, meta.of, meta.pose, meta.order] : file.match(/^(.+)-(attack|hit|ko)(?:-(\d+))?\.(png|webp)$/i);
         const render = match && byName.get(String(match[1]).toLowerCase());
-        if (!render || !/^(attack|hit|ko|beam)$/i.test(match[2] || '')) { unmatched.push(file); continue; }
+        if (!render || !/^(attack|hit|ko|beam|impact)$/i.test(match[2] || '')) { unmatched.push(file); continue; }
         const frame = { src: `/assets/images/poses/${file}`, order: Number(match[3] || 1) };
         const box = meta.box;
         if (Array.isArray(box) && box.length === 4 && box.every(Number.isFinite)) frame.box = box;
         if (Array.isArray(meta.skills) && meta.skills.length) frame.skills = meta.skills.map(String);
         if (Array.isArray(meta.origin) && meta.origin.length === 2 && meta.origin.every(Number.isFinite)) frame.origin = meta.origin;
         if (Number.isFinite(meta.thickness)) frame.thickness = meta.thickness;
+        if (Array.isArray(meta.anchor) && meta.anchor.length === 2 && meta.anchor.every(Number.isFinite)) frame.anchor = meta.anchor;
+        if (Number.isFinite(meta.size)) frame.size = meta.size;
+        if (meta.faces === -1 || meta.faces === 1) frame.faces = meta.faces;
         ((found[render] ||= {})[match[2].toLowerCase()] ||= []).push(frame);
     }
     const poses = {};
