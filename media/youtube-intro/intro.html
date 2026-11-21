@@ -16,11 +16,11 @@ canvas{display:block}
 const W=1920,H=1080,cx=W/2,cy=H/2;
 const c=document.getElementById('c'),main=c.getContext('2d');let g=main;
 const layer=document.createElement('canvas');layer.width=W;layer.height=H;const lctx=layer.getContext('2d');
-const P=0.6037, LEAD=16, END=(LEAD+(54.2-12.8116)/P)*P, OUT=(LEAD+(53.0-12.8116)/P)*P;
+const P=0.6037, LEAD=16, END=(LEAD+(54.7-12.8116)/P)*P, OUT=(LEAD+(53.5-12.8116)/P)*P;
 // final vocal "everybody / hates / Kito" (song 43.96 s, 44.68 s, 45.21 s), as beats from the drop
-const V1=(43.96-12.8116)/P, V2=(44.68-12.8116)/P, V3=(45.21-12.8116)/P;
+const V1=(43.96-12.8116)/P, V2=(45.30-12.8116)/P, V3=(45.90-12.8116)/P;
 // second time the line is sung (song 50.36 s, 51.08 s, 51.61 s); WIPE clears the first one
-const W1=(50.36-12.8116)/P, W2=(51.08-12.8116)/P, W3=(51.61-12.8116)/P, WIPE=61;
+const W1=(50.40-12.8116)/P, W2=(51.50-12.8116)/P, W3=(52.20-12.8116)/P, WIPE=61;
 const TITLE=window.TITLE||'KITO', SUB=window.SUB||'NARUTO-ARENA';
 const RED='#e0261b', ORANGE='#ff7a1a', GOLD='#ffc83d', BLUE='#3a7bff', PURPLE='#8a3cff';
 
@@ -125,6 +125,44 @@ function bell(x,y,s,rot){g.save();g.translate(x,y);g.rotate(rot);g.scale(s,s);g.
 function cursor(x,y,s){g.save();g.translate(x,y);g.scale(s,s);g.beginPath();g.moveTo(0,0);g.lineTo(0,62);g.lineTo(16,48);g.lineTo(28,74);g.lineTo(38,69);g.lineTo(26,44);g.lineTo(46,44);g.closePath();
   g.fillStyle='#fff';g.fill();g.lineWidth=4;g.strokeStyle='#000';g.stroke();g.restore();}
 
+
+// ---- lyrics (song time in seconds; word start/end from speech recognition on the track)
+const SONG0=3.15;
+const LYRICS=[
+ [['Everybody',11.95,12.4],['fucking',12.45,13.0],['hates',13.1,13.8],['Kito,',13.85,14.6]],
+ [["he's",15.4,16.1],['the',16.15,16.35],['actual',16.4,16.85],['worst',16.9,17.3],['person',17.3,17.7]],
+ [["that's",17.75,17.95],['ever',17.95,18.2],['played',18.25,18.5],['this',18.55,18.7],['fucking',18.75,19.0],['game,',19.05,19.5]],
+ [["he's",20.75,20.95],['made',20.95,21.15],['that',21.15,21.35],['song',21.35,22.2],['calling',22.25,22.55],['Wes',22.55,22.75],['a',22.75,22.95],['lame,',23.0,23.9]],
+ [['that',24.0,24.15],["he's",24.15,24.25],['happy',24.25,24.5],['he',24.55,24.65],['ended',24.65,25.0],['his',25.0,25.15],['game,',25.15,25.6]],
+ [['does',27.0,27.2],['he',27.2,27.35],['actually',27.35,28.3],['think',28.35,28.7],['we',28.7,28.9],['believe',28.9,29.95]],
+ [['that',30.0,30.2],['his',30.2,30.3],['fake',30.3,30.7],["girlfriend's",30.75,31.2],['reality?',31.25,32.1]],
+ [['criticize',32.9,33.5],['him',33.5,33.75],['and',33.75,34.05],['you',34.2,34.5],['will',34.5,34.75],['see,',34.75,35.6]],
+ [['him',36.3,36.5],['crash',36.5,36.9],['out',36.9,37.1],['and',37.1,37.4],['fucking',37.4,37.9],['bleed',37.9,38.7]],
+ [['Everybody',43.95,44.45],['fucking',44.5,45.25],['hates',45.3,45.85],['Kito,',45.9,46.8]],
+ [['everybody',50.4,50.95],['fucking',51.0,51.45],['hates',51.5,52.15],['Kito!',52.2,53.3]],
+];
+function lyrics(t){
+  const st=t+SONG0;let i=-1;
+  for(let k=0;k<LYRICS.length;k++){const L=LYRICS[k],a=L[0][1]-0.3,nx=LYRICS[k+1],e=Math.min(L[L.length-1][2]+0.7,nx?nx[0][1]-0.35:1e9);if(st>=a&&st<e){i=k;break;}}
+  if(i<0)return;
+  const L=LYRICS[i],a=L[0][1]-0.3,nx=LYRICS[i+1],e=Math.min(L[L.length-1][2]+0.7,nx?nx[0][1]-0.35:1e9);
+  const al=Math.min(clamp((st-a)/0.15),clamp((e-st)/0.15));
+  const size=58,y=H-64;
+  g.save();g.globalAlpha=al;g.font=`${size}px Frank`;g.textBaseline='middle';g.textAlign='left';
+  if('letterSpacing' in g) g.letterSpacing='2px';
+  const sp=g.measureText(' ').width+6, ws=L.map(w=>g.measureText(w[0]).width), tot=ws.reduce((x,y)=>x+y,0)+sp*(L.length-1);
+  g.fillStyle='rgba(0,0,0,0.72)';rrect(cx-tot/2-34,y-44,tot+68,88,22);g.fill();
+  g.strokeStyle='rgba(255,200,61,0.55)';g.lineWidth=3;g.stroke();
+  let x=cx-tot/2;
+  L.forEach(([w,ws0,we],k)=>{
+    const pr=clamp((st-ws0)/Math.max(0.05,we-ws0)), pop=st>=ws0?1+0.12*Math.exp(-(st-ws0)*10):1;
+    g.save();g.translate(x+ws[k]/2,y);g.scale(pop,pop);g.translate(-ws[k]/2,0);
+    g.lineJoin='round';g.lineWidth=8;g.strokeStyle='#000';g.strokeText(w,0,2);
+    g.fillStyle='#fff';g.fillText(w,0,2);
+    if(pr>0){g.save();g.beginPath();g.rect(-4,-size,ws[k]*pr+4,size*2);g.clip();g.fillStyle=GOLD;g.fillText(w,0,2);g.restore();}
+    g.restore();x+=ws[k]+sp;});
+  g.restore();
+}
 // ---------------------------------------------------------------------------
 function render(t){
   g.setTransform(1,0,0,1,0,0);g.globalAlpha=1;g.globalCompositeOperation='source-over';
@@ -326,7 +364,7 @@ function render(t){
     slam('HATES',cx,cy-70,250,T(V2),t,{fill:'#fff',lw:0.15});
     if(d3>=0) logo(cx,cy+190,1,d3,pulse,300);
     const sa=ease((d3-1.0)/0.4);
-    if(sa>0) txt(SUB,cx,cy+420+(1-sa)*30,66,{font:'Frank',alpha:sa,spacing:14,lw:0.14});
+    if(sa>0) txt(SUB,cx,cy+380-(1-sa)*20,56,{font:'Frank',alpha:sa,spacing:14,lw:0.14});
     g.restore();
   }
   // red ink wipe between the two lines
@@ -349,7 +387,7 @@ function render(t){
       ring(cx,cy+190,d3,'#fff');ring(cx,cy+190,d3-0.15,ORANGE,1.2,1500,30);burstAt(cx,cy+190,d3,1.2);
       logo(cx,cy+190,1,d3,pulse,320);
       const sa=ease((d3-0.5)/0.4);
-      if(sa>0) txt(SUB,cx,cy+430+(1-sa)*30,66,{font:'Frank',alpha:sa,spacing:14,lw:0.14});
+      if(sa>0) txt(SUB,cx,cy+380-(1-sa)*20,56,{font:'Frank',alpha:sa,spacing:14,lw:0.14});
     }
   }
 
@@ -362,6 +400,7 @@ function render(t){
   g.globalAlpha=1;
   const vg=g.createRadialGradient(cx,cy,H*0.45,cx,cy,H*1.05);vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(0,0,0,0.75)');
   g.fillStyle=vg;g.fillRect(0,0,W,H);
+  g.globalAlpha=1;lyrics(t);
   let black=0;if(t<0.4)black=1-t/0.4;if(t>OUT)black=clamp((t-OUT)/(END-OUT));
   if(black>0){g.globalAlpha=black;g.fillStyle='#000';g.fillRect(0,0,W,H);}
   g.globalAlpha=1;
