@@ -1,0 +1,458 @@
+{
+  "reference_origin": "https://haki-arena.site",
+  "website_document_count": 45,
+  "pages": [
+    {
+      "file": "changeavatar.html",
+      "status": "reference-inner",
+      "kind": "account",
+      "reference": "/profile and account layout",
+      "reason": null
+    },
+    {
+      "file": "changebackgrounds.html",
+      "status": "reference-inner",
+      "kind": "account",
+      "reference": "/profile and account layout",
+      "reason": null
+    },
+    {
+      "file": "character-builder.html",
+      "status": "reference-inner",
+      "kind": "editor",
+      "reference": "/cc (controls and forms)",
+      "reason": null
+    },
+    {
+      "file": "charactereditor.html",
+      "status": "reference-inner",
+      "kind": "editor",
+      "reference": "/cc (controls and forms)",
+      "reason": null
+    },
+    {
+      "file": "charactersandskills.html",
+      "status": "reference-inner",
+      "kind": "roster",
+      "reference": "/characters",
+      "reason": null
+    },
+    {
+      "file": "clan panel.html",
+      "status": "reference-inner",
+      "kind": "account",
+      "reference": "/profile and account layout",
+      "reason": null
+    },
+    {
+      "file": "clanprofile.html",
+      "status": "reference-inner",
+      "kind": "account",
+      "reference": "/profile and account layout",
+      "reason": null
+    },
+    {
+      "file": "community.html",
+      "status": "reference-inner",
+      "kind": "ladder",
+      "reference": "/ladders and /ranking",
+      "reason": null
+    },
+    {
+      "file": "demofeedback.html",
+      "status": "reference-inner",
+      "kind": "editor",
+      "reference": "/cc (controls and forms)",
+      "reason": null
+    },
+    {
+      "file": "editmission.html",
+      "status": "reference-inner",
+      "kind": "editor",
+      "reference": "/cc (controls and forms)",
+      "reason": null
+    },
+    {
+      "file": "events.html",
+      "status": "reference-inner",
+      "kind": "news",
+      "reference": "/news-archive",
+      "reason": null
+    },
+    {
+      "file": "index.html",
+      "status": "reference-home",
+      "kind": "homepage",
+      "reference": "/",
+      "reason": null
+    },
+    {
+      "file": "ingame.html",
+      "status": "excluded-gameplay",
+      "kind": "portal",
+      "reference": "/",
+      "reason": "battle screen"
+    },
+    {
+      "file": "manual.html",
+      "status": "reference-inner",
+      "kind": "manual",
+      "reference": "/manual and /basics",
+      "reason": null
+    },
+    {
+      "file": "missions.html",
+      "status": "reference-inner",
+      "kind": "missions",
+      "reference": "/missions",
+      "reason": null
+    },
+    {
+      "file": "newspost.html",
+      "status": "reference-inner",
+      "kind": "editor",
+      "reference": "/cc (controls and forms)",
+      "reason": null
+    },
+    {
+      "file": "playeraccounts.html",
+      "status": "reference-inner",
+      "kind": "editor",
+      "reference": "/cc (controls and forms)",
+      "reason": null
+    },
+    {
+      "file": "pokemon-changebackgrounds.html",
+      "status": "reference-inner",
+      "kind": "account",
+      "reference": "/profile and account layout",
+      "reason": null
+    },
+    {
+      "file": "pokemon-charactereditor.html",
+      "status": "reference-inner",
+      "kind": "editor",
+      "reference": "/cc (controls and forms)",
+      "reason": null
+    },
+    {
+      "file": "pokemon-charactersandskills.html",
+      "status": "reference-inner",
+      "kind": "roster",
+      "reference": "/characters",
+      "reason": null
+    },
+    {
+      "file": "pokemon-clanpanel.html",
+      "status": "reference-inner",
+      "kind": "account",
+      "reference": "/profile and account layout",
+      "reason": null
+    },
+    {
+      "file": "pokemon-community.html",
+      "status": "reference-inner",
+      "kind": "ladder",
+      "reference": "/ladders and /ranking",
+      "reason": null
+    },
+    {
+      "file": "pokemon-demos.html",
+      "status": "reference-inner",
+      "kind": "portal",
+      "reference": "/",
+      "reason": null
+    },
+    {
+      "file": "pokemon-editmission.html",
+      "status": "reference-inner",
+      "kind": "editor",
+      "reference": "/cc (controls and forms)",
+      "reason": null
+    },
+    {
+      "file": "pokemon-events.html",
+      "status": "reference-inner",
+      "kind": "news",
+      "reference": "/news-archive",
+      "reason": null
+    },
+    {
+      "file": "pokemon-home.html",
+      "status": "reference-inner",
+      "kind": "portal",
+      "reference": "/",
+      "reason": null
+    },
+    {
+      "file": "pokemon-manual.html",
+      "status": "reference-inner",
+      "kind": "manual",
+      "reference": "/manual and /basics",
+      "reason": null
+    },
+    {
+      "file": "pokemon-missions.html",
+      "status": "reference-inner",
+      "kind": "missions",
+      "reference": "/missions",
+      "reason": null
+    },
+    {
+      "file": "pokemon-newspost.html",
+      "status": "reference-inner",
+      "kind": "editor",
+      "reference": "/cc (controls and forms)",
+      "reason": null
+    },
+    {
+      "file": "pokemon-playeraccounts.html",
+      "status": "reference-inner",
+      "kind": "editor",
+      "reference": "/cc (controls and forms)",
+      "reason": null
+    },
+    {
+      "file": "pokemon-profile.html",
+      "status": "reference-inner",
+      "kind": "account",
+      "reference": "/profile and account layout",
+      "reason": null
+    },
+    {
+      "file": "pokemon-resetaccount.html",
+      "status": "reference-inner",
+      "kind": "account",
+      "reference": "/profile and account layout",
+      "reason": null
+    },
+    {
+      "file": "pokemon-winrates.html",
+      "status": "reference-inner",
+      "kind": "ladder",
+      "reference": "/ladders and /ranking",
+      "reason": null
+    },
+    {
+      "file": "profile.html",
+      "status": "reference-inner",
+      "kind": "account",
+      "reference": "/profile and account layout",
+      "reason": null
+    },
+    {
+      "file": "register.html",
+      "status": "reference-inner",
+      "kind": "account",
+      "reference": "/profile and account layout",
+      "reason": null
+    },
+    {
+      "file": "resetaccount.html",
+      "status": "reference-inner",
+      "kind": "account",
+      "reference": "/profile and account layout",
+      "reason": null
+    },
+    {
+      "file": "selection-login.html",
+      "status": "excluded-gameplay",
+      "kind": "portal",
+      "reference": "/",
+      "reason": "game launch authentication"
+    },
+    {
+      "file": "selection.html",
+      "status": "excluded-gameplay",
+      "kind": "portal",
+      "reference": "/",
+      "reason": "team selection and store"
+    },
+    {
+      "file": "shattered-account.html",
+      "status": "reference-inner",
+      "kind": "account",
+      "reference": "/profile and account layout",
+      "reason": null
+    },
+    {
+      "file": "shattered-factions.html",
+      "status": "reference-inner",
+      "kind": "roster",
+      "reference": "/characters",
+      "reason": null
+    },
+    {
+      "file": "shattered-home.html",
+      "status": "reference-inner",
+      "kind": "portal",
+      "reference": "/",
+      "reason": null
+    },
+    {
+      "file": "shattered-ladder.html",
+      "status": "reference-inner",
+      "kind": "ladder",
+      "reference": "/ladders and /ranking",
+      "reason": null
+    },
+    {
+      "file": "shattered-manual.html",
+      "status": "reference-inner",
+      "kind": "manual",
+      "reference": "/manual and /basics",
+      "reason": null
+    },
+    {
+      "file": "shattered-news.html",
+      "status": "reference-inner",
+      "kind": "news",
+      "reference": "/news-archive",
+      "reason": null
+    },
+    {
+      "file": "shattered-player.html",
+      "status": "reference-inner",
+      "kind": "portal",
+      "reference": "/",
+      "reason": null
+    },
+    {
+      "file": "shattered-players.html",
+      "status": "reference-inner",
+      "kind": "ladder",
+      "reference": "/ladders and /ranking",
+      "reason": null
+    },
+    {
+      "file": "shattered-realms.html",
+      "status": "excluded-gameplay",
+      "kind": "portal",
+      "reference": "/",
+      "reason": "playable card game"
+    },
+    {
+      "file": "split.html",
+      "status": "reference-inner",
+      "kind": "portal",
+      "reference": "/",
+      "reason": null
+    },
+    {
+      "file": "winrates.html",
+      "status": "reference-inner",
+      "kind": "ladder",
+      "reference": "/ladders and /ranking",
+      "reason": null
+    }
+  ],
+  "server_aliases": [
+    "/",
+    "/changeavatar",
+    "/changeavatar.html",
+    "/changebackgrounds",
+    "/changebackgrounds.html",
+    "/characters.js",
+    "/clan panel.html",
+    "/clan-panel",
+    "/comic",
+    "/comic.html",
+    "/community",
+    "/community.html",
+    "/editmission",
+    "/editmission.html",
+    "/events",
+    "/events.html",
+    "/ingame",
+    "/ingame.html",
+    "/manual",
+    "/manual.html",
+    "/pokemon",
+    "/pokemon-arena",
+    "/pokemon-arena.html",
+    "/pokemon-changebackgrounds",
+    "/pokemon-changebackgrounds.html",
+    "/pokemon-clanpanel",
+    "/pokemon-clanpanel.html",
+    "/pokemon-community",
+    "/pokemon-community.html",
+    "/pokemon-demos",
+    "/pokemon-demos.html",
+    "/pokemon-events",
+    "/pokemon-events.html",
+    "/pokemon-manual",
+    "/pokemon-manual.html",
+    "/pokemon-missions",
+    "/pokemon-missions.html",
+    "/pokemon-profile",
+    "/pokemon-profile.html",
+    "/pokemon-resetaccount",
+    "/pokemon-resetaccount.html",
+    "/pokemon.html",
+    "/profile",
+    "/profile.html",
+    "/register",
+    "/register.html",
+    "/resetaccount",
+    "/resetaccount.html",
+    "/selection",
+    "/selection-login",
+    "/selection-login.html",
+    "/selection.html",
+    "/split",
+    "/split.html"
+  ],
+  "original_local_link_paths": [
+    "/",
+    "/charactereditor.html",
+    "/charactersandskills.html",
+    "/comic",
+    "/community.html",
+    "/demofeedback.html",
+    "/editmission.html",
+    "/events.html",
+    "/index.html",
+    "/manual.html",
+    "/missions.html",
+    "/newspost.html",
+    "/playeraccounts.html",
+    "/pokemon",
+    "/pokemon-charactereditor.html",
+    "/pokemon-charactersandskills.html",
+    "/pokemon-community",
+    "/pokemon-demos",
+    "/pokemon-editmission.html",
+    "/pokemon-events",
+    "/pokemon-manual",
+    "/pokemon-missions",
+    "/pokemon-newspost.html",
+    "/pokemon-playeraccounts.html",
+    "/pokemon-winrates.html",
+    "/prototypes/vampire-rpg/index.html",
+    "/register.html",
+    "/selection-login.html",
+    "/shattered",
+    "/shattered-account",
+    "/shattered-factions",
+    "/shattered-ladder",
+    "/shattered-manual",
+    "/shattered-news",
+    "/shattered-play",
+    "/shattered-players",
+    "/split",
+    "/winrates.html"
+  ],
+  "dynamic_pages": "Profile/clan/user query parameters and arena= modes use the same styled document; the shared loader covers aliases without redirects or URL changes.",
+  "gameplay_aliases_excluded": [
+    "/ingame",
+    "/selection",
+    "/selection-login",
+    "/pokemon-arena",
+    "/shattered-play",
+    "/shattered-realms",
+    "/prototypes/*",
+    "/arena-scene/*",
+    "/pokemon-campaign/*"
+  ],
+  "verification": "All 44 interior document DOMs checked for retained IDs, original links and control listeners; homepage retained separately; common server route and static access tests pass. Browser pixel comparison unavailable."
+}

@@ -24,6 +24,19 @@
   var file = decodeURIComponent(rawPath.split("/").pop() || "").toLowerCase();
   if (rawPath === "/") file = "";
 
+  // Apply the reference shell to every website page, never to a playable screen.
+  var referenceExcluded = /^(ingame|selection|selection-login|pokemon-arena|shattered-realms|shattered-play)(\.html)?$/.test(file) || /^\/(prototypes|arena-scene|pokemon-campaign)(\/|$)/.test(rawPath);
+  var referenceHomepage = root.getAttribute("data-home-design") === "classic-reference";
+  if (!referenceExcluded) {
+    root.id = "reference-home";
+    root.setAttribute("data-home-design", "classic-reference");
+    root.setAttribute("data-reference-layout", referenceHomepage ? "home" : "inner");
+    var referenceCSS = doc.createElement("link");
+    referenceCSS.rel = "stylesheet";
+    referenceCSS.href = "/styles/reference-site.css?v=all-pages-v1";
+    doc.head.appendChild(referenceCSS);
+  }
+
   var store = {
     get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
     set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
@@ -511,6 +524,14 @@
     root.setAttribute("data-theme", game);
     GAMES.concat("split").forEach(function (g) { doc.body.classList.toggle("theme-" + g, g === game); });
     rememberGame(game, false);
+    if (!referenceExcluded) {
+      doc.body.classList.add("tp-native");
+      if (!referenceHomepage) {
+        var referenceScript = doc.createElement("script");
+        referenceScript.src = "/scripts/reference-site.js?v=all-pages-v1";
+        doc.head.appendChild(referenceScript);
+      }
+    }
     // Inside the small game-launch pop-up (the Play buttons open one) the site header would only crowd it.
     var popup = false;
     try { popup = !!window.opener && window.innerWidth < 900; } catch (e) {}
