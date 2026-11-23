@@ -98,6 +98,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <button type="button" class="ingame-effects-mute-button effects-mute-button" aria-label="Mute game sounds" title="Mute game sounds"></button>
         <button type="button" class="ingame-skill-effects-toggle skill-effects-toggle" aria-label="Turn off skill effects" title="Turn off skill effects"></button>
         <button type="button" class="ingame-ui-options-toggle ui-options-toggle" aria-expanded="false" aria-controls="ingame-ui-options">Options</button>
+        <button type="button" class="ingame-ui-options-toggle ui-options-toggle" aria-expanded="false" aria-controls="ingame-interface-options">User Interface</button>
         <button type="button" class="ingame-fullscreen-toggle" aria-pressed="false" title="Toggle fullscreen">Full</button>
         <button type="button" class="ingame-status-reveal-toggle" aria-pressed="false" title="Reveal all status details">Statuses</button>
         <input id="ingame-sound-volume" class="ingame-sound-volume" type="range" min="0" max="100" step="1" value="70" aria-label="Sound volume">
@@ -114,6 +115,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <label><input type="checkbox" data-ui-setting="clickSounds"> Click sounds</label>
             <label><input type="checkbox" data-ui-setting="shiftStatusReveal"> Shift reveals statuses</label>
             <label><input type="checkbox" data-ui-setting="skillQueueTrail"> Skill queue trail</label>
+        </section>
+        <section class="ui-options-panel ingame-ui-options-panel" id="ingame-interface-options" aria-label="User Interface" hidden>
+            <h3 style="margin:0 0 8px;font-size:14px">User Interface</h3>
+            <p style="margin:0;font-size:12px;line-height:1.5">Interface options will appear here.</p>
         </section>
     </div>
     <section class="match-chat collapsed" aria-label="Match chat">
