@@ -190,3 +190,6 @@ html#reference-home.tp-on[data-home-design="classic-reference"] .news-feed-heade
 html#reference-home.tp-on[data-home-design="classic-reference"] .aside .release-panel::before { content:none !important;display:none !important; }
 html#reference-home.tp-on[data-home-design="classic-reference"] .aside .release-title { line-height:1.2 !important; }
 html#reference-home.tp-on[data-home-design="classic-reference"] .aside .release-grid { margin-top:8px !important; }
+
+/* Pokémon outer backdrop: the two requested Poké Ball colors, split at the viewport center. */
+html#reference-home.tp-on[data-home-design="classic-reference"] body.home-arena-pokemon { background:linear-gradient(90deg,#ffffff 0%,#ffffff 50%,#df2638 50%,#df2638 100%) fixed !important; }
