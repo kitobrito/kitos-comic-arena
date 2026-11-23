@@ -49,7 +49,7 @@
   if(!sidebar)sidebar=element('aside','sidebar');
   sidebar.classList.add('reference-inner-sidebar');
   var resources=element('section','group reference-site-links');resources.appendChild(element('h2','group-title','Arena Links'));
-  [['Characters',routes.characters],['News & Updates',routes.news],['My Profile',routes.profile],['Clans',routes.clan],['Custom Background',routes.background],['Reset Account',routes.reset],['Sign In',shattered?'/shattered-account':home+'#auth-panel'],['Register',shattered?'/shattered-account':'/register.html?arena='+arena],['All Arenas','/split']].forEach(function(pair){if(pair[1])resources.appendChild(link(pair[1],pair[0]));});
+  [['Characters',routes.characters],['News & Updates',routes.news],['My Profile',routes.profile],['Clans',routes.clan],['Custom Background',routes.background],['Reset Account',routes.reset],['Sign In',shattered?'/shattered-account':home+'#auth-panel'],['Register',shattered?'/shattered-account':'/register.html?arena='+arena],['Shattered Realms','/shattered'],['All Arenas','/split']].forEach(function(pair){if(pair[1])resources.appendChild(link(pair[1],pair[0]));});
   var switches=element('div','reference-game-switch');switches.append(link('/comic','Comics'),link('/pokemon','Pokémon'));resources.appendChild(switches);sidebar.prepend(resources);
   // Keep existing account/admin controls visible in the rail, while replacing
   // only the redundant decorative heading and primary menu.

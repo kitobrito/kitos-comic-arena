@@ -83,7 +83,9 @@
   var switcher = sidebar.querySelector('.home-arena-switch');
   if (switcher) resources.appendChild(switcher);
   var portal = node('a', 'reference-portal-link', '');
-  portal.href = '/split'; portal.textContent = 'All arenas'; resources.appendChild(portal);
+  portal.href = '/split'; portal.textContent = 'All arenas';
+  var shatteredLink = node('a', 'reference-portal-link');shatteredLink.href = '/shattered';shatteredLink.textContent = 'Shattered Realms';
+  resources.append(shatteredLink, portal);
   sidebar.prepend(community, resources);
   var latest = sections.find(function (section) { return heading(section) === 'Latest News'; });
   var latestList;
