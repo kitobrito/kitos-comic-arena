@@ -193,3 +193,9 @@ html#reference-home.tp-on[data-home-design="classic-reference"] .aside .release-
 
 /* Pokémon outer backdrop: the two requested Poké Ball colors, split at the viewport center. */
 html#reference-home.tp-on[data-home-design="classic-reference"] body.home-arena-pokemon { background:linear-gradient(90deg,#ffffff 0%,#ffffff 50%,#df2638 50%,#df2638 100%) fixed !important; }
+/* Keep the actual level visible above the progress bar, beside the name. */
+html#reference-home.tp-on[data-home-design="classic-reference"] .ladder-row>div:last-child { min-width:0; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .ladder-name { padding-right:48px; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .ladder-bar { position:relative !important;overflow:visible !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .ladder-score { display:block !important;position:absolute !important;inset:auto 0 auto auto !important;top:-18px !important;width:auto !important;height:15px !important;line-height:15px !important;font-size:11px !important;white-space:nowrap; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .ladder-score::before { content:'Lv. '; }
