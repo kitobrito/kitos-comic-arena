@@ -10233,6 +10233,7 @@ const PUBLIC_SCRIPTS_FILES = new Set([
     '/scripts/register.js',
     '/scripts/community.js',
     '/scripts/arena-navigation.js',
+    '/scripts/reference-home.js',
     '/scripts/arena-select-ui.js',
     '/scripts/script.js',
     '/scripts/battle-fx.js',

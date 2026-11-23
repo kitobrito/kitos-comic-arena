@@ -1,0 +1,187 @@
+/* Homepage measurements follow the supplied Haki Arena reference:
+   780 = 182 + 10 + 182 + 10 + 396; the top strip is exactly 217px.
+   Scope every rule to these two homepages, leaving battle and account pages alone. */
+html#reference-home.tp-on[data-home-design="classic-reference"] { background:#111720 !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] body {
+  --reference-accent:#ed563e; --reference-highlight:#3bc0df; --reference-heading:#a62b2e;
+  --reference-side:#232d3b; --reference-ink:#192b42;
+  margin:0 !important; padding:0 !important; min-height:100vh;
+  background:linear-gradient(180deg,#202936 0,#111720 58%,#090e15 100%) fixed !important;
+  color:var(--reference-ink) !important; font:12px/1.45 "Trebuchet MS",Verdana,sans-serif !important;
+}
+html#reference-home.tp-on[data-home-design="classic-reference"] body.home-arena-pokemon,
+html#reference-home.tp-on[data-home-design="classic-reference"] body[data-page-arena="pokemon"] {
+  --reference-accent:#f5bf38; --reference-highlight:#5ac4e1; --reference-heading:#1a6a8a;
+  --reference-side:#233247;
+}
+html#reference-home.tp-on[data-home-design="classic-reference"] .tp-header { display:none !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] body .app {
+  display:grid !important; grid-template-columns:182px 182px 396px !important;
+  grid-template-rows:217px minmax(0,1fr) !important; gap:0 10px !important;
+  width:780px !important; max-width:none !important; min-height:100vh;
+  margin:0 auto !important; padding:0 !important; align-items:stretch !important;
+  border:0 !important; border-radius:0 !important; background:none !important; box-shadow:none !important;
+}
+html#reference-home.tp-on[data-home-design="classic-reference"] .app>.sidebar { grid-column:1;grid-row:2; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .app>.aside { grid-column:2;grid-row:2; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .app>.main { grid-column:3;grid-row:2; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .reference-masthead {
+  grid-column:1 / span 2;grid-row:1;position:relative;height:217px;overflow:hidden;
+  background:radial-gradient(circle at 77% 33%,#71829324 1px,transparent 2px) 0 0/8px 8px;
+}
+html#reference-home.tp-on[data-home-design="classic-reference"] .reference-mascot { position:absolute;left:112px;top:-12px;width:272px;height:auto;max-width:none;pointer-events:none; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .reference-mascot[data-home-arena="pokemon"] { top:-24px;left:145px;width:228px; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .reference-masthead .group { position:relative;z-index:2;margin:10px 0 0 !important;padding:0 !important;border:0 !important;background:none !important;box-shadow:none !important;width:187px; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .reference-masthead .group-title,
+html#reference-home.tp-on[data-home-design="classic-reference"] .reference-masthead .group-note { display:none !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .reference-masthead .nav { display:flex;flex-direction:column;gap:7px !important;padding:0 !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .reference-masthead .nav-link {
+  position:relative;display:flex;align-items:center;flex:none;width:157px !important;min-height:27px !important;height:27px;
+  margin:0 !important;padding:0 10px 0 24px !important;gap:0;border:0 !important;border-radius:0 !important;
+  clip-path:polygon(0 0,100% 0,94% 100%,0 100%);
+  background:linear-gradient(#2c3847,#0d131d) !important;box-shadow:none !important;
+  color:#fff !important;font:16px/1 "Bangers",Impact,sans-serif !important;letter-spacing:.5px !important;
+  text-shadow:1px 1px 1px #0006 !important;text-align:left;cursor:pointer;text-transform:uppercase;
+}
+html#reference-home.tp-on[data-home-design="classic-reference"] .reference-masthead .nav-link svg { display:none !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .reference-masthead .nav-link::before { content:"";position:absolute;left:11px;top:11px;width:6px;height:6px;background:var(--reference-accent); }
+html#reference-home.tp-on[data-home-design="classic-reference"] .reference-masthead .nav-link.active { background:linear-gradient(#ffb765,#f18314) !important;color:#fff !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .reference-masthead .play-now { background:linear-gradient(#63dce7,#08a2c5) !important;color:#071923 !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .reference-masthead .nav-link:hover { filter:brightness(1.18); }
+html#reference-home.tp-on[data-home-design="classic-reference"] .reference-masthead .nav-link:focus-visible { outline:2px solid #fff;outline-offset:-3px; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .reference-banner { grid-column:3;grid-row:1;position:relative;height:217px;overflow:hidden;border-inline:1px solid #080c12;background:#192c3a; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .reference-banner :is(.brand,.arena-badge) {
+  display:flex;align-items:flex-start;justify-content:center;flex-direction:column;gap:0 !important;
+  width:100%;height:73px;min-height:73px;margin:0 !important;padding:6px 11px 4px !important;
+  border:0 !important;border-bottom:3px solid var(--reference-highlight) !important;border-radius:0 !important;
+  background:repeating-linear-gradient(125deg,transparent 0 12px,#2497ab36 12px 15px),linear-gradient(100deg,#183c4d,#101823 65%) !important;
+  box-shadow:none !important;text-align:left !important;
+}
+html#reference-home.tp-on[data-home-design="classic-reference"] .reference-banner :is(.brand-mark,.arena-badge-mark) { display:none !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .reference-banner :is(.brand-name,.arena-badge-name) {
+  display:block;color:#f5fbff !important;font:42px/.98 "Bangers",Impact,sans-serif !important;
+  letter-spacing:1px !important;text-shadow:2px 3px #071420 !important;-webkit-text-stroke:.4px #fff !important;
+}
+html#reference-home.tp-on[data-home-design="classic-reference"] .reference-banner :is(.brand-name,.arena-badge-name)>span { color:var(--reference-accent); }
+html#reference-home.tp-on[data-home-design="classic-reference"] .reference-banner :is(.brand-tagline,.arena-badge-copy) {
+  display:block;max-width:300px;margin:5px 0 0;padding:1px 14px 1px 9px;color:#051622 !important;
+  background:var(--reference-highlight);font:11px/1.2 "Bangers",Impact,sans-serif !important;letter-spacing:1px;
+  clip-path:polygon(3% 0,100% 0,97% 100%,0 100%);text-transform:uppercase;
+}
+html#reference-home.tp-on[data-home-design="classic-reference"] .reference-banner-art { position:relative;width:100%;height:144px;overflow:hidden;border-bottom:1px solid #050a10;background:repeating-linear-gradient(135deg,transparent 0 23px,#fff2 24px 25px),linear-gradient(120deg,#ed614e,#102947 58%,#389dc3); }
+html#reference-home.tp-on[data-home-design="classic-reference"] .reference-banner-pokemon { background:radial-gradient(ellipse at 50% 110%,#d8fbff,#5cc4e8 50%,#1d5985); }
+html#reference-home.tp-on[data-home-design="classic-reference"] .reference-banner-fighter { position:absolute;top:-24px;height:250px;width:56%;object-fit:contain; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .reference-banner-fighter.first { left:-5px; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .reference-banner-fighter.second { right:-4px; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .reference-banner-pokemon .first { width:70%;height:245px;top:-26px;left:-36px; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .reference-banner-pokemon .second { width:62%;height:183px;right:-7px;top:-5px; }
+html#reference-home.tp-on[data-home-design="classic-reference"] body .app>:is(.sidebar,.aside) {
+  display:flex !important;flex-direction:column;gap:0;overflow:visible;min-width:0;
+  padding:10px !important;margin:0 !important;background:var(--reference-side) !important;
+  border:1px solid #101720 !important;border-radius:0 !important;box-shadow:none !important;color:#e4eaf5 !important;
+}
+html#reference-home.tp-on[data-home-design="classic-reference"] :is(.sidebar,.aside)::before { display:none !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] :is(.sidebar,.aside) :is(.group,.auth-shell,.ladder,.stats-panel,.stats-highlight,.release-panel,.pokemon-ladder-promo) {
+  padding:0 !important;margin:0 0 16px !important;border:0 !important;border-radius:0 !important;background:none !important;box-shadow:none !important;
+}
+html#reference-home.tp-on[data-home-design="classic-reference"] :is(.sidebar,.aside) :is(.group-title,.ladder-title,.stats-title,.release-title) {
+  display:block;position:relative;min-height:23px;margin:0 0 6px !important;padding:4px 5px 3px 9px !important;
+  border:0 !important;border-left:6px solid var(--reference-accent) !important;background:#e8edf3 !important;
+  color:#071322 !important;font:15px/1 "Bangers",Impact,sans-serif !important;letter-spacing:.5px !important;
+  text-shadow:none !important;clip-path:polygon(0 0,100% 0,95% 100%,0 100%);
+}
+html#reference-home.tp-on[data-home-design="classic-reference"] .aside :is(.group-title,.ladder-title,.stats-title,.release-title) { border-left-color:var(--reference-highlight) !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] :is(.sidebar,.aside) :is(p,li,.group-note,.auth-description,.release-label,.ladder-name,.stats-list,.section-heading p) { color:#e5ecf7 !important;font:700 11px/1.45 "Trebuchet MS",Verdana,sans-serif !important;text-transform:none !important;text-shadow:none !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] :is(.sidebar,.aside) p { margin:4px 0 7px !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] :is(.sidebar,.aside) a { color:#f0f6ff !important;text-decoration:underline; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .reference-community>a { display:inline-block;padding:3px 9px;background:var(--reference-accent);color:#111b2a !important;text-decoration:none;font:14px "Bangers",Impact,sans-serif; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .reference-resources>.nav-link,
+html#reference-home.tp-on[data-home-design="classic-reference"] .reference-portal-link { display:block;margin:5px 0;padding:0 !important;background:none !important;border:0 !important;box-shadow:none !important;font:700 11px/1.6 "Trebuchet MS",Verdana,sans-serif !important;min-height:0 !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .reference-resources .nav-link svg { display:none; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .home-arena-switch { display:flex !important;gap:4px;margin:10px 0 !important;padding:0 !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .home-arena-switch-button { padding:5px !important;min-width:0;flex:1;font:700 11px "Trebuchet MS",Verdana,sans-serif !important;border:1px solid #708197 !important;background:#101c2b !important;color:#eaf5ff !important;box-shadow:none !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .home-arena-switch-button.active { border-color:var(--reference-highlight) !important;color:var(--reference-highlight) !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .auth-form { display:flex !important;flex-direction:column;gap:5px !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .auth-form .auth-input { width:100% !important;min-height:21px;height:21px;padding:2px 5px !important;border:1px solid #a4adba !important;border-radius:0 !important;background:#fff !important;color:#1a2b40 !important;box-shadow:none !important;font:12px Arial,sans-serif !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .auth-form .auth-button { min-height:22px !important;padding:2px 5px !important;border:1px solid #71829a !important;border-radius:0 !important;box-shadow:none !important;background:#f6faff !important;color:#155a77 !important;font:12px Arial,sans-serif !important;text-transform:none; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .account-action { padding:5px !important;border:0 !important;border-radius:0 !important;background:#172330 !important;color:#eff8ff !important;font-size:11px !important;box-shadow:none !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .reference-spotlight-art { height:110px;overflow:hidden;background:repeating-linear-gradient(135deg,#132236,#132236 10px,#203447 10px,#203447 20px);border:2px solid var(--reference-highlight); }
+html#reference-home.tp-on[data-home-design="classic-reference"] .reference-spotlight-art img { display:block;width:100%;height:145px;object-fit:contain;object-position:center top; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .aside .section-heading { display:block !important;margin:0 !important;padding:0 !important;border:0 !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .aside .release-copy,
+html#reference-home.tp-on[data-home-design="classic-reference"] .aside .stats-highlight { display:none !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .aside .release-grid { display:grid !important;grid-template-columns:repeat(3,minmax(0,1fr)) !important;gap:7px !important;margin:4px 0 !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .aside .release-card { min-width:0;padding:0 !important;border:0 !important;border-radius:0 !important;box-shadow:none !important;background:none !important;transform:none !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .aside .release-face { width:43px !important;height:43px !important;border:1px solid #f2f5ff !important;box-shadow:none !important;object-fit:cover; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .aside .release-label { font-size:9px !important;overflow-wrap:anywhere; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .ladder-list { gap:7px !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .ladder-row { padding:0 !important;border:0 !important;background:none !important;grid-template-columns:20px minmax(0,1fr) !important;gap:5px !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .ladder-rank { width:20px !important;height:20px !important;min-width:0 !important;padding:1px !important;border:0 !important;border-radius:0 !important;background:#142030 !important;color:var(--reference-highlight) !important;box-shadow:none !important;font-size:10px !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .ladder-bar { height:5px !important;margin:3px 0 8px !important;border:0 !important;background:#101824 !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .ladder-fill { background:var(--reference-highlight) !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .ladder-score { top:-15px !important;color:var(--reference-highlight) !important;font-size:9px !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .stats-list { padding-left:16px !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .stats-list li { margin:4px 0 !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] body .main { display:flex !important;flex-direction:column;gap:0 !important;min-width:0;overflow:hidden;margin:0 !important;padding:10px !important;border:0 !important;border-inline:1px solid #0b1017 !important;border-radius:0 !important;background:#fff !important;box-shadow:none !important;color:#192b42 !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .main .hero { display:block !important;min-height:0 !important;margin:0 0 10px !important;padding:0 0 10px !important;border:0 !important;border-bottom:1px solid #d7dce3 !important;border-radius:0 !important;background:none !important;box-shadow:none !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .main .hero::before { display:none !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .main .eyebrow { display:none !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .main .hero-title { margin:3px 0 4px !important;padding:0 !important;color:var(--reference-heading) !important;font:20px/1.1 "Bangers",Impact,sans-serif !important;letter-spacing:.3px !important;text-shadow:none !important;text-transform:uppercase; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .main #home-arena-description { margin:0 !important;color:var(--reference-heading) !important;font:700 11px/1.5 "Trebuchet MS",Verdana,sans-serif !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .main .news-shell { display:block !important;padding:0 !important;border:0 !important;border-radius:0 !important;background:none !important;box-shadow:none !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .main .news-shell>.section-heading { display:none !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .news-feed { padding:0 !important;margin:0 !important;border:0 !important;background:none !important;box-shadow:none !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .news-feed-header { display:flex;justify-content:flex-end;align-items:center;gap:6px;margin:0 0 5px !important;padding:0 !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .news-feed-controls { display:flex;align-items:center;gap:5px; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .news-feed-button { min-height:22px !important;width:22px;padding:0 !important;border:1px solid #b5c1cc !important;border-radius:0 !important;background:#eff4f7 !important;color:var(--reference-heading) !important;box-shadow:none !important;font-size:16px !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .news-feed-counter { color:#62738a !important;font-size:10px !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .main .news-post { margin:0 !important;padding:0 !important;border:0 !important;border-radius:0 !important;background:#fff !important;box-shadow:none !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .main .mainsection-kicker { margin:0 0 3px !important;padding:0 !important;color:var(--reference-heading) !important;font:18px/1.1 "Bangers",Impact,sans-serif !important;letter-spacing:0 !important;text-shadow:none !important;text-decoration:underline; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .main .mainsection-meta { margin:0 0 13px !important;color:#6e7d90 !important;font:11px/1.4 "Trebuchet MS",Verdana,sans-serif !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .main .byline { color:var(--reference-heading) !important;font-weight:700; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .main .mainsection-body { color:#192b42 !important;font:12px/1.5 "Trebuchet MS",Verdana,sans-serif !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .main .mainsection-body :is(p,li) { color:#192b42 !important;font:12px/1.5 "Trebuchet MS",Verdana,sans-serif !important;margin-block:8px !important;text-transform:none !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .main .mainsection-body img { max-width:100%;height:auto; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .main .mainsection-body a { color:var(--reference-heading) !important;text-decoration:underline; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .main .mainsection-body :is(h2,h3) { color:var(--reference-heading) !important;font-size:16px !important;text-shadow:none !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .reference-extras { margin-top:24px;padding-top:10px;border-top:1px solid #d7dce3;font-size:12px; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .reference-extras summary { cursor:pointer;color:var(--reference-heading);font-weight:700; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .reference-extras :is(.hero-side,.hero-points,.arena-split,.classic-stack) { display:block !important;padding:0 !important;margin:12px 0 !important;border:0 !important;background:none !important;box-shadow:none !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .reference-resources .hero-actions { display:flex;flex-direction:column;gap:4px;margin:10px 0 0; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .reference-resources .hero-link { display:block !important;min-height:0 !important;margin:0 !important;padding:2px 0 !important;border:0 !important;background:none !important;box-shadow:none !important;font-size:11px !important;transform:none !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .hero-partner-logo { max-width:140px;height:auto; }
+html#reference-home.tp-on[data-home-design="classic-reference"] body:not(.home-arena-pokemon) [data-home-arena="pokemon"],
+html#reference-home.tp-on[data-home-design="classic-reference"] body.home-arena-pokemon [data-home-arena="comic"] { display:none !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] [hidden] { display:none !important; }
+@media(max-width:799px) {
+  html#reference-home.tp-on[data-home-design="classic-reference"] body .app { width:100% !important;grid-template-columns:150px minmax(0,1fr) !important;gap:0 8px !important;padding:0 8px !important; }
+  html#reference-home.tp-on[data-home-design="classic-reference"] .reference-masthead { grid-column:1; }
+  html#reference-home.tp-on[data-home-design="classic-reference"] .reference-mascot { display:none !important; }
+  html#reference-home.tp-on[data-home-design="classic-reference"] .reference-masthead .group { width:150px; }
+  html#reference-home.tp-on[data-home-design="classic-reference"] .reference-masthead .nav-link { width:150px !important; }
+  html#reference-home.tp-on[data-home-design="classic-reference"] .reference-banner { grid-column:2; }
+  html#reference-home.tp-on[data-home-design="classic-reference"] .app>.main { grid-column:2;grid-row:2 / span 2; }
+  html#reference-home.tp-on[data-home-design="classic-reference"] .app>.aside { grid-column:1;grid-row:3; }
+  html#reference-home.tp-on[data-home-design="classic-reference"] .reference-banner :is(.brand-name,.arena-badge-name) { font-size:36px !important; }
+}
+@media(max-width:540px) {
+  html#reference-home.tp-on[data-home-design="classic-reference"] body .app { display:flex !important;flex-direction:column !important;padding:0 8px !important; }
+  html#reference-home.tp-on[data-home-design="classic-reference"] .reference-banner { order:0;flex:none; }
+  html#reference-home.tp-on[data-home-design="classic-reference"] .reference-masthead { order:1;flex:none;height:auto;overflow:visible; }
+  html#reference-home.tp-on[data-home-design="classic-reference"] .reference-masthead .group { width:100%;margin:10px 0 !important; }
+  html#reference-home.tp-on[data-home-design="classic-reference"] .reference-masthead .nav { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px; }
+  html#reference-home.tp-on[data-home-design="classic-reference"] .reference-masthead .nav-link { width:100% !important;height:38px;min-height:38px !important;font-size:17px !important; }
+  html#reference-home.tp-on[data-home-design="classic-reference"] .reference-masthead .nav-link::before { top:16px; }
+  html#reference-home.tp-on[data-home-design="classic-reference"] .app>.main { order:2; }
+  html#reference-home.tp-on[data-home-design="classic-reference"] .app>.sidebar { order:3; }
+  html#reference-home.tp-on[data-home-design="classic-reference"] .app>.aside { order:4; }
+  html#reference-home.tp-on[data-home-design="classic-reference"] .auth-form .auth-input { height:38px;min-height:38px;font-size:16px !important; }
+  html#reference-home.tp-on[data-home-design="classic-reference"] .auth-form .auth-button { min-height:38px !important;font-size:16px !important; }
+}
+
+html#reference-home.tp-on[data-home-design="classic-reference"] .main .reference-intro-note{margin:10px 0 0 !important;color:#22364b !important;font:11px/1.5 "Trebuchet MS",Verdana,sans-serif !important;}
+html#reference-home.tp-on[data-home-design="classic-reference"] .reference-intro-note strong{display:inline-block;margin-right:5px;padding:1px 4px;background:var(--reference-accent);color:#fff;font:12px "Bangers",Impact,sans-serif;transform:skew(-10deg);}
+html#reference-home.tp-on[data-home-design="classic-reference"] .main .mainsection-meta{border:0 !important;padding:0 !important;}
+html#reference-home.tp-on[data-home-design="classic-reference"] .reference-masthead .nav-link::after{display:none !important;}
+html#reference-home.tp-on[data-home-design="classic-reference"] .auth-switch{font:11px/1.5 Arial,sans-serif !important;color:var(--reference-highlight) !important;background:none !important;border:0 !important;box-shadow:none !important;text-transform:none !important;}
+html#reference-home.tp-on[data-home-design="classic-reference"] .news-feed-header{margin-top:16px !important;}
