@@ -103,7 +103,12 @@
   if (firstTime) spotlight.after(firstTime);
   var releasePanels = Array.from(main.querySelectorAll('.release-panel'));
   var insertion = firstTime || spotlight;
-  releasePanels.forEach(function (panel) { insertion.after(panel); insertion = panel; });
+  releasePanels.forEach(function (panel) {
+    var title = panel.querySelector('.release-title');
+    if (title) title.textContent = 'New Drops';
+    panel.setAttribute('aria-label', panel.dataset.homeArena === 'pokemon' ? 'Latest Pokémon character releases' : 'Latest comic character releases');
+    insertion.after(panel); insertion = panel;
+  });
   var reward = main.querySelector('.pokemon-ladder-promo');
   if (reward) insertion.after(reward);
 

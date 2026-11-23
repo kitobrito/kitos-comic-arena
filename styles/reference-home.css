@@ -185,3 +185,8 @@ html#reference-home.tp-on[data-home-design="classic-reference"] .main .mainsecti
 html#reference-home.tp-on[data-home-design="classic-reference"] .reference-masthead .nav-link::after{display:none !important;}
 html#reference-home.tp-on[data-home-design="classic-reference"] .auth-switch{font:11px/1.5 Arial,sans-serif !important;color:var(--reference-highlight) !important;background:none !important;border:0 !important;box-shadow:none !important;text-transform:none !important;}
 html#reference-home.tp-on[data-home-design="classic-reference"] .news-feed-header{margin-top:16px !important;}
+
+/* The compact rail uses one heading instead of the legacy floating badge. */
+html#reference-home.tp-on[data-home-design="classic-reference"] .aside .release-panel::before { content:none !important;display:none !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .aside .release-title { line-height:1.2 !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .aside .release-grid { margin-top:8px !important; }
