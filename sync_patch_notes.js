@@ -50,7 +50,7 @@ const POSTS = [
         author: 'kito',
         blocks: [
             p('The news feed on the front page now shows the three newest posts at once instead of one at a time. The arrows step back through older posts three at a time.'),
-            p('The Shattered Realms pages of the website now match the game\'s new 1950s picture palace look: the new marquee logo up in lights over a velvet stage, red velvet menus, title boxes ringed with marquee bulbs, and ticket-stub buttons. Every realm on the Realms page is now shown as its B-movie poster with its film title, and the Shattered Realms front page lists the three newest updates.'),
+            p('The Shattered Realms pages of the website now match the game\'s new 1950s picture palace look: the new marquee logo up in lights over the stage, an usher waiting beside the menu, red velvet menus, title boxes ringed with marquee bulbs, and ticket-stub buttons. The Shattered Realms front page opens on the picture palace at night with its name up on the marquee. Every realm on the Realms page is now shown as its B-movie poster with its film title, and the front page lists the three newest updates.'),
         ],
     },
     {

@@ -25,14 +25,12 @@
   var oldTopbar=doc.querySelector('.topbar,.pp-topbar');
   var shell=element('div','reference-inner-app');
   var masthead=element('header','reference-masthead reference-inner-masthead');
-  // Shattered Realms is a 1950s picture palace: a lobby poster stands where the mascot would.
+  // Shattered Realms is a 1950s picture palace: the usher stands where the mascot would.
   var TH='/assets/images/shattered-theatre/';
-  var FILMS=[['acidic','The Blob That Ate Main Street'],['aliens','Invasion from Beyond the Stars'],['bees','Terror of the Killer Hive'],['demons','The Night Hell Opened'],['dinosaurs','The Day Extinction Failed'],['divine','They Came from Heaven'],['dragons','Wings of Inferno'],['eels','Terror at 10,000 Volts'],['fruit-ninjas','Attack of the Forbidden Fruit'],['fungus','The Spore That Ate the World'],['ghosts','The Dead Walk at Midnight'],['ice-age','She Came from the Frozen Past'],['monster-hunter','The Last Monster Hunter'],['plants','The Garden That Devoured Manhattan'],['radioactive','Atomic Abominations'],['robots','Revolt of the Machines'],['sharks','Jaws from the Abyss'],['ultraterrestrials','Beyond the Fourth Dimension'],['vampires','The Night of Eternal Blood'],['void','The Thing Beyond Reality'],['lycanthropes','Curse of the Savage Moon'],['witches','The Coven of Midnight'],['zombies','Dawn of the Rotting Dead']];
   var mascot;
   if(shattered){
-    var film=FILMS[Math.floor(Math.random()*FILMS.length)];
     mascot=element('figure','reference-mascot sr-lobby-poster');mascot.dataset.homeArena='shattered';
-    mascot.append(art(TH+'posters/'+film[0]+'.jpg',film[1]+' poster'),element('figcaption','','Now showing'));
+    mascot.append(art(TH+'usher.webp','The picture palace usher'),element('figcaption','','This way, please'));
   }else{mascot=art(pokemon?'/assets/images/PokemonArena/BIB/cutout/mewtwo.png':'/assets/images/BIB/comic/deadpool.webp',pokemon?'Mewtwo':'Deadpool','reference-mascot');mascot.dataset.homeArena=pokemon?'pokemon':'comic';}
   masthead.appendChild(mascot);
   var navGroup=element('div','group'),nav=element('nav','nav');nav.setAttribute('aria-label','Main game navigation');
@@ -52,7 +50,6 @@
     // The marquee: the game's own logo up in lights over the stage.
     banner.classList.add('sr-marquee');
     var stage=element('div','reference-banner-art reference-banner-theatre');
-    stage.append(element('i','sr-spot l'),element('i','sr-spot r'));
     var logo=link(home,'','sr-marquee-logo');logo.setAttribute('aria-label','Shattered Realms home');logo.appendChild(art(TH+'logo-small.webp','Shattered Realms'));
     stage.append(logo,element('div','sr-marquee-strip','Now showing \u00b7 a fantasy card battler'));
     banner.appendChild(stage);

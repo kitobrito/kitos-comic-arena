@@ -40,7 +40,7 @@
       root.setAttribute("data-sr-theatre", "");
       var theatreCSS = doc.createElement("link");
       theatreCSS.rel = "stylesheet";
-      theatreCSS.href = "/styles/shattered-theatre.css?v=1";
+      theatreCSS.href = "/styles/shattered-theatre.css?v=2";
       doc.head.appendChild(theatreCSS);
     }
   }
@@ -536,7 +536,7 @@
       doc.body.classList.add("tp-native");
       if (!referenceHomepage) {
         var referenceScript = doc.createElement("script");
-        referenceScript.src = "/scripts/reference-site.js?v=theatre-v1";
+        referenceScript.src = "/scripts/reference-site.js?v=theatre-v2";
         doc.head.appendChild(referenceScript);
       }
     }

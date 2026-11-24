@@ -51,17 +51,17 @@ html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .refer
 
 /* The lobby poster where the arena mascot stands on the other games' pages. */
 html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-mascot.sr-lobby-poster {
-  left: 205px; top: 14px; width: 150px; height: auto; margin: 0; padding: 7px 7px 0;
+  left: 222px; top: 10px; width: 124px; height: auto; margin: 0; padding: 6px 6px 0;
   background: linear-gradient(#e9c167, #a8741b); border-radius: 3px;
   box-shadow: 0 0 0 2px #3c050d, 0 0 0 4px #e9c167, 0 10px 26px rgba(0, 0, 0, .7), 0 0 34px rgba(255, 190, 80, .25);
   transform: rotate(2.5deg);
 }
 html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .sr-lobby-poster img {
-  display: block; width: 100%; aspect-ratio: 2 / 3; object-fit: cover; border: 1px solid #3c050d;
+  display: block; width: 100%; aspect-ratio: 392 / 551; object-fit: cover; border: 1px solid #3c050d;
 }
 html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .sr-lobby-poster figcaption {
-  margin: 0; padding: 3px 0 4px; text-align: center; color: #4a0711;
-  font: 13px/1 'Limelight', Georgia, serif; letter-spacing: 2px; text-transform: uppercase;
+  margin: 0; padding: 4px 0 5px; text-align: center; color: #4a0711; white-space: nowrap;
+  font: 10px/1 'Limelight', Georgia, serif; letter-spacing: 1px; text-transform: uppercase;
 }
 
 /* ---- The banner: the logo up in lights over the stage ------------------------------------- */
@@ -71,8 +71,8 @@ html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .refer
 html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-banner-theatre {
   position: relative; height: 100% !important; border: 0 !important; overflow: hidden;
   background:
-    linear-gradient(180deg, rgba(20, 3, 10, .15), rgba(20, 3, 10, .2) 55%, rgba(20, 3, 10, .85)),
-    url('/assets/images/shattered-theatre/auditorium.jpg') 50% 30% / 165% auto no-repeat !important;
+    linear-gradient(180deg, rgba(20, 3, 10, 0) 60%, rgba(20, 3, 10, .7)),
+    url('/assets/images/shattered-theatre/banner-stage.webp') 50% 0 / cover no-repeat !important;
 }
 /* A row of marquee bulbs along the top and bottom edges. */
 html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-banner-theatre::before,
@@ -96,15 +96,6 @@ html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .sr-ma
   font: 11px/1.2 'Limelight', Georgia, serif; letter-spacing: 2px; text-transform: uppercase;
   box-shadow: 0 0 0 2px #4a0711, 0 0 14px rgba(255, 200, 80, .45);
 }
-/* Two spotlights sweeping across the curtain. */
-html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .sr-spot {
-  position: absolute; bottom: -20px; width: 120px; height: 260px; z-index: 1; pointer-events: none;
-  background: linear-gradient(0deg, rgba(255, 236, 170, .32), rgba(255, 236, 170, 0) 85%);
-  clip-path: polygon(44% 100%, 56% 100%, 100% 0, 0 0); mix-blend-mode: screen; transform-origin: 50% 100%;
-}
-html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .sr-spot.l { left: 4%; animation: th-sweep 7s ease-in-out infinite alternate; }
-html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .sr-spot.r { right: 4%; animation: th-sweep 8s ease-in-out -3s infinite alternate-reverse; }
-@keyframes th-sweep { from { transform: rotate(-24deg); } to { transform: rotate(24deg); } }
 
 /* ---- Sidebar: dark velvet with gold ticket-stub headings --------------------------------- */
 html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-sidebar {
@@ -253,8 +244,8 @@ html#reference-home.tp-on[data-sr-theatre] .sr-faction.sr-film .sr-film-title:no
   display: block; margin-bottom: 6px; color: #ffd257 !important; font: 14px/1.2 'Rye', Georgia, serif !important;
 }
 html#reference-home[data-sr-theatre] .sr-strip .sr-film img { aspect-ratio: 2 / 3; object-fit: cover; border: 2px solid #f2c14e; box-shadow: 0 0 0 2px #4a0711; border-radius: 2px; }
-html#reference-home[data-sr-theatre] .sr-hero-art { aspect-ratio: 1024 / 825; align-self: center; border: 2px solid #f2c14e !important; box-shadow: 0 0 0 2px #4a0711; }
-html#reference-home[data-sr-theatre] .sr-hero-art img.logo { top: 30%; width: 70%; filter: drop-shadow(0 4px 10px rgba(0, 0, 0, .8)) drop-shadow(0 0 16px rgba(255, 190, 80, .4)); }
+html#reference-home[data-sr-theatre] .sr-hero-art { aspect-ratio: 1024 / 559; container-type: inline-size; border: 2px solid #f2c14e !important; box-shadow: 0 0 0 2px #4a0711; }
+html#reference-home[data-sr-theatre] .sr-hero-art img.logo { display: none; }
 
 /* ---- Phones ------------------------------------------------------------------------------- */
 @media (max-width: 799px) {
@@ -273,3 +264,14 @@ html#reference-home[data-sr-theatre] .sr-faction.sr-film .sr-faction-art::after 
 
 /* Ranked tier chips: each tier's metal colour reads best on dark velvet. */
 html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-content .sr-tiers span { background: #3c050d !important; border-color: #b9811a !important; }
+
+/* Home: the picture palace at night across the top of the welcome box, our name on its marquee board. */
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-content .tp-hero { grid-template-columns: minmax(0, 1fr) !important; }
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-content .tp-hero > .sr-hero-art { order: -1; width: 100%; }
+html#reference-home[data-sr-theatre] .sr-marquee-board {
+  position: absolute; left: 50.4%; top: 36.2%; width: 33%; transform: translate(-50%, -50%) rotate(-9.6deg);
+  display: flex; flex-direction: column; align-items: center; gap: .35cqw; text-align: center; color: #8e0f1b;
+  font-family: 'Limelight', Georgia, serif; text-transform: uppercase; line-height: 1;
+}
+html#reference-home[data-sr-theatre] .sr-marquee-board b { font-size: 3.05cqw; font-weight: 400; letter-spacing: .12cqw; white-space: nowrap; color: #8e0f1b; }
+html#reference-home[data-sr-theatre] .sr-marquee-board small { font-size: 1.55cqw; letter-spacing: .3cqw; color: #1d1d1d; }
