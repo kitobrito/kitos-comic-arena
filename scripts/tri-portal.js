@@ -35,6 +35,14 @@
     referenceCSS.rel = "stylesheet";
     referenceCSS.href = "/styles/reference-site.css?v=all-pages-v2";
     doc.head.appendChild(referenceCSS);
+    // The Shattered Realms pages are dressed as the game's 1950s picture palace.
+    if (/^shattered(-|$)/.test(file)) {
+      root.setAttribute("data-sr-theatre", "");
+      var theatreCSS = doc.createElement("link");
+      theatreCSS.rel = "stylesheet";
+      theatreCSS.href = "/styles/shattered-theatre.css?v=1";
+      doc.head.appendChild(theatreCSS);
+    }
   }
 
   var store = {
@@ -528,7 +536,7 @@
       doc.body.classList.add("tp-native");
       if (!referenceHomepage) {
         var referenceScript = doc.createElement("script");
-        referenceScript.src = "/scripts/reference-site.js?v=all-pages-v1";
+        referenceScript.src = "/scripts/reference-site.js?v=theatre-v1";
         doc.head.appendChild(referenceScript);
       }
     }
