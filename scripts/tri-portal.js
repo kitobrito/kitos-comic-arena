@@ -33,7 +33,7 @@
     root.setAttribute("data-reference-layout", referenceHomepage ? "home" : "inner");
     var referenceCSS = doc.createElement("link");
     referenceCSS.rel = "stylesheet";
-    referenceCSS.href = "/styles/reference-site.css?v=all-pages-v1";
+    referenceCSS.href = "/styles/reference-site.css?v=all-pages-v2";
     doc.head.appendChild(referenceCSS);
   }
 

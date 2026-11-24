@@ -1,4 +1,5 @@
-@import url('/styles/reference-home.css?v=classic-780-v3');
+@import url('/styles/reference-home.css?v=classic-780-v4');
+@import url('https://fonts.googleapis.com/css2?family=Bangers&display=swap');
 /* Inner-page counterpart to Haki's 780px .acct-grid: 187 + 6 + 587.
    It is only loaded by the website theme engine; playable screens are excluded. */
 html#reference-home.tp-on[data-reference-layout="inner"] body {--reference-heading:#a62b2e;}
@@ -8,7 +9,7 @@ html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-masthe
 html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-banner {position:absolute;left:384px;top:0;width:396px;height:217px;}
 html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-sidebar {grid-column:1;grid-row:2;display:flex!important;flex-direction:column;width:182px!important;min-width:0!important;padding:10px!important;margin:0!important;border:1px solid #101720!important;border-radius:0!important;background:var(--reference-side)!important;color:#e4eaf5!important;box-shadow:none!important;overflow:hidden;}
 html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content {grid-column:2;grid-row:2;min-width:0;max-width:587px;padding:10px;border-left:1px solid #0b1017;background:#fff;color:#192b42;font:12px/1.5 'Trebuchet MS',Verdana,sans-serif;}
-html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content :is(.app,.shell,.pp-shell,.tp-wrap,.wrap,.background,.df-shell,.portal-stage) {display:block!important;width:100%!important;max-width:none!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;position:static!important;}
+html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content :is(.app,.shell,.pp-shell,.tp-wrap,.tp-grid,.wrap,.background,.df-shell,.portal-stage) {display:block!important;width:100%!important;max-width:none!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;position:static!important;}
 html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content :is(.main,.pp-container,.tp-center,.pp-layout,.pp-account-layout,.pp-community-main,.pp-events-main,.pp-manual-main,.pp-demos-main) {display:block!important;width:100%!important;max-width:none!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;}
 html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content :is(.panel,.pp-panel,.tp-card,.card,.section-card,.detail-card,.manual-section,.fact-card,.section,.news-post,.news-card,.character-directory,.character-directory-header,.manual-hero,.pp-manual-hero,.pp-page-head,.pp-hero,.pp-event-card,.pp-profile-card,.pp-account-card,.pp-toolbar,.topbar) {padding:10px!important;border:1px solid #d6dce4!important;border-radius:0!important;background:#fff!important;box-shadow:none!important;color:#192b42!important;}
 html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content :is(h1,h2,h3,h4,.hero-title,.pp-h1,.pp-h2,.mainsection-kicker,.section-title,.panel-title) {max-width:100%;color:var(--reference-heading)!important;background:none!important;font-family:'Bangers',Impact,sans-serif!important;line-height:1.15!important;letter-spacing:.3px!important;text-shadow:none!important;-webkit-text-fill-color:currentColor!important;-webkit-text-stroke:0!important;}
@@ -46,7 +47,7 @@ html#reference-home.tp-on[data-reference-layout="inner"][data-reference-kind="mi
 html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content :is(.tp-split,.tp-two,.pp-account-grid,.pp-community-grid) {display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;}
 html#reference-home.tp-on[data-reference-layout="inner"] :is(dialog,.character-modal,.pp-modal-panel) {border-radius:0!important;background:#fff!important;color:#192b42!important;box-shadow:0 10px 40px #0008!important;}
 html#reference-home.tp-on[data-reference-layout="inner"] [hidden] {display:none!important;}
-@media(max-width:799px){html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-app {width:100%;grid-template-columns:150px minmax(0,1fr);column-gap:8px;padding:0 8px;}html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-masthead {width:100%;}html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-banner {left:158px;width:calc(100% - 158px);}html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-sidebar {width:150px!important;}html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content {max-width:none;}html#reference-home.tp-on[data-reference-layout="inner"] .reference-mascot {display:none!important;}}
+@media(max-width:799px){html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-app {width:100%;grid-template-columns:150px minmax(0,1fr);column-gap:8px;padding:0 8px;box-sizing:border-box;}html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-masthead {width:100%;}html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-banner {left:158px;width:calc(100% - 158px);}html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-sidebar {width:150px!important;}html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content {max-width:none;}html#reference-home.tp-on[data-reference-layout="inner"] .reference-mascot {display:none!important;}}
 @media(max-width:540px){html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-app {display:flex;flex-direction:column;}html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-masthead {height:auto;padding-top:217px;}html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-banner {left:0;width:100%;}html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content {order:1;width:100%;}html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-sidebar {order:2;width:100%!important;}html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content :is(input,select,textarea) {font-size:16px!important;}html#reference-home.tp-on[data-reference-layout="inner"][data-reference-kind="roster"] .reference-inner-content :is(.character-grid,.character-directory-grid,.pp-character-grid,.roster-grid,.pp-roster-grid) {grid-template-columns:repeat(3,minmax(0,1fr))!important;}}
 html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-sidebar :is(h1,h2,h3,.pp-section-title,.tp-card-title){padding:4px 5px 3px 9px!important;min-height:23px;margin:8px 0 6px!important;border:0!important;border-left:6px solid var(--reference-accent)!important;border-radius:0!important;background:#e8edf3!important;color:#071322!important;font:15px/1.1 'Bangers',Impact,sans-serif!important;text-shadow:none!important;clip-path:polygon(0 0,100% 0,95% 100%,0 100%);}
 html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-sidebar :is(.pp-panel,.tp-card,.panel){padding:0!important;margin:10px 0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;}
@@ -57,3 +58,54 @@ html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-conten
 html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content :is(.missions-grid,.pp-missions-grid){display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;}
 html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content :is(.mission-card,.pp-mission-card){min-width:0!important;}
 @media(max-width:540px){html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content :is(.missions-grid,.pp-missions-grid){grid-template-columns:1fr!important;}}
+
+/* Shattered Realms pages are built on the tri-portal grid (left rail, centre, right rail). Inside the
+   classic frame the rails move to the sidebar, so the grid is flattened above (.tp-grid) and the
+   centre gets the whole content column. The manual's section list sits above the text there. */
+html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content .sr-manual {grid-template-columns:minmax(0,1fr)!important;}
+html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content .sr-anchors {position:static!important;display:flex!important;flex-wrap:wrap;gap:4px;}
+/* The classic frame's content column is white. The tri-portal pages (Shattered Realms and friends)
+   were drawn for a dark night sky, so their light inks vanish on it: give them a light palette here. */
+html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content {--tp-ink:#1f2633;--tp-ink-dim:#3f4b5c;--tp-ink-faint:#5d6878;--tp-line:#e1e5ea;--tp-line-strong:#c4ccd6;--tp-well:#f3efe6;--tp-accent:#a1620a;--tp-accent-3:#6d28d9;}
+html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content :is(.tp-empty,.sr-steps li,.tp-well) {color:#3f4b5c!important;}
+html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content :is(th,.reference-th-fix) {color:#fff!important;}
+
+@media(max-width:540px){html#reference-home.tp-on[data-reference-layout="inner"] :is(.reference-inner-content,.reference-inner-sidebar,.reference-inner-banner .brand){box-sizing:border-box;max-width:100%;}}
+
+/* The masthead title stays on one line (fallback fonts before Bangers arrives are wider). */
+html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-banner .brand-name {white-space:nowrap;}
+@media(max-width:540px){html#reference-home.tp-on[data-reference-layout="inner"] .reference-masthead .nav-link{box-sizing:border-box;max-width:100%;}}
+html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content :is(.login,.login-form) {box-sizing:border-box;}
+/* Dark page heroes (Comic community, events, manual) become light inside the white column so the
+   red headings and dark copy read; filled link-buttons keep white text on their colour. */
+html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content section.hero {background:#fbf7ee!important;border:1px solid #e3d9c2!important;box-shadow:none!important;}
+html#reference-home.tp-on[data-reference-layout="inner"] body.home-arena-pokemon .reference-inner-content .pp-shell :is(a.news-link,a.mission-link):not([class*="button"]):not([class*="btn"]) {color:#fff!important;text-decoration:none!important;background:linear-gradient(#2868bd,#1e509a)!important;}
+html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content .toc a:not([class*="button"]):not([class*="btn"]) {color:#fff!important;text-decoration:none!important;}
+html#reference-home.tp-on[data-reference-layout="inner"] body:not(.home-arena-pokemon) .reference-inner-content a.news-link:not([class*="button"]):not([class*="btn"]) {color:#1a0d00!important;text-decoration:none!important;}
+html#reference-home.tp-on[data-reference-layout="inner"] body:not(.home-arena-pokemon) .reference-inner-content .hero-side :is(h2,h3,p,li,span,b):not(.reference-x):not(.reference-y) {color:#f1f4f8!important;}
+html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content .toc a {background:#243b52!important;}
+/* Pokémon pages paint their rail groups cream; the classic sidebar is dark, so its link list stays dark. */
+html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-sidebar .reference-site-links {background:transparent!important;border-color:rgba(255,255,255,.15)!important;box-shadow:none!important;}
+
+/* Pokémon events: mission cards are drawn dark-navy; in the white column they become light cards. */
+html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content .pp-shell .mission-card {background:#fff8df!important;border-color:#e6d49a!important;}
+/* The Split page's Shattered Realms band stays a dark purple band, stacked to fit the narrow column. */
+html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content .tp-sr-band {grid-template-columns:minmax(0,1fr)!important;text-align:center;justify-items:center;}
+html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content .tp-sr-band p:not(.reference-x):not(.reference-y) {color:#e9d8ff!important;}
+html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content .tp-sr-band p b {color:#fde68a!important;}
+
+/* Pokémon sidebar reward box is pale pink: dark ink. */
+html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-sidebar .pokemon-sidebar-reward :is(p,strong,b,span,li):not(.reference-x) {color:#3a1a1a!important;}
+/* Split page: the orange accent word in the title is deepened to read on white. */
+html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content .tp-h1 span {color:#c2410c!important;}
+/* Split page: the two halves keep their dark comic / Pokémon backdrops, so the text sitting
+   straight on them (title, tagline, eyebrow) is light. Cards inside stay white with dark ink. */
+html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content .tp-split > section > .tp-split-head :is(h2,.tp-h1):not(.reference-x):not(.reference-y) {color:#ffd84c!important;text-shadow:0 2px 0 #000!important;}
+html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content .tp-split > section > p.tp-lede:not(.reference-x):not(.reference-y) {color:#eef2f8!important;}
+html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content .tp-split > section > .tp-split-head .tp-eyebrow {color:#fff!important;border-color:rgba(255,255,255,.5)!important;background:rgba(0,0,0,.35)!important;}
+/* Pokémon reset page: the navy note box gets light ink. */
+html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content .pp-detail-note:not(.reference-x):not(.reference-y) {color:#e6ecf5!important;}
+/* Clan profile: long values ("No clan selected") wrap between words, never mid-word. */
+html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content .clan-profile-value {word-break:normal!important;overflow-wrap:normal!important;hyphens:none;font-size:15px!important;}
+/* Pokémon page heroes: in the narrow column the faded artwork sits right behind the text, so it is faded further. */
+html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content .pp-hero::after {opacity:.1!important;}

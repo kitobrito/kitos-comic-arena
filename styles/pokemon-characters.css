@@ -615,3 +615,6 @@
     padding: 16px;
   }
 }
+
+/* Touch screens can't hover: the hidden tooltips would only stretch the page sideways. */
+@media (hover: none) { .character-portrait-tooltip { display: none; } }
