@@ -199,3 +199,15 @@ html#reference-home.tp-on[data-home-design="classic-reference"] .ladder-name { p
 html#reference-home.tp-on[data-home-design="classic-reference"] .ladder-bar { position:relative !important;overflow:visible !important; }
 html#reference-home.tp-on[data-home-design="classic-reference"] .ladder-score { display:block !important;position:absolute !important;inset:auto 0 auto auto !important;top:-18px !important;width:auto !important;height:15px !important;line-height:15px !important;font-size:11px !important;white-space:nowrap; }
 html#reference-home.tp-on[data-home-design="classic-reference"] .ladder-score::before { content:'Lv. '; }
+
+/* "More about the arenas" (Comic vs Pokemon split): the classic page's light panel needs dark ink. */
+html#reference-home.tp-on .arena-split :is(.release-title,.release-copy,.arena-split-title,.arena-split-copy) { color:#192b42 !important; text-shadow:none !important; }
+html#reference-home.tp-on .arena-split .arena-split-card.pokemon :is(.arena-split-title,.arena-split-copy) { color:#fff !important; text-shadow:0 1px 2px rgba(0,0,0,.45) !important; }
+html#reference-home.tp-on .arena-split .arena-split-badge { color:#192b42 !important; }
+html#reference-home.tp-on .arena-split .section-heading { padding-right:190px; }
+@media(max-width:540px){ html#reference-home.tp-on .arena-split .section-heading { padding-right:0; padding-top:44px; } }
+html#reference-home.tp-on .arena-split .arena-split-card.pokemon .arena-split-link { color:#192b42 !important; text-shadow:none !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] body.home-arena-pokemon .reference-intro-note strong { color:#1c1203 !important; }
+/* Pokémon home rail: the ladder promo sits on the dark rail, so its headline is yellow and its link a red button. */
+html#reference-home.tp-on[data-home-design="classic-reference"] .aside .pokemon-ladder-promo strong { color:#ffd84c !important; font-size:24px !important; }
+html#reference-home.tp-on[data-home-design="classic-reference"] .aside .pokemon-ladder-promo a { background:#c0262f !important; color:#fff !important; text-decoration:none !important; }

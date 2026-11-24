@@ -35,6 +35,26 @@ const IPHONE_TEAM_TAP = [
 
 const POSTS = [
     {
+        releaseVersion: 'patch-2026-11-24-site-readability-pokemon',
+        title: 'Pokemon Arena: Easier-to-Read Website Pages',
+        arena: 'pokemon',
+        author: 'kito',
+        blocks: [
+            p('We went through every page of the website and fixed the spots that were hard to read. The links in the sidebar of the Pokemon pages were white on cream and nearly invisible, and they now show properly. The Pokemon Arena title at the top of those pages no longer gets cut off, and the menu buttons fit on one line.'),
+            p('The blue View Character and View this mission buttons now have white text you can read, the ladder reward box in the sidebar is readable, and pages no longer slide sideways on phones.'),
+        ],
+    },
+    {
+        releaseVersion: 'patch-2026-11-24-site-readability-comic',
+        title: 'Comic Arena: Website Pages Fixed Up',
+        arena: 'comic',
+        author: 'kito',
+        blocks: [
+            p('We checked every page of the website, on computers and phones, and fixed the text that was hard to read or squashed. The Shattered Realms game manual now uses the full width of the page instead of one word per line, and its highlighted numbers and ladder headings show properly.'),
+            p('The title boxes on the Community, Events and Manual pages are now light with readable headings, the Comic versus Pokemon section on the front page has readable titles, the Split page shows its arena names clearly, and pages no longer scroll sideways on phones.'),
+        ],
+    },
+    {
         releaseVersion: 'patch-2026-11-12-pidgey-fix-iphone-team-pokemon',
         title: 'Pokemon Arena: Pidgey\'s New Costs Are Live, iPhone Team Fix',
         arena: 'pokemon',
