@@ -25,7 +25,14 @@
   var oldTopbar=doc.querySelector('.topbar,.pp-topbar');
   var shell=element('div','reference-inner-app');
   var masthead=element('header','reference-masthead reference-inner-masthead');
-  var mascot=art(pokemon?'/assets/images/PokemonArena/BIB/cutout/mewtwo.png':'/assets/images/BIB/comic/deadpool.webp',pokemon?'Mewtwo':'Deadpool','reference-mascot');mascot.dataset.homeArena=pokemon?'pokemon':'comic';masthead.appendChild(mascot);
+  // Shattered Realms is a 1950s picture palace: the usher stands where the mascot would.
+  var TH='/assets/images/shattered-theatre/';
+  var mascot;
+  if(shattered){
+    mascot=element('figure','reference-mascot sr-lobby-poster');mascot.dataset.homeArena='shattered';
+    mascot.append(art(TH+'usher.webp','The picture palace usher'),element('figcaption','','This way, please'));
+  }else{mascot=art(pokemon?'/assets/images/PokemonArena/BIB/cutout/mewtwo.png':'/assets/images/BIB/comic/deadpool.webp',pokemon?'Mewtwo':'Deadpool','reference-mascot');mascot.dataset.homeArena=pokemon?'pokemon':'comic';}
+  masthead.appendChild(mascot);
   var navGroup=element('div','group'),nav=element('nav','nav');nav.setAttribute('aria-label','Main game navigation');
   nav.appendChild(link(home,'Startpage','nav-link'));
   // Reuse an existing launch control where present, including its original listener.
@@ -39,13 +46,23 @@
   var discord=link('https://discord.gg/j3uV3Y4HAw','Discord','nav-link');discord.target='_blank';discord.rel='noopener noreferrer';nav.appendChild(discord);
   navGroup.appendChild(nav);masthead.appendChild(navGroup);
   var banner=element('div','reference-banner reference-inner-banner'),brand=element('div','brand');
+  if(shattered){
+    // The marquee: the game's own logo up in lights over the stage.
+    banner.classList.add('sr-marquee');
+    var stage=element('div','reference-banner-art reference-banner-theatre');
+    var logo=link(home,'','sr-marquee-logo');logo.setAttribute('aria-label','Shattered Realms home');logo.appendChild(art(TH+'logo-small.webp','Shattered Realms'));
+    stage.append(logo,element('div','sr-marquee-strip','Now showing \u00b7 a fantasy card battler'));
+    banner.appendChild(stage);
+  }else{
   var wordmark=element('div','brand-name'),first=element('span','',title.split(' ')[0]);wordmark.append(first,doc.createTextNode(' '+title.split(' ').slice(1).join(' ')));
-  brand.append(wordmark,element('div','brand-tagline',pokemon?'Your Pokémon online multiplayer game':shattered?'Your fantasy card battle arena':'Your comic online multiplayer game'));
+  brand.append(wordmark,element('div','brand-tagline',pokemon?'Your Pokémon online multiplayer game':'Your comic online multiplayer game'));
   banner.appendChild(brand);
   var illustration=element('div','reference-banner-art'+(pokemon?' reference-banner-pokemon':''));
   illustration.appendChild(art(pokemon?'/assets/images/PokemonArena/BIB/charizard.png':'/assets/images/BIB/comic/superman.png','','reference-banner-fighter first'));
   illustration.appendChild(art(pokemon?'/assets/images/PokemonArena/BIB/cutout/pikachu.png':'/assets/images/BIB/comic/spider-man.png','','reference-banner-fighter second'));
-  banner.appendChild(illustration);masthead.appendChild(banner);
+  banner.appendChild(illustration);
+  }
+  masthead.appendChild(banner);
   if(!sidebar)sidebar=element('aside','sidebar');
   sidebar.classList.add('reference-inner-sidebar');
   var resources=element('section','group reference-site-links');resources.appendChild(element('h2','group-title','Arena Links'));

@@ -1,0 +1,277 @@
+/* Shattered Realms website pages, dressed as the game's 1950s picture palace.
+ * Loaded by scripts/tri-portal.js on every shattered-* page (html[data-sr-theatre]).
+ * Red velvet and gold around the edges, marquee bulbs on the title boxes, ticket-stub
+ * labels and buttons. The reading column stays a light "printed programme" so text is
+ * easy to read. */
+@import url('https://fonts.googleapis.com/css2?family=Limelight&family=Rye&display=swap');
+
+html#reference-home[data-sr-theatre] {
+  --th-velvet: #7a0f1c;
+  --th-velvet-deep: #3c050d;
+  --th-gold: #f2c14e;
+  --th-gold-deep: #b9811a;
+  --th-cream: #fbf3e2;
+  --th-ink: #2a1408;
+  --th-red-ink: #9b111e;
+  --th-bulb: radial-gradient(circle, #fff7d6 0 2px, #ffd257 3px, rgba(255, 196, 64, .35) 4px, transparent 5.5px);
+}
+
+/* ---- The auditorium behind everything ---------------------------------------------------- */
+html#reference-home.tp-on[data-sr-theatre] body {
+  background:
+    linear-gradient(180deg, rgba(10, 2, 4, .55), rgba(10, 2, 4, .82) 60%, #0a0204),
+    url('/assets/images/shattered-theatre/auditorium.jpg') center top / cover fixed,
+    #0a0204 !important;
+}
+
+/* ---- Masthead: velvet menu buttons ------------------------------------------------------- */
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-masthead {
+  background:
+    radial-gradient(ellipse at 30% 0%, rgba(255, 196, 90, .16), transparent 60%),
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, .28) 0 6px, rgba(255, 255, 255, .03) 6px 14px),
+    linear-gradient(#5a0a15, #2a0309) !important;
+}
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-masthead .nav-link {
+  background: linear-gradient(#8e1626, #4a0711) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 210, 120, .35), inset 0 -2px 0 rgba(0, 0, 0, .35) !important;
+  color: #ffe9b0 !important;
+}
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-masthead .nav-link::before {
+  width: 7px; height: 7px; top: 10px; border-radius: 50%; background: #ffd257;
+  box-shadow: 0 0 6px 1px rgba(255, 200, 70, .9);
+}
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-masthead .nav-link.active {
+  background: linear-gradient(#ffe08a, #e0a626) !important; color: #4a0711 !important; text-shadow: none !important;
+}
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-masthead .play-now {
+  background: linear-gradient(#ff5a5f, #c0262f 55%, #7d0f19) !important; color: #fff6d8 !important;
+  box-shadow: inset 0 0 0 1px #ffd257, 0 0 12px rgba(255, 80, 80, .45) !important;
+}
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-masthead .play-now::before { background: #fff6d8; box-shadow: 0 0 6px 2px rgba(255, 230, 150, .9); }
+
+/* The lobby poster where the arena mascot stands on the other games' pages. */
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-mascot.sr-lobby-poster {
+  left: 222px; top: 10px; width: 124px; height: auto; margin: 0; padding: 6px 6px 0;
+  background: linear-gradient(#e9c167, #a8741b); border-radius: 3px;
+  box-shadow: 0 0 0 2px #3c050d, 0 0 0 4px #e9c167, 0 10px 26px rgba(0, 0, 0, .7), 0 0 34px rgba(255, 190, 80, .25);
+  transform: rotate(2.5deg);
+}
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .sr-lobby-poster img {
+  display: block; width: 100%; aspect-ratio: 392 / 551; object-fit: cover; border: 1px solid #3c050d;
+}
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .sr-lobby-poster figcaption {
+  margin: 0; padding: 4px 0 5px; text-align: center; color: #4a0711; white-space: nowrap;
+  font: 10px/1 'Limelight', Georgia, serif; letter-spacing: 1px; text-transform: uppercase;
+}
+
+/* ---- The banner: the logo up in lights over the stage ------------------------------------- */
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-banner.sr-marquee {
+  background: #14030a !important; border-inline: 1px solid #000;
+}
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-banner-theatre {
+  position: relative; height: 100% !important; border: 0 !important; overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(20, 3, 10, 0) 60%, rgba(20, 3, 10, .7)),
+    url('/assets/images/shattered-theatre/banner-stage.webp') 50% 0 / cover no-repeat !important;
+}
+/* A row of marquee bulbs along the top and bottom edges. */
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-banner-theatre::before,
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-banner-theatre::after {
+  content: ""; position: absolute; left: 0; right: 0; height: 12px; z-index: 3;
+  background: var(--th-bulb) 0 50% / 18px 12px repeat-x, linear-gradient(#5a0a15, #2a0309);
+  animation: th-chase 1.4s steps(2) infinite;
+}
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-banner-theatre::before { top: 0; }
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-banner-theatre::after { bottom: 0; }
+@keyframes th-chase { to { background-position: 9px 50%, 0 0; } }
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .sr-marquee-logo {
+  position: absolute; left: 50%; top: 13px; z-index: 2; width: 268px; transform: translateX(-50%);
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, .8)) drop-shadow(0 0 18px rgba(255, 190, 80, .35));
+  background: none !important; padding: 0 !important; border: 0 !important; box-shadow: none !important;
+}
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .sr-marquee-logo img { display: block; width: 100%; height: auto; }
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .sr-marquee-strip {
+  position: absolute; left: 50%; bottom: 18px; z-index: 2; transform: translateX(-50%); white-space: nowrap;
+  padding: 3px 14px; color: #4a0711; background: linear-gradient(#fff1b8, #f2c14e);
+  font: 11px/1.2 'Limelight', Georgia, serif; letter-spacing: 2px; text-transform: uppercase;
+  box-shadow: 0 0 0 2px #4a0711, 0 0 14px rgba(255, 200, 80, .45);
+}
+
+/* ---- Sidebar: dark velvet with gold ticket-stub headings --------------------------------- */
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-sidebar {
+  background:
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, .22) 0 5px, rgba(255, 255, 255, .025) 5px 12px),
+    linear-gradient(#3c050d, #1a0206) !important;
+  border-inline: 1px solid #000;
+}
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-sidebar :is(.group-title, .tp-title) {
+  background: linear-gradient(#fff1b8, #f2c14e) !important; color: #6b0a16 !important; border-left-color: #c0262f !important;
+}
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-sidebar .reference-site-links a:not(.reference-x) { color: #ffe9b0 !important; }
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-sidebar .reference-game-switch a:not(.reference-x) { border-color: rgba(242, 193, 78, .55) !important; }
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-sidebar .tp-card {
+  background: rgba(20, 2, 6, .55) !important; border-color: rgba(242, 193, 78, .35) !important;
+}
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-sidebar .tp-badge img {
+  max-width: 170px; filter: drop-shadow(0 4px 10px rgba(0, 0, 0, .7)) drop-shadow(0 0 14px rgba(255, 190, 80, .3));
+}
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-sidebar .tp-badge-copy:not(.reference-x) { color: #f0dcc0 !important; }
+
+/* ---- The reading column: a printed programme on a velvet edge ---------------------------- */
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-content {
+  background: linear-gradient(90deg, #4a0711, var(--th-cream) 5px, var(--th-cream) calc(100% - 5px), #4a0711) !important;
+  --tp-accent: #9b111e;
+  --tp-well: #f4e6c8;
+  --tp-line: #e6d3ac;
+  --tp-line-strong: #cfae6e;
+}
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-content .reference-breadcrumb a { color: #9b111e !important; }
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-content .tp-card {
+  background: #fffaf0 !important; border-color: #d9b56a !important;
+  box-shadow: 0 0 0 1px #fffaf0, 0 0 0 2px rgba(185, 129, 26, .35), 0 3px 10px rgba(74, 7, 17, .12) !important;
+}
+
+/* Headings: marquee lettering with a row of bulbs underneath. */
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-content :is(.tp-h1, .tp-h2, .tp-h3, .tp-title):not(.reference-x) {
+  font-family: 'Rye', 'Limelight', Georgia, serif !important; font-style: normal !important;
+  color: var(--th-red-ink) !important; letter-spacing: .5px !important; text-transform: none !important;
+}
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-content .tp-title {
+  border-image: none !important; border-bottom: 0 !important; padding-bottom: 12px !important;
+  background: radial-gradient(circle, #f2c14e 0 2px, transparent 2.5px) 0 100% / 12px 6px repeat-x !important;
+}
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-content .tp-title::after { display: none !important; }
+
+/* Each page's title box is a lit marquee: velvet, bulbs all round, gold lettering. */
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-content .tp-card:has(> .tp-h1, > div > .tp-h1) {
+  position: relative; padding: 22px 22px 20px !important; border: 0 !important;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(255, 190, 90, .22), transparent 70%),
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, .25) 0 6px, rgba(255, 255, 255, .03) 6px 14px),
+    linear-gradient(#7a0f1c, #3c050d) !important;
+  box-shadow: inset 0 0 0 3px #f2c14e, inset 0 0 0 5px #4a0711, 0 6px 18px rgba(60, 5, 13, .35) !important;
+}
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-content .tp-card:has(> .tp-h1, > div > .tp-h1)::before {
+  content: ""; position: absolute; inset: 8px; pointer-events: none; z-index: 0;
+  background:
+    var(--th-bulb) 0 0 / 18px 12px repeat-x,
+    var(--th-bulb) 0 100% / 18px 12px repeat-x,
+    var(--th-bulb) 0 0 / 12px 18px repeat-y,
+    var(--th-bulb) 100% 0 / 12px 18px repeat-y;
+  animation: th-twinkle 2.4s ease-in-out infinite;
+}
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-content .tp-card:has(> .tp-h1, > div > .tp-h1) > * { position: relative; z-index: 1; }
+@keyframes th-twinkle { 50% { opacity: .65; } }
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-content .tp-card:has(> .tp-h1, > div > .tp-h1) :is(.tp-h1, .tp-h1 span):not(.reference-x):not(.reference-y) {
+  color: #ffe08a !important; -webkit-text-fill-color: #ffe08a !important; background: none !important;
+  text-shadow: 0 0 10px rgba(255, 190, 70, .55), 2px 2px 0 #3c050d !important;
+}
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-content .tp-card:has(> .tp-h1, > div > .tp-h1) :is(p, .tp-lede, .tp-stats span, li):not(.reference-x):not(.reference-y) {
+  color: #fbe9cf !important;
+}
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-content .tp-card:has(> .tp-h1, > div > .tp-h1) :is(.tp-stats b, a:not(.tp-btn)):not(.reference-x):not(.reference-y) { color: #ffd257 !important; }
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-content .tp-card:has(> .tp-h1, > div > .tp-h1) :is(input, select) {
+  background: #fffaf0 !important; color: #2a1408 !important; border-color: #f2c14e !important;
+}
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-content .tp-card:has(> .tp-h1, > div > .tp-h1) .tp-small:not(.reference-x):not(.reference-y) { color: #f0dcc0 !important; }
+
+/* Eyebrows are admission tickets: gold, notched at both ends. */
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-content .tp-eyebrow:not(.reference-x):not(.reference-y) {
+  display: inline-flex; padding: 4px 16px !important; border: 0 !important; border-radius: 0 !important;
+  background: linear-gradient(#fff1b8, #f2c14e) !important; color: #6b0a16 !important;
+  font: 12px/1.2 'Limelight', Georgia, serif !important; letter-spacing: 2px !important;
+  -webkit-mask: radial-gradient(circle 6px at 0 50%, transparent 98%, #000) left / 51% 100% no-repeat, radial-gradient(circle 6px at 100% 50%, transparent 98%, #000) right / 51% 100% no-repeat;
+          mask: radial-gradient(circle 6px at 0 50%, transparent 98%, #000) left / 51% 100% no-repeat, radial-gradient(circle 6px at 100% 50%, transparent 98%, #000) right / 51% 100% no-repeat;
+}
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-content .tp-eyebrow::before { display: none !important; }
+
+/* Buttons and tabs: ticket stubs. */
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-content :is(.tp-btn, button.tp-btn):not(.tp-btn-ghost):not(.reference-x) {
+  background: linear-gradient(#fff1b8, #f2c14e 55%, #d39a24) !important; color: #6b0a16 !important;
+  border: 1px solid #8a5a10 !important; border-radius: 3px !important; box-shadow: 0 2px 0 #8a5a10 !important;
+  font-family: 'Limelight', Georgia, serif !important; letter-spacing: 1px !important; text-shadow: none !important;
+}
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-content .tp-btn.tp-btn-ghost:not(.reference-x) {
+  background: linear-gradient(#8e1626, #4a0711) !important; color: #ffe9b0 !important;
+  border: 1px solid #f2c14e !important; border-radius: 3px !important; box-shadow: 0 2px 0 #2a0309 !important;
+  font-family: 'Limelight', Georgia, serif !important; letter-spacing: 1px !important;
+}
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-content :is(.tp-btn):hover { filter: brightness(1.1); }
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-content :is(.tp-tab, .sr-anchors a, .toc a):not(.reference-x):not(.reference-y) {
+  background: linear-gradient(#8e1626, #4a0711) !important; color: #ffe9b0 !important;
+  border: 1px solid #b9811a !important; border-radius: 3px !important;
+}
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-content :is(.tp-tab[aria-selected="true"], .sr-anchors a[aria-current]):not(.reference-x):not(.reference-y) {
+  background: linear-gradient(#fff1b8, #f2c14e) !important; color: #6b0a16 !important;
+}
+
+/* Numbered steps: the gold coin becomes a reel. */
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-content .sr-steps li::before {
+  background: radial-gradient(circle, #f2c14e 0 30%, #4a0711 31% 36%, #f2c14e 37%) !important; color: #4a0711 !important;
+}
+
+/* Tables (the ladder): velvet header row. */
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-content :is(th, .reference-th-fix) { background: #6b0a16 !important; color: #ffe9b0 !important; }
+
+/* Light boxes inside a page's velvet title box keep dark lettering (the sign-in form, "What you get"). */
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-content .tp-card:has(> .tp-h1, > div > .tp-h1) .tp-card :is(p, li, b, span, label, small, .tp-small, .tp-label):not(.tp-btn):not(.tp-tab):not(.reference-x):not(.reference-y) {
+  color: #2a1408 !important;
+}
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-content .tp-card:has(> .tp-h1, > div > .tp-h1) .tp-card :is(h2, h3, .tp-title):not(.reference-x):not(.reference-y) { color: #9b111e !important; }
+
+/* Keyword names in the manual and the designer's "Why:" notes in the patch notes. */
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-content .sr-kw b:not(.reference-x):not(.reference-y) { color: #9b111e !important; }
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-content .sr-why { background: #f4e6c8 !important; border-left-color: #9b111e !important; }
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-content .sr-why:not(.reference-x):not(.reference-y) { color: #3f2a18 !important; }
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-content .sr-why b:not(.reference-x):not(.reference-y) { color: #9b111e !important; }
+
+/* The finished community vote in the narrow sidebar: picture above the words. */
+html#reference-home[data-sr-theatre] .reference-inner-sidebar .sr-vote-result { flex-direction: column; text-align: center; }
+
+/* ---- Realm posters ------------------------------------------------------------------------ */
+html#reference-home[data-sr-theatre] .sr-faction.sr-film .sr-faction-art { aspect-ratio: 2 / 3; }
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-content button.sr-faction.sr-film:not(.reference-x):not(.reference-y) {
+  background: #1a0206 !important; border: 0 !important; border-radius: 3px !important; padding: 6px !important;
+  box-shadow: 0 0 0 2px #f2c14e, 0 0 0 4px #4a0711, 0 8px 18px rgba(60, 5, 13, .35) !important;
+}
+html#reference-home[data-sr-theatre] .sr-faction.sr-film:hover,
+html#reference-home[data-sr-theatre] .sr-faction.sr-film:focus-visible {
+  box-shadow: 0 0 0 2px #ffe08a, 0 0 0 4px #4a0711, 0 0 26px rgba(255, 196, 80, .6) !important;
+}
+html#reference-home[data-sr-theatre] .sr-faction.sr-film .sr-faction-name { font-family: 'Limelight', Georgia, serif !important; color: #ffe08a !important; letter-spacing: 1px; }
+html#reference-home.tp-on[data-sr-theatre] .sr-faction.sr-film .sr-faction-body:not(.reference-x):not(.reference-y) { color: #f0dcc0 !important; padding: 10px 6px 6px !important; }
+html#reference-home.tp-on[data-sr-theatre] .sr-faction.sr-film .sr-film-title:not(.reference-x):not(.reference-y) {
+  display: block; margin-bottom: 6px; color: #ffd257 !important; font: 14px/1.2 'Rye', Georgia, serif !important;
+}
+html#reference-home[data-sr-theatre] .sr-strip .sr-film img { aspect-ratio: 2 / 3; object-fit: cover; border: 2px solid #f2c14e; box-shadow: 0 0 0 2px #4a0711; border-radius: 2px; }
+html#reference-home[data-sr-theatre] .sr-hero-art { aspect-ratio: 1024 / 559; container-type: inline-size; border: 2px solid #f2c14e !important; box-shadow: 0 0 0 2px #4a0711; }
+html#reference-home[data-sr-theatre] .sr-hero-art img.logo { display: none; }
+
+/* ---- Phones ------------------------------------------------------------------------------- */
+@media (max-width: 799px) {
+  html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-mascot.sr-lobby-poster { display: none !important; }
+}
+@media (max-width: 540px) {
+  html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-content { background: var(--th-cream) !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html#reference-home[data-sr-theatre] *, html#reference-home[data-sr-theatre] *::before, html#reference-home[data-sr-theatre] *::after { animation: none !important; }
+}
+
+/* Posters sit three across on a computer, two on a phone. */
+html#reference-home[data-sr-theatre] .reference-inner-content .sr-factions { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important; }
+html#reference-home[data-sr-theatre] .sr-faction.sr-film .sr-faction-art::after { background: linear-gradient(180deg, transparent 62%, rgba(26, 2, 6, .95)); }
+
+/* Ranked tier chips: each tier's metal colour reads best on dark velvet. */
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-content .sr-tiers span { background: #3c050d !important; border-color: #b9811a !important; }
+
+/* Home: the picture palace at night across the top of the welcome box, our name on its marquee board. */
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-content .tp-hero { grid-template-columns: minmax(0, 1fr) !important; }
+html#reference-home.tp-on[data-reference-layout="inner"][data-sr-theatre] .reference-inner-content .tp-hero > .sr-hero-art { order: -1; width: 100%; }
+html#reference-home[data-sr-theatre] .sr-marquee-board {
+  position: absolute; left: 50.4%; top: 36.2%; width: 33%; transform: translate(-50%, -50%) rotate(-9.6deg);
+  display: flex; flex-direction: column; align-items: center; gap: .35cqw; text-align: center; color: #8e0f1b;
+  font-family: 'Limelight', Georgia, serif; text-transform: uppercase; line-height: 1;
+}
+html#reference-home[data-sr-theatre] .sr-marquee-board b { font-size: 3.05cqw; font-weight: 400; letter-spacing: .12cqw; white-space: nowrap; color: #8e0f1b; }
+html#reference-home[data-sr-theatre] .sr-marquee-board small { font-size: 1.55cqw; letter-spacing: .3cqw; color: #1d1d1d; }

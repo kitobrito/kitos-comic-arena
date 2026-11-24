@@ -243,3 +243,6 @@ body.sr-play { display: flex; flex-direction: column; }
   .sr-gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .sr-statgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+.sr-latest-post + .sr-latest-post { margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--tp-line-strong); }
+.sr-latest-post .tp-h3 a { color: inherit; text-decoration: none; }
+.sr-latest-post .tp-h3 a:hover { text-decoration: underline; }

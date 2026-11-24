@@ -23,6 +23,19 @@
   var $ = function (sel, rootEl) { return (rootEl || doc).querySelector(sel); };
   var $$ = function (sel, rootEl) { return Array.prototype.slice.call((rootEl || doc).querySelectorAll(sel)); };
   var ITCH = "https://fadeawaytoday.itch.io/shattered-realms-tcg";
+  // Every realm is a B-movie in the game's picture palace: its lobby poster and its title.
+  var FILMS = {
+    Acidic: "The Blob That Ate Main Street", Aliens: "Invasion from Beyond the Stars", Bees: "Terror of the Killer Hive",
+    Demons: "The Night Hell Opened", Dinosaurs: "The Day Extinction Failed", Divine: "They Came from Heaven",
+    Dragons: "Wings of Inferno", Eels: "Terror at 10,000 Volts", "Fruit Ninjas": "Attack of the Forbidden Fruit",
+    Fungus: "The Spore That Ate the World", Ghosts: "The Dead Walk at Midnight", "Ice Age": "She Came from the Frozen Past",
+    "Monster Hunter": "The Last Monster Hunter", Plants: "The Garden That Devoured Manhattan", Radioactive: "Atomic Abominations",
+    Robots: "Revolt of the Machines", Sharks: "Jaws from the Abyss", Ultraterrestrials: "Beyond the Fourth Dimension",
+    Vampires: "The Night of Eternal Blood", Void: "The Thing Beyond Reality", Lycanthropes: "Curse of the Savage Moon",
+    Witches: "The Coven of Midnight", Zombies: "Dawn of the Rotting Dead"
+  };
+  function posterOf(f) { return FILMS[f.name] ? "/assets/images/shattered-theatre/posters/" + f.name.toLowerCase().replace(/[^a-z0-9]+/g, "-") + ".jpg" : f.hero; }
+  function filmOf(f) { return FILMS[f.name] || ""; }
 
   // ---- Data ------------------------------------------------------------------------
   function cached(key, maxAgeMs, load) {
@@ -158,8 +171,8 @@
     var rail = $('[data-sr-rail="left"]');
     if (!rail) return;
     rail.innerHTML =
-      '<div class="tp-card tp-badge"><img src="/assets/images/shatteredrealmslogo.png" alt="Shattered Realms">' +
-        '<div class="tp-badge-name">Shattered Realms</div><div class="tp-badge-copy">A dark-fantasy card battler. Fuse two realms, build a 40-card deck, climb the ladder.</div></div>' +
+      '<div class="tp-card tp-badge"><img src="/assets/images/shattered-theatre/logo-small.webp" alt="Shattered Realms">' +
+        '<div class="tp-badge-copy">Every realm is a B-movie. Pick a double feature, build a 40-card deck, climb the ladder.</div></div>' +
       '<nav class="tp-card" aria-label="Shattered Realms menu"><h2 class="tp-title">Battle Menu</h2><div class="tp-menu">' +
         MENU.map(function (m) {
           return '<a href="' + m.href + '"' + (m.cls ? ' class="' + m.cls + '"' : "") + (m.page === page ? ' aria-current="page"' : "") +
@@ -341,18 +354,22 @@
     var stop = wakeNote(latest);
     news().then(function (n) {
       stop();
-      var p = n.posts[0];
-      if (p) {
-        var cats = {};
-        p.blocks.forEach(function (b) { cats[b.catLabel] = 1; });
-        latest.innerHTML = '<div class="sr-post-head"><h3 class="tp-h3">' + esc(p.title) + "</h3><time>" + esc(p.date) + "</time></div>" +
-          '<p class="tp-lede">' + esc(p.intro || "") + "</p>" +
-          '<div class="tp-row" style="margin-top:12px">' + Object.keys(cats).map(function (c) { return '<span class="tp-chip">' + esc(c) + "</span>"; }).join("") + "</div>" +
-          '<div class="tp-row" style="margin-top:16px"><a class="tp-btn" href="/shattered-news#post-' + esc(p.id) + '">Read the full patch notes</a>' +
+      // The three newest updates, newest first, each linking to its full patch notes.
+      var recent = n.posts.slice(0, 3);
+      if (recent.length) {
+        latest.innerHTML = recent.map(function (p) {
+          var cats = {};
+          p.blocks.forEach(function (b) { cats[b.catLabel] = 1; });
+          return '<article class="sr-latest-post"><div class="sr-post-head"><h3 class="tp-h3"><a href="/shattered-news#post-' + esc(p.id) + '">' + esc(p.title) + "</a></h3><time>" + esc(p.date) + "</time></div>" +
+            '<p class="tp-lede">' + esc(p.intro || "") + "</p>" +
+            '<div class="tp-row" style="margin-top:10px">' + Object.keys(cats).map(function (c) { return '<span class="tp-chip">' + esc(c) + "</span>"; }).join("") + "</div></article>";
+        }).join("") +
+          '<div class="tp-row" style="margin-top:16px"><a class="tp-btn" href="/shattered-news#post-' + esc(recent[0].id) + '">Read the newest patch notes</a>' +
           '<a class="tp-btn tp-btn-ghost" href="/shattered-news">All updates (' + n.posts.length + ")</a></div>";
       }
       strip.innerHTML = n.factions.map(function (f) {
-        return '<a href="/shattered-factions#' + encodeURIComponent(f.name) + '">' + (f.hero ? '<img src="' + esc(f.hero) + '" alt="" loading="lazy">' : "") + "<span>" + esc(f.name) + "</span></a>";
+        var pic = posterOf(f);
+        return '<a class="sr-film" href="/shattered-factions#' + encodeURIComponent(f.name) + '" title="' + esc(filmOf(f)) + '">' + (pic ? '<img src="' + esc(pic) + '" alt="" loading="lazy">' : "") + "<span>" + esc(f.name) + "</span></a>";
       }).join("");
       var count = $("[data-sr-count]");
       if (count) count.textContent = String(n.factions.length);
@@ -407,16 +424,18 @@
         var q = (search.value || "").trim().toLowerCase();
         var shown = list.filter(function (f) { return !q || (f.name + " " + f.summary + " " + f.strengths.join(" ")).toLowerCase().indexOf(q) !== -1; });
         grid.innerHTML = shown.length ? shown.map(function (f) {
-          return '<button type="button" class="sr-faction" data-faction="' + esc(f.name) + '" id="' + esc(f.name) + '"><div class="sr-faction-art">' + (f.hero ? '<img src="' + esc(f.hero) + '" alt="" loading="lazy">' : "") +
-            '<span class="sr-faction-name">' + esc(f.name) + '</span></div><div class="sr-faction-body">' + esc(f.summary || "") + "</div></button>";
+          var pic = posterOf(f);
+          return '<button type="button" class="sr-faction' + (FILMS[f.name] ? " sr-film" : "") + '" data-faction="' + esc(f.name) + '" id="' + esc(f.name) + '"><div class="sr-faction-art">' + (pic ? '<img src="' + esc(pic) + '" alt="" loading="lazy">' : "") +
+            '<span class="sr-faction-name">' + esc(f.name) + '</span></div><div class="sr-faction-body">' + (filmOf(f) ? '<b class="sr-film-title">' + esc(filmOf(f)) + "</b>" : "") + esc(f.summary || "") + "</div></button>";
         }).join("") : '<p class="tp-empty">No realm matches that search.</p>';
         $("[data-sr-faction-count]").textContent = shown.length + " of " + list.length;
       }
       function open(name) {
         var f = list.filter(function (x) { return x.name === name; })[0];
         if (!f) return;
-        openSheet('<div class="sr-sheet-grid"><div>' + (f.hero ? '<img src="' + esc(f.hero) + '" alt="' + esc(f.name) + ' hero" style="width:100%;border-radius:8px;border:1px solid rgba(234,179,8,.5)">' : "") + "</div><div>" +
-          '<span class="tp-eyebrow">Realm</span><h2 class="tp-h2">' + esc(f.name) + '</h2><p class="tp-lede">' + esc(f.summary || "") + "</p>" +
+        var pic = posterOf(f);
+        openSheet('<div class="sr-sheet-grid"><div>' + (pic ? '<img src="' + esc(pic) + '" alt="' + esc(f.name) + ' poster" style="width:100%;border-radius:8px;border:1px solid rgba(234,179,8,.5)">' : "") + "</div><div>" +
+          '<span class="tp-eyebrow">Now showing &middot; ' + esc(f.name) + '</span><h2 class="tp-h2">' + esc(filmOf(f) || f.name) + '</h2><p class="tp-lede">' + esc(f.summary || "") + "</p>" +
           '<div class="sr-traits" style="margin-top:16px"><div class="good"><h4>Strengths</h4><ul>' + f.strengths.map(function (s) { return "<li>" + esc(s) + "</li>"; }).join("") + "</ul></div>" +
           '<div class="bad"><h4>Weaknesses</h4><ul>' + f.weaknesses.map(function (s) { return "<li>" + esc(s) + "</li>"; }).join("") + "</ul></div></div>" +
           '<div class="tp-row" style="margin-top:18px"><a class="tp-btn" href="/shattered-play">Play ' + esc(f.name) + '</a><a class="tp-btn tp-btn-ghost" href="/shattered-manual#decks">How decks work</a></div></div></div>');

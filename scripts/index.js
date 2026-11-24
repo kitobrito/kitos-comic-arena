@@ -323,6 +323,7 @@
   var maintenanceModeEnabled = false;
   var publicNewsPosts = [];
   var currentNewsPostIndex = 0;
+  var NEWS_PER_PAGE = 3;
   var sidebarLeaderboardsByArena = { comic: null, pokemon: null };
   var profileLookupStorageKey = "comicProfileLookupUser";
   var requestedProfileUsername = (function () {
@@ -1112,16 +1113,26 @@
       return;
     }
 
+    // The feed shows a page of posts at once; the arrows step a whole page newer or older.
     currentNewsPostIndex = Math.max(0, Math.min(currentNewsPostIndex, list.length - 1));
-    newsFeedContent.appendChild(renderNewsPost(list[currentNewsPostIndex]));
+    currentNewsPostIndex -= currentNewsPostIndex % NEWS_PER_PAGE;
+    var pageEnd = Math.min(list.length, currentNewsPostIndex + NEWS_PER_PAGE);
+    for (var i = currentNewsPostIndex; i < pageEnd; i += 1) {
+      if (i > currentNewsPostIndex) {
+        var gap = document.createElement("hr");
+        gap.className = "news-post-gap";
+        newsFeedContent.appendChild(gap);
+      }
+      newsFeedContent.appendChild(renderNewsPost(list[i]));
+    }
     if (newsFeedCounter) {
-      newsFeedCounter.textContent = (currentNewsPostIndex + 1) + " / " + list.length;
+      newsFeedCounter.textContent = (pageEnd - currentNewsPostIndex > 1 ? (currentNewsPostIndex + 1) + "-" + pageEnd : String(pageEnd)) + " / " + list.length;
     }
     if (newsPrevButton) {
       newsPrevButton.disabled = currentNewsPostIndex <= 0;
     }
     if (newsNextButton) {
-      newsNextButton.disabled = currentNewsPostIndex >= list.length - 1;
+      newsNextButton.disabled = pageEnd >= list.length;
     }
     setNewsStatus("");
   }
@@ -1153,15 +1164,15 @@
     if (!publicNewsPosts.length || currentNewsPostIndex <= 0) {
       return;
     }
-    currentNewsPostIndex -= 1;
+    currentNewsPostIndex = Math.max(0, currentNewsPostIndex - NEWS_PER_PAGE);
     renderNewsFeed(publicNewsPosts);
   }
 
   function showNextNewsPost() {
-    if (!publicNewsPosts.length || currentNewsPostIndex >= publicNewsPosts.length - 1) {
+    if (!publicNewsPosts.length || currentNewsPostIndex + NEWS_PER_PAGE >= publicNewsPosts.length) {
       return;
     }
-    currentNewsPostIndex += 1;
+    currentNewsPostIndex += NEWS_PER_PAGE;
     renderNewsFeed(publicNewsPosts);
   }
 
