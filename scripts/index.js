@@ -5576,7 +5576,7 @@
         // /pokemon-arena is the friendly, indexable URL for Pokemon Arena's
         // selection page (see server.js's POKEMON_ARENA_SELECTION_HTML) --
         // land there instead of the query-param form when already logged in.
-        // Shattered Realms has its own accounts, so it needs no Comic-Arena login.
+        // Shattered TCG has its own accounts, so it needs no Comic-Arena login.
         var destination = arena === "shattered"
           ? "shattered-realms.html"
           : accountPanel.hidden

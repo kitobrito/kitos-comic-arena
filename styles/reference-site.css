@@ -59,12 +59,12 @@ html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-conten
 html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content :is(.mission-card,.pp-mission-card){min-width:0!important;}
 @media(max-width:540px){html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content :is(.missions-grid,.pp-missions-grid){grid-template-columns:1fr!important;}}
 
-/* Shattered Realms pages are built on the tri-portal grid (left rail, centre, right rail). Inside the
+/* Shattered TCG pages are built on the tri-portal grid (left rail, centre, right rail). Inside the
    classic frame the rails move to the sidebar, so the grid is flattened above (.tp-grid) and the
    centre gets the whole content column. The manual's section list sits above the text there. */
 html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content .sr-manual {grid-template-columns:minmax(0,1fr)!important;}
 html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content .sr-anchors {position:static!important;display:flex!important;flex-wrap:wrap;gap:4px;}
-/* The classic frame's content column is white. The tri-portal pages (Shattered Realms and friends)
+/* The classic frame's content column is white. The tri-portal pages (Shattered TCG and friends)
    were drawn for a dark night sky, so their light inks vanish on it: give them a light palette here. */
 html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content {--tp-ink:#1f2633;--tp-ink-dim:#3f4b5c;--tp-ink-faint:#5d6878;--tp-line:#e1e5ea;--tp-line-strong:#c4ccd6;--tp-well:#f3efe6;--tp-accent:#a1620a;--tp-accent-3:#6d28d9;}
 html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content :is(.tp-empty,.sr-steps li,.tp-well) {color:#3f4b5c!important;}
@@ -89,7 +89,7 @@ html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-sideba
 
 /* Pokémon events: mission cards are drawn dark-navy; in the white column they become light cards. */
 html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content .pp-shell .mission-card {background:#fff8df!important;border-color:#e6d49a!important;}
-/* The Split page's Shattered Realms band stays a dark purple band, stacked to fit the narrow column. */
+/* The Split page's Shattered TCG band stays a dark purple band, stacked to fit the narrow column. */
 html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content .tp-sr-band {grid-template-columns:minmax(0,1fr)!important;text-align:center;justify-items:center;}
 html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content .tp-sr-band p:not(.reference-x):not(.reference-y) {color:#e9d8ff!important;}
 html#reference-home.tp-on[data-reference-layout="inner"] .reference-inner-content .tp-sr-band p b {color:#fde68a!important;}

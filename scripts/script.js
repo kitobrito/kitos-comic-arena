@@ -21005,7 +21005,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
 
     arenaModeButtons.forEach((button) => {
         button.addEventListener('click', () => {
-            // Shattered Realms is a different game: switch this window over to it.
+            // Shattered TCG is a different game: switch this window over to it.
             if (button.dataset.arenaMode === 'shattered') {
                 window.location.href = 'shattered-realms.html';
                 return;

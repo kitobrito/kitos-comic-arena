@@ -84,7 +84,7 @@
   if (switcher) resources.appendChild(switcher);
   var portal = node('a', 'reference-portal-link', '');
   portal.href = '/split'; portal.textContent = 'All arenas';
-  var shatteredLink = node('a', 'reference-portal-link');shatteredLink.href = '/shattered';shatteredLink.textContent = 'Shattered Realms';
+  var shatteredLink = node('a', 'reference-portal-link');shatteredLink.href = '/shattered';shatteredLink.textContent = 'Shattered TCG';
   resources.append(shatteredLink, portal);
   sidebar.prepend(community, resources);
   var latest = sections.find(function (section) { return heading(section) === 'Latest News'; });

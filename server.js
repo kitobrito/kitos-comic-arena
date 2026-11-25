@@ -20500,9 +20500,9 @@ app.get(['/editmission', '/editmission.html'], requireSession, async (req, res) 
 });
 
 
-// ---- Tri-game portal (Comic-Arena, Pokemon-Arena, Shattered Realms) ----
-// Each game's front door, the 50/50 split hub, and Shattered Realms' own section (its accounts,
-// patch notes and ladder come from the Shattered Realms server; see scripts/shattered-portal.js).
+// ---- Tri-game portal (Comic-Arena, Pokemon-Arena, Shattered TCG) ----
+// Each game's front door, the 50/50 split hub, and Shattered TCG' own section (its accounts,
+// patch notes and ladder come from the Shattered TCG server; see scripts/shattered-portal.js).
 app.get(['/comic', '/comic.html'], (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
