@@ -3,7 +3,7 @@
 // Patch notes for Comic Arena and Pokemon Arena: one news post per update, so players always hear
 // what was added, changed or taken away. Every change that ships adds a post to POSTS (newest
 // first). Run by server.js at startup; each post is upserted by its releaseVersion, so running it
-// again only refreshes the text. (Shattered Realms' patch notes live in its own game, in
+// again only refreshes the text. (Shattered TCG' patch notes live in its own game, in
 // src/ui/patch-notes.js of shattered-realms-tcg, and its site section reads them from there.)
 
 const newsCollectionName = process.env.MONGODB_NEWS_POSTS_COLLECTION || 'news_posts';
@@ -13,7 +13,7 @@ const link = (text, href) => ({ type: 'link', text, href });
 const divider = { type: 'divider' };
 
 const SITE_CLEANUP = [
-    p('A little spring cleaning on the website. Shattered Realms now has its own section in the portal (pick it in the bar at the top of every page), so the old Shattered Realms banner across the top of the site, the "Play Shattered Realms" button in the side menu and the Shattered Realms logo next to the Anime-Arena banner have been removed.'),
+    p('A little spring cleaning on the website. Shattered TCG now has its own section in the portal (pick it in the bar at the top of every page), so the old Shattered TCG banner across the top of the site, the "Play Shattered TCG" button in the side menu and the Shattered TCG logo next to the Anime-Arena banner have been removed.'),
 ];
 
 const BATTLE_FX = [
@@ -35,6 +35,16 @@ const IPHONE_TEAM_TAP = [
 
 const POSTS = [
     {
+        releaseVersion: 'patch-2026-11-25-shattered-tcg-comic',
+        title: 'Comic Arena: Shattered Realms Is Now Shattered TCG',
+        arena: 'comic',
+        author: 'kito',
+        blocks: [
+            p('Our card game has a new name: Shattered Realms is now Shattered TCG. The website pages, menus and links all use the new name. Your Shattered TCG account, cards, decks and rank are exactly where you left them, and all the old links still work. It comes with a brand new marquee logo, up in lights across the Shattered TCG pages.'),
+            p('You can now download the Shattered TCG Android app straight from comic-arena.net/shattered: tap Download for Android on the front page, or Android App in the sidebar of any Shattered TCG page.'),
+        ],
+    },
+    {
         releaseVersion: 'patch-2026-11-24-news-feed-pokemon',
         title: 'Pokemon Arena: More News on the Front Page',
         arena: 'pokemon',
@@ -45,12 +55,12 @@ const POSTS = [
     },
     {
         releaseVersion: 'patch-2026-11-24-news-feed-theatre-comic',
-        title: 'Comic Arena: More News on the Front Page, Shattered Realms Goes to the Pictures',
+        title: 'Comic Arena: More News on the Front Page, Shattered TCG Goes to the Pictures',
         arena: 'comic',
         author: 'kito',
         blocks: [
             p('The news feed on the front page now shows the three newest posts at once instead of one at a time. The arrows step back through older posts three at a time.'),
-            p('The Shattered Realms pages of the website now match the game\'s new 1950s picture palace look: the new marquee logo up in lights over the stage, an usher waiting beside the menu, red velvet menus, title boxes ringed with marquee bulbs, and ticket-stub buttons. The Shattered Realms front page opens on the picture palace at night with its name up on the marquee. Every realm on the Realms page is now shown as its B-movie poster with its film title, and the front page lists the three newest updates.'),
+            p('The Shattered TCG pages of the website now match the game\'s new 1950s picture palace look: the new marquee logo up in lights over the stage, an usher waiting beside the menu, red velvet menus, title boxes ringed with marquee bulbs, and ticket-stub buttons. The Shattered TCG front page opens on the picture palace at night with its name up on the marquee. Every realm on the Realms page is now shown as its B-movie poster with its film title, and the front page lists the three newest updates.'),
         ],
     },
     {
@@ -69,7 +79,7 @@ const POSTS = [
         arena: 'comic',
         author: 'kito',
         blocks: [
-            p('We checked every page of the website, on computers and phones, and fixed the text that was hard to read or squashed. The Shattered Realms game manual now uses the full width of the page instead of one word per line, and its highlighted numbers and ladder headings show properly.'),
+            p('We checked every page of the website, on computers and phones, and fixed the text that was hard to read or squashed. The Shattered TCG game manual now uses the full width of the page instead of one word per line, and its highlighted numbers and ladder headings show properly.'),
             p('The title boxes on the Community, Events and Manual pages are now light with readable headings, the Comic versus Pokemon section on the front page has readable titles, the Split page shows its arena names clearly, and pages no longer scroll sideways on phones.'),
         ],
     },

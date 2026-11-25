@@ -12,7 +12,7 @@
   doc.body.classList.add('tp-native', 'reference-inner-page');
   doc.body.classList.toggle('home-arena-pokemon', pokemon);
   doc.body.classList.toggle('home-arena-comic', !pokemon);
-  var title = pokemon ? 'POKÉMON ARENA' : shattered ? 'SHATTERED REALMS' : 'COMIC ARENA';
+  var title = pokemon ? 'POKÉMON ARENA' : shattered ? 'SHATTERED TCG' : 'COMIC ARENA';
   var home = pokemon ? '/pokemon' : shattered ? '/shattered' : '/comic';
   var routes = pokemon ? {manual:'/pokemon-manual',ladder:'/pokemon-community',missions:'/pokemon-missions',characters:'/pokemon-charactersandskills.html',news:'/pokemon-events',profile:'/pokemon-profile',clan:'/pokemon-clanpanel',background:'/pokemon-changebackgrounds',reset:'/pokemon-resetaccount'} : shattered ? {manual:'/shattered-manual',ladder:'/shattered-ladder',missions:'/shattered-factions',characters:'/shattered-factions',news:'/shattered-news',profile:'/shattered-account',clan:'/shattered-players'} : {manual:'/manual',ladder:'/community',missions:'/missions.html',characters:'/charactersandskills.html',news:'/events',profile:'/profile',clan:'/clan-panel',background:'/changebackgrounds',reset:'/resetaccount'};
   function element(tag, className, text) { var e=doc.createElement(tag);if(className)e.className=className;if(text)e.textContent=text;return e; }
@@ -25,7 +25,7 @@
   var oldTopbar=doc.querySelector('.topbar,.pp-topbar');
   var shell=element('div','reference-inner-app');
   var masthead=element('header','reference-masthead reference-inner-masthead');
-  // Shattered Realms is a 1950s picture palace: the usher stands where the mascot would.
+  // Shattered TCG is a 1950s picture palace: the usher stands where the mascot would.
   var TH='/assets/images/shattered-theatre/';
   var mascot;
   if(shattered){
@@ -50,7 +50,7 @@
     // The marquee: the game's own logo up in lights over the stage.
     banner.classList.add('sr-marquee');
     var stage=element('div','reference-banner-art reference-banner-theatre');
-    var logo=link(home,'','sr-marquee-logo');logo.setAttribute('aria-label','Shattered Realms home');logo.appendChild(art(TH+'logo-small.webp','Shattered Realms'));
+    var logo=link(home,'','sr-marquee-logo');logo.setAttribute('aria-label','Shattered TCG home');logo.appendChild(art(TH+'logo-small.webp','Shattered TCG'));
     stage.append(logo,element('div','sr-marquee-strip','Now showing \u00b7 a fantasy card battler'));
     banner.appendChild(stage);
   }else{
@@ -66,7 +66,7 @@
   if(!sidebar)sidebar=element('aside','sidebar');
   sidebar.classList.add('reference-inner-sidebar');
   var resources=element('section','group reference-site-links');resources.appendChild(element('h2','group-title','Arena Links'));
-  [['Characters',routes.characters],['News & Updates',routes.news],['My Profile',routes.profile],['Clans',routes.clan],['Custom Background',routes.background],['Reset Account',routes.reset],['Sign In',shattered?'/shattered-account':home+'#auth-panel'],['Register',shattered?'/shattered-account':'/register.html?arena='+arena],['Shattered Realms','/shattered'],['All Arenas','/split']].forEach(function(pair){if(pair[1])resources.appendChild(link(pair[1],pair[0]));});
+  [['Characters',routes.characters],['News & Updates',routes.news],['My Profile',routes.profile],['Clans',routes.clan],['Custom Background',routes.background],['Reset Account',routes.reset],['Sign In',shattered?'/shattered-account':home+'#auth-panel'],['Register',shattered?'/shattered-account':'/register.html?arena='+arena],['Shattered TCG','/shattered'],['Android App',shattered?'https://github.com/kitobrito/Shattered-Realms-TCG/releases/download/android-latest/shattered-realms.apk':null],['All Arenas','/split']].forEach(function(pair){if(pair[1])resources.appendChild(link(pair[1],pair[0]));});
   var switches=element('div','reference-game-switch');switches.append(link('/comic','Comics'),link('/pokemon','Pokémon'));resources.appendChild(switches);sidebar.prepend(resources);
   // Keep existing account/admin controls visible in the rail, while replacing
   // only the redundant decorative heading and primary menu.
@@ -85,6 +85,6 @@
   // stays as a harmless block so selectors and event-bound nodes keep working.
   var kind=/charactereditor|editmission|newspost|character-builder|playeraccounts|demofeedback/.test(path)?'editor':/charactersandskills|factions/.test(path)?'roster':/missions/.test(path)?'missions':/manual/.test(path)?'manual':/community|ladder|players|winrates/.test(path)?'ladder':/profile|clan|account|avatar|background|register/.test(path)?'account':/events|news/.test(path)?'news':'general';
   root.dataset.referenceKind=kind;
-  var crumb=element('nav','reference-breadcrumb');crumb.setAttribute('aria-label','Breadcrumb');crumb.append(link(home,pokemon?'Pokémon Arena':shattered?'Shattered Realms':'Comic Arena'),doc.createTextNode(' / '+(doc.title||'Page').replace(/^(Comic[ -]?Arena|Pok[eé]mon[ -]?Arena|Shattered Realms)\s*[-:|]?\s*/i,'')));
+  var crumb=element('nav','reference-breadcrumb');crumb.setAttribute('aria-label','Breadcrumb');crumb.append(link(home,pokemon?'Pokémon Arena':shattered?'Shattered TCG':'Comic Arena'),doc.createTextNode(' / '+(doc.title||'Page').replace(/^(Comic[ -]?Arena|Pok[eé]mon[ -]?Arena|Shattered TCG)\s*[-:|]?\s*/i,'')));
   content.prepend(crumb);
 }());

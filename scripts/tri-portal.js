@@ -1,4 +1,4 @@
-/* Tri-Game Portal: Comic-Arena · Pokémon-Arena · Shattered Realms
+/* Tri-Game Portal: Comic-Arena · Pokémon-Arena · Shattered TCG
  *
  * Loaded (not deferred) in the <head> of every portal page, so the active
  * game's theme is on <html data-theme> before the first paint. Then, once
@@ -35,7 +35,7 @@
     referenceCSS.rel = "stylesheet";
     referenceCSS.href = "/styles/reference-site.css?v=all-pages-v2";
     doc.head.appendChild(referenceCSS);
-    // The Shattered Realms pages are dressed as the game's 1950s picture palace.
+    // The Shattered TCG pages are dressed as the game's 1950s picture palace.
     if (/^shattered(-|$)/.test(file)) {
       root.setAttribute("data-sr-theatre", "");
       var theatreCSS = doc.createElement("link");
@@ -157,7 +157,7 @@
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function () { t.classList.remove("is-on"); }, 3200);
   }
-  // Shattered Realms server (accounts, patch notes, ladder). localStorage "sr-api-base" overrides it for testing.
+  // Shattered TCG server (accounts, patch notes, ladder). localStorage "sr-api-base" overrides it for testing.
   var SR_BASE = (store.get("sr-api-base") || "https://shattered-realms.onrender.com").replace(/\/+$/, "");
   var SR_TOKEN_KEY = "sr-site-token";
   var srToken = function () { return store.get(SR_TOKEN_KEY); };
@@ -180,6 +180,7 @@
     cards: '<rect x="3" y="6" width="11" height="15" rx="1.5"/><path d="M8 3h11.5A1.5 1.5 0 0 1 21 4.5V18"/>',
     trophy: '<path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4"/><path d="M16 6h3a3 3 0 0 1-3 4"/><path d="M12 13v4"/><path d="M8 21h8"/><path d="M9 17h6"/>',
     scroll: '<path d="M6 3h11a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H8"/><path d="M6 3a2 2 0 0 0-2 2v2h4V5a2 2 0 0 0-2-2z"/><path d="M8 21a2 2 0 0 1-2-2V7"/><path d="M10 8h6"/><path d="M10 12h6"/><path d="M10 16h4"/>',
+    download: '<path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/>',
     user: '<circle cx="12" cy="8" r="4"/><path d="M4 21c1.2-4 4.3-6 8-6s6.8 2 8 6"/>',
     help: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14"/><path d="M12 17.5h.01"/>',
     calendar: '<rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16"/><path d="M9 3v4"/><path d="M15 3v4"/>'
@@ -188,12 +189,12 @@
   var MARK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 6v6c0 5 3.4 8.8 8 10 4.6-1.2 8-5 8-10V6zm0 4 4 2v3.6c0 2.9-1.7 5.3-4 6.3-2.3-1-4-3.4-4-6.3V8z"/></svg>';
 
   // ---- Shell ---------------------------------------------------------------
-  var GAME_LABEL = { comic: "Comic-Arena", pokemon: "Pokémon-Arena", shattered: "Shattered Realms", split: "Split View" };
+  var GAME_LABEL = { comic: "Comic-Arena", pokemon: "Pokémon-Arena", shattered: "Shattered TCG", split: "Split View" };
 
   function modeLink(mode) {
     var href = mode === "split" ? "/split" : routeFor(mode, section === "split" ? "home" : section);
     var label = "<span>" + { comic: "Comic<span class=\"tp-long\">-Arena</span>", pokemon: "Pokémon<span class=\"tp-long\">-Arena</span>",
-      shattered: "Shattered<span class=\"tp-long\"> Realms</span>", split: "Split" }[mode] + "</span>";
+      shattered: "Shattered<span class=\"tp-long\"> TCG</span>", split: "Split" }[mode] + "</span>";
     var current = game === mode ? ' aria-current="page"' : "";
     return '<a class="tp-mode" data-mode="' + mode + '" href="' + href + '"' + current + ' title="' + GAME_LABEL[mode] + '"><i></i>' + label + "</a>";
   }
@@ -333,8 +334,8 @@
       .then(function () { return obSay("Or rather, are you into <strong>deep card battlers</strong> and CCG type games?", "is-q"); })
       .then(function () {
         obChoices([
-          { cls: "c-shattered", emoji: "🃏", label: "Yes, deal me in", sub: "Decks, synergies, big combo turns", go: function () { srTeaser("Yes! Check Shattered Realms out? What's Shattered Realms?"); } },
-          { cls: "c-plain", emoji: "🤔", label: "Maybe, I'm curious", go: function () { srTeaser("Curious. What's Shattered Realms?"); } },
+          { cls: "c-shattered", emoji: "🃏", label: "Yes, deal me in", sub: "Decks, synergies, big combo turns", go: function () { srTeaser("Yes! Check Shattered TCG out? What's Shattered TCG?"); } },
+          { cls: "c-plain", emoji: "🤔", label: "Maybe, I'm curious", go: function () { srTeaser("Curious. What's Shattered TCG?"); } },
           { cls: g === "comic" ? "c-comic" : "c-pokemon", emoji: "▸", label: "Nah, take me to the " + (g === "comic" ? "Comic" : "Pokémon") + " lobby", go: function () { obMe("Just the arena for now."); goArena(); } }
         ], false);
       });
@@ -342,12 +343,12 @@
   function srTeaser(said) {
     obState.step = 3;
     obMe(said); obAccent("shattered"); obSteps(3);
-    obSay('<img src="/assets/images/shatteredrealmslogo.png" alt="Shattered Realms">Let me tell you: <strong>Shattered Realms</strong> is our massive 2D digital trading card game where 20+ wild thematic factions collide, from Eels, Bees and Fungi to Demons, Void and Dante\'s Inferno hell circles. You fuse legendary heroes, build custom decks, and battle right in your browser or on Android. Free to play!', "is-sr")
+    obSay('<img src="/assets/images/shatteredrealmslogo.png" alt="Shattered TCG">Let me tell you: <strong>Shattered TCG</strong> is our massive 2D digital trading card game where 20+ wild thematic factions collide, from Eels, Bees and Fungi to Demons, Void and Dante\'s Inferno hell circles. You fuse legendary heroes, build custom decks, and battle right in your browser or on Android. Free to play!', "is-sr")
       .then(function () { return obSay("Where to? You can always switch games from the bar at the top of every page.", "is-q"); })
       .then(function () {
         var g = obState.pick || "comic";
         obChoices([
-          { cls: "c-shattered", emoji: "↗", label: "Explore Shattered Realms", sub: "Factions, patch notes, the ladder", go: function () { finishTo("shattered"); } },
+          { cls: "c-shattered", emoji: "↗", label: "Explore Shattered TCG", sub: "Factions, patch notes, the ladder", go: function () { finishTo("shattered"); } },
           { cls: g === "comic" ? "c-comic" : "c-pokemon", emoji: "▸", label: "Jump Into Arena Queues", sub: (g === "comic" ? "Comic-Arena" : "Pokémon-Arena") + " lobby", go: goArena }
         ], false);
       });
@@ -536,7 +537,7 @@
       doc.body.classList.add("tp-native");
       if (!referenceHomepage) {
         var referenceScript = doc.createElement("script");
-        referenceScript.src = "/scripts/reference-site.js?v=theatre-v2";
+        referenceScript.src = "/scripts/reference-site.js?v=theatre-v3";
         doc.head.appendChild(referenceScript);
       }
     }

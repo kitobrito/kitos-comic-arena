@@ -37,14 +37,14 @@ const link = (text, href) => ({ type: 'link', text, href });
 const divider = { type: 'divider' };
 
 const REDESIGN = [
-    p("The website has been rebuilt from the ground up. Comic Arena, Pokemon Arena and Shattered Realms now live together in one portal, and each game finally has a look of its own: Comic Arena in hot amber and black comic-book ink, Pokemon Arena in electric cyan stadium glass, and Shattered Realms in dark-fantasy gold. The new bar across the top of every page switches between the three games, and remembers which one is yours."),
-    p("There is also a new Split view that puts Comic Arena and Pokemon Arena side by side with live news and ladders, a short welcome guide for new players (the ? button in the top bar opens it again), and a full Shattered Realms section with its own patch notes, ladder and account page. Every page has been reworked for phones."),
+    p("The website has been rebuilt from the ground up. Comic Arena, Pokemon Arena and Shattered TCG now live together in one portal, and each game finally has a look of its own: Comic Arena in hot amber and black comic-book ink, Pokemon Arena in electric cyan stadium glass, and Shattered TCG in dark-fantasy gold. The new bar across the top of every page switches between the three games, and remembers which one is yours."),
+    p("There is also a new Split view that puts Comic Arena and Pokemon Arena side by side with live news and ladders, a short welcome guide for new players (the ? button in the top bar opens it again), and a full Shattered TCG section with its own patch notes, ladder and account page. Every page has been reworked for phones."),
     p('Battles got the same treatment. The in-game screen has been remade for both widescreen and portrait mode: it fills a phone held sideways, and holding your phone upright now gives you a layout made for portrait instead of a shrunken desktop screen. Each game has its own battle theme, skills sit right beside each portrait, Surrender, Chat and Settings live along the bottom, and the Exchange button no longer covers your energy counts.'),
     p('Team select works better on phones too: tap to pick a fighter and double tap a team slot to remove it, including on phones held sideways. Store and Missions are now in the phone menu.'),
 ];
 
 const THANKS_AND_PROMISE = (game) => [
-    p(`Thank you to everyone who has kept playing ${game} through the quiet stretch. I have not forgotten about Comic Arena or Pokemon Arena. Shattered Realms has taken a lot of my time lately, but both arenas are getting more support soon: more characters, more balance passes and more missions are on the way.`),
+    p(`Thank you to everyone who has kept playing ${game} through the quiet stretch. I have not forgotten about Comic Arena or Pokemon Arena. Shattered TCG has taken a lot of my time lately, but both arenas are getting more support soon: more characters, more balance passes and more missions are on the way.`),
     p('See you in the queue.'),
 ];
 

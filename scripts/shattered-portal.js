@@ -1,8 +1,8 @@
-/* Shattered Realms section of the tri-game portal.
+/* Shattered TCG section of the tri-game portal.
  *
  * Every shattered-*.html page has <body data-sr-page="..."> and two empty rails
  * ([data-sr-rail="left"], [data-sr-rail="right"]). This file fills the rails
- * and runs the page's own view. All live data comes from the Shattered Realms
+ * and runs the page's own view. All live data comes from the Shattered TCG
  * server (its website API, see server/server.js onApi in shattered-realms-tcg):
  *   GET  /api/news          patch notes, factions, keywords, rules, current poll
  *   GET  /api/leaderboard   top 50 ranked players
@@ -158,22 +158,23 @@
   // ---- Rails -----------------------------------------------------------------------
   var MENU = [
     { href: "/shattered", label: "Home", ico: "home", page: "home" },
-    { href: "/shattered-play", label: "Play Shattered Realms", ico: "play", page: "play", cls: "tp-menu-play" },
+    { href: "/shattered-play", label: "Play Shattered TCG", ico: "play", page: "play", cls: "tp-menu-play" },
     { href: "/shattered-news", label: "Patch Notes & News", ico: "scroll", page: "news" },
     { href: "/shattered-factions", label: "Factions (Roster)", ico: "cards", page: "factions" },
     { href: "/shattered-manual", label: "How to Play", ico: "book", page: "manual" },
     { href: "/shattered-manual#unlocks", label: "Unlocks & Rewards", ico: "shield", page: "unlocks" },
     { href: "/shattered-ladder", label: "Ranked Ladder", ico: "trophy", page: "ladder" },
     { href: "/shattered-players", label: "Playerbase", ico: "users", page: "players" },
-    { href: ITCH, label: "Community (itch.io)", ico: "scroll", page: "itch", ext: true }
+    { href: ITCH, label: "Community (itch.io)", ico: "scroll", page: "itch", ext: true },
+    { href: "https://github.com/kitobrito/Shattered-Realms-TCG/releases/download/android-latest/shattered-realms.apk", label: "Download for Android", ico: "download", page: "android", ext: true }
   ];
   function renderLeft() {
     var rail = $('[data-sr-rail="left"]');
     if (!rail) return;
     rail.innerHTML =
-      '<div class="tp-card tp-badge"><img src="/assets/images/shattered-theatre/logo-small.webp" alt="Shattered Realms">' +
+      '<div class="tp-card tp-badge"><img src="/assets/images/shattered-theatre/logo-small.webp" alt="Shattered TCG">' +
         '<div class="tp-badge-copy">Every realm is a B-movie. Pick a double feature, build a 40-card deck, climb the ladder.</div></div>' +
-      '<nav class="tp-card" aria-label="Shattered Realms menu"><h2 class="tp-title">Battle Menu</h2><div class="tp-menu">' +
+      '<nav class="tp-card" aria-label="Shattered TCG menu"><h2 class="tp-title">Battle Menu</h2><div class="tp-menu">' +
         MENU.map(function (m) {
           return '<a href="' + m.href + '"' + (m.cls ? ' class="' + m.cls + '"' : "") + (m.page === page ? ' aria-current="page"' : "") +
             (m.ext ? ' target="_blank" rel="noopener noreferrer"' : "") + ">" + icon(m.ico) + "<span>" + m.label + "</span></a>";
@@ -187,7 +188,7 @@
     if (!box) return;
     if (!TP.srToken()) {
       box.innerHTML = '<h2 class="tp-title">Account</h2>' +
-        '<p class="tp-small" style="margin:0 0 12px">Your Shattered Realms account is separate from your Comic / Pokémon account. It works in the browser game, on Android and here.</p>' +
+        '<p class="tp-small" style="margin:0 0 12px">Your Shattered TCG account is separate from your Comic / Pokémon account. It works in the browser game, on Android and here.</p>' +
         '<a class="tp-btn tp-btn-block" href="/shattered-account">Sign in</a>' +
         '<a class="tp-btn tp-btn-ghost tp-btn-block" style="margin-top:8px" href="/shattered-account#register">Create account</a>';
       return;
@@ -609,7 +610,7 @@
     Promise.all([player(name), me()]).then(function (res) {
       stop();
       var p = res[0].player, you = res[1], mine = you && you.name === p.name;
-      doc.title = p.name + " | Shattered Realms";
+      doc.title = p.name + " | Shattered TCG";
       var c = TIER_COLOR[p.tier] || "#eab308";
       var rpPct = p.tier === "Legendary" ? 100 : Math.max(0, Math.min(100, p.rp || 0));
       var rankedRate = p.rankedGames ? Math.round((p.rankedWins || 0) * 100 / p.rankedGames) : null;
@@ -626,7 +627,7 @@
           "<div><b>" + (p.wins || 0) + "</b><span>All wins</span></div><div><b>" + (p.losses || 0) + "</b><span>All losses</span></div>" +
           "<div><b>" + (p.games ? pct(p.winRate) : "–") + "</b><span>Overall win rate</span></div></div>" +
         '<div class="tp-row" style="margin-top:16px">' +
-          (mine ? '<a class="tp-btn" href="/shattered-account">Manage your account</a>' : '<a class="tp-btn" href="/shattered-play">Play Shattered Realms</a>') +
+          (mine ? '<a class="tp-btn" href="/shattered-account">Manage your account</a>' : '<a class="tp-btn" href="/shattered-play">Play Shattered TCG</a>') +
           '<a class="tp-btn tp-btn-ghost" href="/shattered-ladder">See the ladder</a></div>';
     }).catch(function (err) {
       stop();
@@ -698,7 +699,7 @@
       TP.srSignOut(); meP = null;
       prof.hidden = true; guest.hidden = false;
       renderAccountCard();
-      toast("Signed out of Shattered Realms on this site.");
+      toast("Signed out of Shattered TCG on this site.");
     });
     me().then(function (you) { if (you) showProfile(you); });
   };

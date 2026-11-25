@@ -1,6 +1,6 @@
 'use strict';
 
-// The tri-game portal (Comic-Arena, Pokemon-Arena, Shattered Realms): every page loads the shared
+// The tri-game portal (Comic-Arena, Pokemon-Arena, Shattered TCG): every page loads the shared
 // theme engine, the new routes and short links resolve, and the new browser scripts are public.
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -64,5 +64,5 @@ test('portal routes, the Pokemon front page and universe-aware short links', asy
     assert.equal(await go('/login', 'tri_universe=bogus'), '/comic#auth-panel');
 
     const csp = (await fetch(base + '/shattered')).headers.get('content-security-policy');
-    assert.match(csp, /connect-src[^;]*https:\/\/shattered-realms\.onrender\.com/, 'the site may call the Shattered Realms API');
+    assert.match(csp, /connect-src[^;]*https:\/\/shattered-realms\.onrender\.com/, 'the site may call the Shattered TCG API');
 });
