@@ -194,7 +194,7 @@
   function modeLink(mode) {
     var href = mode === "split" ? "/split" : routeFor(mode, section === "split" ? "home" : section);
     var label = "<span>" + { comic: "Comic<span class=\"tp-long\">-Arena</span>", pokemon: "Pokémon<span class=\"tp-long\">-Arena</span>",
-      shattered: "Shattered<span class=\"tp-long\"> Realms</span>", split: "Split" }[mode] + "</span>";
+      shattered: "Shattered<span class=\"tp-long\"> TCG</span>", split: "Split" }[mode] + "</span>";
     var current = game === mode ? ' aria-current="page"' : "";
     return '<a class="tp-mode" data-mode="' + mode + '" href="' + href + '"' + current + ' title="' + GAME_LABEL[mode] + '"><i></i>' + label + "</a>";
   }

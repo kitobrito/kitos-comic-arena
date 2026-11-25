@@ -40,7 +40,7 @@ const POSTS = [
         arena: 'comic',
         author: 'kito',
         blocks: [
-            p('Our card game has a new name: Shattered Realms is now Shattered TCG. The website pages, menus and links all use the new name. Your Shattered TCG account, cards, decks and rank are exactly where you left them, and all the old links still work.'),
+            p('Our card game has a new name: Shattered Realms is now Shattered TCG. The website pages, menus and links all use the new name. Your Shattered TCG account, cards, decks and rank are exactly where you left them, and all the old links still work. It comes with a brand new marquee logo, up in lights across the Shattered TCG pages.'),
             p('You can now download the Shattered TCG Android app straight from comic-arena.net/shattered: tap Download for Android on the front page, or Android App in the sidebar of any Shattered TCG page.'),
         ],
     },
