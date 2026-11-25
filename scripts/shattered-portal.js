@@ -165,7 +165,8 @@
     { href: "/shattered-manual#unlocks", label: "Unlocks & Rewards", ico: "shield", page: "unlocks" },
     { href: "/shattered-ladder", label: "Ranked Ladder", ico: "trophy", page: "ladder" },
     { href: "/shattered-players", label: "Playerbase", ico: "users", page: "players" },
-    { href: ITCH, label: "Community (itch.io)", ico: "scroll", page: "itch", ext: true }
+    { href: ITCH, label: "Community (itch.io)", ico: "scroll", page: "itch", ext: true },
+    { href: "https://github.com/kitobrito/Shattered-Realms-TCG/releases/download/android-latest/shattered-realms.apk", label: "Download for Android", ico: "download", page: "android", ext: true }
   ];
   function renderLeft() {
     var rail = $('[data-sr-rail="left"]');
