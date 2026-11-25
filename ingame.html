@@ -11,22 +11,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comic-Arena Game</title>
+    <!-- The player's chosen layout (Settings > User interface), or ?layout=: classes on <html>. -->
+    <script src="scripts/ui-layout.js?v=ui-layout-v1"></script>
     <script>
+        // Experimental battlefield (beta): one of the in-game layouts in Settings > User interface
+        // (scripts/ui-layout.js). It changes only how the battle looks.
         try {
-            // The new battle interface is the default. Players only enter the
-            // classic layout after deliberately selecting it in battle.
-            if (new URLSearchParams(window.location.search).get('layout') !== 'classic') {
-                document.documentElement.classList.add('battle-experimental');
-            }
-        } catch (error) {
-            document.documentElement.classList.add('battle-experimental');
-        }
-    </script>
-    <script>
-        // Experimental battlefield (beta): players opt in from Settings > Options in battle.
-        // It changes only how the battle looks; the classic view stays the default.
-        try {
-            if (!window.ARENA_SCENE_PREVIEW && localStorage.getItem('battleExperimentalView') === '1') {
+            if (!window.ARENA_SCENE_PREVIEW && window.ArenaUiLayout && window.ArenaUiLayout.layout === 'battlefield') {
                 window.ARENA_SCENE_VIEW = true;
                 document.documentElement.classList.add('arena-scene-preview', 'scene-live', 'battle-experimental');
                 document.write('<link rel="stylesheet" href="/arena-scene/scene.css?v=21">');
@@ -566,7 +557,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             window.addEventListener('load', sync);
             document.addEventListener('change', function (event) {
                 if (!event.target.matches || !event.target.matches('[data-scene-view-toggle]')) return;
-                try { localStorage.setItem('battleExperimentalView', event.target.checked ? '1' : '0'); } catch (error) { return; }
+                if (window.ArenaUiLayout) window.ArenaUiLayout.set('ingame', event.target.checked ? 'battlefield' : 'arena');
+                else { try { localStorage.setItem('battleExperimentalView', event.target.checked ? '1' : '0'); } catch (error) { return; } }
                 window.location.reload();
             });
             if (window.ARENA_SCENE_VIEW && !window.ARENA_SCENE_PREVIEW) {
@@ -577,6 +569,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             }
         }());
     </script>
+  <link rel="stylesheet" href="styles/ui-layout-settings.css?v=ui-layout-v1">
+  <link rel="stylesheet" href="styles/ingame-scroll.css?v=ingame-scroll-v1">
+  <script src="./scripts/ingame-scroll.js?v=ingame-scroll-v1" defer></script>
+  <script src="./scripts/ui-layout-settings.js?v=ui-layout-v1" defer></script>
   <script src="./scripts/arena-navigation.js?v=hide-switch-ingame-v1&pokemon-home-link-v1&pokemon-page-bg-v1&pokemon-page-switch-fix-v1&comic-root-default-v1" defer></script>
 </body>
 </html>

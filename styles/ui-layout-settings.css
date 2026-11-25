@@ -1,0 +1,61 @@
+/* Settings > User interface (scripts/ui-layout-settings.js). Works on top of every layout. */
+.uil-backdrop { position: fixed; inset: 0; z-index: 2147483000; display: grid; place-items: center; padding: 16px;
+  background: rgba(8, 6, 14, 0.66); font-family: 'Libre Franklin', Arial, sans-serif; }
+.uil-backdrop[hidden] { display: none; }
+.uil-card { --uil-accent: #e23636; --uil-accent2: #ffd23f; width: min(560px, 100%); max-height: calc(100vh - 32px); overflow: auto;
+  box-sizing: border-box; padding: 18px 18px 16px; border-radius: 14px; color: #f4efe6; text-align: left;
+  background: linear-gradient(180deg, #23202c, #17151d); border: 3px solid #0b0a0f; box-shadow: 0 0 0 2px var(--uil-accent), 0 18px 50px rgba(0, 0, 0, 0.6); }
+body.uil-pokemon .uil-card { --uil-accent: #ee1515; --uil-accent2: #ffcb05; background: linear-gradient(180deg, #1f2a48, #141b30); }
+.uil-card header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.uil-card h2 { margin: 0; font: 900 22px/1.1 'Libre Franklin', Arial, sans-serif; letter-spacing: 0.04em; text-transform: uppercase; color: #fff; }
+.uil-close { width: 34px; height: 34px; border-radius: 50%; border: 2px solid #ffffff44; background: #00000040; color: #fff; font-size: 22px; line-height: 1; cursor: pointer; }
+.uil-close:hover { border-color: var(--uil-accent2); }
+.uil-sub { margin: 6px 0 12px; font-size: 13px; color: #cfc8bb; }
+.uil-tabs { display: flex; gap: 6px; margin: 0 0 12px; }
+.uil-tab { flex: 1; padding: 9px 10px; border-radius: 8px; border: 2px solid #ffffff2a; background: #ffffff0d; color: #e8e2d6;
+  font: 800 13px/1 'Libre Franklin', Arial, sans-serif; letter-spacing: 0.05em; text-transform: uppercase; cursor: pointer; }
+.uil-tab.on { background: var(--uil-accent); border-color: var(--uil-accent); color: #fff; }
+.uil-list { display: grid; gap: 8px; }
+.uil-opt { display: grid; grid-template-columns: 92px 1fr 22px; gap: 12px; align-items: center; width: 100%; padding: 10px; text-align: left;
+  border-radius: 10px; border: 2px solid #ffffff22; background: #ffffff0a; color: inherit; font: inherit; cursor: pointer; }
+.uil-opt:hover { border-color: #ffffff55; }
+.uil-opt.on { border-color: var(--uil-accent2); background: #ffffff16; box-shadow: 0 0 0 1px var(--uil-accent2) inset; }
+.uil-copy { display: grid; gap: 3px; }
+.uil-copy b { font-size: 15px; color: #fff; }
+.uil-copy b em { font-style: normal; font-size: 10px; padding: 2px 6px; border-radius: 99px; background: var(--uil-accent); color: #fff; vertical-align: 2px; letter-spacing: 0.06em; text-transform: uppercase; }
+.uil-copy b small { font-size: 11px; font-weight: 700; color: #bdb6a8; margin-left: 2px; }
+.uil-copy span { font-size: 12px; line-height: 1.35; color: #d6cfc2; }
+.uil-radio { width: 18px; height: 18px; border-radius: 50%; border: 2px solid #ffffff66; box-sizing: border-box; }
+.uil-opt.on .uil-radio { border-color: var(--uil-accent2); background: radial-gradient(circle, var(--uil-accent2) 0 4px, transparent 5px); }
+.uil-foot { margin-top: 12px; }
+.uil-note { margin: 0; font-size: 12px; color: #cfc8bb; }
+.uil-apply { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border-radius: 10px; background: #ffffff10; font-size: 13px; }
+.uil-apply-btn { padding: 9px 16px; border-radius: 8px; border: 0; background: var(--uil-accent2); color: #1a1407; font: 900 13px/1 'Libre Franklin', Arial, sans-serif; letter-spacing: 0.05em; text-transform: uppercase; cursor: pointer; white-space: nowrap; }
+@media (max-width: 480px) { .uil-opt { grid-template-columns: 64px 1fr 18px; } .uil-prev { transform: scale(0.7); transform-origin: left center; } }
+
+/* The little layout sketches (92 x 58). */
+.uil-prev { position: relative; display: block; width: 92px; height: 58px; border-radius: 6px; background: #0c0b10; border: 1px solid #ffffff22; overflow: hidden; }
+.uil-prev i { position: absolute; display: block; border-radius: 2px; }
+.uil-p-stage { left: 6px; top: 6px; right: 6px; height: 26px; background: linear-gradient(90deg, #ffffff22, #ffffff44); }
+.uil-p-strip { left: 6px; right: 6px; top: 36px; height: 10px; background: repeating-linear-gradient(90deg, #ffffff55 0 7px, transparent 7px 9px); }
+.uil-p-btn { right: 6px; bottom: 4px; width: 26px; height: 6px; background: var(--uil-accent2); }
+.uil-p-btns { left: 6px; right: 6px; top: 6px; height: 7px; background: repeating-linear-gradient(90deg, #e9d9b0 0 18px, transparent 18px 22px); }
+.uil-p-scroll { left: 4px; top: 18px; width: 6px; height: 36px; background: var(--uil-accent); border-radius: 3px; }
+.uil-p-grid { left: 13px; top: 20px; width: 46px; height: 32px; background: #f0e6cf; box-shadow: inset 0 0 0 2px #f0e6cf; background-image: repeating-linear-gradient(90deg, #6d5a3a 0 5px, transparent 5px 7px), repeating-linear-gradient(0deg, transparent 0 2px, #f0e6cf 2px 4px); }
+.uil-p-team { left: 62px; top: 20px; width: 26px; height: 32px; background: #f0e6cf; background-image: linear-gradient(#6d5a3a, #6d5a3a); background-size: 10px 10px; background-repeat: no-repeat; background-position: 2px 3px; }
+.uil-p-bar { left: 4px; right: 4px; top: 4px; height: 6px; background: #ffffff33; }
+.uil-p-biggrid { left: 4px; top: 14px; width: 56px; height: 40px; background: repeating-linear-gradient(90deg, #ffffff44 0 7px, transparent 7px 9px); }
+.uil-p-side { right: 4px; top: 14px; width: 24px; height: 40px; background: #ffffff22; }
+.uil-p-small { left: 30px; top: 16px; width: 32px; height: 26px; background: #ffffff33; box-shadow: inset 0 -6px 0 #ffffff22; }
+.uil-p-hud { left: 22px; right: 22px; top: 4px; height: 7px; background: #ffffff44; }
+.uil-p-rows { left: 6px; top: 15px; width: 50px; height: 26px; background: repeating-linear-gradient(0deg, #ffffff33 0 6px, transparent 6px 10px); }
+.uil-p-panel { left: 6px; right: 6px; bottom: 4px; height: 10px; background: #ffffff22; }
+.uil-p-scrolls { left: 6px; top: 15px; width: 50px; height: 28px; background: repeating-linear-gradient(0deg, #f0e6cf 0 7px, transparent 7px 10px); }
+.uil-p-foes { right: 6px; top: 15px; width: 9px; height: 28px; background: repeating-linear-gradient(0deg, #ffffff66 0 7px, transparent 7px 10px); }
+.uil-p-infobar { left: 32px; right: 4px; bottom: 4px; height: 9px; background: #f0e6cf; box-shadow: inset 0 2px 0 var(--uil-accent), inset 0 -2px 0 var(--uil-accent); }
+.uil-p-ground { left: 0; right: 0; bottom: 0; height: 22px; background: linear-gradient(180deg, #3b6b3b, #213b21); }
+.uil-p-figs { left: 14px; right: 14px; bottom: 14px; height: 16px; background: radial-gradient(circle at 15% 50%, #ffffffaa 0 4px, transparent 5px), radial-gradient(circle at 35% 50%, #ffffffaa 0 4px, transparent 5px), radial-gradient(circle at 70% 50%, #ff8a8aaa 0 4px, transparent 5px), radial-gradient(circle at 90% 50%, #ff8a8aaa 0 4px, transparent 5px); }
+
+/* Entry buttons placed into the older settings panels. */
+.ui-options-panel .uil-entry { display: block; width: 100%; margin: 0 0 6px; padding: 6px 10px; border: 2px solid #1b120b; border-radius: 4px;
+  background: #ffd23f; color: #1b120b; font: 800 12px/1.2 'Libre Franklin', Arial, sans-serif; text-transform: uppercase; cursor: pointer; }
