@@ -66,6 +66,7 @@ const { syncPokemonEvolutionSceneNews } = require('./sync_pokemon_evolution_scen
 const { syncExperimentalBattlefieldPollNews } = require('./sync_experimental_battlefield_poll_news');
 const { syncExperimentalBattlefieldShotsNews } = require('./sync_experimental_battlefield_shots_news');
 const { syncExperimentalBattlefieldPosesNews } = require('./sync_experimental_battlefield_poses_news');
+const { syncUserInterfaceNews } = require('./sync_user_interface_news');
 const { syncNeganBattleFramesNews } = require('./sync_negan_battle_frames_news');
 const { syncPokemonArenaClassicKitsNews } = require('./sync_pokemon_arena_classic_kits_news');
 const { syncPatchNotes } = require('./sync_patch_notes');
@@ -14679,6 +14680,8 @@ async function initDb() {
     console.log('Synced the Experimental Battlefield shots news posts.');
     await syncExperimentalBattlefieldPosesNews(db);
     console.log('Synced the Experimental Battlefield battle frames news post.');
+    await syncUserInterfaceNews(db);
+    console.log('Synced the User interface news posts.');
     await syncNeganBattleFramesNews(db);
     console.log('Synced the Negan battle frames news post.');
     await syncPokemonArenaClassicKitsNews(db);
