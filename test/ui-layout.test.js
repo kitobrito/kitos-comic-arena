@@ -107,3 +107,9 @@ test('one User interface news post per arena, published at server startup, no em
     assert.equal(docs.size, 2);
     assert.match(read('server.js'), /await syncUserInterfaceNews\(db\)/);
 });
+
+test('the Scroll battle keeps the enemy side mirrored so their characters face yours', () => {
+    const bat = read('styles', 'ingame-scroll.css');
+    assert.match(bat, /\.enemy-characters \{ transform: scaleX\(-1\) !important; transform-origin: 500px 0 !important; \}/);
+    assert.doesNotMatch(bat, /\.player-characters, html\.battle-scroll \.enemy-characters \{[^}]*transform: none/);
+});
