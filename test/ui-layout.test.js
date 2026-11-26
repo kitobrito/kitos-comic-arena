@@ -113,3 +113,16 @@ test('the Scroll battle keeps the enemy side mirrored so their characters face y
     assert.match(bat, /\.enemy-characters \{ transform: scaleX\(-1\) !important; transform-origin: 500px 0 !important; \}/);
     assert.doesNotMatch(bat, /\.player-characters, html\.battle-scroll \.enemy-characters \{[^}]*transform: none/);
 });
+
+test('the server serves every script a page loads from scripts/ (its allow-list keeps the rest private)', () => {
+    const server = read('server.js');
+    const list = server.slice(server.indexOf('const PUBLIC_SCRIPTS_FILES'), server.indexOf('const isPrivateStaticSourcePath'));
+    const allowed = new Set([...list.matchAll(/'(\/scripts\/[^']+)'/g)].map((m) => m[1]));
+    const missing = [];
+    for (const file of fs.readdirSync(root).filter((f) => f.endsWith('.html'))) {
+        for (const m of read(file).matchAll(/<script[^>]+src="(?:\.?\/)?(scripts\/[^"?#]+)/g)) {
+            if (!allowed.has('/' + m[1])) missing.push(`${file}: ${m[1]}`);
+        }
+    }
+    assert.deepEqual(missing, []);
+});

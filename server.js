@@ -10244,6 +10244,10 @@ const PUBLIC_SCRIPTS_FILES = new Set([
     '/scripts/tri-portal.js',
     '/scripts/shattered-portal.js',
     '/scripts/split-hub.js',
+    '/scripts/ui-layout.js',
+    '/scripts/ui-layout-settings.js',
+    '/scripts/selection-scroll.js',
+    '/scripts/ingame-scroll.js',
 ]);
 const isPrivateStaticSourcePath = (requestPath = '') => {
     if (require('./prototypes/pokemon-campaign/access.cjs').isCampaignSourcePath(requestPath)) return true;
