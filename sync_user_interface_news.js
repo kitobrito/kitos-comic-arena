@@ -13,7 +13,7 @@ const shared = [
     'The new Scroll layout brings back the classic arena look. On the character select, the art fills the top of the screen, with Logout, Start Ladder Game, Start Quick Game and Start Private Game across the middle. Below them, the roster scroll holds 21 characters a page, with your player card and your team on the right. Filter, Missions and Styles sit along the bottom of the scroll, and Styles opens the User interface setting.',
     'In battle, the Scroll layout puts the names, avatars, the ready bar and your energy along the top. Each character sits beside their own skill scroll, the opponent’s team runs down the right, and Surrender, Open Chat and the volume are scroll buttons in the bottom-left. The scroll along the bottom shows your opponent’s clan, level, ladder rank and record, and switches to the skill you are looking at when you tap one.',
 ];
-const cheshyNote = 'The character select layout that used to be called Experimental is now called Cheshy, and its Options button opens in full on phones and tablets again, so you can reach the User Interface setting from it.';
+const cheshyNote = 'The character select layout that used to be called Experimental is now called Cheshy, and its Options button opens in full on phones and tablets again, so you can reach the User Interface setting from it. On phones, tapping a character in the Scroll layout now always opens their scroll so you can read them and their skills; double-tap to add them to your team.';
 const fixNote = 'Fixed: on some visits the User Interface button in battle only showed "Interface options will appear here." and the Scroll layout would not switch on. Both now work: press User Interface to open the chooser.';
 const comicParagraphs = [
     ...shared,
