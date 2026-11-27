@@ -66,6 +66,8 @@ html.battle-scroll .character-card .health-text { font: 700 15px/16px 'BS Conden
 /* The decoration behind each face (the comic lightning frame / Pokemon frame), scaled with it. */
 html.battle-scroll .character-card .rank-hat { position: absolute !important; left: -28px !important; top: -28px !important; width: 144px !important; height: 180px !important; pointer-events: none; }
 html.battle-scroll .enemy-characters .character-card .rank-hat { left: -28px !important; }
+html.battle-scroll .character-card .rank-hat.rank-hat-pokemon { left: -34px !important; top: -34px !important; width: 166px !important; height: 166px !important; }
+html.battle-scroll .enemy-characters .character-card .rank-hat.rank-hat-pokemon { left: -34px !important; }
 html.battle-scroll .character-card .rage-bar-container { left: 0 !important; width: 98px !important; }
 /* The skill scroll (x 135-617): the queued-skill box at x 156 and four skills at x 253, 333, 413, 493 (71 x 72). */
 html.battle-scroll .player-characters .skillholder { position: absolute !important; left: 98px !important; top: 28px !important; width: 482px !important; height: 102px !important; z-index: 2 !important; }

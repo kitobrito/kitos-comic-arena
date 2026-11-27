@@ -1501,6 +1501,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             arena === 'pokemon' ? POKEMON_INGAME_SCROLL_BEHIND_URL : COMIC_INGAME_SCROLL_BEHIND_URL;
         document.body.classList.toggle('arena-mode-pokemon', arena === 'pokemon');
         document.body.classList.toggle('arena-mode-comic', arena !== 'pokemon');
+        // hats drawn before the match's arena was known switch to that arena's set
+        document.querySelectorAll('.rank-hat').forEach((element) => {
+            if (!element.dataset.rankHatBase) element.dataset.rankHatBase = element.getAttribute('src') || defaultLadderRankHat;
+            presentRankHat(element);
+        });
         document.querySelectorAll('.ingamescrollbehind').forEach((image) => {
             image.src = scrollBehindUrl;
         });
@@ -2528,14 +2533,32 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         );
     };
 
+    // Pokemon Arena has its own ten rank hats (assets/images/hats/pokemon/rank-01..10.png), one per ladder tier,
+    // drawn around a 75x75 picture on a 127x127 canvas. The server keeps one hat URL per tier; this swaps it.
+    const POKEMON_RANK_HAT_BY_TIER = {
+        academy: 1, genin: 2, chunin: 3, missingnin: 4, anbu: 5,
+        jounin: 6, sannin: 7, jinch: 8, akatsuki: 9, kage: 10, hokage: 10,
+    };
+    const getArenaRankHatUrl = (hatUrl, arena) => {
+        if (arena !== 'pokemon') return hatUrl;
+        const match = /([a-z]+)\.png$/i.exec(String(hatUrl || ''));
+        const tier = match ? POKEMON_RANK_HAT_BY_TIER[match[1].toLowerCase()] : null;
+        return tier ? `assets/images/hats/pokemon/rank-${String(tier).padStart(2, '0')}.png` : hatUrl;
+    };
+    const presentRankHat = (element) => {
+        const baseUrl = element.dataset.rankHatBase || defaultLadderRankHat;
+        const pokemon = currentMatchArena === 'pokemon';
+        element.src = getArenaRankHatUrl(baseUrl, currentMatchArena);
+        element.classList.toggle('rank-hat-pokemon', pokemon);
+        element.classList.toggle('rank-hat-offset-left', !pokemon && shouldUseWideRankHatOffset(baseUrl));
+    };
     const applyRankHatPresentation = (elements, ladder) => {
         const hatUrl = ladder?.rankHatUrl || defaultLadderRankHat;
-        const useWideOffset = shouldUseWideRankHatOffset(hatUrl);
         elements.forEach((element) => {
             if (!element) return;
-            element.src = hatUrl;
+            element.dataset.rankHatBase = hatUrl;
             element.alt = `${ladder?.rank || 'Academy Student'} rank hat`;
-            element.classList.toggle('rank-hat-offset-left', useWideOffset);
+            presentRankHat(element);
         });
     };
 
