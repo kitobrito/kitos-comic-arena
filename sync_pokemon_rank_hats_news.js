@@ -9,13 +9,18 @@ const newsCollectionName = process.env.MONGODB_NEWS_POSTS_COLLECTION || 'news_po
 
 const paragraphs = [
     'Pokemon Arena has its own rank hats. Every ladder rank now has a Pokemon hat that wraps around your characters in battle, partly in front of the picture and partly behind it.',
-    'From the first rank to the last: Onix, Staryu, an electric tail, Vileplume, a poison cloud, psychic spoons, Arcanine, Rhyhorn, crackling lightning and, at the very top, a pink psychic swirl.',
+    'From the first rank to the last: Onix, Starmie, Raichu, Vileplume, Weezing, Alakazam, Arcanine, Rhydon, Zapdos and, at the very top, Mew.',
     'Your hat changes as you climb the ladder, and everyone in your battles sees it. Comic Arena keeps its own hats.',
 ];
+const showcase = {
+    type: 'image',
+    src: '/assets/images/news/pokemon-rank-hats.png',
+    alt: 'The ten Pokemon Arena rank hats on Pokemon Trainer: Onix, Starmie, Raichu, Vileplume, Weezing, Alakazam, Arcanine, Rhydon, Zapdos and Mew',
+};
 const pokemonPost = {
     title: 'Pokemon Arena: New Rank Hats',
     arena: 'pokemon',
-    blocks: paragraphs.map((text) => ({ type: 'paragraph', text })),
+    blocks: [{ type: 'paragraph', text: paragraphs[0] }, showcase, ...paragraphs.slice(1).map((text) => ({ type: 'paragraph', text }))],
     paragraphs,
     changes: [],
     author: 'kito',

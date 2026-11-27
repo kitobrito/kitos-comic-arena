@@ -16682,3 +16682,8 @@ body.ui-disable-skill-cast-animations .pokemon-trainer-capture-ball {
 .arena-mode-button.shattered {
     background: linear-gradient(180deg, #e6cfff 0%, #b98af0 100%);
 }
+
+/* Pictures in news posts (home pages and the in-game news panel). */
+.news-image { margin: 10px 0; }
+.news-image img, .ingame-news-post-image { display: block; max-width: 100%; height: auto; border-radius: 6px; }
+.ingame-news-post-image { margin: 8px 0; }
