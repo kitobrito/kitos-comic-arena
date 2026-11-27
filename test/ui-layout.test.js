@@ -126,3 +126,18 @@ test('the server serves every script a page loads from scripts/ (its allow-list 
     }
     assert.deepEqual(missing, []);
 });
+
+test('Pokemon Arena uses its own ten rank hats, one per ladder tier', () => {
+    const script = read('scripts', 'script.js');
+    for (const tier of ['academy', 'genin', 'chunin', 'missingnin', 'anbu', 'jounin', 'sannin', 'jinch', 'akatsuki', 'kage', 'hokage']) {
+        assert.match(script, new RegExp(`${tier}: \\d+`));
+    }
+    for (let n = 1; n <= 10; n += 1) {
+        assert.ok(fs.existsSync(path.join(root, 'assets', 'images', 'hats', 'pokemon', `rank-${String(n).padStart(2, '0')}.png`)));
+    }
+    assert.match(read('styles', 'style.css'), /\.rank-hat\.rank-hat-pokemon \{[^}]*width: 127px;/);
+    const { pokemonPost } = require('../sync_pokemon_rank_hats_news');
+    assert.equal(pokemonPost.arena, 'pokemon');
+    assert.doesNotMatch(JSON.stringify(pokemonPost), /\p{Extended_Pictographic}/u);
+    assert.match(read('server.js'), /await syncPokemonRankHatsNews\(db\)/);
+});
