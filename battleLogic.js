@@ -6050,6 +6050,26 @@ const triggerOnEnemySkillTargetedBonuses = ({
             metadata._lastOnEnemySkillTargetedTurnKey = triggerKey;
             status.metadata = metadata;
         }
+        // Cyndaquil's Warming-Up: an enemy attacking Cyndaquil takes the passive's stored damage
+        // (5 per skill Cyndaquil has used) as affliction damage.
+        if (Boolean(metadata.cyndaquilWarmingUp) && skillHasHarmfulEffects(skill)) {
+            const warmUpDamage = Math.max(0, Number(metadata.skillDamageBonuses?.['cyndaquil-warming-up']) || 0);
+            if (warmUpDamage > 0) {
+                applyDamageToUnit(actorUnit, warmUpDamage, {
+                    match,
+                    sourceUsername: recipient.username,
+                    sourceSlot: Number.isInteger(recipient.slot) ? recipient.slot : null,
+                    sourceSkillId: 'cyndaquil-warming-up',
+                    targetUsername: actingUsername,
+                    targetSlot: Number.isInteger(actorSlot) ? actorSlot : null,
+                    damageDebugReason: 'Warming-Up',
+                    ignoreDamageReduction: true,
+                    ignoreDestructibleDefense: true,
+                    skillClasses: ['Fire', 'Special', 'Affliction'],
+                });
+            }
+            return;
+        }
         const retaliateDamage = Math.max(0, Number(metadata.onEnemySkillTargetedDamageToSourceAmount) || 0);
         if (retaliateDamage > 0) {
             applyDamageToUnit(actorUnit, retaliateDamage, {
