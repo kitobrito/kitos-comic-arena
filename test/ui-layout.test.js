@@ -145,3 +145,13 @@ test('Pokemon Arena uses its own ten rank hats, one per ladder tier', () => {
     assert.doesNotMatch(JSON.stringify(pokemonPost), /\p{Extended_Pictographic}/u);
     assert.match(read('server.js'), /await syncPokemonRankHatsNews\(db\)/);
 });
+
+test('the server keeps site-image blocks in news posts (and drops other images)', () => {
+    const src = read('server.js');
+    const fn = new Function(`${src.slice(src.indexOf('// Pictures in news posts'), src.indexOf('const normalizeNewsArena'))}; return normalizeNewsBlocks;`)();
+    const { pokemonPost } = require('../sync_pokemon_rank_hats_news');
+    const kept = fn(pokemonPost.blocks).filter((b) => b.type === 'image');
+    assert.equal(kept.length, 1);
+    assert.equal(kept[0].src, '/assets/images/news/pokemon-rank-hats.png');
+    assert.equal(fn([{ type: 'image', src: 'https://example.com/x.png' }, { type: 'image', src: '/assets/../server.js' }]).length, 0);
+});
