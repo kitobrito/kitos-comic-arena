@@ -7490,9 +7490,12 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 const bonuses = status.metadata.skillDamageBonuses && typeof status.metadata.skillDamageBonuses === 'object'
                     ? status.metadata.skillDamageBonuses
                     : {};
+                const storedBeforeThisSkill = Math.max(0, Number(bonuses['cyndaquil-warming-up']) || 0);
+                // Aerial Flamethrower uses what was stored before this cast.
+                status.metadata.cyndaquilWarmUpBeforeCast = storedBeforeThisSkill;
                 status.metadata.skillDamageBonuses = {
                     ...bonuses,
-                    'cyndaquil-warming-up': Math.max(0, Number(bonuses['cyndaquil-warming-up']) || 0) + 5,
+                    'cyndaquil-warming-up': storedBeforeThisSkill + 5,
                 };
             }
             if (!Boolean(status?.metadata?.onOwnerUseSkillTrigger)) return;
@@ -9000,10 +9003,16 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 return;
             }
             if (effectType === 'cyndaquil_flamethrower') {
+                // 5 base, plus everything Cyndaquil's Warming-Up passive has stored.
+                const warmingUp = (actorState?.statuses || []).find((status) => Boolean(status?.metadata?.cyndaquilWarmingUp));
+                const warmUpBonus = Math.max(0, Number(
+                    warmingUp?.metadata?.cyndaquilWarmUpBeforeCast ?? warmingUp?.metadata?.skillDamageBonuses?.['cyndaquil-warming-up']
+                ) || 0);
+                const flamethrowerDamage = 5 + warmUpBonus;
                 resolveRecipients(effect).forEach((recipient) => {
                     if (!recipient?.unit || recipient.unit.alive === false) return;
                     const targetState = ensureUnitStateShape(recipient.unit);
-                    queueDamage(recipient, 10, {
+                    queueDamage(recipient, flamethrowerDamage, {
                         ...effect,
                         metadata: { ...(effect?.metadata || {}), afflictionDamage: true },
                     });

@@ -10,6 +10,7 @@ const newsCollectionName = process.env.MONGODB_NEWS_POSTS_COLLECTION || 'news_po
 const paragraphs = [
     'Fixed: Cyndaquil\'s passive, Warming-Up, now hits back. Every skill Cyndaquil uses adds 5 to it, and whenever an enemy attacks Cyndaquil they take that much affliction damage.',
     'Before this fix the passive counted up but never dealt its damage.',
+    'Aerial Flamethrower now starts at 5 affliction damage to all enemies and also gains Warming-Up\'s stored damage, so it grows by 5 for every skill Cyndaquil uses.',
 ];
 const pokemonPost = {
     title: 'Pokemon Arena: Cyndaquil Warming-Up Fix',
