@@ -9350,6 +9350,8 @@ const normalizeNewsChanges = (value) =>
 
 // Links in news posts may only point inside the site ("/missions.html", "/pokemon-missions").
 const NEWS_LINK_HREF_RE = /^\/(?!\/)[A-Za-z0-9\-._~/?=&#%]*$/;
+// Pictures in news posts may only be the site's own images.
+const NEWS_IMAGE_SRC_RE = /^\/assets\/[A-Za-z0-9\-._~/%]+\.(?:png|jpe?g|webp|gif)$/i;
 const normalizeNewsBlocks = (value) =>
     (Array.isArray(value) ? value : [])
         .map((entry) => {
@@ -9359,11 +9361,17 @@ const normalizeNewsBlocks = (value) =>
                 const href = typeof entry?.href === 'string' ? entry.href.trim() : '';
                 block.href = NEWS_LINK_HREF_RE.test(href) ? href : '';
             }
+            if (type === 'image') {
+                const src = typeof entry?.src === 'string' ? entry.src.trim() : '';
+                block.src = NEWS_IMAGE_SRC_RE.test(src) && !src.includes('..') ? src : '';
+                block.alt = typeof entry?.alt === 'string' ? entry.alt.trim().slice(0, 300) : '';
+            }
             return block;
         })
         .filter(
             (entry) =>
                 entry.type === 'divider' ||
+                (entry.type === 'image' && entry.src) ||
                 (entry.type === 'paragraph' && entry.text) ||
                 (entry.type === 'link' && entry.text && entry.href)
         )
