@@ -9,7 +9,7 @@
  *   Character select (selection.html)
  *     arena         the arena select screen (default)          html.selection-experimental.selection-mockup
  *     scroll        the scroll layout (Naruto-Arena style)     html.selection-scroll
- *     experimental  the previous new interface                 html.selection-experimental
+ *     experimental  'Cheshy': large roster, toolbar top-right       html.selection-experimental
  *     classic       the oldest interface                       (no class)
  *   In-game (ingame.html)
  *     arena         the battle interface (default)             html.battle-experimental
@@ -25,7 +25,7 @@
         selection: [
             { id: 'arena', name: 'Arena', blurb: 'The arena select screen: a big character stage, the roster below, and a Start Match button.' },
             { id: 'scroll', name: 'Scroll', blurb: 'The classic arena look: a roster scroll with your team, Ladder, Quick and Private game buttons above it.', badge: 'New' },
-            { id: 'experimental', name: 'Experimental', blurb: 'The previous new interface, with a larger roster and the toolbar on top.' },
+            { id: 'experimental', name: 'Cheshy', blurb: 'A large roster along the bottom, the character stage up top and the toolbar in the corner.' },
             { id: 'classic', name: 'Classic', blurb: 'The original small interface.' },
         ],
         ingame: [

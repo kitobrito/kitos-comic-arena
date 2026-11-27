@@ -2629,6 +2629,14 @@ html.selection-experimental body.matchmaking-active .sound-controller {
         z-index: 9700;
     }
 
+    /* The Options list sits inside the scrolling filters box here, so it can't be clipped by it. */
+    html.selection-experimental .selection-ui-options-panel {
+        position: static;
+        width: 100%;
+        margin-top: 8px;
+        box-sizing: border-box;
+    }
+
     html.selection-experimental .selection-missions {
         position: fixed;
         inset: 5px;

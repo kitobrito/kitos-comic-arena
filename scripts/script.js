@@ -20271,7 +20271,8 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         const handlePointerMove = (moveEvent) => {
             if (moveEvent.pointerId !== dragState.pointerId) return;
             const distance = Math.hypot(moveEvent.clientX - dragState.startX, moveEvent.clientY - dragState.startY);
-            if (!dragState.active && distance >= 4) {
+            // A finger wobbles a little on a tap: only a real move starts a drag on touch.
+            if (!dragState.active && distance >= (moveEvent.pointerType === 'mouse' ? 4 : 12)) {
                 activateSelectionPointerDrag(dragState, moveEvent);
             }
             if (dragState.active) {
@@ -20292,8 +20293,11 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 } catch (error) {
                     // Ignore capture cleanup races.
                 }
+                // A tap is a click: it shows the character's info and skills (a double tap adds them),
+                // in every layout. Only the arena layout on tablets still adds on a single tap.
                 if (
                     upEvent.pointerType !== 'mouse' &&
+                    document.documentElement.classList.contains('selection-experimental') &&
                     dragState.payload?.type === 'roster' &&
                     Number.isInteger(dragState.payload.rosterIndex)
                 ) {
@@ -20681,7 +20685,10 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                             selectionTeamStatusEl.textContent = `Tap ${character?.name || 'this character'} again to add them.`;
                         }
                     } else if (selectionTeamStatusEl) {
-                        selectionTeamStatusEl.textContent = `Double-click ${character?.name || 'this character'} to add them to Your Team.`;
+                        const touch = window.matchMedia?.('(hover: none)').matches;
+                        selectionTeamStatusEl.textContent = touch
+                            ? `Double-tap ${character?.name || 'this character'} to add them to Your Team.`
+                            : `Double-click ${character?.name || 'this character'} to add them to Your Team.`;
                     }
                 });
             };
