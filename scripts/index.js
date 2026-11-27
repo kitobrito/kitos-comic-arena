@@ -3862,28 +3862,6 @@
   // PNGs at build time (see assets/images/PokemonArena/BIB/cutout/) so they
   // read as floating character art rather than square photo cards. Not every
   // character has one yet (missing here just falls back to facePicture).
-  var POKEMON_RELEASE_BIB_CHARACTER_IDS = {
-    "charmander": true, "squirtle": true, "bulbasaur": true, "pikachu": true,
-    "butterfree": true, "pokemon-trainer": true, "chansey": true, "pidgey": true,
-    "koffing": true, "zubat": true, "gastly": true, "abra": true, "krabby": true,
-    "scyther": true, "eevee": true, "jolteon": true, "flareon": true, "vaporeon": true,
-    "ekans": true, "machop": true, "magikarp": true, "mr-mime": true, "hitmonchan": true,
-    "hitmonlee": true, "aerodactyl": true, "magnemite": true, "onix": true, "meowth": true,
-    "clefairy": true, "jigglypuff": true, "beedrill": true, "articuno": true, "moltres": true,
-    "zapdos": true, "mew": true, "mewtwo": true, "dragonite": true, "cyndaquil": true,
-    "chikorita": true, "totodile": true, "aegislash": true, "ditto": true, "dragapult": true,
-    "primeape": true, "marowak": true, "pinsir": true, "tauros": true, "darkrai": true,
-    "lance": true, "lance-dragonite-1": true, "lance-gyarados": true, "lance-aerodactyl": true,
-    "nincada": true
-  };
-
-  function getPokemonReleaseBibRender(characterId, fallbackFacePicture) {
-    if (!characterId || !POKEMON_RELEASE_BIB_CHARACTER_IDS[characterId]) {
-      return fallbackFacePicture;
-    }
-    return "assets/images/PokemonArena/BIB/cutout/" + encodeURIComponent(characterId) + ".png";
-  }
-
   function updateReleasePreview(arena, index, releaseItem, facePicture) {
     var group = getLatestReleaseGroup(arena);
     var image = group && group.faces ? group.faces[index] : null;
@@ -3949,9 +3927,12 @@
     Object.keys(releaseGroups).forEach(function (arena) {
       var releases = Array.isArray(releasesByArena[arena]) ? releasesByArena[arena] : [];
       releases.forEach(function (releaseItem, index) {
+        // Every New Drops card shows the character's face picture (as Blaziken did), never the full-body
+        // cutout: those sit small on a black square and don't match the other faces.
         var facePicture = releaseItem && releaseItem.facePicture ? releaseItem.facePicture : "";
-        if (arena === "pokemon" && releaseItem && releaseItem.characterId) {
-          facePicture = getPokemonReleaseBibRender(String(releaseItem.characterId), facePicture);
+        if (!facePicture && releaseItem && releaseItem.characterId) {
+          var catalogCharacter = findCatalogCharacterById(String(releaseItem.characterId));
+          facePicture = catalogCharacter && catalogCharacter.facePicture ? catalogCharacter.facePicture : "";
         }
         updateReleasePreview(arena, index, releaseItem, facePicture);
       });
