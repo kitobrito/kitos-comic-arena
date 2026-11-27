@@ -910,6 +910,17 @@
         body.appendChild(divider);
         return;
       }
+      if (block && block.type === "image" && /^\/assets\/[^?#]+\.(png|jpe?g|webp|gif)$/i.test(String(block.src || ""))) {
+        var figure = document.createElement("figure");
+        figure.className = "news-image";
+        var image = document.createElement("img");
+        image.src = String(block.src);
+        image.alt = String(block.alt || "");
+        image.loading = "lazy";
+        figure.appendChild(image);
+        body.appendChild(figure);
+        return;
+      }
       if (block && block.type === "link" && block.text && /^\/(?!\/)/.test(String(block.href || ""))) {
         var linkParagraph = document.createElement("p");
         linkParagraph.className = "news-link-row";

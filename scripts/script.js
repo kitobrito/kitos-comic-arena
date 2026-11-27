@@ -2099,6 +2099,15 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 ingameNewsContent.appendChild(document.createElement('hr'));
                 return;
             }
+            if (block?.type === 'image' && /^\/assets\/[^?#]+\.(png|jpe?g|webp|gif)$/i.test(String(block.src || ''))) {
+                const image = document.createElement('img');
+                image.className = 'ingame-news-post-image';
+                image.src = String(block.src);
+                image.alt = String(block.alt || '');
+                image.loading = 'lazy';
+                ingameNewsContent.appendChild(image);
+                return;
+            }
             if (block?.text) {
                 const paragraph = document.createElement('p');
                 paragraph.className = 'ingame-news-post-paragraph';

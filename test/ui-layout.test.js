@@ -138,6 +138,10 @@ test('Pokemon Arena uses its own ten rank hats, one per ladder tier', () => {
     assert.match(read('styles', 'style.css'), /\.rank-hat\.rank-hat-pokemon \{[^}]*width: 127px;/);
     const { pokemonPost } = require('../sync_pokemon_rank_hats_news');
     assert.equal(pokemonPost.arena, 'pokemon');
+    assert.match(pokemonPost.paragraphs.join(' '), /Onix, Starmie, Raichu, Vileplume, Weezing, Alakazam, Arcanine, Rhydon, Zapdos and, at the very top, Mew/);
+    const pic = pokemonPost.blocks.find((b) => b.type === 'image');
+    assert.ok(pic && fs.existsSync(path.join(root, pic.src)));
+    assert.match(read('scripts', 'index.js'), /block\.type === "image"/);
     assert.doesNotMatch(JSON.stringify(pokemonPost), /\p{Extended_Pictographic}/u);
     assert.match(read('server.js'), /await syncPokemonRankHatsNews\(db\)/);
 });

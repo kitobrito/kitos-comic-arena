@@ -999,3 +999,7 @@ html.tp-on[data-theme="pokemon"] :is(.nav-link, .account-action, .pp-account-act
   color: inherit !important;
   -webkit-text-fill-color: currentColor !important;
 }
+
+/* Pictures in news posts. */
+.news-image { margin: 10px 0; }
+.news-image img { display: block; max-width: 100%; height: auto; border-radius: 6px; }
