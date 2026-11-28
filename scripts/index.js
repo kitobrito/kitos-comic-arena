@@ -1683,6 +1683,73 @@
     }
   }
 
+  function setupTopTeams() {
+    var showTeams = document.getElementById("show-top-teams");
+    if (!showTeams) return;
+
+    var showCharacters = document.getElementById("show-character-winrates");
+    var characterPanel = document.getElementById("character-winrates-panel");
+    var teamPanel = document.getElementById("top-teams-panel");
+    var mode = document.getElementById("top-teams-mode");
+    var days = document.getElementById("top-teams-days");
+    var status = document.getElementById("top-teams-status");
+    var table = document.getElementById("top-teams-table");
+    var rows = document.getElementById("top-teams-rows");
+    var request = 0;
+
+    async function loadTeams() {
+      var current = ++request;
+      table.hidden = true;
+      status.textContent = "Loading top teams…";
+      var query = new URLSearchParams({ arena: activeHomeArena, mode: mode.value, days: days.value });
+      try {
+        var response = await fetch("/api/admin/top-teams?" + query, { credentials: "same-origin" });
+        var data = await response.json();
+        if (current !== request) return;
+        if (!response.ok) {
+          status.textContent = data.error || "Unable to load top teams.";
+          return;
+        }
+
+        rows.replaceChildren();
+        data.teams.forEach(function (team) {
+          var row = rows.insertRow();
+          var names = document.createElement("th");
+          names.scope = "row";
+          names.textContent = team.characters.map(function (character) { return character.name; }).join(" · ");
+          row.appendChild(names);
+          [
+            formatInteger(team.picks),
+            team.pickRate.toFixed(2) + "%",
+            formatInteger(team.wins),
+            team.winRate.toFixed(2) + "%"
+          ].forEach(function (value) {
+            row.insertCell().textContent = value;
+          });
+        });
+        table.hidden = data.teams.length === 0;
+        status.textContent = data.teams.length
+          ? "Top " + data.teams.length + " teams by pick rate across " + formatInteger(data.totalPicks) + " team picks."
+          : "No teams found for these filters.";
+      } catch (error) {
+        if (current === request) status.textContent = "Unable to load top teams.";
+      }
+    }
+
+    function selectView(teams) {
+      characterPanel.hidden = teams;
+      teamPanel.hidden = !teams;
+      showCharacters.setAttribute("aria-pressed", String(!teams));
+      showTeams.setAttribute("aria-pressed", String(teams));
+      if (teams) loadTeams();
+    }
+
+    showTeams.addEventListener("click", function () { selectView(true); });
+    showCharacters.addEventListener("click", function () { selectView(false); });
+    mode.addEventListener("change", loadTeams);
+    days.addEventListener("change", loadTeams);
+  }
+
   function openPlayerAccountModal() {
     if (!playerAccountOverlay) {
       return;
@@ -5627,6 +5694,7 @@
   initializeReleaseInputs();
   loadSidebarLeaderboards();
   loadAdminWinrates();
+  setupTopTeams();
   loadAdminUsers();
   loadAdminCharacters();
   loadPublicNews();

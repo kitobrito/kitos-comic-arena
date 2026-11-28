@@ -8687,6 +8687,9 @@ const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonical
         eevee: {
             'eevee-swift': ['energy'],
         },
+        blaziken: {
+            'blaziken-blaze-kick': ['skilldescription', 'target', 'energy', 'cooldown', 'actorCondition', 'effects'],
+        },
         cyndaquil: {
             'cyndaquil-aerial-flamethrower': ['skilldescription', 'description', 'effects'],
             'cyndaquil-cynda-smokescreen': ['skilldescription', 'description', 'effects'],
@@ -16882,6 +16885,77 @@ app.get('/api/admin/winrates', requireSession, async (req, res) => {
     } catch (error) {
         console.error('Admin winrates load error:', error);
         return res.status(500).json({ error: 'Unable to load winrates.' });
+    }
+});
+
+app.get('/api/admin/top-teams', requireSession, async (req, res) => {
+    if (String(req.authUser?.role || '').trim().toLowerCase() !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required.' });
+    }
+
+    try {
+        const arena = normalizeArenaMode(req.query?.arena);
+        const mode = req.query?.mode === 'quick' ? 'quick' : 'ladder';
+        const days = [7, 30].includes(Number(req.query?.days)) ? Number(req.query.days) : null;
+        const roster = buildCharacterWinrateEntries({ arena });
+        const charactersByIndex = new Map(roster.map(({ characterIndex, name }) => [characterIndex, { name }]));
+        const matchFilter = {
+            ...buildHumanMatchStatsFilter({ arena, mode }),
+            adminRenderPreview: { $ne: true },
+            ...(days ? { endedAt: { $gte: new Date(Date.now() - days * 86400000) } } : {}),
+        };
+
+        const [result] = await matchesCollection.aggregate([
+            { $match: matchFilter },
+            { $project: { winner: 1, 'players.username': 1, 'players.team': 1 } },
+            { $unwind: '$players' },
+            { $match: { 'players.team': { $type: 'array', $size: 3 } } },
+            {
+                $project: {
+                    team: {
+                        $setUnion: [{
+                            $map: {
+                                input: '$players.team',
+                                in: { $convert: { input: '$$this', to: 'int', onError: null, onNull: null } },
+                            },
+                        }, []],
+                    },
+                    won: {
+                        $and: [
+                            { $ne: [{ $ifNull: ['$winner', ''] }, ''] },
+                            { $eq: [{ $toLower: '$players.username' }, { $toLower: '$winner' }] },
+                        ],
+                    },
+                },
+            },
+            { $match: { team: { $size: 3, $not: { $elemMatch: { $nin: [...charactersByIndex.keys()] } } } } },
+            {
+                $group: {
+                    _id: { $sortArray: { input: '$team', sortBy: 1 } },
+                    picks: { $sum: 1 },
+                    wins: { $sum: { $cond: ['$won', 1, 0] } },
+                },
+            },
+            {
+                $facet: {
+                    teams: [{ $sort: { picks: -1, wins: -1, _id: 1 } }, { $limit: 50 }],
+                    totals: [{ $group: { _id: null, picks: { $sum: '$picks' } } }],
+                },
+            },
+        ], { allowDiskUse: true }).toArray();
+
+        const totalPicks = result?.totals[0]?.picks || 0;
+        const teams = (result?.teams || []).map(({ _id, picks, wins }) => ({
+            characters: _id.map((index) => charactersByIndex.get(index)),
+            picks,
+            wins,
+            pickRate: 100 * picks / totalPicks,
+            winRate: 100 * wins / picks,
+        }));
+        return res.json({ arena, mode, days, totalPicks, teams });
+    } catch (error) {
+        console.error('Admin top teams load error:', error);
+        return res.status(500).json({ error: 'Unable to load top teams.' });
     }
 });
 
