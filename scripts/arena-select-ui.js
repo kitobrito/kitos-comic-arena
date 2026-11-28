@@ -8,7 +8,7 @@
  * working. New controls (match option picker, START MATCH, arrows, dots,
  * rankings, games switcher) drive the original elements.
  *
- * Opt out with ?layout=experimental (previous UI) or ?layout=classic.
+ * Open Cheshy with ?layout=experimental or Naruto-Arena with ?layout=naruto-arena.
  */
 (function () {
     'use strict';

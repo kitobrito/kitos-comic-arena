@@ -46,7 +46,6 @@ body.uil-pokemon .uil-card { --uil-accent: #ee1515; --uil-accent2: #ffcb05; back
 .uil-p-bar { left: 4px; right: 4px; top: 4px; height: 6px; background: #ffffff33; }
 .uil-p-biggrid { left: 4px; top: 14px; width: 56px; height: 40px; background: repeating-linear-gradient(90deg, #ffffff44 0 7px, transparent 7px 9px); }
 .uil-p-side { right: 4px; top: 14px; width: 24px; height: 40px; background: #ffffff22; }
-.uil-p-small { left: 30px; top: 16px; width: 32px; height: 26px; background: #ffffff33; box-shadow: inset 0 -6px 0 #ffffff22; }
 .uil-p-hud { left: 22px; right: 22px; top: 4px; height: 7px; background: #ffffff44; }
 .uil-p-rows { left: 6px; top: 15px; width: 50px; height: 26px; background: repeating-linear-gradient(0deg, #ffffff33 0 6px, transparent 6px 10px); }
 .uil-p-panel { left: 6px; right: 6px; bottom: 4px; height: 10px; background: #ffffff22; }
