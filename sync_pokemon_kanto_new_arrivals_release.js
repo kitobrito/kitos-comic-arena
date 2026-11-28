@@ -203,7 +203,7 @@ const newsPost = {
         },
         {
             type: 'paragraph',
-            text: 'Pinsir is a snowballing Bug-type gambler built entirely around Guillotine. Vice Grip, Seismic Toss, X-Scissor, and Rock Tomb all feed Guillotine\'s hit chance, and the first successful Guillotine permanently evolves him into Mega Pinsir - healing him, granting unpierceable defense, and upgrading Vice Grip into Struggle Bug.',
+            text: 'Pinsir improves Guillotine’s hit chance against marked enemies. The first successful Guillotine permanently evolves him into Mega Pinsir, heals him, grants unpierceable damage reduction, and upgrades Vice Grip to Struggle Bug.',
         },
         {
             type: 'paragraph',
@@ -221,7 +221,7 @@ const newsPost = {
     paragraphs: [
         'Four new Pokemon join the arena in this update: Marowak, Pinsir, Tauros, and Darkrai. Each opens its own unlock mission and comes with a complete kit and art set.',
         'Marowak is a Ground-type bruiser who equips a bone club to unlock his whole kit. Bone Club grants damage reduction that decays as he takes hits; Bone Rush spends it for a 2-4 hit flurry; Bonemerang hits twice across two turns and fully stuns a repeat target; Bone Guard grants a turn of invulnerability.',
-        'Pinsir is a snowballing Bug-type gambler built entirely around Guillotine. Vice Grip, Seismic Toss, X-Scissor, and Rock Tomb all feed Guillotine\'s hit chance, and the first successful Guillotine permanently evolves him into Mega Pinsir - healing him, granting unpierceable defense, and upgrading Vice Grip into Struggle Bug.',
+        'Pinsir improves Guillotine’s hit chance against marked enemies. The first successful Guillotine permanently evolves him into Mega Pinsir, heals him, grants unpierceable damage reduction, and upgrades Vice Grip to Struggle Bug.',
         'Tauros is a headstrong Normal-type bruiser. Horn Attack strips shield and damage reduction while stunning physical skills; Take-Down trades his own health for damage reduction and a cheaper Horn Attack; Earthquake is a channeled skill that batters everyone else on the field for 4 escalating turns while bypassing invulnerability; and STAMPEDE! locks down the enemy team for two full turns.',
         'Darkrai is a Dark-type controller built around Nightmare. Dark Void deals affliction damage and leaves a Barrier that turns into a stun if it goes unspent; Bad Dreams punishes every nightmared enemy every turn; Shadow Sneak deals bonus damage to nightmared targets and bypasses invulnerability; and Dark Portal makes Darkrai untouchable for as long as his target keeps dreaming.',
         'All four missions are live now - clear a 4-win streak with Aerodactyl and Onix on the same team to prove yourself before taking on each trial.',
@@ -232,9 +232,9 @@ const newsPost = {
         skillShowcase('marowak', 'marowak-bonemerang', 'Bonemerang hits twice across two turns and can fully stun a repeat target.'),
         skillShowcase('marowak', 'marowak-bone-guard', 'Bone Guard grants Marowak a turn of invulnerability.'),
         skillShowcase('pinsir', 'pinsir-vice-grip', 'Vice Grip disables damage reduction and invulnerability while feeding Guillotine\'s hit chance.'),
-        skillShowcase('pinsir', 'pinsir-seismic-toss', 'Pinsir Seismic Toss sets a counter on himself or an enemy that also boosts Guillotine.'),
-        skillShowcase('pinsir', 'pinsir-x-scissor', 'X-Scissor is a reliable piercing hit that crits guaranteed against marked targets.'),
-        skillShowcase('pinsir', 'pinsir-rock-tomb', 'Rock Tomb grants invulnerability and permanent destructible defense that keeps feeding Guillotine.'),
+        skillShowcase('pinsir', 'pinsir-seismic-toss', 'Seismic Toss counters the marked enemy’s next new skill and permanently improves Guillotine’s hit chance against that enemy.'),
+        skillShowcase('pinsir', 'pinsir-guillotine', 'Guillotine has a 30% base chance to deal 50 piercing damage. A miss shortens its cooldown.'),
+        skillShowcase('pinsir', 'pinsir-rock-tomb', 'Rock Tomb gives Pinsir temporary destructible defense. The marked enemy is stunned and takes damage equal to the defense remaining when the mark ends.'),
         skillShowcase('pinsir', 'pinsir-mega-pinsir-passive', 'The first successful Guillotine permanently evolves Pinsir into Mega Pinsir.'),
         skillShowcase('tauros', 'tauros-horn-attack', 'Horn Attack strips shield and damage reduction while stunning physical skills.'),
         skillShowcase('tauros', 'tauros-take-down', 'Take-Down trades health for damage reduction and a cheaper Horn Attack.'),
