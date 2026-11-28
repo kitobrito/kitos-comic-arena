@@ -2528,20 +2528,6 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         return normalizeVisiblePokemonTypes(character?.pokemonTypes);
     };
 
-    const shouldUseWideRankHatOffset = (rankHatUrl = '') => {
-        const normalized = typeof rankHatUrl === 'string' ? rankHatUrl.trim().toLowerCase() : '';
-        return (
-            normalized.endsWith('/anbu.png') ||
-            normalized.endsWith('assets/images/hats/anbu.png') ||
-            normalized.endsWith('/jinch.png') ||
-            normalized.endsWith('assets/images/hats/jinch.png') ||
-            normalized.endsWith('/kage.png') ||
-            normalized.endsWith('assets/images/hats/kage.png') ||
-            normalized.endsWith('/hokage.png') ||
-            normalized.endsWith('assets/images/hats/hokage.png')
-        );
-    };
-
     // Pokemon Arena has its own ten rank hats (assets/images/hats/pokemon/rank-01..10.png), one per ladder tier,
     // drawn around a 75x75 picture on a 127x127 canvas. The server keeps one hat URL per tier; this swaps it.
     const POKEMON_RANK_HAT_BY_TIER = {
@@ -2559,7 +2545,6 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         const pokemon = currentMatchArena === 'pokemon';
         element.src = getArenaRankHatUrl(baseUrl, currentMatchArena);
         element.classList.toggle('rank-hat-pokemon', pokemon);
-        element.classList.toggle('rank-hat-offset-left', !pokemon && shouldUseWideRankHatOffset(baseUrl));
     };
     const applyRankHatPresentation = (elements, ladder) => {
         const hatUrl = ladder?.rankHatUrl || defaultLadderRankHat;
