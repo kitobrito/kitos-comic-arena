@@ -13455,15 +13455,12 @@ body.end-turn-modal-open .global-status-tooltip {
 
 .rank-hat {
     position: absolute;
-    left: -22px;
-    top: -22px;
+    left: -25px;
+    top: -25px;
+    width: 127px;
+    height: 127px;
     z-index: 10;
     pointer-events: none;
-}
-
-.rank-hat.rank-hat-offset-left {
-    left: -33px;
-    z-index: 10;
 }
 
 /* Pokemon Arena rank hats: a 127x127 canvas whose 75x75 middle (from 26,26) is the character's picture. */
