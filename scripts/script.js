@@ -20471,7 +20471,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
 
     const updateRosterPageButtons = () => {
         if (lastPageButton) {
-            const canGoBack = currentRosterPage > 0;
+            const canGoBack = totalPages > 1;
             lastPageButton.style.opacity = canGoBack ? '1' : '0.45';
             // Dimmed, but still catching taps: if it stopped taking them, a fast second tap would
             // fall through to the background and the phone would double-tap zoom the whole page.
@@ -20797,7 +20797,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 if (matchButton && !matchButton.disabled) matchButton.click();
             } else if (keyboardSelectionZone === 'pagination') {
                 const canChangePage = highlightedPageDirection === 'previous'
-                    ? currentRosterPage > 0
+                    ? totalPages > 1
                     : currentRosterPage < totalPages - 1;
                 const pageButton = highlightedPageDirection === 'previous'
                     ? lastPageButton
@@ -20916,7 +20916,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         }
         if (event.key === 'ArrowRight' && currentRosterPage < totalPages - 1) {
             setPageKeyboardHighlight('next');
-        } else if (event.key === 'ArrowLeft' && currentRosterPage > 0) {
+        } else if (event.key === 'ArrowLeft' && totalPages > 1) {
             setPageKeyboardHighlight('previous');
         }
     });
@@ -21099,12 +21099,12 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
 
     if (lastPageButton) {
         lastPageButton.addEventListener('click', () => {
-            if (currentRosterPage <= 0) return;
+            if (totalPages <= 1) return;
             if (keyboardSelectionZone === 'pagination') {
                 keyboardSelectionZone = 'roster';
                 highlightedRosterIndex = null;
             }
-            currentRosterPage -= 1;
+            currentRosterPage = (currentRosterPage + totalPages - 1) % totalPages;
             renderRosterPage();
         });
     }
