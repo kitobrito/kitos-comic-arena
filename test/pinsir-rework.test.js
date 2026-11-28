@@ -59,6 +59,8 @@ test('Guillotine replaces X-Scissor, deals 50 on a hit and uses a shorter cooldo
     ]);
     assert.deepEqual(pinsir.skills[guillotine].energy, ['Random']);
     assert.deepEqual(pinsir.skills[seismicToss].energy, ['Taijutsu']);
+    assert.ok(pinsir.skills[seismicToss].classes.includes('Invisible'));
+    assert.ok(pinsir.skills[rockTomb].classes.includes('Control'));
     const g = game();
     g.unit.hp = 60;
     g.foes[0].state.statuses.push({
@@ -105,6 +107,7 @@ test('Vice Grip disables reduction before damage and gives only its target a nex
 test('Seismic Toss counters even a helpful skill, and only triggered counters stack on that enemy', () => {
     const g = game();
     g.use('may', seismicToss, 'foe', 1);
+    assert.equal(status(g.foes[1], 'pinsir_seismic_toss_mark').metadata.hidden, true);
     g.pass('may');
     g.use('foe', 1, 'foe', 1, 1);
     assert.equal(g.foes[1].hp, 70);
@@ -128,6 +131,7 @@ test('Rock Tomb spends its remaining defense on the marked enemy and stuns even 
     for (const hits of [1, 2]) {
         const g = game();
         g.use('may', rockTomb, 'foe', 2);
+        assert.equal(status(g.foes[2], 'pinsir_rock_tomb_mark').metadata.ongoingClass, 'control');
         assert.equal(status(g.unit, 'pinsir_rock_tomb_defense').metadata.destructibleDefensePoints, 30);
         g.pass('may');
         for (let slot = 0; slot < hits; slot++) g.use('foe', 0, 'may', 0, slot);
