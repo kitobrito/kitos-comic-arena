@@ -55,3 +55,18 @@ test('each skill Cyndaquil uses adds 5, and an attacker takes that much back as 
     g.use('foe', 0, 'ash');
     assert.equal(before - g.foes[0].hp, 10, 'the attacker takes Warming-Up damage');
 });
+
+test('Aerial Flamethrower starts at 5 to every enemy and grows with Warming-Up', () => {
+    const g = game();
+    g.use('ash', idx('cyndaquil-aerial-flamethrower'), 'foe', 0);
+    assert.deepEqual(g.foes.map((f) => f.hp), [95, 95, 95], 'first use: 5 base, nothing stored yet');
+    assert.equal(warm(g.unit).metadata.skillDamageBonuses['cyndaquil-warming-up'], 5);
+    g.pass('ash'); g.pass('foe');
+    g.unit.state.cooldowns = {};
+    g.use('ash', idx('cyndaquil-aerial-tackle'), 'foe', 1);
+    g.pass('ash'); g.pass('foe');
+    g.unit.state.cooldowns = {};
+    g.foes.forEach((f) => { f.hp = 100; });
+    g.use('ash', idx('cyndaquil-aerial-flamethrower'), 'foe', 0);
+    assert.deepEqual(g.foes.map((f) => f.hp), [85, 85, 85], 'after 2 skills: 5 + 10');
+});
