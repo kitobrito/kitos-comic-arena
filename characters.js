@@ -35439,8 +35439,8 @@ const characters = [
                 "id": "pinsir-seismic-toss",
                 "name": "Seismic Toss",
                 "skillimage": "assets/images/PokemonArena/pinsir/seismictoss.jpg",
-                "skilldescription": "Marks one enemy for 1 turn. If they use a new skill, it is countered and they take 30 damage. Guillotine permanently gains 15 percentage points of hit chance against that enemy. This bonus stacks.",
-                "description": "Marks one enemy for 1 turn. If they use a new skill, it is countered and they take 30 damage. Guillotine permanently gains 15 percentage points of hit chance against that enemy. This bonus stacks.",
+                "skilldescription": "Invisibly marks one enemy for 1 turn. If they use a new skill, it is countered and they take 30 damage. Guillotine permanently gains 15 percentage points of hit chance against that enemy. This bonus stacks.",
+                "description": "Invisibly marks one enemy for 1 turn. If they use a new skill, it is countered and they take 30 damage. Guillotine permanently gains 15 percentage points of hit chance against that enemy. This bonus stacks.",
                 "energy": [
                     "Taijutsu"
                 ],
@@ -35509,7 +35509,7 @@ const characters = [
                 "classes": [
                     "Rock",
                     "Strategic",
-                    "Instant"
+                    "Control"
                 ],
                 "effects": [
                     {
