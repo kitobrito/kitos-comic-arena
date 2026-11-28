@@ -3872,7 +3872,7 @@ const applyOnSkillCounteredOrIgnoredBonuses = ({
 const isHarmfulEffect = (effect) => {
     const type = effect?.type;
     if (type === 'damage' || type === 'health_steal_damage') return true;
-    if (type === 'execute_below_hp') return true;
+    if (type === 'execute_below_hp' || type === 'pinsir_guillotine') return true;
     if (type === 'destroy_destructible_defense') return true;
     if (type === 'reduce_destructible_defense') return true;
     if (type === 'modify_cooldowns') {
@@ -4747,43 +4747,6 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
             }
         }
     }
-    // Pinsir's Rock Tomb: while its destructible defense is up, any enemy that
-    // damages Pinsir bumps Guillotine's hit chance -- an approximation of "any
-    // enemy that targets him" narrowed to "damages him", same narrow ID-gated
-    // pattern as the Bone Club hook above.
-    if (
-        dealt >= 0 &&
-        context?.sourceUsername &&
-        context?.targetUsername &&
-        context.sourceUsername !== context.targetUsername
-    ) {
-        const rockTomb = (Array.isArray(targetState.statuses) ? targetState.statuses : []).find(
-            (entry) =>
-                entry?.id === 'pinsir_rock_tomb_active' &&
-                (Number(entry?.remainingTurns) || 0) > 0 &&
-                Math.max(0, Number(entry?.metadata?.destructibleDefensePoints) || 0) > 0
-        );
-        if (rockTomb) {
-            applyStatus({
-                targetState,
-                targetUnit: unit,
-                statusId: 'pinsir_guillotine_bonus',
-                duration: 99,
-                sourceSkillId: rockTomb?.sourceSkillId || null,
-                sourceUsername: rockTomb?.sourceUsername || null,
-                sourceSlot: Number.isInteger(rockTomb?.sourceSlot) ? rockTomb.sourceSlot : null,
-                metadata: {
-                    infiniteDuration: true,
-                    unremovable: true,
-                    hidden: true,
-                    pinsirGuillotineBonus: 8,
-                    mergeNumericAddKeys: ['pinsirGuillotineBonus'],
-                    tooltipTextTemplate: 'Guillotine has a {pinsirGuillotineBonus}% increased chance to hit.',
-                },
-                fresh: false,
-            });
-        }
-    }
     if (
         dealt > 0 &&
         !Boolean(context?.ignoreDamageDelay) &&
@@ -4955,6 +4918,20 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
                 : [];
             ids.forEach((id) => removeIds.add(id));
         });
+        const struggleBug = targetState.statuses.find((status) => status.id === 'pinsir_struggle_bug_evasion');
+        if (struggleBug && removeIds.has(struggleBug.id)) {
+            Object.entries(context?.match?.board || {}).forEach(([username, units]) => {
+                if (username === struggleBug.sourceUsername) return;
+                units.forEach((enemy) => {
+                    if (!enemy) return;
+                    const state = ensureUnitStateShape(enemy);
+                    state.statuses = state.statuses.filter((status) =>
+                        status.id !== 'pinsir_struggle_bug_guillotine_mark' ||
+                        status.sourceUsername !== struggleBug.sourceUsername ||
+                        status.sourceSlot !== struggleBug.sourceSlot);
+                });
+            });
+        }
         if (removeIds.size > 0) {
             targetState.statuses = (Array.isArray(targetState.statuses) ? targetState.statuses : []).filter(
                 (status) => !removeIds.has(status?.id)
@@ -8388,6 +8365,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
         const evadedRecipients = new Set();
         const evadeDecisionByRecipient = new Map();
         let skillInterrupted = false;
+        let guillotineHit = false;
         if (skillFailChancePercent > 0 && rollPercentSuccess(skillFailChancePercent)) {
             skillInterrupted = true;
             const failDamage = Math.max(0, skillFailDamageAmount || 15);
@@ -8405,6 +8383,48 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
             skillInterrupted = true;
             pendingDamage.clear();
         };
+        const seismicMark = actorState.statuses.find((status) => {
+            if (status.id !== 'pinsir_seismic_toss_mark' || !(status.remainingTurns > 0)) return false;
+            const source = match.board?.[status.sourceUsername]?.[status.sourceSlot];
+            return source && source.alive !== false;
+        });
+        if (!skillInterrupted && !skillCannotBeCountered && !queued.isAutoCast && seismicMark) {
+            cancelEntireSkill();
+            actorState.statuses = actorState.statuses.filter((status) => status !== seismicMark);
+            const source = {
+                sourceUsername: seismicMark.sourceUsername,
+                sourceSlot: seismicMark.sourceSlot,
+                sourceSkillId: seismicMark.sourceSkillId,
+            };
+            applyDamageToUnit(actorUnit, 30, {
+                ...source, match, targetUsername: actingUsername, targetSlot: actorSlot, damageDebugReason: 'counter',
+            });
+            applyStatus({
+                ...source,
+                targetState: actorState,
+                targetUnit: actorUnit,
+                statusId: `pinsir_seismic_toss_bonus_${seismicMark.sourceSlot}`,
+                duration: 999,
+                metadata: {
+                    harmful: true,
+                    infiniteDuration: true,
+                    unremovable: true,
+                    bypassTargetNonDamageIgnores: true,
+                    pinsirGuillotineBonus: 15,
+                    mergeNumericAddKeys: ['pinsirGuillotineBonus'],
+                    tooltipTextTemplate: 'Guillotine has a {pinsirGuillotineBonus} percentage point higher hit chance against this character.',
+                },
+            });
+            applyOnSkillCounteredOrIgnoredBonuses({
+                match,
+                actorState,
+                ownerUsername: actingUsername,
+                ownerSlot: actorSlot,
+                sourceUsername: seismicMark.sourceUsername,
+                sourceSlot: seismicMark.sourceSlot,
+                sourceSkillId: skill.id || null,
+            });
+        }
         const ownerCounterStatus = (Array.isArray(actorState.statuses) ? actorState.statuses : []).find(
             (status) =>
                 (Number(status?.remainingTurns) || 0) > 0 &&
@@ -8612,7 +8632,10 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 return Boolean(evadeDecisionByRecipient.get(recipientKey));
             }
             const targetState = ensureUnitStateShape(recipient.unit);
-            if (targetState._lastEvadeTurnMarker === turnMarker) {
+            const struggleBugEvasion = targetState.statuses.some((status) =>
+                status.id === 'pinsir_struggle_bug_evasion' && status.remainingTurns > 0 &&
+                status.metadata?.evadeChancePercent > 0);
+            if (targetState._lastEvadeTurnMarker === turnMarker && !struggleBugEvasion) {
                 evadeDecisionByRecipient.set(recipientKey, false);
                 return false;
             }
@@ -9221,180 +9244,52 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 }
                 return;
             }
-            if (effectType === 'pinsir_seismic_toss') {
-                // Draft interpretation: both the self- and enemy-targeted branches reuse
-                // whichever existing counter primitive is closest -- the self branch
-                // reflects damage taken (fires on every hit taken during the 1-turn
-                // window rather than strictly "the first"), the enemy branch reuses
-                // Machop's exact "first new damaging skill" counter mark. The 5-per-20HP
-                // amount is computed once, now, from Pinsir's current HP.
-                const recipients = resolveRecipients(effect);
-                const recipient = recipients[0] || null;
-                if (!recipient?.unit) return;
-                const counterAmount = 5 * Math.floor(Math.max(0, Number(actorUnit?.hp) || 0) / 20);
-                const isSelfTarget = recipient.username === actingUsername && recipient.slot === actorSlot;
-                const guillotineBonusStatus = {
-                    statusId: 'pinsir_guillotine_bonus',
-                    duration: 99,
-                    metadata: {
-                        infiniteDuration: true,
-                        unremovable: true,
-                        hidden: true,
-                        pinsirGuillotineBonus: 16,
-                        mergeNumericAddKeys: ['pinsirGuillotineBonus'],
-                        tooltipTextTemplate: 'Guillotine has a {pinsirGuillotineBonus}% increased chance to hit.',
-                    },
-                };
-                if (counterAmount > 0) {
-                    if (isSelfTarget) {
-                        applyStatus({
-                            targetState: actorState,
-                            targetUnit: actorUnit,
-                            statusId: 'pinsir_seismic_toss_guard',
-                            duration: 1,
-                            sourceSkillId: skill.id,
-                            sourceUsername: actingUsername,
-                            sourceSlot: actorSlot,
-                            metadata: {
-                                harmful: false,
-                                hidden: true,
-                                onOwnerDamagedDamageToSourceAmount: counterAmount,
-                                onOwnerDamagedApplyStatusToOwner: guillotineBonusStatus,
-                                tooltipTextTemplate: `Counters the next attack against Pinsir for ${counterAmount} damage.`,
-                            },
-                            fresh: false,
-                        });
-                    } else {
-                        applyStatus({
-                            targetState: ensureUnitStateShape(recipient.unit),
-                            targetUnit: recipient.unit,
-                            statusId: 'pinsir_seismic_toss_mark',
-                            duration: 1,
-                            sourceSkillId: skill.id,
-                            sourceUsername: actingUsername,
-                            sourceSlot: actorSlot,
-                            metadata: {
-                                harmful: true,
-                                hidden: true,
-                                counterOwnerNextNewDamagingSkill: true,
-                                onExpireEffects: [
-                                    {
-                                        type: 'damage',
-                                        amount: counterAmount,
-                                        scope: 'target',
-                                        metadata: {
-                                            ignoreDamageReduction: true,
-                                            ignoreDestructibleDefense: true,
-                                            onSuccessfulDamageApplyStatusToSourceOwner: guillotineBonusStatus,
-                                        },
-                                    },
-                                ],
-                            },
-                            fresh: false,
-                        });
-                    }
-                }
-                return;
-            }
-            if (effectType === 'pinsir_x_scissor') {
-                const recipients = resolveRecipients(effect);
-                recipients.forEach((recipient) => {
-                    if (!recipient?.unit || recipient.unit.alive === false) return;
-                    const targetState = ensureUnitStateShape(recipient.unit);
-                    const hasCritConditionStatus = (Array.isArray(targetState.statuses) ? targetState.statuses : []).some(
-                        (status) =>
-                            (status?.id === 'pinsir_vice_grip_mark' || status?.id === 'pinsir_struggle_bug_mark') &&
-                            (Number(status?.remainingTurns) || 0) > 0
-                    );
-                    const isCrit = hasCritConditionStatus || battleRandom() * 100 < 25;
-                    const amount = isCrit ? 30 : 15;
-                    queueDamage(recipient, amount, {
-                        ...effect,
-                        metadata: { ...(effect?.metadata || {}), ignoreDamageReduction: true, criticalHit: isCrit },
-                    });
-                    applyStatus({
-                        targetState: actorState,
-                        targetUnit: actorUnit,
-                        statusId: 'pinsir_guillotine_bonus',
-                        duration: 99,
-                        sourceSkillId: skill.id,
-                        sourceUsername: actingUsername,
-                        sourceSlot: actorSlot,
-                        metadata: {
-                            infiniteDuration: true,
-                            unremovable: true,
-                            hidden: true,
-                            pinsirGuillotineBonus: isCrit ? 16 : 8,
-                            mergeNumericAddKeys: ['pinsirGuillotineBonus'],
-                            tooltipTextTemplate: 'Guillotine has a {pinsirGuillotineBonus}% increased chance to hit.',
-                        },
-                        fresh: false,
-                    });
-                });
-                return;
-            }
             if (effectType === 'pinsir_guillotine') {
-                const bonusStatus = actorState.statuses.find((status) => status?.id === 'pinsir_guillotine_bonus');
-                const bonusChance = Math.max(0, Number(bonusStatus?.metadata?.pinsirGuillotineBonus) || 0);
-                const chance = Math.min(100, 30 + bonusChance);
-                const recipients = resolveRecipients(effect);
-                recipients.forEach((recipient) => {
+                resolveRecipients(effect).forEach((recipient) => {
                     if (!recipient?.unit || recipient.unit.alive === false) return;
-                    if (battleRandom() * 100 >= chance) return;
-                    queueDamage(recipient, 99999, {
+                    const key = `${recipient.username}:${recipient.slot}`;
+                    const targetState = ensureUnitStateShape(recipient.unit);
+                    if (
+                        counteredRecipientKeys.has(key) ||
+                        isUnitInvulnerableForSkill(recipient.unit, skill.classes || []) ||
+                        doesTargetIgnoreSkillByClass({
+                            targetState, skillClasses: skill.classes || [], isEnemySkill: recipient.username !== actingUsername,
+                        }) ||
+                        shouldCancelByEvade(recipient)
+                    ) return;
+                    const marks = targetState.statuses.filter((status) =>
+                        status.sourceUsername === actingUsername && status.sourceSlot === actorSlot &&
+                        (Number(status.remainingTurns) || 0) > 0);
+                    const nextTurnMark = (id) => marks.some((status) => status.id === id && status.remainingTurns === 1);
+                    const guaranteed = hasStatus(actorState, 'pinsir_struggle_bug_evasion') &&
+                        nextTurnMark('pinsir_struggle_bug_guillotine_mark');
+                    const viceGripBonus = nextTurnMark('pinsir_vice_grip_guillotine_mark') ? 25 : 0;
+                    const seismicBonus = marks.find((status) => status.id === `pinsir_seismic_toss_bonus_${actorSlot}`)
+                        ?.metadata?.pinsirGuillotineBonus || 0;
+                    const chance = guaranteed ? 100 : Math.min(100, 30 + viceGripBonus + seismicBonus);
+                    if (!rollPercentSuccess(chance)) return;
+                    guillotineHit = true;
+                    queueDamage(recipient, effect.amount, {
                         ...effect,
                         metadata: {
-                            ...(effect?.metadata || {}),
-                            fixedDamage: true,
                             ignoreDamageReduction: true,
                             ignoreDestructibleDefense: true,
-                        },
-                    });
-                    applyStatus({
-                        targetState: actorState,
-                        targetUnit: actorUnit,
-                        statusId: 'pinsir_guillotine_bonus',
-                        duration: 99,
-                        sourceSkillId: skill.id,
-                        sourceUsername: actingUsername,
-                        sourceSlot: actorSlot,
-                        metadata: {
-                            infiniteDuration: true,
-                            unremovable: true,
-                            hidden: true,
-                            pinsirGuillotineBonus: 15,
-                            mergeNumericAddKeys: ['pinsirGuillotineBonus'],
-                            tooltipTextTemplate: 'Guillotine has a {pinsirGuillotineBonus}% increased chance to hit.',
-                        },
-                        fresh: false,
-                    });
-                    // Passive: Mega Pinsir -- triggers once, the first time Guillotine succeeds.
-                    const alreadyMegaEvolved = actorState.statuses.some(
-                        (status) => status?.id === 'pinsir_mega_evolved'
-                    );
-                    if (!alreadyMegaEvolved) {
-                        applyHealToUnit(actorUnit, 25);
-                        applyStatus({
-                            targetState: actorState,
-                            targetUnit: actorUnit,
-                            statusId: 'pinsir_mega_evolved',
-                            duration: 999,
-                            sourceSkillId: skill.id,
-                            sourceUsername: actingUsername,
-                            sourceSlot: actorSlot,
-                            metadata: {
-                                harmful: false,
-                                infiniteDuration: true,
-                                unremovable: true,
-                                hidden: true,
-                                unpierceableDamageReductionFlat: 10,
-                                skillReplacements: { 'pinsir-vice-grip': 'pinsir-struggle-bug' },
-                                tooltipText:
-                                    'Mega Pinsir: Vice Grip has permanently become Struggle Bug, and Pinsir has 10 unpierceable damage reduction.',
+                            onLandedDamageApplyStatusToOwner: hasStatus(actorState, 'pinsir_mega_evolved') ? null : {
+                                statusId: 'pinsir_mega_evolved',
+                                duration: 999,
+                                metadata: {
+                                    infiniteDuration: true,
+                                    unremovable: true,
+                                    hidden: true,
+                                    bypassTargetNonDamageIgnores: true,
+                                    healOnApplyFlat: 25,
+                                    unpierceableDamageReductionFlat: 10,
+                                    skillReplacements: { 'pinsir-vice-grip': 'pinsir-struggle-bug' },
+                                    tooltipText: 'Mega Pinsir: Vice Grip has permanently become Struggle Bug, and Pinsir has 10 unpierceable damage reduction.',
+                                },
                             },
-                            fresh: false,
-                        });
-                    }
+                        },
+                    });
                 });
                 return;
             }
@@ -11392,6 +11287,10 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                             unremovable: true,
                         };
                     }
+                    if (runtimeStatusId === 'pinsir_struggle_bug_evasion') {
+                        const maxHp = Math.max(1, Number(actorUnit.hpCap || actorUnit.maxHp) || DEFAULT_HP);
+                        runtimeMetadata.evadeChancePercent = Math.max(0, maxHp - actorUnit.hp);
+                    }
                     const copySourceCurrentHpToKeys = Array.isArray(runtimeMetadata?.copySourceCurrentHpToKeys)
                         ? runtimeMetadata.copySourceCurrentHpToKeys.filter(
                               (key) => typeof key === 'string' && key
@@ -13334,6 +13233,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
         const adjustedCooldownTurns = Math.max(
             0,
             cooldownTurns -
+                (skill.id === 'pinsir-guillotine' && !guillotineHit ? 2 : 0) -
                 Math.max(0, Number(cooldownReduction) || 0) +
                 useScalingCooldownBonus +
                 selfStatusCooldownIncrease
@@ -14713,6 +14613,16 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
             });
         }
     });
+    // A removed Rock Tomb mark cannot expire, but its shield still ends with the opponent's turn.
+    players.forEach((player) => {
+        if (!player?.username || player.username === endingUsername) return;
+        (match.board?.[player.username] || []).forEach((unit) => {
+            const state = unit?.state;
+            if (!state || !hasStatus(state, 'pinsir_rock_tomb_defense')) return;
+            state.statuses = state.statuses.filter((status) => status.id !== 'pinsir_rock_tomb_defense');
+            refreshDerivedStatusTooltips(state);
+        });
+    });
 };
 
 const applyOnTeamMemberUseSkillBonuses = ({ match, actorState, actingUsername, skill, skillIsMental }) => {
@@ -15572,6 +15482,37 @@ const triggerStoredStatusEffects = ({
                     fresh: false,
                 });
             }
+        }
+        return;
+    }
+    if (status.id === 'pinsir_rock_tomb_mark') {
+        const sourceUnit = match.board?.[status.sourceUsername]?.[status.sourceSlot];
+        if (!sourceUnit) return;
+        const sourceState = ensureUnitStateShape(sourceUnit);
+        const defense = sourceState.statuses.find((entry) => entry.id === 'pinsir_rock_tomb_defense');
+        sourceState.statuses = sourceState.statuses.filter((entry) => entry !== defense);
+        if (targetUnit.alive === false) return;
+        const damage = Math.max(0, Number(defense?.metadata?.destructibleDefensePoints) || 0);
+        const skillClasses = status.metadata?._sourceSkillClasses || [];
+        if (isUnitInvulnerableForSkill(targetUnit, skillClasses)) return;
+        applyDamageToUnit(targetUnit, damage, {
+            match, targetUsername, targetSlot, skillClasses,
+            sourceUsername: status.sourceUsername,
+            sourceSlot: status.sourceSlot,
+            sourceSkillId: status.sourceSkillId,
+        });
+        if (targetUnit.alive !== false && !hasStatusMetadataFlag(targetState, 'ignoreHarmfulNonDamageEffects')) {
+            applyStatus({
+                targetState: Array.isArray(pendingStatuses) ? { statuses: pendingStatuses } : targetState,
+                targetUnit,
+                statusId: 'pinsir_rock_tomb_stun',
+                duration: 1,
+                sourceUsername: status.sourceUsername,
+                sourceSlot: status.sourceSlot,
+                sourceSkillId: status.sourceSkillId,
+                metadata: { harmful: true, cannotUseSkills: true, tooltipText: 'This character is stunned.' },
+                fresh: false,
+            });
         }
         return;
     }

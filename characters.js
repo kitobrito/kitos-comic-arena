@@ -35388,13 +35388,19 @@ const characters = [
                 "id": "pinsir-vice-grip",
                 "name": "Vice Grip",
                 "skillimage": "assets/images/PokemonArena/pinsir/vicegrip.jpg",
-                "skilldescription": "Makes one enemy unable to reduce damage or become invulnerable for 1 turn and deals 20 damage to them. Guillotine has an 8% increased chance to hit (stacks). Swaps to \"Guillotine\" for 1 turn.",
-                "description": "Makes one enemy unable to reduce damage or become invulnerable for 1 turn and deals 20 damage to them. Guillotine has an 8% increased chance to hit (stacks). Swaps to \"Guillotine\" for 1 turn.",
-                "energy": ["Taijutsu"],
+                "skilldescription": "Makes one enemy unable to reduce damage or become invulnerable for 1 turn, then deals 20 damage to them. On Pinsir’s next turn, Guillotine has a 25 percentage point higher chance to hit this enemy.",
+                "description": "Makes one enemy unable to reduce damage or become invulnerable for 1 turn, then deals 20 damage to them. On Pinsir’s next turn, Guillotine has a 25 percentage point higher chance to hit this enemy.",
+                "energy": [
+                    "Taijutsu"
+                ],
                 "target": "single-enemy",
                 "damage": 0,
                 "cooldown": 0,
-                "classes": ["Normal", "Physical", "Instant"],
+                "classes": [
+                    "Normal",
+                    "Physical",
+                    "Instant"
+                ],
                 "effects": [
                     {
                         "type": "apply_status",
@@ -35416,92 +35422,48 @@ const characters = [
                     },
                     {
                         "type": "apply_status",
-                        "statusId": "pinsir_guillotine_bonus",
-                        "duration": 99,
-                        "scope": "self",
+                        "statusId": "pinsir_vice_grip_guillotine_mark",
+                        "duration": 2,
+                        "scope": "target",
                         "metadata": {
-                            "infiniteDuration": true,
-                            "unremovable": true,
-                            "hidden": true,
-                            "pinsirGuillotineBonus": 8,
-                            "mergeNumericAddKeys": ["pinsirGuillotineBonus"],
-                            "tooltipTextTemplate": "Guillotine has a {pinsirGuillotineBonus}% increased chance to hit."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "pinsir_guillotine_swap",
-                        "duration": 1,
-                        "scope": "self",
-                        "metadata": {
-                            "harmful": false,
-                            "hidden": true,
-                            "skillReplacements": { "pinsir-vice-grip": "pinsir-guillotine" },
-                            "tooltipText": "Vice Grip has swapped to Guillotine for 1 turn."
-                        }
+                            "harmful": true,
+                            "turnDurationAnchor": "source_turn",
+                            "allowDuplicateStatusInstances": true,
+                            "tooltipText": "Guillotine has a 25 percentage point higher hit chance against this character on Pinsir’s next turn."
+                        },
+                        "fresh": false
                     }
                 ]
             },
             {
                 "id": "pinsir-seismic-toss",
-                "name": "Pinsir Seismic Toss",
+                "name": "Seismic Toss",
                 "skillimage": "assets/images/PokemonArena/pinsir/seismictoss.jpg",
-                "skilldescription": "Pinsir targets himself or an enemy for 1 turn. If an enemy uses a new skill on Pinsir (if on self) or if the target (if on enemy) uses a new harmful skill, they will be countered and dealt 5 damage for every 20 HP Pinsir has. If successful, \"Guillotine\" has a 16% increased chance to hit (stacks). Invisible.",
-                "description": "Pinsir targets himself or an enemy for 1 turn. If an enemy uses a new skill on Pinsir (if on self) or if the target (if on enemy) uses a new harmful skill, they will be countered and dealt 5 damage for every 20 HP Pinsir has. If successful, \"Guillotine\" has a 16% increased chance to hit (stacks). Invisible.",
-                "energy": ["Taijutsu"],
-                "target": "single-character",
-                "damage": 0,
-                "cooldown": 2,
-                "classes": ["Fighting", "Physical", "Instant", "Invisible"],
-                "effects": [{ "type": "pinsir_seismic_toss", "scope": "target" }]
-            },
-            {
-                "id": "pinsir-x-scissor",
-                "name": "X-Scissor",
-                "skillimage": "assets/images/PokemonArena/pinsir/xscissor.jpg",
-                "skilldescription": "Deals 15 piercing damage to one enemy. This has a 25% chance to critical hit for 15 additional damage. If the target is affected by \"Vice Grip\" or \"Struggle Bug\", this has a 100% chance to critical hit. \"Guillotine\" has an 8% increased chance to hit (stacks), which is increased to 16% if this skill critical hits.",
-                "description": "Deals 15 piercing damage to one enemy. This has a 25% chance to critical hit for 15 additional damage. If the target is affected by \"Vice Grip\" or \"Struggle Bug\", this has a 100% chance to critical hit. \"Guillotine\" has an 8% increased chance to hit (stacks), which is increased to 16% if this skill critical hits.",
-                "energy": ["Random"],
+                "skilldescription": "Marks one enemy for 1 turn. If they use a new skill, it is countered and they take 30 damage. Guillotine permanently gains 15 percentage points of hit chance against that enemy. This bonus stacks.",
+                "description": "Marks one enemy for 1 turn. If they use a new skill, it is countered and they take 30 damage. Guillotine permanently gains 15 percentage points of hit chance against that enemy. This bonus stacks.",
+                "energy": [
+                    "Taijutsu"
+                ],
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 1,
-                "classes": ["Bug", "Physical", "Instant"],
-                "effects": [{ "type": "pinsir_x_scissor", "scope": "target" }]
-            },
-            {
-                "id": "pinsir-rock-tomb",
-                "name": "Rock Tomb",
-                "skillimage": "assets/images/PokemonArena/pinsir/rocktomb.jpg",
-                "skilldescription": "Pinsir becomes invulnerable for 1 turn and gains 30 points of permanent destructible defense. While he has this destructible defense, any enemy that targets him will increase the hit chance of \"Guillotine\" by 8% (stacks).",
-                "description": "Pinsir becomes invulnerable for 1 turn and gains 30 points of permanent destructible defense. While he has this destructible defense, any enemy that targets him will increase the hit chance of \"Guillotine\" by 8% (stacks).",
-                "energy": ["Random"],
-                "target": "self",
-                "damage": 0,
-                "cooldown": 6,
-                "classes": ["Rock", "Strategic", "Instant"],
+                "cooldown": 2,
+                "classes": [
+                    "Fighting",
+                    "Physical",
+                    "Instant",
+                    "Invisible"
+                ],
                 "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "pinsir_rock_tomb_invulnerable",
+                        "statusId": "pinsir_seismic_toss_mark",
                         "duration": 1,
-                        "scope": "self",
+                        "scope": "target",
                         "metadata": {
-                            "harmful": false,
-                            "invulnerable": true,
-                            "tooltipText": "Pinsir is invulnerable."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "pinsir_rock_tomb_active",
-                        "duration": 999,
-                        "scope": "self",
-                        "metadata": {
-                            "infiniteDuration": true,
-                            "unremovable": true,
-                            "destructibleDefensePoints": 30,
-                            "mergeNumericAddKeys": ["destructibleDefensePoints"],
-                            "tooltipTextTemplate": "Pinsir has {destructibleDefensePoints} destructible defense from Rock Tomb."
+                            "harmful": true,
+                            "hidden": true,
+                            "allowDuplicateStatusInstances": true,
+                            "tooltipText": "This character’s next new skill will be countered by Seismic Toss."
                         }
                     }
                 ]
@@ -35510,14 +35472,69 @@ const characters = [
                 "id": "pinsir-guillotine",
                 "name": "Guillotine",
                 "skillimage": "assets/images/PokemonArena/pinsir/guillotine.jpg",
-                "skilldescription": "Has a 30% chance to instantly kill one enemy. If successful, this has a 15% increased chance to hit (stacks).",
-                "description": "Has a 30% chance to instantly kill one enemy. If successful, this has a 15% increased chance to hit (stacks).",
-                "energy": ["Random"],
+                "skilldescription": "Has a 30% chance to deal 50 piercing damage to one enemy. If Guillotine fails to hit, its cooldown is reduced by 2.",
+                "description": "Has a 30% chance to deal 50 piercing damage to one enemy. If Guillotine fails to hit, its cooldown is reduced by 2.",
+                "energy": [
+                    "Random"
+                ],
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 2,
-                "classes": ["Normal", "Physical", "Instant"],
-                "effects": [{ "type": "pinsir_guillotine", "scope": "target" }]
+                "cooldown": 4,
+                "classes": [
+                    "Normal",
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "pinsir_guillotine",
+                        "amount": 50,
+                        "scope": "target"
+                    }
+                ]
+            },
+            {
+                "id": "pinsir-rock-tomb",
+                "name": "Rock Tomb",
+                "skillimage": "assets/images/PokemonArena/pinsir/rocktomb.jpg",
+                "skilldescription": "Pinsir gains 30 destructible defense for 1 turn and marks one enemy. When the mark ends, the enemy takes damage equal to the remaining Rock Tomb defense and is stunned for 1 turn.",
+                "description": "Pinsir gains 30 destructible defense for 1 turn and marks one enemy. When the mark ends, the enemy takes damage equal to the remaining Rock Tomb defense and is stunned for 1 turn.",
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Rock",
+                    "Strategic",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "pinsir_rock_tomb_mark",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "allowDuplicateStatusInstances": true,
+                            "tooltipText": "When Rock Tomb ends, this character will take damage equal to its remaining defense and be stunned for 1 turn."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "pinsir_rock_tomb_defense",
+                        "duration": 2,
+                        "scope": "self",
+                        "metadata": {
+                            "destructibleDefensePoints": 30,
+                            "tooltipTextTemplate": "Pinsir has {destructibleDefensePoints} destructible defense from Rock Tomb."
+                        },
+                        "fresh": false
+                    }
+                ]
             },
             {
                 "id": "pinsir-mega-pinsir-passive",
@@ -35529,65 +35546,58 @@ const characters = [
                 "target": "",
                 "damage": 0,
                 "cooldown": 0,
-                "classes": ["Bug", "Strategic", "Passive", "Instant"],
+                "classes": [
+                    "Bug",
+                    "Strategic",
+                    "Passive",
+                    "Instant"
+                ],
                 "effects": []
             },
             {
                 "id": "pinsir-struggle-bug",
                 "name": "Struggle Bug",
                 "skillimage": "assets/images/PokemonArena/pinsir/strugglebug.jpg",
-                "skilldescription": "One enemy becomes permanently unable to reduce damage or become invulnerable and is dealt 30 damage. Guillotine has a 10% increased chance to hit (stacks). Swaps to \"Guillotine\" for 1 turn.",
-                "description": "One enemy becomes permanently unable to reduce damage or become invulnerable and is dealt 30 damage. Guillotine has a 10% increased chance to hit (stacks). Swaps to \"Guillotine\" for 1 turn.",
-                "energy": ["Taijutsu", "Random"],
+                "skilldescription": "Pinsir gains 1% evade chance for every HP he is missing and marks one enemy. On Pinsir’s next turn, Guillotine has a 100% chance to hit this enemy. This effect ends early if Pinsir takes damage.",
+                "description": "Pinsir gains 1% evade chance for every HP he is missing and marks one enemy. On Pinsir’s next turn, Guillotine has a 100% chance to hit this enemy. This effect ends early if Pinsir takes damage.",
+                "energy": [
+                    "Taijutsu",
+                    "Random"
+                ],
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 0,
-                "classes": ["Bug", "Physical", "Instant"],
+                "cooldown": 2,
+                "classes": [
+                    "Bug",
+                    "Physical",
+                    "Instant"
+                ],
                 "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "pinsir_struggle_bug_mark",
-                        "duration": 999,
+                        "statusId": "pinsir_struggle_bug_guillotine_mark",
+                        "duration": 2,
                         "scope": "target",
                         "metadata": {
                             "harmful": true,
-                            "infiniteDuration": true,
-                            "cannotReduceDamage": true,
-                            "cannotBecomeInvulnerable": true,
-                            "tooltipText": "This character can never reduce damage or become invulnerable."
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 30,
-                        "scope": "target",
-                        "metadata": {}
+                            "turnDurationAnchor": "source_turn",
+                            "allowDuplicateStatusInstances": true,
+                            "tooltipText": "Guillotine has a 100% hit chance against this character on Pinsir’s next turn if Pinsir has not taken damage."
+                        },
+                        "fresh": false
                     },
                     {
                         "type": "apply_status",
-                        "statusId": "pinsir_guillotine_bonus",
-                        "duration": 99,
+                        "statusId": "pinsir_struggle_bug_evasion",
+                        "duration": 2,
                         "scope": "self",
                         "metadata": {
-                            "infiniteDuration": true,
-                            "unremovable": true,
-                            "hidden": true,
-                            "pinsirGuillotineBonus": 10,
-                            "mergeNumericAddKeys": ["pinsirGuillotineBonus"],
-                            "tooltipTextTemplate": "Guillotine has a {pinsirGuillotineBonus}% increased chance to hit."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "pinsir_guillotine_swap",
-                        "duration": 1,
-                        "scope": "self",
-                        "metadata": {
-                            "harmful": false,
-                            "hidden": true,
-                            "skillReplacements": { "pinsir-struggle-bug": "pinsir-guillotine" },
-                            "tooltipText": "Struggle Bug has swapped to Guillotine for 1 turn."
-                        }
+                            "removeStatusIdsOnNewDamage": [
+                                "pinsir_struggle_bug_evasion"
+                            ],
+                            "tooltipTextTemplate": "Pinsir has {evadeChancePercent}% evade chance until he takes damage or the effect ends."
+                        },
+                        "fresh": false
                     }
                 ]
             }
@@ -35598,8 +35608,8 @@ const characters = [
         "hidden": false,
         "hiddenFromSelection": false,
         "roleCategory": "spike-dps",
-        "description": "A gambler's bruiser that spends every skill feeding Guillotine's hit chance, snowballing toward a one-hit kill and a permanent Mega Pinsir upgrade the moment it lands.",
-        "descriptionHtml": "A gambler's bruiser that spends every skill feeding Guillotine's hit chance, snowballing toward a one-hit kill and a permanent Mega Pinsir upgrade the moment it lands.",
+        "description": "Pinsir marks individual enemies to improve Guillotine's hit chance. His first successful Guillotine permanently Mega Evolves him.",
+        "descriptionHtml": "Pinsir marks individual enemies to improve Guillotine's hit chance. His first successful Guillotine permanently Mega Evolves him.",
         "pokemonTypes": ["Bug"]
     },
     {

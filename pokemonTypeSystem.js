@@ -200,7 +200,7 @@ const skillsByType = {
         'beedrill-hive-sting', 'beedrill-evolution-mega', 'mega-beedrill-fell-stinger',
         'beedrill-hive-swarm-mega', 'nincada-struggle-bug', 'ninjask-skitter-smack',
         'ninjask-speed-boost', 'shedinja-bug-buzz', 'shedinja-wonder-guard',
-        'pinsir-x-scissor', 'pinsir-struggle-bug', 'pinsir-mega-pinsir-passive',
+        'pinsir-struggle-bug', 'pinsir-mega-pinsir-passive',
     ],
     Rock: [
         'aerodactyl-passive-mega-aerodactyl', 'aerodactyl-passive-rock-blast',
