@@ -33,7 +33,42 @@ const IPHONE_TEAM_TAP = [
     p('iPhone: double tapping a character in Your Team now removes them every time, and double tapping a character in the roster adds them. iPhones could swallow the first of the two taps, so the second one only highlighted the character instead of removing or adding it.'),
 ];
 
+const TOP_TEAMS = p('The admin Winrates page now has a Top Teams tab. It ranks three-character lineups by pick rate and shows picks, wins, and win rate. Admins can filter completed matches between players by Ladder or Quick Match and by the last 7 days, last 30 days, or all available history. The same three characters count as one lineup in any slot order.');
+
 const POSTS = [
+    {
+        releaseVersion: 'patch-2026-11-28-comic-rank-hats-top-teams',
+        title: 'Comic Arena: New Rank Hats and Top Teams',
+        arena: 'comic',
+        author: 'kito',
+        blocks: [
+            p('All ten Comic Arena ladder ranks have new battle hats. The artwork fits around the 75×75 character portraits. Here is Batman wearing every design, from the Spider-Man web shooter to the Infinity Gauntlet.'),
+            {
+                type: 'image',
+                src: '/assets/images/news/comic-arena-rank-hats.png',
+                alt: 'Batman wearing all ten Comic Arena rank hats, including the Spider-Man web shooter and the updated Aquaman trident.',
+            },
+            p('From the first rank to the last, the designs are the Spider-Man web shooter, Batman belt, Captain America shield, Mister Freeze gun, Aquaman trident, Cyclops eyes, Carnage weapons, lightsabers, Space Racer infinity ray, and Thanos infinity gauntlet.'),
+            TOP_TEAMS,
+        ],
+    },
+    {
+        releaseVersion: 'patch-2026-11-28-pinsir-blaziken-top-teams',
+        title: 'Pokemon Arena: Pinsir Rework, Blaze Kick, and Top Teams',
+        arena: 'pokemon',
+        author: 'kito',
+        blocks: [
+            p('Pinsir’s kit now revolves around picking a target and improving Guillotine’s hit chance against that enemy. Guillotine replaces X-Scissor.'),
+            p('Guillotine costs 1 random energy and has a 30% base chance to deal 50 piercing damage to one enemy. It has a 4-turn cooldown, reduced to 2 on a miss.'),
+            p('Vice Grip costs 1 green energy with no cooldown. It prevents one enemy from reducing damage or becoming invulnerable for 1 turn, then deals 20 damage. On Pinsir’s next turn, Guillotine gains 25 percentage points of hit chance against that enemy.'),
+            p('Seismic Toss costs 1 green energy with a 2-turn cooldown. It marks an enemy for 1 turn and counters their next skill for 30 damage. Each successful counter permanently adds 15 percentage points to Guillotine’s hit chance against that target. This stacks.'),
+            p('Rock Tomb costs 2 random energy with a 3-turn cooldown. Pinsir gains 30 destructible defense for 1 turn and marks an enemy. When the mark ends, the enemy takes damage equal to the remaining defense and is stunned for 1 turn.'),
+            p('The first successful Guillotine still Mega Evolves Pinsir, heals 25 HP, grants 10 unpierceable damage reduction, and replaces Vice Grip with Struggle Bug. Struggle Bug costs 1 green and 1 random energy with a 2-turn cooldown. Pinsir gains 1% evade per missing HP and marks an enemy for a guaranteed Guillotine hit next turn. Taking damage ends the effect early.'),
+            divider,
+            p('Blaziken’s Blaze Kick costs 2 red energy with a 1-turn cooldown. It deals 30 affliction damage to the selected enemy and 5 to each other enemy. Blaziken’s next harmful skill deals 35 additional affliction damage.'),
+            TOP_TEAMS,
+        ],
+    },
     {
         releaseVersion: 'patch-2026-11-25-shattered-tcg-comic',
         title: 'Comic Arena: Shattered Realms Is Now Shattered TCG',
