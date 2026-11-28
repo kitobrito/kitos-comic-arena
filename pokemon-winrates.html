@@ -20,6 +20,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   <link rel="stylesheet" href="styles/pokemon-winrates.css?v=ground-up-v1" />
   <link rel="stylesheet" href="/styles/tri-portal.css?v=pokemon-action-colors-v1" />
   <script src="/scripts/tri-portal.js?v=theatre-4"></script>
+  <style>
+    .winrates-views { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem; }
+    .winrates-views button[aria-pressed="true"] { outline: 2px solid currentColor; outline-offset: -4px; }
+    .top-teams-table-wrap { overflow-x: auto; }
+    .top-teams-table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+    .top-teams-table th, .top-teams-table td { padding: 0.65rem; border-bottom: 1px solid currentColor; text-align: right; }
+    .top-teams-table th:first-child { text-align: left; }
+    #character-winrates-panel[hidden], #top-teams-panel[hidden], #top-teams-table[hidden] { display: none; }
+  </style>
 </head>
 <body class="pp-body pp-has-tabbar" data-page-arena="pokemon" data-portal-section="home">
 <!-- Google Tag Manager (noscript) -->
@@ -60,7 +69,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <p class="pp-lede" style="margin:8px 0 0;">Track who is taking over the ladder and reset the numbers.</p>
       </section>
 
-      <section class="pp-panel">
+      <div class="pp-winrates-toolbar winrates-views" role="group" aria-label="Winrates view">
+        <button class="pp-btn pp-btn-primary" type="button" id="show-character-winrates" aria-controls="character-winrates-panel" aria-pressed="true">Character Winrates</button>
+        <button class="pp-btn pp-btn-primary" type="button" id="show-top-teams" aria-controls="top-teams-panel" aria-pressed="false">Top Teams</button>
+      </div>
+      <section class="pp-panel" id="character-winrates-panel">
         <div class="pp-winrates-toolbar">
           <div>
             <h2 class="pp-panel-title" id="winrates-board-title" style="margin:0 0 4px;">Battle Board</h2>
@@ -70,6 +83,31 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
         <p class="pp-status" id="winrates-status" aria-live="polite"></p>
         <div class="pp-winrates-grid" id="winrates-grid"></div>
+      </section>
+      <section class="pp-panel" id="top-teams-panel" hidden>
+        <h2>Top Teams</h2>
+        <div class="pp-winrates-toolbar winrates-views">
+          <label>Match type
+            <select id="top-teams-mode">
+              <option value="ladder">Ladder</option>
+              <option value="quick">Quick Match</option>
+            </select>
+          </label>
+          <label>Date range
+            <select id="top-teams-days">
+              <option value="7">Last 7 days</option>
+              <option value="30" selected>Last 30 days</option>
+              <option value="all">All available history</option>
+            </select>
+          </label>
+        </div>
+        <p class="pp-status" id="top-teams-status" role="status"></p>
+        <div class="top-teams-table-wrap">
+          <table class="top-teams-table" id="top-teams-table" hidden aria-label="Most-used teams">
+            <thead><tr><th scope="col">Team</th><th scope="col">Picks</th><th scope="col">Pick rate</th><th scope="col">Wins</th><th scope="col">Win rate</th></tr></thead>
+            <tbody id="top-teams-rows"></tbody>
+          </table>
+        </div>
       </section>
     </div>
 
@@ -221,6 +259,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     });
   }());
 </script>
-<script src="./scripts/index.js?v=ground-up-v1&news-skill-image-fix-v1&home-switch-link-v1&news-name-link-v1&news-changes-id-lookup-v1" defer></script>
+<script src="./scripts/index.js?v=top-teams-v1&ground-up-v1&news-skill-image-fix-v1&home-switch-link-v1&news-name-link-v1&news-changes-id-lookup-v1" defer></script>
 </body>
 </html>

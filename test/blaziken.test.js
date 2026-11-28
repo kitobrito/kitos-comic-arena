@@ -66,6 +66,7 @@ test('costs and cooldowns match the design (red = Bloodline, yellow = Genjutsu)'
     assert.deepEqual(by['blaziken-fiery-roar'].energy, ['Bloodline', 'Random']);
     assert.equal(by['blaziken-fiery-roar'].cooldown, 3);
     assert.deepEqual(by['blaziken-blaze-kick'].energy, ['Bloodline', 'Bloodline']);
+    assert.equal(by['blaziken-blaze-kick'].cooldown, 1);
     assert.ok(by['blaziken-passive-mega-blaziken'].classes.includes('Passive'));
     assert.ok(!by['blaziken-blaze-kick'].hiddenFromSelectionViewer, 'Blaze Kick shows on her skills page');
 });
@@ -125,7 +126,7 @@ test('a charge that never lands does not Mega Evolve', () => {
     assert.equal(status(g.unit, 'blaziken_mega_evolution'), undefined);
 });
 
-test('Blaze Kick: 5 to the team, then 2 harmful skills deal 35 more; Mega only happens once', () => {
+test('Blaze Kick: 30 to the target and 5 to the others, then one harmful skill deals 35 more; Mega only happens once', () => {
     const g = game();
     g.use('may', skill('blaziken-fiery-roar'), 'foe', 0);
     g.round();
@@ -134,14 +135,15 @@ test('Blaze Kick: 5 to the team, then 2 harmful skills deal 35 more; Mega only h
     g.foes.forEach((f) => { f.hp = 100; });
     g.unit.hp = 50;
     g.use('may', skill('blaziken-fiery-roar'), 'foe', 0);
-    assert.deepEqual(g.foes.map((f) => f.hp), [95, 95, 95], 'Blaze Kick 5 base');
-    assert.equal(status(g.unit, 'blaziken_blaze_kick_charge').metadata.nextHarmfulSkillBonusUses, 2);
+    assert.deepEqual(g.foes.map((f) => f.hp), [70, 95, 95], 'Blaze Kick hits the selected enemy harder');
+    assert.equal(status(g.unit, 'blaziken_blaze_kick_charge').metadata.nextHarmfulSkillBonusUses, 1);
     g.round();
     g.use('may', skill('blaziken-smoldering-roundhouse'), 'foe', 0);
-    assert.equal(g.foes[0].hp, 40, '15 + 5 + 35');
+    assert.equal(g.foes[0].hp, 15, '15 + 5 + 35');
+    assert.equal(status(g.unit, 'blaziken_blaze_kick_charge'), undefined);
     g.round();
     g.use('may', skill('blaziken-smoldering-roundhouse'), 'foe', 1);
-    assert.equal(g.foes[1].hp, 30, '95 - (15 + (5+5) + (35+5))');
+    assert.equal(g.foes[1].hp, 70, '95 - (15 + (5+5))');
     g.round();
     g.use('may', skill('blaziken-smoldering-roundhouse'), 'foe', 2);
     assert.equal(g.foes[2].hp, 65, 'charges spent: 15 + (5+10)');

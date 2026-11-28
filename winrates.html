@@ -847,6 +847,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   <link rel="stylesheet" href="styles/portal-theme.css?v=na-portal-v3&sr-cleanup-v1" />
   <link rel="stylesheet" href="/styles/tri-portal.css?v=pokemon-action-colors-v1" />
   <script src="/scripts/tri-portal.js?v=theatre-4"></script>
+  <style>
+    .winrates-views { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem; }
+    .winrates-views button[aria-pressed="true"] { outline: 2px solid currentColor; outline-offset: -4px; }
+    .top-teams-table-wrap { overflow-x: auto; }
+    .top-teams-table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+    .top-teams-table th, .top-teams-table td { padding: 0.65rem; border-bottom: 1px solid currentColor; text-align: right; }
+    .top-teams-table th:first-child { text-align: left; }
+    #character-winrates-panel[hidden], #top-teams-panel[hidden], #top-teams-table[hidden] { display: none; }
+  </style>
 </head>
 <body>
 <!-- Google Tag Manager (noscript) -->
@@ -973,7 +982,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </section>
 
 
-      <section class="stats-board">
+      <div class="winrates-toolbar winrates-views" role="group" aria-label="Winrates view">
+        <button class="winrates-reset" type="button" id="show-character-winrates" aria-controls="character-winrates-panel" aria-pressed="true">Character Winrates</button>
+        <button class="winrates-reset" type="button" id="show-top-teams" aria-controls="top-teams-panel" aria-pressed="false">Top Teams</button>
+      </div>
+      <section class="stats-board" id="character-winrates-panel">
         <div class="stats-head">
           <div>
             <h2 class="stats-title" id="winrates-board-title">Battle Board</h2>
@@ -985,6 +998,31 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
         <p class="winrates-status" id="winrates-status" aria-live="polite"></p>
         <div class="winrates-grid" id="winrates-grid"></div>
+      </section>
+      <section class="stats-board" id="top-teams-panel" hidden>
+        <h2>Top Teams</h2>
+        <div class="winrates-toolbar winrates-views">
+          <label>Match type
+            <select id="top-teams-mode">
+              <option value="ladder">Ladder</option>
+              <option value="quick">Quick Match</option>
+            </select>
+          </label>
+          <label>Date range
+            <select id="top-teams-days">
+              <option value="7">Last 7 days</option>
+              <option value="30" selected>Last 30 days</option>
+              <option value="all">All available history</option>
+            </select>
+          </label>
+        </div>
+        <p class="winrates-status" id="top-teams-status" role="status"></p>
+        <div class="top-teams-table-wrap">
+          <table class="top-teams-table" id="top-teams-table" hidden aria-label="Most-used teams">
+            <thead><tr><th scope="col">Team</th><th scope="col">Picks</th><th scope="col">Pick rate</th><th scope="col">Wins</th><th scope="col">Win rate</th></tr></thead>
+            <tbody id="top-teams-rows"></tbody>
+          </table>
+        </div>
       </section>
     </main>
 
@@ -1080,7 +1118,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </section>
     </aside>
   </div>
-  <script src="./scripts/index.js" defer></script>
+  <script src="./scripts/index.js?v=top-teams-v1" defer></script>
   <script src="./scripts/arena-navigation.js?v=pokemon-sidebar-v4&pokemon-home-link-v1&pokemon-page-bg-v1&pokemon-page-switch-fix-v1&comic-root-default-v1" defer></script>
 </body>
 </html>

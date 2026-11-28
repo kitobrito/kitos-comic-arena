@@ -37015,29 +37015,35 @@ const characters = [
                 "id": "blaziken-blaze-kick",
                 "name": "Blaze Kick",
                 "skillimage": "assets/images/PokemonArena/blaziken/blaze-kick.webp",
-                "skilldescription": "Blaziken deals 5 affliction damage to the enemy team and makes its next 2 harmful skills deal 35 additional affliction damage. This may not be used while active.",
+                "skilldescription": "Deals 30 affliction damage to one enemy and 5 affliction damage to the others. Blaziken's next harmful skill will deal 35 additional affliction damage.",
                 "energy": [
                     "Bloodline",
                     "Bloodline"
                 ],
-                "target": "all-enemy",
+                "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 3,
+                "cooldown": 1,
                 "useBaseSkillCooldown": true,
-                    "classes": [
+                "classes": [
                     "Fire",
                     "Physical",
                     "Affliction",
                     "Instant"
                 ],
-                "actorCondition": {
-                    "missingStatusId": "blaziken_blaze_kick_charge"
-                },
+                "actorCondition": null,
                 "effects": [
                     {
                         "type": "damage",
+                        "amount": 30,
+                        "scope": "target",
+                        "metadata": {
+                            "afflictionDamage": true
+                        }
+                    },
+                    {
+                        "type": "damage",
                         "amount": 5,
-                        "scope": "all-enemy",
+                        "scope": "other-enemies",
                         "metadata": {
                             "afflictionDamage": true
                         }
@@ -37051,9 +37057,9 @@ const characters = [
                         "metadata": {
                             "infiniteDuration": true,
                             "nextHarmfulSkillAfflictionBonus": 35,
-                            "nextHarmfulSkillBonusUses": 2,
+                            "nextHarmfulSkillBonusUses": 1,
                             "statusIconUrl": "assets/images/PokemonArena/blaziken/blaze-kick.webp",
-                            "tooltipTextTemplate": "Blaziken's next {nextHarmfulSkillBonusUses} harmful skill(s) deal 35 additional affliction damage."
+                            "tooltipText": "Blaziken's next harmful skill deals 35 additional affliction damage."
                         }
                     }
                 ]
