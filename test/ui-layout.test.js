@@ -23,24 +23,29 @@ const runLoader = ({ page = 'selection', search = '', stored = {} } = {}) => {
     return { classes: [...classes].sort(), layout: attrs['data-ui-layout'], api: window.ArenaUiLayout, storage };
 };
 
-test('character select: Arena by default, the saved choice otherwise, and ?layout= still wins', () => {
+test('character select: Classic by default, with saved layouts and URL overrides', () => {
     assert.deepEqual(runLoader().classes, ['selection-experimental', 'selection-mockup']);
     assert.deepEqual(runLoader({ stored: { 'uiLayout.selection': 'scroll' } }).classes, ['selection-scroll']);
     assert.deepEqual(runLoader({ stored: { 'uiLayout.selection': 'experimental' } }).classes, ['selection-experimental']);
-    assert.deepEqual(runLoader({ stored: { 'uiLayout.selection': 'classic' } }).classes, []);
-    assert.deepEqual(runLoader({ search: '?layout=classic', stored: { 'uiLayout.selection': 'scroll' } }).classes, []);
-    assert.deepEqual(runLoader({ search: '?layout=scroll' }).classes, ['selection-scroll']);
+    const retired = runLoader({ stored: { 'uiLayout.selection': 'classic' } });
+    assert.deepEqual(retired.classes, ['selection-experimental', 'selection-mockup']);
+    assert.equal(retired.storage['uiLayout.selection'], 'arena');
+    assert.deepEqual(runLoader({ search: '?layout=classic', stored: { 'uiLayout.selection': 'scroll' } }).classes, ['selection-experimental', 'selection-mockup']);
+    assert.deepEqual(runLoader({ search: '?layout=Naruto-Arena' }).classes, ['selection-scroll']);
 });
 
-test('in-game: Arena by default; Scroll, Classic and the battlefield beta are choices', () => {
+test('in-game: Classic by default, with Naruto-Arena and the battlefield beta', () => {
     assert.deepEqual(runLoader({ page: 'ingame' }).classes, ['battle-experimental']);
     assert.deepEqual(runLoader({ page: 'ingame', stored: { 'uiLayout.ingame': 'scroll' } }).classes, ['battle-scroll']);
-    assert.deepEqual(runLoader({ page: 'ingame', stored: { 'uiLayout.ingame': 'classic' } }).classes, []);
+    const retired = runLoader({ page: 'ingame', stored: { 'uiLayout.ingame': 'classic', battleExperimentalView: '1' } });
+    assert.deepEqual(retired.classes, ['battle-experimental']);
+    assert.equal(retired.storage['uiLayout.ingame'], 'arena');
+    assert.equal(retired.storage.battleExperimentalView, '0');
     const battlefield = runLoader({ page: 'ingame', stored: { 'uiLayout.ingame': 'battlefield' } });
     assert.equal(battlefield.layout, 'battlefield');
     // The old Experimental battlefield switch still counts as choosing it.
     assert.equal(runLoader({ page: 'ingame', stored: { battleExperimentalView: '1' } }).layout, 'battlefield');
-    assert.deepEqual(runLoader({ page: 'ingame', search: '?layout=classic' }).classes, []);
+    assert.deepEqual(runLoader({ page: 'ingame', search: '?layout=classic' }).classes, ['battle-experimental']);
 });
 
 test('saving a choice keeps the old battlefield switch in step and ignores unknown layouts', () => {
@@ -52,8 +57,10 @@ test('saving a choice keeps the old battlefield switch in step and ignores unkno
     assert.equal(storage.battleExperimentalView, '0');
     api.set('selection', 'nonsense');
     assert.equal(storage['uiLayout.selection'], undefined);
-    assert.equal(JSON.stringify(api.OPTIONS.selection.map((o) => o.id)), JSON.stringify(['arena', 'scroll', 'experimental', 'classic']));
-    assert.equal(JSON.stringify(api.OPTIONS.ingame.map((o) => o.id)), JSON.stringify(['arena', 'scroll', 'battlefield', 'classic']));
+    assert.equal(JSON.stringify(api.OPTIONS.selection.map((o) => o.id)), JSON.stringify(['arena', 'scroll', 'experimental']));
+    assert.equal(JSON.stringify(api.OPTIONS.ingame.map((o) => o.id)), JSON.stringify(['arena', 'scroll', 'battlefield']));
+    assert.equal(JSON.stringify(api.OPTIONS.selection.map((o) => o.name)), JSON.stringify(['Classic', 'Naruto-Arena', 'Cheshy']));
+    assert.equal(JSON.stringify(api.OPTIONS.ingame.map((o) => o.name)), JSON.stringify(['Classic', 'Naruto-Arena', 'Experimental battlefield']));
 });
 
 test('both pages load the loader first, the chooser, and their Scroll layout', () => {

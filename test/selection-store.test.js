@@ -12,16 +12,16 @@ const experimentalStyles = fs.readFileSync(
 );
 const server = fs.readFileSync(path.join(root, 'server.js'), 'utf8');
 
-test('selection starts in the new UI unless classic is explicitly requested', () => {
+test('selection keeps Cheshy reachable and uses the shared layout chooser', () => {
     assert.match(fs.readFileSync(path.join(root, 'scripts', 'ui-layout.js'), 'utf8'), /else if \(layout === 'experimental'\)/);
-    assert.match(html, /class="experimental-classic-link" href="selection\.html\?layout=classic"/);
+    assert.doesNotMatch(html, /class="experimental-classic-link" href="selection\.html\?layout=classic"/);
     assert.match(html, /class="classic-new-ui-button"[^>]*>New UI<\/button>/);
     assert.match(script, /nextUrl\.searchParams\.set\('layout', 'experimental'\)/);
     assert.match(script, /nextUrl\.searchParams\.set\('arena', arena\)/);
 });
 
-test('the arena select screen is the default layout and keeps the older ones reachable', () => {
-    // The layout is picked by scripts/ui-layout.js (Settings > User interface, or ?layout=): Arena is the default.
+test('Classic is the default character select layout', () => {
+    // The layout is picked by scripts/ui-layout.js (Settings > User interface, or ?layout=): Classic is the default.
     const layoutScript = fs.readFileSync(path.join(__dirname, '..', 'scripts', 'ui-layout.js'), 'utf8');
     assert.match(html, /scripts\/ui-layout\.js/);
     assert.match(layoutScript, /return 'arena';/);

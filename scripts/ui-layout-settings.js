@@ -22,11 +22,9 @@
         'selection:arena': '<i class="uil-p-stage"></i><i class="uil-p-strip"></i><i class="uil-p-btn"></i>',
         'selection:scroll': '<i class="uil-p-btns"></i><i class="uil-p-scroll"></i><i class="uil-p-grid"></i><i class="uil-p-team"></i>',
         'selection:experimental': '<i class="uil-p-bar"></i><i class="uil-p-biggrid"></i><i class="uil-p-side"></i>',
-        'selection:classic': '<i class="uil-p-small"></i>',
         'ingame:arena': '<i class="uil-p-hud"></i><i class="uil-p-rows"></i><i class="uil-p-panel"></i>',
         'ingame:scroll': '<i class="uil-p-hud"></i><i class="uil-p-scrolls"></i><i class="uil-p-foes"></i><i class="uil-p-infobar"></i>',
         'ingame:battlefield': '<i class="uil-p-ground"></i><i class="uil-p-figs"></i>',
-        'ingame:classic': '<i class="uil-p-small"></i>',
     };
 
     var render = function () {

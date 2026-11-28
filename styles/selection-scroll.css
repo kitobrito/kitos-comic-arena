@@ -99,7 +99,7 @@ html.selection-scroll .game-button:hover .ss-emblem { transform: rotate(-8deg) s
 html.selection-scroll .game-button:active .ss-plaque { transform: translateY(2px); }
 
 /* ---- The roster scroll: the rod (x 25-85, y 404-715) and the framed paper (x 83-968, y 410-698). */
-html.selection-scroll .selectionscroll { position: absolute !important; left: 25px !important; top: 404px !important; width: 60px !important; height: 311px !important; z-index: 6 !important; transform: none !important; }
+html.selection-scroll .selectionscroll { position: absolute !important; left: 25px !important; top: 404px !important; width: 60px !important; height: 311px !important; z-index: 0 !important; transform: none !important; }
 html.selection-scroll .ss-panel { position: absolute; left: 83px; top: 410px; width: 885px; height: 288px; z-index: 2; box-sizing: border-box;
   border: 2px solid var(--ss-ink); background: var(--ss-frame); box-shadow: 3px 4px 0 #000000a8, inset 0 0 0 3px var(--ss-frame-dark); }
 html.selection-scroll .ss-panel-paper { position: absolute; left: 11px; top: 11px; right: 11px; bottom: 11px; border: 2px solid var(--ss-frame-dark);
@@ -115,8 +115,8 @@ html.selection-scroll .slot-list li { width: 64px !important; height: 64px !impo
 html.selection-scroll body.arena-mode-pokemon .slot-list li { background: #e6e9f0; }
 html.selection-scroll .slot-list li img { width: 100% !important; height: 100% !important; object-fit: cover; }
 html.selection-scroll .slot-list li:hover { outline: 3px solid var(--ss-accent); outline-offset: 0; z-index: 2; }
-/* The page arrows: back (62, 435), forward (636, 595). */
-html.selection-scroll .lastpage { position: absolute !important; left: 62px !important; top: 435px !important; width: 50px !important; height: 50px !important; z-index: 7 !important; cursor: pointer; transform: none !important; }
+/* The page arrows: back (17, 427), forward (636, 595). */
+html.selection-scroll .lastpage { position: absolute !important; left: 17px !important; top: 427px !important; width: 68px !important; height: 66px !important; z-index: 8 !important; cursor: pointer; transform: scaleX(-1) !important; }
 html.selection-scroll .nextpage { position: absolute !important; left: 636px !important; top: 595px !important; width: 54px !important; height: 55px !important; z-index: 7 !important; cursor: pointer; transform: none !important; }
 
 /* Buttons along the bottom of the scroll (y 667-684): FILTER, MISSIONS, STYLES; and STORE under the team. */

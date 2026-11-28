@@ -7,15 +7,13 @@
  * (old links and the e2e tests use it).
  *
  *   Character select (selection.html)
- *     arena         the arena select screen (default)          html.selection-experimental.selection-mockup
- *     scroll        the scroll layout (Naruto-Arena style)     html.selection-scroll
+ *     arena         Classic select screen (default)          html.selection-experimental.selection-mockup
+ *     scroll        Naruto-Arena layout     html.selection-scroll
  *     experimental  'Cheshy': large roster, toolbar top-right       html.selection-experimental
- *     classic       the oldest interface                       (no class)
  *   In-game (ingame.html)
- *     arena         the battle interface (default)             html.battle-experimental
- *     scroll        the scroll layout (Naruto-Arena style)     html.battle-scroll
+ *     arena         Classic battle interface (default)             html.battle-experimental
+ *     scroll        Naruto-Arena layout     html.battle-scroll
  *     battlefield   the experimental battlefield (beta)        html.arena-scene-preview... (localStorage battleExperimentalView)
- *     classic       the oldest interface                       (no class)
  */
 (function () {
     'use strict';
@@ -23,16 +21,14 @@
     var KEYS = { selection: 'uiLayout.selection', ingame: 'uiLayout.ingame' };
     var OPTIONS = {
         selection: [
-            { id: 'arena', name: 'Arena', blurb: 'The arena select screen: a big character stage, the roster below, and a Start Match button.' },
-            { id: 'scroll', name: 'Scroll', blurb: 'The classic arena look: a roster scroll with your team, Ladder, Quick and Private game buttons above it.', badge: 'New' },
+            { id: 'arena', name: 'Classic', blurb: 'A big character stage, the roster below, and a Start Match button.' },
+            { id: 'scroll', name: 'Naruto-Arena', blurb: 'A roster scroll with your team, Ladder, Quick and Private game buttons above it.' },
             { id: 'experimental', name: 'Cheshy', blurb: 'A large roster along the bottom, the character stage up top and the toolbar in the corner.' },
-            { id: 'classic', name: 'Classic', blurb: 'The original small interface.' },
         ],
         ingame: [
-            { id: 'arena', name: 'Arena', blurb: 'The battle interface: a framed board with the skill panel along the bottom.' },
-            { id: 'scroll', name: 'Scroll', blurb: 'The classic arena look: skill scrolls beside each character, the opponent’s team on the right, and scroll buttons at the bottom.', badge: 'New' },
+            { id: 'arena', name: 'Classic', blurb: 'The battle interface: a framed board with the skill panel along the bottom.' },
+            { id: 'scroll', name: 'Naruto-Arena', blurb: 'Skill scrolls beside each character, the opponent’s team on the right, and scroll buttons at the bottom.' },
             { id: 'battlefield', name: 'Experimental battlefield', blurb: 'Your characters stand on a 3D battlefield and act out their skills.', badge: 'Beta' },
-            { id: 'classic', name: 'Classic', blurb: 'The original small interface.' },
         ],
     };
 
@@ -44,6 +40,11 @@
     // counts as choosing the battlefield.
     var get = function (page) {
         var stored = read(KEYS[page]);
+        // The retired small layout used this key before Classic became the default.
+        if (stored === 'classic') {
+            set(page, 'arena');
+            return 'arena';
+        }
         if (valid(page, stored)) return stored;
         if (page === 'ingame' && read('battleExperimentalView') === '1') return 'battlefield';
         return 'arena';
@@ -60,9 +61,11 @@
         try { return new URLSearchParams(window.location.search).get('layout') || ''; } catch (e) { return ''; }
     };
     var current = function (page) {
-        var forced = urlLayout();
-        if (page === 'selection' && ['classic', 'experimental', 'scroll', 'arena', 'mockup'].indexOf(forced) >= 0) return forced === 'mockup' ? 'arena' : forced;
-        if (page === 'ingame' && ['classic', 'experimental', 'scroll', 'arena'].indexOf(forced) >= 0) return forced === 'experimental' ? 'arena' : forced;
+        var forced = urlLayout().toLowerCase();
+        if (forced === 'classic' || (page === 'selection' && forced === 'mockup') ||
+            (page === 'ingame' && forced === 'experimental')) return 'arena';
+        if (forced === 'naruto-arena') return 'scroll';
+        if (valid(page, forced)) return forced;
         return get(page);
     };
 
